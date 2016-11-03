@@ -106,7 +106,7 @@ static OMX_ERRORTYPE release_out_buffer (mp3meta_prc_t *ap_prc)
   assert (ap_prc);
   if (ap_prc->p_out_hdr_)
     {
-      tiz_check_omx_err (tiz_krn_release_buffer (
+      tiz_check_omx (tiz_krn_release_buffer (
           tiz_get_krn (handleOf (ap_prc)),
           ARATELIA_MP3_METADATA_ERASER_PORT_INDEX, ap_prc->p_out_hdr_));
       ap_prc->p_out_hdr_ = NULL;
@@ -209,7 +209,7 @@ static OMX_ERRORTYPE remove_metadata (mp3meta_prc_t *ap_prc)
 
   if (p_out->nFilledLen > 0 || ap_prc->eos_)
     {
-      tiz_check_omx_err (release_out_buffer (ap_prc));
+      tiz_check_omx (release_out_buffer (ap_prc));
     }
 
   return OMX_ErrorNone;
@@ -261,7 +261,7 @@ static OMX_ERRORTYPE mp3meta_prc_allocate_resources (void *ap_obj,
   assert (p_prc);
   assert (NULL == p_prc->p_uri_param_);
 
-  tiz_check_omx_err (obtain_uri (p_prc));
+  tiz_check_omx (obtain_uri (p_prc));
 
   assert (p_prc->p_uri_param_);
 

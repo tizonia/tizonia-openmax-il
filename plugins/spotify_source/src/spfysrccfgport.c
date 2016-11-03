@@ -56,9 +56,9 @@ static void *spfysrc_cfgport_ctor (void *ap_obj, va_list *app)
 
   assert (p_obj);
 
-  tiz_check_omx_err_ret_null (tiz_port_register_index (
+  tiz_check_omx_ret_null (tiz_port_register_index (
       p_obj, OMX_TizoniaIndexParamAudioSpotifySession));
-  tiz_check_omx_err_ret_null (tiz_port_register_index (
+  tiz_check_omx_ret_null (tiz_port_register_index (
       p_obj, OMX_TizoniaIndexParamAudioSpotifyPlaylist));
 
   /* Initialize the OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE structure */

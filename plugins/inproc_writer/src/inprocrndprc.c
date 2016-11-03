@@ -137,7 +137,7 @@ static OMX_ERRORTYPE release_header (inprocrnd_prc_t *ap_prc)
                  ap_prc->p_inhdr_);
       ap_prc->p_inhdr_->nOffset = 0;
       ap_prc->p_inhdr_->nFilledLen = 0;
-      tiz_check_omx_err (tiz_krn_release_buffer (
+      tiz_check_omx (tiz_krn_release_buffer (
           tiz_get_krn (handleOf (ap_prc)), ARATELIA_INPROC_WRITER_PORT_INDEX,
           ap_prc->p_inhdr_));
       ap_prc->p_inhdr_ = NULL;

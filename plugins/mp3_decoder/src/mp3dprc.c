@@ -93,7 +93,7 @@ static OMX_ERRORTYPE release_headers (const void *ap_obj, OMX_U32 a_pid)
             }
 
           p_obj->p_inhdr_->nOffset = 0;
-          tiz_check_omx_err (tiz_krn_release_buffer (
+          tiz_check_omx (tiz_krn_release_buffer (
               tiz_get_krn (handleOf (ap_obj)),
               ARATELIA_MP3_DECODER_INPUT_PORT_INDEX, p_obj->p_inhdr_));
           p_obj->p_inhdr_ = NULL;
@@ -116,7 +116,7 @@ static OMX_ERRORTYPE release_headers (const void *ap_obj, OMX_U32 a_pid)
                      "Releasing output HEADER [%p] nFilledLen [%d] nAllocLen [%d]",
                      p_obj->p_outhdr_, p_obj->p_outhdr_->nFilledLen,
                      p_obj->p_outhdr_->nAllocLen);
-          tiz_check_omx_err (tiz_krn_release_buffer (
+          tiz_check_omx (tiz_krn_release_buffer (
               tiz_get_krn (handleOf (ap_obj)),
               ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX, p_obj->p_outhdr_));
           p_obj->p_outhdr_ = NULL;
@@ -362,7 +362,7 @@ static OMX_ERRORTYPE update_pcm_mode (mp3d_prc_t *ap_prc,
                  ap_prc->pcmmode_.nChannels, a_channels);
       ap_prc->pcmmode_.nSamplingRate = a_samplerate;
       ap_prc->pcmmode_.nChannels = a_channels;
-      tiz_check_omx_err (tiz_krn_SetParameter_internal (
+      tiz_check_omx (tiz_krn_SetParameter_internal (
           tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
           OMX_IndexParamAudioPcm, &(ap_prc->pcmmode_)));
       tiz_srv_issue_event ((OMX_PTR)ap_prc, OMX_EventPortSettingsChanged,
@@ -736,13 +736,13 @@ static OMX_ERRORTYPE mp3d_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
   init_mad_decoder (ap_obj);
 
   TIZ_INIT_OMX_PORT_STRUCT (mp3type, ARATELIA_MP3_DECODER_INPUT_PORT_INDEX);
-  tiz_check_omx_err (tiz_api_GetParameter (tiz_get_krn (handleOf (p_prc)),
+  tiz_check_omx (tiz_api_GetParameter (tiz_get_krn (handleOf (p_prc)),
                                            handleOf (p_prc),
                                            OMX_IndexParamAudioMp3, &mp3type));
 
   TIZ_INIT_OMX_PORT_STRUCT (p_prc->pcmmode_,
                             ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX);
-  tiz_check_omx_err (
+  tiz_check_omx (
       tiz_api_GetParameter (tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
                             OMX_IndexParamAudioPcm, &(p_prc->pcmmode_)));
 
@@ -811,10 +811,10 @@ static OMX_ERRORTYPE mp3d_proc_buffers_ready (const void *ap_obj)
             }
         }
 
-      tiz_check_omx_err (decode_buffer (ap_obj));
+      tiz_check_omx (decode_buffer (ap_obj));
       if (p_obj->p_inhdr_ != NULL && (0 == p_obj->p_inhdr_->nFilledLen))
         {
-          tiz_check_omx_err (
+          tiz_check_omx (
               release_headers (p_obj, ARATELIA_MP3_DECODER_INPUT_PORT_INDEX));
         }
     }
@@ -823,7 +823,7 @@ static OMX_ERRORTYPE mp3d_proc_buffers_ready (const void *ap_obj)
     {
       /* EOS has been received and all the input data has been consumed
        * already, so its time to propagate the EOS flag */
-      tiz_check_omx_err (
+      tiz_check_omx (
           release_headers (p_obj, ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX));
     }
 

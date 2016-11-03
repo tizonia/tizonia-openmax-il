@@ -197,20 +197,20 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   assert (ap_hdl);
 
   /* Initialize the component infrastructure */
-  tiz_check_omx_err (tiz_comp_init (ap_hdl, TC_COMPONENT_NAME));
+  tiz_check_omx (tiz_comp_init (ap_hdl, TC_COMPONENT_NAME));
 
   /* Register the "tiztcprc" class */
-  tiz_check_omx_err (tiz_comp_register_types (ap_hdl, tf_list, 1));
+  tiz_check_omx (tiz_comp_register_types (ap_hdl, tf_list, 1));
 
   /* Register two roles */
-  tiz_check_omx_err (tiz_comp_register_roles (ap_hdl, rf_list, 2));
+  tiz_check_omx (tiz_comp_register_roles (ap_hdl, rf_list, 2));
 
   /* Register alloc hooks */
-  tiz_check_omx_err (tiz_comp_register_alloc_hooks
+  tiz_check_omx (tiz_comp_register_alloc_hooks
                      (ap_hdl, &new_hooks, &old_hooks));
 
   /* Register egl image validation hook */
-  tiz_check_omx_err (tiz_comp_register_eglimage_hook
+  tiz_check_omx (tiz_comp_register_eglimage_hook
                      (ap_hdl, &egl_validation_hook));
 
   /* Verify that the old hooks have been returned */

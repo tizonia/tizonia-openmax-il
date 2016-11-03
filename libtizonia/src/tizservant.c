@@ -698,11 +698,11 @@ srv_io_watcher_init (void * ap_obj, tiz_event_io_t ** app_ev_io, int a_fd,
   /* We lazily initialise the watchers map */
   if (!p_srv->p_watchers_)
     {
-      tiz_check_omx_err (tiz_map_init (&(p_srv->p_watchers_),
-                                       watchers_map_compare_func,
-                                       watchers_map_free_func, p_srv->p_soa_));
+      tiz_check_omx (tiz_map_init (&(p_srv->p_watchers_),
+                                   watchers_map_compare_func,
+                                   watchers_map_free_func, p_srv->p_soa_));
     }
-  tiz_check_omx_err (
+  tiz_check_omx (
     tiz_event_io_init (app_ev_io, handleOf (p_srv), tiz_comp_event_io, p_srv));
   assert (*app_ev_io);
   tiz_event_io_set (*app_ev_io, a_fd, a_event, only_once);
@@ -740,7 +740,7 @@ srv_io_watcher_start (void * ap_obj, tiz_event_io_t * ap_ev_io)
           p_id->id = p_srv->watcher_id_++;
           id = p_id->id;
           index = tiz_map_size (p_srv->p_watchers_);
-          tiz_check_omx_err (
+          tiz_check_omx (
             tiz_map_insert (p_srv->p_watchers_, ap_ev_io, p_id, &index));
           rc = tiz_event_io_start (ap_ev_io, id);
           TIZ_TRACE (handleOf (ap_obj),
@@ -824,9 +824,9 @@ srv_timer_watcher_init (void * ap_obj, tiz_event_timer_t ** app_ev_timer)
   /* We lazily initialise the watchers map */
   if (!p_srv->p_watchers_)
     {
-      tiz_check_omx_err (tiz_map_init (&(p_srv->p_watchers_),
-                                       watchers_map_compare_func,
-                                       watchers_map_free_func, p_srv->p_soa_));
+      tiz_check_omx (tiz_map_init (&(p_srv->p_watchers_),
+                                   watchers_map_compare_func,
+                                   watchers_map_free_func, p_srv->p_soa_));
     }
 
   return tiz_event_timer_init (app_ev_timer, handleOf (p_srv),
@@ -865,7 +865,7 @@ srv_timer_watcher_start (void * ap_obj, tiz_event_timer_t * ap_ev_timer,
           id = p_id->id;
           tiz_event_timer_set (ap_ev_timer, a_after, a_repeat);
           index = tiz_map_size (p_srv->p_watchers_);
-          tiz_check_omx_err (
+          tiz_check_omx (
             tiz_map_insert (p_srv->p_watchers_, ap_ev_timer, p_id, &index));
           rc = tiz_event_timer_start (ap_ev_timer, id);
           TIZ_TRACE (handleOf (ap_obj),
@@ -910,7 +910,7 @@ srv_timer_watcher_restart (void * ap_obj, tiz_event_timer_t * ap_ev_timer)
       p_id->id = p_srv->watcher_id_++;
       id = p_id->id;
       index = tiz_map_size (p_srv->p_watchers_);
-      tiz_check_omx_err (
+      tiz_check_omx (
         tiz_map_insert (p_srv->p_watchers_, ap_ev_timer, p_id, &index));
       rc = tiz_event_timer_restart (ap_ev_timer, id);
       TIZ_TRACE (handleOf (ap_obj),

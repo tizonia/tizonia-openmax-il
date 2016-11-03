@@ -68,8 +68,7 @@ store_metadata (tiz_configport_t * ap_obj,
   {
     const OMX_U32 count = tiz_vector_length (ap_obj->p_metadata_lst_);
     assert (count == ap_obj->metadata_count_.nMetadataItemCount);
-    tiz_check_omx_err (
-      tiz_vector_push_back (ap_obj->p_metadata_lst_, &ap_meta));
+    tiz_check_omx (tiz_vector_push_back (ap_obj->p_metadata_lst_, &ap_meta));
     ap_obj->metadata_count_.nMetadataItemCount++;
     TIZ_TRACE (handleOf (ap_obj), "storing metadata [%d] [%s] - count [%u]...",
                ap_obj->metadata_count_.nMetadataItemCount, ap_meta->nKey,
@@ -130,7 +129,7 @@ configport_ctor (void * ap_obj, va_list * app)
   p_obj->metadata_count_.nScopeSpecifier = 0;
   p_obj->metadata_count_.nMetadataItemCount = 0;
 
-  tiz_check_omx_err_ret_null (
+  tiz_check_omx_ret_null (
     tiz_vector_init (&(p_obj->p_metadata_lst_), sizeof (OMX_PTR)));
 
   /* OMX_TIZONIA_PLAYLISTSKIPTYPE */
@@ -143,19 +142,19 @@ configport_ctor (void * ap_obj, va_list * app)
   tiz_vector_clear (p_base->p_indexes_);
 
   /* Register the indexes we are interested in */
-  tiz_check_omx_err_ret_null (
+  tiz_check_omx_ret_null (
     tiz_port_register_index (p_obj, OMX_IndexParamDisableResourceConcealment));
-  tiz_check_omx_err_ret_null (
+  tiz_check_omx_ret_null (
     tiz_port_register_index (p_obj, OMX_IndexParamSuspensionPolicy));
-  tiz_check_omx_err_ret_null (
+  tiz_check_omx_ret_null (
     tiz_port_register_index (p_obj, OMX_IndexParamPriorityMgmt));
-  tiz_check_omx_err_ret_null (
+  tiz_check_omx_ret_null (
     tiz_port_register_index (p_obj, OMX_IndexConfigPriorityMgmt));
-  tiz_check_omx_err_ret_null (tiz_port_register_index (
+  tiz_check_omx_ret_null (tiz_port_register_index (
     p_obj, OMX_IndexConfigMetadataItemCount)); /* read-only */
-  tiz_check_omx_err_ret_null (tiz_port_register_index (
+  tiz_check_omx_ret_null (tiz_port_register_index (
     p_obj, OMX_IndexConfigMetadataItem)); /* read-only */
-  tiz_check_omx_err_ret_null (
+  tiz_check_omx_ret_null (
     tiz_port_register_index (p_obj, OMX_TizoniaIndexConfigPlaylistSkip));
 
   return p_obj;

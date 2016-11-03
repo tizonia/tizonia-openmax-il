@@ -174,14 +174,14 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   vorbisdprc_type.pf_object_init = vorbisd_prc_init;
 
   /* Initialize the component infrastructure */
-  tiz_check_omx_err (
+  tiz_check_omx (
       tiz_comp_init (ap_hdl, ARATELIA_VORBIS_DECODER_COMPONENT_NAME));
 
   /* Register the "vorbisdprc" class */
-  tiz_check_omx_err (tiz_comp_register_types (ap_hdl, tf_list, 1));
+  tiz_check_omx (tiz_comp_register_types (ap_hdl, tf_list, 1));
 
   /* Register the various roles */
-  tiz_check_omx_err (tiz_comp_register_roles (ap_hdl, rf_list, 1));
+  tiz_check_omx (tiz_comp_register_roles (ap_hdl, rf_list, 1));
 
   return OMX_ErrorNone;
 }

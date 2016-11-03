@@ -272,7 +272,7 @@ obtain_uri (webmdmuxsrc_prc_t * ap_prc)
         = sizeof (OMX_PARAM_CONTENTURITYPE) + pathname_max + 1;
       ap_prc->p_uri_->nVersion.nVersion = OMX_VERSION;
 
-      tiz_check_omx_err (tiz_api_GetParameter (
+      tiz_check_omx (tiz_api_GetParameter (
         tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
         OMX_IndexParamContentURI, ap_prc->p_uri_));
       TIZ_NOTICE (handleOf (ap_prc), "URI [%s]", ap_prc->p_uri_->contentURI);
@@ -316,7 +316,7 @@ release_buffer (webmdmuxsrc_prc_t * ap_prc)
     {
       TIZ_NOTICE (handleOf (ap_prc), "releasing HEADER [%p] nFilledLen [%d]",
                   ap_prc->p_outhdr_, ap_prc->p_outhdr_->nFilledLen);
-      tiz_check_omx_err (tiz_krn_release_buffer (
+      tiz_check_omx (tiz_krn_release_buffer (
         tiz_get_krn (handleOf (ap_prc)),
         ARATELIA_WEBM_DEMUXER_SOURCE_PORT_0_INDEX, ap_prc->p_outhdr_));
       ap_prc->p_outhdr_ = NULL;
@@ -435,7 +435,7 @@ prepare_for_port_auto_detection (webmdmuxsrc_prc_t * ap_prc)
 
   TIZ_INIT_OMX_PORT_STRUCT (port_def,
                             ARATELIA_WEBM_DEMUXER_SOURCE_PORT_0_INDEX);
-  tiz_check_omx_err (
+  tiz_check_omx (
     tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                           OMX_IndexParamPortDefinition, &port_def));
   ap_prc->audio_coding_type_ = port_def.format.audio.eEncoding;
@@ -499,7 +499,7 @@ webmdmuxsrc_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
   assert (!p_prc->p_ne_);
   assert (!p_prc->p_uri_);
 
-  tiz_check_omx_err (obtain_uri (p_prc));
+  tiz_check_omx (obtain_uri (p_prc));
 
   on_nestegg_error_ret_omx_oom (
     nestegg_init (&p_prc->p_ne_, p_prc->ne_io_, ne_log_cback, -1));

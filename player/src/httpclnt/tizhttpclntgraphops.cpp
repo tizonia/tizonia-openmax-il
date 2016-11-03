@@ -339,7 +339,7 @@ OMX_ERRORTYPE graph::httpclntops::get_encoding_type_from_http_source ()
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
   const OMX_U32 port_id = 0;
   TIZ_INIT_OMX_PORT_STRUCT (port_def, port_id);
-  tiz_check_omx_err (
+  tiz_check_omx (
       OMX_GetParameter (handles_[0], OMX_IndexParamPortDefinition, &port_def));
   encoding_ = port_def.format.audio.eEncoding;
   return OMX_ErrorNone;
@@ -352,11 +352,11 @@ graph::httpclntops::apply_pcm_codec_info_from_http_source ()
   OMX_U32 sampling_rate = 44100;
   std::string encoding_str;
 
-  tiz_check_omx_err (get_channels_and_rate_from_http_source (
+  tiz_check_omx (get_channels_and_rate_from_http_source (
       channels, sampling_rate, encoding_str));
-  tiz_check_omx_err (
+  tiz_check_omx (
       set_channels_and_rate_on_decoder (channels, sampling_rate));
-  tiz_check_omx_err (set_channels_and_rate_on_renderer (channels, sampling_rate,
+  tiz_check_omx (set_channels_and_rate_on_renderer (channels, sampling_rate,
                                                         encoding_str));
 
   return OMX_ErrorNone;
@@ -513,7 +513,7 @@ graph::httpclntops::set_channels_and_rate_on_renderer (
   // Retrieve the pcm settings from the renderer component
   OMX_AUDIO_PARAM_PCMMODETYPE renderer_pcmtype;
   TIZ_INIT_OMX_PORT_STRUCT (renderer_pcmtype, port_id);
-  tiz_check_omx_err (
+  tiz_check_omx (
       OMX_GetParameter (handle, OMX_IndexParamAudioPcm, &renderer_pcmtype));
 
   // Now assign the actual settings to the pcmtype structure
@@ -530,7 +530,7 @@ graph::httpclntops::set_channels_and_rate_on_renderer (
   }
 
   // Set the new pcm settings
-  tiz_check_omx_err (
+  tiz_check_omx (
       OMX_SetParameter (handle, OMX_IndexParamAudioPcm, &renderer_pcmtype));
 
   std::string coding_type_str ("http/");

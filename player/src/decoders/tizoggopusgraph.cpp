@@ -133,7 +133,7 @@ graph::oggopusdecops::set_opus_settings ()
   OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE opustype_orig;
   TIZ_INIT_OMX_PORT_STRUCT (opustype_orig, 0 /* port id */);
 
-  tiz_check_omx_err (OMX_GetParameter (
+  tiz_check_omx (OMX_GetParameter (
       handles_[1], static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioOpus),
       &opustype_orig));
 
@@ -143,7 +143,7 @@ graph::oggopusdecops::set_opus_settings ()
 
   probe_ptr_->get_opus_codec_info (opustype);
   opustype.nPortIndex = 0;
-  tiz_check_omx_err (OMX_SetParameter (
+  tiz_check_omx (OMX_SetParameter (
       handles_[1], static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioOpus),
       &opustype));
 

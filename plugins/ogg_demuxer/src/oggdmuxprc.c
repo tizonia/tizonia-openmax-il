@@ -204,7 +204,7 @@ alloc_data_stores (oggdmux_prc_t * ap_prc)
   port_def.nVersion.nVersion = OMX_VERSION;
   port_def.nPortIndex = ARATELIA_OGG_DEMUXER_AUDIO_PORT_BASE_INDEX;
 
-  tiz_check_omx_err (
+  tiz_check_omx (
     tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                           OMX_IndexParamPortDefinition, &port_def));
   ap_prc->aud_buf_size_ = port_def.nBufferSize;
@@ -215,7 +215,7 @@ alloc_data_stores (oggdmux_prc_t * ap_prc)
     (ap_prc->p_aud_store_ = tiz_mem_alloc (ap_prc->aud_store_size_)) != NULL);
 
   port_def.nPortIndex = ARATELIA_OGG_DEMUXER_VIDEO_PORT_BASE_INDEX;
-  tiz_check_omx_err (
+  tiz_check_omx (
     tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                           OMX_IndexParamPortDefinition, &port_def));
   ap_prc->vid_buf_size_ = port_def.nBufferSize;
@@ -801,7 +801,7 @@ release_all_buffers (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
       && (ap_prc->p_aud_hdr_))
     {
       void * p_krn = tiz_get_krn (handleOf (ap_prc));
-      tiz_check_omx_err (tiz_krn_release_buffer (
+      tiz_check_omx (tiz_krn_release_buffer (
         p_krn, ARATELIA_OGG_DEMUXER_AUDIO_PORT_BASE_INDEX, ap_prc->p_aud_hdr_));
       ap_prc->p_aud_hdr_ = NULL;
     }
@@ -810,7 +810,7 @@ release_all_buffers (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
       && (ap_prc->p_vid_hdr_))
     {
       void * p_krn = tiz_get_krn (handleOf (ap_prc));
-      tiz_check_omx_err (tiz_krn_release_buffer (
+      tiz_check_omx (tiz_krn_release_buffer (
         p_krn, ARATELIA_OGG_DEMUXER_VIDEO_PORT_BASE_INDEX, ap_prc->p_vid_hdr_));
       ap_prc->p_vid_hdr_ = NULL;
     }
@@ -938,8 +938,8 @@ obtain_tracks (oggdmux_prc_t * ap_prc)
 
   /* Seek to beginning of file and set the first pass callback that will help
    * with the discovery of the codecs */
-  tiz_check_omx_err (seek_to_byte_offset (p_prc, 0));
-  tiz_check_omx_err (set_read_page_callback (p_prc, read_page_first_pass));
+  tiz_check_omx (seek_to_byte_offset (p_prc, 0));
+  tiz_check_omx (set_read_page_callback (p_prc, read_page_first_pass));
 
   while (
     (n = oggz_read (p_prc->p_oggz_, TIZ_OGG_DEMUXER_INITIAL_READ_BLOCKSIZE))
@@ -947,8 +947,8 @@ obtain_tracks (oggdmux_prc_t * ap_prc)
     ;
 
   /* Seek to beginning of file and set the normal callback (no-op function) */
-  tiz_check_omx_err (seek_to_byte_offset (p_prc, 0));
-  tiz_check_omx_err (set_read_page_callback (p_prc, read_page_normal));
+  tiz_check_omx (seek_to_byte_offset (p_prc, 0));
+  tiz_check_omx (set_read_page_callback (p_prc, read_page_normal));
 
   return OMX_ErrorNone;
 }
@@ -989,14 +989,14 @@ set_read_packet_callbacks (oggdmux_prc_t * ap_prc)
       if (is_audio_content (content))
         {
           TIZ_TRACE (handleOf (ap_prc), "Set read_audio_packet callback");
-          tiz_check_omx_err (
+          tiz_check_omx (
             set_read_packet_callback (ap_prc, serialno, read_audio_packet));
         }
 
       if (is_video_content (content))
         {
           TIZ_TRACE (handleOf (ap_prc), "Set read_video_packet callback");
-          tiz_check_omx_err (
+          tiz_check_omx (
             set_read_packet_callback (ap_prc, serialno, read_video_packet));
         }
     }
@@ -1120,10 +1120,10 @@ oggdmux_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
 {
   oggdmux_prc_t * p_prc = ap_obj;
   assert (p_prc);
-  tiz_check_omx_err (alloc_uri (p_prc));
-  tiz_check_omx_err (alloc_file (p_prc));
-  tiz_check_omx_err (alloc_data_stores (p_prc));
-  tiz_check_omx_err (alloc_oggz (p_prc));
+  tiz_check_omx (alloc_uri (p_prc));
+  tiz_check_omx (alloc_file (p_prc));
+  tiz_check_omx (alloc_data_stores (p_prc));
+  tiz_check_omx (alloc_oggz (p_prc));
   return OMX_ErrorNone;
 }
 
@@ -1144,8 +1144,8 @@ oggdmux_prc_prepare_to_transfer (void * ap_obj, OMX_U32 a_pid)
 {
   oggdmux_prc_t * p_prc = ap_obj;
   assert (p_prc);
-  tiz_check_omx_err (obtain_tracks (p_prc));
-  tiz_check_omx_err (set_read_packet_callbacks (p_prc));
+  tiz_check_omx (obtain_tracks (p_prc));
+  tiz_check_omx (set_read_packet_callbacks (p_prc));
   return OMX_ErrorNone;
 }
 

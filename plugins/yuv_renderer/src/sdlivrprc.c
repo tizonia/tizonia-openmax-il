@@ -257,7 +257,7 @@ sdlivr_proc_buffers_ready (const void *ap_obj)
     {
       if (p_hdr)
         {
-          tiz_check_omx_err (sdlivr_proc_render_buffer (ap_obj, p_hdr));
+          tiz_check_omx (sdlivr_proc_render_buffer (ap_obj, p_hdr));
           if (p_hdr->nFlags & OMX_BUFFERFLAG_EOS)
             {
               TIZ_TRACE (handleOf (ap_obj),
@@ -266,7 +266,7 @@ sdlivr_proc_buffers_ready (const void *ap_obj)
                                    OMX_EventBufferFlag,
                                    0, p_hdr->nFlags, NULL);
             }
-          tiz_check_omx_err
+          tiz_check_omx
             (tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_obj)), 0, p_hdr));
         }
     }

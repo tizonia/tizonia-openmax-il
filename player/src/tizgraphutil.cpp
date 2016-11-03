@@ -257,7 +257,7 @@ graph::util::set_role (const OMX_HANDLETYPE handle,
   TIZ_INIT_OMX_STRUCT (roletype);
   strncpy ((char *)roletype.cRole, comp_role.c_str (), OMX_MAX_STRINGNAME_SIZE - 1);
   roletype.cRole[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
-  tiz_check_omx_err (OMX_SetParameter (
+  tiz_check_omx (OMX_SetParameter (
       handle, OMX_IndexParamStandardComponentRole, &roletype));
 
   return error;
@@ -469,7 +469,7 @@ graph::util::apply_volume_step (const OMX_HANDLETYPE handle, const OMX_U32 pid,
   bool new_volume = false;
   OMX_AUDIO_CONFIG_VOLUMETYPE volume;
   TIZ_INIT_OMX_PORT_STRUCT (volume, pid);
-  tiz_check_omx_err (
+  tiz_check_omx (
       OMX_GetConfig (handle, OMX_IndexConfigAudioVolume, &volume));
   vol = volume.sVolume.nValue;
   if (volume.sVolume.nValue <= (volume.sVolume.nMax - VOL_STEP) && step > 0)
@@ -486,7 +486,7 @@ graph::util::apply_volume_step (const OMX_HANDLETYPE handle, const OMX_U32 pid,
   if (new_volume)
   {
     vol = volume.sVolume.nValue;
-    tiz_check_omx_err (
+    tiz_check_omx (
         OMX_SetConfig (handle, OMX_IndexConfigAudioVolume, &volume));
   }
   return rc;
@@ -500,7 +500,7 @@ graph::util::apply_volume (const OMX_HANDLETYPE handle, const OMX_U32 pid,
   const OMX_S32 nValue = (vol > 1.0 ? 100 : (OMX_S32) (vol * 100));
   OMX_AUDIO_CONFIG_VOLUMETYPE volume;
   TIZ_INIT_OMX_PORT_STRUCT (volume, pid);
-  tiz_check_omx_err (
+  tiz_check_omx (
       OMX_GetConfig (handle, OMX_IndexConfigAudioVolume, &volume));
   comp_vol = volume.sVolume.nValue;
   if (volume.sVolume.nValue != nValue)
@@ -518,11 +518,11 @@ graph::util::apply_mute (const OMX_HANDLETYPE handle, const OMX_U32 pid)
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_AUDIO_CONFIG_MUTETYPE mute;
   TIZ_INIT_OMX_PORT_STRUCT (mute, pid);
-  tiz_check_omx_err (OMX_GetConfig (handle, OMX_IndexConfigAudioMute, &mute));
+  tiz_check_omx (OMX_GetConfig (handle, OMX_IndexConfigAudioMute, &mute));
   mute.bMute = (mute.bMute == OMX_FALSE
                     ? OMX_TRUE
                     : (mute.bMute == OMX_TRUE ? OMX_FALSE : OMX_TRUE));
-  tiz_check_omx_err (OMX_SetConfig (handle, OMX_IndexConfigAudioMute, &mute));
+  tiz_check_omx (OMX_SetConfig (handle, OMX_IndexConfigAudioMute, &mute));
   return rc;
 }
 
@@ -533,11 +533,11 @@ graph::util::apply_playlist_jump (const OMX_HANDLETYPE handle,
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_TIZONIA_PLAYLISTSKIPTYPE skip;
   TIZ_INIT_OMX_STRUCT (skip);
-  tiz_check_omx_err (OMX_GetConfig (
+  tiz_check_omx (OMX_GetConfig (
       handle, static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexConfigPlaylistSkip),
       &skip));
   skip.nValue = jump;
-  tiz_check_omx_err (OMX_SetConfig (
+  tiz_check_omx (OMX_SetConfig (
       handle, static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexConfigPlaylistSkip),
       &skip));
   return rc;
@@ -638,7 +638,7 @@ graph::util::set_pcm_mode (
   OMX_AUDIO_PARAM_PCMMODETYPE pcmtype;
   TIZ_INIT_OMX_PORT_STRUCT (pcmtype, port_id);
   getter (pcmtype);
-  tiz_check_omx_err (
+  tiz_check_omx (
       OMX_SetParameter (handle, OMX_IndexParamAudioPcm, &pcmtype));
   return OMX_ErrorNone;
 }
@@ -653,7 +653,7 @@ graph::util::set_mp3_type (
   OMX_AUDIO_PARAM_MP3TYPE mp3type_orig;
   TIZ_INIT_OMX_PORT_STRUCT (mp3type_orig, port_id);
 
-  tiz_check_omx_err (
+  tiz_check_omx (
       OMX_GetParameter (handle, OMX_IndexParamAudioMp3, &mp3type_orig));
 
   // Set the new mp3 settings
@@ -661,7 +661,7 @@ graph::util::set_mp3_type (
   TIZ_INIT_OMX_PORT_STRUCT (mp3type, port_id);
 
   getter (mp3type);
-  tiz_check_omx_err (
+  tiz_check_omx (
       OMX_SetParameter (handle, OMX_IndexParamAudioMp3, &mp3type));
 
   // Record whether we need to wait for a port settings change event or not
@@ -683,7 +683,7 @@ graph::util::set_aac_type (
   OMX_AUDIO_PARAM_AACPROFILETYPE aactype_orig;
   TIZ_INIT_OMX_PORT_STRUCT (aactype_orig, port_id);
 
-  tiz_check_omx_err (
+  tiz_check_omx (
       OMX_GetParameter (handle, OMX_IndexParamAudioAac, &aactype_orig));
 
   // Set the new aac settings
@@ -691,7 +691,7 @@ graph::util::set_aac_type (
   TIZ_INIT_OMX_PORT_STRUCT (aactype, port_id);
 
   getter (aactype);
-  tiz_check_omx_err (
+  tiz_check_omx (
       OMX_SetParameter (handle, OMX_IndexParamAudioAac, &aactype));
 
   // Record whether we need to wait for a port settings change event or not
@@ -713,7 +713,7 @@ graph::util::set_flac_type (
   OMX_TIZONIA_AUDIO_PARAM_FLACTYPE flactype_orig;
   TIZ_INIT_OMX_PORT_STRUCT (flactype_orig, port_id);
 
-  tiz_check_omx_err (OMX_GetParameter (
+  tiz_check_omx (OMX_GetParameter (
       handle, static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioFlac),
       &flactype_orig));
 
@@ -723,7 +723,7 @@ graph::util::set_flac_type (
   // Set the new flac settings
   getter (flactype);
   flactype.nPortIndex = port_id;
-  tiz_check_omx_err (OMX_SetParameter (
+  tiz_check_omx (OMX_SetParameter (
       handle, static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioFlac),
       &flactype));
 
@@ -743,7 +743,7 @@ graph::util::enable_port_format_auto_detection (const OMX_HANDLETYPE handle,
 {
   OMX_PARAM_PORTDEFINITIONTYPE portdef;
   TIZ_INIT_OMX_PORT_STRUCT (portdef, port_id);
-  tiz_check_omx_err (OMX_GetParameter (
+  tiz_check_omx (OMX_GetParameter (
       handle, OMX_IndexParamPortDefinition,
       &portdef));
   switch (domain)
@@ -773,7 +773,7 @@ graph::util::enable_port_format_auto_detection (const OMX_HANDLETYPE handle,
         break;
     };
 
-  tiz_check_omx_err (OMX_SetParameter (
+  tiz_check_omx (OMX_SetParameter (
       handle, OMX_IndexParamPortDefinition,
       &portdef));
 

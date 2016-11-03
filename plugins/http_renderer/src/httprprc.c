@@ -126,7 +126,7 @@ retrieve_mp3_settings (const void * ap_prc,
 
   /* Retrieve the mp3 settings from the input port */
   TIZ_INIT_OMX_PORT_STRUCT (*ap_mp3type, ARATELIA_HTTP_RENDERER_PORT_INDEX);
-  tiz_check_omx_err (tiz_api_GetParameter (tiz_get_krn (handleOf (p_prc)),
+  tiz_check_omx (tiz_api_GetParameter (tiz_get_krn (handleOf (p_prc)),
                                            handleOf (p_prc),
                                            OMX_IndexParamAudioMp3, ap_mp3type));
   return OMX_ErrorNone;
@@ -142,7 +142,7 @@ retrieve_mountpoint_settings (const void * ap_prc,
 
   /* Retrieve the mountpoint settings from the input port */
   TIZ_INIT_OMX_PORT_STRUCT (*ap_mountpoint, ARATELIA_HTTP_RENDERER_PORT_INDEX);
-  tiz_check_omx_err (tiz_api_GetParameter (
+  tiz_check_omx (tiz_api_GetParameter (
     tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
     OMX_TizoniaIndexParamIcecastMountpoint, ap_mountpoint));
   return OMX_ErrorNone;
@@ -182,7 +182,7 @@ httpr_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
 
   /* Retrieve http server configuration from the component's config port */
   TIZ_INIT_OMX_STRUCT (p_prc->server_info_);
-  tiz_check_omx_err (tiz_api_GetParameter (
+  tiz_check_omx (tiz_api_GetParameter (
     tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
     OMX_TizoniaIndexParamHttpServer, &p_prc->server_info_));
 
@@ -215,14 +215,14 @@ httpr_prc_prepare_to_transfer (void * ap_prc, OMX_U32 a_pid)
   assert (p_prc);
 
   /* Obtain mp3 settings from port */
-  tiz_check_omx_err (retrieve_mp3_settings (ap_prc, &(p_prc->mp3type_)));
+  tiz_check_omx (retrieve_mp3_settings (ap_prc, &(p_prc->mp3type_)));
 
   httpr_srv_set_mp3_settings (p_prc->p_server_, p_prc->mp3type_.nBitRate,
                               p_prc->mp3type_.nChannels,
                               p_prc->mp3type_.nSampleRate);
 
   /* Obtain mount point and station-related information */
-  tiz_check_omx_err (
+  tiz_check_omx (
     retrieve_mountpoint_settings (ap_prc, &(p_prc->mountpoint_)));
 
   httpr_srv_set_mountpoint_settings (
@@ -235,7 +235,7 @@ httpr_prc_prepare_to_transfer (void * ap_prc, OMX_U32 a_pid)
        : 0),
     p_prc->mountpoint_.nMaxClients);
 
-  tiz_check_omx_err (
+  tiz_check_omx (
     httpr_prc_config_change (p_prc, ARATELIA_HTTP_RENDERER_PORT_INDEX,
                              OMX_TizoniaIndexConfigIcecastMetadata));
 
@@ -314,11 +314,11 @@ httpr_prc_port_enable (const void * ap_prc, OMX_U32 a_pid)
 
   p_prc->port_disabled_ = false;
 
-  tiz_check_omx_err (retrieve_mp3_settings (p_prc, &(p_prc->mp3type_)));
+  tiz_check_omx (retrieve_mp3_settings (p_prc, &(p_prc->mp3type_)));
   httpr_srv_set_mp3_settings (p_prc->p_server_, p_prc->mp3type_.nBitRate,
                               p_prc->mp3type_.nChannels,
                               p_prc->mp3type_.nSampleRate);
-  tiz_check_omx_err (
+  tiz_check_omx (
     httpr_prc_config_change (p_prc, ARATELIA_HTTP_RENDERER_PORT_INDEX,
                              OMX_TizoniaIndexConfigIcecastMetadata));
   return OMX_ErrorNone;

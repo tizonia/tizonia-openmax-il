@@ -142,14 +142,14 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   httprcfgport_type.pf_object_init = httpr_cfgport_init;
 
   /* Initialize the component infrastructure */
-  tiz_check_omx_err (
+  tiz_check_omx (
     tiz_comp_init (ap_hdl, ARATELIA_HTTP_RENDERER_COMPONENT_NAME));
 
   /* Register the "httprprc", "httprmp3port" and "httprcfgport" classes */
-  tiz_check_omx_err (tiz_comp_register_types (ap_hdl, tf_list, 3));
+  tiz_check_omx (tiz_comp_register_types (ap_hdl, tf_list, 3));
 
   /* Register this component's role */
-  tiz_check_omx_err (tiz_comp_register_roles (ap_hdl, rf_list, 1));
+  tiz_check_omx (tiz_comp_register_roles (ap_hdl, rf_list, 1));
 
   return OMX_ErrorNone;
 }

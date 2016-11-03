@@ -68,7 +68,7 @@ static OMX_ERRORTYPE dispatch_port_disable (
       /* If port is already disabled, simply notify the command completion */
       if (TIZ_PORT_IS_DISABLED (p_port))
         {
-          tiz_check_omx_err (
+          tiz_check_omx (
               complete_port_disable (p_obj, p_port, pid, OMX_ErrorNone));
           ++i;
           continue;
@@ -109,10 +109,10 @@ static OMX_ERRORTYPE dispatch_port_disable (
             {
               tiz_vector_t *p_hdr_lst = tiz_port_get_hdrs_list (p_port);
               tiz_vector_t *p_hdr_lst_copy = NULL;
-              tiz_check_omx_err (tiz_vector_init (
+              tiz_check_omx (tiz_vector_init (
                   &(p_hdr_lst_copy), sizeof(OMX_BUFFERHEADERTYPE *)));
               assert (p_hdr_lst_copy);
-              tiz_check_omx_err (tiz_vector_append (p_hdr_lst_copy, p_hdr_lst));
+              tiz_check_omx (tiz_vector_append (p_hdr_lst_copy, p_hdr_lst));
 
               /* Depopulate the tunnel... */
               if (OMX_ErrorNone == (rc = tiz_port_depopulate (p_port)))
@@ -157,7 +157,7 @@ static OMX_ERRORTYPE dispatch_port_disable (
                   return rc;
                 }
 
-              tiz_check_omx_err (
+              tiz_check_omx (
                   complete_port_disable (p_obj, p_port, pid, OMX_ErrorNone));
             }
         }
@@ -211,7 +211,7 @@ static OMX_ERRORTYPE dispatch_port_disable (
           else
             {
               TIZ_TRACE (p_hdl, "port [%d] is disabled...", pid);
-              tiz_check_omx_err (
+              tiz_check_omx (
                   complete_port_disable (p_obj, p_port, pid, OMX_ErrorNone));
             }
         }
@@ -262,7 +262,7 @@ static OMX_ERRORTYPE dispatch_port_enable (void *ap_obj, OMX_HANDLETYPE p_hdl,
       if (TIZ_PORT_IS_ENABLED (p_port))
         {
           /* If port is already enabled, must notify the command completion */
-          tiz_check_omx_err (
+          tiz_check_omx (
               complete_port_enable (p_obj, p_port, pid, OMX_ErrorNone));
           ++i;
           continue;
@@ -273,7 +273,7 @@ static OMX_ERRORTYPE dispatch_port_enable (void *ap_obj, OMX_HANDLETYPE p_hdl,
           if (EStateWaitForResources == now || EStateLoaded == now)
             {
               /* Complete OMX_CommandPortEnable on this port now */
-              tiz_check_omx_err (
+              tiz_check_omx (
                   complete_port_enable (p_obj, p_port, pid, OMX_ErrorNone));
             }
           else
@@ -471,7 +471,7 @@ static OMX_ERRORTYPE dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE ap_hdl,
           /* Complete the command with an error event */
           TIZ_TRACE (ap_hdl, "[%s] : Flush command failed on port [%d]...",
                      tiz_err_to_str (rc), pid);
-          tiz_check_omx_err (complete_port_flush (p_obj, p_port, pid, rc));
+          tiz_check_omx (complete_port_flush (p_obj, p_port, pid, rc));
         }
       else
         {
@@ -485,7 +485,7 @@ static OMX_ERRORTYPE dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE ap_hdl,
             {
               /* There are no buffers with the processor, then we can
                * sucessfully complete the OMX_CommandFlush command here. */
-              tiz_check_omx_err (
+              tiz_check_omx (
                   complete_port_flush (p_obj, p_port, pid, OMX_ErrorNone));
             }
           else
@@ -649,7 +649,7 @@ static OMX_ERRORTYPE dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
       if (TIZ_PORT_IS_BEING_FLUSHED (p_port))
         {
           /* Notify flush complete */
-          tiz_check_omx_err (complete_port_flush (p_obj, p_port, pid, rc));
+          tiz_check_omx (complete_port_flush (p_obj, p_port, pid, rc));
         }
 
       if (all_buffers_returned (p_obj))
@@ -676,7 +676,7 @@ static OMX_ERRORTYPE depopulate_port (tiz_krn_t *ap_krn, OMX_PTR ap_port,
   tiz_vector_t *p_hdr_lst_copy = NULL;
 
   /* Make a temp copy of the list of headers */
-  tiz_check_omx_err (
+  tiz_check_omx (
       tiz_vector_init (&(p_hdr_lst_copy), sizeof(OMX_BUFFERHEADERTYPE *)));
   assert (p_hdr_lst_copy);
 
@@ -732,8 +732,8 @@ static OMX_ERRORTYPE dispatch_efb_port_disable_in_progress (
     {
       if (tiz_port_buffer_count (ap_port) == a_nbufs)
         {
-          tiz_check_omx_err (depopulate_port (ap_krn, ap_port, a_pid));
-          tiz_check_omx_err (
+          tiz_check_omx (depopulate_port (ap_krn, ap_port, a_pid));
+          tiz_check_omx (
               complete_port_disable (ap_krn, ap_port, a_pid, OMX_ErrorNone));
         }
     }
@@ -1056,7 +1056,7 @@ static OMX_ERRORTYPE dispatch_state_set (void *ap_obj, OMX_HANDLETYPE ap_hdl,
   assert (ap_msg_sc);
 
   /* Obtain the current state */
-  tiz_check_omx_err (tiz_api_GetState (tiz_get_fsm (ap_hdl), ap_hdl, &now));
+  tiz_check_omx (tiz_api_GetState (tiz_get_fsm (ap_hdl), ap_hdl, &now));
 
   /* ...and this is the next state */
   next =  ap_msg_sc->param1;

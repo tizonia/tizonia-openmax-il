@@ -62,7 +62,7 @@ static OMX_ERRORTYPE alloc_temp_data_store (vorbisd_prc_t *ap_prc)
   port_def.nVersion.nVersion = OMX_VERSION;
   port_def.nPortIndex = ARATELIA_VORBIS_DECODER_INPUT_PORT_INDEX;
 
-  tiz_check_omx_err (
+  tiz_check_omx (
       tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                             OMX_IndexParamPortDefinition, &port_def));
 
@@ -330,7 +330,7 @@ static OMX_ERRORTYPE transform_buffer (vorbisd_prc_t *ap_prc)
           TIZ_TRACE (handleOf (ap_prc), "Let's propagate EOS flag to output");
           p_out->nFlags |= OMX_BUFFERFLAG_EOS;
           p_in->nFlags &= ~(1 << OMX_BUFFERFLAG_EOS);
-          tiz_check_omx_err
+          tiz_check_omx
             (tiz_filter_prc_release_header
             (ap_prc, ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX));
         }
@@ -455,7 +455,7 @@ static void *vorbisd_prc_dtor (void *ap_obj)
 static OMX_ERRORTYPE vorbisd_prc_allocate_resources (void *ap_obj,
                                                      OMX_U32 a_pid)
 {
-  tiz_check_omx_err (alloc_temp_data_store (ap_obj));
+  tiz_check_omx (alloc_temp_data_store (ap_obj));
   return init_vorbis_decoder (ap_obj);
 }
 

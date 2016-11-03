@@ -171,7 +171,7 @@ fw_proc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
   fw_prc_t * p_prc = ap_obj;
   assert (ap_obj);
 
-  tiz_check_omx_err (obtain_uri (p_prc));
+  tiz_check_omx (obtain_uri (p_prc));
 
   if ((p_prc->p_file_
        = fopen ((const char *) p_prc->p_uri_param_->contentURI, "w"))
@@ -241,13 +241,13 @@ fw_proc_buffers_ready (const void * ap_obj)
   if (!p_prc->eos_)
     {
       OMX_BUFFERHEADERTYPE * p_hdr = NULL;
-      tiz_check_omx_err (tiz_krn_claim_buffer (tiz_get_krn (handleOf (p_prc)),
+      tiz_check_omx (tiz_krn_claim_buffer (tiz_get_krn (handleOf (p_prc)),
                                                ARATELIA_FILE_WRITER_PORT_INDEX,
                                                0, &p_hdr));
       if (p_hdr)
         {
           TIZ_TRACE (handleOf (p_prc), "Claimed HEADER [%p]...", p_hdr);
-          tiz_check_omx_err (fw_proc_write_buffer (p_prc, p_hdr));
+          tiz_check_omx (fw_proc_write_buffer (p_prc, p_hdr));
           if (p_hdr->nFlags & OMX_BUFFERFLAG_EOS)
             {
               TIZ_DEBUG (handleOf (p_prc), "OMX_BUFFERFLAG_EOS in HEADER [%p]",
@@ -256,7 +256,7 @@ fw_proc_buffers_ready (const void * ap_obj)
                                    ARATELIA_FILE_WRITER_PORT_INDEX,
                                    p_hdr->nFlags, NULL);
             }
-          tiz_check_omx_err (
+          tiz_check_omx (
             tiz_krn_release_buffer (tiz_get_krn (handleOf (p_prc)),
                                     ARATELIA_FILE_WRITER_PORT_INDEX, p_hdr));
         }

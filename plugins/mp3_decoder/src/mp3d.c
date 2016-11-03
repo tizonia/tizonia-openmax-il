@@ -185,13 +185,13 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   mp3dprc_type.pf_object_init = mp3d_prc_init;
 
   /* Initialize the component infrastructure */
-  tiz_check_omx_err (tiz_comp_init (ap_hdl, ARATELIA_MP3_DECODER_COMPONENT_NAME));
+  tiz_check_omx (tiz_comp_init (ap_hdl, ARATELIA_MP3_DECODER_COMPONENT_NAME));
 
   /* Register the "mp3dprc" class */
-  tiz_check_omx_err (tiz_comp_register_types (ap_hdl, tf_list, 1));
+  tiz_check_omx (tiz_comp_register_types (ap_hdl, tf_list, 1));
 
   /* Register the component role */
-  tiz_check_omx_err (tiz_comp_register_roles (ap_hdl, rf_list, 1));
+  tiz_check_omx (tiz_comp_register_roles (ap_hdl, rf_list, 1));
 
   return OMX_ErrorNone;
 }

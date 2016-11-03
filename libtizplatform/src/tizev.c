@@ -336,7 +336,7 @@ enqueue_io_msg (tiz_event_io_t * ap_ev_io, const uint32_t a_id,
           || ETIZEventLoopMsgIoStop == a_class
           || ETIZEventLoopMsgIoDestroy == a_class);
 
-  tiz_check_omx_err (tiz_mutex_lock (&(gp_event_loop->mutex)));
+  tiz_check_omx (tiz_mutex_lock (&(gp_event_loop->mutex)));
   p_msg = init_event_loop_msg (gp_event_loop, (a_class));
   tiz_check_null_ret_oom (p_msg != NULL);
 
@@ -345,7 +345,7 @@ enqueue_io_msg (tiz_event_io_t * ap_ev_io, const uint32_t a_id,
   p_msg_io->p_ev_io = ap_ev_io;
   p_msg_io->id = a_id;
   tiz_pqueue_send (gp_event_loop->p_pq, p_msg, p_msg->priority);
-  tiz_check_omx_err (tiz_mutex_unlock (&(gp_event_loop->mutex)));
+  tiz_check_omx (tiz_mutex_unlock (&(gp_event_loop->mutex)));
   ev_async_send (gp_event_loop->p_loop, gp_event_loop->p_async_watcher);
 
   return OMX_ErrorNone;
@@ -364,7 +364,7 @@ enqueue_timer_msg (tiz_event_timer_t * ap_ev_timer, const uint32_t a_id,
           || ETIZEventLoopMsgTimerRestart == a_class
           || ETIZEventLoopMsgTimerDestroy == a_class);
 
-  tiz_check_omx_err (tiz_mutex_lock (&(gp_event_loop->mutex)));
+  tiz_check_omx (tiz_mutex_lock (&(gp_event_loop->mutex)));
   p_msg = init_event_loop_msg (gp_event_loop, (a_class));
   tiz_check_null_ret_oom (p_msg != NULL);
 
@@ -373,7 +373,7 @@ enqueue_timer_msg (tiz_event_timer_t * ap_ev_timer, const uint32_t a_id,
   p_msg_timer->p_ev_timer = ap_ev_timer;
   p_msg_timer->id = a_id;
   tiz_pqueue_send (gp_event_loop->p_pq, p_msg, p_msg->priority);
-  tiz_check_omx_err (tiz_mutex_unlock (&(gp_event_loop->mutex)));
+  tiz_check_omx (tiz_mutex_unlock (&(gp_event_loop->mutex)));
   ev_async_send (gp_event_loop->p_loop, gp_event_loop->p_async_watcher);
 
   return OMX_ErrorNone;
@@ -391,7 +391,7 @@ enqueue_stat_msg (tiz_event_stat_t * ap_ev_stat, const uint32_t a_id,
           || ETIZEventLoopMsgStatStop == a_class
           || ETIZEventLoopMsgStatDestroy == a_class);
 
-  tiz_check_omx_err (tiz_mutex_lock (&(gp_event_loop->mutex)));
+  tiz_check_omx (tiz_mutex_lock (&(gp_event_loop->mutex)));
   p_msg = init_event_loop_msg (gp_event_loop, (a_class));
   tiz_check_null_ret_oom (p_msg != NULL);
 
@@ -400,7 +400,7 @@ enqueue_stat_msg (tiz_event_stat_t * ap_ev_stat, const uint32_t a_id,
   p_msg_stat->p_ev_stat = ap_ev_stat;
   p_msg_stat->id = a_id;
   tiz_pqueue_send (gp_event_loop->p_pq, p_msg, p_msg->priority);
-  tiz_check_omx_err (tiz_mutex_unlock (&(gp_event_loop->mutex)));
+  tiz_check_omx (tiz_mutex_unlock (&(gp_event_loop->mutex)));
   ev_async_send (gp_event_loop->p_loop, gp_event_loop->p_async_watcher);
 
   return OMX_ErrorNone;

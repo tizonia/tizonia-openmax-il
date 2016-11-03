@@ -259,14 +259,14 @@ set_audio_coding_on_port (httpsrc_prc_t * ap_prc)
   assert (ap_prc);
 
   TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_HTTP_SOURCE_PORT_INDEX);
-  tiz_check_omx_err (
+  tiz_check_omx (
     tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                           OMX_IndexParamPortDefinition, &port_def));
 
   /* Set the new value */
   port_def.format.audio.eEncoding = ap_prc->audio_coding_type_;
 
-  tiz_check_omx_err (tiz_krn_SetParameter_internal (
+  tiz_check_omx (tiz_krn_SetParameter_internal (
     tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
     OMX_IndexParamPortDefinition, &port_def));
   return OMX_ErrorNone;
@@ -279,7 +279,7 @@ set_mp3_audio_info_on_port (httpsrc_prc_t * ap_prc)
   assert (ap_prc);
 
   TIZ_INIT_OMX_PORT_STRUCT (mp3type, ARATELIA_HTTP_SOURCE_PORT_INDEX);
-  tiz_check_omx_err (tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)),
+  tiz_check_omx (tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)),
                                            handleOf (ap_prc),
                                            OMX_IndexParamAudioMp3, &mp3type));
 
@@ -287,7 +287,7 @@ set_mp3_audio_info_on_port (httpsrc_prc_t * ap_prc)
   mp3type.nChannels = ap_prc->num_channels_;
   mp3type.nSampleRate = ap_prc->samplerate_;
 
-  tiz_check_omx_err (tiz_krn_SetParameter_internal (
+  tiz_check_omx (tiz_krn_SetParameter_internal (
     tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc), OMX_IndexParamAudioMp3,
     &mp3type));
   return OMX_ErrorNone;
@@ -300,7 +300,7 @@ set_aac_audio_info_on_port (httpsrc_prc_t * ap_prc)
   assert (ap_prc);
 
   TIZ_INIT_OMX_PORT_STRUCT (aactype, ARATELIA_HTTP_SOURCE_PORT_INDEX);
-  tiz_check_omx_err (tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)),
+  tiz_check_omx (tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)),
                                            handleOf (ap_prc),
                                            OMX_IndexParamAudioAac, &aactype));
 
@@ -308,7 +308,7 @@ set_aac_audio_info_on_port (httpsrc_prc_t * ap_prc)
   aactype.nChannels = ap_prc->num_channels_;
   aactype.nSampleRate = ap_prc->samplerate_;
 
-  tiz_check_omx_err (tiz_krn_SetParameter_internal (
+  tiz_check_omx (tiz_krn_SetParameter_internal (
     tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc), OMX_IndexParamAudioAac,
     &aactype));
   return OMX_ErrorNone;
@@ -321,7 +321,7 @@ set_opus_audio_info_on_port (httpsrc_prc_t * ap_prc)
   assert (ap_prc);
 
   TIZ_INIT_OMX_PORT_STRUCT (opustype, ARATELIA_HTTP_SOURCE_PORT_INDEX);
-  tiz_check_omx_err (
+  tiz_check_omx (
     tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                           OMX_TizoniaIndexParamAudioOpus, &opustype));
 
@@ -329,7 +329,7 @@ set_opus_audio_info_on_port (httpsrc_prc_t * ap_prc)
   opustype.nChannels = ap_prc->num_channels_;
   opustype.nSampleRate = ap_prc->samplerate_;
 
-  tiz_check_omx_err (tiz_krn_SetParameter_internal (
+  tiz_check_omx (tiz_krn_SetParameter_internal (
     tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
     OMX_TizoniaIndexParamAudioOpus, &opustype));
   return OMX_ErrorNone;
@@ -564,7 +564,7 @@ obtain_uri (httpsrc_prc_t * ap_prc)
         = sizeof (OMX_PARAM_CONTENTURITYPE) + pathname_max + 1;
       ap_prc->p_uri_param_->nVersion.nVersion = OMX_VERSION;
 
-      tiz_check_omx_err (tiz_api_GetParameter (
+      tiz_check_omx (tiz_api_GetParameter (
         tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
         OMX_IndexParamContentURI, ap_prc->p_uri_param_));
       TIZ_NOTICE (handleOf (ap_prc), "URI [%s]",
@@ -593,7 +593,7 @@ release_buffer (httpsrc_prc_t * ap_prc)
     {
       TIZ_NOTICE (handleOf (ap_prc), "releasing HEADER [%p] nFilledLen [%d]",
                   ap_prc->p_outhdr_, ap_prc->p_outhdr_->nFilledLen);
-      tiz_check_omx_err (tiz_krn_release_buffer (
+      tiz_check_omx (tiz_krn_release_buffer (
         tiz_get_krn (handleOf (ap_prc)), ARATELIA_HTTP_SOURCE_PORT_INDEX,
         ap_prc->p_outhdr_));
       ap_prc->p_outhdr_ = NULL;
@@ -710,7 +710,7 @@ prepare_for_port_auto_detection (httpsrc_prc_t * ap_prc)
   assert (ap_prc);
 
   TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_HTTP_SOURCE_PORT_INDEX);
-  tiz_check_omx_err (
+  tiz_check_omx (
     tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                           OMX_IndexParamPortDefinition, &port_def));
   ap_prc->audio_coding_type_ = port_def.format.audio.eEncoding;
@@ -765,7 +765,7 @@ httpsrc_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
   assert (p_prc);
   assert (!p_prc->p_uri_param_);
-  tiz_check_omx_err (obtain_uri (p_prc));
+  tiz_check_omx (obtain_uri (p_prc));
 
   {
     const tiz_urltrans_buffer_cbacks_t buffer_cbacks

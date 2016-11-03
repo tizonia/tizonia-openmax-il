@@ -191,13 +191,13 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   inprocsrc_prc_type.pf_object_init = inprocsrc_prc_init;
 
   /* Initialize the component infrastructure */
-  tiz_check_omx_err (tiz_comp_init (ap_hdl, ARATELIA_INPROC_READER_COMPONENT_NAME));
+  tiz_check_omx (tiz_comp_init (ap_hdl, ARATELIA_INPROC_READER_COMPONENT_NAME));
 
   /* Register the "inprocsrc_prc" class */
-  tiz_check_omx_err (tiz_comp_register_types (ap_hdl, tf_list, 1));
+  tiz_check_omx (tiz_comp_register_types (ap_hdl, tf_list, 1));
 
   /* Register the various roles */
-  tiz_check_omx_err (tiz_comp_register_roles (ap_hdl, rf_list, 4));
+  tiz_check_omx (tiz_comp_register_roles (ap_hdl, rf_list, 4));
 
   return OMX_ErrorNone;
 }

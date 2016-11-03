@@ -56,7 +56,7 @@ opusport_ctor (void * ap_obj, va_list * app)
   OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE * p_opusmode = NULL;
 
   /* Register the OMX_TizoniaIndexParamAudioOpus index */
-  tiz_check_omx_err_ret_null (
+  tiz_check_omx_ret_null (
     tiz_port_register_index (p_obj, OMX_TizoniaIndexParamAudioOpus));
 
   /* Initialize the OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE structure */

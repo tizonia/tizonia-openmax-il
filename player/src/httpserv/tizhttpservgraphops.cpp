@@ -170,7 +170,7 @@ graph::httpservops::configure_server ()
   httpsrv.nSize = sizeof(OMX_TIZONIA_HTTPSERVERTYPE);
   httpsrv.nVersion.nVersion = OMX_VERSION;
 
-  tiz_check_omx_err (OMX_GetParameter (
+  tiz_check_omx (OMX_GetParameter (
       handles_[1],
       static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamHttpServer), &httpsrv));
 
@@ -198,7 +198,7 @@ graph::httpservops::configure_station ()
       = boost::dynamic_pointer_cast< httpservconfig >(config_);
   assert (srv_config);
 
-  tiz_check_omx_err (OMX_GetParameter (
+  tiz_check_omx (OMX_GetParameter (
       handles_[1],
       static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamIcecastMountpoint),
       &mount));

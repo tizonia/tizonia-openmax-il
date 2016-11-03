@@ -414,7 +414,7 @@ start_io_watcher (tiz_urltrans_t * ap_trans, const int fd,
       ap_trans->sockfd_ = fd;
       ap_trans->io_type_ = io_type;
       /* Allocate the io event */
-      tiz_check_omx_err (ap_trans->io_cbacks_.pf_io_init (
+      tiz_check_omx (ap_trans->io_cbacks_.pf_io_init (
         ap_trans->p_parent_, &(ap_trans->p_ev_io_), ap_trans->sockfd_,
         ap_trans->io_type_, true));
     }
@@ -434,7 +434,7 @@ restart_io_watcher (tiz_urltrans_t * ap_trans)
   if (!ap_trans->p_ev_io_)
     {
       /* Allocate the io event */
-      tiz_check_omx_err (ap_trans->io_cbacks_.pf_io_init (
+      tiz_check_omx (ap_trans->io_cbacks_.pf_io_init (
         ap_trans->p_parent_, &(ap_trans->p_ev_io_), ap_trans->sockfd_,
         ap_trans->io_type_, true));
     }
@@ -581,7 +581,7 @@ resume_curl (tiz_urltrans_t * ap_trans)
           on_curl_multi_error_ret_omx_oom (
             curl_multi_socket_all (ap_trans->p_curl_multi_, &running_handles));
         }
-      tiz_check_omx_err (kickstart_curl_socket (ap_trans, &running_handles));
+      tiz_check_omx (kickstart_curl_socket (ap_trans, &running_handles));
     }
   return OMX_ErrorNone;
 }
@@ -915,7 +915,7 @@ allocate_temp_data_store (tiz_urltrans_t * ap_trans)
 {
   assert (ap_trans);
   assert (ap_trans->p_store_ == NULL);
-  tiz_check_omx_err (
+  tiz_check_omx (
     tiz_buffer_init (&(ap_trans->p_store_), ap_trans->store_bytes_));
   return OMX_ErrorNone;
 }
@@ -942,11 +942,11 @@ allocate_events (tiz_urltrans_t * ap_trans)
   /* NOTE: we lazily initialise the io event */
 
   /* Allocate the reconnect timer event */
-  tiz_check_omx_err (ap_trans->timer_cbacks_.pf_timer_init (
+  tiz_check_omx (ap_trans->timer_cbacks_.pf_timer_init (
     ap_trans->p_parent_, &(ap_trans->p_ev_reconnect_timer_)));
 
   /* Allocate the curl timer event */
-  tiz_check_omx_err (ap_trans->timer_cbacks_.pf_timer_init (
+  tiz_check_omx (ap_trans->timer_cbacks_.pf_timer_init (
     ap_trans->p_parent_, &(ap_trans->p_ev_curl_timer_)));
 
   return OMX_ErrorNone;
@@ -978,7 +978,7 @@ allocate_curl_resources (tiz_urltrans_t * ap_trans)
   assert (!ap_trans->p_curl_);
   assert (!ap_trans->p_curl_multi_);
 
-  tiz_check_omx_err (allocate_curl_global_resources (ap_trans));
+  tiz_check_omx (allocate_curl_global_resources (ap_trans));
 
   TIZ_LOG (TIZ_PRIORITY_DEBUG, "%s", curl_version ());
 
@@ -1158,10 +1158,10 @@ tiz_urltrans_start (tiz_urltrans_t * ap_trans)
   if (is_transfer_stopped (ap_trans) || is_transfer_paused (ap_trans))
     {
       int running_handles = 0;
-      tiz_check_omx_err (start_curl (ap_trans));
+      tiz_check_omx (start_curl (ap_trans));
       assert (ap_trans->p_curl_multi_);
       /* Kickstart curl to get one or more callbacks called. */
-      tiz_check_omx_err (kickstart_curl_socket (ap_trans, &running_handles));
+      tiz_check_omx (kickstart_curl_socket (ap_trans, &running_handles));
     }
   URLTRANS_LOG_API_END (ap_trans);
   ASSERT_ASYNC_EVENTS (ap_trans);
@@ -1174,8 +1174,8 @@ tiz_urltrans_pause (tiz_urltrans_t * ap_trans)
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (ap_trans);
   URLTRANS_LOG_API_START (ap_trans);
-  tiz_check_omx_err (stop_io_watcher (ap_trans));
-  tiz_check_omx_err (stop_curl_timer_watcher (ap_trans));
+  tiz_check_omx (stop_io_watcher (ap_trans));
+  tiz_check_omx (stop_curl_timer_watcher (ap_trans));
   rc = stop_reconnect_timer_watcher (ap_trans);
   URLTRANS_LOG_API_END (ap_trans);
   return rc;
@@ -1188,8 +1188,8 @@ tiz_urltrans_unpause (tiz_urltrans_t * ap_trans)
   int running_handles = 0;
   assert (ap_trans);
   URLTRANS_LOG_API_START (ap_trans);
-  tiz_check_omx_err (restart_curl_timer_watcher (ap_trans));
-  tiz_check_omx_err (kickstart_curl_socket (ap_trans, &running_handles));
+  tiz_check_omx (restart_curl_timer_watcher (ap_trans));
+  tiz_check_omx (kickstart_curl_socket (ap_trans, &running_handles));
   URLTRANS_LOG_API_END (ap_trans);
   ASSERT_ASYNC_EVENTS (ap_trans);
   return rc;
@@ -1283,7 +1283,7 @@ tiz_urltrans_on_io_ready (tiz_urltrans_t * ap_trans, tiz_event_io_t * ap_ev_io,
             {
               if (ap_trans->sockfd_ > 0)
                 {
-                  tiz_check_omx_err (restart_io_watcher (ap_trans));
+                  tiz_check_omx (restart_io_watcher (ap_trans));
                 }
               send_from_internal_buffer (ap_trans);
             }
@@ -1307,7 +1307,7 @@ tiz_urltrans_on_timer_ready (tiz_urltrans_t * ap_trans,
     {
       if (is_transfer_running (ap_trans))
         {
-          tiz_check_omx_err (
+          tiz_check_omx (
             kickstart_curl_socket (ap_trans, &running_handles));
           if (!running_handles)
             {
@@ -1331,7 +1331,7 @@ tiz_urltrans_on_timer_ready (tiz_urltrans_t * ap_trans,
                       ap_trans->reconnect_timeout_);
       curl_multi_remove_handle (ap_trans->p_curl_multi_, ap_trans->p_curl_);
       start_curl (ap_trans);
-      tiz_check_omx_err (kickstart_curl_socket (ap_trans, &running_handles));
+      tiz_check_omx (kickstart_curl_socket (ap_trans, &running_handles));
     }
   URLTRANS_LOG_API_END (ap_trans);
   ASSERT_ASYNC_EVENTS (ap_trans);

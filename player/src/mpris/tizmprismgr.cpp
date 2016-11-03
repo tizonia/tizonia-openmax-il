@@ -93,12 +93,12 @@ void *control::thread_func (void *p_arg)
   assert (p_mgr);
 
   (void)tiz_thread_setname (&(p_mgr->thread_), (char *)"mprismgr");
-  tiz_check_omx_err_ret_null (tiz_sem_post (&(p_mgr->sem_)));
+  tiz_check_omx_ret_null (tiz_sem_post (&(p_mgr->sem_)));
 
   while (!done)
   {
     TIZ_LOG (TIZ_PRIORITY_TRACE, "MPRIS thread receiving...");
-    tiz_check_omx_err_ret_null (tiz_queue_receive (p_mgr->p_queue_, &p_data));
+    tiz_check_omx_ret_null (tiz_queue_receive (p_mgr->p_queue_, &p_data));
 
     assert (p_data);
 
@@ -108,7 +108,7 @@ void *control::thread_func (void *p_arg)
     delete p_cmd;
   }
 
-  tiz_check_omx_err_ret_null (tiz_sem_post (&(p_mgr->sem_)));
+  tiz_check_omx_ret_null (tiz_sem_post (&(p_mgr->sem_)));
   TIZ_LOG (TIZ_PRIORITY_TRACE, "MPRIS interface thread exiting...");
 
   return NULL;
@@ -155,16 +155,16 @@ control::mprismgr::init ()
   assert (!p_queue_ && !p_dispatcher_);
 
   // Init command queue infrastructure
-  tiz_check_omx_err_ret_oom (init_cmd_queue ());
+  tiz_check_omx_ret_oom (init_cmd_queue ());
 
   // Create the manager's thread
-  tiz_check_omx_err_ret_oom (tiz_mutex_lock (&mutex_));
-  tiz_check_omx_err_ret_oom (
+  tiz_check_omx_ret_oom (tiz_mutex_lock (&mutex_));
+  tiz_check_omx_ret_oom (
       tiz_thread_create (&thread_, 0, 0, thread_func, this));
-  tiz_check_omx_err_ret_oom (tiz_mutex_unlock (&mutex_));
+  tiz_check_omx_ret_oom (tiz_mutex_unlock (&mutex_));
 
   // Let's wait until the manager's thread is ready to receive requests
-  tiz_check_omx_err_ret_oom (tiz_sem_wait (&sem_));
+  tiz_check_omx_ret_oom (tiz_sem_wait (&sem_));
 
   // Create the DBus dispatcher
   p_dispatcher_ = new DBus::BusDispatcher ();
@@ -240,9 +240,9 @@ void control::mprismgr::volume_changed (const double volume)
 OMX_ERRORTYPE
 control::mprismgr::init_cmd_queue ()
 {
-  tiz_check_omx_err_ret_oom (tiz_mutex_init (&mutex_));
-  tiz_check_omx_err_ret_oom (tiz_sem_init (&sem_, 0));
-  tiz_check_omx_err_ret_oom (tiz_queue_init (&p_queue_, TIZ_MPRISMGR_QUEUE_MAX_ITEMS));
+  tiz_check_omx_ret_oom (tiz_mutex_init (&mutex_));
+  tiz_check_omx_ret_oom (tiz_sem_init (&sem_, 0));
+  tiz_check_omx_ret_oom (tiz_queue_init (&p_queue_, TIZ_MPRISMGR_QUEUE_MAX_ITEMS));
   return OMX_ErrorNone;
 }
 
@@ -259,9 +259,9 @@ control::mprismgr::post_cmd (control::cmd *p_cmd)
   assert (p_cmd);
   assert (p_queue_);
 
-  tiz_check_omx_err_ret_oom (tiz_mutex_lock (&mutex_));
-  tiz_check_omx_err_ret_oom (tiz_queue_send (p_queue_, p_cmd));
-  tiz_check_omx_err_ret_oom (tiz_mutex_unlock (&mutex_));
+  tiz_check_omx_ret_oom (tiz_mutex_lock (&mutex_));
+  tiz_check_omx_ret_oom (tiz_queue_send (p_queue_, p_cmd));
+  tiz_check_omx_ret_oom (tiz_mutex_unlock (&mutex_));
 
   return OMX_ErrorNone;
 }

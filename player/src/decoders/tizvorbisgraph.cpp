@@ -129,7 +129,7 @@ graph::vorbisdecops::set_vorbis_settings ()
   OMX_AUDIO_PARAM_VORBISTYPE vorbistype_orig;
   TIZ_INIT_OMX_PORT_STRUCT (vorbistype_orig, 0 /* port id */);
 
-  tiz_check_omx_err (OMX_GetParameter (handles_[1], OMX_IndexParamAudioVorbis,
+  tiz_check_omx (OMX_GetParameter (handles_[1], OMX_IndexParamAudioVorbis,
                                        &vorbistype_orig));
 
   // Set the vorbis settings on decoder's port #0
@@ -138,7 +138,7 @@ graph::vorbisdecops::set_vorbis_settings ()
 
   probe_ptr_->get_vorbis_codec_info (vorbistype);
   vorbistype.nPortIndex = 0;
-  tiz_check_omx_err (
+  tiz_check_omx (
       OMX_SetParameter (handles_[1], OMX_IndexParamAudioVorbis, &vorbistype));
 
   // Record whether we need to wait for a port settings change event or not

@@ -61,7 +61,7 @@
   do                                                 \
     {                                                \
       msg = init_scheduler_message (hdl, (msgtype)); \
-      tiz_ret_on_err (msg != NULL);                  \
+      tiz_check_true_ret_void (msg != NULL);         \
     }                                                \
   while (0)
 
@@ -608,8 +608,8 @@ send_msg_blocking (tiz_scheduler_t * ap_sched, tiz_sched_msg_t * ap_msg)
   assert (ap_msg);
   assert (ap_sched);
   ap_msg->will_block = OMX_TRUE;
-  tiz_check_omx_err_ret_oom (tiz_queue_send (ap_sched->p_queue, ap_msg));
-  tiz_check_omx_err_ret_oom (tiz_sem_wait (&(ap_sched->sem)));
+  tiz_check_omx_ret_oom (tiz_queue_send (ap_sched->p_queue, ap_msg));
+  tiz_check_omx_ret_oom (tiz_sem_wait (&(ap_sched->sem)));
   return ap_sched->error;
 }
 
@@ -648,9 +648,9 @@ send_msg (tiz_scheduler_t * ap_sched, tiz_sched_msg_t * ap_msg)
         }
       else
         {
-          tiz_check_omx_err_ret_oom (tiz_mutex_lock (&(ap_sched->mutex)));
+          tiz_check_omx_ret_oom (tiz_mutex_lock (&(ap_sched->mutex)));
           rc = send_msg_blocking (ap_sched, ap_msg);
-          tiz_check_omx_err_ret_oom (tiz_mutex_unlock (&(ap_sched->mutex)));
+          tiz_check_omx_ret_oom (tiz_mutex_unlock (&(ap_sched->mutex)));
         }
     }
 
@@ -2122,12 +2122,11 @@ il_sched_thread_func (void * p_arg)
   assert (p_sched);
 
   p_sched->thread_id = tiz_thread_id ();
-  tiz_check_omx_err_ret_null (tiz_sem_post (&(p_sched->sem)));
+  tiz_check_omx_ret_null (tiz_sem_post (&(p_sched->sem)));
 
   for (;;)
     {
-      tiz_check_omx_err_ret_null (
-        tiz_queue_receive (p_sched->p_queue, &p_data));
+      tiz_check_omx_ret_null (tiz_queue_receive (p_sched->p_queue, &p_data));
 
       assert (p_data);
       signal_client
@@ -2135,7 +2134,7 @@ il_sched_thread_func (void * p_arg)
 
       if (OMX_TRUE == signal_client)
         {
-          tiz_check_omx_err_ret_null (tiz_sem_post (&(p_sched->sem)));
+          tiz_check_omx_ret_null (tiz_sem_post (&(p_sched->sem)));
         }
 
       if (ETIZSchedStateStopped == p_sched->state)
@@ -2155,12 +2154,12 @@ start_scheduler (tiz_scheduler_t * ap_sched)
   assert (ap_sched);
 
   /* Create scheduler thread */
-  tiz_check_omx_err_ret_oom (tiz_mutex_lock (&(ap_sched->mutex)));
-  tiz_check_omx_err_ret_oom (tiz_thread_create (
-    &(ap_sched->thread), 0, 0, il_sched_thread_func, ap_sched));
+  tiz_check_omx_ret_oom (tiz_mutex_lock (&(ap_sched->mutex)));
+  tiz_check_omx_ret_oom (tiz_thread_create (&(ap_sched->thread), 0, 0,
+                                            il_sched_thread_func, ap_sched));
 
-  tiz_check_omx_err_ret_oom (tiz_mutex_unlock (&(ap_sched->mutex)));
-  tiz_check_omx_err_ret_oom (tiz_sem_wait (&(ap_sched->sem)));
+  tiz_check_omx_ret_oom (tiz_mutex_unlock (&(ap_sched->mutex)));
+  tiz_check_omx_ret_oom (tiz_sem_wait (&(ap_sched->sem)));
 
   return OMX_ErrorNone;
 }
@@ -2195,9 +2194,9 @@ instantiate_scheduler (OMX_HANDLETYPE ap_hdl, const char * ap_cname)
       return NULL;
     }
 
-  tiz_check_omx_err_ret_null (tiz_mutex_init (&(p_sched->mutex)));
-  tiz_check_omx_err_ret_null (tiz_sem_init (&(p_sched->sem), 0));
-  tiz_check_omx_err_ret_null (
+  tiz_check_omx_ret_null (tiz_mutex_init (&(p_sched->mutex)));
+  tiz_check_omx_ret_null (tiz_sem_init (&(p_sched->sem), 0));
+  tiz_check_omx_ret_null (
     tiz_queue_init (&(p_sched->p_queue), SCHED_QUEUE_MAX_ITEMS));
 
   p_sched->child.p_fsm = NULL;
@@ -2279,14 +2278,14 @@ init_servants (tiz_scheduler_t * ap_sched, tiz_sched_msg_t * ap_msg)
   p_hdl->ComponentRoleEnum = sched_ComponentRoleEnum;
 
   /* Init the small object allocator */
-  tiz_check_omx_err_ret_oom (tiz_soa_init (&(ap_sched->p_soa)));
+  tiz_check_omx_ret_oom (tiz_soa_init (&(ap_sched->p_soa)));
 
   /* Init the object system */
-  tiz_check_omx_err_ret_oom (
+  tiz_check_omx_ret_oom (
     tiz_os_init (&(ap_sched->p_objsys), p_hdl, ap_sched->p_soa));
 
   /* Register libtizonia types */
-  tiz_check_omx_err_ret_oom (tiz_os_register_base_types (ap_sched->p_objsys));
+  tiz_check_omx_ret_oom (tiz_os_register_base_types (ap_sched->p_objsys));
 
   /* Init the FSM */
   ap_sched->child.p_fsm = factory_new (tiz_get_type (p_hdl, "tizfsm"));
@@ -2309,9 +2308,9 @@ init_servants (tiz_scheduler_t * ap_sched, tiz_sched_msg_t * ap_msg)
     }
 
   /* All servants will use the same small object allocator */
-  tiz_check_omx_err_ret_oom (
+  tiz_check_omx_ret_oom (
     tiz_srv_set_allocator (ap_sched->child.p_fsm, ap_sched->p_soa));
-  tiz_check_omx_err_ret_oom (
+  tiz_check_omx_ret_oom (
     tiz_srv_set_allocator (ap_sched->child.p_ker, ap_sched->p_soa));
 
   return OMX_ErrorNone;
@@ -2366,7 +2365,7 @@ init_and_register_role (tiz_scheduler_t * ap_sched, const OMX_U32 a_role_pos)
   tiz_check_null_ret_oom ((p_port = p_rf->pf_cport (p_hdl)) != NULL);
 
   /* Register it with the kernel */
-  tiz_check_omx_err_ret_oom (tiz_krn_register_port (
+  tiz_check_omx_ret_oom (tiz_krn_register_port (
     ap_sched->child.p_ker, p_port, OMX_TRUE)); /* it is a config port */
 
   TIZ_TRACE (p_hdl, "Registering role #[%d] -> [%s] nports = [%d] rc = [%s]...",
@@ -2376,7 +2375,7 @@ init_and_register_role (tiz_scheduler_t * ap_sched, const OMX_U32 a_role_pos)
     {
       /* Instantiate and register the normal ports */
       tiz_check_null_ret_oom ((p_port = p_rf->pf_port[j](p_hdl)) != NULL);
-      tiz_check_omx_err_ret_oom (tiz_krn_register_port (
+      tiz_check_omx_ret_oom (tiz_krn_register_port (
         ap_sched->child.p_ker, p_port, OMX_FALSE)); /* not a config port */
       rc = configure_port_preannouncements (ap_sched, p_hdl, p_port);
     }
@@ -2389,8 +2388,7 @@ init_and_register_role (tiz_scheduler_t * ap_sched, const OMX_U32 a_role_pos)
       ap_sched->child.p_prc = p_proc;
 
       /* All servants will use the same object allocator */
-      tiz_check_omx_err_ret_oom (
-        tiz_srv_set_allocator (p_proc, ap_sched->p_soa));
+      tiz_check_omx_ret_oom (tiz_srv_set_allocator (p_proc, ap_sched->p_soa));
     }
 
   return rc;
@@ -2437,7 +2435,7 @@ tiz_comp_init (const OMX_HANDLETYPE ap_hdl, const char * ap_cname)
       return OMX_ErrorInsufficientResources;
     }
 
-  tiz_check_omx_err_ret_oom (start_scheduler (p_sched));
+  tiz_check_omx_ret_oom (start_scheduler (p_sched));
 
   TIZ_COMP_INIT_MSG_OOM (ap_hdl, p_msg, ETIZSchedMsgComponentInit);
 

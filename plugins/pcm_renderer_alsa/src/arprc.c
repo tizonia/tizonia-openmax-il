@@ -233,7 +233,7 @@ static OMX_ERRORTYPE retrieve_alsa_pcm_format (
 
   TIZ_INIT_OMX_PORT_STRUCT (ap_prc->pcmmode,
                             ARATELIA_AUDIO_RENDERER_PORT_INDEX);
-  tiz_check_omx_err (
+  tiz_check_omx (
       tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                             OMX_IndexParamAudioPcm, &ap_prc->pcmmode));
 
@@ -370,7 +370,7 @@ static OMX_ERRORTYPE release_header (ar_prc_t *ap_prc)
   if (ap_prc->p_inhdr_)
     {
       ap_prc->p_inhdr_->nOffset = 0;
-      tiz_check_omx_err (tiz_krn_release_buffer (
+      tiz_check_omx (tiz_krn_release_buffer (
           tiz_get_krn (handleOf (ap_prc)), ARATELIA_AUDIO_RENDERER_PORT_INDEX,
           ap_prc->p_inhdr_));
       ap_prc->p_inhdr_ = NULL;
@@ -554,10 +554,10 @@ static OMX_ERRORTYPE set_initial_component_volume (ar_prc_t *ap_prc)
 
   if (!using_null_alsa_device (ap_prc))
     {
-      tiz_check_omx_err (get_alsa_master_volume (ap_prc, &(ap_prc->volume_)));
+      tiz_check_omx (get_alsa_master_volume (ap_prc, &(ap_prc->volume_)));
 
       TIZ_INIT_OMX_PORT_STRUCT (volume, ARATELIA_AUDIO_RENDERER_PORT_INDEX);
-      tiz_check_omx_err (
+      tiz_check_omx (
           tiz_api_GetConfig (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                              OMX_IndexConfigAudioVolume, &volume));
 
@@ -565,7 +565,7 @@ static OMX_ERRORTYPE set_initial_component_volume (ar_prc_t *ap_prc)
 
       TIZ_TRACE (handleOf (ap_prc), "ap_prc->volume_ [%d]", ap_prc->volume_);
 
-      tiz_check_omx_err (tiz_krn_SetConfig_internal (
+      tiz_check_omx (tiz_krn_SetConfig_internal (
           tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
           OMX_IndexConfigAudioVolume, &volume));
     }
@@ -664,7 +664,7 @@ static OMX_ERRORTYPE start_volume_ramp (ar_prc_t *ap_prc)
     {
       assert (ap_prc->p_vol_ramp_timer_);
       ap_prc->ramp_volume_ = 0;
-      tiz_check_omx_err (
+      tiz_check_omx (
           tiz_srv_timer_watcher_start (ap_prc, ap_prc->p_vol_ramp_timer_, 0.2, 0.2));
     }
   return OMX_ErrorNone;
@@ -829,7 +829,7 @@ static OMX_ERRORTYPE buffer_emptied (ar_prc_t *ap_prc)
       /* Record the fact that EOS shown up. We'll signal it to the client on a
          timer event */
       ap_prc->nflags_ = ap_prc->p_inhdr_->nFlags;
-      tiz_check_omx_err (start_eos_timer (ap_prc));
+      tiz_check_omx (start_eos_timer (ap_prc));
     }
 
   return release_header (ap_prc);
@@ -849,7 +849,7 @@ static OMX_ERRORTYPE render_pcm_data (ar_prc_t *ap_prc)
 
       if (0 == p_hdr->nFilledLen)
         {
-          tiz_check_omx_err (buffer_emptied (ap_prc));
+          tiz_check_omx (buffer_emptied (ap_prc));
           p_hdr = NULL;
         }
     }
@@ -942,12 +942,12 @@ static OMX_ERRORTYPE ar_prc_allocate_resources (void *ap_prc,
       /* This is to generate volume ramps when needed */
       if (p_prc->ramp_enabled_)
         {
-          tiz_check_omx_err (
+          tiz_check_omx (
               tiz_srv_timer_watcher_init (p_prc, &(p_prc->p_vol_ramp_timer_)));
         }
 
       /* This is to produce accurate EOS flag events */
-      tiz_check_omx_err (
+      tiz_check_omx (
           tiz_srv_timer_watcher_init (p_prc, &(p_prc->p_eos_timer_)));
     }
 
@@ -976,7 +976,7 @@ static OMX_ERRORTYPE ar_prc_prepare_to_transfer (void *ap_prc,
           snd_pcm_hw_params_any (p_prc->p_pcm_, p_prc->p_hw_params_));
 
       /* Retrieve pcm params from the alsa pcm device and the omx port */
-      tiz_check_omx_err (retrieve_alsa_pcm_format (p_prc, &snd_pcm_format));
+      tiz_check_omx (retrieve_alsa_pcm_format (p_prc, &snd_pcm_format));
 
       /* This sets the hardware and software parameters in a convenient way. */
       bail_on_snd_pcm_error (snd_pcm_set_params (
@@ -993,7 +993,7 @@ static OMX_ERRORTYPE ar_prc_prepare_to_transfer (void *ap_prc,
                  p_prc->descriptor_count_);
 
       /* Init the io watcher */
-      tiz_check_omx_err (
+      tiz_check_omx (
           tiz_srv_io_watcher_init (p_prc, &(p_prc->p_ev_io_), p_prc->p_fds_->fd,
                                    TIZ_EVENT_READ_OR_WRITE, true));
 
@@ -1020,8 +1020,8 @@ static OMX_ERRORTYPE ar_prc_transfer_and_process (void *ap_prc,
   assert (p_prc);
   log_alsa_pcm_state (p_prc);
   prepare_volume_ramp (p_prc);
-  tiz_check_omx_err (start_volume_ramp (p_prc));
-  tiz_check_omx_err (apply_ramp_step (p_prc));
+  tiz_check_omx (start_volume_ramp (p_prc));
+  tiz_check_omx (apply_ramp_step (p_prc));
   return OMX_ErrorNone;
 }
 
@@ -1152,7 +1152,7 @@ static OMX_ERRORTYPE ar_prc_resume (const void *ap_prc)
   start_eos_timer (p_prc);
   log_alsa_pcm_state (p_prc);
   bail_on_snd_pcm_error (snd_pcm_pause (p_prc->p_pcm_, resume));
-  tiz_check_omx_err (start_io_watcher (p_prc));
+  tiz_check_omx (start_io_watcher (p_prc));
   return OMX_ErrorNone;
 }
 
@@ -1195,8 +1195,8 @@ static OMX_ERRORTYPE ar_prc_port_enable (const void *ap_prc,
   p_prc->port_disabled_ = false;
   if (p_prc->p_pcm_)
     {
-      tiz_check_omx_err (ar_prc_prepare_to_transfer (p_prc, OMX_ALL));
-      tiz_check_omx_err (ar_prc_transfer_and_process (p_prc, OMX_ALL));
+      tiz_check_omx (ar_prc_prepare_to_transfer (p_prc, OMX_ALL));
+      tiz_check_omx (ar_prc_transfer_and_process (p_prc, OMX_ALL));
     }
   return OMX_ErrorNone;
 }
@@ -1215,7 +1215,7 @@ static OMX_ERRORTYPE ar_prc_config_change (void *ap_prc, OMX_U32 a_pid,
         {
           OMX_AUDIO_CONFIG_VOLUMETYPE volume;
           TIZ_INIT_OMX_PORT_STRUCT (volume, ARATELIA_AUDIO_RENDERER_PORT_INDEX);
-          tiz_check_omx_err (tiz_api_GetConfig (
+          tiz_check_omx (tiz_api_GetConfig (
               tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
               OMX_IndexConfigAudioVolume, &volume));
           TIZ_TRACE (
@@ -1235,7 +1235,7 @@ static OMX_ERRORTYPE ar_prc_config_change (void *ap_prc, OMX_U32 a_pid,
         {
           OMX_AUDIO_CONFIG_MUTETYPE mute;
           TIZ_INIT_OMX_PORT_STRUCT (mute, ARATELIA_AUDIO_RENDERER_PORT_INDEX);
-          tiz_check_omx_err (tiz_api_GetConfig (
+          tiz_check_omx (tiz_api_GetConfig (
               tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
               OMX_IndexConfigAudioMute, &mute));
           /* TODO: Volume should be done by adjusting the gain, not ALSA's

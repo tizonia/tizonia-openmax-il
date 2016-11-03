@@ -57,7 +57,7 @@ static OMX_ERRORTYPE allocate_temp_data_store (aacdec_prc_t *ap_prc)
   assert (ap_prc);
 
   TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_AAC_DECODER_INPUT_PORT_INDEX);
-  tiz_check_omx_err (
+  tiz_check_omx (
       tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                             OMX_IndexParamPortDefinition, &port_def));
 
@@ -101,7 +101,7 @@ static inline OMX_ERRORTYPE retrieve_aac_settings (
 
   /* Retrieve the aac settings from the input port */
   TIZ_INIT_OMX_PORT_STRUCT (*ap_aactype, ARATELIA_AAC_DECODER_INPUT_PORT_INDEX);
-  tiz_check_omx_err (tiz_api_GetParameter (tiz_get_krn (handleOf (p_prc)),
+  tiz_check_omx (tiz_api_GetParameter (tiz_get_krn (handleOf (p_prc)),
                                            handleOf (p_prc),
                                            OMX_IndexParamAudioAac, ap_aactype));
   return OMX_ErrorNone;
@@ -117,7 +117,7 @@ static OMX_ERRORTYPE set_decoder_config (aacdec_prc_t *ap_prc)
   assert (ap_prc->p_aac_dec_);
 
   /* Retrieve the aac settings from the input port */
-  tiz_check_omx_err (retrieve_aac_settings (ap_prc, &aactype));
+  tiz_check_omx (retrieve_aac_settings (ap_prc, &aactype));
 
   /* Set the default object type and samplerate */
   /* This is useful for RAW AAC files */
@@ -166,7 +166,7 @@ static OMX_ERRORTYPE update_pcm_mode (aacdec_prc_t *ap_prc, const OMX_U32 a_samp
                  ap_prc->pcmmode_.nChannels, a_channels);
       ap_prc->pcmmode_.nSamplingRate = a_samplerate;
       ap_prc->pcmmode_.nChannels     = a_channels;
-      tiz_check_omx_err (tiz_krn_SetParameter_internal
+      tiz_check_omx (tiz_krn_SetParameter_internal
                          (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                           OMX_IndexParamAudioPcm, &(ap_prc->pcmmode_)));
       tiz_srv_issue_event ((OMX_PTR)ap_prc, OMX_EventPortSettingsChanged,
@@ -357,7 +357,7 @@ static OMX_ERRORTYPE init_aac_decoder (aacdec_prc_t *ap_prc)
   /* Set the decoder configuration according to the configuration found on the
      input port
      (useful in case of raw aac files) */
-  tiz_check_omx_err (set_decoder_config (ap_prc));
+  tiz_check_omx (set_decoder_config (ap_prc));
 
   /* Retrieve againg the pointer to the current position in the buffer
      (skip_id3_tag may have modified it */
@@ -377,7 +377,7 @@ static OMX_ERRORTYPE init_aac_decoder (aacdec_prc_t *ap_prc)
   else
     {
       /* Make sure the the output port parameters are up to date */
-      tiz_check_omx_err (update_pcm_mode (ap_prc, ap_prc->samplerate_,
+      tiz_check_omx (update_pcm_mode (ap_prc, ap_prc->samplerate_,
                                           ap_prc->channels_));
       /* We will skip this many bytes the next time we read from this buffer */
       tiz_buffer_advance (ap_prc->p_store_, nbytes);
@@ -420,7 +420,7 @@ static OMX_ERRORTYPE transform_buffer (aacdec_prc_t *ap_prc)
           p_out->nFlags |= OMX_BUFFERFLAG_EOS;
           tiz_filter_prc_update_eos_flag (ap_prc, true);
           p_in->nFlags &= ~(1 << OMX_BUFFERFLAG_EOS);
-          tiz_check_omx_err (tiz_filter_prc_release_header (
+          tiz_check_omx (tiz_filter_prc_release_header (
               ap_prc, ARATELIA_AAC_DECODER_OUTPUT_PORT_INDEX));
         }
     }
@@ -578,7 +578,7 @@ static OMX_ERRORTYPE aacdec_prc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
   aacdec_prc_t *p_prc = ap_obj;
   assert (p_prc);
-  tiz_check_omx_err (allocate_temp_data_store (p_prc));
+  tiz_check_omx (allocate_temp_data_store (p_prc));
   /* Check that the library has been successfully inited */
   tiz_check_null_ret_oom ((p_prc->p_aac_dec_) != NULL);
   return OMX_ErrorNone;
@@ -597,7 +597,7 @@ static OMX_ERRORTYPE aacdec_prc_prepare_to_transfer (void *ap_obj,
   assert (p_prc);
   reset_stream_parameters (p_prc);
   TIZ_INIT_OMX_PORT_STRUCT (p_prc->pcmmode_, ARATELIA_AAC_DECODER_OUTPUT_PORT_INDEX);
-  tiz_check_omx_err (tiz_api_GetParameter
+  tiz_check_omx (tiz_api_GetParameter
                      (tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
                       OMX_IndexParamAudioPcm, &(p_prc->pcmmode_)));
   return OMX_ErrorNone;

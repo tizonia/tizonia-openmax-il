@@ -218,11 +218,11 @@ alloc_data_store (oggmuxflt_prc_t * ap_prc, tiz_buffer_t * ap_store,
   assert (ap_prc);
 
   TIZ_INIT_OMX_PORT_STRUCT (port_def, a_pid);
-  tiz_check_omx_err (
+  tiz_check_omx (
     tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                           OMX_IndexParamPortDefinition, &port_def));
   assert (ap_store == NULL);
-  tiz_check_omx_err (tiz_buffer_init (&(ap_store), port_def.nBufferSize * 4));
+  tiz_check_omx (tiz_buffer_init (&(ap_store), port_def.nBufferSize * 4));
   return OMX_ErrorNone;
   ;
 }
@@ -253,16 +253,16 @@ alloc_oggz (oggmuxflt_prc_t * ap_prc)
   return rc;
 }
 
-static OMX_ERRORTYPE
-am_i_able_to_mux (oggmuxflt_prc_t * ap_prc)
+static bool
+able_to_mux (oggmuxflt_prc_t * ap_prc)
 {
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  bool rc = true;
   bool audio_data_avail = (tiz_buffer_available (ap_prc->p_audio_store_) > 0);
   bool video_data_avail = (tiz_buffer_available (ap_prc->p_video_store_) > 0);
   if (!audio_data_avail && !video_data_avail)
     {
-      TIZ_DEBUG (handleOf (ap_prc), "Audio or Video data available");
-      rc = OMX_ErrorNotReady;
+      TIZ_DEBUG (handleOf (ap_prc), "Audio/Video data unavailable");
+      rc = false;
     }
   else
     {
@@ -271,7 +271,7 @@ am_i_able_to_mux (oggmuxflt_prc_t * ap_prc)
       if (!p_hdr)
         {
           TIZ_DEBUG (handleOf (ap_prc), "No output buffers available");
-          rc = OMX_ErrorNotReady;
+          rc = false;
         }
     }
   return rc;
@@ -361,15 +361,10 @@ store_data (oggmuxflt_prc_t * ap_prc, const OMX_U32 a_pid,
 
   if (p_in)
     {
-      int pushed = 0;
-      TIZ_TRACE (handleOf (ap_prc), "avail [%d] pid [%d] incoming [%d]",
-                 tiz_buffer_available (p_store), a_pid,
-                 p_in->nFilledLen - p_in->nOffset);
-      pushed = tiz_buffer_push (p_store, p_in->pBuffer + p_in->nOffset,
-                                p_in->nFilledLen);
-
-      tiz_ret_val_on_err ((pushed < p_in->nFilledLen),
-                          OMX_ErrorInsufficientResources);
+      int pushed = tiz_buffer_push (p_store, p_in->pBuffer + p_in->nOffset,
+                                    p_in->nFilledLen);
+      tiz_check_true_ret_val ((pushed == p_in->nFilledLen),
+                              OMX_ErrorInsufficientResources);
 
       rc = release_input_header (ap_prc, a_pid, p_in);
     }
@@ -416,10 +411,10 @@ oggmuxflt_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
 {
   oggmuxflt_prc_t * p_prc = ap_prc;
   assert (p_prc);
-  tiz_check_omx_err (alloc_oggz (p_prc));
-  tiz_check_omx_err (alloc_data_store (p_prc, p_prc->p_audio_store_,
+  tiz_check_omx (alloc_oggz (p_prc));
+  tiz_check_omx (alloc_data_store (p_prc, p_prc->p_audio_store_,
                                        ARATELIA_OGG_MUXER_FILTER_PORT_0_INDEX));
-  tiz_check_omx_err (alloc_data_store (p_prc, p_prc->p_video_store_,
+  tiz_check_omx (alloc_data_store (p_prc, p_prc->p_video_store_,
                                        ARATELIA_OGG_MUXER_FILTER_PORT_1_INDEX));
   return OMX_ErrorNone;
 }
@@ -468,21 +463,18 @@ oggmuxflt_prc_buffers_ready (const void * ap_prc)
 
   assert (ap_prc);
 
-  tiz_check_omx_err (store_data (p_prc, ARATELIA_OGG_MUXER_FILTER_PORT_0_INDEX,
-                                 &(p_prc->p_audio_store_)));
-  tiz_check_omx_err (store_data (p_prc, ARATELIA_OGG_MUXER_FILTER_PORT_1_INDEX,
-                                 &(p_prc->p_video_store_)));
-
-  while (OMX_ErrorNone == (rc = am_i_able_to_mux (p_prc)))
+  while (able_to_mux (p_prc))
     {
+      tiz_check_omx (store_data (p_prc,
+                                     ARATELIA_OGG_MUXER_FILTER_PORT_0_INDEX,
+                                     &(p_prc->p_audio_store_)));
+      tiz_check_omx (store_data (p_prc,
+                                     ARATELIA_OGG_MUXER_FILTER_PORT_1_INDEX,
+                                     &(p_prc->p_video_store_)));
       rc = mux_streams (p_prc);
+      tiz_check_true_ret_val (!(OMX_ErrorNotReady == rc), OMX_ErrorNone);
+      tiz_check_omx_ret_val (rc, rc);
     }
-
-  if (OMX_ErrorNotReady == rc)
-    {
-      rc = OMX_ErrorNone;
-    }
-
   return rc;
 }
 

@@ -385,7 +385,7 @@ static OMX_ERRORTYPE propagate_ingress (void *ap_obj, OMX_U32 a_pid)
           if (OMX_DirInput == pdir)
             {
               assert (p_hdr->nInputPortIndex == pid);
-              tiz_check_omx_err (tiz_api_EmptyThisBuffer (p_prc, p_hdl, p_hdr));
+              tiz_check_omx (tiz_api_EmptyThisBuffer (p_prc, p_hdl, p_hdr));
             }
           else
             {
@@ -394,7 +394,7 @@ static OMX_ERRORTYPE propagate_ingress (void *ap_obj, OMX_U32 a_pid)
                  OMX_StateExecuting */
               tiz_clear_header (p_hdr);
               /* TOOD: Do we need to reset any other header fields? */
-              tiz_check_omx_err (tiz_api_FillThisBuffer (p_prc, p_hdl, p_hdr));
+              tiz_check_omx (tiz_api_FillThisBuffer (p_prc, p_hdl, p_hdr));
             }
 
           /* ... and keep the header in the list. */
@@ -517,7 +517,7 @@ static OMX_ERRORTYPE process_marks (void *ap_obj, OMX_BUFFERHEADERTYPE *ap_hdr,
           if (OMX_ErrorNone == (rc = tiz_port_mark_buffer (p_port, ap_hdr)))
             {
               /* Successfully complete here the OMX_CommandMarkBuffer command */
-              tiz_check_omx_err (
+              tiz_check_omx (
                   complete_mark_buffer (p_obj, p_port, a_pid, OMX_ErrorNone));
             }
           else
@@ -627,11 +627,11 @@ static OMX_ERRORTYPE flush_egress (void *ap_obj, const OMX_U32 a_pid,
              * if pre-announcements are enabled on the port. */
             if (OMX_DirInput == pdir && TIZ_PORT_IS_ALLOCATOR (p_port))
               {
-                tiz_check_omx_err (tiz_port_populate_header (p_port, p_hdr));
+                tiz_check_omx (tiz_port_populate_header (p_port, p_hdr));
               }
 
             /* Propagate buffer marks... */
-            tiz_check_omx_err (process_marks (p_obj, p_hdr, pid, p_hdl));
+            tiz_check_omx (process_marks (p_obj, p_hdr, pid, p_hdl));
 
             if (OMX_TRUE == a_clear)
               {
@@ -730,7 +730,7 @@ static OMX_ERRORTYPE complete_port_disable (void *ap_obj, OMX_PTR ap_port,
   if (p_obj->cmd_completion_count_ == 0)
     {
       OMX_HANDLETYPE p_hdl = handleOf (p_obj);
-      tiz_check_omx_err (tiz_fsm_complete_command (
+      tiz_check_omx (tiz_fsm_complete_command (
           tiz_get_fsm (p_hdl), p_obj, OMX_CommandPortDisable, a_pid));
     }
 
@@ -752,7 +752,7 @@ static OMX_ERRORTYPE complete_port_enable (void *ap_obj, OMX_PTR ap_port,
   /* Now it is time to notify the processor servant that a port is being
      enabled (telling the processor should be the last thing we do during the
      port enable sequence). */
-  tiz_check_omx_err (tiz_api_SendCommand (tiz_get_prc (handleOf (p_obj)),
+  tiz_check_omx (tiz_api_SendCommand (tiz_get_prc (handleOf (p_obj)),
                                           handleOf (p_obj),
                                           OMX_CommandPortEnable, a_pid, NULL));
 
@@ -772,7 +772,7 @@ static OMX_ERRORTYPE complete_port_enable (void *ap_obj, OMX_PTR ap_port,
   if (p_obj->cmd_completion_count_ == 0)
     {
       OMX_HANDLETYPE p_hdl = handleOf (p_obj);
-      tiz_check_omx_err (tiz_fsm_complete_command (
+      tiz_check_omx (tiz_fsm_complete_command (
           tiz_get_fsm (p_hdl), p_obj, OMX_CommandPortEnable, a_pid));
     }
 
@@ -797,7 +797,7 @@ static OMX_ERRORTYPE complete_port_flush (void *ap_obj, OMX_PTR ap_port,
   if (--p_obj->cmd_completion_count_ == 0)
     {
       OMX_HANDLETYPE p_hdl = handleOf (p_obj);
-      tiz_check_omx_err (tiz_fsm_complete_command (tiz_get_fsm (p_hdl), p_obj,
+      tiz_check_omx (tiz_fsm_complete_command (tiz_get_fsm (p_hdl), p_obj,
                                                    OMX_CommandFlush, a_pid));
     }
 

@@ -55,7 +55,7 @@ oggport_ctor (void * ap_obj, va_list * app)
     = super_ctor (typeOf (ap_obj, "tizoggport"), ap_obj, app);
   assert (p_obj);
 
-  tiz_check_omx_err_ret_null (
+  tiz_check_omx_ret_null (
     tiz_port_register_index (p_obj, OMX_TizoniaIndexParamAudioOpus));
 
   return p_obj;

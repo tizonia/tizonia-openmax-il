@@ -303,7 +303,7 @@ OMX_ERRORTYPE graph::spotifyops::get_encoding_type_from_spotify_source ()
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
   const OMX_U32 port_id = 0;
   TIZ_INIT_OMX_PORT_STRUCT (port_def, port_id);
-  tiz_check_omx_err (
+  tiz_check_omx (
       OMX_GetParameter (handles_[0], OMX_IndexParamPortDefinition, &port_def));
   encoding_ = port_def.format.audio.eEncoding;
   return OMX_ErrorNone;
@@ -316,9 +316,9 @@ graph::spotifyops::apply_pcm_codec_info_from_spotify_source ()
   OMX_U32 sampling_rate = 44100;
   std::string encoding_str;
 
-  tiz_check_omx_err (get_channels_and_rate_from_spotify_source (
+  tiz_check_omx (get_channels_and_rate_from_spotify_source (
       channels, sampling_rate, encoding_str));
-  tiz_check_omx_err (set_channels_and_rate_on_renderer (channels, sampling_rate,
+  tiz_check_omx (set_channels_and_rate_on_renderer (channels, sampling_rate,
                                                         encoding_str));
   return OMX_ErrorNone;
 }
@@ -364,7 +364,7 @@ graph::spotifyops::set_channels_and_rate_on_renderer (
 
   // Retrieve the pcm settings from the renderer component
   TIZ_INIT_OMX_PORT_STRUCT (renderer_pcmtype_, port_id);
-  tiz_check_omx_err (
+  tiz_check_omx (
       OMX_GetParameter (handle, OMX_IndexParamAudioPcm, &renderer_pcmtype_));
 
   // Now assign the actual settings to the pcmtype structure
@@ -375,7 +375,7 @@ graph::spotifyops::set_channels_and_rate_on_renderer (
       = (encoding_ == OMX_AUDIO_CodingMP3 ? OMX_EndianBig : OMX_EndianLittle);
 
   // Set the new pcm settings
-  tiz_check_omx_err (
+  tiz_check_omx (
       OMX_SetParameter (handle, OMX_IndexParamAudioPcm, &renderer_pcmtype_));
 
   std::string coding_type_str ("Spotify");
@@ -395,7 +395,7 @@ graph::spotifyops::set_spotify_user_and_pass (const OMX_HANDLETYPE handle,
   // Set the Spotify user and pass
   OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE sessiontype;
   TIZ_INIT_OMX_STRUCT (sessiontype);
-  tiz_check_omx_err (OMX_GetParameter (
+  tiz_check_omx (OMX_GetParameter (
       handle,
       static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioSpotifySession),
       &sessiontype));
@@ -414,7 +414,7 @@ graph::spotifyops::set_spotify_playlist (const OMX_HANDLETYPE handle,
   // Set the Spotify playlist
   OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE playlisttype;
   TIZ_INIT_OMX_STRUCT (playlisttype);
-  tiz_check_omx_err (OMX_GetParameter (
+  tiz_check_omx (OMX_GetParameter (
       handle,
       static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioSpotifyPlaylist),
       &playlisttype));

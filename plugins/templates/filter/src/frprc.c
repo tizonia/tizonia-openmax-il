@@ -80,7 +80,7 @@ transform_buffer (fr_prc_t *ap_prc)
           p_out->nFlags |= OMX_BUFFERFLAG_EOS;
           tiz_filter_prc_update_eos_flag (ap_prc, true);
           p_in->nFlags   = 0;
-          tiz_check_omx_err
+          tiz_check_omx
             (tiz_filter_prc_release_header (ap_prc, ARATELIA_FILE_READER_OUTPUT_PORT_INDEX));
         }
     }

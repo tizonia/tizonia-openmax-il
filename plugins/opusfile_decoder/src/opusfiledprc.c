@@ -55,7 +55,7 @@ static OMX_ERRORTYPE allocate_temp_data_store (opusfiled_prc_t *ap_prc)
   assert (ap_prc);
 
   TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX);
-  tiz_check_omx_err (
+  tiz_check_omx (
       tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                             OMX_IndexParamPortDefinition, &port_def));
 

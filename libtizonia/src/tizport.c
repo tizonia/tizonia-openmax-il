@@ -251,21 +251,21 @@ port_ctor (void * ap_obj, va_list * app)
   assert (ap_obj);
 
   /* Register the indexes managed by this base port class */
-  tiz_check_omx_err_ret_null (
+  tiz_check_omx_ret_null (
     tiz_vector_init (&(p_obj->p_indexes_), sizeof (OMX_INDEXTYPE)));
-  tiz_check_omx_err_ret_null (tiz_vector_push_back (p_obj->p_indexes_, &id1));
-  tiz_check_omx_err_ret_null (tiz_vector_push_back (p_obj->p_indexes_, &id2));
-  tiz_check_omx_err_ret_null (tiz_vector_push_back (p_obj->p_indexes_, &id3));
-  tiz_check_omx_err_ret_null (tiz_vector_push_back (p_obj->p_indexes_, &id4));
+  tiz_check_omx_ret_null (tiz_vector_push_back (p_obj->p_indexes_, &id1));
+  tiz_check_omx_ret_null (tiz_vector_push_back (p_obj->p_indexes_, &id2));
+  tiz_check_omx_ret_null (tiz_vector_push_back (p_obj->p_indexes_, &id3));
+  tiz_check_omx_ret_null (tiz_vector_push_back (p_obj->p_indexes_, &id4));
 
   /* Init buffer headers list */
-  tiz_check_omx_err_ret_null (
+  tiz_check_omx_ret_null (
     tiz_vector_init (&(p_obj->p_hdrs_info_), sizeof (tiz_port_buf_props_t *)));
-  tiz_check_omx_err_ret_null (
+  tiz_check_omx_ret_null (
     tiz_vector_init (&(p_obj->p_hdrs_), sizeof (OMX_BUFFERHEADERTYPE *)));
 
   /* Init buffer marks list */
-  tiz_check_omx_err_ret_null (
+  tiz_check_omx_ret_null (
     tiz_vector_init (&(p_obj->p_marks_), sizeof (tiz_port_mark_info_t *)));
 
   /* Initialize the port options structure */
@@ -1874,7 +1874,7 @@ port_mark_buffer (void * ap_obj, OMX_BUFFERHEADERTYPE * ap_hdr)
           /* preference to older marks */
           OMX_MARKTYPE mark_info
             = {ap_hdr->hMarkTargetComponent, ap_hdr->pMarkData};
-          tiz_check_omx_err (port_store_mark (p_obj, &mark_info, OMX_FALSE));
+          tiz_check_omx (port_store_mark (p_obj, &mark_info, OMX_FALSE));
         }
 
       {

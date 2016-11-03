@@ -146,14 +146,14 @@ set_audio_coding_on_port (dirble_prc_t * ap_prc)
   assert (ap_prc);
 
   TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_HTTP_SOURCE_PORT_INDEX);
-  tiz_check_omx_err (
+  tiz_check_omx (
     tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                           OMX_IndexParamPortDefinition, &port_def));
 
   /* Set the new value */
   port_def.format.audio.eEncoding = ap_prc->audio_coding_type_;
 
-  tiz_check_omx_err (tiz_krn_SetParameter_internal (
+  tiz_check_omx (tiz_krn_SetParameter_internal (
     tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
     OMX_IndexParamPortDefinition, &port_def));
   return OMX_ErrorNone;
@@ -166,14 +166,14 @@ set_auto_detect_on_port (dirble_prc_t * ap_prc)
   assert (ap_prc);
 
   TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_HTTP_SOURCE_PORT_INDEX);
-  tiz_check_omx_err (
+  tiz_check_omx (
     tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                           OMX_IndexParamPortDefinition, &port_def));
 
   /* Set the new value */
   port_def.format.audio.eEncoding = OMX_AUDIO_CodingAutoDetect;
 
-  tiz_check_omx_err (tiz_krn_SetParameter_internal (
+  tiz_check_omx (tiz_krn_SetParameter_internal (
     tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
     OMX_IndexParamPortDefinition, &port_def));
   return OMX_ErrorNone;
@@ -345,26 +345,26 @@ update_metadata (dirble_prc_t * ap_prc)
   tiz_krn_clear_metadata (tiz_get_krn (handleOf (ap_prc)));
 
   /* Station Name */
-  tiz_check_omx_err (
+  tiz_check_omx (
     store_metadata (ap_prc, "Station",
                     tiz_dirble_get_current_station_name (ap_prc->p_dirble_)));
 
   /* Country */
-  tiz_check_omx_err (store_metadata (
+  tiz_check_omx (store_metadata (
     ap_prc, "URL", (const char *) ap_prc->p_uri_param_->contentURI));
 
   /* Country */
-  tiz_check_omx_err (store_metadata (
+  tiz_check_omx (store_metadata (
     ap_prc, "Country",
     tiz_dirble_get_current_station_country (ap_prc->p_dirble_)));
 
   /* Category */
-  tiz_check_omx_err (store_metadata (
+  tiz_check_omx (store_metadata (
     ap_prc, "Categories",
     tiz_dirble_get_current_station_category (ap_prc->p_dirble_)));
 
   /* Website */
-  tiz_check_omx_err (store_metadata (
+  tiz_check_omx (store_metadata (
     ap_prc, "Website",
     tiz_dirble_get_current_station_website (ap_prc->p_dirble_)));
 
@@ -447,7 +447,7 @@ release_buffer (dirble_prc_t * ap_prc)
           ap_prc->eos_ = false;
           ap_prc->p_outhdr_->nFlags |= OMX_BUFFERFLAG_EOS;
         }
-      tiz_check_omx_err (tiz_krn_release_buffer (
+      tiz_check_omx (tiz_krn_release_buffer (
         tiz_get_krn (handleOf (ap_prc)), ARATELIA_HTTP_SOURCE_PORT_INDEX,
         ap_prc->p_outhdr_));
       ap_prc->p_outhdr_ = NULL;
@@ -571,7 +571,7 @@ prepare_for_port_auto_detection (dirble_prc_t * ap_prc)
   assert (ap_prc);
 
   TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_HTTP_SOURCE_PORT_INDEX);
-  tiz_check_omx_err (
+  tiz_check_omx (
     tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                           OMX_IndexParamPortDefinition, &port_def));
   ap_prc->audio_coding_type_ = port_def.format.audio.eEncoding;
@@ -700,14 +700,14 @@ dirble_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
   dirble_prc_t * p_prc = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
   assert (p_prc);
-  tiz_check_omx_err (retrieve_session_configuration (p_prc));
-  tiz_check_omx_err (retrieve_playlist (p_prc));
+  tiz_check_omx (retrieve_session_configuration (p_prc));
+  tiz_check_omx (retrieve_playlist (p_prc));
 
   on_dirble_error_ret_omx_oom (tiz_dirble_init (
     &(p_prc->p_dirble_), (const char *) p_prc->session_.cApiKey));
 
-  tiz_check_omx_err (enqueue_playlist_items (p_prc));
-  tiz_check_omx_err (obtain_next_url (p_prc, 1));
+  tiz_check_omx (enqueue_playlist_items (p_prc));
+  tiz_check_omx (obtain_next_url (p_prc, 1));
 
   {
     const tiz_urltrans_buffer_cbacks_t buffer_cbacks
@@ -883,7 +883,7 @@ dirble_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
   if (OMX_TizoniaIndexConfigPlaylistSkip == a_config_idx && p_prc->p_trans_)
     {
       TIZ_INIT_OMX_STRUCT (p_prc->playlist_skip_);
-      tiz_check_omx_err (tiz_api_GetConfig (
+      tiz_check_omx (tiz_api_GetConfig (
         tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
         OMX_TizoniaIndexConfigPlaylistSkip, &p_prc->playlist_skip_));
       p_prc->playlist_skip_.nValue > 0 ? obtain_next_url (p_prc, 1)

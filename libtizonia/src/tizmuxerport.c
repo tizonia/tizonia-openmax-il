@@ -60,11 +60,11 @@ alloc_pcm_port (tiz_muxerport_t * ap_obj, tiz_port_options_t * ap_opts,
 
   /* Register the PCM port indexes, so this port receives the get/set
                requests */
-  tiz_check_omx_err_ret_null (
+  tiz_check_omx_ret_null (
     tiz_port_register_index (ap_obj, OMX_IndexParamAudioPcm));
-  tiz_check_omx_err_ret_null (
+  tiz_check_omx_ret_null (
     tiz_port_register_index (ap_obj, OMX_IndexConfigAudioVolume));
-  tiz_check_omx_err_ret_null (
+  tiz_check_omx_ret_null (
     tiz_port_register_index (ap_obj, OMX_IndexConfigAudioMute));
 
   /* Get the OMX_AUDIO_PARAM_PCMMODETYPE structure (mandatory argument) */
@@ -99,7 +99,7 @@ alloc_opus_port (tiz_muxerport_t * ap_obj, tiz_port_options_t * ap_opts,
 
   /* Register the OPUS port indexes, for when this port receives the get/set
    requests */
-  tiz_check_omx_err_ret_null (
+  tiz_check_omx_ret_null (
     tiz_port_register_index (ap_obj, OMX_TizoniaIndexParamAudioOpus));
 
   /* Get the OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE structure (mandatory argument) */
@@ -184,7 +184,7 @@ muxerport_ctor (void * ap_obj, va_list * app)
 
               /* Register the raw video port indexes, so this port receives the
                get/set requests */
-              tiz_check_omx_err_ret_null (
+              tiz_check_omx_ret_null (
                 tiz_port_register_index (p_obj, OMX_IndexParamVideoPortFormat));
 
               /* Get the OMX_VIDEO_PORTDEFINITIONTYPE structure (mandatory argument) */

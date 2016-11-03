@@ -98,10 +98,10 @@ audioport_ctor (void * ap_obj, va_list * app)
 
   assert (p_obj);
 
-  tiz_check_omx_err_ret_null (
+  tiz_check_omx_ret_null (
     tiz_port_register_index (p_obj, OMX_IndexParamAudioPortFormat));
 
-  tiz_check_omx_err_ret_null (
+  tiz_check_omx_ret_null (
     tiz_vector_init (&(p_obj->p_encodings_), sizeof (OMX_AUDIO_CODINGTYPE)));
 
   /* Initialize the OMX_AUDIO_PARAM_PORTFORMATTYPE structure */
@@ -116,7 +116,7 @@ audioport_ctor (void * ap_obj, va_list * app)
         {
           TIZ_TRACE (handleOf (ap_obj), "p_encodings[%u] = [%d]...", i,
                      p_encodings[i]);
-          tiz_check_omx_err_ret_null (
+          tiz_check_omx_ret_null (
             tiz_vector_push_back (p_obj->p_encodings_, &p_encodings[i++]));
         }
     }

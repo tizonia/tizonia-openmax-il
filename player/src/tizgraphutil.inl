@@ -44,7 +44,7 @@ namespace tiz
       ParamT omx_struct;
       TIZ_INIT_OMX_PORT_STRUCT (omx_struct, out_port_id);
       // Retrieve the settings from the output port...
-      tiz_check_omx_err (
+      tiz_check_omx (
           OMX_GetParameter (hdl_list[tunnel_id], ParamIndex, &omx_struct));
       omx_struct.nPortIndex = in_port_id;
       // ... and apply them on the input port...
@@ -62,7 +62,7 @@ namespace tiz
       // Retrieve the current settings from the port
       ParamT param_type;
       TIZ_INIT_OMX_PORT_STRUCT (param_type, port_id);
-      tiz_check_omx_err (OMX_GetParameter (handle, param_index, &param_type));
+      tiz_check_omx (OMX_GetParameter (handle, param_index, &param_type));
       channels = param_type.nChannels;
       sampling_rate = param_type.nSampleRate;
       return OMX_ErrorNone;
@@ -80,7 +80,7 @@ namespace tiz
       // Retrieve the current settings from the port
       ParamT param_type;
       TIZ_INIT_OMX_PORT_STRUCT (param_type, port_id);
-      tiz_check_omx_err (OMX_GetParameter (handle, param_index, &param_type));
+      tiz_check_omx (OMX_GetParameter (handle, param_index, &param_type));
       channels = param_type.nChannels;
       sampling_rate = param_type.nSamplingRate;
       return OMX_ErrorNone;
@@ -96,10 +96,10 @@ namespace tiz
       // Retrieve the current settings from the port
       ParamT param_type;
       TIZ_INIT_OMX_PORT_STRUCT (param_type, port_id);
-      tiz_check_omx_err (OMX_GetParameter (handle, param_index, &param_type));
+      tiz_check_omx (OMX_GetParameter (handle, param_index, &param_type));
       param_type.nChannels = channels;
       param_type.nSampleRate = sampling_rate;
-      tiz_check_omx_err (OMX_SetParameter (handle, param_index, &param_type));
+      tiz_check_omx (OMX_SetParameter (handle, param_index, &param_type));
       return OMX_ErrorNone;
     }
 

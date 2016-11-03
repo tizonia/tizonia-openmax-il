@@ -150,11 +150,11 @@ pcmport_ctor (void * ap_obj, va_list * app)
   OMX_AUDIO_CONFIG_VOLUMETYPE * p_volume = NULL;
   OMX_AUDIO_CONFIG_MUTETYPE * p_mute = NULL;
 
-  tiz_check_omx_err_ret_null (
+  tiz_check_omx_ret_null (
     tiz_port_register_index (p_obj, OMX_IndexParamAudioPcm));
-  tiz_check_omx_err_ret_null (
+  tiz_check_omx_ret_null (
     tiz_port_register_index (p_obj, OMX_IndexConfigAudioVolume));
-  tiz_check_omx_err_ret_null (
+  tiz_check_omx_ret_null (
     tiz_port_register_index (p_obj, OMX_IndexConfigAudioMute));
 
   /* Initialize the OMX_AUDIO_PARAM_PCMMODETYPE structure */
@@ -671,7 +671,7 @@ pcmport_apply_slaving_behaviour (void * ap_obj, void * ap_mos_port,
         p_obj->pcmmode_.nChannels = new_channels;
         p_obj->pcmmode_.nBitPerSample = new_bps;
 
-        tiz_check_omx_err_ret_oom (tiz_vector_push_back (ap_changed_idxs, &id));
+        tiz_check_omx_ret_oom (tiz_vector_push_back (ap_changed_idxs, &id));
 
         TIZ_TRACE (handleOf (ap_obj),
                    "original PORT [%d] this PORT [%d] : [%s] -> "
@@ -686,7 +686,7 @@ pcmport_apply_slaving_behaviour (void * ap_obj, void * ap_mos_port,
         OMX_INDEXTYPE id = OMX_IndexParamPortDefinition;
 
         p_base->portdef_.nBufferSize = new_min_buf_sz;
-        tiz_check_omx_err_ret_oom (tiz_vector_push_back (ap_changed_idxs, &id));
+        tiz_check_omx_ret_oom (tiz_vector_push_back (ap_changed_idxs, &id));
 
         TIZ_TRACE (handleOf (ap_obj),
                    "original PORT [%d] this PORT [%d] : [%s] -> "

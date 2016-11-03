@@ -124,11 +124,11 @@ init_ports_and_lists (void * ap_obj)
   OMX_PORT_PARAM_TYPE null_param
     = {sizeof (OMX_PORT_PARAM_TYPE), {.nVersion = OMX_VERSION}, 0, 0};
 
-  tiz_check_omx_err_ret_oom (
+  tiz_check_omx_ret_oom (
     tiz_vector_init (&(p_obj->p_ports_), sizeof (OMX_PTR)));
-  tiz_check_omx_err_ret_oom (
+  tiz_check_omx_ret_oom (
     tiz_vector_init (&(p_obj->p_ingress_), sizeof (tiz_vector_t *)));
-  tiz_check_omx_err_ret_oom (
+  tiz_check_omx_ret_oom (
     tiz_vector_init (&(p_obj->p_egress_), sizeof (tiz_vector_t *)));
 
   p_obj->p_cport_ = NULL;
@@ -203,7 +203,7 @@ static void *
 krn_ctor (void * ap_obj, va_list * app)
 {
   tiz_krn_t * p_obj = super_ctor (typeOf (ap_obj, "tizkrn"), ap_obj, app);
-  tiz_check_omx_err_ret_null (init_ports_and_lists (p_obj));
+  tiz_check_omx_ret_null (init_ports_and_lists (p_obj));
   return p_obj;
 }
 
@@ -339,7 +339,7 @@ krn_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
               assert (pp_mos_port && *pp_mos_port);
               p_mos_port = *pp_mos_port;
 
-              tiz_check_omx_err (
+              tiz_check_omx (
                 tiz_vector_init (&(p_changed_idxs), sizeof (OMX_INDEXTYPE)));
               assert (p_changed_idxs);
               rc = tiz_port_apply_slaving_behaviour (
@@ -459,7 +459,7 @@ krn_SetConfig (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
         {
           TIZ_TRACE (ap_hdl, "update fsm : TIZ_KRN_MAY_INIT_ALLOC_PHASE");
           p_obj->accept_use_buffer_notified_ = true;
-          tiz_check_omx_err (
+          tiz_check_omx (
             tiz_fsm_tunneled_ports_status_update (tiz_get_fsm (ap_hdl)));
         }
       else if ((false == p_obj->accept_buffer_exchange_notified_)
@@ -470,7 +470,7 @@ krn_SetConfig (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
         {
           TIZ_TRACE (ap_hdl, "update fsm : TIZ_KRN_MAY_EXCHANGE_BUFFERS");
           /*           p_obj->accept_buffer_exchange_notified_ = true; */
-          tiz_check_omx_err (
+          tiz_check_omx (
             tiz_fsm_tunneled_ports_status_update (tiz_get_fsm (ap_hdl)));
         }
       else if ((false == p_obj->may_transition_exe2idle_notified_)
@@ -481,7 +481,7 @@ krn_SetConfig (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
         {
           TIZ_TRACE (ap_hdl, "update fsm : TIZ_KRN_MAY_INIT_EXE_TO_IDLE");
           p_obj->may_transition_exe2idle_notified_ = true;
-          tiz_check_omx_err (
+          tiz_check_omx (
             tiz_fsm_tunneled_ports_status_update (tiz_get_fsm (ap_hdl)));
         }
       else
@@ -658,7 +658,7 @@ krn_UseBuffer (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
 
     if (was_being_enabled && TIZ_PORT_IS_POPULATED (p_port))
       {
-        tiz_check_omx_err (
+        tiz_check_omx (
           complete_port_enable (p_obj, p_port, a_pid, OMX_ErrorNone));
       }
   }
@@ -723,7 +723,7 @@ krn_UseEGLImage (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
 
     if (was_being_enabled && TIZ_PORT_IS_POPULATED (p_port))
       {
-        tiz_check_omx_err (
+        tiz_check_omx (
           complete_port_enable (p_obj, p_port, a_pid, OMX_ErrorNone));
       }
   }
@@ -791,7 +791,7 @@ krn_AllocateBuffer (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
 
     if (was_being_enabled && TIZ_PORT_IS_POPULATED (p_port))
       {
-        tiz_check_omx_err (
+        tiz_check_omx (
           complete_port_enable (p_obj, p_port, a_pid, OMX_ErrorNone));
       }
   }
@@ -880,8 +880,8 @@ krn_FreeBuffer (const void * ap_obj, OMX_HANDLETYPE ap_hdl, OMX_U32 a_pid,
 
     if (buf_count <= 0 && was_being_disabled)
       {
-        tiz_check_omx_err (complete_port_disable ((tiz_krn_t *) p_obj, p_port,
-                                                  a_pid, OMX_ErrorNone));
+        tiz_check_omx (complete_port_disable ((tiz_krn_t *) p_obj, p_port,
+                                              a_pid, OMX_ErrorNone));
       }
   }
 
@@ -1000,7 +1000,7 @@ krn_allocate_resources (void * ap_obj, OMX_U32 a_pid)
 
           if (being_enabled && TIZ_PORT_IS_POPULATED_AND_ENABLED (p_port))
             {
-              tiz_check_omx_err (
+              tiz_check_omx (
                 complete_port_enable (p_obj, p_port, pid, OMX_ErrorNone));
             }
         }
@@ -1126,8 +1126,8 @@ krn_transfer_and_process (void * ap_obj, OMX_U32 a_pid)
        * port isn't tunneled, or is disabled, etc. */
       tiz_port_update_tunneled_status (p_port,
                                        OMX_PORTSTATUS_ACCEPTBUFFEREXCHANGE);
-      tiz_check_omx_err (flush_egress (p_obj, pid, OMX_FALSE));
-      tiz_check_omx_err (propagate_ingress (p_obj, pid));
+      tiz_check_omx (flush_egress (p_obj, pid, OMX_FALSE));
+      tiz_check_omx (propagate_ingress (p_obj, pid));
       i++;
     }
   while (OMX_ALL == a_pid && i < nports);
@@ -1280,14 +1280,14 @@ krn_register_port (void * ap_obj, OMX_PTR ap_port, const bool ais_config)
     tiz_vector_t * p_in_list = NULL;
     tiz_vector_t * p_out_list = NULL;
     OMX_U32 pid = 0;
-    tiz_check_omx_err (
+    tiz_check_omx (
       tiz_vector_init (&(p_in_list), sizeof (OMX_BUFFERHEADERTYPE *)));
     assert (p_in_list);
-    tiz_check_omx_err (
+    tiz_check_omx (
       tiz_vector_init (&(p_out_list), sizeof (OMX_BUFFERHEADERTYPE *)));
     assert (p_out_list);
-    tiz_check_omx_err (tiz_vector_push_back (p_obj->p_ingress_, &p_in_list));
-    tiz_check_omx_err (tiz_vector_push_back (p_obj->p_egress_, &p_out_list));
+    tiz_check_omx (tiz_vector_push_back (p_obj->p_ingress_, &p_in_list));
+    tiz_check_omx (tiz_vector_push_back (p_obj->p_egress_, &p_out_list));
 
     pid = tiz_vector_length (p_obj->p_ports_);
     tiz_port_set_index (ap_port, pid);
@@ -1676,7 +1676,7 @@ krn_claim_buffer (const void * ap_obj, const OMX_U32 a_pid, const OMX_U32 a_pos,
            * port. */
           if (TIZ_PORT_IS_ALLOCATOR (p_port))
             {
-              tiz_check_omx_err (tiz_port_populate_header (p_port, p_hdr));
+              tiz_check_omx (tiz_port_populate_header (p_port, p_hdr));
             }
           /* Make sure there is no data from a previous transition into
              OMX_StateExecuting */
@@ -1699,7 +1699,7 @@ krn_claim_buffer (const void * ap_obj, const OMX_U32 a_pid, const OMX_U32 a_pos,
           if (OMX_ErrorNone == (rc = tiz_port_mark_buffer (p_port, p_hdr)))
             {
               /* Successfully complete here the OMX_CommandMarkBuffer command */
-              tiz_check_omx_err (
+              tiz_check_omx (
                 complete_mark_buffer (p_obj, p_port, a_pid, OMX_ErrorNone));
             }
           else

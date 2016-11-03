@@ -368,7 +368,7 @@ OMX_ERRORTYPE graph::dirbleops::get_encoding_type_from_dirble_source ()
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
   const OMX_U32 port_id = 0;
   TIZ_INIT_OMX_PORT_STRUCT (port_def, port_id);
-  tiz_check_omx_err (
+  tiz_check_omx (
       OMX_GetParameter (handles_[0], OMX_IndexParamPortDefinition, &port_def));
   encoding_ = port_def.format.audio.eEncoding;
   return OMX_ErrorNone;
@@ -381,9 +381,9 @@ graph::dirbleops::apply_pcm_codec_info_from_decoder ()
   OMX_U32 sampling_rate = 44100;
   std::string encoding_str;
 
-  tiz_check_omx_err (get_channels_and_rate_from_decoder (
+  tiz_check_omx (get_channels_and_rate_from_decoder (
       channels, sampling_rate, encoding_str));
-  tiz_check_omx_err (set_channels_and_rate_on_renderer (channels, sampling_rate,
+  tiz_check_omx (set_channels_and_rate_on_renderer (channels, sampling_rate,
                                                         encoding_str));
   return OMX_ErrorNone;
 }
@@ -459,7 +459,7 @@ graph::dirbleops::set_channels_and_rate_on_renderer (
 
   // Retrieve the pcm settings from the renderer component
   TIZ_INIT_OMX_PORT_STRUCT (renderer_pcmtype_, port_id);
-  tiz_check_omx_err (
+  tiz_check_omx (
       OMX_GetParameter (handle, OMX_IndexParamAudioPcm, &renderer_pcmtype_));
 
   // Now assign the actual settings to the pcmtype structure
@@ -476,7 +476,7 @@ graph::dirbleops::set_channels_and_rate_on_renderer (
   }
 
   // Set the new pcm settings
-  tiz_check_omx_err (
+  tiz_check_omx (
       OMX_SetParameter (handle, OMX_IndexParamAudioPcm, &renderer_pcmtype_));
 
   std::string coding_type_str ("Dirble");
@@ -493,7 +493,7 @@ graph::dirbleops::set_dirble_api_key (const OMX_HANDLETYPE handle,
   // Set the Dirble user and pass
   OMX_TIZONIA_AUDIO_PARAM_DIRBLESESSIONTYPE sessiontype;
   TIZ_INIT_OMX_STRUCT (sessiontype);
-  tiz_check_omx_err (OMX_GetParameter (
+  tiz_check_omx (OMX_GetParameter (
       handle,
       static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioDirbleSession),
       &sessiontype));
@@ -511,7 +511,7 @@ graph::dirbleops::set_dirble_playlist (const OMX_HANDLETYPE handle,
   // Set the Dirble playlist
   OMX_TIZONIA_AUDIO_PARAM_DIRBLEPLAYLISTTYPE playlisttype;
   TIZ_INIT_OMX_STRUCT (playlisttype);
-  tiz_check_omx_err (OMX_GetParameter (
+  tiz_check_omx (OMX_GetParameter (
       handle, static_cast< OMX_INDEXTYPE >(
                   OMX_TizoniaIndexParamAudioDirblePlaylist),
       &playlisttype));

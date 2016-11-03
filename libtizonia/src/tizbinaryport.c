@@ -87,7 +87,7 @@ binaryport_ctor (void * ap_obj, va_list * app)
           OMX_AUDIO_CODINGTYPE encodings[]
             = {OMX_AUDIO_CodingUnused, OMX_AUDIO_CodingMax};
 
-          tiz_check_omx_err_ret_null (
+          tiz_check_omx_ret_null (
             tiz_port_register_index (p_obj, OMX_IndexParamAudioPortFormat));
 
           p_obj->p_port_
@@ -121,7 +121,7 @@ binaryport_ctor (void * ap_obj, va_list * app)
           portdef.eColorFormat = OMX_COLOR_FormatYUV420Planar;
           portdef.pNativeWindow = NULL;
 
-          tiz_check_omx_err_ret_null (
+          tiz_check_omx_ret_null (
             tiz_port_register_index (p_obj, OMX_IndexParamVideoPortFormat));
 
           p_obj->p_port_ = factory_new (typeOf (ap_obj, "tizvideoport"), p_opts,
@@ -153,7 +153,7 @@ binaryport_ctor (void * ap_obj, va_list * app)
           portdef.eColorFormat = OMX_COLOR_FormatYUV420Planar;
           portdef.pNativeWindow = NULL;
 
-          tiz_check_omx_err_ret_null (
+          tiz_check_omx_ret_null (
             tiz_port_register_index (p_obj, OMX_IndexParamImagePortFormat));
 
           p_obj->p_port_ = factory_new (typeOf (ap_obj, "tizimageport"), p_opts,
@@ -170,7 +170,7 @@ binaryport_ctor (void * ap_obj, va_list * app)
           OMX_OTHER_FORMATTYPE formats[]
             = {OMX_OTHER_FormatBinary, OMX_OTHER_FormatMax};
 
-          tiz_check_omx_err_ret_null (
+          tiz_check_omx_ret_null (
             tiz_port_register_index (p_obj, OMX_IndexParamOtherPortFormat));
 
           p_obj->p_port_

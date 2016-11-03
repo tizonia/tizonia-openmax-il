@@ -147,14 +147,14 @@ set_audio_coding_on_port (gmusic_prc_t * ap_prc)
   assert (ap_prc);
 
   TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_HTTP_SOURCE_PORT_INDEX);
-  tiz_check_omx_err (
+  tiz_check_omx (
     tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                           OMX_IndexParamPortDefinition, &port_def));
 
   /* Set the new value */
   port_def.format.audio.eEncoding = ap_prc->audio_coding_type_;
 
-  tiz_check_omx_err (tiz_krn_SetParameter_internal (
+  tiz_check_omx (tiz_krn_SetParameter_internal (
     tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
     OMX_IndexParamPortDefinition, &port_def));
   return OMX_ErrorNone;
@@ -314,12 +314,12 @@ update_metadata (gmusic_prc_t * ap_prc)
   tiz_krn_clear_metadata (tiz_get_krn (handleOf (ap_prc)));
 
   /* Artist and song title */
-  tiz_check_omx_err (store_metadata (
+  tiz_check_omx (store_metadata (
     ap_prc, tiz_gmusic_get_current_song_artist (ap_prc->p_gmusic_),
     tiz_gmusic_get_current_song_title (ap_prc->p_gmusic_)));
 
   /* Album */
-  tiz_check_omx_err (store_metadata (
+  tiz_check_omx (store_metadata (
     ap_prc, "Album", tiz_gmusic_get_current_song_album (ap_prc->p_gmusic_)));
 
   /* Store the year if not 0 */
@@ -327,17 +327,17 @@ update_metadata (gmusic_prc_t * ap_prc)
     const char * p_year = tiz_gmusic_get_current_song_year (ap_prc->p_gmusic_);
     if (p_year && strncmp (p_year, "0", 4) != 0)
       {
-        tiz_check_omx_err (store_metadata (ap_prc, "Year", p_year));
+        tiz_check_omx (store_metadata (ap_prc, "Year", p_year));
       }
   }
 
   /* Song duration */
-  tiz_check_omx_err (
+  tiz_check_omx (
     store_metadata (ap_prc, "Duration",
                     tiz_gmusic_get_current_song_duration (ap_prc->p_gmusic_)));
 
   /* Track number */
-  tiz_check_omx_err (store_metadata (
+  tiz_check_omx (store_metadata (
     ap_prc, "Track",
     tiz_gmusic_get_current_song_track_number (ap_prc->p_gmusic_)));
 
@@ -347,7 +347,7 @@ update_metadata (gmusic_prc_t * ap_prc)
       = tiz_gmusic_get_current_song_tracks_in_album (ap_prc->p_gmusic_);
     if (p_total_tracks && strncmp (p_total_tracks, "0", 2) != 0)
       {
-        tiz_check_omx_err (
+        tiz_check_omx (
           store_metadata (ap_prc, "Total tracks", p_total_tracks));
       }
   }
@@ -437,7 +437,7 @@ release_buffer (gmusic_prc_t * ap_prc)
           ap_prc->eos_ = false;
           ap_prc->p_outhdr_->nFlags |= OMX_BUFFERFLAG_EOS;
         }
-      tiz_check_omx_err (tiz_krn_release_buffer (
+      tiz_check_omx (tiz_krn_release_buffer (
         tiz_get_krn (handleOf (ap_prc)), ARATELIA_HTTP_SOURCE_PORT_INDEX,
         ap_prc->p_outhdr_));
       ap_prc->p_outhdr_ = NULL;
@@ -540,7 +540,7 @@ prepare_for_port_auto_detection (gmusic_prc_t * ap_prc)
   assert (ap_prc);
 
   TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_HTTP_SOURCE_PORT_INDEX);
-  tiz_check_omx_err (
+  tiz_check_omx (
     tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                           OMX_IndexParamPortDefinition, &port_def));
   ap_prc->audio_coding_type_ = port_def.format.audio.eEncoding;
@@ -678,8 +678,8 @@ gmusic_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
   gmusic_prc_t * p_prc = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
   assert (p_prc);
-  tiz_check_omx_err (retrieve_session_configuration (p_prc));
-  tiz_check_omx_err (retrieve_playlist (p_prc));
+  tiz_check_omx (retrieve_session_configuration (p_prc));
+  tiz_check_omx (retrieve_playlist (p_prc));
 
   TIZ_TRACE (handleOf (p_prc), "cUserName  : [%s]", p_prc->session_.cUserName);
   TIZ_TRACE (handleOf (p_prc), "cUserPassword  : [%s]",
@@ -691,8 +691,8 @@ gmusic_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
     (const char *) p_prc->session_.cUserPassword,
     (const char *) p_prc->session_.cDeviceId));
 
-  tiz_check_omx_err (enqueue_playlist_items (p_prc));
-  tiz_check_omx_err (obtain_next_url (p_prc, 1));
+  tiz_check_omx (enqueue_playlist_items (p_prc));
+  tiz_check_omx (obtain_next_url (p_prc, 1));
 
   {
     const tiz_urltrans_buffer_cbacks_t buffer_cbacks
@@ -872,7 +872,7 @@ gmusic_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
   if (OMX_TizoniaIndexConfigPlaylistSkip == a_config_idx && p_prc->p_trans_)
     {
       TIZ_INIT_OMX_STRUCT (p_prc->playlist_skip_);
-      tiz_check_omx_err (tiz_api_GetConfig (
+      tiz_check_omx (tiz_api_GetConfig (
         tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
         OMX_TizoniaIndexConfigPlaylistSkip, &p_prc->playlist_skip_));
       p_prc->playlist_skip_.nValue > 0 ? obtain_next_url (p_prc, 1)

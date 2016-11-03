@@ -261,11 +261,11 @@ alloc_data_store (oggmuxsnk_prc_t * ap_prc, tiz_buffer_t * ap_store,
   assert (ap_prc);
 
   TIZ_INIT_OMX_PORT_STRUCT (port_def, a_pid);
-  tiz_check_omx_err (
+  tiz_check_omx (
     tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                           OMX_IndexParamPortDefinition, &port_def));
   assert (ap_store == NULL);
-  tiz_check_omx_err (tiz_buffer_init (&(ap_store), port_def.nBufferSize * 4));
+  tiz_check_omx (tiz_buffer_init (&(ap_store), port_def.nBufferSize * 4));
   return OMX_ErrorNone;
   ;
 }
@@ -365,7 +365,7 @@ release_buffer (oggmuxsnk_prc_t * ap_prc)
   /*     { */
   /*       TIZ_NOTICE (handleOf (ap_prc), "releasing HEADER [%p] nFilledLen [%d]", */
   /*                   ap_prc->p_outhdr_, ap_prc->p_outhdr_->nFilledLen); */
-  /*       tiz_check_omx_err (tiz_krn_release_buffer ( */
+  /*       tiz_check_omx (tiz_krn_release_buffer ( */
   /*         tiz_get_krn (handleOf (ap_prc)), */
   /*         ARATELIA_OGG_MUXER_SINK_PORT_0_INDEX, ap_prc->p_outhdr_)); */
   /*       ap_prc->p_outhdr_ = NULL; */
@@ -420,12 +420,12 @@ oggmuxsnk_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
 {
   oggmuxsnk_prc_t * p_prc = ap_prc;
   assert (p_prc);
-  tiz_check_omx_err (alloc_uri (p_prc));
-  tiz_check_omx_err (alloc_file (p_prc));
-  tiz_check_omx_err (alloc_oggz (p_prc));
-  tiz_check_omx_err (alloc_data_store (p_prc, p_prc->p_audio_store_,
+  tiz_check_omx (alloc_uri (p_prc));
+  tiz_check_omx (alloc_file (p_prc));
+  tiz_check_omx (alloc_oggz (p_prc));
+  tiz_check_omx (alloc_data_store (p_prc, p_prc->p_audio_store_,
                                        ARATELIA_OGG_MUXER_SINK_PORT_0_INDEX));
-  tiz_check_omx_err (alloc_data_store (p_prc, p_prc->p_video_store_,
+  tiz_check_omx (alloc_data_store (p_prc, p_prc->p_video_store_,
                                        ARATELIA_OGG_MUXER_SINK_PORT_1_INDEX));
   return OMX_ErrorNone;
 }

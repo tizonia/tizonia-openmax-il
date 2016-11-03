@@ -135,7 +135,7 @@ release_header (opusd_prc_t * ap_prc, const OMX_U32 a_pid)
              p_hdr->nFlags);
 
   p_hdr->nOffset = 0;
-  tiz_check_omx_err
+  tiz_check_omx
     (tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_prc)), a_pid, p_hdr));
   *pp_hdr = NULL;
 
@@ -230,7 +230,7 @@ release_headers (opusd_prc_t * ap_prc, const OMX_U32 a_pid)
   if ((a_pid == ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX
        || a_pid == OMX_ALL) && (ap_prc->p_in_hdr_))
     {
-      tiz_check_omx_err
+      tiz_check_omx
         (tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_prc)),
                                  ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX,
                                  ap_prc->p_in_hdr_));
@@ -240,7 +240,7 @@ release_headers (opusd_prc_t * ap_prc, const OMX_U32 a_pid)
   if ((a_pid == ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX
        || a_pid == OMX_ALL) && (ap_prc->p_out_hdr_))
     {
-      tiz_check_omx_err
+      tiz_check_omx
         (tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_prc)),
                                  ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX,
                                  ap_prc->p_out_hdr_));
@@ -276,10 +276,10 @@ transform_buffer (opusd_prc_t * ap_prc)
           /* Propagate EOS flag to output */
           p_out->nFlags |= OMX_BUFFERFLAG_EOS;
           p_in->nFlags &= ~(1 << OMX_BUFFERFLAG_EOS);
-          tiz_check_omx_err
+          tiz_check_omx
             (release_header (ap_prc, ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX));
         }
-      tiz_check_omx_err
+      tiz_check_omx
         (release_header (ap_prc, ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX));
       return OMX_ErrorNone;
     }
@@ -332,9 +332,9 @@ transform_buffer (opusd_prc_t * ap_prc)
                    "frame_size [%d] len [%d] - error [%s] nFilledLen [%d]",
                    frame_size, len, opus_strerror (frame_size), p_out->nFilledLen);
         p_in->nFilledLen = 0;
-        tiz_check_omx_err
+        tiz_check_omx
           (release_header (ap_prc, ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX));
-        tiz_check_omx_err
+        tiz_check_omx
           (release_header (ap_prc, ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX));
       }
   }

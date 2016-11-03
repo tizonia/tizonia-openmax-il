@@ -68,11 +68,11 @@ void *graphmgr::thread_func (void *p_arg)
   assert (p_mgr);
 
   (void)tiz_thread_setname (&(p_mgr->thread_), (char *)"graphmgr");
-  tiz_check_omx_err_ret_null (tiz_sem_post (&(p_mgr->sem_)));
+  tiz_check_omx_ret_null (tiz_sem_post (&(p_mgr->sem_)));
 
   while (!done)
   {
-    tiz_check_omx_err_ret_null (tiz_queue_receive (p_mgr->p_queue_, &p_data));
+    tiz_check_omx_ret_null (tiz_queue_receive (p_mgr->p_queue_, &p_data));
 
     assert (p_data);
 
@@ -82,7 +82,7 @@ void *graphmgr::thread_func (void *p_arg)
     delete p_cmd;
   }
 
-  tiz_check_omx_err_ret_null (tiz_sem_post (&(p_mgr->sem_)));
+  tiz_check_omx_ret_null (tiz_sem_post (&(p_mgr->sem_)));
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Graph manager thread exiting...");
 
   return NULL;
@@ -116,13 +116,13 @@ graphmgr::mgr::init (const tizplaylist_ptr_t &playlist,
                      const termination_callback_t &termination_cback)
 {
   // Init command queue infrastructure
-  tiz_check_omx_err_ret_oom (init_cmd_queue ());
+  tiz_check_omx_ret_oom (init_cmd_queue ());
 
   // Create the manager's thread
-  tiz_check_omx_err_ret_oom (tiz_mutex_lock (&mutex_));
-  tiz_check_omx_err_ret_oom (
+  tiz_check_omx_ret_oom (tiz_mutex_lock (&mutex_));
+  tiz_check_omx_ret_oom (
       tiz_thread_create (&thread_, 0, 0, thread_func, this));
-  tiz_check_omx_err_ret_oom (tiz_mutex_unlock (&mutex_));
+  tiz_check_omx_ret_oom (tiz_mutex_unlock (&mutex_));
 
   graphmgr_capabilities_t graphmgr_caps;
   // Init this mgr's operations using the do_init template method
@@ -130,11 +130,11 @@ graphmgr::mgr::init (const tizplaylist_ptr_t &playlist,
       (p_ops_ = do_init (playlist, termination_cback, graphmgr_caps)) != NULL);
 
   // Let's wait until this manager's thread is ready to receive requests
-  tiz_check_omx_err_ret_oom (tiz_sem_wait (&sem_));
+  tiz_check_omx_ret_oom (tiz_sem_wait (&sem_));
 
   // Init the MPRIS interface and pass this manager's capabilities to it
   // (a.k.a. MPRIS properties).
-  tiz_check_omx_err_ret_oom (start_mpris (graphmgr_caps));
+  tiz_check_omx_ret_oom (start_mpris (graphmgr_caps));
 
   // Init OpenMAX IL
   tiz::omxutil::init ();
@@ -346,8 +346,8 @@ graphmgr::mgr::start_mpris (const graphmgr_capabilities_t &graphmgr_caps)
             props, player_props, mpris_cbacks, playback_events_));
     tiz_check_null_ret_oom (mpris_ptr_ != NULL);
 
-    tiz_check_omx_err (mpris_ptr_->init ());
-    tiz_check_omx_err (mpris_ptr_->start ());
+    tiz_check_omx (mpris_ptr_->init ());
+    tiz_check_omx (mpris_ptr_->start ());
   }
   return rc;
 }
@@ -358,7 +358,7 @@ graphmgr::mgr::stop_mpris ()
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   if (mpris_ptr_)
   {
-    tiz_check_omx_err (mpris_ptr_->stop ());
+    tiz_check_omx (mpris_ptr_->stop ());
     mpris_ptr_->deinit ();
   }
   return rc;
@@ -389,9 +389,9 @@ graphmgr::mgr::do_update_volume (const int volume)
 OMX_ERRORTYPE
 graphmgr::mgr::init_cmd_queue ()
 {
-  tiz_check_omx_err_ret_oom (tiz_mutex_init (&mutex_));
-  tiz_check_omx_err_ret_oom (tiz_sem_init (&sem_, 0));
-  tiz_check_omx_err_ret_oom (tiz_queue_init (&p_queue_, TIZ_GRAPHMGR_QUEUE_MAX_ITEMS));
+  tiz_check_omx_ret_oom (tiz_mutex_init (&mutex_));
+  tiz_check_omx_ret_oom (tiz_sem_init (&sem_, 0));
+  tiz_check_omx_ret_oom (tiz_queue_init (&p_queue_, TIZ_GRAPHMGR_QUEUE_MAX_ITEMS));
   return OMX_ErrorNone;
 }
 
@@ -408,9 +408,9 @@ graphmgr::mgr::post_cmd (graphmgr::cmd *p_cmd)
   assert (p_cmd);
   assert (p_queue_);
 
-  tiz_check_omx_err_ret_oom (tiz_mutex_lock (&mutex_));
-  tiz_check_omx_err_ret_oom (tiz_queue_send (p_queue_, p_cmd));
-  tiz_check_omx_err_ret_oom (tiz_mutex_unlock (&mutex_));
+  tiz_check_omx_ret_oom (tiz_mutex_lock (&mutex_));
+  tiz_check_omx_ret_oom (tiz_queue_send (p_queue_, p_cmd));
+  tiz_check_omx_ret_oom (tiz_mutex_unlock (&mutex_));
 
   return OMX_ErrorNone;
 }

@@ -363,9 +363,9 @@ static OMX_ERRORTYPE decode_stream (mpg123d_prc_t *ap_prc)
     {
       if (need_to_feed_more_data (ap_prc))
         {
-          tiz_check_omx_err (feed_encoded_data (ap_prc));
+          tiz_check_omx (feed_encoded_data (ap_prc));
         }
-      tiz_check_omx_err (consume_decoded_data (ap_prc));
+      tiz_check_omx (consume_decoded_data (ap_prc));
     }
   while (may_consume_more_data (ap_prc));
   return OMX_ErrorNone;

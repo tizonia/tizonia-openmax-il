@@ -433,7 +433,7 @@ dispatch_state_set (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
   assert (ap_msg_sc);
 
   /* Obtain the current state */
-  tiz_check_omx_err (tiz_api_GetState (tiz_get_fsm (ap_hdl), ap_hdl, &now));
+  tiz_check_omx (tiz_api_GetState (tiz_get_fsm (ap_hdl), ap_hdl, &now));
 
   /* ...and this is the next state */
   next = ap_msg_sc->param1;

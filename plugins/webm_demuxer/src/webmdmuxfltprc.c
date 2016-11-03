@@ -240,7 +240,7 @@ prepare_port_auto_detection (webmdmuxflt_prc_t * ap_prc)
   /* Prepare audio port */
   TIZ_INIT_OMX_PORT_STRUCT (port_def,
                             ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX);
-  tiz_check_omx_err (
+  tiz_check_omx (
     tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                           OMX_IndexParamPortDefinition, &port_def));
   ap_prc->audio_coding_type_ = port_def.format.audio.eEncoding;
@@ -250,7 +250,7 @@ prepare_port_auto_detection (webmdmuxflt_prc_t * ap_prc)
   /* Prepare video port */
   TIZ_INIT_OMX_PORT_STRUCT (port_def,
                             ARATELIA_WEBM_DEMUXER_FILTER_PORT_2_INDEX);
-  tiz_check_omx_err (
+  tiz_check_omx (
     tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                           OMX_IndexParamPortDefinition, &port_def));
   ap_prc->video_coding_type_ = port_def.format.video.eCompressionFormat;
@@ -337,7 +337,7 @@ store_data (webmdmuxflt_prc_t * ap_prc)
                  p_in->nFilledLen - p_in->nOffset);
       pushed = tiz_buffer_push (ap_prc->p_store_, p_in->pBuffer + p_in->nOffset,
                                 p_in->nFilledLen);
-      tiz_ret_val_on_err ((pushed < p_in->nFilledLen),
+      tiz_check_true_ret_val ((pushed < p_in->nFilledLen),
                           OMX_ErrorInsufficientResources);
       rc = release_input_header (ap_prc);
     }
@@ -393,7 +393,7 @@ extract_track_data (webmdmuxflt_prc_t * ap_prc, const unsigned int a_track,
           || tiz_buffer_available (ap_prc->p_store_) == 0)
         {
           g_data_size = 0;
-          tiz_check_omx_err (release_output_header (ap_prc, a_pid));
+          tiz_check_omx (release_output_header (ap_prc, a_pid));
         }
 
       /* Release the ne packet if all chunks have already been processed */
@@ -506,10 +506,10 @@ demux_stream (webmdmuxflt_prc_t * ap_prc)
 
   while (able_to_demux (ap_prc))
     {
-      tiz_check_omx_err (store_data (ap_prc));
-      tiz_ret_val_on_err ((tiz_filter_prc_is_eos (ap_prc) == false),
+      tiz_check_omx (store_data (ap_prc));
+      tiz_check_true_ret_val ((tiz_filter_prc_is_eos (ap_prc) == false),
                           OMX_ErrorNotReady);
-      tiz_check_omx_err (read_packet (ap_prc));
+      tiz_check_omx (read_packet (ap_prc));
     }
 
   return rc;
@@ -523,12 +523,12 @@ alloc_data_store (webmdmuxflt_prc_t * ap_prc)
 
   TIZ_INIT_OMX_PORT_STRUCT (port_def,
                             ARATELIA_WEBM_DEMUXER_FILTER_PORT_0_INDEX);
-  tiz_check_omx_err (
+  tiz_check_omx (
     tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                           OMX_IndexParamPortDefinition, &port_def));
 
   assert (ap_prc->p_store_ == NULL);
-  tiz_check_omx_err (
+  tiz_check_omx (
     tiz_buffer_init (&(ap_prc->p_store_), port_def.nBufferSize * 4));
 
   /* Will need to seek on this buffer  */
@@ -612,14 +612,14 @@ set_audio_coding_on_port (webmdmuxflt_prc_t * ap_prc)
 
   TIZ_INIT_OMX_PORT_STRUCT (port_def,
                             ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX);
-  tiz_check_omx_err (
+  tiz_check_omx (
     tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                           OMX_IndexParamPortDefinition, &port_def));
 
   /* Set the new value */
   port_def.format.audio.eEncoding = ap_prc->audio_coding_type_;
 
-  tiz_check_omx_err (tiz_krn_SetParameter_internal (
+  tiz_check_omx (tiz_krn_SetParameter_internal (
     tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
     OMX_IndexParamPortDefinition, &port_def));
 
@@ -642,14 +642,14 @@ set_video_coding_on_port (webmdmuxflt_prc_t * ap_prc)
 
   TIZ_INIT_OMX_PORT_STRUCT (port_def,
                             ARATELIA_WEBM_DEMUXER_FILTER_PORT_2_INDEX);
-  tiz_check_omx_err (
+  tiz_check_omx (
     tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                           OMX_IndexParamPortDefinition, &port_def));
 
   /* Set the new value */
   port_def.format.video.eCompressionFormat = ap_prc->video_coding_type_;
 
-  tiz_check_omx_err (tiz_krn_SetParameter_internal (
+  tiz_check_omx (tiz_krn_SetParameter_internal (
     tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
     OMX_IndexParamPortDefinition, &port_def));
 
@@ -711,7 +711,7 @@ obtain_track_info (webmdmuxflt_prc_t * ap_prc)
                  ? OMX_VIDEO_CodingVP8
                  : OMX_VIDEO_CodingVP9);
           ap_prc->ne_video_track_ = i;
-          tiz_check_omx_err (set_video_coding_on_port (ap_prc));
+          tiz_check_omx (set_video_coding_on_port (ap_prc));
         }
       else if (NESTEGG_TRACK_AUDIO == type
                && NESTEGG_TRACK_UNKNOWN == ap_prc->ne_audio_track_)
@@ -723,7 +723,7 @@ obtain_track_info (webmdmuxflt_prc_t * ap_prc)
                  ? OMX_AUDIO_CodingOPUS
                  : OMX_AUDIO_CodingVORBIS);
           ap_prc->ne_audio_track_ = i;
-          tiz_check_omx_err (set_audio_coding_on_port (ap_prc));
+          tiz_check_omx (set_audio_coding_on_port (ap_prc));
         }
     }
   return rc;

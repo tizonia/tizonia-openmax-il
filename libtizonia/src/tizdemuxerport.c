@@ -68,9 +68,9 @@ demuxerport_ctor (void * ap_obj, va_list * app)
   if ((p_obj = super_ctor (typeOf (ap_obj, "tizdemuxerport"), ap_obj, app)))
     {
       /* Register the demuxer-specific indexes  */
-      tiz_check_omx_err_ret_null (
+      tiz_check_omx_ret_null (
         tiz_port_register_index (p_obj, OMX_IndexParamNumAvailableStreams));
-      tiz_check_omx_err_ret_null (
+      tiz_check_omx_ret_null (
         tiz_port_register_index (p_obj, OMX_IndexParamActiveStream));
 
       /* Grab the port options structure (mandatory argument) */
@@ -93,11 +93,11 @@ demuxerport_ctor (void * ap_obj, va_list * app)
 
               /* Register the PCM port indexes, so this port receives the get/set
                requests */
-              tiz_check_omx_err_ret_null (
+              tiz_check_omx_ret_null (
                 tiz_port_register_index (p_obj, OMX_IndexParamAudioPcm));
-              tiz_check_omx_err_ret_null (
+              tiz_check_omx_ret_null (
                 tiz_port_register_index (p_obj, OMX_IndexConfigAudioVolume));
-              tiz_check_omx_err_ret_null (
+              tiz_check_omx_ret_null (
                 tiz_port_register_index (p_obj, OMX_IndexConfigAudioMute));
 
               /* Get the array of OMX_AUDIO_CODINGTYPE values  (mandatory argument) */
@@ -137,7 +137,7 @@ demuxerport_ctor (void * ap_obj, va_list * app)
 
               /* Register the raw video port indexes, so this port receives the
                get/set requests */
-              tiz_check_omx_err_ret_null (
+              tiz_check_omx_ret_null (
                 tiz_port_register_index (p_obj, OMX_IndexParamVideoPortFormat));
 
               /* Get the OMX_VIDEO_PORTDEFINITIONTYPE structure (mandatory argument) */

@@ -110,7 +110,7 @@ static OMX_ERRORTYPE allocate_temp_data_store (sndfiled_prc_t *ap_prc)
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
   assert (ap_prc);
   TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_PCM_DECODER_INPUT_PORT_INDEX);
-  tiz_check_omx_err (
+  tiz_check_omx (
       tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                             OMX_IndexParamPortDefinition, &port_def));
   assert (ap_prc->p_store_ == NULL);

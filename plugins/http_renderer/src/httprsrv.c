@@ -500,7 +500,7 @@ srv_start_listener_timer_watcher (httpr_listener_t * ap_lstnr,
     {
       assert (ap_lstnr->p_server);
       assert (ap_lstnr->p_con);
-      tiz_check_omx_err (tiz_srv_timer_watcher_start (
+      tiz_check_omx (tiz_srv_timer_watcher_start (
         ap_lstnr->p_server->p_parent, ap_lstnr->p_con->p_ev_timer, a_wait_time,
         a_wait_time));
       ap_lstnr->timer_started = true;
@@ -517,7 +517,7 @@ srv_stop_listener_timer_watcher (httpr_listener_t * ap_lstnr)
     {
       assert (ap_lstnr->p_server);
       assert (ap_lstnr->p_con);
-      tiz_check_omx_err (tiz_srv_timer_watcher_stop (
+      tiz_check_omx (tiz_srv_timer_watcher_stop (
         ap_lstnr->p_server->p_parent, ap_lstnr->p_con->p_ev_timer));
       ap_lstnr->timer_started = false;
     }
@@ -1337,7 +1337,7 @@ srv_write_omx_buffer (httpr_server_t * ap_server, httpr_listener_t * ap_lstnr)
       if (len > 0)
         {
           int metadata_sent = 0;
-          tiz_check_omx_err (
+          tiz_check_omx (
             srv_write_to_listener (ap_server, ap_lstnr, p_buffer, len, &bytes));
           assert (bytes >= 0);
 

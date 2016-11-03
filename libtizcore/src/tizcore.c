@@ -1363,17 +1363,17 @@ il_core_thread_func (void * p_arg)
 
   assert (p_core);
 
-  tiz_check_omx_err_ret_null (tiz_sem_post (&(p_core->sem)));
+  tiz_check_omx_ret_null (tiz_sem_post (&(p_core->sem)));
 
   for (;;)
     {
-      tiz_check_omx_err_ret_null (tiz_queue_receive (p_core->p_queue, &p_data));
+      tiz_check_omx_ret_null (tiz_queue_receive (p_core->p_queue, &p_data));
       signal_client
         = dispatch_msg (&(p_core->state), (tiz_core_msg_t *) p_data);
 
       if (signal_client > 0)
         {
-          tiz_check_omx_err_ret_null (tiz_sem_post (&(p_core->sem)));
+          tiz_check_omx_ret_null (tiz_sem_post (&(p_core->sem)));
         }
 
       if (ETIZCoreStateStopped == p_core->state)
@@ -1474,8 +1474,8 @@ send_msg_blocking (tiz_core_msg_t * ap_msg)
   assert (ap_msg);
   assert (p_core);
 
-  tiz_check_omx_err (tiz_queue_send (p_core->p_queue, ap_msg));
-  tiz_check_omx_err (tiz_sem_wait (&(p_core->sem)));
+  tiz_check_omx (tiz_queue_send (p_core->p_queue, ap_msg));
+  tiz_check_omx (tiz_sem_wait (&(p_core->sem)));
   TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX IL CORE RESULT [%s]",
            tiz_err_to_str (p_core->error));
 
@@ -1642,8 +1642,8 @@ OMX_Deinit (void)
       return OMX_ErrorInsufficientResources;
     }
 
-  tiz_check_omx_err (tiz_queue_send (p_core->p_queue, p_msg));
-  tiz_check_omx_err (tiz_sem_wait (&(p_core->sem)));
+  tiz_check_omx (tiz_queue_send (p_core->p_queue, p_msg));
+  tiz_check_omx (tiz_sem_wait (&(p_core->sem)));
   tiz_thread_join (&(p_core->thread), &p_result);
 
   tiz_queue_destroy (p_core->p_queue);

@@ -72,13 +72,13 @@ grow_internal_lists (tiz_filter_prc_t * ap_prc, const OMX_U32 a_pid)
       assert (p_port);
       for (i = tiz_vector_length (ap_prc->p_hdrs_); i <= a_pid; ++i)
         {
-          tiz_check_omx_err_ret_oom (
+          tiz_check_omx_ret_oom (
             tiz_vector_push_back (ap_prc->p_hdrs_, &p_hdr));
           disabled_flag = TIZ_PORT_IS_DISABLED (p_port);
-          tiz_check_omx_err_ret_oom (
+          tiz_check_omx_ret_oom (
             tiz_vector_push_back (ap_prc->p_disabled_flags_, &disabled_flag));
           port_dir = tiz_port_dir (p_port);
-          tiz_check_omx_err_ret_oom (
+          tiz_check_omx_ret_oom (
             tiz_vector_push_back (ap_prc->p_port_dirs_, &port_dir));
         }
     }
@@ -96,11 +96,11 @@ filter_prc_ctor (void * ap_obj, va_list * app)
     = super_ctor (typeOf (ap_obj, "tizfilterprc"), ap_obj, app);
   assert (p_prc);
 
-  tiz_check_omx_err_ret_null (
+  tiz_check_omx_ret_null (
     tiz_vector_init (&(p_prc->p_hdrs_), sizeof (OMX_BUFFERHEADERTYPE *)));
-  tiz_check_omx_err_ret_null (
+  tiz_check_omx_ret_null (
     tiz_vector_init (&(p_prc->p_disabled_flags_), sizeof (bool)));
-  tiz_check_omx_err_ret_null (
+  tiz_check_omx_ret_null (
     tiz_vector_init (&(p_prc->p_port_dirs_), sizeof (OMX_DIRTYPE)));
 
   /* Initialise the internal lists */
@@ -318,7 +318,7 @@ filter_prc_release_all_headers (tiz_filter_prc_t * ap_prc)
   const OMX_S32 nhdrs = tiz_vector_length (p_prc->p_hdrs_);
   for (i = 0; i < nhdrs; ++i)
     {
-      tiz_check_omx_err (tiz_filter_prc_release_header (ap_prc, i));
+      tiz_check_omx (tiz_filter_prc_release_header (ap_prc, i));
     }
   return OMX_ErrorNone;
 }

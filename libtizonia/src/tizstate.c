@@ -210,11 +210,11 @@ state_state_set (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
   /* NOTE: This is a default implementation, to be overriden as/when needed */
 
   /* First notify the kernel servant */
-  tiz_check_omx_err (tiz_api_SendCommand (tiz_get_krn (ap_hdl), ap_hdl, a_cmd,
-                                          a_param1, ap_cmd_data));
+  tiz_check_omx (tiz_api_SendCommand (tiz_get_krn (ap_hdl), ap_hdl, a_cmd,
+                                      a_param1, ap_cmd_data));
   /* Now notify the processor servant */
-  tiz_check_omx_err (tiz_api_SendCommand (tiz_get_prc (ap_hdl), ap_hdl, a_cmd,
-                                          a_param1, ap_cmd_data));
+  tiz_check_omx (tiz_api_SendCommand (tiz_get_prc (ap_hdl), ap_hdl, a_cmd,
+                                      a_param1, ap_cmd_data));
   return OMX_ErrorNone;
 }
 
@@ -262,11 +262,11 @@ state_disable (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
                OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
   /* First notify the kernel servant */
-  tiz_check_omx_err (tiz_api_SendCommand (tiz_get_krn (ap_hdl), ap_hdl, a_cmd,
-                                          a_param1, ap_cmd_data));
+  tiz_check_omx (tiz_api_SendCommand (tiz_get_krn (ap_hdl), ap_hdl, a_cmd,
+                                      a_param1, ap_cmd_data));
   /* Now notify the processor servant */
-  tiz_check_omx_err (tiz_api_SendCommand (tiz_get_prc (ap_hdl), ap_hdl, a_cmd,
-                                          a_param1, ap_cmd_data));
+  tiz_check_omx (tiz_api_SendCommand (tiz_get_prc (ap_hdl), ap_hdl, a_cmd,
+                                      a_param1, ap_cmd_data));
   return OMX_ErrorNone;
 }
 

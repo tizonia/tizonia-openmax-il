@@ -318,7 +318,7 @@ OMX_ERRORTYPE graph::gmusicops::get_encoding_type_from_gmusic_source ()
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
   const OMX_U32 port_id = 0;
   TIZ_INIT_OMX_PORT_STRUCT (port_def, port_id);
-  tiz_check_omx_err (
+  tiz_check_omx (
       OMX_GetParameter (handles_[0], OMX_IndexParamPortDefinition, &port_def));
   encoding_ = port_def.format.audio.eEncoding;
   return OMX_ErrorNone;
@@ -329,7 +329,7 @@ graph::gmusicops::override_decoder_and_renderer_sampling_rates ()
 {
   OMX_U32 channels = 2;
   OMX_U32 sampling_rate = 44100;
-  tiz_check_omx_err (
+  tiz_check_omx (
       set_channels_and_rate_on_decoder (channels, sampling_rate));
   return set_channels_and_rate_on_renderer (channels, sampling_rate);
 }
@@ -341,7 +341,7 @@ graph::gmusicops::apply_pcm_codec_info_from_decoder ()
   OMX_U32 sampling_rate = 44100;
   std::string encoding_str;
 
-  tiz_check_omx_err (get_channels_and_rate_from_decoder (
+  tiz_check_omx (get_channels_and_rate_from_decoder (
       channels, sampling_rate, encoding_str));
   return set_channels_and_rate_on_renderer (channels, sampling_rate);
 }
@@ -388,7 +388,7 @@ graph::gmusicops::set_channels_and_rate_on_decoder (
 
   // Retrieve the mp3 settings from the decoder component
   TIZ_INIT_OMX_PORT_STRUCT (decoder_mp3type_, port_id);
-  tiz_check_omx_err (
+  tiz_check_omx (
       OMX_GetParameter (handle, OMX_IndexParamAudioMp3, &decoder_mp3type_));
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "channels = [%d] sampling_rate = [%d]", channels,
@@ -399,7 +399,7 @@ graph::gmusicops::set_channels_and_rate_on_decoder (
   decoder_mp3type_.nSampleRate = sampling_rate;
 
   // Set the new mp3 settings
-  tiz_check_omx_err (
+  tiz_check_omx (
       OMX_SetParameter (handle, OMX_IndexParamAudioMp3, &decoder_mp3type_));
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "channels = [%d] sampling_rate = [%d]", channels,
@@ -420,7 +420,7 @@ graph::gmusicops::set_channels_and_rate_on_renderer (
 
   // Retrieve the pcm settings from the renderer component
   TIZ_INIT_OMX_PORT_STRUCT (renderer_pcmtype_, port_id);
-  tiz_check_omx_err (
+  tiz_check_omx (
       OMX_GetParameter (handle, OMX_IndexParamAudioPcm, &renderer_pcmtype_));
 
   // Now assign the actual settings to the pcmtype structure
@@ -431,7 +431,7 @@ graph::gmusicops::set_channels_and_rate_on_renderer (
       = (encoding_ == OMX_AUDIO_CodingMP3 ? OMX_EndianBig : OMX_EndianLittle);
 
   // Set the new pcm settings
-  tiz_check_omx_err (
+  tiz_check_omx (
       OMX_SetParameter (handle, OMX_IndexParamAudioPcm, &renderer_pcmtype_));
 
   tizgmusicconfig_ptr_t gmusic_config
@@ -455,7 +455,7 @@ graph::gmusicops::set_gmusic_user_and_device_id (const OMX_HANDLETYPE handle,
   // Set the Google Play Music user and pass
   OMX_TIZONIA_AUDIO_PARAM_GMUSICSESSIONTYPE sessiontype;
   TIZ_INIT_OMX_STRUCT (sessiontype);
-  tiz_check_omx_err (OMX_GetParameter (
+  tiz_check_omx (OMX_GetParameter (
       handle,
       static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioGmusicSession),
       &sessiontype));
@@ -474,7 +474,7 @@ graph::gmusicops::set_gmusic_playlist (const OMX_HANDLETYPE handle,
   // Set the Google Play Music playlist
   OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE playlisttype;
   TIZ_INIT_OMX_STRUCT (playlisttype);
-  tiz_check_omx_err (OMX_GetParameter (
+  tiz_check_omx (OMX_GetParameter (
       handle,
       static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioGmusicPlaylist),
       &playlisttype));

@@ -59,7 +59,7 @@ alloc_temp_data_store (flacd_prc_t * ap_prc)
 
   assert (ap_prc);
 
-  tiz_check_omx_err (
+  tiz_check_omx (
     tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                           OMX_IndexParamPortDefinition, &port_def));
 
@@ -297,7 +297,7 @@ release_all_headers (flacd_prc_t * ap_prc, const OMX_U32 a_pid)
       && (ap_prc->p_in_hdr_))
     {
       void * p_krn = tiz_get_krn (handleOf (ap_prc));
-      tiz_check_omx_err (tiz_krn_release_buffer (
+      tiz_check_omx (tiz_krn_release_buffer (
         p_krn, ARATELIA_FLAC_DECODER_INPUT_PORT_INDEX, ap_prc->p_in_hdr_));
       ap_prc->p_in_hdr_ = NULL;
     }
@@ -306,7 +306,7 @@ release_all_headers (flacd_prc_t * ap_prc, const OMX_U32 a_pid)
       && (ap_prc->p_out_hdr_))
     {
       void * p_krn = tiz_get_krn (handleOf (ap_prc));
-      tiz_check_omx_err (tiz_krn_release_buffer (
+      tiz_check_omx (tiz_krn_release_buffer (
         p_krn, ARATELIA_FLAC_DECODER_OUTPUT_PORT_INDEX, ap_prc->p_out_hdr_));
       ap_prc->p_out_hdr_ = NULL;
     }
@@ -651,7 +651,7 @@ flacd_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
   flacd_prc_t * p_prc = ap_obj;
   assert (p_prc);
 
-  tiz_check_omx_err (alloc_temp_data_store (p_prc));
+  tiz_check_omx (alloc_temp_data_store (p_prc));
 
   if (NULL == (p_prc->p_flac_dec_ = FLAC__stream_decoder_new ()))
     {

@@ -61,11 +61,11 @@ void *graph::thread_func (void *p_arg)
 
   (void)tiz_thread_setname (&(p_graph->thread_),
                             (char *)p_graph->get_graph_name ().c_str ());
-  tiz_check_omx_err_ret_null (tiz_sem_post (&(p_graph->sem_)));
+  tiz_check_omx_ret_null (tiz_sem_post (&(p_graph->sem_)));
 
   while (!done)
   {
-    tiz_check_omx_err_ret_null (tiz_queue_receive (p_graph->p_queue_, &p_data));
+    tiz_check_omx_ret_null (tiz_queue_receive (p_graph->p_queue_, &p_data));
 
     assert (p_data);
 
@@ -75,7 +75,7 @@ void *graph::thread_func (void *p_arg)
     delete p_cmd;
   }
 
-  tiz_check_omx_err_ret_null (tiz_sem_post (&(p_graph->sem_)));
+  tiz_check_omx_ret_null (tiz_sem_post (&(p_graph->sem_)));
   TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s] thread exiting...",
            p_graph->get_graph_name ().c_str ());
 
@@ -107,19 +107,19 @@ graph::graph::init ()
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Constructing...");
 
   // Init command queue infrastructure
-  tiz_check_omx_err_ret_oom (init_cmd_queue ());
+  tiz_check_omx_ret_oom (init_cmd_queue ());
 
   // Init this graph's operations using the do_init template method
   tiz_check_null_ret_oom ((p_ops_ = do_init ()) != NULL);
 
   // Create the graph's thread
-  tiz_check_omx_err_ret_oom (tiz_mutex_lock (&mutex_));
-  tiz_check_omx_err_ret_oom (
+  tiz_check_omx_ret_oom (tiz_mutex_lock (&mutex_));
+  tiz_check_omx_ret_oom (
       tiz_thread_create (&thread_, 0, 0, thread_func, this));
-  tiz_check_omx_err_ret_oom (tiz_mutex_unlock (&mutex_));
+  tiz_check_omx_ret_oom (tiz_mutex_unlock (&mutex_));
 
   // Let's wait until the graph's thread is ready to receive requests
-  tiz_check_omx_err_ret_oom (tiz_sem_wait (&sem_));
+  tiz_check_omx_ret_oom (tiz_sem_wait (&sem_));
 
   return OMX_ErrorNone;
 }
@@ -377,9 +377,9 @@ std::string graph::graph::get_graph_name () const
 OMX_ERRORTYPE
 graph::graph::init_cmd_queue ()
 {
-  tiz_check_omx_err_ret_oom (tiz_mutex_init (&mutex_));
-  tiz_check_omx_err_ret_oom (tiz_sem_init (&sem_, 0));
-  tiz_check_omx_err_ret_oom (tiz_queue_init (&p_queue_, TIZ_GRAPH_QUEUE_MAX_ITEMS));
+  tiz_check_omx_ret_oom (tiz_mutex_init (&mutex_));
+  tiz_check_omx_ret_oom (tiz_sem_init (&sem_, 0));
+  tiz_check_omx_ret_oom (tiz_queue_init (&p_queue_, TIZ_GRAPH_QUEUE_MAX_ITEMS));
   return OMX_ErrorNone;
 }
 
@@ -397,9 +397,9 @@ graph::graph::post_cmd (tiz::graph::cmd *p_cmd)
   assert (p_cmd);
   if (p_ops_ && p_queue_)
     {
-      tiz_check_omx_err_ret_oom (tiz_mutex_lock (&mutex_));
-      tiz_check_omx_err_ret_oom (tiz_queue_send (p_queue_, p_cmd));
-      tiz_check_omx_err_ret_oom (tiz_mutex_unlock (&mutex_));
+      tiz_check_omx_ret_oom (tiz_mutex_lock (&mutex_));
+      tiz_check_omx_ret_oom (tiz_queue_send (p_queue_, p_cmd));
+      tiz_check_omx_ret_oom (tiz_mutex_unlock (&mutex_));
     }
   return OMX_ErrorNone;
 }

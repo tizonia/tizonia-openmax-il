@@ -281,7 +281,7 @@ static OMX_ERRORTYPE prepare_for_port_auto_detection (spfysrc_prc_t *ap_prc)
   assert (ap_prc);
 
   TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_SPOTIFY_SOURCE_PORT_INDEX);
-  tiz_check_omx_err (
+  tiz_check_omx (
       tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                             OMX_IndexParamPortDefinition, &port_def));
   ap_prc->audio_coding_type_ = port_def.format.audio.eEncoding;
@@ -297,14 +297,14 @@ static OMX_ERRORTYPE set_audio_coding_on_port (spfysrc_prc_t *ap_prc)
   assert (ap_prc);
 
   TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_SPOTIFY_SOURCE_PORT_INDEX);
-  tiz_check_omx_err (
+  tiz_check_omx (
       tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                             OMX_IndexParamPortDefinition, &port_def));
 
   /* Set the new value */
   port_def.format.audio.eEncoding = ap_prc->audio_coding_type_;
 
-  tiz_check_omx_err (tiz_krn_SetParameter_internal (
+  tiz_check_omx (tiz_krn_SetParameter_internal (
       tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
       OMX_IndexParamPortDefinition, &port_def));
   return OMX_ErrorNone;
@@ -316,7 +316,7 @@ static OMX_ERRORTYPE set_pcm_audio_info_on_port (spfysrc_prc_t *ap_prc)
   assert (ap_prc);
 
   TIZ_INIT_OMX_PORT_STRUCT (pcmmode, ARATELIA_SPOTIFY_SOURCE_PORT_INDEX);
-  tiz_check_omx_err (tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)),
+  tiz_check_omx (tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)),
                                            handleOf (ap_prc),
                                            OMX_IndexParamAudioPcm, &pcmmode));
 
@@ -326,7 +326,7 @@ static OMX_ERRORTYPE set_pcm_audio_info_on_port (spfysrc_prc_t *ap_prc)
   pcmmode.bInterleaved = OMX_TRUE;
   pcmmode.nBitPerSample = 16;
 
-  tiz_check_omx_err (tiz_krn_SetParameter_internal (
+  tiz_check_omx (tiz_krn_SetParameter_internal (
       tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
       OMX_IndexParamAudioPcm, &pcmmode));
   return OMX_ErrorNone;
@@ -634,7 +634,7 @@ static OMX_ERRORTYPE allocate_temp_data_store (spfysrc_prc_t *ap_prc)
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
   assert (ap_prc);
   TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_SPOTIFY_SOURCE_PORT_INDEX);
-  tiz_check_omx_err (
+  tiz_check_omx (
       tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                             OMX_IndexParamPortDefinition, &port_def));
   assert (ap_prc->p_store_ == NULL);
@@ -683,7 +683,7 @@ static OMX_ERRORTYPE release_buffer (spfysrc_prc_t *ap_prc)
             }
         }
       p_hdr->nOffset = 0;
-      tiz_check_omx_err (
+      tiz_check_omx (
           tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_prc)), 0, p_hdr));
       ap_prc->p_outhdr_ = NULL;
     }
@@ -816,7 +816,7 @@ static OMX_ERRORTYPE consume_cache (spfysrc_prc_t *ap_prc)
         {
           int nbytes_copied = copy_to_omx_buffer (
               p_out, tiz_buffer_get (ap_prc->p_store_), nbytes_stored);
-          tiz_check_omx_err (release_buffer (ap_prc));
+          tiz_check_omx (release_buffer (ap_prc));
           (void)tiz_buffer_advance (ap_prc->p_store_, nbytes_copied);
           p_out = NULL;
         }
@@ -1537,11 +1537,11 @@ static OMX_ERRORTYPE spfysrc_prc_allocate_resources (void *ap_prc,
   assert (NULL == p_prc->p_uri_param_);
   assert (NULL == p_prc->p_shuffle_lst_);
 
-  tiz_check_omx_err (allocate_temp_data_store (p_prc));
-  tiz_check_omx_err (retrieve_session_configuration (p_prc));
-  tiz_check_omx_err (retrieve_playlist (p_prc));
-  tiz_check_omx_err (tiz_srv_timer_watcher_init (p_prc, &(p_prc->p_ev_timer_)));
-  tiz_check_omx_err (tiz_map_init (&(p_prc->p_ready_playlists_),
+  tiz_check_omx (allocate_temp_data_store (p_prc));
+  tiz_check_omx (retrieve_session_configuration (p_prc));
+  tiz_check_omx (retrieve_playlist (p_prc));
+  tiz_check_omx (tiz_srv_timer_watcher_init (p_prc, &(p_prc->p_ev_timer_)));
+  tiz_check_omx (tiz_map_init (&(p_prc->p_ready_playlists_),
                                    playlists_map_compare_func,
                                    playlists_map_free_func, NULL));
   assert (p_prc->p_ready_playlists_);
@@ -1737,7 +1737,7 @@ static OMX_ERRORTYPE spfysrc_prc_config_change (void *ap_obj,
       && p_prc->p_sp_session_)
     {
       TIZ_INIT_OMX_STRUCT (p_prc->playlist_skip_);
-      tiz_check_omx_err (tiz_api_GetConfig (
+      tiz_check_omx (tiz_api_GetConfig (
           tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
           OMX_TizoniaIndexConfigPlaylistSkip, &p_prc->playlist_skip_));
 

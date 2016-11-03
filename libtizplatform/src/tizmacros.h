@@ -58,8 +58,8 @@ extern "C" {
 #ifdef TIZ_DISABLE_CHECKS
 
 /**
- * tiz_check_omx_err:
- * @expr: the expression to check
+ * tiz_check_omx:
+ * @expr: An OMX expression to check
  *
  * Verifies that the expression evaluates to OMX_ErrorNone.  Otherwise an error
  * message is logged and the current function returns the resulting openmax il
@@ -68,16 +68,16 @@ extern "C" {
  * If TIZ_DISABLE_CHECKS is defined then the check is not performed but the
  * expression is still evaluated.
  */
-#define tiz_check_omx_err \
-  (expr) do               \
-  {                       \
-    (void) (expr);        \
-  }                       \
+#define tiz_check_omx \
+  (expr) do           \
+  {                   \
+    (void) (expr);    \
+  }                   \
   while (0)
 
 /**
- * tiz_check_omx_err_ret_oom:
- * @expr: the expression to check
+ * tiz_check_omx_ret_oom:
+ * @expr: The OMX expression to check
  *
  * Verifies that the expression evaluates to OMX_ErrorNone. Otherwise an error
  * message is logged and the current function returns
@@ -86,11 +86,48 @@ extern "C" {
  * If TIZ_DISABLE_CHECKS is defined then the check is not performed but the
  * expression is still evaluated.
  */
-#define tiz_check_omx_err_ret_oom \
-  (expr) do                       \
-  {                               \
-    (void) (expr);                \
-  }                               \
+#define tiz_check_omx_ret_oom \
+  (expr) do                   \
+  {                           \
+    (void) (expr);            \
+  }                           \
+  while (0)
+
+/**
+ * tiz_check_omx_ret_null:
+ * @expr: the OMX expression to check.
+ *
+ * Verifies that the expression evaluates to OMX_ErrorNone. Otherwise an error
+ * message is logged and the current function returns NULL.
+ *
+ * If TIZ_DISABLE_CHECKS is defined then the check is not performed but the
+ * expression is still evaluated.
+ */
+#define tiz_check_omx_ret_null \
+  (expr) do                    \
+  {                            \
+    (void) (expr);             \
+  }                            \
+  while (0)
+
+/**
+ * tiz_check_omx_ret_val:
+ * @expr: the OMX expression to be checked.
+ * @val: the OpenMAX IL error value that is returned when the OMX expression
+ * evaluates to false.
+ *
+ * Verifies that the expression evaluates to OMX_ErrorNone. Otherwise an error
+ * message is logged and the current function returns @val (an OpenMAX IL
+ * error).
+ *
+ * If TIZ_DISABLE_CHECKS is defined then the check is not performed but the
+ * expression is still evaluated.
+ */
+#define tiz_check_omx_ret_val \
+  (expr, val) do              \
+  {                           \
+    (void) (expr);            \
+  }                           \
   while (0)
 
 /**
@@ -104,50 +141,15 @@ extern "C" {
  * If TIZ_DISABLE_CHECKS is defined then the check is not performed but the
  * expression is still evaluated.
  */
-#define tiz_check_omx_err_ret_oom \
-  (expr) do                       \
-  {                               \
-    (void) (expr);                \
-  }                               \
+#define tiz_check_null_ret_oom \
+  (expr) do                    \
+  {                            \
+    (void) (expr);             \
+  }                            \
   while (0)
 
 /**
- * tiz_check_omx_err_ret_null:
- * @expr: the expression to check
- *
- * Verifies that the expression evaluates to OMX_ErrorNone. Otherwise an error
- * message is logged and the current function returns NULL.
- *
- * If TIZ_DISABLE_CHECKS is defined then the check is not performed but the
- * expression is still evaluated.
- */
-#define tiz_check_omx_err_ret_null \
-  (expr) do                        \
-  {                                \
-    (void) (expr);                 \
-  }                                \
-  while (0)
-
-/**
- * tiz_check_omx_err_ret_val:
- * @expr: the expression to check
- *
- * Verifies that the expression evaluates to OMX_ErrorNone. Otherwise an error
- * message is logged and the current function returns @val (an openmax il
- * error).
- *
- * If TIZ_DISABLE_CHECKS is defined then the check is not performed but the
- * expression is still evaluated.
- */
-#define tiz_check_omx_err_ret_val \
-  (expr) do                       \
-  {                               \
-    (void) (expr);                \
-  }                               \
-  while (0)
-
-/**
- * tiz_check_err:
+ * tiz_check_true_ret_void:
  * @expr: the expression to check
  *
  * Verifies that the expression evaluates to true.  If the expression evaluates
@@ -157,17 +159,17 @@ extern "C" {
  * If TIZ_DISABLE_CHECKS is defined then the check is not performed but the
  * expression is still evaluated.
  */
-#define tiz_check_err \
-  (expr) do           \
-  {                   \
-    (void) (expr);    \
-  }                   \
+#define tiz_ret_on_err \
+  (expr) do            \
+  {                    \
+    (void) (expr);     \
+  }                    \
   while (0)
 
 /**
- * tiz_ret_val_on_err:
+ * tiz_check_true_ret_val:
  * @expr: the expression to check
- * @val: the value to return if the expression is not true
+ * @val: the value to return if the expression does not evaluate to true
  *
  * Verifies that the expression evaluates to true.  If the expression evaluates
  * to false, an error message is logged and @val is returned from the current
@@ -176,21 +178,63 @@ extern "C" {
  * If TIZ_DISABLE_CHECKS is defined then the check is not performed but the
  * expression is still evaluated.
  */
-#define tiz_check_ret_ret_val \
-  (expr, val) do              \
-  {                           \
-    (void) (expr);            \
-  }                           \
+#define tiz_check_true_ret_val \
+  (expr, val) do               \
+  {                            \
+    (void) (expr);             \
+  }                            \
   while (0)
+
+/**
+ * tiz_check_omx_err:
+ * @deprecated From v0.6.0. Use tiz_check_omx instead. To be removed in
+ * a future release.
+ */
+#define tiz_check_omx_err (expr) tiz_check_omx (expr)
+
+/**
+ * tiz_check_omx_err_ret_oom:
+ * @deprecated From v0.6.0. Use tiz_check_omx_ret_oom instead. To be removed in
+ * a future release.
+ */
+#define tiz_check_omx_err_ret_oom (expr) tiz_check_omx_ret_oom (expr)
+
+/**
+ * tiz_check_omx_err_ret_null:
+ * @deprecated From v0.6.0. Use tiz_check_omx_ret_null instead. To be removed in
+ * a future release.
+ */
+#define tiz_check_omx_err_ret_null (expr) tiz_check_omx_ret_null (expr)
+
+/**
+ * tiz_check_omx_err_ret_val:
+ * @deprecated From v0.6.0. Use tiz_check_omx_ret_val instead. To be removed in
+ * a future release.
+ */
+#define tiz_check_omx_err_ret_val (expr, val) tiz_check_omx_ret_val (expr, val)
+
+/**
+ * tiz_ret_on_err:
+ * @deprecated From v0.6.0. Use tiz_check_true_ret_void instead. To be removed in
+ * a future release.
+ */
+#define tiz_ret_on_err (expr) tiz_check_true_ret_void(expr)
+
+/**
+ * tiz_ret_val_on_err:
+ * @deprecated From v0.6.0. Use tiz_check_true_ret_val instead. To be removed in
+ * a future release
+ */
+#define tiz_ret_val_on_err (expr, val) tiz_check_true_ret_val (expr, val)
 
 #else /* !TIZ_DISABLE_CHECKS */
 
 #ifdef __GNUC__
 
-#define tiz_check_omx_err(expr)                                           \
+#define tiz_check_omx(expr)                                               \
   do                                                                      \
     {                                                                     \
-      OMX_ERRORTYPE _err = expr;                                          \
+      OMX_ERRORTYPE _err = (expr);                                        \
       if                                                                  \
         TIZ_LIKELY (OMX_ErrorNone == _err)                                \
         {                                                                 \
@@ -203,10 +247,10 @@ extern "C" {
     }                                                                     \
   while (0)
 
-#define tiz_check_omx_err_ret_oom(expr)                \
+#define tiz_check_omx_ret_oom(expr)                    \
   do                                                   \
     {                                                  \
-      OMX_ERRORTYPE _err = expr;                       \
+      OMX_ERRORTYPE _err = (expr);                     \
       if                                               \
         TIZ_LIKELY (OMX_ErrorNone == _err)             \
         {                                              \
@@ -237,10 +281,10 @@ extern "C" {
     }                                                                       \
   while (0)
 
-#define tiz_check_omx_err_ret_null(expr)                       \
+#define tiz_check_omx_ret_null(expr)                           \
   do                                                           \
     {                                                          \
-      OMX_ERRORTYPE _err = expr;                               \
+      OMX_ERRORTYPE _err = (expr);                             \
       if                                                       \
         TIZ_LIKELY (OMX_ErrorNone == _err)                     \
         {                                                      \
@@ -254,10 +298,10 @@ extern "C" {
     }                                                          \
   while (0)
 
-#define tiz_check_omx_err_ret_val(expr, val)                     \
+#define tiz_check_omx_ret_val(expr, val)                         \
   do                                                             \
     {                                                            \
-      OMX_ERRORTYPE _err = expr;                                 \
+      OMX_ERRORTYPE _err = (expr);                               \
       if                                                         \
         TIZ_LIKELY (OMX_ErrorNone == _err)                       \
         {                                                        \
@@ -271,7 +315,7 @@ extern "C" {
     }                                                            \
   while (0)
 
-#define tiz_ret_on_err(expr)                                        \
+#define tiz_check_true_ret_void(expr)                               \
   do                                                                \
     {                                                               \
       if                                                            \
@@ -286,7 +330,7 @@ extern "C" {
     }                                                               \
   while (0)
 
-#define tiz_ret_val_on_err(expr, val)                               \
+#define tiz_check_true_ret_val(expr, val)                           \
   do                                                                \
     {                                                               \
       if                                                            \
@@ -301,12 +345,25 @@ extern "C" {
     }                                                               \
   while (0)
 
+/* DEPRECATED */
+#define tiz_check_omx_err (expr) tiz_check_omx (expr)
+/* DEPRECATED */
+#define tiz_check_omx_err_ret_oom(expr) tiz_check_omx_ret_oom(expr)
+/* DEPRECATED */
+#define tiz_check_omx_err_ret_null(expr) tiz_check_omx_ret_null(expr)
+/* DEPRECATED */
+#define tiz_check_omx_err_ret_val(expr, val) tiz_check_omx_ret_val(expr, val)
+/* DEPRECATED */
+#define tiz_ret_on_err (expr) tiz_check_true_ret_void (expr)
+/* DEPRECATED */
+#define tiz_ret_val_on_err (expr, val) tiz_check_true_ret_val (expr, val)
+
 #else /* !__GNUC__ */
 
-#define tiz_check_omx_err(expr)                                           \
+#define tiz_check_omx(expr)                                               \
   do                                                                      \
     {                                                                     \
-      OMX_ERRORTYPE _err = expr;                                          \
+      OMX_ERRORTYPE _err = (expr);                                        \
       if (OMX_ErrorNone != _err)                                          \
         {                                                                 \
           TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s]...", tiz_err_to_str (_err)); \
@@ -315,10 +372,10 @@ extern "C" {
     }                                                                     \
   while (0)
 
-#define tiz_check_omx_err_ret_oom(expr)                \
+#define tiz_check_omx_ret_oom(expr)                    \
   do                                                   \
     {                                                  \
-      OMX_ERRORTYPE _err = expr;                       \
+      OMX_ERRORTYPE _err = (expr);                     \
       if (OMX_ErrorNone != _err)                       \
         {                                              \
           TIZ_LOG (TIZ_PRIORITY_ERROR,                 \
@@ -344,10 +401,10 @@ extern "C" {
     }                                                                       \
   while (0)
 
-#define tiz_check_omx_err_ret_null(expr)                       \
+#define tiz_check_omx_ret_null(expr)                           \
   do                                                           \
     {                                                          \
-      OMX_ERRORTYPE _err = expr;                               \
+      OMX_ERRORTYPE _err = (expr);                             \
       if (OMX_ErrorNone != _err)                               \
         {                                                      \
           TIZ_LOG (TIZ_PRIORITY_ERROR, "[NULL] : was [%s]...", \
@@ -357,10 +414,10 @@ extern "C" {
     }                                                          \
   while (0)
 
-#define tiz_check_omx_err_ret_val(expr, val)                     \
+#define tiz_check_omx_ret_val(expr, val)                         \
   do                                                             \
     {                                                            \
-      OMX_ERRORTYPE _err = expr;                                 \
+      OMX_ERRORTYPE _err = (expr);                               \
       if (OMX_ErrorNone != _err)                                 \
         {                                                        \
           TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s] : was [%s]",        \
@@ -370,7 +427,7 @@ extern "C" {
     }                                                            \
   while (0)
 
-#define tiz_ret_on_err                                            \
+#define tiz_check_true_ret_void                                   \
   (expr) do                                                       \
   {                                                               \
     if (expr)                                                     \
@@ -384,7 +441,7 @@ extern "C" {
   }                                                               \
   while (0)
 
-#define tiz_ret_val_on_err                                        \
+#define tiz_check_true_ret_val                                    \
   (expr, val) do                                                  \
   {                                                               \
     if (expr)                                                     \
@@ -397,6 +454,19 @@ extern "C" {
       }                                                           \
   }                                                               \
   while (0)
+
+/* DEPRECATED */
+#define tiz_check_omx_err(expr) tiz_check_omx (expr)
+/* DEPRECATED */
+#define tiz_check_omx_err_ret_oom(expr) tiz_check_omx_ret_oom (expr)
+/* DEPRECATED */
+#define tiz_check_omx_err_ret_null(expr) tiz_check_omx_ret_null (expr)
+/* DEPRECATED */
+#define tiz_check_omx_err_ret_val(expr, val) tiz_check_omx_ret_val (expr, val)
+/* DEPRECATED */
+#define tiz_ret_on_err(expr) tiz_check_true_ret_void (expr)
+/* DEPRECATED */
+#define tiz_ret_val_on_err(expr, val) tiz_check_true_ret_val (expr, val)
 
 #endif /* !__GNUC__ */
 
