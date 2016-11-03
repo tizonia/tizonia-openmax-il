@@ -73,6 +73,90 @@
 static OMX_ERRORTYPE
 oggmuxflt_prc_deallocate_resources (void *);
 
+/* static void */
+/* le32 (unsigned char * p, int v) */
+/* { */
+/*   p[0] = v & 0xff; */
+/*   p[1] = (v >> 8) & 0xff; */
+/*   p[2] = (v >> 16) & 0xff; */
+/*   p[3] = (v >> 24) & 0xff; */
+/* } */
+
+/* /\* helper, write a little-endian 16 bit int to memory *\/ */
+/* static void */
+/* le16 (unsigned char * p, int v) */
+/* { */
+/*   p[0] = v & 0xff; */
+/*   p[1] = (v >> 8) & 0xff; */
+/* } */
+
+/* /\* manufacture a generic OpusHead packet *\/ */
+/* static ogg_packet * */
+/* op_opushead (oggmuxflt_prc_t * ap_prc) */
+/* { */
+/*   int size = 19; */
+/*   unsigned char * data = tiz_mem_calloc (size, sizeof (unsigned char)); */
+/*   ogg_packet * op = tiz_mem_calloc (1, sizeof (ogg_packet)); */
+
+/*   tiz_check_null(data); */
+/*   tiz_check_null(op); */
+/*   if (!op) */
+/*     { */
+/*       fprintf (stderr, "Couldn't allocate Ogg packet.\n"); */
+/*       return NULL; */
+/*     } */
+
+/*   memcpy (data, "OpusHead", 8); /\* identifier *\/ */
+/*   data[8] = 1;                  /\* version *\/ */
+/*   data[9] = 2;                  /\* channels *\/ */
+/*   le16 (data + 10, 0);          /\* pre-skip *\/ */
+/*   le32 (data + 12, 48000);      /\* original sample rate *\/ */
+/*   le16 (data + 16, 0);          /\* gain *\/ */
+/*   data[18] = 0;                 /\* channel mapping family *\/ */
+
+/*   op->packet = data; */
+/*   op->bytes = size; */
+/*   op->b_o_s = 1; */
+/*   op->e_o_s = 0; */
+/*   op->granulepos = 0; */
+/*   op->packetno = 0; */
+
+/*   return op; */
+/* } */
+
+/* /\* manufacture a generic OpusTags packet *\/ */
+/* static ogg_packet *op_opustags(oggmuxflt_prc_t * ap_prc) */
+/* { */
+/*   char *identifier = "OpusTags"; */
+/*   char *vendor = "opus rtp packet dump"; */
+/*   int size = strlen(identifier) + 4 + strlen(vendor) + 4; */
+/*   unsigned char *data = malloc(size); */
+/*   ogg_packet *op = malloc(sizeof(*op)); */
+
+/*   if (!data) { */
+/*     fprintf(stderr, "Couldn't allocate data buffer.\n"); */
+/*     return NULL; */
+/*   } */
+/*   if (!op) { */
+/*     fprintf(stderr, "Couldn't allocate Ogg packet.\n"); */
+/*     return NULL; */
+/*   } */
+
+/*   memcpy(data, identifier, 8); */
+/*   le32(data + 8, strlen(vendor)); */
+/*   memcpy(data + 12, vendor, strlen(vendor)); */
+/*   le32(data + 12 + strlen(vendor), 0); */
+  
+/*   op->packet = data; */
+/*   op->bytes = size; */
+/*   op->b_o_s = 0; */
+/*   op->e_o_s = 0; */
+/*   op->granulepos = 0; */
+/*   op->packetno = 1; */
+
+/*   return op; */
+/* } */
+
 static OMX_ERRORTYPE
 audio_hungry (oggmuxflt_prc_t * ap_prc)
 {
