@@ -34,7 +34,7 @@ source tizonia-common.inc
 function usage {
     print_banner_and_license $(basename "$0")
     echo
-    pretty_print "$GRN" "Usage : $(basename $0) [-a|--asan] [-c|--conf] [-d|--deps] [-g|--debug] [-i|--install] [-m|--make] [-p|--project <proj_name>] [-r|--release] [-s|--scan] [-v|--valgrind] [-w|--cwd]"
+    pretty_print "$GRN" "Usage : $(basename $0) [-a|--asan] [-c|--conf] [-d|--deps] [-g|--debug] [-i|--install] [-m|--make] [-p|--project <proj_name>] [-r|--release] [-s|--scan-build] [-v|--valgrind] [-w|--cwd]"
     pretty_print "$GRN" "       -a            : Configure for an Address Sanitizer (ASAN) type of build (requires clang)."
 #   pretty_print "$GRN" "       -b            : Configure for a 'Debian' type build (--libdir=/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH))."
     pretty_print "$GRN" "       -c            : Configure for conformance testing."
@@ -44,7 +44,7 @@ function usage {
     pretty_print "$GRN" "       -m            : Make all sub-projects."
     pretty_print "$GRN" "       -p            : Use the '<proj_name>' as the base folder for configuration/build."
     pretty_print "$GRN" "       -r            : Configure for a RELEASE type of build."
-    pretty_print "$GRN" "       -s            : Configure for 'scan-build'."
+    pretty_print "$GRN" "       -s            : Configure for 'scan-build' (Clang static analyzer)."
     pretty_print "$GRN" "       -v            : Configure for Valgrind memory leak analysis."
     pretty_print "$GRN" "       -w            : Use the the current working directory as the base directory for configuration/build."
     echo
@@ -129,7 +129,7 @@ function main {
     local cwd=0
 
     local progname=$(basename $0)
-    CMDLINE=$(getopt -o "abcdgimp:rsvw" --long "asan,debian,conf,deps,debug,install,make,project:,release,scan,valgrind,cwd," -n "$progname" -- "$@")
+    CMDLINE=$(getopt -o "abcdgimp:rsvw" --long "asan,debian,conf,deps,debug,install,make,project:,release,scan-build,valgrind,cwd," -n "$progname" -- "$@")
     eval set -- "$CMDLINE"
     while true; do
         case "$1" in
@@ -165,7 +165,7 @@ function main {
             -r|--release)
                 release=1; shift
                 ;;
-            -s|--scan)
+            -s|--scan-build)
                 scan=1; shift
                 ;;
             -v|--valgrind)
