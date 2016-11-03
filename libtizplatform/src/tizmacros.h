@@ -52,10 +52,7 @@ extern "C" {
 #define TIZ_UNLIKELY(expr) (expr)
 #endif
 
-/* NOTE : This is WORK IN PROGRESS !!! : When the TIZ_DISABLE_CHECKS feature is
-   implemented correctly, it WILL NOT DISABLE ALL CHECKS, only those that have
-   to do with out-of-memory conditions. */
-#ifdef TIZ_DISABLE_CHECKS
+#ifdef __GNUC__
 
 /**
  * tiz_check_omx:
@@ -64,179 +61,12 @@ extern "C" {
  * Verifies that the expression evaluates to OMX_ErrorNone.  Otherwise an error
  * message is logged and the current function returns the resulting openmax il
  * error.
- *
- * If TIZ_DISABLE_CHECKS is defined then the check is not performed but the
- * expression is still evaluated.
  */
-#define tiz_check_omx \
-  (expr) do           \
-  {                   \
-    (void) (expr);    \
-  }                   \
-  while (0)
-
-/**
- * tiz_check_omx_ret_oom:
- * @expr: The OMX expression to check
- *
- * Verifies that the expression evaluates to OMX_ErrorNone. Otherwise an error
- * message is logged and the current function returns
- * OMX_ErrorInsufficientResources.
- *
- * If TIZ_DISABLE_CHECKS is defined then the check is not performed but the
- * expression is still evaluated.
- */
-#define tiz_check_omx_ret_oom \
-  (expr) do                   \
-  {                           \
-    (void) (expr);            \
-  }                           \
-  while (0)
-
-/**
- * tiz_check_omx_ret_null:
- * @expr: the OMX expression to check.
- *
- * Verifies that the expression evaluates to OMX_ErrorNone. Otherwise an error
- * message is logged and the current function returns NULL.
- *
- * If TIZ_DISABLE_CHECKS is defined then the check is not performed but the
- * expression is still evaluated.
- */
-#define tiz_check_omx_ret_null \
-  (expr) do                    \
-  {                            \
-    (void) (expr);             \
-  }                            \
-  while (0)
-
-/**
- * tiz_check_omx_ret_val:
- * @expr: the OMX expression to be checked.
- * @val: the OpenMAX IL error value that is returned when the OMX expression
- * evaluates to false.
- *
- * Verifies that the expression evaluates to OMX_ErrorNone. Otherwise an error
- * message is logged and the current function returns @val (an OpenMAX IL
- * error).
- *
- * If TIZ_DISABLE_CHECKS is defined then the check is not performed but the
- * expression is still evaluated.
- */
-#define tiz_check_omx_ret_val \
-  (expr, val) do              \
-  {                           \
-    (void) (expr);            \
-  }                           \
-  while (0)
-
-/**
- * tiz_check_null_ret_oom:
- * @expr: the expression to check
- *
- * Verifies that the expression evaluates to non-NULL. Otherwise an error
- * message is logged and the current function returns
- * OMX_ErrorInsufficientResources.
- *
- * If TIZ_DISABLE_CHECKS is defined then the check is not performed but the
- * expression is still evaluated.
- */
-#define tiz_check_null_ret_oom \
-  (expr) do                    \
-  {                            \
-    (void) (expr);             \
-  }                            \
-  while (0)
-
-/**
- * tiz_check_true_ret_void:
- * @expr: the expression to check
- *
- * Verifies that the expression evaluates to true.  If the expression evaluates
- * to false, an error message is logged and the current function returns.  This
- * is to be used only in functions that do not return a value.
- *
- * If TIZ_DISABLE_CHECKS is defined then the check is not performed but the
- * expression is still evaluated.
- */
-#define tiz_ret_on_err \
-  (expr) do            \
-  {                    \
-    (void) (expr);     \
-  }                    \
-  while (0)
-
-/**
- * tiz_check_true_ret_val:
- * @expr: the expression to check
- * @val: the value to return if the expression does not evaluate to true
- *
- * Verifies that the expression evaluates to true.  If the expression evaluates
- * to false, an error message is logged and @val is returned from the current
- * function.
- *
- * If TIZ_DISABLE_CHECKS is defined then the check is not performed but the
- * expression is still evaluated.
- */
-#define tiz_check_true_ret_val \
-  (expr, val) do               \
-  {                            \
-    (void) (expr);             \
-  }                            \
-  while (0)
-
-/**
- * tiz_check_omx_err:
- * @deprecated From v0.6.0. Use tiz_check_omx instead. To be removed in
- * a future release.
- */
-#define tiz_check_omx_err (expr) tiz_check_omx (expr)
-
-/**
- * tiz_check_omx_err_ret_oom:
- * @deprecated From v0.6.0. Use tiz_check_omx_ret_oom instead. To be removed in
- * a future release.
- */
-#define tiz_check_omx_err_ret_oom (expr) tiz_check_omx_ret_oom (expr)
-
-/**
- * tiz_check_omx_err_ret_null:
- * @deprecated From v0.6.0. Use tiz_check_omx_ret_null instead. To be removed in
- * a future release.
- */
-#define tiz_check_omx_err_ret_null (expr) tiz_check_omx_ret_null (expr)
-
-/**
- * tiz_check_omx_err_ret_val:
- * @deprecated From v0.6.0. Use tiz_check_omx_ret_val instead. To be removed in
- * a future release.
- */
-#define tiz_check_omx_err_ret_val (expr, val) tiz_check_omx_ret_val (expr, val)
-
-/**
- * tiz_ret_on_err:
- * @deprecated From v0.6.0. Use tiz_check_true_ret_void instead. To be removed in
- * a future release.
- */
-#define tiz_ret_on_err (expr) tiz_check_true_ret_void(expr)
-
-/**
- * tiz_ret_val_on_err:
- * @deprecated From v0.6.0. Use tiz_check_true_ret_val instead. To be removed in
- * a future release
- */
-#define tiz_ret_val_on_err (expr, val) tiz_check_true_ret_val (expr, val)
-
-#else /* !TIZ_DISABLE_CHECKS */
-
-#ifdef __GNUC__
-
 #define tiz_check_omx(expr)                                               \
   do                                                                      \
     {                                                                     \
       OMX_ERRORTYPE _err = (expr);                                        \
-      if                                                                  \
-        TIZ_LIKELY (OMX_ErrorNone == _err)                                \
+      if TIZ_LIKELY(OMX_ErrorNone == _err)                                \
         {                                                                 \
         }                                                                 \
       else                                                                \
@@ -247,6 +77,14 @@ extern "C" {
     }                                                                     \
   while (0)
 
+/**
+ * tiz_check_omx_ret_oom:
+ * @expr: The OMX expression to check
+ *
+ * Verifies that the expression evaluates to OMX_ErrorNone. Otherwise an error
+ * message is logged and the current function returns
+ * OMX_ErrorInsufficientResources.
+ */
 #define tiz_check_omx_ret_oom(expr)                    \
   do                                                   \
     {                                                  \
@@ -266,21 +104,13 @@ extern "C" {
     }                                                  \
   while (0)
 
-#define tiz_check_null_ret_oom(expr)                                        \
-  do                                                                        \
-    {                                                                       \
-      if                                                                    \
-        TIZ_LIKELY ((expr))                                                 \
-        {                                                                   \
-        }                                                                   \
-      else                                                                  \
-        {                                                                   \
-          TIZ_LOG (TIZ_PRIORITY_ERROR, "[OMX_ErrorInsufficientResources]"); \
-          return OMX_ErrorInsufficientResources;                            \
-        }                                                                   \
-    }                                                                       \
-  while (0)
-
+/**
+ * tiz_check_omx_ret_null:
+ * @expr: the OMX expression to check.
+ *
+ * Verifies that the expression evaluates to OMX_ErrorNone. Otherwise an error
+ * message is logged and the current function returns NULL.
+ */
 #define tiz_check_omx_ret_null(expr)                           \
   do                                                           \
     {                                                          \
@@ -298,6 +128,16 @@ extern "C" {
     }                                                          \
   while (0)
 
+/**
+ * tiz_check_omx_ret_val:
+ * @expr: the OMX expression to be checked.
+ * @val: the OpenMAX IL error value that is returned when the OMX expression
+ * evaluates to false.
+ *
+ * Verifies that the expression evaluates to OMX_ErrorNone. Otherwise an error
+ * message is logged and the current function returns @val (an OpenMAX IL
+ * error).
+ */
 #define tiz_check_omx_ret_val(expr, val)                         \
   do                                                             \
     {                                                            \
@@ -315,6 +155,59 @@ extern "C" {
     }                                                            \
   while (0)
 
+/**
+ * tiz_check_null:
+ * @expr: A expression to check against NULL
+ *
+ * Verifies that the expression evaluates to non-NULL. Otherwise an error
+ * message is logged and the current function returns NULL.
+ */
+#define tiz_check_null(expr)                                   \
+  do                                                           \
+    {                                                          \
+      if                                                       \
+        TIZ_LIKELY ((expr))                                    \
+        {                                                      \
+        }                                                      \
+      else                                                     \
+        {                                                      \
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "[NULL] : [%s]", #expr) \
+          return NULL;                                         \
+        }                                                      \
+    }                                                          \
+  while (0)
+
+/**
+ * tiz_check_null_ret_oom:
+ * @expr: the expression to check
+ *
+ * Verifies that the expression evaluates to non-NULL. Otherwise an error
+ * message is logged and the current function returns
+ * OMX_ErrorInsufficientResources.
+ */
+#define tiz_check_null_ret_oom(expr)                                        \
+  do                                                                        \
+    {                                                                       \
+      if                                                                    \
+        TIZ_LIKELY ((expr))                                                 \
+        {                                                                   \
+        }                                                                   \
+      else                                                                  \
+        {                                                                   \
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "[OMX_ErrorInsufficientResources]"); \
+          return OMX_ErrorInsufficientResources;                            \
+        }                                                                   \
+    }                                                                       \
+  while (0)
+
+/**
+ * tiz_check_true_ret_void:
+ * @expr: the expression to check
+ *
+ * Verifies that the expression evaluates to true.  If the expression evaluates
+ * to false, an error message is logged and the current function returns.  This
+ * is to be used only in functions that do not return a value.
+ */
 #define tiz_check_true_ret_void(expr)                               \
   do                                                                \
     {                                                               \
@@ -330,6 +223,15 @@ extern "C" {
     }                                                               \
   while (0)
 
+/**
+ * tiz_check_true_ret_val:
+ * @expr: the expression to check
+ * @val: the value to return if the expression does not evaluate to true
+ *
+ * Verifies that the expression evaluates to true.  If the expression evaluates
+ * to false, an error message is logged and @val is returned from the current
+ * function.
+  */
 #define tiz_check_true_ret_val(expr, val)                           \
   do                                                                \
     {                                                               \
@@ -346,16 +248,51 @@ extern "C" {
   while (0)
 
 /* DEPRECATED */
+/**
+ * tiz_check_omx_err:
+ * @deprecated From v0.6.0. Use tiz_check_omx instead. To be removed in
+ * a future release.
+ */
 #define tiz_check_omx_err (expr) tiz_check_omx (expr)
+
 /* DEPRECATED */
-#define tiz_check_omx_err_ret_oom(expr) tiz_check_omx_ret_oom(expr)
+/**
+ * tiz_check_omx_err_ret_oom:
+ * @deprecated From v0.6.0. Use tiz_check_omx_ret_oom instead. To be removed in
+ * a future release.
+ */
+#define tiz_check_omx_err_ret_oom(expr) tiz_check_omx_ret_oom (expr)
+
 /* DEPRECATED */
-#define tiz_check_omx_err_ret_null(expr) tiz_check_omx_ret_null(expr)
+/**
+ * tiz_check_omx_err_ret_null:
+ * @deprecated From v0.6.0. Use tiz_check_omx_ret_null instead. To be removed in
+ * a future release.
+ */
+#define tiz_check_omx_err_ret_null(expr) tiz_check_omx_ret_null (expr)
+
 /* DEPRECATED */
-#define tiz_check_omx_err_ret_val(expr, val) tiz_check_omx_ret_val(expr, val)
+/**
+ * tiz_check_omx_err_ret_val:
+ * @deprecated From v0.6.0. Use tiz_check_omx_ret_val instead. To be removed in
+ * a future release.
+ */
+#define tiz_check_omx_err_ret_val(expr, val) tiz_check_omx_ret_val (expr, val)
+
 /* DEPRECATED */
+/**
+ * tiz_ret_on_err:
+ * @deprecated From v0.6.0. Use tiz_check_true_ret_void instead. To be removed in
+ * a future release.
+ */
 #define tiz_ret_on_err (expr) tiz_check_true_ret_void (expr)
+
 /* DEPRECATED */
+/**
+ * tiz_ret_val_on_err:
+ * @deprecated From v0.6.0. Use tiz_check_true_ret_val instead. To be removed in
+ * a future release
+ */
 #define tiz_ret_val_on_err (expr, val) tiz_check_true_ret_val (expr, val)
 
 #else /* !__GNUC__ */
@@ -387,20 +324,6 @@ extern "C" {
     }                                                  \
   while (0)
 
-#define tiz_check_null_ret_oom(expr)                                        \
-  do                                                                        \
-    {                                                                       \
-      if ((expr))                                                           \
-        {                                                                   \
-        }                                                                   \
-      else                                                                  \
-        {                                                                   \
-          TIZ_LOG (TIZ_PRIORITY_ERROR, "[OMX_ErrorInsufficientResources]"); \
-          return OMX_ErrorInsufficientResources;                            \
-        }                                                                   \
-    }                                                                       \
-  while (0)
-
 #define tiz_check_omx_ret_null(expr)                           \
   do                                                           \
     {                                                          \
@@ -427,32 +350,60 @@ extern "C" {
     }                                                            \
   while (0)
 
-#define tiz_check_true_ret_void                                   \
-  (expr) do                                                       \
-  {                                                               \
-    if (expr)                                                     \
-      {                                                           \
-      }                                                           \
-    else                                                          \
-      {                                                           \
-        TIZ_LOG (TIZ_PRIORITY_ERROR, "Check '%s' failed", #expr); \
-        return;                                                   \
-      }                                                           \
-  }                                                               \
+#define tiz_check_null(expr)                                   \
+  do                                                           \
+    {                                                          \
+      if ((expr))                                              \
+        {                                                      \
+        }                                                      \
+      else                                                     \
+        {                                                      \
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "[NULL] : [%s]", #expr) \
+          return NULL;                                         \
+        }                                                      \
+    }                                                          \
   while (0)
 
-#define tiz_check_true_ret_val                                    \
-  (expr, val) do                                                  \
-  {                                                               \
-    if (expr)                                                     \
-      {                                                           \
-      }                                                           \
-    else                                                          \
-      {                                                           \
-        TIZ_LOG (TIZ_PRIORITY_ERROR, "Check '%s' failed", #expr); \
-        return (val);                                             \
-      }                                                           \
-  }                                                               \
+#define tiz_check_null_ret_oom(expr)                                        \
+  do                                                                        \
+    {                                                                       \
+      if ((expr))                                                           \
+        {                                                                   \
+        }                                                                   \
+      else                                                                  \
+        {                                                                   \
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "[OMX_ErrorInsufficientResources]"); \
+          return OMX_ErrorInsufficientResources;                            \
+        }                                                                   \
+    }                                                                       \
+  while (0)
+
+#define tiz_check_true_ret_void(expr)                               \
+  do                                                                \
+    {                                                               \
+      if (expr)                                                     \
+        {                                                           \
+        }                                                           \
+      else                                                          \
+        {                                                           \
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "Check '%s' failed", #expr); \
+          return;                                                   \
+        }                                                           \
+    }                                                               \
+  while (0)
+
+#define tiz_check_true_ret_val(expr, val)                           \
+  do                                                                \
+    {                                                               \
+      if (expr)                                                     \
+        {                                                           \
+        }                                                           \
+      else                                                          \
+        {                                                           \
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "Check '%s' failed", #expr); \
+          return (val);                                             \
+        }                                                           \
+    }                                                               \
   while (0)
 
 /* DEPRECATED */
@@ -470,9 +421,7 @@ extern "C" {
 
 #endif /* !__GNUC__ */
 
-#endif /* !TIZ_DISABLE_CHECKS */
-
-/* Avoid unused variables warnings */
+/* Avoid unused variable warnings */
 
 #ifdef TIZ_UNUSED
 #elif defined(__GNUC__)
