@@ -74,6 +74,20 @@ store_data (webmdmuxflt_prc_t * ap_prc);
     }                                                                 \
   while (0)
 
+#define WEBMDMUX_LOG_STATE(ap_prc)                                          \
+  do                                                                        \
+    {                                                                       \
+      TIZ_DEBUG (                                                           \
+        handleOf (ap_prc),                                                  \
+        "store [%d] eos [%s] last read len ? [%d] ne read err [%d] out "    \
+        "headers [%s]",                                                     \
+        tiz_buffer_available (ap_prc->p_store_),                            \
+        (tiz_filter_prc_is_eos (ap_prc) ? "YES" : "NO"),                    \
+        ap_prc->ne_last_read_len_, ap_prc->ne_read_err_,                    \
+        (tiz_filter_prc_output_headers_available (ap_prc) ? "YES" : "NO")); \
+    }                                                                       \
+  while (0)
+
 /** User supplied read callback.
 
     @param buffer   Buffer to read data into.
@@ -93,13 +107,7 @@ ne_io_read (void * ap_buffer, size_t a_length, void * a_userdata)
   assert (p_prc);
   p_prc->ne_last_read_len_ = a_length;
 
-  TIZ_TRACE (
-    handleOf (p_prc),
-    "ne_inited_ [%s] eos [%s] a_length [%u] store avail [%d] offset [%d]",
-    (p_prc->ne_inited_ ? "YES" : "NO"),
-    (tiz_filter_prc_is_eos (p_prc) ? "YES" : "NO"), a_length,
-    tiz_buffer_available (p_prc->p_store_),
-    tiz_buffer_offset (p_prc->p_store_));
+  WEBMDMUX_LOG_STATE (p_prc);
 
   if (tiz_filter_prc_is_eos (p_prc)
       && tiz_buffer_available (p_prc->p_store_) == 0)
@@ -259,9 +267,7 @@ propagate_eos_if_required (webmdmuxflt_prc_t * ap_prc,
   assert (ap_prc);
   assert (ap_out_hdr);
 
-  TIZ_DEBUG (handleOf (ap_prc), "EOS [%s] store [%d]",
-             (tiz_filter_prc_is_eos (ap_prc) ? "YES" : "NO"),
-             tiz_buffer_available (ap_prc->p_store_));
+  WEBMDMUX_LOG_STATE (ap_prc);
 
   /* If EOS, propagate the flag to the next component */
   if (tiz_filter_prc_is_eos (ap_prc)
@@ -302,11 +308,13 @@ static OMX_ERRORTYPE
 release_output_header (webmdmuxflt_prc_t * ap_prc, const OMX_U32 a_pid)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  OMX_BUFFERHEADERTYPE * p_out_hdr = tiz_filter_prc_get_header (ap_prc, a_pid);
+  OMX_BUFFERHEADERTYPE * p_hdr = tiz_filter_prc_get_header (ap_prc, a_pid);
   assert (ap_prc);
-  if (p_out_hdr)
+  if (p_hdr)
     {
-      propagate_eos_if_required (ap_prc, p_out_hdr);
+      TIZ_DEBUG (handleOf (ap_prc), "data size [%u] nFilledLen [%u]",
+                 g_data_size, p_hdr->nFilledLen);
+      propagate_eos_if_required (ap_prc, p_hdr);
       rc = tiz_filter_prc_release_header (ap_prc, a_pid);
     }
   return rc;
@@ -323,22 +331,15 @@ store_data (webmdmuxflt_prc_t * ap_prc)
 
   if (p_in)
     {
+      int pushed = 0;
       TIZ_TRACE (handleOf (ap_prc), "avail [%d] incoming [%d]",
                  tiz_buffer_available (ap_prc->p_store_),
                  p_in->nFilledLen - p_in->nOffset);
-      if (tiz_buffer_push (ap_prc->p_store_, p_in->pBuffer + p_in->nOffset,
-                           p_in->nFilledLen)
-          < p_in->nFilledLen)
-        {
-          TIZ_ERROR (handleOf (ap_prc),
-                     "[OMX_ErrorInsufficientResources] : Unable to store "
-                     "all the data.");
-          rc = OMX_ErrorInsufficientResources;
-        }
-      else
-        {
-          rc = release_input_header (ap_prc);
-        }
+      pushed = tiz_buffer_push (ap_prc->p_store_, p_in->pBuffer + p_in->nOffset,
+                                p_in->nFilledLen);
+      tiz_ret_val_on_err ((pushed < p_in->nFilledLen),
+                          OMX_ErrorInsufficientResources);
+      rc = release_input_header (ap_prc);
     }
   return rc;
 }
@@ -348,11 +349,15 @@ extract_track_data (webmdmuxflt_prc_t * ap_prc, const unsigned int a_track,
                     const OMX_U32 a_pid)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNotReady;
-  OMX_BUFFERHEADERTYPE * p_out_hdr = tiz_filter_prc_get_header (ap_prc, a_pid);
+  OMX_BUFFERHEADERTYPE * p_hdr = NULL;
 
-  TIZ_DEBUG (handleOf (ap_prc), "track %d - pid %u", a_track, a_pid);
+  if (tiz_filter_prc_is_port_disabled (ap_prc, a_pid))
+    {
+      return OMX_ErrorNone;
+    }
 
-  if (p_out_hdr)
+  p_hdr = tiz_filter_prc_get_header (ap_prc, a_pid);
+  if (p_hdr)
     {
       unsigned int chunks = 0;
       unsigned char * p_data = NULL;
@@ -362,6 +367,8 @@ extract_track_data (webmdmuxflt_prc_t * ap_prc, const unsigned int a_track,
       assert (ap_prc);
       assert (ap_prc->p_ne_pkt_);
 
+      TIZ_DEBUG (handleOf (ap_prc), "track %d - pid %u", a_track, a_pid);
+
       nestegg_packet_count (ap_prc->p_ne_pkt_, &chunks);
 
       /* Extract as many chunks of data as possible. */
@@ -370,31 +377,21 @@ extract_track_data (webmdmuxflt_prc_t * ap_prc, const unsigned int a_track,
              && ((nestegg_rc = nestegg_packet_data (
                     ap_prc->p_ne_pkt_, ap_prc->ne_chunk_, &p_data, &data_size))
                  == 0)
-             && TIZ_OMX_BUF_AVAIL (p_out_hdr) >= data_size)
+             && TIZ_OMX_BUF_AVAIL (p_hdr) >= data_size)
         {
-          memcpy (TIZ_OMX_BUF_PTR (p_out_hdr) + p_out_hdr->nFilledLen, p_data,
+          memcpy (TIZ_OMX_BUF_PTR (p_hdr) + p_hdr->nFilledLen, p_data,
                   data_size);
-          p_out_hdr->nFilledLen += data_size;
+          p_hdr->nFilledLen += data_size;
           g_data_size += data_size;
           ++ap_prc->ne_chunk_;
         }
 
-      TIZ_DEBUG (handleOf (ap_prc),
-                 "nestegg_rc %d - alloc %d - avail %d - fill %d - data_size %d "
-                 "- ne_chunk_ = %d - "
-                 "chunks %d p_ne_pkt_ %p",
-                 nestegg_rc, TIZ_OMX_BUF_ALLOC_LEN (p_out_hdr),
-                 TIZ_OMX_BUF_AVAIL (p_out_hdr),
-                 TIZ_OMX_BUF_FILL_LEN (p_out_hdr), data_size, ap_prc->ne_chunk_,
-                 chunks, ap_prc->p_ne_pkt_);
+      WEBMDMUX_LOG_STATE (ap_prc);
 
       /* Release the OMX buffer */
-      if (TIZ_OMX_BUF_AVAIL (p_out_hdr) < (data_size * 2)
+      if (TIZ_OMX_BUF_AVAIL (p_hdr) < (data_size * 2)
           || tiz_buffer_available (ap_prc->p_store_) == 0)
         {
-          TIZ_DEBUG (handleOf (ap_prc),
-                     "Releasing buffer : data size [%u] nFilledLen [%u]",
-                     g_data_size, p_out_hdr->nFilledLen);
           g_data_size = 0;
           tiz_check_omx_err (release_output_header (ap_prc, a_pid));
         }
@@ -414,22 +411,16 @@ extract_track_data (webmdmuxflt_prc_t * ap_prc, const unsigned int a_track,
   return rc;
 }
 
-static OMX_ERRORTYPE
-am_i_able_to_demux (webmdmuxflt_prc_t * ap_prc)
+static bool
+able_to_demux (webmdmuxflt_prc_t * ap_prc)
 {
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  bool rc = true;
   bool compressed_data_avail = (tiz_buffer_available (ap_prc->p_store_) > 0);
   bool enough_compressed_data_avail
     = compressed_data_avail
       && !(ap_prc->ne_read_err_ < 0
            && tiz_buffer_available (ap_prc->p_store_)
                 < ap_prc->ne_last_read_len_);
-
-  if (!compressed_data_avail || !enough_compressed_data_avail
-      || (!tiz_filter_prc_output_headers_available (ap_prc)))
-    {
-      rc = OMX_ErrorNotReady;
-    }
 
   if (!compressed_data_avail && tiz_filter_prc_is_eos (ap_prc))
     {
@@ -447,15 +438,61 @@ am_i_able_to_demux (webmdmuxflt_prc_t * ap_prc)
         }
     }
 
-  TIZ_TRACE (
-    handleOf (ap_prc),
-    "%s -: store [%d] eos [%s] last read len ? [%d] ne read err [%d] out "
-    "buffers [%s]",
-    (rc == OMX_ErrorNotReady ? "NO" : "YES"),
-    tiz_buffer_available (ap_prc->p_store_),
-    (tiz_filter_prc_is_eos (ap_prc) ? "YES" : "NO"), ap_prc->ne_last_read_len_,
-    ap_prc->ne_read_err_,
-    (tiz_filter_prc_output_headers_available (ap_prc) ? "TRUE" : "FALSE"));
+  if (!compressed_data_avail || !enough_compressed_data_avail
+      || (!tiz_filter_prc_output_headers_available (ap_prc)))
+    {
+      rc = false;
+    }
+
+  return rc;
+}
+
+static OMX_ERRORTYPE
+read_packet (webmdmuxflt_prc_t * ap_prc)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNotReady;
+
+  assert (ap_prc);
+
+  if (ap_prc->ne_read_err_ < 0)
+    {
+      ap_prc->ne_read_err_ = 0;
+      nestegg_read_reset (ap_prc->p_ne_);
+    }
+
+  if (ap_prc->p_ne_pkt_
+      || (ap_prc->ne_read_err_
+          = nestegg_read_packet (ap_prc->p_ne_, &ap_prc->p_ne_pkt_))
+           > 0)
+    {
+      unsigned int track = 0;
+      assert (ap_prc->p_ne_pkt_);
+
+      nestegg_packet_track (ap_prc->p_ne_pkt_, &track);
+      if (track == ap_prc->ne_audio_track_)
+        {
+          rc = extract_track_data (ap_prc, track,
+                                   ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX);
+        }
+      else if (track == ap_prc->ne_video_track_)
+        {
+          rc = extract_track_data (ap_prc, track,
+                                   ARATELIA_WEBM_DEMUXER_FILTER_PORT_2_INDEX);
+        }
+      else
+        {
+          /* read the next packet */
+          nestegg_free_packet (ap_prc->p_ne_pkt_);
+          ap_prc->p_ne_pkt_ = NULL;
+          ap_prc->ne_chunk_ = 0;
+        }
+    }
+  else
+    {
+      TIZ_DEBUG (handleOf (ap_prc), "read packet return code %d",
+                 ap_prc->ne_read_err_);
+    }
+
   return rc;
 }
 
@@ -464,72 +501,22 @@ demux_stream (webmdmuxflt_prc_t * ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNotReady;
 
-  TIZ_DEBUG (handleOf (ap_prc), "before store data");
-
-  tiz_check_omx_err (store_data (ap_prc));
-
   assert (ap_prc);
   assert (ap_prc->p_ne_);
 
-  while (OMX_ErrorNone == (rc = am_i_able_to_demux (ap_prc)))
+  while (able_to_demux (ap_prc))
     {
-      if (tiz_filter_prc_is_eos (ap_prc))
-        {
-          return OMX_ErrorNotReady;
-        }
-
-      if (ap_prc->ne_read_err_ < 0)
-        {
-          TIZ_DEBUG (handleOf (ap_prc), "read reset : %d",
-                     ap_prc->ne_read_err_);
-          ap_prc->ne_read_err_ = 0;
-          nestegg_read_reset (ap_prc->p_ne_);
-        }
-      if (ap_prc->p_ne_pkt_
-          || (ap_prc->ne_read_err_
-              = nestegg_read_packet (ap_prc->p_ne_, &ap_prc->p_ne_pkt_))
-               > 0)
-        {
-          unsigned int track = 0;
-          assert (ap_prc->p_ne_pkt_);
-
-          TIZ_DEBUG (handleOf (ap_prc), "reading track");
-
-          nestegg_packet_track (ap_prc->p_ne_pkt_, &track);
-          if (track == ap_prc->ne_audio_track_
-              && tiz_filter_prc_is_port_enabled (
-                   ap_prc, ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX))
-            {
-              rc = extract_track_data (
-                ap_prc, track, ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX);
-            }
-          else if (track == ap_prc->ne_video_track_
-                   && tiz_filter_prc_is_port_enabled (
-                        ap_prc, ARATELIA_WEBM_DEMUXER_FILTER_PORT_2_INDEX))
-            {
-              rc = extract_track_data (
-                ap_prc, track, ARATELIA_WEBM_DEMUXER_FILTER_PORT_2_INDEX);
-            }
-          else
-            {
-              /* read the next packet */
-              nestegg_free_packet (ap_prc->p_ne_pkt_);
-              ap_prc->p_ne_pkt_ = NULL;
-              ap_prc->ne_chunk_ = 0;
-            }
-        }
-      else
-        {
-          TIZ_DEBUG (handleOf (ap_prc), "read packet return code %d",
-                     ap_prc->ne_read_err_);
-        }
+      tiz_check_omx_err (store_data (ap_prc));
+      tiz_ret_val_on_err ((tiz_filter_prc_is_eos (ap_prc) == false),
+                          OMX_ErrorNotReady);
+      tiz_check_omx_err (read_packet (ap_prc));
     }
 
   return rc;
 }
 
 static OMX_ERRORTYPE
-allocate_temp_data_store (webmdmuxflt_prc_t * ap_prc)
+alloc_data_store (webmdmuxflt_prc_t * ap_prc)
 {
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
   assert (ap_prc);
@@ -549,7 +536,7 @@ allocate_temp_data_store (webmdmuxflt_prc_t * ap_prc)
 }
 
 static inline void
-deallocate_nestegg_object (
+dealloc_nestegg (
   /*@special@ */ webmdmuxflt_prc_t * ap_prc)
 /*@releases ap_prc->p_ne_@ */
 /*@ensures isnull ap_prc->p_ne_@ */
@@ -595,7 +582,7 @@ reset_stream_parameters (webmdmuxflt_prc_t * ap_prc)
   ap_prc->video_auto_detect_on_ = false;
   ap_prc->video_coding_type_ = OMX_VIDEO_CodingUnused;
 
-  deallocate_nestegg_object (ap_prc);
+  dealloc_nestegg (ap_prc);
   reset_nestegg_members (ap_prc);
 
   tiz_buffer_clear (ap_prc->p_store_);
@@ -603,7 +590,7 @@ reset_stream_parameters (webmdmuxflt_prc_t * ap_prc)
 }
 
 static inline void
-deallocate_temp_data_store (
+dealloc_data_store (
   /*@special@ */ webmdmuxflt_prc_t * ap_prc)
 /*@releases ap_prc->p_store_@ */
 /*@ensures isnull ap_prc->p_store_@ */
@@ -783,7 +770,7 @@ send_port_auto_detect_events (webmdmuxflt_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
-allocate_nestegg_object (webmdmuxflt_prc_t * ap_prc)
+alloc_nestegg (webmdmuxflt_prc_t * ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
@@ -795,7 +782,7 @@ allocate_nestegg_object (webmdmuxflt_prc_t * ap_prc)
 
       if (0 != nestegg_rc)
         {
-          deallocate_nestegg_object (ap_prc);
+          dealloc_nestegg (ap_prc);
           tiz_buffer_clear (ap_prc->p_store_);
         }
       else
@@ -814,7 +801,6 @@ static inline OMX_ERRORTYPE
 do_flush (webmdmuxflt_prc_t * ap_prc, OMX_U32 a_pid)
 {
   assert (ap_prc);
-  TIZ_TRACE (handleOf (ap_prc), "do_flush");
   if (OMX_ALL == a_pid || ARATELIA_WEBM_DEMUXER_FILTER_PORT_0_INDEX == a_pid)
     {
       reset_stream_parameters (ap_prc);
@@ -856,7 +842,7 @@ webmdmuxflt_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
 {
   webmdmuxflt_prc_t * p_prc = ap_prc;
   assert (p_prc);
-  return allocate_temp_data_store (p_prc);
+  return alloc_data_store (p_prc);
 }
 
 static OMX_ERRORTYPE
@@ -864,8 +850,8 @@ webmdmuxflt_prc_deallocate_resources (void * ap_prc)
 {
   webmdmuxflt_prc_t * p_prc = ap_prc;
   assert (p_prc);
-  deallocate_temp_data_store (p_prc);
-  deallocate_nestegg_object (p_prc);
+  dealloc_data_store (p_prc);
+  dealloc_nestegg (p_prc);
   return OMX_ErrorNone;
 }
 
@@ -905,15 +891,12 @@ webmdmuxflt_prc_buffers_ready (const void * ap_prc)
 
   if (!p_prc->ne_inited_)
     {
-      rc = allocate_nestegg_object (p_prc);
+      rc = alloc_nestegg (p_prc);
     }
 
   if (p_prc->ne_inited_ && OMX_ErrorNone == rc)
     {
-      while (OMX_ErrorNone == rc)
-        {
-          rc = demux_stream (p_prc);
-        }
+      rc = demux_stream (p_prc);
       if (OMX_ErrorNotReady == rc)
         {
           rc = OMX_ErrorNone;
