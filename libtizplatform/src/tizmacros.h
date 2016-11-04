@@ -52,7 +52,6 @@ extern "C" {
 #define TIZ_UNLIKELY(expr) (expr)
 #endif
 
-
 /**
  * tiz_check_omx:
  * @expr: An OMX expression to check
@@ -61,19 +60,20 @@ extern "C" {
  * message is logged and the current function returns the resulting openmax il
  * error.
  */
-#define tiz_check_omx(expr)                                               \
-  do                                                                      \
-    {                                                                     \
-      OMX_ERRORTYPE _err = (expr);                                        \
-      if TIZ_LIKELY(OMX_ErrorNone == _err)                                \
-        {                                                                 \
-        }                                                                 \
-      else                                                                \
-        {                                                                 \
+#define tiz_check_omx(expr)                                            \
+  do                                                                   \
+    {                                                                  \
+      OMX_ERRORTYPE _err = (expr);                                     \
+      if                                                               \
+        TIZ_LIKELY (OMX_ErrorNone == _err)                             \
+        {                                                              \
+        }                                                              \
+      else                                                             \
+        {                                                              \
           TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s]", tiz_err_to_str (_err)); \
-          return _err;                                                    \
-        }                                                                 \
-    }                                                                     \
+          return _err;                                                 \
+        }                                                              \
+    }                                                                  \
   while (0)
 
 /**
@@ -96,7 +96,7 @@ extern "C" {
         {                                              \
           TIZ_LOG (TIZ_PRIORITY_ERROR,                 \
                    "[OMX_ErrorInsufficientResources] " \
-                   "was [%s]",                      \
+                   "was [%s]",                         \
                    tiz_err_to_str (_err));             \
           return OMX_ErrorInsufficientResources;       \
         }                                              \
@@ -110,21 +110,21 @@ extern "C" {
  * Verifies that the expression evaluates to OMX_ErrorNone. Otherwise an error
  * message is logged and the current function returns NULL.
  */
-#define tiz_check_omx_ret_null(expr)                           \
-  do                                                           \
-    {                                                          \
-      OMX_ERRORTYPE _err = (expr);                             \
-      if                                                       \
-        TIZ_LIKELY (OMX_ErrorNone == _err)                     \
-        {                                                      \
-        }                                                      \
-      else                                                     \
-        {                                                      \
+#define tiz_check_omx_ret_null(expr)                        \
+  do                                                        \
+    {                                                       \
+      OMX_ERRORTYPE _err = (expr);                          \
+      if                                                    \
+        TIZ_LIKELY (OMX_ErrorNone == _err)                  \
+        {                                                   \
+        }                                                   \
+      else                                                  \
+        {                                                   \
           TIZ_LOG (TIZ_PRIORITY_ERROR, "[NULL] : was [%s]", \
-                   tiz_err_to_str (_err));                     \
-          return NULL;                                         \
-        }                                                      \
-    }                                                          \
+                   tiz_err_to_str (_err));                  \
+          return NULL;                                      \
+        }                                                   \
+    }                                                       \
   while (0)
 
 /**
@@ -293,7 +293,6 @@ extern "C" {
  * a future release
  */
 #define tiz_ret_val_on_err (expr, val) tiz_check_true_ret_val (expr, val)
-
 
 /* Avoid unused variable warnings */
 
