@@ -162,11 +162,35 @@ write_opus_tags (oggmuxflt_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
+write_opus_packet (oggmuxflt_prc_t * ap_prc)
+{
+  ogg_packet op;
+  OMX_BUFFERHEADERTYPE * p_hdr = tiz_filter_prc_get_header (
+    ap_prc, ARATELIA_OGG_MUXER_FILTER_PORT_0_INDEX);
+
+  if (p_hdr)
+    {
+      op.packet = p_hdr->pBuffer + p_hdr->nOffset;
+      op.bytes = p_hdr->nFilledLen;
+      op.granulepos = ap_prc->oggz_audio_granulepos_;
+      op.packetno = ap_prc->oggz_audio_packetno_;
+      op.b_o_s = op.packetno == 0;
+      op.e_o_s = op.packetno == 9 ? 1 : 0;
+
+      on_oggz_error_ret_omx_oom (oggz_write_feed (ap_prc->p_oggz_, &op,
+                                                  ap_prc->oggz_audio_serialno_,
+                                                  OGGZ_FLUSH_AFTER, NULL));
+      ap_prc->oggz_audio_granulepos_ += 100;
+      ap_prc->oggz_audio_packetno_++;
+    }
+
+  return OMX_ErrorNone;
+}
+
+static OMX_ERRORTYPE
 audio_hungry (oggmuxflt_prc_t * ap_prc)
 {
-  OMX_BUFFERHEADERTYPE * p_hdr = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  ogg_packet op;
   assert (ap_prc);
 
   if (0 == ap_prc->oggz_audio_packetno_)
@@ -179,21 +203,7 @@ audio_hungry (oggmuxflt_prc_t * ap_prc)
     }
   else
     {
-      if ((p_hdr = tiz_filter_prc_get_header (
-             ap_prc, ARATELIA_OGG_MUXER_FILTER_PORT_0_INDEX)))
-        {
-          op.packet = p_hdr->pBuffer + p_hdr->nOffset;
-          op.bytes = p_hdr->nFilledLen;
-          op.granulepos = ap_prc->oggz_audio_granulepos_;
-          op.packetno = ap_prc->oggz_audio_packetno_;
-          op.b_o_s = op.packetno == 0 ? 1 : 0;
-          op.e_o_s = op.packetno == 9 ? 1 : 0;
-        }
-      on_oggz_error_ret_omx_oom (oggz_write_feed (ap_prc->p_oggz_, &op,
-                                                  ap_prc->oggz_audio_serialno_,
-                                                  OGGZ_FLUSH_AFTER, NULL));
-      ap_prc->oggz_audio_granulepos_ += 100;
-      ap_prc->oggz_audio_packetno_++;
+      rc = write_opus_packet(ap_prc);
     }
   return rc;
 }
