@@ -641,7 +641,9 @@ oggmuxflt_prc_buffers_ready (const void * ap_prc)
   oggmuxflt_prc_t * p_prc = (oggmuxflt_prc_t *) ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (ap_prc);
+  assert (p_prc);
+  assert (p_prc->p_audio_store_);
+  assert (p_prc->p_video_store_);
 
   OGGMUXFLT_LOG_STATE (p_prc);
 
