@@ -88,6 +88,14 @@ store_data (webmdmuxflt_prc_t * ap_prc);
     }                                                                       \
   while (0)
 
+static inline OMX_BUFFERHEADERTYPE *
+get_webm_hdr (webmdmuxflt_prc_t * ap_prc)
+{
+  assert (ap_prc);
+  return tiz_filter_prc_get_header (ap_prc,
+                                    ARATELIA_WEBM_DEMUXER_FILTER_PORT_0_INDEX);
+}
+
 /** User supplied read callback.
 
     @param buffer   Buffer to read data into.
@@ -283,20 +291,18 @@ static OMX_ERRORTYPE
 release_input_header (webmdmuxflt_prc_t * ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  OMX_BUFFERHEADERTYPE * p_in_hdr = tiz_filter_prc_get_header (
-    ap_prc, ARATELIA_WEBM_DEMUXER_FILTER_PORT_0_INDEX);
+  OMX_BUFFERHEADERTYPE * p_hdr = get_webm_hdr (ap_prc);
 
   assert (ap_prc);
 
-  if (p_in_hdr)
+  if (p_hdr)
     {
-      TIZ_DEBUG (handleOf (ap_prc), "[%p] nFlags [%d]", p_in_hdr,
-                 p_in_hdr->nFlags);
+      TIZ_DEBUG (handleOf (ap_prc), "[%p] nFlags [%d]", p_hdr, p_hdr->nFlags);
 
-      if ((p_in_hdr->nFlags & OMX_BUFFERFLAG_EOS) > 0)
+      if ((p_hdr->nFlags & OMX_BUFFERFLAG_EOS) > 0)
         {
           tiz_filter_prc_update_eos_flag (ap_prc, true);
-          p_in_hdr->nFlags &= ~(1 << OMX_BUFFERFLAG_EOS);
+          p_hdr->nFlags &= ~(1 << OMX_BUFFERFLAG_EOS);
         }
       rc = tiz_filter_prc_release_header (
         ap_prc, ARATELIA_WEBM_DEMUXER_FILTER_PORT_0_INDEX);
@@ -326,8 +332,7 @@ store_data (webmdmuxflt_prc_t * ap_prc)
   bool rc = OMX_ErrorNone;
   assert (ap_prc);
 
-  OMX_BUFFERHEADERTYPE * p_in = tiz_filter_prc_get_header (
-    ap_prc, ARATELIA_WEBM_DEMUXER_FILTER_PORT_0_INDEX);
+  OMX_BUFFERHEADERTYPE * p_in = get_webm_hdr (ap_prc);
 
   if (p_in)
     {
@@ -337,8 +342,8 @@ store_data (webmdmuxflt_prc_t * ap_prc)
                  p_in->nFilledLen - p_in->nOffset);
       pushed = tiz_buffer_push (ap_prc->p_store_, p_in->pBuffer + p_in->nOffset,
                                 p_in->nFilledLen);
-      tiz_check_true_ret_val ((pushed < p_in->nFilledLen),
-                          OMX_ErrorInsufficientResources);
+      tiz_check_true_ret_val ((pushed == p_in->nFilledLen),
+                              OMX_ErrorInsufficientResources);
       rc = release_input_header (ap_prc);
     }
   return rc;
@@ -504,12 +509,13 @@ demux_stream (webmdmuxflt_prc_t * ap_prc)
   assert (ap_prc);
   assert (ap_prc->p_ne_);
 
+  tiz_check_omx (store_data (ap_prc));
+
   while (able_to_demux (ap_prc))
     {
-      tiz_check_omx (store_data (ap_prc));
       tiz_check_true_ret_val ((tiz_filter_prc_is_eos (ap_prc) == false),
-                          OMX_ErrorNotReady);
-      tiz_check_omx (read_packet (ap_prc));
+                              OMX_ErrorNotReady);
+      rc = read_packet (ap_prc);
     }
 
   return rc;
