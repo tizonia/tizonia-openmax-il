@@ -54,6 +54,8 @@
 <!--         <category name="tiz.tizonia.videoport" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.demuxerport" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.demuxercfgport" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.tizonia.webmport" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.tizonia.muxerport" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.audio_renderer" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.audio_renderer.prc" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.audio_renderer.check" priority="trace" appender="tizlogfile" /> -->
