@@ -46,12 +46,14 @@
 <!--         <category name="tiz.tizonia.port" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.configport" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.audioport" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.tizonia.videoport" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.tizonia.imageport" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.tizonia.otherport" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.pcmport" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.mp3port" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.binaryport" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.opusport" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.flacport" priority="trace" appender="tizlogfile" /> -->
-<!--         <category name="tiz.tizonia.videoport" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.demuxerport" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.demuxercfgport" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.webmport" priority="trace" appender="tizlogfile" /> -->
