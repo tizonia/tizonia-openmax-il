@@ -420,19 +420,15 @@ muxerport_check_tunnel_compat (const void * ap_obj,
                                OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
                                OMX_PARAM_PORTDEFINITIONTYPE * ap_other_def)
 {
-  tiz_port_t * p_obj = (tiz_port_t *) ap_obj;
+  tiz_muxerport_t * p_obj = (tiz_muxerport_t *) ap_obj;
   assert (ap_this_def);
   assert (ap_other_def);
 
-  if (ap_other_def->eDomain != ap_this_def->eDomain)
-    {
-      TIZ_ERROR (handleOf (ap_obj),
-                 "PORT [%d] check_tunnel_compat : Different domain found [%d]",
-                 p_obj->pid_, ap_other_def->eDomain);
-      return false;
-    }
-
-  return true;
+  assert (p_obj);
+  assert (p_obj->p_port_);
+  /* delegate to the embedded port structure */
+  return tiz_port_check_tunnel_compat (p_obj->p_port_, ap_this_def,
+                                       ap_other_def);
 }
 
 /*
