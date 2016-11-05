@@ -243,9 +243,9 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   strcpy ((OMX_STRING) filter_role_factory.role,
           ARATELIA_OGG_MUXER_FILTER_ROLE);
   filter_role_factory.pf_cport = instantiate_config_port;
-  filter_role_factory.pf_port[0] = instantiate_filter_ogg_output_port;
-  filter_role_factory.pf_port[1] = instantiate_filter_audio_input_port;
-  filter_role_factory.pf_port[2] = instantiate_filter_video_input_port;
+  filter_role_factory.pf_port[0] = instantiate_filter_audio_input_port;
+  filter_role_factory.pf_port[1] = instantiate_filter_video_input_port;
+  filter_role_factory.pf_port[2] = instantiate_filter_ogg_output_port;
   filter_role_factory.nports = 3;
   filter_role_factory.pf_proc = instantiate_filter_processor;
 
