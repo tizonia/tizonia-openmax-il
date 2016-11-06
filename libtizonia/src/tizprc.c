@@ -280,9 +280,9 @@ dispatch_br (void * ap_obj, OMX_PTR ap_msg)
   now = tiz_fsm_get_substate (tiz_get_fsm (p_msg->p_hdl));
 
   TIZ_TRACE (p_msg->p_hdl,
-             "p_msg->p_hdl [%p] "
-             "p_msg_br->pid = [%d] p_port [%p]",
-             p_msg->p_hdl, p_msg_br->pid, p_port);
+             "p_msg->p_hdl [%p] p_msg_br->pid = [%d] p_port [%p] now [%s]",
+             p_msg->p_hdl, p_msg_br->pid, p_port,
+             tiz_state_to_str ((OMX_STATETYPE) now));
 
   assert (p_port);
 
