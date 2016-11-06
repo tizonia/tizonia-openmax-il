@@ -454,7 +454,8 @@ release_input_header (oggmuxflt_prc_t * ap_prc, const OMX_U32 a_pid,
     {
       if ((ap_hdr->nFlags & OMX_BUFFERFLAG_EOS) > 0)
         {
-          TIZ_DEBUG (handleOf (ap_prc), "[%p] nFlags [%d]", ap_hdr, ap_hdr->nFlags);
+          TIZ_DEBUG (handleOf (ap_prc), "[%p] nFlags [%d]", ap_hdr,
+                     ap_hdr->nFlags);
           tiz_filter_prc_update_eos_flag (ap_prc, true);
           ap_hdr->nFlags &= ~(1 << OMX_BUFFERFLAG_EOS);
         }
@@ -591,7 +592,6 @@ oggmuxflt_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
 {
   oggmuxflt_prc_t * p_prc = ap_prc;
   assert (p_prc);
-  TIZ_DEBUG(handleOf(p_prc), "");
   tiz_check_omx (alloc_oggz (p_prc));
   tiz_check_omx (alloc_data_store (p_prc, &(p_prc->p_audio_store_),
                                    ARATELIA_OGG_MUXER_FILTER_PORT_0_INDEX));
