@@ -69,14 +69,19 @@
     }                                                      \
   while (0)
 
-#define OGGMUXFLT_LOG_STATE(ap_prc)                                      \
-  do                                                                     \
-    {                                                                    \
-      OMX_BUFFERHEADERTYPE * p_hdr = get_out_hdr (ap_prc);               \
-      TIZ_DEBUG (handleOf (ap_prc), "eos [%s] out fLen [%d]",            \
-                 (tiz_filter_prc_is_eos (ap_prc) ? "YES" : "NO"),        \
-                 ((p_hdr != NULL) ? TIZ_OMX_BUF_FILL_LEN (p_hdr) : -1)); \
-    }                                                                    \
+#define OGGMUXFLT_LOG_STATE(ap_prc)                                          \
+  do                                                                         \
+    {                                                                        \
+      OMX_BUFFERHEADERTYPE * p_a_hdr = get_aud_hdr (ap_prc);                 \
+      OMX_BUFFERHEADERTYPE * p_v_hdr = get_vid_hdr (ap_prc);                 \
+      OMX_BUFFERHEADERTYPE * p_o_hdr = get_out_hdr (ap_prc);                 \
+      TIZ_DEBUG (handleOf (ap_prc),                                          \
+                 "eos [%s] aud flen [%d] vid flen [%d] out fLen [%d]",       \
+                 (tiz_filter_prc_is_eos (ap_prc) ? "YES" : "NO"),            \
+                 ((p_a_hdr != NULL) ? TIZ_OMX_BUF_FILL_LEN (p_a_hdr) : -1),  \
+                 ((p_v_hdr != NULL) ? TIZ_OMX_BUF_FILL_LEN (p_v_hdr) : -1),  \
+                 ((p_o_hdr != NULL) ? TIZ_OMX_BUF_FILL_LEN (p_o_hdr) : -1)); \
+    }                                                                        \
   while (0)
 
 /* Forward declarations */
@@ -206,7 +211,7 @@ enqueue_opus_tags (oggmuxflt_prc_t * ap_prc)
 static OMX_ERRORTYPE
 enqueue_opus_packet (oggmuxflt_prc_t * ap_prc)
 {
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  OMX_ERRORTYPE rc = OMX_ErrorNotReady;
   ogg_packet op;
   OMX_BUFFERHEADERTYPE * p_hdr = get_aud_hdr (ap_prc);
 
@@ -218,14 +223,13 @@ enqueue_opus_packet (oggmuxflt_prc_t * ap_prc)
       op.granulepos = ap_prc->oggz_audio_granulepos_;
       op.packetno = ap_prc->oggz_audio_packetno_;
       op.b_o_s = 0;
-      op.e_o_s = 1;
+      op.e_o_s = (((p_hdr->nFlags & OMX_BUFFERFLAG_EOS) > 0) ? 1 : 0);
       TIZ_DEBUG (handleOf (ap_prc), "written [%d]", op.bytes);
       on_oggz_error_ret_omx_oom (oggz_write_feed (ap_prc->p_oggz_, &op,
                                                   ap_prc->oggz_audio_serialno_,
                                                   OGGZ_FLUSH_AFTER, NULL));
       p_hdr->nFilledLen = 0;
-
-      rc = release_input_header (ap_prc, ARATELIA_OGG_MUXER_FILTER_PORT_1_INDEX,
+      rc = release_input_header (ap_prc, ARATELIA_OGG_MUXER_FILTER_PORT_0_INDEX,
                                  p_hdr);
       ap_prc->oggz_audio_granulepos_ += 100;
       ap_prc->oggz_audio_packetno_++;
@@ -258,6 +262,7 @@ audio_hungry (oggmuxflt_prc_t * ap_prc)
 static OMX_ERRORTYPE
 video_hungry (oggmuxflt_prc_t * ap_prc)
 {
+  OMX_ERRORTYPE rc = OMX_ErrorNotReady;
   OMX_BUFFERHEADERTYPE * p_hdr = NULL;
   ogg_packet op;
   assert (ap_prc);
@@ -267,26 +272,61 @@ video_hungry (oggmuxflt_prc_t * ap_prc)
       op.bytes = p_hdr->nFilledLen;
       op.granulepos = ap_prc->oggz_video_granulepos_;
       op.packetno = ap_prc->oggz_video_packetno_;
-      op.b_o_s = op.packetno == 0 ? 1 : 0;
-      op.e_o_s = op.packetno == 9 ? 1 : 0;
+      op.b_o_s = (0 == ap_prc->oggz_video_packetno_ ? 1 : 0);
+      op.e_o_s = (((p_hdr->nFlags & OMX_BUFFERFLAG_EOS) > 0) ? 1 : 0);
       oggz_write_feed (ap_prc->p_oggz_, &op, ap_prc->oggz_video_serialno_,
                        OGGZ_FLUSH_AFTER, NULL);
+      p_hdr->nFilledLen = 0;
+      rc = release_input_header (ap_prc, ARATELIA_OGG_MUXER_FILTER_PORT_1_INDEX,
+                                 p_hdr);
       ap_prc->oggz_video_granulepos_ += 1;
       ap_prc->oggz_video_packetno_++;
     }
-  return OMX_ErrorNone;
+  return rc;
 }
 
+/**
+ * This is callback which Oggz will call when oggz is hungry.
+ *
+ * \param oggz The OGGZ handle
+ * \param empty A value of 1 indicates that the packet queue is currently
+ *        empty. A value of 0 indicates that the packet queue is not empty.
+ * \param user_data A generic pointer provided to oggz
+ * \retval 0 Continue
+ * \retval non-zero Instruct Oggz to stop.
+ */
 static int
 og_hungry (OGGZ * oggz, int empty, void * user_data)
 {
+  OMX_ERRORTYPE audio_rc = OMX_ErrorNone;
+  OMX_ERRORTYPE video_rc = OMX_ErrorNone;
+  int oggz_rc = OGGZ_ERR_STOP_ERR;
   oggmuxflt_prc_t * p_prc = user_data;
-
   assert (p_prc);
-  audio_hungry (p_prc);
-  video_hungry (p_prc);
-
-  return 0;
+  TIZ_DEBUG (handleOf (p_prc), "ogg queue is [%s]",
+             (empty == 0 ? "NOT EMPTY" : "EMPTY"));
+  audio_rc = audio_hungry (p_prc);
+  video_rc = video_hungry (p_prc);
+  if (OMX_ErrorNone == audio_rc || OMX_ErrorNone == video_rc)
+    {
+      oggz_rc = OGGZ_ERR_OK; /* this tells oggz to continue writing */
+    }
+  else if (OMX_ErrorNotReady == audio_rc && OMX_ErrorNotReady == video_rc)
+    {
+      if (tiz_filter_prc_is_eos (p_prc))
+        {
+          oggz_rc = OGGZ_ERR_EOS; /* this tells oggz to stop for now */
+        }
+      else
+        {
+          oggz_rc = OGGZ_ERR_STOP_OK; /* this tells oggz to stop for now */
+        }
+    }
+  else
+    {
+      oggz_rc = OGGZ_ERR_STOP_ERR; /* this tells oggz to stop permenently */
+    }
+  return oggz_rc;
 }
 
 static size_t
@@ -311,7 +351,7 @@ og_io_write (void * ap_user_handle, void * ap_buf, size_t n)
           p_hdr->nFilledLen += bytes_written;
           TIZ_DEBUG (handleOf (p_prc), "bytes - n [%d] nFilledLen [%d]", n,
                      p_hdr->nFilledLen);
-          if (0 == TIZ_OMX_BUF_AVAIL (p_hdr))
+          if (0 == TIZ_OMX_BUF_AVAIL (p_hdr) || tiz_filter_prc_is_eos(p_prc))
             {
               release_output_header (p_prc, p_hdr);
             }
@@ -360,10 +400,10 @@ static bool
 able_to_mux (oggmuxflt_prc_t * ap_prc)
 {
   bool rc = true;
-  bool headers_avail = (tiz_filter_prc_headers_available (ap_prc));
+  bool headers_avail = tiz_filter_prc_headers_available (ap_prc);
   if (!headers_avail)
     {
-      TIZ_DEBUG (handleOf (ap_prc), "Audio or Video data not available");
+      TIZ_DEBUG (handleOf (ap_prc), "Input or Output headers not available");
       rc = false;
     }
   return rc;
@@ -396,7 +436,7 @@ do_flush (oggmuxflt_prc_t * ap_prc, OMX_U32 a_pid)
 {
   assert (ap_prc);
   TIZ_TRACE (handleOf (ap_prc), "do_flush");
-  if (OMX_ALL == a_pid || ARATELIA_OGG_MUXER_FILTER_PORT_0_INDEX == a_pid)
+  if (OMX_ALL == a_pid)
     {
       reset_stream_parameters (ap_prc);
     }
@@ -426,6 +466,8 @@ release_input_header (oggmuxflt_prc_t * ap_prc, const OMX_U32 a_pid,
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (ap_prc);
+  assert (ARATELIA_OGG_MUXER_FILTER_PORT_0_INDEX == a_pid
+          || ARATELIA_OGG_MUXER_FILTER_PORT_1_INDEX == a_pid);
   assert (ap_hdr);
   if (ap_hdr)
     {
@@ -436,8 +478,7 @@ release_input_header (oggmuxflt_prc_t * ap_prc, const OMX_U32 a_pid,
           tiz_filter_prc_update_eos_flag (ap_prc, true);
           ap_hdr->nFlags &= ~(1 << OMX_BUFFERFLAG_EOS);
         }
-      rc = tiz_filter_prc_release_header (
-        ap_prc, a_pid);
+      rc = tiz_filter_prc_release_header (ap_prc, a_pid);
     }
   return rc;
 }
