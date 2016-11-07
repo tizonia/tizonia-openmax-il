@@ -997,7 +997,7 @@ allocate_curl_resources (tiz_urltrans_t * ap_trans)
                   ap_trans->p_http_ok_aliases_, "ICY 200 OK")));
   /* and this is to not ask the server for Icy metadata, for now */
   bail_on_oom ((ap_trans->p_http_headers_ = curl_slist_append (
-                  ap_trans->p_http_headers_, "Icy-Metadata: 0")));
+                  ap_trans->p_http_headers_, "Icy-MetaData: 0")));
 
   /* all ok */
   rc = OMX_ErrorNone;
