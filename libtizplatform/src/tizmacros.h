@@ -207,26 +207,19 @@ extern "C" {
  * to false, an error message is logged and the current function returns.  This
  * is to be used only in functions that do not return a value.
  */
-#define tiz_check_true_ret_void(expr)                                   \
-  do                                                                    \
-    {                                                                   \
-      if                                                                \
-        TIZ_LIKELY (expr)                                               \
-        {                                                               \
-        }                                                               \
-      else                                                              \
-        {                                                               \
-          if (0 == (int) val)                                           \
-            {                                                           \
-              TIZ_LOG (TIZ_PRIORITY_DEBUG, "Check '%s' failed", #expr); \
-            }                                                           \
-          else                                                          \
-            {                                                           \
-              TIZ_LOG (TIZ_PRIORITY_ERROR, "Check '%s' failed", #expr); \
-            }                                                           \
-          return;                                                       \
-        }                                                               \
-    }                                                                   \
+#define tiz_check_true_ret_void(expr)                               \
+  do                                                                \
+    {                                                               \
+      if                                                            \
+        TIZ_LIKELY (expr)                                           \
+        {                                                           \
+        }                                                           \
+      else                                                          \
+        {                                                           \
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "Check '%s' failed", #expr); \
+          return;                                                   \
+        }                                                           \
+    }                                                               \
   while (0)
 
 /**
