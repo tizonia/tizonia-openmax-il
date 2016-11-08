@@ -502,10 +502,10 @@ static OMX_ERRORTYPE
 mux_streams (oggmuxflt_prc_t * ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
+  OMX_BUFFERHEADERTYPE * p_hdr = NULL;
   long oggz_rc = OGGZ_ERR_OK;
-  while (OGGZ_ERR_OK == oggz_rc)
+  while ((OGGZ_ERR_OK == oggz_rc) && (p_hdr = get_out_hdr (ap_prc)))
     {
-      OMX_BUFFERHEADERTYPE * p_hdr = p_hdr = get_out_hdr (ap_prc);
       long n = MIN (32, TIZ_OMX_BUF_AVAIL (p_hdr));
       oggz_rc = oggz_write (ap_prc->p_oggz_, n);
       if (oggz_rc > 0)
