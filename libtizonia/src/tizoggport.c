@@ -41,7 +41,7 @@
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.ogg_demuxer.filter.port"
+#define TIZ_LOG_CATEGORY_NAME "tiz.tizonia.oggport"
 #endif
 
 /*
@@ -172,8 +172,7 @@ oggport_check_tunnel_compat (const void * ap_obj,
   if (ap_other_def->eDomain != ap_this_def->eDomain)
     {
       TIZ_ERROR (handleOf (ap_obj),
-                 "port [%d] check_tunnel_compat : "
-                 "Audio domain not found, instead found domain [%d]",
+                 "port [%d] check_tunnel_compat : Found domain [%d]",
                  p_obj->pid_, ap_other_def->eDomain);
       return false;
     }
