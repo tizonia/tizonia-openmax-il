@@ -73,7 +73,7 @@ instantiate_filter_ogg_output_port (OMX_HANDLETYPE ap_hdl)
   OMX_AUDIO_CODINGTYPE encodings[]
     = {OMX_AUDIO_CodingUnused, OMX_AUDIO_CodingMax};
   tiz_port_options_t port_opts = {
-    OMX_PortDomainOther,
+    OMX_PortDomainAudio,
     OMX_DirOutput,
     ARATELIA_OGG_MUXER_OGG_PORT_MIN_BUF_COUNT,
     ARATELIA_OGG_MUXER_OGG_PORT_MIN_BUF_SIZE,
