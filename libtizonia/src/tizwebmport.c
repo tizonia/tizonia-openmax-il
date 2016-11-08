@@ -41,7 +41,7 @@
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.webm_demuxer.filter.port"
+#define TIZ_LOG_CATEGORY_NAME "tiz.tizonia.webmport"
 #endif
 
 /*
