@@ -30,8 +30,7 @@
 #define OPUSDPRC_DECLS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <stdbool.h>
@@ -40,35 +39,35 @@ extern "C"
 
 #include <tizprc_decls.h>
 
-  typedef struct opusd_prc opusd_prc_t;
-  struct opusd_prc
-  {
-    /* Object */
-    const tiz_prc_t _;
-    OpusMSDecoder *p_opus_dec_;
-    OMX_BUFFERHEADERTYPE *p_in_hdr_;
-    OMX_BUFFERHEADERTYPE *p_out_hdr_;
-    float *p_out_buf_;
-    opus_int64 packet_count_;
-    int rate_;
-    int mapping_family_;
-    int channels_;
-    int preskip_;
-    bool eos_;
-    bool in_port_disabled_;
-    bool out_port_disabled_;
-  };
+typedef struct opusd_prc opusd_prc_t;
+struct opusd_prc
+{
+  /* Object */
+  const tiz_prc_t _;
+  OpusMSDecoder * p_opus_dec_;
+  OMX_BUFFERHEADERTYPE * p_in_hdr_;
+  OMX_BUFFERHEADERTYPE * p_out_hdr_;
+  float * p_out_buf_;
+  opus_int64 packet_count_;
+  int rate_;
+  int mapping_family_;
+  int channels_;
+  int preskip_;
+  bool eos_;
+  bool in_port_disabled_;
+  bool out_port_disabled_;
+};
 
-  typedef struct opusd_prc_class opusd_prc_class_t;
-  struct opusd_prc_class
-  {
-    /* Class */
-    const tiz_prc_class_t _;
-    /* NOTE: Class methods might be added in the future */
-  };
+typedef struct opusd_prc_class opusd_prc_class_t;
+struct opusd_prc_class
+{
+  /* Class */
+  const tiz_prc_class_t _;
+  /* NOTE: Class methods might be added in the future */
+};
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* OPUSDPRC_DECLS_H */
+#endif /* OPUSDPRC_DECLS_H */
