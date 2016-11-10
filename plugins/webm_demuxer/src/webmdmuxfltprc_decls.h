@@ -60,6 +60,7 @@ struct webmdmuxflt_prc
   nestegg_video_params ne_video_params_;
   unsigned int ne_audio_track_;
   unsigned int ne_video_track_;
+  uint64_t ne_duration_;
   nestegg_packet * p_ne_pkt_;
   unsigned int ne_chunk_;
   int ne_read_err_;
