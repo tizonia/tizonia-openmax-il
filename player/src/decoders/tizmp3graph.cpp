@@ -114,6 +114,7 @@ void graph::mp3decops::do_configure ()
     G_OPS_BAIL_IF_ERROR (
         util::set_content_uri (handles_[0], probe_ptr_->get_uri ()),
         "Unable to set OMX_IndexParamContentURI");
+
     OMX_ERRORTYPE rc = tiz::graph::util::
         normalize_tunnel_settings< OMX_AUDIO_PARAM_PCMMODETYPE,
                                    OMX_IndexParamAudioPcm >(
@@ -121,6 +122,7 @@ void graph::mp3decops::do_configure ()
             1,            // decoder's output port
             0);           // renderer's input port
     G_OPS_BAIL_IF_ERROR (rc, "Unable to transfer OMX_IndexParamAudioPcm");
+
     G_OPS_BAIL_IF_ERROR (
         tiz::graph::util::set_pcm_mode (
             handles_[2], 0,
