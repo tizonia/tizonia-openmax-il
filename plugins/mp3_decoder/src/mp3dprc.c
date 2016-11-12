@@ -47,7 +47,8 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.mp3_decoder.prc"
 #endif
 
-static void reset_stream_parameters (mp3d_prc_t *ap_prc)
+static void
+reset_stream_parameters (mp3d_prc_t * ap_prc)
 {
   assert (ap_prc);
   mad_frame_mute (&ap_prc->frame_);
@@ -59,7 +60,8 @@ static void reset_stream_parameters (mp3d_prc_t *ap_prc)
   ap_prc->eos_ = false;
 }
 
-static void init_mad_decoder (mp3d_prc_t *ap_prc)
+static void
+init_mad_decoder (mp3d_prc_t * ap_prc)
 {
   assert (ap_prc);
   mad_stream_init (&ap_prc->stream_);
@@ -68,7 +70,8 @@ static void init_mad_decoder (mp3d_prc_t *ap_prc)
   mad_timer_reset (&ap_prc->timer_);
 }
 
-static void deinit_mad_decoder (mp3d_prc_t *ap_prc)
+static void
+deinit_mad_decoder (mp3d_prc_t * ap_prc)
 {
   assert (ap_prc);
   mad_synth_finish (&ap_prc->synth_);
@@ -76,9 +79,10 @@ static void deinit_mad_decoder (mp3d_prc_t *ap_prc)
   mad_stream_finish (&ap_prc->stream_);
 }
 
-static OMX_ERRORTYPE release_headers (const void *ap_obj, OMX_U32 a_pid)
+static OMX_ERRORTYPE
+release_headers (const void * ap_obj, OMX_U32 a_pid)
 {
-  mp3d_prc_t *p_obj = (mp3d_prc_t *)ap_obj;
+  mp3d_prc_t * p_obj = (mp3d_prc_t *) ap_obj;
 
   assert (ap_obj);
 
@@ -94,8 +98,8 @@ static OMX_ERRORTYPE release_headers (const void *ap_obj, OMX_U32 a_pid)
 
           p_obj->p_inhdr_->nOffset = 0;
           tiz_check_omx (tiz_krn_release_buffer (
-              tiz_get_krn (handleOf (ap_obj)),
-              ARATELIA_MP3_DECODER_INPUT_PORT_INDEX, p_obj->p_inhdr_));
+            tiz_get_krn (handleOf (ap_obj)),
+            ARATELIA_MP3_DECODER_INPUT_PORT_INDEX, p_obj->p_inhdr_));
           p_obj->p_inhdr_ = NULL;
           p_obj->remaining_ = 0;
         }
@@ -112,25 +116,26 @@ static OMX_ERRORTYPE release_headers (const void *ap_obj, OMX_U32 a_pid)
               p_obj->p_outhdr_->nFlags |= OMX_BUFFERFLAG_EOS;
               p_obj->eos_ = false;
             }
-          TIZ_TRACE (handleOf (p_obj),
-                     "Releasing output HEADER [%p] nFilledLen [%d] nAllocLen [%d]",
-                     p_obj->p_outhdr_, p_obj->p_outhdr_->nFilledLen,
-                     p_obj->p_outhdr_->nAllocLen);
+          TIZ_TRACE (
+            handleOf (p_obj),
+            "Releasing output HEADER [%p] nFilledLen [%d] nAllocLen [%d]",
+            p_obj->p_outhdr_, p_obj->p_outhdr_->nFilledLen,
+            p_obj->p_outhdr_->nAllocLen);
           tiz_check_omx (tiz_krn_release_buffer (
-              tiz_get_krn (handleOf (ap_obj)),
-              ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX, p_obj->p_outhdr_));
+            tiz_get_krn (handleOf (ap_obj)),
+            ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX, p_obj->p_outhdr_));
           p_obj->p_outhdr_ = NULL;
         }
     }
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE store_metadata (mp3d_prc_t *ap_prc,
-                                     const char *ap_header_name,
-                                     const char *ap_header_info)
+static OMX_ERRORTYPE
+store_metadata (mp3d_prc_t * ap_prc, const char * ap_header_name,
+                const char * ap_header_info)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  OMX_CONFIG_METADATAITEMTYPE *p_meta = NULL;
+  OMX_CONFIG_METADATAITEMTYPE * p_meta = NULL;
   size_t metadata_len = 0;
   size_t info_len = 0;
 
@@ -138,22 +143,22 @@ static OMX_ERRORTYPE store_metadata (mp3d_prc_t *ap_prc,
   if (ap_header_name && ap_header_info)
     {
       info_len = strnlen (ap_header_info, OMX_MAX_STRINGNAME_SIZE - 1) + 1;
-      metadata_len = sizeof(OMX_CONFIG_METADATAITEMTYPE) + info_len;
+      metadata_len = sizeof (OMX_CONFIG_METADATAITEMTYPE) + info_len;
 
-      if (NULL == (p_meta = (OMX_CONFIG_METADATAITEMTYPE *)tiz_mem_calloc (
-                       1, metadata_len)))
+      if (NULL == (p_meta = (OMX_CONFIG_METADATAITEMTYPE *) tiz_mem_calloc (
+                     1, metadata_len)))
         {
           rc = OMX_ErrorInsufficientResources;
         }
       else
         {
           const size_t name_len
-              = strnlen (ap_header_name, OMX_MAX_STRINGNAME_SIZE - 1) + 1;
-          strncpy ((char *)p_meta->nKey, ap_header_name, name_len - 1);
+            = strnlen (ap_header_name, OMX_MAX_STRINGNAME_SIZE - 1) + 1;
+          strncpy ((char *) p_meta->nKey, ap_header_name, name_len - 1);
           p_meta->nKey[name_len - 1] = '\0';
           p_meta->nKeySizeUsed = name_len;
 
-          strncpy ((char *)p_meta->nValue, ap_header_info, info_len - 1);
+          strncpy ((char *) p_meta->nValue, ap_header_info, info_len - 1);
           p_meta->nValue[info_len - 1] = '\0';
           p_meta->nValueMaxSize = info_len;
           p_meta->nValueSizeUsed = info_len;
@@ -173,8 +178,8 @@ static OMX_ERRORTYPE store_metadata (mp3d_prc_t *ap_prc,
   return rc;
 }
 
-static void store_stream_metadata (mp3d_prc_t *ap_prc,
-                              struct mad_header *Header)
+static void
+store_stream_metadata (mp3d_prc_t * ap_prc, struct mad_header * Header)
 {
   const char *Layer, *Mode, *Emphasis;
 
@@ -234,7 +239,7 @@ static void store_stream_metadata (mp3d_prc_t *ap_prc,
         Emphasis = "CCITT J.17";
         break;
 #if (MAD_VERSION_MAJOR >= 1) \
-    || ((MAD_VERSION_MAJOR == 0) && (MAD_VERSION_MINOR >= 15))
+  || ((MAD_VERSION_MAJOR == 0) && (MAD_VERSION_MINOR >= 15))
       case MAD_EMPHASIS_RESERVED:
         Emphasis = "reserved(!)";
         break;
@@ -245,27 +250,27 @@ static void store_stream_metadata (mp3d_prc_t *ap_prc,
     }
 
   {
-      char info[100];
+    char info[100];
 
-      (void)tiz_krn_clear_metadata (tiz_get_krn (handleOf (ap_prc)));
+    (void) tiz_krn_clear_metadata (tiz_get_krn (handleOf (ap_prc)));
 
-      snprintf (info, 99, "%lu kbit/s, %d Hz",
-        (ap_prc->frame_.header.bitrate
-        ? ap_prc->frame_.header.bitrate / 1000
-        : 0),
-        Header->samplerate);
-      info[99] = '\000';
-      (void)store_metadata (ap_prc, "Audio Stream", info);
+    snprintf (
+      info, 99, "%lu kbit/s, %d Hz",
+      (ap_prc->frame_.header.bitrate ? ap_prc->frame_.header.bitrate / 1000
+                                     : 0),
+      Header->samplerate);
+    info[99] = '\000';
+    (void) store_metadata (ap_prc, "Audio Stream", info);
 
-      snprintf (info, 99, "%s, %s CRC",
-        Layer, Header->flags & MAD_FLAG_PROTECTION ? "with" : "w/o");
-      info[99] = '\000';
-      (void)store_metadata (ap_prc, "MPEG Layer", info);
+    snprintf (info, 99, "%s, %s CRC", Layer,
+              Header->flags & MAD_FLAG_PROTECTION ? "with" : "w/o");
+    info[99] = '\000';
+    (void) store_metadata (ap_prc, "MPEG Layer", info);
 
-      snprintf (info, 99, "%s, %s emphasis", Mode, Emphasis);
-      info[99] = '\000';
-      (void)store_metadata (ap_prc, "Mode", info);
-    }
+    snprintf (info, 99, "%s, %s emphasis", Mode, Emphasis);
+    info[99] = '\000';
+    (void) store_metadata (ap_prc, "Mode", info);
+  }
 
   TIZ_TRACE (handleOf (ap_prc),
              "%lu b/s audio MPEG layer %s stream %s CRC, "
@@ -273,10 +278,10 @@ static void store_stream_metadata (mp3d_prc_t *ap_prc,
              Header->bitrate, Layer,
              Header->flags & MAD_FLAG_PROTECTION ? "with" : "without", Mode,
              Emphasis, Header->samplerate);
-
 }
 
-static signed short mad_fixed_to_sshort (mad_fixed_t fixed)
+static signed short
+mad_fixed_to_sshort (mad_fixed_t fixed)
 {
   /* A fixed point number is formed of the following bit pattern:
    *
@@ -312,11 +317,12 @@ static signed short mad_fixed_to_sshort (mad_fixed_t fixed)
   /* Conversion. */
   fixed = fixed >> (MAD_F_FRACBITS - 15);
 
-  return (signed short)fixed;
+  return (signed short) fixed;
 }
 
-static size_t read_from_omx_buffer (const mp3d_prc_t *ap_prc, void *ap_dst,
-                                    size_t bytes, OMX_BUFFERHEADERTYPE *ap_hdr)
+static size_t
+read_from_omx_buffer (const mp3d_prc_t * ap_prc, void * ap_dst, size_t bytes,
+                      OMX_BUFFERHEADERTYPE * ap_hdr)
 {
   size_t to_read = bytes;
 
@@ -346,9 +352,9 @@ static size_t read_from_omx_buffer (const mp3d_prc_t *ap_prc, void *ap_dst,
   return to_read;
 }
 
-static OMX_ERRORTYPE update_pcm_mode (mp3d_prc_t *ap_prc,
-                                      const OMX_U32 a_samplerate,
-                                      const OMX_U32 a_channels)
+static OMX_ERRORTYPE
+update_pcm_mode (mp3d_prc_t * ap_prc, const OMX_U32 a_samplerate,
+                 const OMX_U32 a_channels)
 {
   assert (ap_prc);
   if (a_samplerate != ap_prc->pcmmode_.nSamplingRate
@@ -363,9 +369,9 @@ static OMX_ERRORTYPE update_pcm_mode (mp3d_prc_t *ap_prc,
       ap_prc->pcmmode_.nSamplingRate = a_samplerate;
       ap_prc->pcmmode_.nChannels = a_channels;
       tiz_check_omx (tiz_krn_SetParameter_internal (
-          tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
-          OMX_IndexParamAudioPcm, &(ap_prc->pcmmode_)));
-      tiz_srv_issue_event ((OMX_PTR)ap_prc, OMX_EventPortSettingsChanged,
+        tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+        OMX_IndexParamAudioPcm, &(ap_prc->pcmmode_)));
+      tiz_srv_issue_event ((OMX_PTR) ap_prc, OMX_EventPortSettingsChanged,
                            ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX,
                            OMX_IndexParamAudioPcm, /* the index of the
                                                       struct that has
@@ -375,13 +381,14 @@ static OMX_ERRORTYPE update_pcm_mode (mp3d_prc_t *ap_prc,
   return OMX_ErrorNone;
 }
 
-static int synthesize_samples (const void *ap_obj, int next_sample)
+static int
+synthesize_samples (const void * ap_obj, int next_sample)
 {
-  mp3d_prc_t *p_prc = (mp3d_prc_t *)ap_obj;
-  const unsigned char *p_bufend = p_prc->p_outhdr_->pBuffer
-                                  + p_prc->p_outhdr_->nAllocLen;
-  unsigned char *p_output = p_prc->p_outhdr_->pBuffer
-                            + p_prc->p_outhdr_->nFilledLen;
+  mp3d_prc_t * p_prc = (mp3d_prc_t *) ap_obj;
+  const unsigned char * p_bufend
+    = p_prc->p_outhdr_->pBuffer + p_prc->p_outhdr_->nAllocLen;
+  unsigned char * p_output
+    = p_prc->p_outhdr_->pBuffer + p_prc->p_outhdr_->nFilledLen;
   bool buffer_full = (p_bufend == p_output);
   int i;
 
@@ -417,8 +424,8 @@ static int synthesize_samples (const void *ap_obj, int next_sample)
                               MAD_NCHANNELS (&p_prc->frame_.header),
                               p_prc->synth_.pcm.channels);
           store_stream_metadata (p_prc, &(p_prc->frame_.header));
-          (void)update_pcm_mode (p_prc, p_prc->synth_.pcm.samplerate,
-                                 nchannels);
+          (void) update_pcm_mode (p_prc, p_prc->synth_.pcm.samplerate,
+                                  nchannels);
         }
 
       /* release the output buffer if it is full, or if we are at the early stages
@@ -427,15 +434,18 @@ static int synthesize_samples (const void *ap_obj, int next_sample)
         {
           p_output = p_prc->p_outhdr_->pBuffer;
           p_prc->p_outhdr_->nFilledLen = p_prc->p_outhdr_->nAllocLen;
-          (void)release_headers (p_prc, ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX);
+          (void) release_headers (p_prc,
+                                  ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX);
           buffer_full = true;
         }
       else if (p_prc->frame_count_ < 5
                && p_prc->p_outhdr_->nFilledLen
-               >= (int)(ARATELIA_MP3_DECODER_PORT_MIN_OUTPUT_BUF_SIZE * .2))
+                    >= (int) (ARATELIA_MP3_DECODER_PORT_MIN_OUTPUT_BUF_SIZE
+                              * .2))
         {
           p_output = p_prc->p_outhdr_->pBuffer;
-          (void)release_headers (p_prc, ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX);
+          (void) release_headers (p_prc,
+                                  ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX);
           buffer_full = true;
         }
     }
@@ -451,22 +461,23 @@ static int synthesize_samples (const void *ap_obj, int next_sample)
   return 0;
 }
 
-static OMX_ERRORTYPE decode_buffer (const void *ap_obj)
+static OMX_ERRORTYPE
+decode_buffer (const void * ap_obj)
 {
-  mp3d_prc_t *p_obj = (mp3d_prc_t *)ap_obj;
-  unsigned char *p_guardzone = NULL;
+  mp3d_prc_t * p_obj = (mp3d_prc_t *) ap_obj;
+  unsigned char * p_guardzone = NULL;
   int status = 0;
 
   assert (p_obj->p_outhdr_);
 
   /* Check if there is any remaining PCM data from a previous run of the
    * decoding loop that needs to be synthesised */
-  if ((0 != p_obj->next_synth_sample_ && p_obj->next_synth_sample_
-                                         < p_obj->synth_.pcm.length)
+  if ((0 != p_obj->next_synth_sample_
+       && p_obj->next_synth_sample_ < p_obj->synth_.pcm.length)
       && (p_obj->p_outhdr_->nFilledLen < p_obj->p_outhdr_->nAllocLen))
     {
       p_obj->next_synth_sample_
-          = synthesize_samples (p_obj, p_obj->next_synth_sample_);
+        = synthesize_samples (p_obj, p_obj->next_synth_sample_);
     }
 
   while (p_obj->p_outhdr_)
@@ -477,17 +488,17 @@ static OMX_ERRORTYPE decode_buffer (const void *ap_obj)
        */
 
       if ((NULL == p_obj->stream_.buffer
-           || MAD_ERROR_BUFLEN == p_obj->stream_.error) && p_obj->p_inhdr_
-                                                           != NULL)
+           || MAD_ERROR_BUFLEN == p_obj->stream_.error)
+          && p_obj->p_inhdr_ != NULL)
         {
           size_t read_size = 0;
-          unsigned char *p_read_start = NULL;
+          unsigned char * p_read_start = NULL;
           p_obj->remaining_ = 0;
 
           if (p_obj->stream_.next_frame != NULL)
             {
-              p_obj->remaining_ = p_obj->stream_.bufend
-                                  - p_obj->stream_.next_frame;
+              p_obj->remaining_
+                = p_obj->stream_.bufend - p_obj->stream_.next_frame;
               memmove (p_obj->in_buff_, p_obj->stream_.next_frame,
                        p_obj->remaining_);
               p_read_start = p_obj->in_buff_ + p_obj->remaining_;
@@ -599,10 +610,10 @@ static OMX_ERRORTYPE decode_buffer (const void *ap_obj)
       mad_synth_frame (&p_obj->synth_, &p_obj->frame_);
 
       p_obj->next_synth_sample_
-          = synthesize_samples (p_obj, p_obj->next_synth_sample_);
+        = synthesize_samples (p_obj, p_obj->next_synth_sample_);
     }
 
-  (void)status;
+  (void) status;
   /* TODO */
   /*   if (p_obj->p_outhdr_ != NULL */
   /*       && p_obj->p_outhdr_->nFilledLen != 0 */
@@ -625,7 +636,8 @@ static OMX_ERRORTYPE decode_buffer (const void *ap_obj)
   return OMX_ErrorNone;
 }
 
-static bool claim_input_buffer (mp3d_prc_t *ap_prc)
+static bool
+claim_input_buffer (mp3d_prc_t * ap_prc)
 {
   bool rc = false;
   assert (ap_prc);
@@ -656,7 +668,8 @@ static bool claim_input_buffer (mp3d_prc_t *ap_prc)
   return rc;
 }
 
-static bool claim_output_buffer (mp3d_prc_t *ap_prc)
+static bool
+claim_output_buffer (mp3d_prc_t * ap_prc)
 {
   bool rc = false;
   assert (ap_prc);
@@ -689,9 +702,10 @@ static bool claim_output_buffer (mp3d_prc_t *ap_prc)
  * mp3dprc
  */
 
-static void *mp3d_proc_ctor (void *ap_obj, va_list *app)
+static void *
+mp3d_proc_ctor (void * ap_obj, va_list * app)
 {
-  mp3d_prc_t *p_obj = super_ctor (typeOf (ap_obj, "mp3dprc"), ap_obj, app);
+  mp3d_prc_t * p_obj = super_ctor (typeOf (ap_obj, "mp3dprc"), ap_obj, app);
   p_obj->remaining_ = 0;
   p_obj->frame_count_ = 0;
   p_obj->p_inhdr_ = 0;
@@ -703,7 +717,8 @@ static void *mp3d_proc_ctor (void *ap_obj, va_list *app)
   return p_obj;
 }
 
-static void *mp3d_proc_dtor (void *ap_obj)
+static void *
+mp3d_proc_dtor (void * ap_obj)
 {
   return super_dtor (typeOf (ap_obj, "mp3dprc"), ap_obj);
 }
@@ -712,21 +727,24 @@ static void *mp3d_proc_dtor (void *ap_obj)
  * from tiz_srv class
  */
 
-static OMX_ERRORTYPE mp3d_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
+static OMX_ERRORTYPE
+mp3d_proc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
 {
   /* NOTE: Initialisation of the decoder is delayed until Idle->Exe */
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE mp3d_proc_deallocate_resources (void *ap_obj)
+static OMX_ERRORTYPE
+mp3d_proc_deallocate_resources (void * ap_obj)
 {
   /* NOTE: De-initialisation of the decoder is done in Exe->Idle */
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE mp3d_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
+static OMX_ERRORTYPE
+mp3d_proc_prepare_to_transfer (void * ap_obj, OMX_U32 a_pid)
 {
-  mp3d_prc_t *p_prc = ap_obj;
+  mp3d_prc_t * p_prc = ap_obj;
   OMX_AUDIO_PARAM_MP3TYPE mp3type;
 
   assert (p_prc);
@@ -737,14 +755,14 @@ static OMX_ERRORTYPE mp3d_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 
   TIZ_INIT_OMX_PORT_STRUCT (mp3type, ARATELIA_MP3_DECODER_INPUT_PORT_INDEX);
   tiz_check_omx (tiz_api_GetParameter (tiz_get_krn (handleOf (p_prc)),
-                                           handleOf (p_prc),
-                                           OMX_IndexParamAudioMp3, &mp3type));
+                                       handleOf (p_prc), OMX_IndexParamAudioMp3,
+                                       &mp3type));
 
   TIZ_INIT_OMX_PORT_STRUCT (p_prc->pcmmode_,
                             ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX);
-  tiz_check_omx (
-      tiz_api_GetParameter (tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
-                            OMX_IndexParamAudioPcm, &(p_prc->pcmmode_)));
+  tiz_check_omx (tiz_api_GetParameter (tiz_get_krn (handleOf (p_prc)),
+                                       handleOf (p_prc), OMX_IndexParamAudioPcm,
+                                       &(p_prc->pcmmode_)));
 
   TIZ_TRACE (handleOf (p_prc),
              "sample rate decoder = [%d] channels decoder = [%d]",
@@ -759,15 +777,16 @@ static OMX_ERRORTYPE mp3d_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE mp3d_proc_transfer_and_process (void *ap_obj,
-                                                     OMX_U32 a_pid)
+static OMX_ERRORTYPE
+mp3d_proc_transfer_and_process (void * ap_obj, OMX_U32 a_pid)
 {
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE mp3d_proc_stop_and_return (void *ap_obj)
+static OMX_ERRORTYPE
+mp3d_proc_stop_and_return (void * ap_obj)
 {
-  mp3d_prc_t *p_obj = ap_obj;
+  mp3d_prc_t * p_obj = ap_obj;
   char buffer[80];
   assert (ap_obj);
   mad_timer_string (p_obj->timer_, buffer, "%lu:%02lu.%03u", MAD_UNITS_MINUTES,
@@ -784,9 +803,10 @@ static OMX_ERRORTYPE mp3d_proc_stop_and_return (void *ap_obj)
  * from tiz_prc class
  */
 
-static OMX_ERRORTYPE mp3d_proc_buffers_ready (const void *ap_obj)
+static OMX_ERRORTYPE
+mp3d_proc_buffers_ready (const void * ap_obj)
 {
-  mp3d_prc_t *p_obj = (mp3d_prc_t *)ap_obj;
+  mp3d_prc_t * p_obj = (mp3d_prc_t *) ap_obj;
 
   assert (ap_obj);
 
@@ -815,7 +835,7 @@ static OMX_ERRORTYPE mp3d_proc_buffers_ready (const void *ap_obj)
       if (p_obj->p_inhdr_ != NULL && (0 == p_obj->p_inhdr_->nFilledLen))
         {
           tiz_check_omx (
-              release_headers (p_obj, ARATELIA_MP3_DECODER_INPUT_PORT_INDEX));
+            release_headers (p_obj, ARATELIA_MP3_DECODER_INPUT_PORT_INDEX));
         }
     }
 
@@ -824,21 +844,23 @@ static OMX_ERRORTYPE mp3d_proc_buffers_ready (const void *ap_obj)
       /* EOS has been received and all the input data has been consumed
        * already, so its time to propagate the EOS flag */
       tiz_check_omx (
-          release_headers (p_obj, ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX));
+        release_headers (p_obj, ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX));
     }
 
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE mp3d_proc_port_flush (const void *ap_obj, OMX_U32 a_pid)
+static OMX_ERRORTYPE
+mp3d_proc_port_flush (const void * ap_obj, OMX_U32 a_pid)
 {
-  mp3d_prc_t *p_obj = (mp3d_prc_t *)ap_obj;
+  mp3d_prc_t * p_obj = (mp3d_prc_t *) ap_obj;
   return release_headers (p_obj, a_pid);
 }
 
-static OMX_ERRORTYPE mp3d_proc_port_disable (const void *ap_obj, OMX_U32 a_pid)
+static OMX_ERRORTYPE
+mp3d_proc_port_disable (const void * ap_obj, OMX_U32 a_pid)
 {
-  mp3d_prc_t *p_obj = (mp3d_prc_t *)ap_obj;
+  mp3d_prc_t * p_obj = (mp3d_prc_t *) ap_obj;
   assert (p_obj);
   if (OMX_ALL == a_pid || ARATELIA_MP3_DECODER_INPUT_PORT_INDEX == a_pid)
     {
@@ -852,9 +874,10 @@ static OMX_ERRORTYPE mp3d_proc_port_disable (const void *ap_obj, OMX_U32 a_pid)
   return release_headers (p_obj, a_pid);
 }
 
-static OMX_ERRORTYPE mp3d_proc_port_enable (const void *ap_obj, OMX_U32 a_pid)
+static OMX_ERRORTYPE
+mp3d_proc_port_enable (const void * ap_obj, OMX_U32 a_pid)
 {
-  mp3d_prc_t *p_obj = (mp3d_prc_t *)ap_obj;
+  mp3d_prc_t * p_obj = (mp3d_prc_t *) ap_obj;
   assert (p_obj);
   if (OMX_ALL == a_pid || ARATELIA_MP3_DECODER_INPUT_PORT_INDEX == a_pid)
     {
@@ -873,7 +896,8 @@ static OMX_ERRORTYPE mp3d_proc_port_enable (const void *ap_obj, OMX_U32 a_pid)
  * mp3d_prc_class
  */
 
-static void *mp3d_prc_class_ctor (void *ap_obj, va_list *app)
+static void *
+mp3d_prc_class_ctor (void * ap_obj, va_list * app)
 {
   /* NOTE: Class methods might be added in the future. None for now. */
   return super_ctor (typeOf (ap_obj, "mp3dprc_class"), ap_obj, app);
@@ -883,56 +907,58 @@ static void *mp3d_prc_class_ctor (void *ap_obj, va_list *app)
  * initialization
  */
 
-void *mp3d_prc_class_init (void *ap_tos, void *ap_hdl)
+void *
+mp3d_prc_class_init (void * ap_tos, void * ap_hdl)
 {
-  void *tizprc = tiz_get_type (ap_hdl, "tizprc");
-  void *mp3dprc_class = factory_new
-      /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-      (classOf (tizprc), "mp3dprc_class", classOf (tizprc),
-       sizeof(mp3d_prc_class_t),
-       /* TIZ_CLASS_COMMENT: */
-       ap_tos, ap_hdl,
-       /* TIZ_CLASS_COMMENT: class constructor */
-       ctor, mp3d_prc_class_ctor,
-       /* TIZ_CLASS_COMMENT: stop value */
-       0);
+  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void * mp3dprc_class = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (classOf (tizprc), "mp3dprc_class", classOf (tizprc),
+     sizeof (mp3d_prc_class_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, mp3d_prc_class_ctor,
+     /* TIZ_CLASS_COMMENT: stop value */
+     0);
   return mp3dprc_class;
 }
 
-void *mp3d_prc_init (void *ap_tos, void *ap_hdl)
+void *
+mp3d_prc_init (void * ap_tos, void * ap_hdl)
 {
-  void *tizprc = tiz_get_type (ap_hdl, "tizprc");
-  void *mp3dprc_class = tiz_get_type (ap_hdl, "mp3dprc_class");
+  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void * mp3dprc_class = tiz_get_type (ap_hdl, "mp3dprc_class");
   TIZ_LOG_CLASS (mp3dprc_class);
-  void *mp3dprc = factory_new
-      /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-      (mp3dprc_class, "mp3dprc", tizprc, sizeof(mp3d_prc_t),
-       /* TIZ_CLASS_COMMENT: */
-       ap_tos, ap_hdl,
-       /* TIZ_CLASS_COMMENT: class constructor */
-       ctor, mp3d_proc_ctor,
-       /* TIZ_CLASS_COMMENT: class destructor */
-       dtor, mp3d_proc_dtor,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_allocate_resources, mp3d_proc_allocate_resources,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_deallocate_resources, mp3d_proc_deallocate_resources,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_prepare_to_transfer, mp3d_proc_prepare_to_transfer,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_transfer_and_process, mp3d_proc_transfer_and_process,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_stop_and_return, mp3d_proc_stop_and_return,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_buffers_ready, mp3d_proc_buffers_ready,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_port_flush, mp3d_proc_port_flush,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_port_disable, mp3d_proc_port_disable,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_port_enable, mp3d_proc_port_enable,
-       /* TIZ_CLASS_COMMENT: stop value */
-       0);
+  void * mp3dprc = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (mp3dprc_class, "mp3dprc", tizprc, sizeof (mp3d_prc_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, mp3d_proc_ctor,
+     /* TIZ_CLASS_COMMENT: class destructor */
+     dtor, mp3d_proc_dtor,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_allocate_resources, mp3d_proc_allocate_resources,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_deallocate_resources, mp3d_proc_deallocate_resources,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_prepare_to_transfer, mp3d_proc_prepare_to_transfer,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_transfer_and_process, mp3d_proc_transfer_and_process,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_stop_and_return, mp3d_proc_stop_and_return,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_buffers_ready, mp3d_proc_buffers_ready,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_port_flush, mp3d_proc_port_flush,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_port_disable, mp3d_proc_port_disable,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_port_enable, mp3d_proc_port_enable,
+     /* TIZ_CLASS_COMMENT: stop value */
+     0);
 
   return mp3dprc;
 }

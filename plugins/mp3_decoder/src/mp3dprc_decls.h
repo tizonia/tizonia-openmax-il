@@ -30,8 +30,7 @@
 #define MP3DPRC_DECLS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <stdbool.h>
@@ -41,40 +40,40 @@ extern "C"
 
 #include <tizprc_decls.h>
 
-#define INPUT_BUFFER_SIZE   (5*8192)
-#define OUTPUT_BUFFER_SIZE  8192        /* Must be an integer multiple of 4. */
+#define INPUT_BUFFER_SIZE (5 * 8192)
+#define OUTPUT_BUFFER_SIZE 8192 /* Must be an integer multiple of 4. */
 
-  typedef struct mp3d_prc mp3d_prc_t;
-  struct mp3d_prc
-  {
-    /* Object */
-    const tiz_prc_t _;
-    OMX_AUDIO_PARAM_PCMMODETYPE pcmmode_;
-    struct mad_stream stream_;
-    struct mad_frame frame_;
-    struct mad_synth synth_;
-    size_t remaining_;
-    mad_timer_t timer_;
-    unsigned long frame_count_;
-    unsigned char in_buff_[INPUT_BUFFER_SIZE + MAD_BUFFER_GUARD];
-    OMX_BUFFERHEADERTYPE *p_inhdr_;
-    OMX_BUFFERHEADERTYPE *p_outhdr_;
-    int next_synth_sample_;
-    bool eos_;
-    bool in_port_disabled_;
-    bool out_port_disabled_;
-  };
+typedef struct mp3d_prc mp3d_prc_t;
+struct mp3d_prc
+{
+  /* Object */
+  const tiz_prc_t _;
+  OMX_AUDIO_PARAM_PCMMODETYPE pcmmode_;
+  struct mad_stream stream_;
+  struct mad_frame frame_;
+  struct mad_synth synth_;
+  size_t remaining_;
+  mad_timer_t timer_;
+  unsigned long frame_count_;
+  unsigned char in_buff_[INPUT_BUFFER_SIZE + MAD_BUFFER_GUARD];
+  OMX_BUFFERHEADERTYPE * p_inhdr_;
+  OMX_BUFFERHEADERTYPE * p_outhdr_;
+  int next_synth_sample_;
+  bool eos_;
+  bool in_port_disabled_;
+  bool out_port_disabled_;
+};
 
-  typedef struct mp3d_prc_class mp3d_prc_class_t;
-  struct mp3d_prc_class
-  {
-    /* Class */
-    const tiz_prc_class_t _;
-    /* NOTE: Class methods might be added in the future */
-  };
+typedef struct mp3d_prc_class mp3d_prc_class_t;
+struct mp3d_prc_class
+{
+  /* Class */
+  const tiz_prc_class_t _;
+  /* NOTE: Class methods might be added in the future */
+};
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* MP3DPRC_DECLS_H */
+#endif /* MP3DPRC_DECLS_H */
