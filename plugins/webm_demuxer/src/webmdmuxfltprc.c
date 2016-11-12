@@ -571,8 +571,6 @@ demux_stream (webmdmuxflt_prc_t * ap_prc)
   assert (ap_prc);
   assert (ap_prc->p_ne_);
 
-  tiz_check_omx (store_data (ap_prc));
-
   while (able_to_demux (ap_prc))
     {
       rc = read_packet (ap_prc);
@@ -767,14 +765,15 @@ read_audio_metadata (webmdmuxflt_prc_t * ap_prc, const unsigned int a_track_idx,
               print_audio_codec_metadata (ap_prc, header_idx, nheaders,
                                           p_codec_data, length);
 
-              /* Push out the audio specific codec data on an OMX buffer */
-              memcpy (TIZ_OMX_BUF_PTR (p_hdr), p_codec_data, length);
+              /* Put the audio specific codec data on an OMX buffer */
+              /* TODO: Possibly push each codec config element in a separate OMX buffer */
+              memcpy (TIZ_OMX_BUF_PTR (p_hdr) + p_hdr->nFilledLen, p_codec_data,
+                      MIN (TIZ_OMX_BUF_AVAIL (p_hdr), length));
               p_hdr->nFilledLen += length;
-              tiz_check_omx (release_output_header (
-                ap_prc, ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX));
             }
+          tiz_check_omx (release_output_header (
+            ap_prc, ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX));
         }
-
       tiz_check_omx (set_audio_coding_on_port (ap_prc));
     }
   return rc;
@@ -878,10 +877,11 @@ send_auto_detect_event (webmdmuxflt_prc_t * ap_prc, OMX_S32 * ap_coding_type,
     }
 }
 
-static void
+static OMX_ERRORTYPE
 send_port_auto_detect_events (webmdmuxflt_prc_t * ap_prc)
 {
-  if (OMX_ErrorNone == obtain_track_info (ap_prc))
+  OMX_ERRORTYPE rc = obtain_track_info (ap_prc);
+  if (OMX_ErrorNone == rc)
     {
       if (NESTEGG_TRACK_UNKNOWN != ap_prc->ne_audio_track_)
         {
@@ -898,6 +898,7 @@ send_port_auto_detect_events (webmdmuxflt_prc_t * ap_prc)
                                   ARATELIA_WEBM_DEMUXER_FILTER_PORT_2_INDEX);
         }
     }
+  return rc;
 }
 
 static OMX_ERRORTYPE
@@ -905,7 +906,7 @@ alloc_nestegg (webmdmuxflt_prc_t * ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  if (OMX_ErrorNone == (rc = store_data (ap_prc)))
+  if (tiz_filter_prc_output_headers_available (ap_prc))
     {
       int nestegg_rc = 0;
       assert (!ap_prc->p_ne_);
@@ -918,13 +919,12 @@ alloc_nestegg (webmdmuxflt_prc_t * ap_prc)
         }
       else
         {
-          send_port_auto_detect_events (ap_prc);
+          rc = send_port_auto_detect_events (ap_prc);
           ap_prc->ne_inited_ = true;
         }
       TIZ_DEBUG (handleOf (ap_prc), "nestegg inited = %s",
                  (ap_prc->ne_inited_ ? "TRUE" : "FALSE"));
     }
-
   return rc;
 }
 
@@ -1018,14 +1018,16 @@ webmdmuxflt_prc_buffers_ready (const void * ap_prc)
   webmdmuxflt_prc_t * p_prc = (webmdmuxflt_prc_t *) ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (ap_prc);
+  assert (p_prc);
 
-  if (!p_prc->ne_inited_ && tiz_filter_prc_output_headers_available (ap_prc))
+  tiz_check_omx (store_data (p_prc));
+
+  if (!p_prc->ne_inited_)
     {
-      rc = alloc_nestegg (p_prc);
+      tiz_check_omx (alloc_nestegg (p_prc));
     }
 
-  if (p_prc->ne_inited_ && OMX_ErrorNone == rc)
+  if (p_prc->ne_inited_)
     {
       rc = demux_stream (p_prc);
       if (OMX_ErrorNotReady == rc)
