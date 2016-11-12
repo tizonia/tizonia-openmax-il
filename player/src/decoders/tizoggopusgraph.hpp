@@ -58,7 +58,7 @@ namespace tiz
       bool is_port_settings_evt_required () const;
       bool is_disabled_evt_required () const;
       void do_configure ();
-      void get_pcm_codec_info (OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype) const;
+      void get_pcm_codec_info (OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype);
 
     private:
       OMX_ERRORTYPE set_opus_settings ();

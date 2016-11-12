@@ -110,51 +110,46 @@ void graph::oggopusdecops::do_configure ()
       tiz::graph::util::set_content_uri (handles_[0], probe_ptr_->get_uri ()),
       "Unable to set OMX_IndexParamContentURI");
 
+  OMX_ERRORTYPE rc = tiz::graph::util::
+      normalize_tunnel_settings< OMX_AUDIO_PARAM_PCMMODETYPE,
+                                 OMX_IndexParamAudioPcm > (
+          handles_, 1,  // tunneld id, i.e. this is decoder <-> renderer),
+          1,            // decoder's output port
+          0);           // renderer's input port
+  G_OPS_BAIL_IF_ERROR (rc, "Unable to transfer OMX_IndexParamAudioPcm");
+
   G_OPS_BAIL_IF_ERROR (
       tiz::graph::util::set_pcm_mode (
           handles_[2], 0,
-          boost::bind (&tiz::probe::get_pcm_codec_info, probe_ptr_, _1)),
+          boost::bind (&tiz::graph::oggopusdecops::get_pcm_codec_info, this, _1)),
       "Unable to set OMX_IndexParamAudioPcm");
 }
 
-void graph::oggopusdecops::get_pcm_codec_info (OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype) const
+void graph::oggopusdecops::get_pcm_codec_info (OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype)
 {
   probe_ptr_->get_pcm_codec_info (pcmtype);
 
-  // Ammend the bits per sample value, as the ogg opus decoder produces 32 bit
-  // per sample output
-  pcmtype.nBitPerSample = 32;
+  OMX_AUDIO_PARAM_PCMMODETYPE decoder_pcmtype;
+  TIZ_INIT_OMX_PORT_STRUCT (decoder_pcmtype, 1 /* port id */);
+
+  G_OPS_BAIL_IF_ERROR (
+      OMX_GetParameter (handles_[1],
+                        static_cast< OMX_INDEXTYPE > (OMX_IndexParamAudioPcm),
+                        &decoder_pcmtype),
+      "Unable to set OMX_IndexParamAudioPcm");
+
+  pcmtype.nBitPerSample = decoder_pcmtype.nBitPerSample;
+  pcmtype.nSamplingRate = 48000; //decoder_pcmtype.nSamplingRate;
 }
 
 OMX_ERRORTYPE
 graph::oggopusdecops::set_opus_settings ()
 {
-  // Retrieve the current opus settings from the decoder's port #0
-  OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE opustype_orig;
-  TIZ_INIT_OMX_PORT_STRUCT (opustype_orig, 0 /* port id */);
+  // Let the decoder find the settings for us
+  need_port_settings_changed_evt_ = true;
 
-  tiz_check_omx (OMX_GetParameter (
-      handles_[1], static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioOpus),
-      &opustype_orig));
-
-  // Set the opus settings on decoder's port #0
-  OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE opustype;
-  TIZ_INIT_OMX_PORT_STRUCT (opustype, 0 /* port id */);
-
-  probe_ptr_->get_opus_codec_info (opustype);
-  opustype.nPortIndex = 0;
-  tiz_check_omx (OMX_SetParameter (
-      handles_[1], static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioOpus),
-      &opustype));
-
-  // Record whether we need to wait for a port settings change event or not
-  // (the decoder output port implements the "slaving" behaviour)
-  //
-  // TODO: Add bitrate to the list of things that might change. And then remove
-  // the probe_stream_hook hack (see function below)
-  need_port_settings_changed_evt_
-      = ((opustype_orig.nSampleRate != opustype.nSampleRate)
-         || (opustype_orig.nChannels != opustype.nChannels));
+  TIZ_LOG (TIZ_PRIORITY_DEBUG, "need_port_settings_changed_evt_ [%s]",
+           (need_port_settings_changed_evt_ ? "YES" : "NO"));
 
   return OMX_ErrorNone;
 }
