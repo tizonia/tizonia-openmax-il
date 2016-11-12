@@ -233,7 +233,7 @@ process_opus_header(OMX_HANDLETYPE ap_hdl, OMX_U8 * ap_ogg_data, const OMX_U32 n
 
    if (opus_header_parse(ap_ogg_data, nbytes, &header)==0)
    {
-      TIZ_ERROR(ap_hdl, "Cannot parse header\n");
+      TIZ_ERROR(ap_hdl, "Cannot parse header");
       return NULL;
    }
 
@@ -244,19 +244,19 @@ process_opus_header(OMX_HANDLETYPE ap_hdl, OMX_U8 * ap_ogg_data, const OMX_U32 n
    /*If the rate is unspecified we decode to 48000*/
    if(*rate==0)*rate=48000;
    if(*rate<8000||*rate>192000){
-     TIZ_ERROR(ap_hdl, "Warning: Crazy input_rate %d, decoding to 48000 instead.\n",*rate);
+     TIZ_ERROR(ap_hdl, "Warning: Crazy input_rate %d, decoding to 48000 instead.",*rate);
      *rate=48000;
    }
 
    *preskip = header.preskip;
    st = opus_multistream_decoder_create(48000, header.channels, header.nb_streams, header.nb_coupled, header.stream_map, &err);
    if(err != OPUS_OK){
-     TIZ_ERROR(ap_hdl, "Cannot create encoder: %s\n", opus_strerror(err));
+     TIZ_ERROR(ap_hdl, "Cannot create encoder: %s", opus_strerror(err));
      return NULL;
    }
    if (!st)
    {
-      TIZ_ERROR (ap_hdl, "Decoder initialization failed: %s\n", opus_strerror(err));
+      TIZ_ERROR (ap_hdl, "Decoder initialization failed: %s", opus_strerror(err));
       return NULL;
    }
 
@@ -277,7 +277,7 @@ process_opus_header(OMX_HANDLETYPE ap_hdl, OMX_U8 * ap_ogg_data, const OMX_U32 n
 #ifdef OPUS_SET_GAIN
       } else if (err!=OPUS_OK)
       {
-         TIZ_ERROR (ap_hdl, "Error setting gain: %s\n", opus_strerror(err));
+         TIZ_ERROR (ap_hdl, "Error setting gain: %s", opus_strerror(err));
          return NULL;
       }
 #endif
@@ -288,9 +288,8 @@ process_opus_header(OMX_HANDLETYPE ap_hdl, OMX_U8 * ap_ogg_data, const OMX_U32 n
       TIZ_TRACE(ap_hdl, "Decoding to %d Hz (%d channel%s)", *rate,
         *channels, *channels>1?"s":"");
       if(header.version!=1)TIZ_ERROR(ap_hdl, ", Header v%d",header.version);
-      TIZ_ERROR(ap_hdl, "\n");
-      if (header.gain!=0)TIZ_TRACE(ap_hdl, "Playback gain: %f dB\n", header.gain/256.);
-      if (manual_gain!=0)TIZ_TRACE(ap_hdl, "Manual gain: %f dB\n", manual_gain);
+      if (header.gain!=0)TIZ_TRACE(ap_hdl, "Playback gain: %f dB", header.gain/256.);
+      if (manual_gain!=0)TIZ_TRACE(ap_hdl, "Manual gain: %f dB", manual_gain);
    }
 
    return st;
@@ -304,12 +303,12 @@ process_opus_comments(OMX_HANDLETYPE ap_hdl, char *comments, int length)
 
    if (length<(8+4+4))
    {
-      TIZ_ERROR (ap_hdl, "Invalid/corrupted comments\n");
+      TIZ_ERROR (ap_hdl, "Invalid/corrupted comments");
       return;
    }
    if (strncmp(c, "OpusTags", 8) != 0)
    {
-      TIZ_ERROR (ap_hdl, "Invalid/corrupted comments\n");
+      TIZ_ERROR (ap_hdl, "Invalid/corrupted comments");
       return;
    }
    c += 8;
@@ -318,7 +317,7 @@ process_opus_comments(OMX_HANDLETYPE ap_hdl, char *comments, int length)
    c+=4;
    if (len < 0 || len>(length-16))
    {
-      TIZ_ERROR (ap_hdl, "Invalid/corrupted comments\n");
+      TIZ_ERROR (ap_hdl, "Invalid/corrupted comments");
       return;
    }
    /*    err&=fwrite(c, 1, len, stderr)!=(unsigned)len; */
@@ -331,14 +330,14 @@ process_opus_comments(OMX_HANDLETYPE ap_hdl, char *comments, int length)
    length-=16+len;
    if (nb_fields < 0 || nb_fields>(length>>2))
    {
-      TIZ_ERROR (ap_hdl, "Invalid/corrupted comments\n");
+      TIZ_ERROR (ap_hdl, "Invalid/corrupted comments");
       return;
    }
    for (i=0;i<nb_fields;i++)
    {
       if (length<4)
       {
-         TIZ_ERROR (ap_hdl, "Invalid/corrupted comments\n");
+         TIZ_ERROR (ap_hdl, "Invalid/corrupted comments");
          return;
       }
       len=readint(c, 0);
@@ -346,7 +345,7 @@ process_opus_comments(OMX_HANDLETYPE ap_hdl, char *comments, int length)
       length-=4;
       if (len < 0 || len>length)
       {
-         TIZ_ERROR (ap_hdl, "Invalid/corrupted comments\n");
+         TIZ_ERROR (ap_hdl, "Invalid/corrupted comments");
          return;
       }
       /*       err &= fwrite(c, 1, len, stderr)!=(unsigned)len; */
