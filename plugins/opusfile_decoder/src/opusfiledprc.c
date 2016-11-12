@@ -48,6 +48,35 @@
 /* Forward declarations */
 static OMX_ERRORTYPE opusfiled_prc_deallocate_resources (void *);
 
+static OMX_ERRORTYPE
+update_pcm_mode (opusfiled_prc_t * ap_prc, const OMX_U32 a_samplerate,
+                 const OMX_U32 a_channels)
+{
+  assert (ap_prc);
+  if (a_samplerate != ap_prc->pcmmode_.nSamplingRate
+      || a_channels != ap_prc->pcmmode_.nChannels)
+    {
+      TIZ_DEBUG (handleOf (ap_prc),
+                 "Updating pcm mode : old samplerate [%d] new samplerate [%d]",
+                 ap_prc->pcmmode_.nSamplingRate, a_samplerate);
+      TIZ_DEBUG (handleOf (ap_prc),
+                 "Updating pcm mode : old channels [%d] new channels [%d]",
+                 ap_prc->pcmmode_.nChannels, a_channels);
+      ap_prc->pcmmode_.nSamplingRate = a_samplerate;
+      ap_prc->pcmmode_.nChannels = a_channels;
+      tiz_check_omx (tiz_krn_SetParameter_internal (
+        tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+        OMX_IndexParamAudioPcm, &(ap_prc->pcmmode_)));
+      tiz_srv_issue_event ((OMX_PTR) ap_prc, OMX_EventPortSettingsChanged,
+                           ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX,
+                           OMX_IndexParamAudioPcm, /* the index of the
+                                                      struct that has
+                                                      been modififed */
+                           NULL);
+    }
+  return OMX_ErrorNone;
+}
+
 static OMX_ERRORTYPE allocate_temp_data_store (opusfiled_prc_t *ap_prc)
 {
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
@@ -192,6 +221,8 @@ static OMX_ERRORTYPE init_opus_decoder (opusfiled_prc_t *ap_prc)
                      ap_prc->store_offset_);
           ap_prc->decoder_inited_ = true;
           tiz_buffer_advance (ap_prc->p_store_, ap_prc->store_offset_);
+          tiz_check_omx (update_pcm_mode (
+            ap_prc, 48000, op_channel_count (ap_prc->p_opus_dec_, -1)));
         }
       ap_prc->store_offset_ = 0;
     }
@@ -325,10 +356,23 @@ static OMX_ERRORTYPE opusfiled_prc_deallocate_resources (void *ap_obj)
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE opusfiled_prc_prepare_to_transfer (void *ap_obj,
+static OMX_ERRORTYPE opusfiled_prc_prepare_to_transfer (void *ap_prc,
                                                         OMX_U32 a_pid)
 {
-  reset_stream_parameters (ap_obj);
+  opusfiled_prc_t *p_prc = ap_prc;
+  assert (ap_prc);
+
+  TIZ_INIT_OMX_PORT_STRUCT (p_prc->pcmmode_,
+                            ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX);
+  tiz_check_omx (
+      tiz_api_GetParameter (tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
+                            OMX_IndexParamAudioPcm, &(p_prc->pcmmode_)));
+
+  TIZ_TRACE (handleOf (p_prc),
+             "output sample rate = [%d] output channels = [%d]",
+             p_prc->pcmmode_.nSamplingRate, p_prc->pcmmode_.nChannels);
+
+  reset_stream_parameters (p_prc);
   return OMX_ErrorNone;
 }
 
