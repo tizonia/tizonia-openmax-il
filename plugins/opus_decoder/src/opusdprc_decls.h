@@ -56,6 +56,8 @@ struct opusd_prc
   bool eos_;
   bool in_port_disabled_;
   bool out_port_disabled_;
+  bool opus_header_parsed_;
+  bool opus_comments_parsed_;
 };
 
 typedef struct opusd_prc_class opusd_prc_class_t;

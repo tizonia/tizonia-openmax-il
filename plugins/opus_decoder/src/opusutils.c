@@ -31,6 +31,8 @@
 #include <config.h>
 #endif
 
+#include <assert.h>
+
 #include "tizutils.h"
 
 #include <math.h>
@@ -136,7 +138,7 @@ static int read_chars(ROPacket *p, unsigned char *str, int nb_chars)
 }
 
 static int
-opus_header_parse(const unsigned char *packet, int len, OpusHeader *h)
+opus_header_parse(OMX_HANDLETYPE ap_hdl, const unsigned char *packet, int len, OpusHeader *h)
 {
    int i;
    char str[9];
@@ -180,6 +182,8 @@ opus_header_parse(const unsigned char *packet, int len, OpusHeader *h)
       return 0;
    h->channel_mapping = ch;
 
+
+   TIZ_DEBUG(ap_hdl, "mapping [%u]", h->channel_mapping);
    if (h->channel_mapping != 0)
    {
       if (!read_chars(&p, &ch, 1))
@@ -205,12 +209,14 @@ opus_header_parse(const unsigned char *packet, int len, OpusHeader *h)
             return 0;
       }
    } else {
+      TIZ_DEBUG(ap_hdl, "channels [%u]", h->channels);
       if(h->channels>2)
          return 0;
       h->nb_streams = 1;
       h->nb_coupled = h->channels>1;
       h->stream_map[0]=0;
       h->stream_map[1]=1;
+      TIZ_DEBUG(ap_hdl, "nb_streams [%u]", h->nb_streams);
    }
    /*For version 0/1 we know there won't be any more data
      so reject any that have data past the end.*/
@@ -222,19 +228,22 @@ opus_header_parse(const unsigned char *packet, int len, OpusHeader *h)
 /*Process an Opus header and setup the opus decoder based on it.
   It takes several pointers for header values which are needed
   elsewhere in the code.*/
-OpusMSDecoder *
+int
 process_opus_header(OMX_HANDLETYPE ap_hdl, OMX_U8 * ap_ogg_data, const OMX_U32 nbytes,
                     opus_int32 *rate, int *mapping_family, int *channels, int *preskip, float *gain,
-                    float manual_gain, int *streams, int quiet)
+                    float manual_gain, int *streams, OpusMSDecoder ** decoder, int quiet)
 {
    int err;
-   OpusMSDecoder *st;
+   OpusMSDecoder *st = NULL;
    OpusHeader header;
 
-   if (opus_header_parse(ap_ogg_data, nbytes, &header)==0)
+   assert (decoder);
+   *decoder = NULL;
+
+   if (opus_header_parse(ap_hdl, ap_ogg_data, nbytes, &header)==0)
    {
       TIZ_ERROR(ap_hdl, "Cannot parse header");
-      return NULL;
+      return 0;
    }
 
    *mapping_family = header.channel_mapping;
@@ -252,12 +261,12 @@ process_opus_header(OMX_HANDLETYPE ap_hdl, OMX_U8 * ap_ogg_data, const OMX_U32 n
    st = opus_multistream_decoder_create(48000, header.channels, header.nb_streams, header.nb_coupled, header.stream_map, &err);
    if(err != OPUS_OK){
      TIZ_ERROR(ap_hdl, "Cannot create encoder: %s", opus_strerror(err));
-     return NULL;
+     return nbytes;
    }
    if (!st)
    {
       TIZ_ERROR (ap_hdl, "Decoder initialization failed: %s", opus_strerror(err));
-      return NULL;
+      return nbytes;
    }
 
    *streams=header.nb_streams;
@@ -278,7 +287,7 @@ process_opus_header(OMX_HANDLETYPE ap_hdl, OMX_U8 * ap_ogg_data, const OMX_U32 n
       } else if (err!=OPUS_OK)
       {
          TIZ_ERROR (ap_hdl, "Error setting gain: %s", opus_strerror(err));
-         return NULL;
+         return nbytes;
       }
 #endif
    }
@@ -287,15 +296,16 @@ process_opus_header(OMX_HANDLETYPE ap_hdl, OMX_U8 * ap_ogg_data, const OMX_U32 n
    {
       TIZ_TRACE(ap_hdl, "Decoding to %d Hz (%d channel%s)", *rate,
         *channels, *channels>1?"s":"");
-      if(header.version!=1)TIZ_ERROR(ap_hdl, ", Header v%d",header.version);
+      if(header.version!=1)TIZ_TRACE(ap_hdl, ", Header v%d",header.version);
       if (header.gain!=0)TIZ_TRACE(ap_hdl, "Playback gain: %f dB", header.gain/256.);
       if (manual_gain!=0)TIZ_TRACE(ap_hdl, "Manual gain: %f dB", manual_gain);
    }
 
-   return st;
+   *decoder = st;
+   return nbytes;
 }
 
-void
+int
 process_opus_comments(OMX_HANDLETYPE ap_hdl, char *comments, int length)
 {
    char *c=comments;
@@ -304,12 +314,12 @@ process_opus_comments(OMX_HANDLETYPE ap_hdl, char *comments, int length)
    if (length<(8+4+4))
    {
       TIZ_ERROR (ap_hdl, "Invalid/corrupted comments");
-      return;
+      return 0;
    }
    if (strncmp(c, "OpusTags", 8) != 0)
    {
       TIZ_ERROR (ap_hdl, "Invalid/corrupted comments");
-      return;
+      return 0;
    }
    c += 8;
    /*    fprintf (stderr, "Encoded with "); */
@@ -318,7 +328,7 @@ process_opus_comments(OMX_HANDLETYPE ap_hdl, char *comments, int length)
    if (len < 0 || len>(length-16))
    {
       TIZ_ERROR (ap_hdl, "Invalid/corrupted comments");
-      return;
+      return c - comments;
    }
    /*    err&=fwrite(c, 1, len, stderr)!=(unsigned)len; */
    TIZ_TRACE (ap_hdl, "Encoded with %s", c);
@@ -331,14 +341,14 @@ process_opus_comments(OMX_HANDLETYPE ap_hdl, char *comments, int length)
    if (nb_fields < 0 || nb_fields>(length>>2))
    {
       TIZ_ERROR (ap_hdl, "Invalid/corrupted comments");
-      return;
+      return c - comments;
    }
    for (i=0;i<nb_fields;i++)
    {
       if (length<4)
       {
          TIZ_ERROR (ap_hdl, "Invalid/corrupted comments");
-         return;
+         return c - comments;
       }
       len=readint(c, 0);
       c+=4;
@@ -346,7 +356,7 @@ process_opus_comments(OMX_HANDLETYPE ap_hdl, char *comments, int length)
       if (len < 0 || len>length)
       {
          TIZ_ERROR (ap_hdl, "Invalid/corrupted comments");
-         return;
+         return c - comments;
       }
       /*       err &= fwrite(c, 1, len, stderr)!=(unsigned)len; */
       TIZ_TRACE (ap_hdl, "%s", c);
@@ -354,4 +364,5 @@ process_opus_comments(OMX_HANDLETYPE ap_hdl, char *comments, int length)
       length-=len;
       /*       fprintf (stderr, "\n"); */
    }
+   return c - comments;
 }

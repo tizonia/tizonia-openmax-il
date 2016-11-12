@@ -31,23 +31,24 @@
 #define OPUSUTILS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <opus.h>
 #include <opus_multistream.h>
 
-  OpusMSDecoder * process_opus_header(OMX_HANDLETYPE ap_hdl, OMX_U8 * ap_ogg_data,
-                                      const OMX_U32 nbytes, opus_int32 *rate,
-                                      int *mapping_family, int *channels, int *preskip, float *gain,
-                                      float manual_gain, int *streams, int quiet);
+int
+process_opus_header (OMX_HANDLETYPE ap_hdl, OMX_U8 * ap_ogg_data,
+                     const OMX_U32 nbytes, opus_int32 * rate,
+                     int * mapping_family, int * channels, int * preskip,
+                     float * gain, float manual_gain, int * streams,
+                     OpusMSDecoder ** decoder, int quiet);
 
-  void process_opus_comments(OMX_HANDLETYPE ap_hdl, char *comments, int length);
+int
+process_opus_comments (OMX_HANDLETYPE ap_hdl, char * comments, int length);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif  /* OPUSUTILS_H */
-
+#endif /* OPUSUTILS_H */
