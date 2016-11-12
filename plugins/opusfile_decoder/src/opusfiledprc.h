@@ -30,15 +30,16 @@
 #define OPUSDV2PRC_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-  void * opusfiled_prc_class_init (void * ap_tos, void * ap_hdl);
-  void * opusfiled_prc_init (void * ap_tos, void * ap_hdl);
+void *
+opusfiled_prc_class_init (void * ap_tos, void * ap_hdl);
+void *
+opusfiled_prc_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* OPUSDV2PRC_H */
+#endif /* OPUSDV2PRC_H */

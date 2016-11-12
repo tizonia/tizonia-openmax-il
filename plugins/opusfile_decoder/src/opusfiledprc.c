@@ -46,7 +46,8 @@
 #endif
 
 /* Forward declarations */
-static OMX_ERRORTYPE opusfiled_prc_deallocate_resources (void *);
+static OMX_ERRORTYPE
+opusfiled_prc_deallocate_resources (void *);
 
 static OMX_ERRORTYPE
 update_pcm_mode (opusfiled_prc_t * ap_prc, const OMX_U32 a_samplerate,
@@ -77,7 +78,8 @@ update_pcm_mode (opusfiled_prc_t * ap_prc, const OMX_U32 a_samplerate,
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE allocate_temp_data_store (opusfiled_prc_t *ap_prc)
+static OMX_ERRORTYPE
+allocate_temp_data_store (opusfiled_prc_t * ap_prc)
 {
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
 
@@ -85,15 +87,16 @@ static OMX_ERRORTYPE allocate_temp_data_store (opusfiled_prc_t *ap_prc)
 
   TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX);
   tiz_check_omx (
-      tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
-                            OMX_IndexParamPortDefinition, &port_def));
+    tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+                          OMX_IndexParamPortDefinition, &port_def));
 
   assert (ap_prc->p_store_ == NULL);
   return tiz_buffer_init (&(ap_prc->p_store_), port_def.nBufferSize);
 }
 
-static inline void deallocate_temp_data_store (
-    /*@special@ */ opusfiled_prc_t *ap_prc)
+static inline void
+deallocate_temp_data_store (
+  /*@special@ */ opusfiled_prc_t * ap_prc)
 /*@releases ap_prc->p_store_@ */
 /*@ensures isnull ap_prc->p_store_@ */
 {
@@ -102,10 +105,11 @@ static inline void deallocate_temp_data_store (
   ap_prc->p_store_ = NULL;
 }
 
-static OMX_ERRORTYPE release_input_header (opusfiled_prc_t *ap_prc)
+static OMX_ERRORTYPE
+release_input_header (opusfiled_prc_t * ap_prc)
 {
-  OMX_BUFFERHEADERTYPE *p_in = tiz_filter_prc_get_header (
-      ap_prc, ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX);
+  OMX_BUFFERHEADERTYPE * p_in = tiz_filter_prc_get_header (
+    ap_prc, ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX);
 
   assert (ap_prc);
 
@@ -115,8 +119,8 @@ static OMX_ERRORTYPE release_input_header (opusfiled_prc_t *ap_prc)
         {
           /* Let's propagate EOS flag to output */
           TIZ_TRACE (handleOf (ap_prc), "Propagating EOS flag to output");
-          OMX_BUFFERHEADERTYPE *p_out = tiz_filter_prc_get_header (
-              ap_prc, ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX);
+          OMX_BUFFERHEADERTYPE * p_out = tiz_filter_prc_get_header (
+            ap_prc, ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX);
           if (p_out)
             {
               p_out->nFlags |= OMX_BUFFERFLAG_EOS;
@@ -130,15 +134,16 @@ static OMX_ERRORTYPE release_input_header (opusfiled_prc_t *ap_prc)
   return OMX_ErrorNone;
 }
 
-static bool store_data (opusfiled_prc_t *ap_prc)
+static bool
+store_data (opusfiled_prc_t * ap_prc)
 {
   bool rc = true;
 
   if ((tiz_buffer_available (ap_prc->p_store_) - ap_prc->store_offset_)
       < ARATELIA_OPUS_DECODER_PORT_MIN_INPUT_BUF_SIZE)
     {
-      OMX_BUFFERHEADERTYPE *p_in = tiz_filter_prc_get_header (
-          ap_prc, ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX);
+      OMX_BUFFERHEADERTYPE * p_in = tiz_filter_prc_get_header (
+        ap_prc, ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX);
 
       assert (ap_prc);
 
@@ -146,9 +151,9 @@ static bool store_data (opusfiled_prc_t *ap_prc)
         {
           TIZ_TRACE (handleOf (ap_prc), "store available [%d]",
                      tiz_buffer_available (ap_prc->p_store_));
-          if (tiz_buffer_push (ap_prc->p_store_,
-                                     p_in->pBuffer + p_in->nOffset,
-                                     p_in->nFilledLen) < p_in->nFilledLen)
+          if (tiz_buffer_push (ap_prc->p_store_, p_in->pBuffer + p_in->nOffset,
+                               p_in->nFilledLen)
+              < p_in->nFilledLen)
             {
               TIZ_ERROR (handleOf (ap_prc),
                          "[%s] : Unable to store all the data.",
@@ -161,24 +166,24 @@ static bool store_data (opusfiled_prc_t *ap_prc)
   return rc;
 }
 
-static int read_cback (void *ap_private, unsigned char *ap_ptr, int a_nbytes)
+static int
+read_cback (void * ap_private, unsigned char * ap_ptr, int a_nbytes)
 {
-  opusfiled_prc_t *p_prc = ap_private;
+  opusfiled_prc_t * p_prc = ap_private;
   int bytes_read = 0;
 
-  (void)store_data (p_prc);
+  (void) store_data (p_prc);
 
-  TIZ_TRACE (
-      handleOf (p_prc), "decoder_inited_ [%s] store bytes [%d] offset [%d]",
-      (p_prc->decoder_inited_ ? "YES" : "NO"),
-      tiz_buffer_available (p_prc->p_store_), p_prc->store_offset_);
+  TIZ_TRACE (handleOf (p_prc),
+             "decoder_inited_ [%s] store bytes [%d] offset [%d]",
+             (p_prc->decoder_inited_ ? "YES" : "NO"),
+             tiz_buffer_available (p_prc->p_store_), p_prc->store_offset_);
 
   if (tiz_buffer_available (p_prc->p_store_) > 0)
     {
       bytes_read = MIN (a_nbytes, tiz_buffer_available (p_prc->p_store_)
-                                  - p_prc->store_offset_);
-      memcpy (ap_ptr,
-              tiz_buffer_get (p_prc->p_store_) + p_prc->store_offset_,
+                                    - p_prc->store_offset_);
+      memcpy (ap_ptr, tiz_buffer_get (p_prc->p_store_) + p_prc->store_offset_,
               bytes_read);
       if (p_prc->decoder_inited_)
         {
@@ -196,17 +201,18 @@ static int read_cback (void *ap_private, unsigned char *ap_ptr, int a_nbytes)
   return bytes_read;
 }
 
-static OMX_ERRORTYPE init_opus_decoder (opusfiled_prc_t *ap_prc)
+static OMX_ERRORTYPE
+init_opus_decoder (opusfiled_prc_t * ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   if (store_data (ap_prc))
     {
       int op_error = 0;
-      OpusFileCallbacks op_cbacks = { read_cback, NULL, NULL, NULL };
+      OpusFileCallbacks op_cbacks = {read_cback, NULL, NULL, NULL};
 
       ap_prc->p_opus_dec_
-          = op_open_callbacks (ap_prc, &op_cbacks, NULL, 0, &op_error);
+        = op_open_callbacks (ap_prc, &op_cbacks, NULL, 0, &op_error);
 
       if (0 != op_error)
         {
@@ -234,11 +240,12 @@ static OMX_ERRORTYPE init_opus_decoder (opusfiled_prc_t *ap_prc)
   return rc;
 }
 
-static OMX_ERRORTYPE transform_buffer (opusfiled_prc_t *ap_prc)
+static OMX_ERRORTYPE
+transform_buffer (opusfiled_prc_t * ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  OMX_BUFFERHEADERTYPE *p_out = tiz_filter_prc_get_header (
-      ap_prc, ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX);
+  OMX_BUFFERHEADERTYPE * p_out = tiz_filter_prc_get_header (
+    ap_prc, ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX);
 
   if (!store_data (ap_prc))
     {
@@ -259,7 +266,7 @@ static OMX_ERRORTYPE transform_buffer (opusfiled_prc_t *ap_prc)
         {
           p_out->nFlags |= OMX_BUFFERFLAG_EOS;
           tiz_filter_prc_release_header (
-              ap_prc, ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX);
+            ap_prc, ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX);
           tiz_filter_prc_update_eos_flag (ap_prc, false);
         }
       return OMX_ErrorNotReady;
@@ -269,17 +276,17 @@ static OMX_ERRORTYPE transform_buffer (opusfiled_prc_t *ap_prc)
   assert (ap_prc->p_opus_dec_);
 
   {
-    unsigned char *p_pcm = p_out->pBuffer + p_out->nOffset;
+    unsigned char * p_pcm = p_out->pBuffer + p_out->nOffset;
     const long len = p_out->nAllocLen;
     int samples_read
-        = op_read_float_stereo (ap_prc->p_opus_dec_, (float *)p_pcm, len);
+      = op_read_float_stereo (ap_prc->p_opus_dec_, (float *) p_pcm, len);
     TIZ_TRACE (handleOf (ap_prc), "samples_read [%d] ", samples_read);
 
     if (samples_read > 0)
       {
-        p_out->nFilledLen = 2 * samples_read * sizeof(float);
-        (void)tiz_filter_prc_release_header (
-            ap_prc, ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX);
+        p_out->nFilledLen = 2 * samples_read * sizeof (float);
+        (void) tiz_filter_prc_release_header (
+          ap_prc, ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX);
       }
     else
       {
@@ -306,7 +313,8 @@ static OMX_ERRORTYPE transform_buffer (opusfiled_prc_t *ap_prc)
   return rc;
 }
 
-static void reset_stream_parameters (opusfiled_prc_t *ap_prc)
+static void
+reset_stream_parameters (opusfiled_prc_t * ap_prc)
 {
   assert (ap_prc);
   ap_prc->decoder_inited_ = false;
@@ -319,10 +327,11 @@ static void reset_stream_parameters (opusfiled_prc_t *ap_prc)
  * opusfiledprc
  */
 
-static void *opusfiled_prc_ctor (void *ap_obj, va_list *app)
+static void *
+opusfiled_prc_ctor (void * ap_obj, va_list * app)
 {
-  opusfiled_prc_t *p_prc
-      = super_ctor (typeOf (ap_obj, "opusfiledprc"), ap_obj, app);
+  opusfiled_prc_t * p_prc
+    = super_ctor (typeOf (ap_obj, "opusfiledprc"), ap_obj, app);
   assert (p_prc);
   p_prc->p_opus_dec_ = NULL;
   p_prc->p_store_ = NULL;
@@ -330,9 +339,10 @@ static void *opusfiled_prc_ctor (void *ap_obj, va_list *app)
   return p_prc;
 }
 
-static void *opusfiled_prc_dtor (void *ap_obj)
+static void *
+opusfiled_prc_dtor (void * ap_obj)
 {
-  (void)opusfiled_prc_deallocate_resources (ap_obj);
+  (void) opusfiled_prc_deallocate_resources (ap_obj);
   return super_dtor (typeOf (ap_obj, "opusfiledprc"), ap_obj);
 }
 
@@ -340,15 +350,16 @@ static void *opusfiled_prc_dtor (void *ap_obj)
  * from tizsrv class
  */
 
-static OMX_ERRORTYPE opusfiled_prc_allocate_resources (void *ap_obj,
-                                                       OMX_U32 a_pid)
+static OMX_ERRORTYPE
+opusfiled_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
 {
   return allocate_temp_data_store (ap_obj);
 }
 
-static OMX_ERRORTYPE opusfiled_prc_deallocate_resources (void *ap_obj)
+static OMX_ERRORTYPE
+opusfiled_prc_deallocate_resources (void * ap_obj)
 {
-  opusfiled_prc_t *p_prc = ap_obj;
+  opusfiled_prc_t * p_prc = ap_obj;
   deallocate_temp_data_store (p_prc);
   assert (p_prc);
   op_free (p_prc->p_opus_dec_);
@@ -356,17 +367,17 @@ static OMX_ERRORTYPE opusfiled_prc_deallocate_resources (void *ap_obj)
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE opusfiled_prc_prepare_to_transfer (void *ap_prc,
-                                                        OMX_U32 a_pid)
+static OMX_ERRORTYPE
+opusfiled_prc_prepare_to_transfer (void * ap_prc, OMX_U32 a_pid)
 {
-  opusfiled_prc_t *p_prc = ap_prc;
+  opusfiled_prc_t * p_prc = ap_prc;
   assert (ap_prc);
 
   TIZ_INIT_OMX_PORT_STRUCT (p_prc->pcmmode_,
                             ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX);
-  tiz_check_omx (
-      tiz_api_GetParameter (tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
-                            OMX_IndexParamAudioPcm, &(p_prc->pcmmode_)));
+  tiz_check_omx (tiz_api_GetParameter (tiz_get_krn (handleOf (p_prc)),
+                                       handleOf (p_prc), OMX_IndexParamAudioPcm,
+                                       &(p_prc->pcmmode_)));
 
   TIZ_TRACE (handleOf (p_prc),
              "output sample rate = [%d] output channels = [%d]",
@@ -376,13 +387,14 @@ static OMX_ERRORTYPE opusfiled_prc_prepare_to_transfer (void *ap_prc,
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE opusfiled_prc_transfer_and_process (void *ap_obj,
-                                                         OMX_U32 a_pid)
+static OMX_ERRORTYPE
+opusfiled_prc_transfer_and_process (void * ap_obj, OMX_U32 a_pid)
 {
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE opusfiled_prc_stop_and_return (void *ap_obj)
+static OMX_ERRORTYPE
+opusfiled_prc_stop_and_return (void * ap_obj)
 {
   return tiz_filter_prc_release_all_headers (ap_obj);
 }
@@ -391,9 +403,10 @@ static OMX_ERRORTYPE opusfiled_prc_stop_and_return (void *ap_obj)
  * from tizprc class
  */
 
-static OMX_ERRORTYPE opusfiled_prc_buffers_ready (const void *ap_obj)
+static OMX_ERRORTYPE
+opusfiled_prc_buffers_ready (const void * ap_obj)
 {
-  opusfiled_prc_t *p_prc = (opusfiled_prc_t *)ap_obj;
+  opusfiled_prc_t * p_prc = (opusfiled_prc_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (ap_obj);
@@ -418,28 +431,28 @@ static OMX_ERRORTYPE opusfiled_prc_buffers_ready (const void *ap_obj)
   return rc;
 }
 
-static OMX_ERRORTYPE opusfiled_proc_port_flush (const void *ap_prc,
-                                                OMX_U32 a_pid)
+static OMX_ERRORTYPE
+opusfiled_proc_port_flush (const void * ap_prc, OMX_U32 a_pid)
 {
-  opusfiled_prc_t *p_prc = (opusfiled_prc_t *)ap_prc;
+  opusfiled_prc_t * p_prc = (opusfiled_prc_t *) ap_prc;
   reset_stream_parameters (p_prc);
   return tiz_filter_prc_release_header (p_prc, a_pid);
 }
 
-static OMX_ERRORTYPE opusfiled_prc_port_disable (const void *ap_prc,
-                                                 OMX_U32 a_pid)
+static OMX_ERRORTYPE
+opusfiled_prc_port_disable (const void * ap_prc, OMX_U32 a_pid)
 {
-  opusfiled_prc_t *p_prc = (opusfiled_prc_t *)ap_prc;
+  opusfiled_prc_t * p_prc = (opusfiled_prc_t *) ap_prc;
   OMX_ERRORTYPE rc = tiz_filter_prc_release_header (p_prc, a_pid);
   reset_stream_parameters (p_prc);
   tiz_filter_prc_update_port_disabled_flag (p_prc, a_pid, true);
   return rc;
 }
 
-static OMX_ERRORTYPE opusfiled_prc_port_enable (const void *ap_prc,
-                                                OMX_U32 a_pid)
+static OMX_ERRORTYPE
+opusfiled_prc_port_enable (const void * ap_prc, OMX_U32 a_pid)
 {
-  opusfiled_prc_t *p_prc = (opusfiled_prc_t *)ap_prc;
+  opusfiled_prc_t * p_prc = (opusfiled_prc_t *) ap_prc;
   tiz_filter_prc_update_port_disabled_flag (p_prc, a_pid, false);
   return OMX_ErrorNone;
 }
@@ -448,7 +461,8 @@ static OMX_ERRORTYPE opusfiled_prc_port_enable (const void *ap_prc,
  * opusfiled_prc_class
  */
 
-static void *opusfiled_prc_class_ctor (void *ap_obj, va_list *app)
+static void *
+opusfiled_prc_class_ctor (void * ap_obj, va_list * app)
 {
   /* NOTE: Class methods might be added in the future. None for now. */
   return super_ctor (typeOf (ap_obj, "opusfiledprc_class"), ap_obj, app);
@@ -458,57 +472,58 @@ static void *opusfiled_prc_class_ctor (void *ap_obj, va_list *app)
  * initialization
  */
 
-void *opusfiled_prc_class_init (void *ap_tos, void *ap_hdl)
+void *
+opusfiled_prc_class_init (void * ap_tos, void * ap_hdl)
 {
-  void *tizfilterprc = tiz_get_type (ap_hdl, "tizfilterprc");
-  void *opusfiledprc_class = factory_new
-      /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-      (classOf (tizfilterprc), "opusfiledprc_class", classOf (tizfilterprc),
-       sizeof(opusfiled_prc_class_t),
-       /* TIZ_CLASS_COMMENT: */
-       ap_tos, ap_hdl,
-       /* TIZ_CLASS_COMMENT: class constructor */
-       ctor, opusfiled_prc_class_ctor,
-       /* TIZ_CLASS_COMMENT: stop value*/
-       0);
+  void * tizfilterprc = tiz_get_type (ap_hdl, "tizfilterprc");
+  void * opusfiledprc_class = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (classOf (tizfilterprc), "opusfiledprc_class", classOf (tizfilterprc),
+     sizeof (opusfiled_prc_class_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, opusfiled_prc_class_ctor,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
   return opusfiledprc_class;
 }
 
-void *opusfiled_prc_init (void *ap_tos, void *ap_hdl)
+void *
+opusfiled_prc_init (void * ap_tos, void * ap_hdl)
 {
-  void *tizfilterprc = tiz_get_type (ap_hdl, "tizfilterprc");
-  void *opusfiledprc_class = tiz_get_type (ap_hdl, "opusfiledprc_class");
+  void * tizfilterprc = tiz_get_type (ap_hdl, "tizfilterprc");
+  void * opusfiledprc_class = tiz_get_type (ap_hdl, "opusfiledprc_class");
   TIZ_LOG_CLASS (opusfiledprc_class);
-  void *opusfiledprc = factory_new
-      /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-      (opusfiledprc_class, "opusfiledprc", tizfilterprc,
-       sizeof(opusfiled_prc_t),
-       /* TIZ_CLASS_COMMENT: */
-       ap_tos, ap_hdl,
-       /* TIZ_CLASS_COMMENT: class constructor */
-       ctor, opusfiled_prc_ctor,
-       /* TIZ_CLASS_COMMENT: class destructor */
-       dtor, opusfiled_prc_dtor,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_allocate_resources, opusfiled_prc_allocate_resources,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_deallocate_resources, opusfiled_prc_deallocate_resources,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_prepare_to_transfer, opusfiled_prc_prepare_to_transfer,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_transfer_and_process, opusfiled_prc_transfer_and_process,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_stop_and_return, opusfiled_prc_stop_and_return,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_buffers_ready, opusfiled_prc_buffers_ready,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_port_flush, opusfiled_proc_port_flush,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_port_disable, opusfiled_prc_port_disable,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_port_enable, opusfiled_prc_port_enable,
-       /* TIZ_CLASS_COMMENT: stop value */
-       0);
+  void * opusfiledprc = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (opusfiledprc_class, "opusfiledprc", tizfilterprc, sizeof (opusfiled_prc_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, opusfiled_prc_ctor,
+     /* TIZ_CLASS_COMMENT: class destructor */
+     dtor, opusfiled_prc_dtor,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_allocate_resources, opusfiled_prc_allocate_resources,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_deallocate_resources, opusfiled_prc_deallocate_resources,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_prepare_to_transfer, opusfiled_prc_prepare_to_transfer,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_transfer_and_process, opusfiled_prc_transfer_and_process,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_stop_and_return, opusfiled_prc_stop_and_return,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_buffers_ready, opusfiled_prc_buffers_ready,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_port_flush, opusfiled_proc_port_flush,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_port_disable, opusfiled_prc_port_disable,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_port_enable, opusfiled_prc_port_enable,
+     /* TIZ_CLASS_COMMENT: stop value */
+     0);
 
   return opusfiledprc;
 }
