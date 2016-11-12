@@ -54,7 +54,6 @@
 #endif
 
 static OMX_HANDLETYPE g_handle = NULL;
-static OMX_U32 g_data_size = 0;
 
 /* Forward declarations */
 static OMX_ERRORTYPE
@@ -357,8 +356,7 @@ release_output_header (webmdmuxflt_prc_t * ap_prc, const OMX_U32 a_pid)
   assert (ap_prc);
   if (p_hdr)
     {
-      TIZ_DEBUG (handleOf (ap_prc), "data size [%u] nFilledLen [%u]",
-                 g_data_size, p_hdr->nFilledLen);
+      TIZ_DEBUG (handleOf (ap_prc), "nFilledLen [%u]", p_hdr->nFilledLen);
       propagate_eos_if_required (ap_prc, p_hdr);
       rc = tiz_filter_prc_release_header (ap_prc, a_pid);
     }
@@ -415,9 +413,9 @@ extract_track_data (webmdmuxflt_prc_t * ap_prc, const unsigned int a_track,
 
       nestegg_packet_count (ap_prc->p_ne_pkt_, &chunks);
 
-      /* Extract as many chunks of data as possible. */
+      /* Extract a packet */
       assert (ap_prc->ne_chunk_ <= chunks);
-      while (ap_prc->ne_chunk_ < chunks
+      if (ap_prc->ne_chunk_ < chunks
              && ((nestegg_rc = nestegg_packet_data (
                     ap_prc->p_ne_pkt_, ap_prc->ne_chunk_, &p_data, &data_size))
                  == 0)
@@ -426,18 +424,14 @@ extract_track_data (webmdmuxflt_prc_t * ap_prc, const unsigned int a_track,
           memcpy (TIZ_OMX_BUF_PTR (p_hdr) + p_hdr->nFilledLen, p_data,
                   data_size);
           p_hdr->nFilledLen += data_size;
-          g_data_size += data_size;
           ++ap_prc->ne_chunk_;
-          break;
         }
 
       WEBMDMUX_LOG_STATE (ap_prc);
 
       /* Release the OMX buffer */
-      /*       if (TIZ_OMX_BUF_AVAIL (p_hdr) < (data_size * 2) */
-      /*           || tiz_buffer_available (ap_prc->p_store_) == 0) */
+      if (TIZ_OMX_BUF_FILL_LEN (p_hdr) > 0)
       {
-        g_data_size = 0;
         tiz_check_omx (release_output_header (ap_prc, a_pid));
       }
 
