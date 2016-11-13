@@ -33,7 +33,7 @@ for cmd in "${TIZONIA_TAIL_DEPS[@]}"; do
         || { echo >&2 "This program requires $cmd. Aborting."; exit 1; }
 done
 
-tail -F "$TIZONIA_LOG_FILE" | cut -c 50- | grcat "$TIZONIA_GRCAT_CONFIG"
+tail -F "$TIZONIA_LOG_FILE" | awk '{for (i=5; i<NF; i++) printf $i " "; print $NF}' | grcat "$TIZONIA_GRCAT_CONFIG"
 
 # tail -F "$TIZONIA_LOG_FILE" | cut -c 50- | sed 's/httpsrctrans.c//g' | sed 's/gmusicprc.c//g' | grcat "$TIZONIA_GRCAT_CONFIG"
 # grep -E "debug_cback|socket_cback|write_cback|timer_cback" |
