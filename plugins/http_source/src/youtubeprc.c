@@ -625,24 +625,14 @@ enqueue_playlist_items (youtube_prc_t * ap_prc)
             assert (0);
           }
           break;
-        case OMX_AUDIO_YoutubePlaylistTypePopularStations:
+        case OMX_AUDIO_YoutubePlaylistTypeAudioStream:
           {
-            rc = tiz_youtube_play_popular_stations (ap_prc->p_youtube_);
+            rc = tiz_youtube_play_audio_stream (ap_prc->p_youtube_, p_playlist);
           }
           break;
-        case OMX_AUDIO_YoutubePlaylistTypeStations:
+        case OMX_AUDIO_YoutubePlaylistTypePlaylist:
           {
             rc = tiz_youtube_play_stations (ap_prc->p_youtube_, p_playlist);
-          }
-          break;
-        case OMX_AUDIO_YoutubePlaylistTypeCategory:
-          {
-            rc = tiz_youtube_play_category (ap_prc->p_youtube_, p_playlist);
-          }
-          break;
-        case OMX_AUDIO_YoutubePlaylistTypeCountry:
-          {
-            rc = tiz_youtube_play_country (ap_prc->p_youtube_, p_playlist);
           }
           break;
         default:
