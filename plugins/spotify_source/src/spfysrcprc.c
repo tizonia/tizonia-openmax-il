@@ -35,6 +35,9 @@
 #include <assert.h>
 #include <string.h>
 #include <time.h>
+#include <pwd.h>
+#include <unistd.h>
+#include <sys/types.h>
 
 #include <OMX_TizoniaExt.h>
 
@@ -55,23 +58,6 @@
 #define SPFYSRC_MIN_QUEUE_UNUSED_SPACES 5
 #define SPFYSRC_MAX_STRING_SIZE 2 * OMX_MAX_STRINGNAME_SIZE
 
-static unsigned int rand_interval(unsigned int min, unsigned int max)
-{
-    int r;
-    const unsigned int range = 1 + max - min;
-    const unsigned int buckets = RAND_MAX / range;
-    const unsigned int limit = buckets * range;
-
-    /* Create equal size buckets all in a row, then fire randomly towards
-     * the buckets until you land in one of them. All buckets are equally
-     * likely. If you land off the end of the line of buckets, try again. */
-    do
-    {
-        r = rand();
-    } while (r >= limit);
-
-    return min + (r / buckets);
-}
 /* This macro assumes the existence of an "ap_prc" local variable */
 #define goto_end_on_sp_error(expr)                         \
   do                                                       \
@@ -144,6 +130,56 @@ not_ready_playlist_map_free_func (OMX_PTR ap_key, OMX_PTR ap_value)
 {
   tiz_mem_free (ap_key);
   tiz_mem_free (ap_value);
+}
+
+static unsigned int
+rand_interval (unsigned int min, unsigned int max)
+{
+  int r;
+  const unsigned int range = 1 + max - min;
+  const unsigned int buckets = RAND_MAX / range;
+  const unsigned int limit = buckets * range;
+
+  /* Create equal size buckets all in a row, then fire randomly towardsa */
+  /* the buckets until you land in one of them. All buckets are equally */
+  /* likely. If you land off the end of the line of buckets, try again. */
+  do
+    {
+      r = rand ();
+    }
+  while (r >= limit);
+
+  return min + (r / buckets);
+}
+
+static char *
+concat (const char * s1, const char * s2)
+{
+  const size_t len1 = strnlen (s1, SPFYSRC_MAX_STRING_SIZE);
+  const size_t len2 = strnlen (s2, SPFYSRC_MAX_STRING_SIZE);
+  char * result
+    = tiz_mem_calloc (1, len1 + len2 + 1);  // +1 for the null-terminator
+  assert (result);
+  memcpy (result, s1, len1);
+  memcpy (result + len1, s2, len2 + 1);  // +1 for the null-terminator
+  return result;
+}
+
+static char *
+get_cache_location (char * user)
+{
+  uid_t uid = geteuid ();
+  struct passwd * pw = getpwuid (uid);
+  if (pw)
+    {
+      char * p_pw_name_dash = concat (pw->pw_name, "-spotify-");
+      char * p_pw_name_dash_user = concat (p_pw_name_dash, user);
+      char * p_cache_location = concat ("/var/tmp/tizonia-", p_pw_name_dash_user);
+      tiz_mem_free ((void *) p_pw_name_dash);
+      tiz_mem_free ((void *) p_pw_name_dash_user);
+      return p_cache_location;
+    }
+  return user;
 }
 
 static bool
@@ -1527,7 +1563,8 @@ playlist_state_changed (sp_playlist * pl, void * userdata)
       if (!p_prc->p_sp_playlist_ && tiz_map_size (p_prc->p_ready_playlists_))
         {
           /* Choose a random playlist */
-          int r = rand_interval(0, tiz_map_size (p_prc->p_ready_playlists_) - 1);
+          int r
+            = rand_interval (0, tiz_map_size (p_prc->p_ready_playlists_) - 1);
           p_prc->p_sp_playlist_
             = tiz_map_value_at (p_prc->p_ready_playlists_, r);
           TIZ_PRINTF_BLU ("[Spotify] : 'Playlist not found. Feeling lucky?\n");
@@ -1582,8 +1619,8 @@ spfysrc_prc_ctor (void * ap_obj, va_list * app)
   /* Init the spotify config struct */
   tiz_mem_set ((OMX_PTR) &p_prc->sp_config_, 0, sizeof (p_prc->sp_config_));
   p_prc->sp_config_.api_version = SPOTIFY_API_VERSION;
-  p_prc->sp_config_.cache_location = "/var/tmp/tizonia";
-  p_prc->sp_config_.settings_location = "/var/tmp/tizonia";
+  p_prc->sp_config_.cache_location = NULL;
+  p_prc->sp_config_.settings_location = NULL;
   p_prc->sp_config_.application_key = g_appkey;
   p_prc->sp_config_.application_key_size = g_appkey_size;
   p_prc->sp_config_.user_agent = "tizonia-source-component";
@@ -1663,7 +1700,10 @@ spfysrc_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
                                not_ready_playlist_map_free_func, NULL));
   assert (p_prc->p_ready_playlists_);
   assert (p_prc->p_not_ready_playlists_);
+
   /* Create a spotify session */
+  p_prc->sp_config_.cache_location = get_cache_location ((char *) p_prc->session_.cUserName);
+  p_prc->sp_config_.settings_location = p_prc->sp_config_.cache_location;
   goto_end_on_sp_error (
     sp_session_create (&(p_prc->sp_config_), &(p_prc->p_sp_session_)));
 
@@ -1721,7 +1761,8 @@ spfysrc_prc_deallocate_resources (void * ap_prc)
 
   (void) sp_session_release (p_prc->p_sp_session_);
   p_prc->p_sp_session_ = NULL;
-
+  tiz_mem_free ((void *) p_prc->sp_config_.cache_location);
+  p_prc->sp_config_.cache_location = p_prc->sp_config_.settings_location = NULL;
   p_prc->spotify_inited_ = false;
 
   deallocate_temp_data_store (p_prc);
