@@ -91,13 +91,32 @@ struct spfy_music_delivery_data
   int num_frames;
 };
 
-static OMX_S32 playlists_map_compare_func (OMX_PTR ap_key1, OMX_PTR ap_key2)
+static OMX_S32 ready_playlist_map_compare_func (OMX_PTR ap_key1, OMX_PTR ap_key2)
 {
   return strncmp((const char *) ap_key1, (const char *) ap_key2,
                  SPFYSRC_MAX_STRING_SIZE);
 }
 
-static void playlists_map_free_func (OMX_PTR ap_key, OMX_PTR ap_value)
+static void ready_playlist_map_free_func (OMX_PTR ap_key, OMX_PTR ap_value)
+{
+  tiz_mem_free (ap_key);
+  tiz_mem_free (ap_value);
+}
+
+static OMX_S32 not_ready_playlist_map_compare_func (OMX_PTR ap_key1, OMX_PTR ap_key2)
+{
+  if (ap_key1 < ap_key2)
+    {
+      return -1;
+    }
+  else if (ap_key1 > ap_key2)
+    {
+      return 1;
+    }
+  return 0;
+}
+
+static void not_ready_playlist_map_free_func (OMX_PTR ap_key, OMX_PTR ap_value)
 {
   tiz_mem_free (ap_key);
   tiz_mem_free (ap_value);
@@ -116,12 +135,13 @@ static bool playlist_name_partial_match (spfysrc_prc_t *ap_prc,
   return false;
 }
 
-static bool playlist_name_exact_match (spfysrc_prc_t *ap_prc,
-                                       const char *ap_pl_name)
+static bool
+playlist_name_exact_match (spfysrc_prc_t * ap_prc, const char * ap_pl_name)
 {
   assert (ap_prc);
   assert (ap_pl_name);
-  if (!strncasecmp (ap_pl_name, (const char *)ap_prc->playlist_.cPlaylistName,
+
+  if (!strncasecmp (ap_pl_name, (const char *) ap_prc->playlist_.cPlaylistName,
                     SPFYSRC_MAX_STRING_SIZE))
     {
       return true;
@@ -1395,8 +1415,9 @@ static void playlist_state_changed (sp_playlist *pl, void *userdata)
 
       if (OMX_ErrorNone == rc)
         {
-          TIZ_PRINTF_BLU ("[Spotify] : '%s' [%d]\n", sp_playlist_name (pl),
-                          tiz_map_size (p_prc->p_ready_playlists_));
+          TIZ_PRINTF_BLU ("[Spotify] : '%s' [%d of %d] (%d tracks)\n", sp_playlist_name (pl),
+                          tiz_map_size (p_prc->p_ready_playlists_), p_prc->nplaylists_,
+                          sp_playlist_num_tracks (pl));
         }
 
       if (playlist_name_match (p_prc, sp_playlist_name (pl), &exact_match))
@@ -1411,9 +1432,26 @@ static void playlist_state_changed (sp_playlist *pl, void *userdata)
             }
         }
     }
+  else
+    {
+      if (0 == sp_playlist_num_tracks (pl))
+        {
+          OMX_U32 not_ready_playlists_count
+            = (OMX_U32) tiz_map_size (p_prc->p_not_ready_playlists_);
+
+          /* Record that this playlist is not_ready for playback for whatever reason */
+          (void) tiz_map_insert (
+            p_prc->p_not_ready_playlists_,
+            pl, pl,
+            (OMX_U32 *) (&not_ready_playlists_count));
+          TIZ_DEBUG (handleOf (p_prc), "NOT READY PLAYLIST [%p] [%s] [%s]", pl, (sp_playlist_is_loaded (pl) ? "LOADED" : "NOT LOADED"), (sp_playlist_has_pending_changes (pl) ? "PENDING CHANGEs" : "NO PENDING CHANGES"));
+        }
+    }
 
   if ((0 != p_prc->nplaylists_
-       && p_prc->nplaylists_ == tiz_map_size (p_prc->p_ready_playlists_)))
+       && p_prc->nplaylists_
+            == (tiz_map_size (p_prc->p_ready_playlists_)
+                + tiz_map_size (p_prc->p_not_ready_playlists_))))
     {
       p_prc->p_sp_playlist_ = p_prc->p_sp_playlist_
                                   ? p_prc->p_sp_playlist_
@@ -1465,6 +1503,7 @@ static void *spfysrc_prc_ctor (void *ap_obj, va_list *app)
   p_prc->track_index_ = 0;
   p_prc->nplaylists_ = 0;
   p_prc->p_ready_playlists_ = NULL;
+  p_prc->p_not_ready_playlists_ = NULL;
   p_prc->p_sp_session_ = NULL;
 
   /* Init the spotify config struct */
@@ -1542,9 +1581,13 @@ static OMX_ERRORTYPE spfysrc_prc_allocate_resources (void *ap_prc,
   tiz_check_omx (retrieve_playlist (p_prc));
   tiz_check_omx (tiz_srv_timer_watcher_init (p_prc, &(p_prc->p_ev_timer_)));
   tiz_check_omx (tiz_map_init (&(p_prc->p_ready_playlists_),
-                                   playlists_map_compare_func,
-                                   playlists_map_free_func, NULL));
+                               ready_playlist_map_compare_func,
+                               ready_playlist_map_free_func, NULL));
+  tiz_check_omx (tiz_map_init (&(p_prc->p_not_ready_playlists_),
+                               not_ready_playlist_map_compare_func,
+                               not_ready_playlist_map_free_func, NULL));
   assert (p_prc->p_ready_playlists_);
+  assert (p_prc->p_not_ready_playlists_);
   /* Create a spotify session */
   goto_end_on_sp_error (
       sp_session_create (&(p_prc->sp_config_), &(p_prc->p_sp_session_)));
@@ -1583,9 +1626,19 @@ static OMX_ERRORTYPE spfysrc_prc_deallocate_resources (void *ap_prc)
       while (!tiz_map_empty (p_prc->p_ready_playlists_))
         {
           tiz_map_erase_at (p_prc->p_ready_playlists_, 0);
-        };
+        }
       tiz_map_destroy (p_prc->p_ready_playlists_);
       p_prc->p_ready_playlists_ = NULL;
+    }
+
+  if (p_prc->p_not_ready_playlists_)
+    {
+      while (!tiz_map_empty (p_prc->p_not_ready_playlists_))
+        {
+          tiz_map_erase_at (p_prc->p_not_ready_playlists_, 0);
+        }
+      tiz_map_destroy (p_prc->p_not_ready_playlists_);
+      p_prc->p_not_ready_playlists_ = NULL;
     }
 
   tiz_shuffle_lst_destroy (p_prc->p_shuffle_lst_);

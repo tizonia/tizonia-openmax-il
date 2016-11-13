@@ -72,6 +72,8 @@ struct spfysrc_prc
                            library */
   tiz_map_t *p_ready_playlists_; /* A map containing the playlists that are
                                     ready for playback */
+  tiz_map_t *p_not_ready_playlists_; /* A map containing the playlists that are
+                                        ready for playback for whatever reason */
   OMX_U8 cache_name_[OMX_MAX_STRINGNAME_SIZE]; /* The cache name */
   sp_session *p_sp_session_;                   /* The global session handle */
   sp_session_config sp_config_;                /* The session configuration */
