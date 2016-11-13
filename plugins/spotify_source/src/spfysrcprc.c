@@ -34,6 +34,7 @@
 #include <limits.h>
 #include <assert.h>
 #include <string.h>
+#include <time.h>
 
 #include <OMX_TizoniaExt.h>
 
@@ -54,6 +55,23 @@
 #define SPFYSRC_MIN_QUEUE_UNUSED_SPACES 5
 #define SPFYSRC_MAX_STRING_SIZE 2 * OMX_MAX_STRINGNAME_SIZE
 
+static unsigned int rand_interval(unsigned int min, unsigned int max)
+{
+    int r;
+    const unsigned int range = 1 + max - min;
+    const unsigned int buckets = RAND_MAX / range;
+    const unsigned int limit = buckets * range;
+
+    /* Create equal size buckets all in a row, then fire randomly towards
+     * the buckets until you land in one of them. All buckets are equally
+     * likely. If you land off the end of the line of buckets, try again. */
+    do
+    {
+        r = rand();
+    } while (r >= limit);
+
+    return min + (r / buckets);
+}
 /* This macro assumes the existence of an "ap_prc" local variable */
 #define goto_end_on_sp_error(expr)                         \
   do                                                       \
@@ -1506,15 +1524,19 @@ playlist_state_changed (sp_playlist * pl, void * userdata)
       p_prc->p_sp_playlist_ = p_prc->p_sp_playlist_
                                 ? p_prc->p_sp_playlist_
                                 : p_prc->p_sp_tentative_playlist_;
+      if (!p_prc->p_sp_playlist_ && tiz_map_size (p_prc->p_ready_playlists_))
+        {
+          /* Choose a random playlist */
+          int r = rand_interval(0, tiz_map_size (p_prc->p_ready_playlists_) - 1);
+          p_prc->p_sp_playlist_
+            = tiz_map_value_at (p_prc->p_ready_playlists_, r);
+          TIZ_PRINTF_BLU ("[Spotify] : 'Playlist not found. Feeling lucky?\n");
+        }
       if (p_prc->p_sp_playlist_)
         {
           init_track_index (p_prc,
                             sp_playlist_num_tracks (p_prc->p_sp_playlist_));
           start_playback (p_prc);
-        }
-      else
-        {
-          tiz_srv_issue_err_event ((OMX_PTR) p_prc, OMX_ErrorContentURIError);
         }
     }
 }
