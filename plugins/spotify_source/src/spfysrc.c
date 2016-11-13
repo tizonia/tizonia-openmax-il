@@ -60,19 +60,17 @@
  *@ingroup plugins
  */
 
-static OMX_VERSIONTYPE spotify_source_version = { {1, 0, 0, 0} };
+static OMX_VERSIONTYPE spotify_source_version = {{1, 0, 0, 0}};
 
-static OMX_PTR instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
+static OMX_PTR
+instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
 {
   OMX_AUDIO_PARAM_PCMMODETYPE pcmmode;
   OMX_AUDIO_CONFIG_VOLUMETYPE volume;
   OMX_AUDIO_CONFIG_MUTETYPE mute;
-  OMX_AUDIO_CODINGTYPE encodings[] = {
-    OMX_AUDIO_CodingUnused,
-    OMX_AUDIO_CodingAutoDetect,
-    OMX_AUDIO_CodingPCM,
-    OMX_AUDIO_CodingMax
-  };
+  OMX_AUDIO_CODINGTYPE encodings[]
+    = {OMX_AUDIO_CodingUnused, OMX_AUDIO_CodingAutoDetect, OMX_AUDIO_CodingPCM,
+       OMX_AUDIO_CodingMax};
   tiz_port_options_t port_opts = {
     OMX_PortDomainAudio,
     OMX_DirOutput,
@@ -86,31 +84,31 @@ static OMX_PTR instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
   };
 
   /* Instantiate the pcm port */
-  pcmmode.nSize              = sizeof (OMX_AUDIO_PARAM_PCMMODETYPE);
-  pcmmode.nVersion.nVersion  = OMX_VERSION;
-  pcmmode.nPortIndex         = ARATELIA_SPOTIFY_SOURCE_PORT_INDEX;
-  pcmmode.nChannels          = 2;
-  pcmmode.eNumData           = OMX_NumericalDataSigned;
-  pcmmode.eEndian            = OMX_EndianLittle;
-  pcmmode.bInterleaved       = OMX_TRUE;
-  pcmmode.nBitPerSample      = 16;
-  pcmmode.nSamplingRate      = 48000;
-  pcmmode.ePCMMode           = OMX_AUDIO_PCMModeLinear;
+  pcmmode.nSize = sizeof (OMX_AUDIO_PARAM_PCMMODETYPE);
+  pcmmode.nVersion.nVersion = OMX_VERSION;
+  pcmmode.nPortIndex = ARATELIA_SPOTIFY_SOURCE_PORT_INDEX;
+  pcmmode.nChannels = 2;
+  pcmmode.eNumData = OMX_NumericalDataSigned;
+  pcmmode.eEndian = OMX_EndianLittle;
+  pcmmode.bInterleaved = OMX_TRUE;
+  pcmmode.nBitPerSample = 16;
+  pcmmode.nSamplingRate = 48000;
+  pcmmode.ePCMMode = OMX_AUDIO_PCMModeLinear;
   pcmmode.eChannelMapping[0] = OMX_AUDIO_ChannelLF;
   pcmmode.eChannelMapping[1] = OMX_AUDIO_ChannelRF;
 
-  volume.nSize             = sizeof (OMX_AUDIO_CONFIG_VOLUMETYPE);
+  volume.nSize = sizeof (OMX_AUDIO_CONFIG_VOLUMETYPE);
   volume.nVersion.nVersion = OMX_VERSION;
-  volume.nPortIndex        = ARATELIA_SPOTIFY_SOURCE_PORT_INDEX;
-  volume.bLinear           = OMX_FALSE;
-  volume.sVolume.nValue    = ARATELIA_SPOTIFY_SOURCE_DEFAULT_VOLUME_VALUE;
-  volume.sVolume.nMin      = ARATELIA_SPOTIFY_SOURCE_MIN_VOLUME_VALUE;
-  volume.sVolume.nMax      = ARATELIA_SPOTIFY_SOURCE_MAX_VOLUME_VALUE;
+  volume.nPortIndex = ARATELIA_SPOTIFY_SOURCE_PORT_INDEX;
+  volume.bLinear = OMX_FALSE;
+  volume.sVolume.nValue = ARATELIA_SPOTIFY_SOURCE_DEFAULT_VOLUME_VALUE;
+  volume.sVolume.nMin = ARATELIA_SPOTIFY_SOURCE_MIN_VOLUME_VALUE;
+  volume.sVolume.nMax = ARATELIA_SPOTIFY_SOURCE_MAX_VOLUME_VALUE;
 
-  mute.nSize             = sizeof (OMX_AUDIO_CONFIG_MUTETYPE);
+  mute.nSize = sizeof (OMX_AUDIO_CONFIG_MUTETYPE);
   mute.nVersion.nVersion = OMX_VERSION;
-  mute.nPortIndex        = ARATELIA_SPOTIFY_SOURCE_PORT_INDEX;
-  mute.bMute             = OMX_FALSE;
+  mute.nPortIndex = ARATELIA_SPOTIFY_SOURCE_PORT_INDEX;
+  mute.bMute = OMX_FALSE;
 
   return factory_new (tiz_get_type (ap_hdl, "tizpcmport"), &port_opts,
                       &encodings, &pcmmode, &volume, &mute);
@@ -120,7 +118,7 @@ static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
   return factory_new (tiz_get_type (ap_hdl, "spfysrccfgport"),
-                      NULL,       /* this port does not take options */
+                      NULL, /* this port does not take options */
                       ARATELIA_SPOTIFY_SOURCE_COMPONENT_NAME,
                       spotify_source_version);
 }
@@ -135,16 +133,17 @@ OMX_ERRORTYPE
 OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 {
   tiz_role_factory_t role_factory;
-  const tiz_role_factory_t *rf_list[] = { &role_factory };
+  const tiz_role_factory_t * rf_list[] = {&role_factory};
   tiz_type_factory_t spfysrcprc_type;
   tiz_type_factory_t spfysrccfgport_type;
-  const tiz_type_factory_t *tf_list[] = { &spfysrcprc_type, &spfysrccfgport_type };
+  const tiz_type_factory_t * tf_list[]
+    = {&spfysrcprc_type, &spfysrccfgport_type};
 
   strcpy ((OMX_STRING) role_factory.role, ARATELIA_SPOTIFY_SOURCE_DEFAULT_ROLE);
-  role_factory.pf_cport   = instantiate_config_port;
+  role_factory.pf_cport = instantiate_config_port;
   role_factory.pf_port[0] = instantiate_pcm_port;
-  role_factory.nports     = 1;
-  role_factory.pf_proc    = instantiate_processor;
+  role_factory.nports = 1;
+  role_factory.pf_proc = instantiate_processor;
 
   strcpy ((OMX_STRING) spfysrcprc_type.class_name, "spfysrcprc_class");
   spfysrcprc_type.pf_class_init = spfysrc_prc_class_init;
@@ -157,7 +156,8 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   spfysrccfgport_type.pf_object_init = spfysrc_cfgport_init;
 
   /* Initialize the component infrastructure */
-  tiz_check_omx (tiz_comp_init (ap_hdl, ARATELIA_SPOTIFY_SOURCE_COMPONENT_NAME));
+  tiz_check_omx (
+    tiz_comp_init (ap_hdl, ARATELIA_SPOTIFY_SOURCE_COMPONENT_NAME));
 
   /* Register the "spfysrcprc" and "spfysrccfgport" classes */
   tiz_check_omx (tiz_comp_register_types (ap_hdl, tf_list, 2));

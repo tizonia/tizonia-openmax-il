@@ -49,40 +49,41 @@
  * spfysrccfgport class
  */
 
-static void *spfysrc_cfgport_ctor (void *ap_obj, va_list *app)
+static void *
+spfysrc_cfgport_ctor (void * ap_obj, va_list * app)
 {
-  spfysrc_cfgport_t *p_obj
-      = super_ctor (typeOf (ap_obj, "spfysrccfgport"), ap_obj, app);
+  spfysrc_cfgport_t * p_obj
+    = super_ctor (typeOf (ap_obj, "spfysrccfgport"), ap_obj, app);
 
   assert (p_obj);
 
-  tiz_check_omx_ret_null (tiz_port_register_index (
-      p_obj, OMX_TizoniaIndexParamAudioSpotifySession));
-  tiz_check_omx_ret_null (tiz_port_register_index (
-      p_obj, OMX_TizoniaIndexParamAudioSpotifyPlaylist));
+  tiz_check_omx_ret_null (
+    tiz_port_register_index (p_obj, OMX_TizoniaIndexParamAudioSpotifySession));
+  tiz_check_omx_ret_null (
+    tiz_port_register_index (p_obj, OMX_TizoniaIndexParamAudioSpotifyPlaylist));
 
   /* Initialize the OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE structure */
   TIZ_INIT_OMX_STRUCT (p_obj->spotifysession_);
-  snprintf ((char *)p_obj->spotifysession_.cUserName,
-            sizeof(p_obj->spotifysession_.cUserName), "tizonia");
-  snprintf ((char *)p_obj->spotifysession_.cUserPassword,
-            sizeof(p_obj->spotifysession_.cUserPassword), "pass");
+  snprintf ((char *) p_obj->spotifysession_.cUserName,
+            sizeof (p_obj->spotifysession_.cUserName), "tizonia");
+  snprintf ((char *) p_obj->spotifysession_.cUserPassword,
+            sizeof (p_obj->spotifysession_.cUserPassword), "pass");
   p_obj->spotifysession_.bRememberCredentials = OMX_TRUE;
   p_obj->spotifysession_.ePreferredBitRate = OMX_AUDIO_SpotifyBitrate320Kbps;
   p_obj->spotifysession_.eConnectionType
-      = OMX_AUDIO_SpotifyConnectionMobileWired;
+    = OMX_AUDIO_SpotifyConnectionMobileWired;
 
   /* Initialize the OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE structure */
   TIZ_INIT_OMX_STRUCT (p_obj->playlist_);
-  snprintf ((char *)p_obj->playlist_.cPlaylistName,
-            sizeof(p_obj->playlist_.cPlaylistName), "playlist");
+  snprintf ((char *) p_obj->playlist_.cPlaylistName,
+            sizeof (p_obj->playlist_.cPlaylistName), "playlist");
   p_obj->playlist_.bShuffle = OMX_FALSE;
 
   return p_obj;
 }
 
 static void *
-spfysrc_cfgport_dtor (void *ap_obj)
+spfysrc_cfgport_dtor (void * ap_obj)
 {
   return super_dtor (typeOf (ap_obj, "spfysrccfgport"), ap_obj);
 }
@@ -92,11 +93,10 @@ spfysrc_cfgport_dtor (void *ap_obj)
  */
 
 static OMX_ERRORTYPE
-spfysrc_cfgport_GetParameter (const void *ap_obj,
-                           OMX_HANDLETYPE ap_hdl,
-                           OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+spfysrc_cfgport_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
+                              OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  const spfysrc_cfgport_t *p_obj = ap_obj;
+  const spfysrc_cfgport_t * p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (p_obj);
@@ -107,29 +107,28 @@ spfysrc_cfgport_GetParameter (const void *ap_obj,
   if (OMX_TizoniaIndexParamAudioSpotifySession == a_index)
     {
       memcpy (ap_struct, &(p_obj->spotifysession_),
-              sizeof(OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE));
+              sizeof (OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE));
     }
   else if (OMX_TizoniaIndexParamAudioSpotifyPlaylist == a_index)
     {
       memcpy (ap_struct, &(p_obj->playlist_),
-              sizeof(OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE));
+              sizeof (OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE));
     }
   else
     {
       /* Delegate to the base port */
-      rc = super_GetParameter (typeOf (ap_obj, "spfysrccfgport"),
-                               ap_obj, ap_hdl, a_index, ap_struct);
+      rc = super_GetParameter (typeOf (ap_obj, "spfysrccfgport"), ap_obj,
+                               ap_hdl, a_index, ap_struct);
     }
 
   return rc;
 }
 
 static OMX_ERRORTYPE
-spfysrc_cfgport_SetParameter (const void *ap_obj,
-                           OMX_HANDLETYPE ap_hdl,
-                           OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+spfysrc_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
+                              OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  spfysrc_cfgport_t *p_obj = (spfysrc_cfgport_t *) ap_obj;
+  spfysrc_cfgport_t * p_obj = (spfysrc_cfgport_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (p_obj);
@@ -140,16 +139,17 @@ spfysrc_cfgport_SetParameter (const void *ap_obj,
   if (OMX_TizoniaIndexParamAudioSpotifySession == a_index)
     {
       memcpy (&(p_obj->spotifysession_), ap_struct,
-              sizeof(OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE));
+              sizeof (OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE));
       p_obj->spotifysession_.cUserName[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
-      p_obj->spotifysession_.cUserPassword[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+      p_obj->spotifysession_.cUserPassword[OMX_MAX_STRINGNAME_SIZE - 1]
+        = '\000';
       TIZ_TRACE (ap_hdl, "Spotify User Name [%s]...",
                  p_obj->spotifysession_.cUserName);
     }
   else if (OMX_TizoniaIndexParamAudioSpotifyPlaylist == a_index)
     {
       memcpy (&(p_obj->playlist_), ap_struct,
-              sizeof(OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE));
+              sizeof (OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE));
       p_obj->playlist_.cPlaylistName[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
       TIZ_TRACE (ap_hdl, "Spotify playlist [%s]...",
                  p_obj->playlist_.cPlaylistName);
@@ -157,8 +157,8 @@ spfysrc_cfgport_SetParameter (const void *ap_obj,
   else
     {
       /* Delegate to the base port */
-      rc = super_SetParameter (typeOf (ap_obj, "spfysrccfgport"),
-                               ap_obj, ap_hdl, a_index, ap_struct);
+      rc = super_SetParameter (typeOf (ap_obj, "spfysrccfgport"), ap_obj,
+                               ap_hdl, a_index, ap_struct);
     }
 
   return rc;
@@ -169,7 +169,7 @@ spfysrc_cfgport_SetParameter (const void *ap_obj,
  */
 
 static void *
-spfysrc_cfgport_class_ctor (void *ap_obj, va_list * app)
+spfysrc_cfgport_class_ctor (void * ap_obj, va_list * app)
 {
   /* NOTE: Class methods might be added in the future. None for now. */
   return super_ctor (typeOf (ap_obj, "spfysrccfgport_class"), ap_obj, app);
@@ -183,12 +183,10 @@ void *
 spfysrc_cfgport_class_init (void * ap_tos, void * ap_hdl)
 {
   void * tizconfigport = tiz_get_type (ap_hdl, "tizconfigport");
-  void * spfysrccfgport_class = factory_new (classOf (tizconfigport),
-                                          "spfysrccfgport_class",
-                                          classOf (tizconfigport),
-                                          sizeof (spfysrc_cfgport_class_t),
-                                          ap_tos, ap_hdl,
-                                          ctor, spfysrc_cfgport_class_ctor, 0);
+  void * spfysrccfgport_class
+    = factory_new (classOf (tizconfigport), "spfysrccfgport_class",
+                   classOf (tizconfigport), sizeof (spfysrc_cfgport_class_t),
+                   ap_tos, ap_hdl, ctor, spfysrc_cfgport_class_ctor, 0);
   return spfysrccfgport_class;
 }
 
@@ -200,7 +198,8 @@ spfysrc_cfgport_init (void * ap_tos, void * ap_hdl)
   TIZ_LOG_CLASS (spfysrccfgport_class);
   void * spfysrccfgport = factory_new
     /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-    (spfysrccfgport_class, "spfysrccfgport", tizconfigport, sizeof (spfysrc_cfgport_t),
+    (spfysrccfgport_class, "spfysrccfgport", tizconfigport,
+     sizeof (spfysrc_cfgport_t),
      /* TIZ_CLASS_COMMENT: class constructor */
      ap_tos, ap_hdl,
      /* TIZ_CLASS_COMMENT: class constructor */
