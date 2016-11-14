@@ -1050,7 +1050,7 @@ init_event_loop_thread (void)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  if (NULL == gp_event_loop)
+  if (!gp_event_loop)
     {
       /* Let's return OOM error if something goes wrong */
       rc = OMX_ErrorInsufficientResources;
@@ -1061,64 +1061,38 @@ init_event_loop_thread (void)
          process */
       pthread_atfork (NULL, NULL, child_event_loop_reset);
 
-      gp_event_loop
-        = (tiz_event_loop_t *) tiz_mem_calloc (1, sizeof (tiz_event_loop_t));
-
-      if (NULL == gp_event_loop)
-        {
-          TIZ_LOG (TIZ_PRIORITY_ERROR, "Error allocating thread data struct.");
-          goto end;
-        }
+      tiz_goto_end_on_null (
+        (gp_event_loop
+         = (tiz_event_loop_t *) tiz_mem_calloc (1, sizeof (tiz_event_loop_t))),
+        "Error allocating thread data struct.");
 
       gp_event_loop->state = ETIZEventLoopStateStarting;
 
-      if (OMX_ErrorNone != (tiz_rcfile_init (&(gp_event_loop->p_rcfile))))
-        {
-          TIZ_LOG (TIZ_PRIORITY_ERROR, "Error opening configuration file.");
-          goto end;
-        }
+      tiz_goto_end_on_omx_err (tiz_rcfile_init (&(gp_event_loop->p_rcfile)),
+                           "Error opening configuration file.");
 
-      if (NULL == (gp_event_loop->p_loop = ev_loop_new (EVFLAG_AUTO)))
-        {
-          TIZ_LOG (TIZ_PRIORITY_ERROR, "Error instantiating ev_loop.");
-          goto end;
-        }
+      tiz_goto_end_on_null ((gp_event_loop->p_loop = ev_loop_new (EVFLAG_AUTO)),
+                            "Error instantiating ev_loop.");
 
-      if (NULL == (gp_event_loop->p_async_watcher
-                   = (ev_async *) tiz_mem_calloc (1, sizeof (ev_async))))
-        {
-          TIZ_LOG (TIZ_PRIORITY_ERROR, "Error initializing async watcher.");
-          goto end;
-        }
+      tiz_goto_end_on_null ((gp_event_loop->p_async_watcher
+                            = (ev_async *) tiz_mem_calloc (1, sizeof (ev_async))),
+                           "Error initializing async watcher.");
 
-      if (OMX_ErrorNone != (tiz_mutex_init (&(gp_event_loop->mutex))))
-        {
-          TIZ_LOG (TIZ_PRIORITY_ERROR, "Error initializing mutex.");
-          goto end;
-        }
+      tiz_goto_end_on_omx_err (tiz_mutex_init (&(gp_event_loop->mutex)),
+                           "Error initializing mutex.");
 
-      if (OMX_ErrorNone != (tiz_sem_init (&(gp_event_loop->sem), 0)))
-        {
-          TIZ_LOG (TIZ_PRIORITY_ERROR, "Error initializing sem.");
-          goto end;
-        }
+      tiz_goto_end_on_omx_err (tiz_sem_init (&(gp_event_loop->sem), 0),
+                           "Error initializing sem.");
 
       /* Init the small object allocator */
-      if (OMX_ErrorNone != (tiz_soa_init (&(gp_event_loop->p_soa))))
-        {
-          TIZ_LOG (TIZ_PRIORITY_ERROR,
-                   "Error initializing the small object allocator.");
-          goto end;
-        }
+      tiz_goto_end_on_omx_err (tiz_soa_init (&(gp_event_loop->p_soa)),
+                           "Error initializing the small object allocator.");
 
       /* Init the priority queue */
-      if (OMX_ErrorNone != (tiz_pqueue_init (&gp_event_loop->p_pq, 2,
-                                             &pqueue_cmp, gp_event_loop->p_soa,
-                                             TIZ_EVENT_LOOP_THREAD_NAME)))
-        {
-          TIZ_LOG (TIZ_PRIORITY_ERROR, "Error initializing pqueue.");
-          goto end;
-        }
+      tiz_goto_end_on_omx_err (
+        tiz_pqueue_init (&gp_event_loop->p_pq, 2, &pqueue_cmp,
+                         gp_event_loop->p_soa, TIZ_EVENT_LOOP_THREAD_NAME),
+        "Error initializing pqueue.");
 
       /* All good */
       rc = OMX_ErrorNone;
@@ -1187,6 +1161,7 @@ tiz_event_loop_destroy (void)
         OMX_PTR p_result = NULL;
         tiz_thread_join (&(gp_event_loop->thread), &p_result);
         clean_up_thread_data (gp_event_loop);
+        tiz_mem_free (gp_event_loop);
         gp_event_loop = NULL;
       }
     }
