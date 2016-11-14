@@ -71,7 +71,8 @@ dirble_prc_transfer_and_process (void * ap_prc, OMX_U32 a_pid);
         {                                                                    \
           TIZ_ERROR (handleOf (p_prc),                                       \
                      "[OMX_ErrorInsufficientResources] : error while using " \
-                     "libtizsoundcloud");                                    \
+                     "libtizdirble [error %d]",                              \
+                     dirble_error);                                          \
           return OMX_ErrorInsufficientResources;                             \
         }                                                                    \
     }                                                                        \
