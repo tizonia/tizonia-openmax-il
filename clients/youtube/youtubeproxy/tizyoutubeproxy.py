@@ -180,6 +180,28 @@ class tizyoutubeproxy(object):
         except ValueError:
             raise ValueError(str("Playlist not found : %s" % arg))
 
+    def current_audio_stream_title(self):
+        """ Retrieve the current stream's title.
+
+        """
+        logging.info("current_audio_stream_title")
+        stream = self.now_playing_stream
+        title = ''
+        if stream:
+            title = to_ascii(stream.title).encode("utf-8")
+        return title
+
+    def current_audio_stream_file_size_and_duration(self):
+        """ Retrieve the current stream's file size.
+
+        """
+        logging.info("current_audio_stream_file_size")
+        stream = self.now_playing_stream
+        size = 0
+        if stream:
+            size = stream.get_filesize()
+        return size
+
     def clear_queue(self):
         """ Clears the playback queue.
 
