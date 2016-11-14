@@ -68,8 +68,10 @@
 #define OMX_TizoniaIndexConfigPlaylistSkip           OMX_IndexVendorStartUnused + 12 /**< reference: OMX_TIZONIA_PLAYLISTSKIPTYPE */
 #define OMX_TizoniaIndexParamAudioSoundCloudSession  OMX_IndexVendorStartUnused + 13 /**< reference: OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDSESSIONTYPE */
 #define OMX_TizoniaIndexParamAudioSoundCloudPlaylist OMX_IndexVendorStartUnused + 14 /**< reference: OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDPLAYLISTTYPE */
-#define OMX_TizoniaIndexParamAudioDirbleSession      OMX_IndexVendorStartUnused + 15 /**< reference: OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDSESSIONTYPE */
-#define OMX_TizoniaIndexParamAudioDirblePlaylist     OMX_IndexVendorStartUnused + 16 /**< reference: OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDPLAYLISTTYPE */
+#define OMX_TizoniaIndexParamAudioDirbleSession      OMX_IndexVendorStartUnused + 15 /**< reference: OMX_TIZONIA_AUDIO_PARAM_DIRBLESESSIONTYPE */
+#define OMX_TizoniaIndexParamAudioDirblePlaylist     OMX_IndexVendorStartUnused + 16 /**< reference: OMX_TIZONIA_AUDIO_PARAM_DIRBLEPLAYLISTTYPE */
+#define OMX_TizoniaIndexParamAudioYoutubeSession     OMX_IndexVendorStartUnused + 17 /**< reference: OMX_TIZONIA_AUDIO_PARAM_YOUTUBESESSIONTYPE */
+#define OMX_TizoniaIndexParamAudioYoutubePlaylist    OMX_IndexVendorStartUnused + 18 /**< reference: OMX_TIZONIA_AUDIO_PARAM_YOUTUBEPLAYLISTTYPE */
 
 /**
  * OMX_AUDIO_CODINGTYPE extensions
@@ -412,5 +414,32 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_DIRBLEPLAYLISTTYPE {
     OMX_BOOL bShuffle;            /**< Default: OMX_FALSE */
     OMX_U8 cPlaylistName[OMX_MAX_STRINGNAME_SIZE];
 } OMX_TIZONIA_AUDIO_PARAM_DIRBLEPLAYLISTTYPE;
+
+/**
+ * Youtube source component
+ *
+ */
+typedef enum OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE {
+    OMX_AUDIO_YoutubePlaylistTypeUnknown = 0, /**< PlaylistType type unknown (Default). */
+    OMX_AUDIO_YoutubePlaylistTypeAudioStream, /**< Audio playback from a youtube video url or video id. */
+    OMX_AUDIO_YoutubePlaylistTypeAudioPlaylist, /**< Audio playback from a youtube playlist url or playlist id. */
+    OMX_AUDIO_YoutubePlaylistTypeKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
+    OMX_AUDIO_YoutubePlaylistTypeVendorStartUnused = 0x7F000000, /**< Reserved region for introducing Vendor Extensions */
+    OMX_AUDIO_YoutubePlaylistTypeMax = 0x7FFFFFFF
+} OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE;
+
+typedef struct OMX_TIZONIA_AUDIO_PARAM_YOUTUBESESSIONTYPE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_U8 cApiKey[OMX_MAX_STRINGNAME_SIZE];
+} OMX_TIZONIA_AUDIO_PARAM_YOUTUBESESSIONTYPE;
+
+typedef struct OMX_TIZONIA_AUDIO_PARAM_YOUTUBEPLAYLISTTYPE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE ePlaylistType;
+    OMX_BOOL bShuffle;            /**< Default: OMX_FALSE */
+    OMX_U8 cPlaylistName[OMX_MAX_STRINGNAME_SIZE];
+} OMX_TIZONIA_AUDIO_PARAM_YOUTUBEPLAYLISTTYPE;
 
 #endif /* OMX_TizoniaExt_h */
