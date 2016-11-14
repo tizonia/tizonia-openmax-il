@@ -200,7 +200,7 @@ class tizgmusicproxy(object):
         """
         logging.info("current_song_title_and_artist")
         song = self.now_playing_song
-        if song is not None:
+        if song:
             title = to_ascii(self.now_playing_song.get('title'))
             artist = to_ascii(self.now_playing_song.get('artist'))
             logging.info("Now playing %s by %s", title, artist)
@@ -214,7 +214,7 @@ class tizgmusicproxy(object):
         """
         logging.info("current_song_album_and_duration")
         song = self.now_playing_song
-        if song is not None:
+        if song:
             album = to_ascii(self.now_playing_song.get('album'))
             duration = to_ascii \
                        (self.now_playing_song.get('durationMillis'))
@@ -232,7 +232,7 @@ class tizgmusicproxy(object):
         song = self.now_playing_song
         track = 0
         total = 0
-        if song is not None:
+        if song:
             try:
                 track = self.now_playing_song['trackNumber']
                 total = self.now_playing_song['totalTrackCount']
@@ -251,7 +251,7 @@ class tizgmusicproxy(object):
         logging.info("current_song_year")
         song = self.now_playing_song
         year = 0
-        if song is not None:
+        if song:
             try:
                 year = song['year']
                 logging.info("track year %s", year)
