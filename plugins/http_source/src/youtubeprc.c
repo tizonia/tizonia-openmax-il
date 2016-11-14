@@ -344,29 +344,15 @@ update_metadata (youtube_prc_t * ap_prc)
   /* Clear previous metatada items */
   tiz_krn_clear_metadata (tiz_get_krn (handleOf (ap_prc)));
 
-  /* Station Name */
+  /* Audio stream title */
   tiz_check_omx (
-    store_metadata (ap_prc, "Station",
-                    tiz_youtube_get_current_station_name (ap_prc->p_youtube_)));
+    store_metadata (ap_prc, "Title",
+                    tiz_youtube_get_current_audio_stream_title (ap_prc->p_youtube_)));
 
-  /* Country */
+  /* File Size */
   tiz_check_omx (store_metadata (
-    ap_prc, "URL", (const char *) ap_prc->p_uri_param_->contentURI));
-
-  /* Country */
-  tiz_check_omx (store_metadata (
-    ap_prc, "Country",
-    tiz_youtube_get_current_station_country (ap_prc->p_youtube_)));
-
-  /* Category */
-  tiz_check_omx (store_metadata (
-    ap_prc, "Categories",
-    tiz_youtube_get_current_station_category (ap_prc->p_youtube_)));
-
-  /* Website */
-  tiz_check_omx (store_metadata (
-    ap_prc, "Website",
-    tiz_youtube_get_current_station_website (ap_prc->p_youtube_)));
+    ap_prc, "File Size",
+    tiz_youtube_get_current_audio_stream_file_size (ap_prc->p_youtube_)));
 
   /* Signal that a new set of metatadata items is available */
   (void) tiz_srv_issue_event ((OMX_PTR) ap_prc, OMX_EventIndexSettingChanged,
@@ -630,9 +616,9 @@ enqueue_playlist_items (youtube_prc_t * ap_prc)
             rc = tiz_youtube_play_audio_stream (ap_prc->p_youtube_, p_playlist);
           }
           break;
-        case OMX_AUDIO_YoutubePlaylistTypePlaylist:
+        case OMX_AUDIO_YoutubePlaylistTypeAudioPlaylist:
           {
-            rc = tiz_youtube_play_stations (ap_prc->p_youtube_, p_playlist);
+            rc = tiz_youtube_play_audio_playlist (ap_prc->p_youtube_, p_playlist);
           }
           break;
         default:

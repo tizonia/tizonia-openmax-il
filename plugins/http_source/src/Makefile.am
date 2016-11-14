@@ -36,7 +36,11 @@ noinst_HEADERS = \
 	dirbleprc.h \
 	dirbleprc_decls.h \
 	dirblecfgport.h \
-	dirblecfgport_decls.h
+	dirblecfgport_decls.h \
+	youtubeprc.h \
+	youtubeprc_decls.h \
+	youtubecfgport.h \
+	youtubecfgport_decls.h
 
 libtizhttpsrc_la_SOURCES = \
 	httpsrc.c \
@@ -47,7 +51,9 @@ libtizhttpsrc_la_SOURCES = \
 	scloudprc.c \
 	scloudcfgport.c \
 	dirbleprc.c \
-	dirblecfgport.c
+	dirblecfgport.c \
+	youtubeprc.c \
+	youtubecfgport.c
 
 libtizhttpsrc_la_CFLAGS = \
 	@TIZILHEADERS_CFLAGS@ \
@@ -55,7 +61,8 @@ libtizhttpsrc_la_CFLAGS = \
 	@TIZONIA_CFLAGS@ \
 	@TIZGMUSIC_CFLAGS@ \
 	@TIZSOUNDCLOUD_CFLAGS@ \
-	@TIZDIRBLE_CFLAGS@
+	@TIZDIRBLE_CFLAGS@ \
+	@TIZYOUTUBE_CFLAGS@
 
 libtizhttpsrc_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@
 
@@ -64,4 +71,5 @@ libtizhttpsrc_la_LIBADD = \
 	@TIZONIA_LIBS@ \
 	@TIZGMUSIC_LIBS@ \
 	@TIZSOUNDCLOUD_LIBS@ \
-	@TIZDIRBLE_LIBS@
+	@TIZDIRBLE_LIBS@ \
+	@TIZYOUTUBE_LIBS@
