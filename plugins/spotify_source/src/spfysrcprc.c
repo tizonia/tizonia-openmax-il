@@ -174,7 +174,8 @@ get_cache_location (char * user)
     {
       char * p_pw_name_dash = concat (pw->pw_name, "-spotify-");
       char * p_pw_name_dash_user = concat (p_pw_name_dash, user);
-      char * p_cache_location = concat ("/var/tmp/tizonia-", p_pw_name_dash_user);
+      char * p_cache_location
+        = concat ("/var/tmp/tizonia-", p_pw_name_dash_user);
       tiz_mem_free ((void *) p_pw_name_dash);
       tiz_mem_free ((void *) p_pw_name_dash_user);
       return p_cache_location;
@@ -190,6 +191,8 @@ playlist_name_partial_match (spfysrc_prc_t * ap_prc, const char * ap_pl_name)
 
   if (strcasestr (ap_pl_name, (const char *) ap_prc->playlist_.cPlaylistName))
     {
+      TIZ_DEBUG (handleOf (ap_prc), "PARTIAL MATCH [%s] vs [%s]", ap_pl_name,
+                 ap_prc->playlist_.cPlaylistName);
       return true;
     }
   return false;
@@ -204,6 +207,8 @@ playlist_name_exact_match (spfysrc_prc_t * ap_prc, const char * ap_pl_name)
   if (!strncasecmp (ap_pl_name, (const char *) ap_prc->playlist_.cPlaylistName,
                     SPFYSRC_MAX_STRING_SIZE))
     {
+      TIZ_DEBUG (handleOf (ap_prc), "EXACT MATCH [%s] vs [%s]", ap_pl_name,
+                 ap_prc->playlist_.cPlaylistName);
       return true;
     }
   return false;
@@ -1514,6 +1519,9 @@ playlist_state_changed (sp_playlist * pl, void * userdata)
         strndup (sp_playlist_name (pl), SPFYSRC_MAX_STRING_SIZE), pl,
         (OMX_U32 *) (&ready_playlists_count));
 
+      /* Make sure this playlist is not found in the "not ready" list */
+      tiz_map_erase (p_prc->p_not_ready_playlists_, pl);
+
       if (OMX_ErrorNone == rc)
         {
           TIZ_PRINTF_BLU ("[Spotify] : '%s' [%d of %d] (%d tracks)\n",
@@ -1536,7 +1544,12 @@ playlist_state_changed (sp_playlist * pl, void * userdata)
     }
   else
     {
-      if (0 == sp_playlist_num_tracks (pl))
+      /* This is a bit of a hack. When playlists start becoming read for playback (i.e. loaded and no pending changes) */
+      /* we'll start tracking those playlists that are 'not ready'. We'll use
+         the counts of both type of playlists, to figure out when spotify has
+         completed the metadata update process */
+      if (tiz_map_size (p_prc->p_ready_playlists_) > 0
+          && 0 == sp_playlist_num_tracks (pl))
         {
           OMX_U32 not_ready_playlists_count
             = (OMX_U32) tiz_map_size (p_prc->p_not_ready_playlists_);
@@ -1545,18 +1558,30 @@ playlist_state_changed (sp_playlist * pl, void * userdata)
           (void) tiz_map_insert (p_prc->p_not_ready_playlists_, pl, pl,
                                  (OMX_U32 *) (&not_ready_playlists_count));
           TIZ_DEBUG (
-            handleOf (p_prc), "NOT READY PLAYLIST [%p] [%s] [%s]", pl,
+            handleOf (p_prc), "NON-READY PLAYLIST [%p] [%s] [%s]", pl,
             (sp_playlist_is_loaded (pl) ? "LOADED" : "NOT LOADED"),
             (sp_playlist_has_pending_changes (pl) ? "PENDING CHANGEs"
                                                   : "NO PENDING CHANGES"));
         }
     }
+  TIZ_DEBUG (handleOf (p_prc), "playlists count [%d] [%d] [%d]",
+             p_prc->nplaylists_, tiz_map_size (p_prc->p_ready_playlists_),
+             tiz_map_size (p_prc->p_not_ready_playlists_));
 
-  if ((0 != p_prc->nplaylists_
-       && p_prc->nplaylists_
-            == (tiz_map_size (p_prc->p_ready_playlists_)
-                + tiz_map_size (p_prc->p_not_ready_playlists_))))
+  /* Start playing the list when either is true:*/
+  /*   a) there is playlist that matched the search term */
+  /*   b) the playlist metadata update process has finished, and the ready and */
+  /*      not-ready playlist count equals the total number of playlists in the */
+  /*      container */
+  if (p_prc->p_sp_playlist_
+      || ((0 != p_prc->nplaylists_
+           && p_prc->nplaylists_
+                == (tiz_map_size (p_prc->p_ready_playlists_)
+                    + tiz_map_size (p_prc->p_not_ready_playlists_)))))
     {
+      TIZ_DEBUG (handleOf (p_prc), "p_sp_playlist [%p] tentative [%p]",
+                 p_prc->p_sp_playlist_, p_prc->p_sp_tentative_playlist_);
+
       p_prc->p_sp_playlist_ = p_prc->p_sp_playlist_
                                 ? p_prc->p_sp_playlist_
                                 : p_prc->p_sp_tentative_playlist_;
@@ -1702,7 +1727,8 @@ spfysrc_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
   assert (p_prc->p_not_ready_playlists_);
 
   /* Create a spotify session */
-  p_prc->sp_config_.cache_location = get_cache_location ((char *) p_prc->session_.cUserName);
+  p_prc->sp_config_.cache_location
+    = get_cache_location ((char *) p_prc->session_.cUserName);
   p_prc->sp_config_.settings_location = p_prc->sp_config_.cache_location;
   goto_end_on_sp_error (
     sp_session_create (&(p_prc->sp_config_), &(p_prc->p_sp_session_)));
