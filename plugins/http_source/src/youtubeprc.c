@@ -63,15 +63,16 @@ youtube_prc_prepare_to_transfer (void * ap_prc, OMX_U32 a_pid);
 static OMX_ERRORTYPE
 youtube_prc_transfer_and_process (void * ap_prc, OMX_U32 a_pid);
 
-#define on_youtube_error_ret_omx_oom(expr)                                    \
+#define on_youtube_error_ret_omx_oom(expr)                                   \
   do                                                                         \
     {                                                                        \
-      int youtube_error = 0;                                                  \
-      if (0 != (youtube_error = (expr)))                                      \
+      int youtube_error = 0;                                                 \
+      if (0 != (youtube_error = (expr)))                                     \
         {                                                                    \
           TIZ_ERROR (handleOf (p_prc),                                       \
                      "[OMX_ErrorInsufficientResources] : error while using " \
-                     "libtizsoundcloud");                                    \
+                     "libtizyoutube [error %d]",                             \
+                     youtube_error);                                         \
           return OMX_ErrorInsufficientResources;                             \
         }                                                                    \
     }                                                                        \
@@ -92,44 +93,15 @@ obtain_coding_type (youtube_prc_t * ap_prc, char * ap_info)
 
   TIZ_TRACE (handleOf (ap_prc), "encoding type  : [%s]", ap_info);
 
-  if (memcmp (ap_info, "audio/mpeg", 10) == 0
-      || memcmp (ap_info, "audio/mpg", 9) == 0
-      || memcmp (ap_info, "audio/mp3", 9) == 0)
+  if (memcmp (ap_info, "audio/webm", 10) == 0)
     {
-      ap_prc->audio_coding_type_ = OMX_AUDIO_CodingMP3;
+      /* The webm container */
+      ap_prc->audio_coding_type_ = OMX_AUDIO_CodingWEBM;
     }
-  else if (memcmp (ap_info, "audio/aac", 9) == 0
-           || memcmp (ap_info, "audio/aacp", 10) == 0)
+  else if (memcmp (ap_info, "audio/mp4", 9) == 0)
     {
-      ap_prc->audio_coding_type_ = OMX_AUDIO_CodingAAC;
-    }
-  else if (memcmp (ap_info, "audio/vorbis", 12) == 0)
-    {
-      /* This is vorbis without container */
-      ap_prc->audio_coding_type_ = OMX_AUDIO_CodingVORBIS;
-    }
-  else if (memcmp (ap_info, "audio/speex", 11) == 0)
-    {
-      /* This is speex without container */
-      ap_prc->audio_coding_type_ = OMX_AUDIO_CodingSPEEX;
-    }
-  else if (memcmp (ap_info, "audio/flac", 10) == 0)
-    {
-      /* This is flac without container */
-      ap_prc->audio_coding_type_ = OMX_AUDIO_CodingFLAC;
-    }
-  else if (memcmp (ap_info, "audio/opus", 10) == 0)
-    {
-      /* This is opus without container */
-      ap_prc->audio_coding_type_ = OMX_AUDIO_CodingOPUS;
-    }
-  else if (memcmp (ap_info, "application/ogg", 15) == 0
-           || memcmp (ap_info, "audio/ogg", 9) == 0)
-    {
-      /* This is for audio with ogg container (may be FLAC, Vorbis, Opus,
-         etc). We'll have to identify the actual codec when the first bytes
-         from the stream arrive */
-      ap_prc->audio_coding_type_ = OMX_AUDIO_CodingOGA;
+      /* This is .mp4 .m4a  */
+      ap_prc->audio_coding_type_ = OMX_AUDIO_CodingMP4;
     }
   else
     {
