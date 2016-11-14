@@ -82,6 +82,8 @@
 #define OMX_AUDIO_CodingSPEEX OMX_AUDIO_CodingVendorStartUnused + 3
 #define OMX_AUDIO_CodingOGA   OMX_AUDIO_CodingVendorStartUnused + 4 /** this for audio in an ogg container */
 #define OMX_AUDIO_CodingMP2   OMX_AUDIO_CodingVendorStartUnused + 5
+#define OMX_AUDIO_CodingMP4   OMX_AUDIO_CodingVendorStartUnused + 6 /** this for audio in a mp4 container */
+#define OMX_AUDIO_CodingWEBM  OMX_AUDIO_CodingVendorStartUnused + 7 /** this for audio in a webm container */
 
 /**
  * OMX_VIDEO_CODINGTYPE extensions
