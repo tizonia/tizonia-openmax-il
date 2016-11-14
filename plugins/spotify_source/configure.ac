@@ -114,10 +114,11 @@ AC_TYPE_INT16_T
 AC_TYPE_SIZE_T
 AC_TYPE_UINT32_T
 AC_TYPE_UINT8_T
+AC_TYPE_UID_T
 
 # Checks for library functions.
 AC_FUNC_STRNLEN
-AC_CHECK_FUNCS([strcasecmp strstr])
+AC_CHECK_FUNCS([strcasecmp strncasecmp strstr strndup])
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile])
