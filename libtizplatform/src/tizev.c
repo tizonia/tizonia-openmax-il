@@ -484,7 +484,7 @@ ev_io_msg_dequeue (void * ap_elem, OMX_S32 a_data1, void * ap_data2)
 
   elem_class = p_msg->class;
   elem_class_is_io = (ETIZEventLoopMsgIoStart == elem_class
-                      || ETIZEventLoopMsgIoStart == elem_class
+                      || ETIZEventLoopMsgIoStop == elem_class
                       || ETIZEventLoopMsgIoDestroy == elem_class);
 
   if (class_to_delete == elem_class
