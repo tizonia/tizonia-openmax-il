@@ -150,12 +150,12 @@ tiz_map_init (tiz_map_t ** app_map, tiz_map_cmp_f a_pf_cmp,
   assert (app_map);
   assert (a_pf_cmp);
 
-  if (NULL == (p_map = (tiz_map_t *) map_calloc (ap_soa, sizeof (tiz_map_t))))
+  if (!(p_map = (tiz_map_t *) map_calloc (ap_soa, sizeof (tiz_map_t))))
     {
       return OMX_ErrorInsufficientResources;
     }
 
-  if (NULL == (p_map->p_tree = avl_new_avl_tree (map_compare, p_map)))
+  if (!(p_map->p_tree = avl_new_avl_tree (map_compare, p_map)))
     {
       map_free (ap_soa, p_map);
       p_map = NULL;
@@ -203,8 +203,8 @@ tiz_map_insert (tiz_map_t * ap_map, OMX_PTR ap_key, OMX_PTR ap_value,
       return OMX_ErrorBadParameter;
     }
 
-  if (NULL == (p_item = (tiz_map_item_t *) map_calloc (
-                 ap_map->p_soa, sizeof (tiz_map_item_t))))
+  if (!(p_item = (tiz_map_item_t *) map_calloc (ap_map->p_soa,
+                                                sizeof (tiz_map_item_t))))
     {
       return OMX_ErrorInsufficientResources;
     }
@@ -359,7 +359,7 @@ tiz_map_clear (tiz_map_t * ap_map)
       avl_free_avl_tree (ap_map->p_tree, map_free_key);
       ap_map->size = 0;
 
-      if (NULL == (ap_map->p_tree = avl_new_avl_tree (map_compare, ap_map)))
+      if (!(ap_map->p_tree = avl_new_avl_tree (map_compare, ap_map)))
         {
           return OMX_ErrorInsufficientResources;
         }
