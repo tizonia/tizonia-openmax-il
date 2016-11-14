@@ -571,7 +571,7 @@ ev_stat_msg_dequeue (void * ap_elem, OMX_S32 a_data1, void * ap_data2)
 
   elem_class = p_msg->class;
   elem_class_is_stat = (ETIZEventLoopMsgStatStart == elem_class
-                        || ETIZEventLoopMsgStatStart == elem_class
+                        || ETIZEventLoopMsgStatStop == elem_class
                         || ETIZEventLoopMsgStatDestroy == elem_class);
 
   if (class_to_delete == p_msg->class || (elem_class_is_stat
