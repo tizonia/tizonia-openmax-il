@@ -253,6 +253,45 @@ extern "C" {
     }                                                                   \
   while (0)
 
+/**
+ * tiz_goto_end_on_omx_err:
+ * @omx_expr: the OMX expression to check
+ * @msg: A log message to output in case of error
+ *
+ * Verifies that the expression evaluates to OMX_ErrorNone.  Otherwise a message is logged
+ * and control is transferred to the 'end' label (this must exist outside of this macro).
+  */
+#define tiz_goto_end_on_omx_err(omx_expr, msg)                              \
+  do                                                                        \
+    {                                                                       \
+      if (OMX_ErrorNone != (omx_expr))                                      \
+        {                                                                   \
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "Check '%s' failed [%s]", #omx_expr, \
+                   msg);                                                    \
+          goto end;                                                         \
+        }                                                                   \
+    }                                                                       \
+  while (0)
+
+/**
+ * tiz_goto_end_on_null:
+ * @expr: the pointer expression to check
+ * @msg: A log message to output in case of error
+ *
+ * Verifies that the expression evaluates to non-NULL.  Otherwise a message is logged
+ * and control is transferred to the 'end' label (this must exist outside of this macro).
+  */
+#define tiz_goto_end_on_null(expr, msg)                                       \
+  do                                                                          \
+    {                                                                         \
+      if (NULL == (expr))                                                     \
+        {                                                                     \
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "Check '%s' failed [%s]", #expr, msg); \
+          goto end;                                                           \
+        }                                                                     \
+    }                                                                         \
+  while (0)
+
 /* DEPRECATED */
 /**
  * tiz_check_omx_err:
