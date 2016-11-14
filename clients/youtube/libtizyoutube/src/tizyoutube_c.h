@@ -56,9 +56,9 @@ typedef /*@null@ */ tiz_youtube_t *tiz_youtube_ptr_t;
  * @ingroup libtizyoutube
  */
 typedef enum tiz_youtube_playback_mode {
-  ETIZYouTubePlaybackModeNormal,
-  ETIZYouTubePlaybackModeShuffle,
-  ETIZYouTubePlaybackModeMax
+  ETIZYoutubePlaybackModeNormal,
+  ETIZYoutubePlaybackModeShuffle,
+  ETIZYoutubePlaybackModeMax
 } tiz_youtube_playback_mode_t;
 
 /**
@@ -159,6 +159,26 @@ const char *tiz_youtube_get_next_url (tiz_youtube_t *ap_youtube,
  */
 const char *tiz_youtube_get_prev_url (tiz_youtube_t *ap_youtube,
                                       const bool a_remove_current_url);
+
+/**
+*Retrieve the current audio stream's title.
+*
+*@ingroup libtizyoutube
+*
+*@param ap_gmusic The tiz_youtube handle.
+*/
+const char *tiz_youtube_get_current_audio_stream_title (
+    tiz_youtube_t *ap_youtube);
+
+/**
+* Retrieve the current audio stream's file size.
+*
+* @ingroup libtizyoutube
+*
+* @param ap_gmusic The tiz_youtube handle.
+*/
+const char *tiz_youtube_get_current_audio_stream_file_size (
+    tiz_youtube_t *ap_youtube);
 
 /**
  * Destroy the tiz_youtube handle.

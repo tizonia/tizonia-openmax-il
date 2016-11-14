@@ -75,17 +75,20 @@ namespace
   }
 
   void start_youtube (boost::python::object &py_global,
-                     boost::python::object &py_youtube_proxy,
+                     boost::python::object &py_yt_proxy,
                      const std::string &api_key)
   {
     bp::object pyyoutubeproxy = py_global["tizyoutubeproxy"];
-    py_youtube_proxy
+    py_yt_proxy
         = pyyoutubeproxy (api_key.c_str ());
   }
 }
 
 tizyoutube::tizyoutube (const std::string &api_key)
-  : api_key_ (api_key)
+  : api_key_ (api_key),
+    current_url_ (),
+    current_stream_title_ (),
+    current_stream_file_size_ ()
 {
 }
 
@@ -104,14 +107,14 @@ int tizyoutube::start ()
 {
   int rc = 0;
   try_catch_wrapper (
-      start_youtube (py_global_, py_youtube_proxy_, api_key_));
+      start_youtube (py_global_, py_yt_proxy_, api_key_));
   return rc;
 }
 
 void tizyoutube::stop ()
 {
   int rc = 0;
-  // try_catch_wrapper (py_youtube_proxy_.attr ("logout")());
+  // try_catch_wrapper (py_yt_proxy_.attr ("logout")());
   (void)rc;
 }
 
@@ -124,7 +127,7 @@ int tizyoutube::play_audio_stream (const std::string &url_or_id)
 {
   int rc = 0;
   try_catch_wrapper (
-      py_youtube_proxy_.attr ("enqueue_audio_stream")(bp::object (url_or_id)));
+      py_yt_proxy_.attr ("enqueue_audio_stream")(bp::object (url_or_id)));
   return rc;
 }
 
@@ -132,7 +135,7 @@ int tizyoutube::play_audio_playlist (const std::string &url_or_id)
 {
   int rc = 0;
   try_catch_wrapper (
-      py_youtube_proxy_.attr ("enqueue_audio_playlist")(bp::object (url_or_id)));
+      py_yt_proxy_.attr ("enqueue_audio_playlist")(bp::object (url_or_id)));
   return rc;
 }
 
@@ -143,10 +146,10 @@ const char *tizyoutube::get_next_url (const bool a_remove_current_url)
     {
       if (a_remove_current_url)
         {
-          py_youtube_proxy_.attr ("remove_current_url")();
+          py_yt_proxy_.attr ("remove_current_url")();
         }
       const char *p_next_url
-          = bp::extract< char const * >(py_youtube_proxy_.attr ("next_url")());
+          = bp::extract< char const * >(py_yt_proxy_.attr ("next_url")());
       current_url_.assign (p_next_url);
       if (!p_next_url || get_current_stream ())
         {
@@ -170,10 +173,10 @@ const char *tizyoutube::get_prev_url (const bool a_remove_current_url)
     {
       if (a_remove_current_url)
         {
-          py_youtube_proxy_.attr ("remove_current_url")();
+          py_yt_proxy_.attr ("remove_current_url")();
         }
       const char *p_prev_url
-          = bp::extract< char const * >(py_youtube_proxy_.attr ("prev_url")());
+          = bp::extract< char const * >(py_yt_proxy_.attr ("prev_url")());
       current_url_.assign (p_prev_url);
       if (!p_prev_url || get_current_stream ())
         {
@@ -193,7 +196,7 @@ const char *tizyoutube::get_prev_url (const bool a_remove_current_url)
 void tizyoutube::clear_queue ()
 {
   int rc = 0;
-  try_catch_wrapper (py_youtube_proxy_.attr ("clear_queue")());
+  try_catch_wrapper (py_yt_proxy_.attr ("clear_queue")());
   (void)rc;
 }
 
@@ -204,12 +207,12 @@ void tizyoutube::set_playback_mode (const playback_mode mode)
     {
     case PlaybackModeNormal:
       {
-        try_catch_wrapper (py_youtube_proxy_.attr ("set_play_mode")("NORMAL"));
+        try_catch_wrapper (py_yt_proxy_.attr ("set_play_mode")("NORMAL"));
       }
       break;
     case PlaybackModeShuffle:
       {
-        try_catch_wrapper (py_youtube_proxy_.attr ("set_play_mode")("SHUFFLE"));
+        try_catch_wrapper (py_yt_proxy_.attr ("set_play_mode")("SHUFFLE"));
       }
       break;
     default:
@@ -221,24 +224,30 @@ void tizyoutube::set_playback_mode (const playback_mode mode)
   (void)rc;
 }
 
+const char *tizyoutube::get_current_audio_stream_title ()
+{
+  return current_stream_title_.empty () ? NULL : current_stream_title_.c_str ();
+}
+
+const char *tizyoutube::get_current_audio_stream_file_size ()
+{
+  return current_stream_file_size_.empty () ? NULL : current_stream_file_size_.c_str ();
+}
+
 int tizyoutube::get_current_stream ()
 {
   int rc = 0;
-//   current_stream_title_.clear ();
+  current_stream_title_.clear ();
+  current_stream_file_size_.clear ();
 
-//   const bp::tuple &info1 = bp::extract< bp::tuple >(
-//       py_youtube_proxy_.attr ("current_stream_title")());
-//   const char *p_name = bp::extract< char const * >(info1[0]);
+  const char * p_title = bp::extract< char const * >(py_yt_proxy_.attr ("current_audio_stream_title")());
+  if (p_title)
+    {
+      current_stream_title_.assign(p_title);
+    }
 
-//   if (p_name)
-//     {
-//       current_stream_title_.assign (p_name);
-//     }
-
-//   if (p_name)
-//      {
-//         rc = 0;
-//      }
+  const int file_size = bp::extract< int >(py_yt_proxy_.attr ("current_audio_stream_file_size")());
+  current_stream_file_size_.assign (boost::lexical_cast< std::string >(file_size));
 
   return rc;
 }

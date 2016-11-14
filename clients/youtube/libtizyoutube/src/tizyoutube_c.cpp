@@ -78,9 +78,9 @@ extern "C" int tiz_youtube_init (tiz_youtube_ptr_t *app_youtube,
     {
       if (!youtube_alloc_data (p_youtube, ap_api_key))
         {
-          tizyoutube *p_gm = p_youtube->p_proxy_;
-          assert (p_gm);
-          if (!p_gm->init () && !p_gm->start ())
+          tizyoutube *p_yt = p_youtube->p_proxy_;
+          assert (p_yt);
+          if (!p_yt->init () && !p_yt->start ())
             {
               // all good
               rc = 0;
@@ -148,15 +148,31 @@ extern "C" const char *tiz_youtube_get_prev_url (tiz_youtube_t *ap_youtube,
   return ap_youtube->p_proxy_->get_prev_url (a_remove_current_url);
 }
 
+extern "C" const char *tiz_youtube_get_current_audio_stream_title (
+    tiz_youtube_t *ap_youtube)
+{
+  assert (ap_youtube);
+  assert (ap_youtube->p_proxy_);
+  return ap_youtube->p_proxy_->get_current_audio_stream_title ();
+}
+
+extern "C" const char *tiz_youtube_get_current_audio_stream_file_size (
+    tiz_youtube_t *ap_youtube)
+{
+  assert (ap_youtube);
+  assert (ap_youtube->p_proxy_);
+  return ap_youtube->p_proxy_->get_current_audio_stream_file_size ();
+}
+
 extern "C" void tiz_youtube_destroy (tiz_youtube_t *ap_youtube)
 {
   if (ap_youtube)
     {
-      tizyoutube *p_gm = ap_youtube->p_proxy_;
-      if (p_gm)
+      tizyoutube *p_yt = ap_youtube->p_proxy_;
+      if (p_yt)
         {
-          p_gm->stop ();
-          p_gm->deinit ();
+          p_yt->stop ();
+          p_yt->deinit ();
         }
       youtube_free_data (ap_youtube);
       free (ap_youtube);

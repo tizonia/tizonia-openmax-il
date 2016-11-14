@@ -64,15 +64,20 @@ public:
   const char * get_next_url (const bool a_remove_current_url);
   const char * get_prev_url (const bool a_remove_current_url);
 
+  const char * get_current_audio_stream_title ();
+  const char * get_current_audio_stream_file_size ();
+
 private:
   int get_current_stream ();
 
 private:
   std::string api_key_;
   std::string current_url_;
+  std::string current_stream_title_;
+  std::string current_stream_file_size_;
   boost::python::object py_main_;
   boost::python::object py_global_;
-  boost::python::object py_youtube_proxy_;
+  boost::python::object py_yt_proxy_;
 };
 
 #endif  // TIZYOUTUBE_HPP
