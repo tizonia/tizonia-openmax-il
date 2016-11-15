@@ -52,6 +52,8 @@
 #include "scloudcfgport.h"
 #include "dirbleprc.h"
 #include "dirblecfgport.h"
+#include "youtubeprc.h"
+#include "youtubecfgport.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -66,6 +68,7 @@
  * - Implements role: "audio_source.http.gmusic"
  * - Implements role: "audio_source.http.scloud"
  * - Implements role: "audio_source.http.dirble"
+ * - Implements role: "audio_source.http.youtube"
  *
  *@ingroup plugins
  */
@@ -151,6 +154,20 @@ instantiate_dirble_processor (OMX_HANDLETYPE ap_hdl)
   return factory_new (tiz_get_type (ap_hdl, "dirbleprc"));
 }
 
+static OMX_PTR
+instantiate_youtube_config_port (OMX_HANDLETYPE ap_hdl)
+{
+  return factory_new (tiz_get_type (ap_hdl, "youtubecfgport"),
+                      NULL, /* this port does not take options */
+                      ARATELIA_HTTP_SOURCE_COMPONENT_NAME, http_source_version);
+}
+
+static OMX_PTR
+instantiate_youtube_processor (OMX_HANDLETYPE ap_hdl)
+{
+  return factory_new (tiz_get_type (ap_hdl, "youtubeprc"));
+}
+
 OMX_ERRORTYPE
 OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 {
@@ -158,9 +175,10 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   tiz_role_factory_t gmusic_client_role;
   tiz_role_factory_t scloud_client_role;
   tiz_role_factory_t dirble_client_role;
+  tiz_role_factory_t youtube_client_role;
   const tiz_role_factory_t * rf_list[]
     = {&http_client_role, &gmusic_client_role, &scloud_client_role,
-       &dirble_client_role};
+       &dirble_client_role, &youtube_client_role};
   tiz_type_factory_t httpsrcprc_type;
   tiz_type_factory_t httpsrcport_type;
   tiz_type_factory_t gmusicprc_type;
@@ -169,10 +187,12 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   tiz_type_factory_t scloudcfgport_type;
   tiz_type_factory_t dirbleprc_type;
   tiz_type_factory_t dirblecfgport_type;
-  const tiz_type_factory_t * tf_list[]
-    = {&httpsrcprc_type,    &httpsrcport_type,  &gmusicprc_type,
-       &gmusiccfgport_type, &scloudprc_type,    &scloudcfgport_type,
-       &dirbleprc_type,     &dirblecfgport_type};
+  tiz_type_factory_t youtubeprc_type;
+  tiz_type_factory_t youtubecfgport_type;
+  const tiz_type_factory_t * tf_list[] = {
+    &httpsrcprc_type, &httpsrcport_type,   &gmusicprc_type, &gmusiccfgport_type,
+    &scloudprc_type,  &scloudcfgport_type, &dirbleprc_type, &dirblecfgport_type,
+    &youtubeprc_type, &youtubecfgport_type};
 
   strcpy ((OMX_STRING) http_client_role.role,
           ARATELIA_HTTP_SOURCE_DEFAULT_ROLE);
@@ -201,6 +221,13 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   dirble_client_role.pf_port[0] = instantiate_output_port;
   dirble_client_role.nports = 1;
   dirble_client_role.pf_proc = instantiate_dirble_processor;
+
+  strcpy ((OMX_STRING) youtube_client_role.role,
+          ARATELIA_YOUTUBE_SOURCE_DEFAULT_ROLE);
+  youtube_client_role.pf_cport = instantiate_youtube_config_port;
+  youtube_client_role.pf_port[0] = instantiate_output_port;
+  youtube_client_role.nports = 1;
+  youtube_client_role.pf_proc = instantiate_youtube_processor;
 
   strcpy ((OMX_STRING) httpsrcprc_type.class_name, "httpsrcprc_class");
   httpsrcprc_type.pf_class_init = httpsrc_prc_class_init;
@@ -242,15 +269,25 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   strcpy ((OMX_STRING) dirblecfgport_type.object_name, "dirblecfgport");
   dirblecfgport_type.pf_object_init = dirble_cfgport_init;
 
+  strcpy ((OMX_STRING) youtubeprc_type.class_name, "youtubeprc_class");
+  youtubeprc_type.pf_class_init = youtube_prc_class_init;
+  strcpy ((OMX_STRING) youtubeprc_type.object_name, "youtubeprc");
+  youtubeprc_type.pf_object_init = youtube_prc_init;
+
+  strcpy ((OMX_STRING) youtubecfgport_type.class_name, "youtubecfgport_class");
+  youtubecfgport_type.pf_class_init = youtube_cfgport_class_init;
+  strcpy ((OMX_STRING) youtubecfgport_type.object_name, "youtubecfgport");
+  youtubecfgport_type.pf_object_init = youtube_cfgport_init;
+
   /* Initialize the component infrastructure */
   tiz_check_omx (
     tiz_comp_init (ap_hdl, ARATELIA_HTTP_SOURCE_COMPONENT_NAME));
 
   /* Register the various classes */
-  tiz_check_omx (tiz_comp_register_types (ap_hdl, tf_list, 8));
+  tiz_check_omx (tiz_comp_register_types (ap_hdl, tf_list, 10));
 
   /* Register the component roles */
-  tiz_check_omx (tiz_comp_register_roles (ap_hdl, rf_list, 4));
+  tiz_check_omx (tiz_comp_register_roles (ap_hdl, rf_list, 5));
 
   return OMX_ErrorNone;
 }
