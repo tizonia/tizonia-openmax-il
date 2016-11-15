@@ -75,18 +75,16 @@ namespace
   }
 
   void start_youtube (boost::python::object &py_global,
-                     boost::python::object &py_yt_proxy,
-                     const std::string &api_key)
+                     boost::python::object &py_yt_proxy)
   {
     bp::object pyyoutubeproxy = py_global["tizyoutubeproxy"];
     py_yt_proxy
-        = pyyoutubeproxy (api_key.c_str ());
+        = pyyoutubeproxy ();
   }
 }
 
-tizyoutube::tizyoutube (const std::string &api_key)
-  : api_key_ (api_key),
-    current_url_ (),
+tizyoutube::tizyoutube ()
+  : current_url_ (),
     current_stream_title_ (),
     current_stream_file_size_ ()
 {
@@ -107,7 +105,7 @@ int tizyoutube::start ()
 {
   int rc = 0;
   try_catch_wrapper (
-      start_youtube (py_global_, py_yt_proxy_, api_key_));
+      start_youtube (py_global_, py_yt_proxy_));
   return rc;
 }
 

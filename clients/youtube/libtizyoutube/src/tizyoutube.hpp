@@ -47,7 +47,7 @@ public:
     };
 
 public:
-  tizyoutube (const std::string &api_key);
+  tizyoutube ();
   ~tizyoutube ();
 
   int init ();
@@ -71,7 +71,6 @@ private:
   int get_current_stream ();
 
 private:
-  std::string api_key_;
   std::string current_url_;
   std::string current_stream_title_;
   std::string current_stream_file_size_;

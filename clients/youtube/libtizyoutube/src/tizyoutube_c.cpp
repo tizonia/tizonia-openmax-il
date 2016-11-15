@@ -49,13 +49,13 @@ static void youtube_free_data (tiz_youtube_t *ap_youtube)
     }
 }
 
-static int youtube_alloc_data (tiz_youtube_t *ap_youtube, const char *ap_api_key)
+static int youtube_alloc_data (tiz_youtube_t *ap_youtube)
 {
   int rc = 0;
   assert (ap_youtube);
   try
     {
-      ap_youtube->p_proxy_ = new tizyoutube (ap_api_key);
+      ap_youtube->p_proxy_ = new tizyoutube ();
     }
   catch (...)
     {
@@ -65,18 +65,16 @@ static int youtube_alloc_data (tiz_youtube_t *ap_youtube, const char *ap_api_key
   return rc;
 }
 
-extern "C" int tiz_youtube_init (tiz_youtube_ptr_t *app_youtube,
-                                const char *ap_api_key)
+extern "C" int tiz_youtube_init (tiz_youtube_ptr_t *app_youtube)
 {
   tiz_youtube_t *p_youtube = NULL;
   int rc = 1;
 
   assert (app_youtube);
-  assert (ap_api_key);
 
   if ((p_youtube = (tiz_youtube_t *)calloc (1, sizeof(tiz_youtube_t))))
     {
-      if (!youtube_alloc_data (p_youtube, ap_api_key))
+      if (!youtube_alloc_data (p_youtube))
         {
           tizyoutube *p_yt = p_youtube->p_proxy_;
           assert (p_yt);

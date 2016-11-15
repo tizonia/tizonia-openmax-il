@@ -68,12 +68,10 @@ typedef enum tiz_youtube_playback_mode {
  *
  * @param app_youtube A pointer to the tiz_youtube handle which will be
  * initialised.
- * @param ap_api_key A YouTube email account.
  *
  * @return 0 on success.
  */
-int tiz_youtube_init (/*@null@ */ tiz_youtube_ptr_t *app_youtube,
-                      const char *ap_api_key);
+int tiz_youtube_init (/*@null@ */ tiz_youtube_ptr_t *app_youtube);
 
 /**
  * Clear the playback queue.
