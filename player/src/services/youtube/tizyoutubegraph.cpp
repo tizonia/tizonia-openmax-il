@@ -26,6 +26,30 @@
  *
  */
 
+//                                                             +---------------+
+//                                                             |               |
+//                                                      +------>  opus_decoder +---------+
+//                                +----------------+    |      |               |         |
+//                                |                |    |      +---------------+         |
+//                         +------>  webm_demuxer  +----+                                |
+//                         |      |                |    |      +---------------+         |
+//                         |      +----------------+    |      |               |         |
+//                         |                            +------> vorbis_decoder+---------+
+// +-----------------+     |                                   |               |         |         +----------------+
+// |                 |     |                                   +---------------+         |         |                |
+// |   http_source   +-----+                                                             +--------->  pcm_renderer  |
+// |                 |     |                                   +---------------+         |         |                |
+// +-----------------+     |                                   |               |         |         +----------------+
+//                         |                            +------>  aac_decoder  +---------+
+//                         |      +----------------+    |      |               |         |
+//                         |      |                |    |      +---------------+         |
+//                         +------>   mp4_demuxer  +----+                                |
+//                                |                |    |      +---------------+         |
+//                                +----------------+    |      |               |         |
+//                                                      +------>  mp3_decoder  +---------+
+//                                                             |               |
+//                                                             +---------------+
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -56,6 +80,7 @@ graph::youtube::youtube ()
         << tiz::graph::youtubefsm::fsm::updating_graph (&p_ops_)
         << tiz::graph::youtubefsm::fsm::reconfiguring_tunnel_0 (&p_ops_)
         << tiz::graph::youtubefsm::fsm::reconfiguring_tunnel_1 (&p_ops_)
+        << tiz::graph::youtubefsm::fsm::reconfiguring_tunnel_2 (&p_ops_)
         << tiz::graph::youtubefsm::fsm::skipping (&p_ops_),
         &p_ops_))
 

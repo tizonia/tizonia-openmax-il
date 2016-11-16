@@ -82,6 +82,7 @@ namespace tiz
 
       void do_reconfigure_first_tunnel ();
       void do_reconfigure_second_tunnel ();
+      void do_reconfigure_third_tunnel ();
 
     private:
       OMX_AUDIO_CODINGTYPE encoding_;

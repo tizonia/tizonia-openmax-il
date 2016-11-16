@@ -208,6 +208,10 @@ void graph::youtubeops::do_reconfigure_tunnel (const int tunnel_id)
     {
       do_reconfigure_second_tunnel ();
     }
+    else if (2 == tunnel_id)
+    {
+      do_reconfigure_third_tunnel ();
+    }
     else
     {
       assert (0);
@@ -579,13 +583,13 @@ void graph::youtubeops::do_reconfigure_first_tunnel ()
 
 void graph::youtubeops::do_reconfigure_second_tunnel ()
 {
-  // Retrieve the pcm settings from the decoder component
-  OMX_AUDIO_PARAM_PCMMODETYPE decoder_pcmtype;
-  const OMX_U32 decoder_port_id = 1;
-  TIZ_INIT_OMX_PORT_STRUCT (decoder_pcmtype, decoder_port_id);
+  // Retrieve the audio port format from the demuxer component
+  OMX_AUDIO_PARAM_PORTFORMATTYPE demuxer_audio_format;
+  const OMX_U32 demuxer_port_id = 1;
+  TIZ_INIT_OMX_PORT_STRUCT (demuxer_audio_format, demuxer_port_id);
   G_OPS_BAIL_IF_ERROR (
-      OMX_GetParameter (handles_[1], OMX_IndexParamAudioPcm, &decoder_pcmtype),
-      "Unable to retrieve the PCM settings from the decoder");
+      OMX_GetParameter (handles_[1], OMX_IndexParamAudioPortFormat, &demuxer_audio_format),
+      "Unable to retrieve the audio port format from the demuxer");
 
   // Retrieve the pcm settings from the renderer component
   OMX_AUDIO_PARAM_PCMMODETYPE renderer_pcmtype;
@@ -602,6 +606,41 @@ void graph::youtubeops::do_reconfigure_second_tunnel ()
   // Set the new pcm settings
   G_OPS_BAIL_IF_ERROR (
       OMX_SetParameter (handles_[2], OMX_IndexParamAudioPcm, &renderer_pcmtype),
+      "Unable to set the PCM settings on the audio renderer");
+
+  TIZ_PRINTF_MAG (
+      "     %ld Ch, %g KHz, %lu:%s:%s\n", renderer_pcmtype.nChannels,
+      ((float)renderer_pcmtype.nSamplingRate) / 1000,
+      renderer_pcmtype.nBitPerSample,
+      renderer_pcmtype.eNumData == OMX_NumericalDataSigned ? "s" : "u",
+      renderer_pcmtype.eEndian == OMX_EndianBig ? "b" : "l");
+}
+
+void graph::youtubeops::do_reconfigure_third_tunnel ()
+{
+  // Retrieve the pcm settings from the decoder component
+  OMX_AUDIO_PARAM_PCMMODETYPE decoder_pcmtype;
+  const OMX_U32 decoder_port_id = 1;
+  TIZ_INIT_OMX_PORT_STRUCT (decoder_pcmtype, decoder_port_id);
+  G_OPS_BAIL_IF_ERROR (
+      OMX_GetParameter (handles_[2], OMX_IndexParamAudioPcm, &decoder_pcmtype),
+      "Unable to retrieve the PCM settings from the decoder");
+
+  // Retrieve the pcm settings from the renderer component
+  OMX_AUDIO_PARAM_PCMMODETYPE renderer_pcmtype;
+  const OMX_U32 renderer_port_id = 0;
+  TIZ_INIT_OMX_PORT_STRUCT (renderer_pcmtype, renderer_port_id);
+  G_OPS_BAIL_IF_ERROR (
+      OMX_GetParameter (handles_[3], OMX_IndexParamAudioPcm, &renderer_pcmtype),
+      "Unable to retrieve the PCM settings from the pcm renderer");
+
+  // Now assign the current settings to the renderer structure
+  renderer_pcmtype.nChannels = decoder_pcmtype.nChannels;
+  renderer_pcmtype.nSamplingRate = decoder_pcmtype.nSamplingRate;
+
+  // Set the new pcm settings
+  G_OPS_BAIL_IF_ERROR (
+      OMX_SetParameter (handles_[3], OMX_IndexParamAudioPcm, &renderer_pcmtype),
       "Unable to set the PCM settings on the audio renderer");
 
   TIZ_PRINTF_MAG (

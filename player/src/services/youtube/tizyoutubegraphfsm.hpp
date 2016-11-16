@@ -80,6 +80,7 @@ namespace tiz
                                                  "pause2exe",
                                                  "reconfiguring_tunnel_0",
                                                  "reconfiguring_tunnel_1",
+                                                 "reconfiguring_tunnel_2",
                                                  "skipping",
                                                  "exe2idle",
                                                  "idle2loaded",
@@ -333,6 +334,7 @@ namespace tiz
       // typedef boost::msm::back::state_machine<reconfiguring_tunnel_, boost::msm::back::mpl_graph_fsm_check> reconfiguring_tunnel_0;
       typedef boost::msm::back::state_machine<reconfiguring_tunnel_<0> > reconfiguring_tunnel_0;
       typedef boost::msm::back::state_machine<reconfiguring_tunnel_<1> > reconfiguring_tunnel_1;
+      typedef boost::msm::back::state_machine<reconfiguring_tunnel_<2> > reconfiguring_tunnel_2;
 
       /* 'skipping' is a submachine of tiz::graph::fsm_ */
       struct skipping_ : public boost::msm::front::state_machine_def<skipping_>
@@ -488,6 +490,7 @@ namespace tiz
         bmf::Row < tg::executing                , tg::unload_evt            , tg::exe2idle            , tg::do_omx_exe2idle                                        >,
         bmf::Row < tg::executing                , tg::omx_port_settings_evt , reconfiguring_tunnel_0  , tg::do_mute                                                >,
         bmf::Row < tg::executing                , tg::omx_port_settings_evt , reconfiguring_tunnel_1  , tg::do_mute                 , tg::is_tunnel_altered<1>     >,
+        bmf::Row < tg::executing                , tg::omx_port_settings_evt , reconfiguring_tunnel_2  , tg::do_mute                 , tg::is_tunnel_altered<2>     >,
         bmf::Row < tg::executing                , tg::pause_evt             , tg::exe2pause           , tg::do_omx_exe2pause                                       >,
         bmf::Row < tg::executing                , tg::volume_step_evt       , bmf::none               , tg::do_volume_step                                         >,
         bmf::Row < tg::executing                , tg::volume_evt            , bmf::none               , tg::do_volume                                              >,
@@ -518,6 +521,11 @@ namespace tiz
         bmf::Row < reconfiguring_tunnel_1
                    ::exit_pt
                    <reconfiguring_tunnel_<1>
+                    ::reconfiguring_tunnel_exit> , tg::tunnel_reconfigured_evt, tg::executing           , tg::do_mute                                                >,
+        //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
+        bmf::Row < reconfiguring_tunnel_2
+                   ::exit_pt
+                   <reconfiguring_tunnel_<2>
                     ::reconfiguring_tunnel_exit> , tg::tunnel_reconfigured_evt, tg::executing           , tg::do_mute                                                >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < skipping
