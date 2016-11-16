@@ -33,8 +33,8 @@
 
 #include <OMX_TizoniaExt.h>
 
-#include "tizgraphtypes.hpp"
 #include "tizgraphconfig.hpp"
+#include "tizgraphtypes.hpp"
 
 namespace tiz
 {
@@ -44,21 +44,14 @@ namespace tiz
     {
 
     public:
-      youtubeconfig (const tizplaylist_ptr_t &playlist, const std::string &api_key,
-                    const OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE &playlist_type)
-        : config (playlist),
-          api_key_ (api_key),
-          playlist_type_ (playlist_type)
+      youtubeconfig (const tizplaylist_ptr_t &playlist,
+                     const OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE &playlist_type)
+        : config (playlist), playlist_type_ (playlist_type)
       {
       }
 
       ~youtubeconfig ()
       {
-      }
-
-      std::string get_api_key () const
-      {
-        return api_key_;
       }
 
       OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE get_playlist_type () const
@@ -67,7 +60,6 @@ namespace tiz
       }
 
     protected:
-      const std::string api_key_;
       const OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE playlist_type_;
     };
   }  // namespace graph

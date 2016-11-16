@@ -103,10 +103,6 @@ void graph::youtubeops::do_configure_source ()
   assert (youtube_config);
 
   G_OPS_BAIL_IF_ERROR (
-      set_youtube_api_key (handles_[0], youtube_config->get_api_key ()),
-      "Unable to set OMX_TizoniaIndexParamAudioYoutubeSession");
-
-  G_OPS_BAIL_IF_ERROR (
       set_youtube_playlist (handles_[0], playlist_->get_current_uri ()),
       "Unable to set OMX_TizoniaIndexParamAudioYoutubePlaylist");
 }
@@ -151,8 +147,7 @@ void graph::youtubeops::do_load ()
       tizyoutubeconfig_ptr_t youtube_config
         = boost::dynamic_pointer_cast< youtubeconfig >(config_);
       assert (youtube_config);
-      tiz::graph::util::dump_graph_info ("Youtube", "Connecting",
-                                         youtube_config->get_api_key ().c_str ());
+      tiz::graph::util::dump_graph_info ("Youtube", "Connecting", "");
     }
 }
 
@@ -483,24 +478,6 @@ graph::youtubeops::set_channels_and_rate_on_renderer (
                                      playlist_->get_current_uri ().c_str ());
 
   return OMX_ErrorNone;
-}
-
-OMX_ERRORTYPE
-graph::youtubeops::set_youtube_api_key (const OMX_HANDLETYPE handle,
-                                          const std::string &api_key)
-{
-  // Set the Youtube user and pass
-  OMX_TIZONIA_AUDIO_PARAM_YOUTUBESESSIONTYPE sessiontype;
-  TIZ_INIT_OMX_STRUCT (sessiontype);
-  tiz_check_omx (OMX_GetParameter (
-      handle,
-      static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioYoutubeSession),
-      &sessiontype));
-  copy_omx_string (sessiontype.cApiKey, api_key);
-  return OMX_SetParameter (
-      handle,
-      static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioYoutubeSession),
-      &sessiontype);
 }
 
 OMX_ERRORTYPE

@@ -63,6 +63,7 @@ namespace tiz
     class gmusicconfig;
     class scloudconfig;
     class dirbleconfig;
+    class youtubeconfig;
     struct omx_event_info;
   }
 }
@@ -76,6 +77,7 @@ typedef boost::shared_ptr< tiz::graph::spotifyconfig > tizspotifyconfig_ptr_t;
 typedef boost::shared_ptr< tiz::graph::gmusicconfig > tizgmusicconfig_ptr_t;
 typedef boost::shared_ptr< tiz::graph::scloudconfig > tizscloudconfig_ptr_t;
 typedef boost::shared_ptr< tiz::graph::dirbleconfig > tizdirbleconfig_ptr_t;
+typedef boost::shared_ptr< tiz::graph::youtubeconfig > tizyoutubeconfig_ptr_t;
 typedef tiz::playlist tizplaylist_t;
 typedef boost::shared_ptr< tiz::playlist > tizplaylist_ptr_t;
 

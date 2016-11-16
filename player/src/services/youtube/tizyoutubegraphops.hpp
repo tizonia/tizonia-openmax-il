@@ -63,8 +63,6 @@ namespace tiz
     private:
       OMX_ERRORTYPE transition_tunnel (
           const int tunnel_id, const OMX_COMMANDTYPE to_disabled_or_enabled);
-      OMX_ERRORTYPE set_youtube_api_key (const OMX_HANDLETYPE handle,
-                                            const std::string &api_key);
       OMX_ERRORTYPE set_youtube_playlist (const OMX_HANDLETYPE handle,
                                          const std::string &playlist);
       OMX_ERRORTYPE add_decoder_to_component_list (

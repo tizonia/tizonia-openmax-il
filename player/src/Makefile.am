@@ -85,6 +85,11 @@ noinst_HEADERS = \
 	services/dirble/tizdirblegraphops.hpp \
 	services/dirble/tizdirbleconfig.hpp \
 	services/dirble/tizdirblemgr.hpp \
+	services/youtube/tizyoutubegraph.hpp \
+	services/youtube/tizyoutubegraphfsm.hpp \
+	services/youtube/tizyoutubegraphops.hpp \
+	services/youtube/tizyoutubeconfig.hpp \
+	services/youtube/tizyoutubemgr.hpp \
 	mpris/tizmpriscbacks.hpp \
 	mpris/tizmprisprops.hpp \
 	mpris/tizmprisif.hpp \
@@ -145,6 +150,10 @@ tizonia_SOURCES = \
 	services/dirble/tizdirblegraphfsm.cpp \
 	services/dirble/tizdirblegraphops.cpp \
 	services/dirble/tizdirblemgr.cpp \
+	services/youtube/tizyoutubegraph.cpp \
+	services/youtube/tizyoutubegraphfsm.cpp \
+	services/youtube/tizyoutubegraphops.cpp \
+	services/youtube/tizyoutubemgr.cpp \
 	tizplaybackevents.cpp \
 	mpris/tizmprismgr.cpp \
 	mpris/tizmprisprops.cpp \

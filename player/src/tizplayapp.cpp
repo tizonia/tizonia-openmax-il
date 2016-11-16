@@ -65,6 +65,8 @@
 #include "services/soundcloud/tizscloudmgr.hpp"
 #include "services/dirble/tizdirbleconfig.hpp"
 #include "services/dirble/tizdirblemgr.hpp"
+#include "services/youtube/tizyoutubeconfig.hpp"
+#include "services/youtube/tizyoutubemgr.hpp"
 #include "tizdaemon.hpp"
 
 #include "tizplayapp.hpp"
@@ -316,6 +318,9 @@ void tiz::playapp::set_option_handlers ()
   // Dirble internet radio directory streaming client program options
   popts_.set_option_handler ("dirble-stream",
                              boost::bind (&tiz::playapp::dirble_stream, this));
+  // Youtube audio streaming client program options
+  popts_.set_option_handler ("youtube-stream",
+                             boost::bind (&tiz::playapp::youtube_stream, this));
 }
 
 OMX_ERRORTYPE
@@ -840,6 +845,46 @@ tiz::playapp::dirble_stream ()
   // Instantiate the streaming client manager
   tiz::graphmgr::mgr_ptr_t p_mgr
       = boost::make_shared< tiz::graphmgr::dirblemgr >(config);
+
+  // TODO: Check return codes
+  p_mgr->init (playlist, graphmgr_termination_cback ());
+  p_mgr->start ();
+
+  while (ETIZPlayUserQuit != wait_for_user_input (p_mgr))
+  {
+  }
+
+  p_mgr->quit ();
+  p_mgr->deinit ();
+
+  return rc;
+}
+
+OMX_ERRORTYPE
+tiz::playapp::youtube_stream ()
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  const bool shuffle = popts_.shuffle ();
+  const uri_lst_t &uri_list = popts_.youtube_playlist_container ();
+  const OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE playlist_type = popts_.youtube_playlist_type ();
+
+  print_banner ();
+
+  // daemon support
+  (void)daemonize_if_requested ();
+
+  tizplaylist_ptr_t playlist
+      = boost::make_shared< tiz::playlist >(tiz::playlist (uri_list, shuffle));
+
+  assert (playlist);
+  playlist->set_loop_playback (true);
+
+  tizgraphconfig_ptr_t config = boost::make_shared< tiz::graph::youtubeconfig >(
+      playlist, playlist_type);
+
+  // Instantiate the streaming client manager
+  tiz::graphmgr::mgr_ptr_t p_mgr
+      = boost::make_shared< tiz::graphmgr::youtubemgr >(config);
 
   // TODO: Check return codes
   p_mgr->init (playlist, graphmgr_termination_cback ());

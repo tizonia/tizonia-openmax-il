@@ -89,6 +89,8 @@ namespace tiz
     const std::string &dirble_api_key () const;
     const std::vector< std::string > &dirble_playlist_container ();
     OMX_TIZONIA_AUDIO_DIRBLEPLAYLISTTYPE dirble_playlist_type ();
+    const std::vector< std::string > &youtube_playlist_container ();
+    OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE youtube_playlist_type ();
 
   private:
     void print_usage_feature (boost::program_options::options_description &desc) const;
@@ -105,6 +107,7 @@ namespace tiz
     void init_gmusic_options ();
     void init_scloud_options ();
     void init_dirble_options ();
+    void init_youtube_options ();
     void init_input_uri_option ();
 
     unsigned int parse_command_line (int argc, char *argv[]);
@@ -121,6 +124,7 @@ namespace tiz
     int consume_gmusic_client_options (bool &done, std::string &msg);
     int consume_scloud_client_options (bool &done, std::string &msg);
     int consume_dirble_client_options (bool &done, std::string &msg);
+    int consume_youtube_client_options (bool &done, std::string &msg);
     int consume_local_decode_options (bool &done, std::string &msg);
     int consume_input_file_uris_option ();
     int consume_input_http_uris_option ();
@@ -131,6 +135,7 @@ namespace tiz
     bool validate_gmusic_client_options () const;
     bool validate_scloud_client_options () const;
     bool validate_dirble_client_options () const;
+    bool validate_youtube_client_options () const;
     bool validate_port_argument (std::string &msg) const;
     bool validate_bitrates_argument (std::string &msg);
     bool validate_sampling_rates_argument (std::string &msg);
@@ -153,6 +158,7 @@ namespace tiz
     boost::program_options::options_description gmusic_;
     boost::program_options::options_description scloud_;
     boost::program_options::options_description dirble_;
+    boost::program_options::options_description youtube_;
     boost::program_options::options_description input_;
     boost::program_options::positional_options_description positional_;
 
@@ -210,6 +216,10 @@ namespace tiz
     std::string dirble_country_;
     std::vector< std::string > dirble_playlist_container_;
     OMX_TIZONIA_AUDIO_DIRBLEPLAYLISTTYPE dirble_playlist_type_;
+    std::string youtube_audio_stream_;
+    std::string youtube_audio_playlist_;
+    std::vector< std::string > youtube_playlist_container_;
+    OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE youtube_playlist_type_;
     std::vector<consume_function_t> consume_functions_;
 
     std::vector<std::string> all_global_options_;
@@ -221,6 +231,7 @@ namespace tiz
     std::vector<std::string> all_gmusic_client_options_;
     std::vector<std::string> all_scloud_client_options_;
     std::vector<std::string> all_dirble_client_options_;
+    std::vector<std::string> all_youtube_client_options_;
     std::vector<std::string> all_input_uri_options_;
     std::vector<std::string> all_given_options_;
   };

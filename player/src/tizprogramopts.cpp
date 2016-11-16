@@ -240,6 +240,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     gmusic_ ("Google Play Music options"),
     scloud_ ("SoundCloud options"),
     dirble_ ("Dirble options"),
+    youtube_ ("Youtube options"),
     input_ ("Intput urioption"),
     positional_ (),
     help_option_ ("help"),
@@ -295,6 +296,10 @@ tiz::programopts::programopts (int argc, char *argv[])
     dirble_country_ (),
     dirble_playlist_container_ (),
     dirble_playlist_type_ (OMX_AUDIO_DirblePlaylistTypeUnknown),
+    youtube_audio_stream_(),
+    youtube_audio_playlist_(),
+    youtube_playlist_container_(),
+    youtube_playlist_type_(OMX_AUDIO_YoutubePlaylistTypeUnknown),
     consume_functions_ (),
     all_global_options_ (),
     all_debug_options_ (),
@@ -305,6 +310,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     all_gmusic_client_options_ (),
     all_scloud_client_options_ (),
     all_dirble_client_options_ (),
+    all_youtube_client_options_ (),
     all_input_uri_options_ (),
     all_given_options_ ()
 {
@@ -317,6 +323,7 @@ tiz::programopts::programopts (int argc, char *argv[])
   init_gmusic_options ();
   init_scloud_options ();
   init_dirble_options ();
+  init_youtube_options ();
   init_input_uri_option ();
 }
 
@@ -395,6 +402,7 @@ void tiz::programopts::print_usage_help () const
   std::cout << "  " << "googlemusic   Google Play Music options." << "\n";
   std::cout << "  " << "soundcloud    SoundCloud options." << "\n";
   std::cout << "  " << "dirble        Dirble options." << "\n";
+  std::cout << "  " << "youtube       Youtube options." << "\n";
   std::cout << "  " << "keyboard      Keyboard control." << "\n";
   std::cout << "  " << "config        Configuration files." << "\n";
   std::cout << "  " << "examples      Some command-line examples." << "\n";
@@ -811,6 +819,44 @@ tiz::programopts::dirble_playlist_type ()
   return dirble_playlist_type_;
 }
 
+const std::vector< std::string > &
+    tiz::programopts::youtube_playlist_container ()
+{
+  youtube_playlist_container_.clear ();
+  if (!youtube_audio_stream_.empty ())
+    {
+      youtube_playlist_container_.push_back (youtube_audio_stream_);
+    }
+  else if (!youtube_audio_playlist_.empty ())
+    {
+      youtube_playlist_container_.push_back (youtube_audio_playlist_);
+    }
+  else
+    {
+      assert (0);
+    }
+  return youtube_playlist_container_;
+}
+
+OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE
+tiz::programopts::youtube_playlist_type ()
+{
+  if (!youtube_audio_stream_.empty ())
+    {
+      youtube_playlist_type_ = OMX_AUDIO_YoutubePlaylistTypeAudioStream;
+    }
+  else if (!youtube_audio_playlist_.empty ())
+    {
+      youtube_playlist_type_ = OMX_AUDIO_YoutubePlaylistTypeAudioPlaylist;
+    }
+  else
+    {
+      assert (0);
+    }
+
+  return youtube_playlist_type_;
+}
+
 void tiz::programopts::print_license () const
 {
   TIZ_PRINTF_GRN (
@@ -1068,6 +1114,21 @@ void tiz::programopts::init_dirble_options ()
     ("dirble-country");
 }
 
+void tiz::programopts::init_youtube_options ()
+{
+  youtube_.add_options ()
+      /* TIZ_CLASS_COMMENT: */
+      ("youtube-audio-stream", po::value (&youtube_audio_stream_),
+       "Play a youtube audio stream from a video url or video id.")
+      /* TIZ_CLASS_COMMENT: */
+      ("youtube-audio-playlist", po::value (&youtube_audio_playlist_),
+       "Play a youtube audio playlist from a playlist url or playlist id.");
+
+  register_consume_function (&tiz::programopts::consume_youtube_client_options);
+  all_youtube_client_options_ = boost::assign::list_of ("youtube-audio-stream")
+    ("youtube-audio-playlist");
+}
+
 void tiz::programopts::init_input_uri_option ()
 {
   input_.add_options ()
@@ -1094,6 +1155,7 @@ unsigned int tiz::programopts::parse_command_line (int argc, char *argv[])
       .add (gmusic_)
       .add (scloud_)
       .add (dirble_)
+      .add (youtube_)
       .add (input_);
   po::parsed_options parsed = po::command_line_parser (argc, argv)
                                   .options (all)
@@ -1180,6 +1242,10 @@ int tiz::programopts::consume_global_options (bool &done,
     else if (0 == help_option_.compare ("dirble"))
       {
         print_usage_feature (dirble_);
+      }
+    else if (0 == help_option_.compare ("youtube"))
+      {
+        print_usage_feature (youtube_);
       }
     else if (0 == help_option_.compare ("keyboard"))
       {
@@ -1551,6 +1617,43 @@ int tiz::programopts::consume_dirble_client_options (bool &done,
   return rc;
 }
 
+int tiz::programopts::consume_youtube_client_options (bool &done,
+                                                     std::string &msg)
+{
+  int rc = EXIT_FAILURE;
+  done = false;
+
+  if (validate_youtube_client_options ())
+  {
+    done = true;
+
+    const int playlist_option_count = vm_.count ("youtube-audio-stream")
+      + vm_.count ("youtube-audio-playlist");
+
+    if (playlist_option_count > 1)
+    {
+      rc = EXIT_FAILURE;
+      std::ostringstream oss;
+      oss << "Only one playlist type must be specified.";
+      msg.assign (oss.str ());
+    }
+    else if (!playlist_option_count)
+    {
+      rc = EXIT_FAILURE;
+      std::ostringstream oss;
+      oss << "A playlist type must be specified.";
+      msg.assign (oss.str ());
+    }
+    else
+    {
+      rc = call_handler (option_handlers_map_.find ("youtube-stream"));
+    }
+  }
+  TIZ_PRINTF_DBG_RED ("youtube ; rc = [%s]\n",
+                      rc == EXIT_SUCCESS ? "SUCCESS" : "FAILURE");
+  return rc;
+}
+
 int tiz::programopts::consume_local_decode_options (bool &done,
                                                     std::string &msg)
 {
@@ -1722,6 +1825,26 @@ bool tiz::programopts::validate_dirble_client_options () const
   concat_option_lists (all_valid_options, all_debug_options_);
 
   if (dirble_opts_count > 0
+      && is_valid_options_combination (all_valid_options, all_given_options_))
+  {
+    outcome = true;
+  }
+  TIZ_PRINTF_DBG_RED ("outcome = [%s]\n",
+                      outcome ? "SUCCESS" : "FAILURE");
+  return outcome;
+}
+
+bool tiz::programopts::validate_youtube_client_options () const
+{
+  bool outcome = false;
+  unsigned int youtube_opts_count
+      = vm_.count ("youtube-audio-stream") + vm_.count ("youtube-audio-playlist");
+
+  std::vector< std::string > all_valid_options = all_youtube_client_options_;
+  concat_option_lists (all_valid_options, all_global_options_);
+  concat_option_lists (all_valid_options, all_debug_options_);
+
+  if (youtube_opts_count > 0
       && is_valid_options_combination (all_valid_options, all_given_options_))
   {
     outcome = true;
