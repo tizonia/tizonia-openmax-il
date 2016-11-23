@@ -600,8 +600,8 @@ void graph::youtubeops::do_reconfigure_second_tunnel ()
       "Unable to retrieve the PCM settings from the pcm renderer");
 
   // Now assign the current settings to the renderer structure
-  renderer_pcmtype.nChannels = decoder_pcmtype.nChannels;
-  renderer_pcmtype.nSamplingRate = decoder_pcmtype.nSamplingRate;
+//   renderer_pcmtype.nChannels = demuxer_audio_format.nChannels;
+//   renderer_pcmtype.nSamplingRate = demuxer_audio_format.nSamplingRate;
 
   // Set the new pcm settings
   G_OPS_BAIL_IF_ERROR (
