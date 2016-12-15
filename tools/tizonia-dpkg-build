@@ -112,6 +112,7 @@ declare -ar TIZ_TIZONIA_DEPS=( \
 )
 
 declare -ar TIZ_DEBIAN_PKGS=( \
+    apt-transport-https \
     dpkg-dev \
     dh-make \
     debhelper \
@@ -409,7 +410,11 @@ function print_platform_info {
 }
 
 function obtain_distro_id_and_codename {
-    DISTRO_ID=$(cat /etc/*-release | grep -E '^ID=' | cut -d'=' -f2)
+    if [[ -z "$DISTRO_ID_OVERRIDE" ]]; then
+        DISTRO_ID=$(cat /etc/*-release | grep -E '^ID=' | cut -d'=' -f2)
+    else
+        DISTRO_ID="$DISTRO_ID_OVERRIDE"
+    fi
     DISTRO_CODENAME=$(cat /etc/*-release | grep -i -m1 codename | cut -d'=' -f2)
 }
 
@@ -428,7 +433,7 @@ function do_tizonia_deps {
     # Add mopidy APT archive to sources, if not added already
     # and install libspotify using mopidy's deb packages
     local spotify=$(sudo ldconfig -p | grep -c libspotify)
-    if [[ "$spotify" -eq 0 ]]; then
+    if [[ "$spotify" -eq "0" ]]; then
         grep -q 'apt.mopidy.com' /etc/apt/sources.list
         if [[ "$?" -ne 0 ]]; then
             # Add Mopidy APT archive to sources.list

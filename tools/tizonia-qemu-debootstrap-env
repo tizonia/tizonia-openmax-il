@@ -73,6 +73,7 @@ declare -Ar TIZ_DISTRO_MIRRORS=( \
     [debian-armel]="http://ftp.uk.debian.org/debian/" \
     [debian-armhf]="http://ftp.uk.debian.org/debian/" \
     [raspbian-armhf]="http://archive.raspbian.org/raspbian/" \
+    [raspbian-armel]="http://ftp.uk.debian.org/debian/" \
 )
 
 declare -Ar TIZ_DISTRO_COMPONENTS=( \
@@ -304,6 +305,7 @@ function install_dependencies {
     local exit_status=0
 
     print_banner "[$DISTRO-$RELEASE-$ARCH] Checking/installing this program's dependencies" "$YEL"
+    check_dependency apt-transport-https
     check_dependency devscripts
     check_dependency debootstrap
     check_dependency qemu-user-static
@@ -429,6 +431,7 @@ function bootstrap_environment {
     fi
 
     print_banner "[$DISTRO-$RELEASE-$ARCH] Updating apt cache" "$GRN"
+    run_chroot apt-get install -qq --force-yes apt-transport-https
     run_chroot apt-get update
     run_chroot apt-get upgrade -qq --force-yes
 
@@ -465,11 +468,17 @@ function make_packages {
 
 function publish_packages {
     local exit_status=0
-
+    local DISTRO_ID_OVERRIDE=''
     verify_chroot_existence
 
     print_banner "[$DISTRO-$RELEASE-$ARCH] Publishing tizonia packages" "$GRN"
-    run_chroot /bin/bash -v -c 'source /root/.profile; /root/work/tizonia/tools/tizonia-dpkg-build --publish'
+    # This is to force tizonia-dpkg-build to upload the files to the distro
+    # specified, instead of the one detected (as raspbian armel packages are
+    # actually built on a debian chroot)
+    if [[ ( "$DISTRO" == "rasbian" ) && ( "$ARCH" == "armel" ) ]]; then
+        DISTRO_ID_OVERRIDE="raspbian"
+    fi
+    run_chroot /bin/bash -v -c "source /root/.profile; DISTRO_ID_OVERRIDE=$DISTRO_ID_OVERRIDE /root/work/tizonia/tools/tizonia-dpkg-build --publish"
     exit_status=$?
 
     pretty_print "$BLU" "Done publishing packages."
