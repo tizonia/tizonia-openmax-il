@@ -40,52 +40,38 @@
 #include "tizyoutube_c.h"
 
 #define YOUTUBE_TEST_TIMEOUT 2500
-#define YOUTUBE_API_KEY     "xxx"
 
 #define CMD_LEN 1000
-#define PLAYER "tizonia"
+#define PLAYER "mplayer"
+#define YOUTUBE_VIDEO_ID "y3Ca3c6J9N4"
 
-static bool youtube_credentials_present (void)
-{
-  if (!strcmp (YOUTUBE_API_KEY, "xxx"))
-    {
-      return false;
-    }
-  return true;
-}
-
-START_TEST (test_youtube_play_popular_stations)
+START_TEST (test_youtube_play_audio_stream)
 {
   tiz_youtube_t *p_youtube = NULL;
-  int rc = tiz_youtube_init (&p_youtube, YOUTUBE_API_KEY);
+  int rc = tiz_youtube_init (&p_youtube);
   ck_assert (0 == rc);
   ck_assert (p_youtube != NULL);
 
-  rc = tiz_youtube_play_popular_stations (p_youtube);
+  rc = tiz_youtube_play_audio_stream (p_youtube, YOUTUBE_VIDEO_ID);
   ck_assert (0 == rc);
 
-/*   while (1) */
   {
     char cmd[CMD_LEN];
-    const char *next_url = tiz_youtube_get_next_url (p_youtube);
+    const char *next_url = tiz_youtube_get_next_url (p_youtube, false);
     fprintf (stderr, "url = %s\n", next_url);
     ck_assert (next_url != NULL);
 
-    next_url = tiz_youtube_get_next_url (p_youtube);
-    fprintf (stderr, "url = %s\n", next_url);
-    ck_assert (next_url != NULL);
+    {
+      const char *title = tiz_youtube_get_current_audio_stream_title (p_youtube);
+      ck_assert (title);
+      fprintf (stderr, "current_audio_stream_title = %s\n", title);
+    }
 
-/*     { */
-/*       const char *user = tiz_youtube_get_current_track_user (p_youtube); */
-/*       ck_assert (user); */
-/*       fprintf (stderr, "user = %s\n", user); */
-/*     } */
-
-/*     { */
-/*       const char *title = tiz_youtube_get_current_track_title (p_youtube); */
-/*       ck_assert (title); */
-/*       fprintf (stderr, "title = %s\n", title); */
-/*     } */
+    {
+      const char *size = tiz_youtube_get_current_audio_stream_file_size (p_youtube);
+      ck_assert (size);
+      fprintf (stderr, "current_audio_stream_file_size = %s\n", size);
+    }
 
 /*     { */
 /*       const char *duration */
@@ -130,7 +116,7 @@ youtube_suite (void)
   /* test case */
   tc_youtube = tcase_create ("YouTube audio client lib unit tests");
   tcase_set_timeout (tc_youtube, YOUTUBE_TEST_TIMEOUT);
-  tcase_add_test (tc_youtube, test_youtube_play_popular_stations);
+  tcase_add_test (tc_youtube, test_youtube_play_audio_stream);
   suite_add_tcase (s, tc_youtube);
 
   return s;
@@ -139,14 +125,11 @@ youtube_suite (void)
 int main (void)
 {
   int number_failed = 1;
-  if (youtube_credentials_present ())
-    {
-      SRunner *sr = srunner_create (youtube_suite ());
-      srunner_set_log (sr, "-");
-      srunner_run_all (sr, CK_VERBOSE);
-      number_failed = srunner_ntests_failed (sr);
-      srunner_free (sr);
-    }
+  SRunner *sr = srunner_create (youtube_suite ());
+  srunner_set_log (sr, "-");
+  srunner_run_all (sr, CK_VERBOSE);
+  number_failed = srunner_ntests_failed (sr);
+  srunner_free (sr);
   return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
