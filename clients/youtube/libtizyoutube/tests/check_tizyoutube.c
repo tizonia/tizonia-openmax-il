@@ -44,6 +44,60 @@
 #define CMD_LEN 1000
 #define PLAYER "mplayer"
 #define YOUTUBE_VIDEO_ID "y3Ca3c6J9N4"
+#define YOUTUBE_SEARCH_TERM "queen"
+
+static void dump_info(tiz_youtube_t *p_youtube)
+{
+  assert(p_youtube);
+
+  {
+    const char *title = tiz_youtube_get_current_audio_stream_title (p_youtube);
+    ck_assert (title);
+    fprintf (stderr, "current_audio_stream_title = %s\n", title);
+  }
+
+  {
+    const char *author
+        = tiz_youtube_get_current_audio_stream_author (p_youtube);
+    ck_assert (author);
+    fprintf (stderr, "current_audio_stream_author = %s\n", author);
+  }
+
+  {
+    const char *size
+        = tiz_youtube_get_current_audio_stream_file_size (p_youtube);
+    ck_assert (size);
+    fprintf (stderr, "current_audio_stream_file_size = %s\n", size);
+  }
+
+  {
+    const char *duration
+        = tiz_youtube_get_current_audio_stream_duration (p_youtube);
+    ck_assert (duration);
+    fprintf (stderr, "current_audio_stream_duration = %s\n", duration);
+  }
+
+  {
+    const char *bitrate
+        = tiz_youtube_get_current_audio_stream_bitrate (p_youtube);
+    ck_assert (bitrate);
+    fprintf (stderr, "current_audio_stream_bitrate = %s\n", bitrate);
+  }
+
+  {
+    const char *count
+        = tiz_youtube_get_current_audio_stream_view_count (p_youtube);
+    ck_assert (count);
+    fprintf (stderr, "current_audio_stream_view_count = %s\n", count);
+  }
+
+  {
+    const char *description
+        = tiz_youtube_get_current_audio_stream_description (p_youtube);
+    ck_assert (description);
+    fprintf (stderr, "current_audio_stream_description = %s\n", description);
+  }
+}
 
 START_TEST (test_youtube_play_audio_stream)
 {
@@ -61,49 +115,34 @@ START_TEST (test_youtube_play_audio_stream)
     fprintf (stderr, "url = %s\n", next_url);
     ck_assert (next_url != NULL);
 
-    {
-      const char *title = tiz_youtube_get_current_audio_stream_title (p_youtube);
-      ck_assert (title);
-      fprintf (stderr, "current_audio_stream_title = %s\n", title);
-    }
+    dump_info(p_youtube);
 
-    {
-      const char *author = tiz_youtube_get_current_audio_stream_author (p_youtube);
-      ck_assert (author);
-      fprintf (stderr, "current_audio_stream_author = %s\n", author);
-    }
+    /*     snprintf (cmd, CMD_LEN, "%s \"%s\"", PLAYER, next_url); */
+    /*     fprintf (stderr, "cmd = %s\n", cmd); */
+    /*     ck_assert (-1 != system (cmd)); */
+  }
 
-    {
-      const char *size = tiz_youtube_get_current_audio_stream_file_size (p_youtube);
-      ck_assert (size);
-      fprintf (stderr, "current_audio_stream_file_size = %s\n", size);
-    }
+  tiz_youtube_destroy (p_youtube);
+}
+END_TEST
 
-    {
-      const char *duration = tiz_youtube_get_current_audio_stream_duration (p_youtube);
-      ck_assert (duration);
-      fprintf (stderr, "current_audio_stream_duration = %s\n", duration);
-    }
+START_TEST (test_youtube_play_audio_search)
+{
+  tiz_youtube_t *p_youtube = NULL;
+  int rc = tiz_youtube_init (&p_youtube);
+  ck_assert (0 == rc);
+  ck_assert (p_youtube != NULL);
 
-    {
-      const char *bitrate
-          = tiz_youtube_get_current_audio_stream_bitrate (p_youtube);
-      ck_assert (bitrate);
-      fprintf (stderr, "current_audio_stream_bitrate = %s\n", bitrate);
-    }
+  rc = tiz_youtube_play_audio_search (p_youtube, YOUTUBE_SEARCH_TERM);
+  ck_assert (0 == rc);
 
-    {
-      const char *count = tiz_youtube_get_current_audio_stream_view_count (p_youtube);
-      ck_assert (count);
-      fprintf (stderr, "current_audio_stream_view_count = %s\n", count);
-    }
+  {
+    char cmd[CMD_LEN];
+    const char *next_url = tiz_youtube_get_next_url (p_youtube, false);
+    fprintf (stderr, "url = %s\n", next_url);
+    ck_assert (next_url != NULL);
 
-    {
-      const char *description
-          = tiz_youtube_get_current_audio_stream_description (p_youtube);
-      ck_assert (description);
-      fprintf (stderr, "current_audio_stream_description = %s\n", description);
-    }
+    dump_info(p_youtube);
 
     /*     snprintf (cmd, CMD_LEN, "%s \"%s\"", PLAYER, next_url); */
     /*     fprintf (stderr, "cmd = %s\n", cmd); */
@@ -124,6 +163,7 @@ youtube_suite (void)
   tc_youtube = tcase_create ("YouTube audio client lib unit tests");
   tcase_set_timeout (tc_youtube, YOUTUBE_TEST_TIMEOUT);
   tcase_add_test (tc_youtube, test_youtube_play_audio_stream);
+  tcase_add_test (tc_youtube, test_youtube_play_audio_search);
   suite_add_tcase (s, tc_youtube);
 
   return s;

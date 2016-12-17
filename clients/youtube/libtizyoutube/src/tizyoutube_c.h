@@ -116,6 +116,22 @@ int tiz_youtube_play_audio_playlist (tiz_youtube_t *ap_youtube,
                                      const char *ap_url_or_id);
 
 /**
+ * Add all the audio streams of a YouTube search to the playback queue.
+ *
+ * After calling this method, the various tiz_youtube_get* methods can be
+ * used to interact with the playback queue.
+ *
+ * @ingroup libtizyoutube
+ *
+ * @param ap_youtube The tiz_youtube handle.
+ * @param ap_search A search term.
+ *
+ * @return 0 on success
+ */
+int tiz_youtube_play_audio_search (tiz_youtube_t *ap_youtube,
+                                   const char *ap_search);
+
+/**
  * Clear the playback queue.
  *
  * @ingroup libtizyoutube

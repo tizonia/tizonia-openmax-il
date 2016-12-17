@@ -123,6 +123,14 @@ extern "C" int tiz_youtube_play_audio_playlist (tiz_youtube_t *ap_youtube,
   return ap_youtube->p_proxy_->play_audio_playlist (ap_url_or_id);
 }
 
+extern "C" int tiz_youtube_play_audio_search (tiz_youtube_t *ap_youtube,
+                                              const char *ap_search)
+{
+  assert (ap_youtube);
+  assert (ap_youtube->p_proxy_);
+  return ap_youtube->p_proxy_->play_audio_search (ap_search);
+}
+
 extern "C" void tiz_youtube_clear_queue (tiz_youtube_t *ap_youtube)
 {
   assert (ap_youtube);
