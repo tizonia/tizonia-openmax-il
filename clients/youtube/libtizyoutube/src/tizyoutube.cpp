@@ -86,7 +86,12 @@ namespace
 tizyoutube::tizyoutube ()
   : current_url_ (),
     current_stream_title_ (),
-    current_stream_file_size_ ()
+    current_stream_author_ (),
+    current_stream_file_size_ (),
+    current_stream_duration_ (),
+    current_stream_bitrate_ (),
+    current_stream_view_count_ (),
+    current_stream_description_ ()
 {
 }
 
@@ -227,16 +232,46 @@ const char *tizyoutube::get_current_audio_stream_title ()
   return current_stream_title_.empty () ? NULL : current_stream_title_.c_str ();
 }
 
+const char *tizyoutube::get_current_audio_stream_author ()
+{
+  return current_stream_author_.empty () ? NULL : current_stream_author_.c_str ();
+}
+
 const char *tizyoutube::get_current_audio_stream_file_size ()
 {
   return current_stream_file_size_.empty () ? NULL : current_stream_file_size_.c_str ();
+}
+
+const char *tizyoutube::get_current_audio_stream_duration ()
+{
+  return current_stream_duration_.empty () ? NULL : current_stream_duration_.c_str ();
+}
+
+const char *tizyoutube::get_current_audio_stream_bitrate ()
+{
+  return current_stream_bitrate_.empty () ? NULL : current_stream_bitrate_.c_str ();
+}
+
+const char *tizyoutube::get_current_audio_stream_view_count ()
+{
+  return current_stream_view_count_.empty () ? NULL : current_stream_view_count_.c_str ();
+}
+
+const char *tizyoutube::get_current_audio_stream_description ()
+{
+  return current_stream_description_.empty () ? NULL : current_stream_description_.c_str ();
 }
 
 int tizyoutube::get_current_stream ()
 {
   int rc = 0;
   current_stream_title_.clear ();
+  current_stream_author_.clear ();
   current_stream_file_size_.clear ();
+  current_stream_duration_.clear ();
+  current_stream_bitrate_.clear ();
+  current_stream_view_count_.clear ();
+  current_stream_description_.clear ();
 
   const char * p_title = bp::extract< char const * >(py_yt_proxy_.attr ("current_audio_stream_title")());
   if (p_title)
@@ -244,8 +279,35 @@ int tizyoutube::get_current_stream ()
       current_stream_title_.assign(p_title);
     }
 
+  const char * p_author = bp::extract< char const * >(py_yt_proxy_.attr ("current_audio_stream_author")());
+  if (p_author)
+    {
+      current_stream_author_.assign(p_author);
+    }
+
   const int file_size = bp::extract< int >(py_yt_proxy_.attr ("current_audio_stream_file_size")());
   current_stream_file_size_.assign (boost::lexical_cast< std::string >(file_size));
+
+  const char * p_duration = bp::extract< char const * >(py_yt_proxy_.attr ("current_audio_stream_duration")());
+  if (p_duration)
+    {
+      current_stream_duration_.assign(p_duration);
+    }
+
+  const char * p_bitrate = bp::extract< char const * >(py_yt_proxy_.attr ("current_audio_stream_bitrate")());
+  if (p_bitrate)
+    {
+      current_stream_bitrate_.assign(p_bitrate);
+    }
+
+  const int view_count = bp::extract< int >(py_yt_proxy_.attr ("current_audio_stream_view_count")());
+  current_stream_view_count_.assign (boost::lexical_cast< std::string >(view_count));
+
+  const char * p_description = bp::extract< char const * >(py_yt_proxy_.attr ("current_audio_stream_description")());
+  if (p_description)
+    {
+      current_stream_description_.assign(p_description);
+    }
 
   return rc;
 }

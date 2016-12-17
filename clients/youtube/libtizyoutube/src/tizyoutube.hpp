@@ -65,7 +65,12 @@ public:
   const char * get_prev_url (const bool a_remove_current_url);
 
   const char * get_current_audio_stream_title ();
+  const char * get_current_audio_stream_author ();
   const char * get_current_audio_stream_file_size ();
+  const char * get_current_audio_stream_duration ();
+  const char * get_current_audio_stream_bitrate ();
+  const char * get_current_audio_stream_view_count ();
+  const char * get_current_audio_stream_description ();
 
 private:
   int get_current_stream ();
@@ -73,7 +78,12 @@ private:
 private:
   std::string current_url_;
   std::string current_stream_title_;
+  std::string current_stream_author_;
   std::string current_stream_file_size_;
+  std::string current_stream_duration_;
+  std::string current_stream_bitrate_;
+  std::string current_stream_view_count_;
+  std::string current_stream_description_;
   boost::python::object py_main_;
   boost::python::object py_global_;
   boost::python::object py_yt_proxy_;

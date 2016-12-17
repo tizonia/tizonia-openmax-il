@@ -154,12 +154,52 @@ extern "C" const char *tiz_youtube_get_current_audio_stream_title (
   return ap_youtube->p_proxy_->get_current_audio_stream_title ();
 }
 
+extern "C" const char *tiz_youtube_get_current_audio_stream_author (
+    tiz_youtube_t *ap_youtube)
+{
+  assert (ap_youtube);
+  assert (ap_youtube->p_proxy_);
+  return ap_youtube->p_proxy_->get_current_audio_stream_author ();
+}
+
 extern "C" const char *tiz_youtube_get_current_audio_stream_file_size (
     tiz_youtube_t *ap_youtube)
 {
   assert (ap_youtube);
   assert (ap_youtube->p_proxy_);
   return ap_youtube->p_proxy_->get_current_audio_stream_file_size ();
+}
+
+extern "C" const char *tiz_youtube_get_current_audio_stream_duration (
+    tiz_youtube_t *ap_youtube)
+{
+  assert (ap_youtube);
+  assert (ap_youtube->p_proxy_);
+  return ap_youtube->p_proxy_->get_current_audio_stream_duration ();
+}
+
+extern "C" const char *tiz_youtube_get_current_audio_stream_bitrate (
+    tiz_youtube_t *ap_youtube)
+{
+  assert (ap_youtube);
+  assert (ap_youtube->p_proxy_);
+  return ap_youtube->p_proxy_->get_current_audio_stream_bitrate ();
+}
+
+extern "C" const char *tiz_youtube_get_current_audio_stream_view_count (
+    tiz_youtube_t *ap_youtube)
+{
+  assert (ap_youtube);
+  assert (ap_youtube->p_proxy_);
+  return ap_youtube->p_proxy_->get_current_audio_stream_view_count ();
+}
+
+extern "C" const char *tiz_youtube_get_current_audio_stream_description (
+    tiz_youtube_t *ap_youtube)
+{
+  assert (ap_youtube);
+  assert (ap_youtube->p_proxy_);
+  return ap_youtube->p_proxy_->get_current_audio_stream_description ();
 }
 
 extern "C" void tiz_youtube_destroy (tiz_youtube_t *ap_youtube)

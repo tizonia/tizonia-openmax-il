@@ -68,39 +68,46 @@ START_TEST (test_youtube_play_audio_stream)
     }
 
     {
+      const char *author = tiz_youtube_get_current_audio_stream_author (p_youtube);
+      ck_assert (author);
+      fprintf (stderr, "current_audio_stream_author = %s\n", author);
+    }
+
+    {
       const char *size = tiz_youtube_get_current_audio_stream_file_size (p_youtube);
       ck_assert (size);
       fprintf (stderr, "current_audio_stream_file_size = %s\n", size);
     }
 
-/*     { */
-/*       const char *duration */
-/*           = tiz_youtube_get_current_track_duration (p_youtube); */
-/*       ck_assert (duration); */
-/*       fprintf (stderr, "duration = %s\n", duration); */
-/*     } */
+    {
+      const char *duration = tiz_youtube_get_current_audio_stream_duration (p_youtube);
+      ck_assert (duration);
+      fprintf (stderr, "current_audio_stream_duration = %s\n", duration);
+    }
 
-/*     { */
-/*       const char *year = tiz_youtube_get_current_track_year (p_youtube); */
-/*       ck_assert (year); */
-/*       fprintf (stderr, "year = %s\n", year); */
-/*     } */
+    {
+      const char *bitrate
+          = tiz_youtube_get_current_audio_stream_bitrate (p_youtube);
+      ck_assert (bitrate);
+      fprintf (stderr, "current_audio_stream_bitrate = %s\n", bitrate);
+    }
 
-/*     { */
-/*       const char *permalink = tiz_youtube_get_current_track_permalink (p_youtube); */
-/*       ck_assert (permalink); */
-/*       fprintf (stderr, "permalink = %s\n", permalink); */
-/*     } */
+    {
+      const char *count = tiz_youtube_get_current_audio_stream_view_count (p_youtube);
+      ck_assert (count);
+      fprintf (stderr, "current_audio_stream_view_count = %s\n", count);
+    }
 
-/*     { */
-/*       const char *license = tiz_youtube_get_current_track_license (p_youtube); */
-/*       ck_assert (license); */
-/*       fprintf (stderr, "license = %s\n", license); */
-/*     } */
+    {
+      const char *description
+          = tiz_youtube_get_current_audio_stream_description (p_youtube);
+      ck_assert (description);
+      fprintf (stderr, "current_audio_stream_description = %s\n", description);
+    }
 
-/*     snprintf (cmd, CMD_LEN, "%s \"%s\"", PLAYER, next_url); */
-/*     fprintf (stderr, "cmd = %s\n", cmd); */
-/*     ck_assert (-1 != system (cmd)); */
+    /*     snprintf (cmd, CMD_LEN, "%s \"%s\"", PLAYER, next_url); */
+    /*     fprintf (stderr, "cmd = %s\n", cmd); */
+    /*     ck_assert (-1 != system (cmd)); */
   }
 
   tiz_youtube_destroy (p_youtube);
