@@ -23,11 +23,11 @@ Access YouTube to retrieve audio stream URLs and create a playback queue.
 
 from __future__ import unicode_literals
 
+import pafy
 import sys
 import logging
 import random
 import unicodedata
-import pafy
 from collections import namedtuple
 
 # For use during debugging
@@ -35,7 +35,7 @@ import pprint
 from traceback import print_exception
 
 logging.captureWarnings(True)
-# logging.getLogger().addHandler(logging.NullHandler())
+logging.getLogger().addHandler(logging.NullHandler())
 logging.getLogger().setLevel(logging.DEBUG)
 
 class _Colors:
@@ -148,6 +148,7 @@ class tizyoutubeproxy(object):
             if not audio:
                 raise ValueError(str("No WebM audio stream for : %s" % arg))
 
+            pprint.pprint(audio)
             self.add_to_playback_queue(audio)
 
             self.__update_play_queue_order()
@@ -191,15 +192,16 @@ class tizyoutubeproxy(object):
             title = to_ascii(stream.title).encode("utf-8")
         return title
 
-    def current_audio_stream_file_size_and_duration(self):
+    def current_audio_stream_file_size(self):
         """ Retrieve the current stream's file size.
 
         """
         logging.info("current_audio_stream_file_size")
         stream = self.now_playing_stream
         size = 0
+        pprint.pprint(stream)
         if stream:
-            size = stream.get_filesize()
+            size = stream.filesize
         return size
 
     def clear_queue(self):
