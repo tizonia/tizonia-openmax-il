@@ -97,6 +97,13 @@ static void dump_info(tiz_youtube_t *p_youtube)
     ck_assert (description);
     fprintf (stderr, "current_audio_stream_description = %s\n", description);
   }
+
+  {
+    const char *file_extension
+        = tiz_youtube_get_current_audio_stream_file_extension (p_youtube);
+    ck_assert (file_extension);
+    fprintf (stderr, "current_audio_stream_file_extension = %s\n", file_extension);
+  }
 }
 
 START_TEST (test_youtube_play_audio_stream)

@@ -72,6 +72,7 @@ public:
   const char * get_current_audio_stream_bitrate ();
   const char * get_current_audio_stream_view_count ();
   const char * get_current_audio_stream_description ();
+  const char * get_current_audio_stream_file_extension ();
 
 private:
   int get_current_stream ();
@@ -85,6 +86,7 @@ private:
   std::string current_stream_bitrate_;
   std::string current_stream_view_count_;
   std::string current_stream_description_;
+  std::string current_stream_file_extension_;
   boost::python::object py_main_;
   boost::python::object py_global_;
   boost::python::object py_yt_proxy_;

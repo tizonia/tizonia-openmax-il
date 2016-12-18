@@ -210,6 +210,14 @@ extern "C" const char *tiz_youtube_get_current_audio_stream_description (
   return ap_youtube->p_proxy_->get_current_audio_stream_description ();
 }
 
+extern "C" const char *tiz_youtube_get_current_audio_stream_file_extension (
+    tiz_youtube_t *ap_youtube)
+{
+  assert (ap_youtube);
+  assert (ap_youtube->p_proxy_);
+  return ap_youtube->p_proxy_->get_current_audio_stream_file_extension ();
+}
+
 extern "C" void tiz_youtube_destroy (tiz_youtube_t *ap_youtube)
 {
   if (ap_youtube)

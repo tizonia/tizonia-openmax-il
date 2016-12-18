@@ -245,6 +245,16 @@ const char *tiz_youtube_get_current_audio_stream_description (
     tiz_youtube_t *ap_youtube);
 
 /**
+* Retrieve the current audio stream's file extension.
+*
+* @ingroup libtizyoutube
+*
+* @param ap_gmusic The tiz_youtube handle.
+*/
+const char *tiz_youtube_get_current_audio_stream_file_extension (
+    tiz_youtube_t *ap_youtube);
+
+/**
  * Destroy the tiz_youtube handle.
  *
  * @ingroup libtizyoutube

@@ -91,7 +91,8 @@ tizyoutube::tizyoutube ()
     current_stream_duration_ (),
     current_stream_bitrate_ (),
     current_stream_view_count_ (),
-    current_stream_description_ ()
+    current_stream_description_ (),
+    current_stream_file_extension_ ()
 {
 }
 
@@ -270,6 +271,11 @@ const char *tizyoutube::get_current_audio_stream_description ()
   return current_stream_description_.empty () ? NULL : current_stream_description_.c_str ();
 }
 
+const char *tizyoutube::get_current_audio_stream_file_extension ()
+{
+  return current_stream_file_extension_.empty () ? NULL : current_stream_file_extension_.c_str ();
+}
+
 int tizyoutube::get_current_stream ()
 {
   int rc = 0;
@@ -280,6 +286,7 @@ int tizyoutube::get_current_stream ()
   current_stream_bitrate_.clear ();
   current_stream_view_count_.clear ();
   current_stream_description_.clear ();
+  current_stream_file_extension_.clear ();
 
   const char * p_title = bp::extract< char const * >(py_yt_proxy_.attr ("current_audio_stream_title")());
   if (p_title)
@@ -315,6 +322,12 @@ int tizyoutube::get_current_stream ()
   if (p_description)
     {
       current_stream_description_.assign(p_description);
+    }
+
+  const char * p_file_extension = bp::extract< char const * >(py_yt_proxy_.attr ("current_audio_stream_file_extension")());
+  if (p_file_extension)
+    {
+      current_stream_file_extension_.assign(p_file_extension);
     }
 
   return rc;
