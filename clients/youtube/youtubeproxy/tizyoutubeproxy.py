@@ -179,10 +179,14 @@ class tizyoutubeproxy(object):
             count = len(self.queue)
 
             playlist = pafy.get_playlist(arg)
-            for yt_video in playlist:
-                yt_audio = yt_video.getbestaudio(preftype="webm")
-                if yt_audio:
-                    self.add_to_playback_queue(audio=yt_audio, video=yt_video)
+            items = playlist.get('items')
+            if len(items) > 0:
+                for item in items:
+                    yt_video = item.get('pafy')
+                    if yt_video:
+                        yt_audio = yt_video.getbestaudio(preftype="webm")
+                        if yt_audio:
+                            self.add_to_playback_queue(audio=yt_audio, video=yt_video)
 
             if count == len(self.queue):
                 raise ValueError
