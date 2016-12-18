@@ -42,7 +42,7 @@ logging.getLogger().setLevel(logging.DEBUG)
 
 ISO8601_TIMEDUR_EX = re.compile(r'PT((\d{1,3})H)?((\d{1,3})M)?((\d{1,2})S)?')
 
-API_KEY = 'AIzaSyCIM4EzNqi1in22f4Z3Ru3iYvLaY8tc3bo'
+API_KEY = 'AIzaSyAv9KX5r5WfzfAKlf4mhQMHKmHr-Uw-WOc'
 
 class _Colors:
     """A trivial class that defines various ANSI color codes.
