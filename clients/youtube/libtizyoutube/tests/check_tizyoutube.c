@@ -42,8 +42,9 @@
 #define YOUTUBE_TEST_TIMEOUT 2500
 
 #define CMD_LEN 1000
-#define PLAYER "mplayer"
+#define PLAYER "mpv"
 #define YOUTUBE_VIDEO_ID "y3Ca3c6J9N4"
+#define YOUTUBE_PLAYILST_URL "https://www.youtube.com/watch?v=fJ9rUzIMcZQ&list=PLqDzNilwDj_dm_BOGxoCRmvA6CheRwAiw"
 #define YOUTUBE_SEARCH_TERM "queen"
 
 static void dump_info(tiz_youtube_t *p_youtube)
@@ -106,6 +107,14 @@ static void dump_info(tiz_youtube_t *p_youtube)
   }
 }
 
+static void play_track (const char *p_next_url)
+{
+  char cmd[CMD_LEN];
+  snprintf (cmd, CMD_LEN, "%s --length 10 \'%s\'", PLAYER, p_next_url);
+  fprintf (stderr, "cmd = %s\n", cmd);
+  ck_assert (-1 != system (cmd));
+}
+
 START_TEST (test_youtube_play_audio_stream)
 {
   tiz_youtube_t *p_youtube = NULL;
@@ -117,16 +126,38 @@ START_TEST (test_youtube_play_audio_stream)
   ck_assert (0 == rc);
 
   {
-    char cmd[CMD_LEN];
     const char *next_url = tiz_youtube_get_next_url (p_youtube, false);
     fprintf (stderr, "url = %s\n", next_url);
     ck_assert (next_url != NULL);
 
     dump_info(p_youtube);
+    play_track(next_url);
+  }
 
-    /*     snprintf (cmd, CMD_LEN, "%s \"%s\"", PLAYER, next_url); */
-    /*     fprintf (stderr, "cmd = %s\n", cmd); */
-    /*     ck_assert (-1 != system (cmd)); */
+  tiz_youtube_destroy (p_youtube);
+}
+END_TEST
+
+START_TEST (test_youtube_play_audio_playlist)
+{
+  tiz_youtube_t *p_youtube = NULL;
+  int rc = tiz_youtube_init (&p_youtube);
+  int i = 0;
+  ck_assert (0 == rc);
+  ck_assert (p_youtube != NULL);
+
+  rc = tiz_youtube_play_audio_playlist (p_youtube, YOUTUBE_PLAYILST_URL);
+  ck_assert (0 == rc);
+
+  while (i < 5)
+  {
+    const char *next_url = tiz_youtube_get_next_url (p_youtube, false);
+    fprintf (stderr, "url = %s\n", next_url);
+    ck_assert (next_url != NULL);
+
+    dump_info(p_youtube);
+    play_track(next_url);
+    ++i;
   }
 
   tiz_youtube_destroy (p_youtube);
@@ -137,24 +168,23 @@ START_TEST (test_youtube_play_audio_search)
 {
   tiz_youtube_t *p_youtube = NULL;
   int rc = tiz_youtube_init (&p_youtube);
+  int i = 0;
   ck_assert (0 == rc);
   ck_assert (p_youtube != NULL);
 
   rc = tiz_youtube_play_audio_search (p_youtube, YOUTUBE_SEARCH_TERM);
   ck_assert (0 == rc);
 
+  while (i < 5)
   {
-    char cmd[CMD_LEN];
     const char *next_url = tiz_youtube_get_next_url (p_youtube, false);
     fprintf (stderr, "url = %s\n", next_url);
     ck_assert (next_url != NULL);
 
     dump_info(p_youtube);
-
-    /*     snprintf (cmd, CMD_LEN, "%s \"%s\"", PLAYER, next_url); */
-    /*     fprintf (stderr, "cmd = %s\n", cmd); */
-    /*     ck_assert (-1 != system (cmd)); */
-  }
+    play_track(next_url);
+    ++i;
+ }
 
   tiz_youtube_destroy (p_youtube);
 }
@@ -170,6 +200,7 @@ youtube_suite (void)
   tc_youtube = tcase_create ("YouTube audio client lib unit tests");
   tcase_set_timeout (tc_youtube, YOUTUBE_TEST_TIMEOUT);
   tcase_add_test (tc_youtube, test_youtube_play_audio_stream);
+  tcase_add_test (tc_youtube, test_youtube_play_audio_playlist);
   tcase_add_test (tc_youtube, test_youtube_play_audio_search);
   suite_add_tcase (s, tc_youtube);
 
