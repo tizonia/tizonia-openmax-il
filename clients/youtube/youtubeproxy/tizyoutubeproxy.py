@@ -300,6 +300,17 @@ class tizyoutubeproxy(object):
             description = to_ascii(stream['v'].description).encode("utf-8")
         return description
 
+    def current_audio_stream_file_extension(self):
+        """ Retrieve the current stream's file extension.
+
+        """
+        logging.info("current_audio_stream_file_extension")
+        stream = self.now_playing_stream
+        file_extension = ''
+        if stream:
+            file_extension = to_ascii(stream['a'].extension).encode("utf-8")
+        return file_extension
+
     def clear_queue(self):
         """ Clears the playback queue.
 
