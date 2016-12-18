@@ -33,8 +33,8 @@ import json
 from collections import namedtuple
 
 # For use during debugging
-import pprint
-from traceback import print_exception
+# import pprint
+# from traceback import print_exception
 
 logging.captureWarnings(True)
 logging.getLogger().addHandler(logging.NullHandler())
@@ -92,8 +92,8 @@ def exception_handler(exception_type, exception, traceback):
     """
 
     print_err("[YouTube] (%s) : %s" % (exception_type.__name__, exception))
-    # del traceback # unused
-    print_exception(exception_type, exception, traceback)
+    del traceback # unused
+    # print_exception(exception_type, exception, traceback)
 
 sys.excepthook = exception_handler
 
@@ -128,8 +128,6 @@ class tizyoutubeproxy(object):
     a playback queue.
 
     """
-
-    Stream = namedtuple("Stream", "audio video info")
 
     def __init__(self):
         self.queue = list()
@@ -207,10 +205,14 @@ class tizyoutubeproxy(object):
             wdata = pafy.call_gdata('search', query)
 
             wdata2 = wdata
+            count = 0
             while True:
                 for track_info in self._get_tracks_from_json(wdata2):
                     self.add_to_playback_queue(info=track_info)
+                    count += 1
 
+                if count > 50:
+                    break
                 if not wdata2.get('nextPageToken'):
                     break
                 query['pageToken'] = wdata2['nextPageToken']
@@ -229,7 +231,7 @@ class tizyoutubeproxy(object):
         stream = self.now_playing_stream
         title = ''
         if stream:
-            title = to_ascii(stream.audio.title).encode("utf-8")
+            title = to_ascii(stream['a'].title).encode("utf-8")
         return title
 
     def current_audio_stream_author(self):
@@ -240,7 +242,7 @@ class tizyoutubeproxy(object):
         stream = self.now_playing_stream
         author = ''
         if stream:
-            author = to_ascii(stream.video.author).encode("utf-8")
+            author = to_ascii(stream['v'].author).encode("utf-8")
         return author
 
     def current_audio_stream_file_size(self):
@@ -251,7 +253,7 @@ class tizyoutubeproxy(object):
         stream = self.now_playing_stream
         size = 0
         if stream:
-            size = stream.audio.get_filesize()
+            size = stream['a'].get_filesize()
         return size
 
     def current_audio_stream_duration(self):
@@ -262,7 +264,7 @@ class tizyoutubeproxy(object):
         stream = self.now_playing_stream
         duration = ''
         if stream:
-            duration = to_ascii(stream.video.duration).encode("utf-8")
+            duration = to_ascii(stream['v'].duration).encode("utf-8")
         return duration
 
     def current_audio_stream_bitrate(self):
@@ -273,7 +275,7 @@ class tizyoutubeproxy(object):
         stream = self.now_playing_stream
         bitrate = ''
         if stream:
-            bitrate = stream.audio.bitrate
+            bitrate = stream['a'].bitrate
         return bitrate
 
     def current_audio_stream_view_count(self):
@@ -284,7 +286,7 @@ class tizyoutubeproxy(object):
         stream = self.now_playing_stream
         viewcount = 0
         if stream:
-            viewcount = stream.video.viewcount
+            viewcount = stream['v'].viewcount
         return viewcount
 
     def current_audio_stream_description(self):
@@ -295,7 +297,7 @@ class tizyoutubeproxy(object):
         stream = self.now_playing_stream
         description = ''
         if stream:
-            description = to_ascii(stream.video.description).encode("utf-8")
+            description = to_ascii(stream['v'].description).encode("utf-8")
         return description
 
     def clear_queue(self):
@@ -387,19 +389,19 @@ class tizyoutubeproxy(object):
 
         """
         try:
-            if not stream.video:
-                video = pafy.new(stream.info.ytid)
+            if not stream.get('v'):
+                video = pafy.new(stream['i'].ytid)
                 audio = video.getbestaudio(preftype="webm")
                 if not audio:
+                    logging.info("__retrieve_stream_url : no suitable audio found")
                     raise AttributeError()
-                stream.video = video
-                stream.audio = audio
+                stream.update({'a': audio, 'v': video})
 
             self.now_playing_stream = stream
-            logging.info("__retrieve_stream_url url : {0}".format(stream.audio.url))
-            logging.info("__retrieve_stream_url bitrate   : {0}".format(stream.audio.bitrate))
-            logging.info("__retrieve_stream_url mediatype: {0}".format(stream.audio.mediatype))
-            return stream.audio.url.encode("utf-8")
+            logging.info("__retrieve_stream_url url : {0}".format(stream['a'].url))
+            logging.info("__retrieve_stream_url bitrate   : {0}".format(stream['a'].bitrate))
+            logging.info("__retrieve_stream_url extension: {0}".format(stream['a'].extension))
+            return stream['a'].url.encode("utf-8")
 
         except AttributeError:
             logging.info("Could not retrieve the stream url!")
@@ -482,31 +484,15 @@ class tizyoutubeproxy(object):
     def add_to_playback_queue(self, audio=None, video=None, info=None):
 
         if audio:
-            pprint.pprint(audio.title)
-            pprint.pprint(audio.url)
-            pprint.pprint(audio.get_filesize())
-            pprint.pprint(audio.quality)
-            pprint.pprint(audio.bitrate)
-            pprint.pprint(audio.rawbitrate)
-            pprint.pprint(audio.mediatype)
-            pprint.pprint(audio.notes)
-            pprint.pprint(video.duration)
-            pprint.pprint(video.author)
-            pprint.pprint(video.viewcount)
-            pprint.pprint(video.description)
-
-        if audio:
             print_nfo("[YouTube] [Stream] '{0}' [{1}]." \
                       .format(to_ascii(audio.title).encode("utf-8"), \
-                              to_ascii(audio.mediatype)))
+                              to_ascii(audio.extension)))
         if info:
             print_nfo("[YouTube] [Stream] '{0}'." \
                       .format(to_ascii(info.title).encode("utf-8")))
 
         self.queue.append(
-            tizyoutubeproxy.Stream(audio, \
-                                   video, \
-                                   info))
+            dict(a=audio, v=video, i=info))
 
 if __name__ == "__main__":
     tizyoutubeproxy()
