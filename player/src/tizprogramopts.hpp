@@ -218,6 +218,7 @@ namespace tiz
     OMX_TIZONIA_AUDIO_DIRBLEPLAYLISTTYPE dirble_playlist_type_;
     std::string youtube_audio_stream_;
     std::string youtube_audio_playlist_;
+    std::string youtube_audio_search_;
     std::vector< std::string > youtube_playlist_container_;
     OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE youtube_playlist_type_;
     std::vector<consume_function_t> consume_functions_;

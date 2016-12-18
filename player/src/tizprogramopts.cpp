@@ -298,6 +298,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     dirble_playlist_type_ (OMX_AUDIO_DirblePlaylistTypeUnknown),
     youtube_audio_stream_(),
     youtube_audio_playlist_(),
+    youtube_audio_search_(),
     youtube_playlist_container_(),
     youtube_playlist_type_(OMX_AUDIO_YoutubePlaylistTypeUnknown),
     consume_functions_ (),
@@ -831,6 +832,10 @@ const std::vector< std::string > &
     {
       youtube_playlist_container_.push_back (youtube_audio_playlist_);
     }
+  else if (!youtube_audio_search_.empty ())
+    {
+      youtube_playlist_container_.push_back (youtube_audio_search_);
+    }
   else
     {
       assert (0);
@@ -848,6 +853,10 @@ tiz::programopts::youtube_playlist_type ()
   else if (!youtube_audio_playlist_.empty ())
     {
       youtube_playlist_type_ = OMX_AUDIO_YoutubePlaylistTypeAudioPlaylist;
+    }
+  else if (!youtube_audio_search_.empty ())
+    {
+      youtube_playlist_type_ = OMX_AUDIO_YoutubePlaylistTypeAudioSearch;
     }
   else
     {
@@ -1119,10 +1128,13 @@ void tiz::programopts::init_youtube_options ()
   youtube_.add_options ()
       /* TIZ_CLASS_COMMENT: */
       ("youtube-audio-stream", po::value (&youtube_audio_stream_),
-       "Play a youtube audio stream from a video url or video id.")
+       "Play a YouTube audio stream from a video url or video id.")
       /* TIZ_CLASS_COMMENT: */
       ("youtube-audio-playlist", po::value (&youtube_audio_playlist_),
-       "Play a youtube audio playlist from a playlist url or playlist id.");
+       "Play a YouTube audio playlist from a playlist url or playlist id.")
+      /* TIZ_CLASS_COMMENT: */
+      ("youtube-audio-search", po::value (&youtube_audio_search_),
+       "Search and play YouTube audio streams.");
 
   register_consume_function (&tiz::programopts::consume_youtube_client_options);
   all_youtube_client_options_ = boost::assign::list_of ("youtube-audio-stream")
