@@ -86,6 +86,20 @@ namespace tiz
       }
     };
 
+    template<int comp_id>
+    struct do_configure_comp
+    {
+      template <class FSM, class EVT, class SourceState, class TargetState>
+      void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
+      {
+        G_ACTION_LOG();
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+          {
+            (*(fsm.pp_ops_))->do_configure_comp (comp_id);
+          }
+      }
+    };
+
     struct do_skip
     {
       template < class FSM, class EVT, class SourceState, class TargetState >
@@ -191,7 +205,8 @@ namespace tiz
       }
     };
 
-    struct do_source_omx_loaded2idle
+    template<int comp_id>
+    struct do_omx_loaded2idle_comp
     {
       template <class FSM, class EVT, class SourceState, class TargetState>
       void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
@@ -199,20 +214,7 @@ namespace tiz
         G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
         {
-          (*(fsm.pp_ops_))->do_source_omx_loaded2idle ();
-        }
-      }
-    };
-
-    struct do_source_omx_idle2exe
-    {
-      template <class FSM, class EVT, class SourceState, class TargetState>
-      void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
-      {
-        G_ACTION_LOG ();
-        if (fsm.pp_ops_ && *(fsm.pp_ops_))
-        {
-          (*(fsm.pp_ops_))->do_source_omx_idle2exe ();
+          (*(fsm.pp_ops_))->do_omx_loaded2idle_comp (comp_id);
         }
       }
     };
@@ -226,6 +228,20 @@ namespace tiz
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
         {
           (*(fsm.pp_ops_))->do_omx_idle2exe ();
+        }
+      }
+    };
+
+    template<int comp_id>
+    struct do_omx_idle2exe_comp
+    {
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
+      {
+        G_ACTION_LOG ();
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+        {
+          (*(fsm.pp_ops_))->do_omx_idle2exe_comp (comp_id);
         }
       }
     };
@@ -386,6 +402,20 @@ namespace tiz
       }
     };
 
+    template<int comp_id>
+    struct do_omx_exe2idle_comp
+    {
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
+      {
+        G_ACTION_LOG ();
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+        {
+          (*(fsm.pp_ops_))->do_omx_exe2idle_comp (comp_id);
+        }
+      }
+    };
+
     struct do_store_skip
     {
       template < class FSM, class EVT, class SourceState, class TargetState >
@@ -408,6 +438,20 @@ namespace tiz
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
         {
           (*(fsm.pp_ops_))->do_omx_idle2loaded ();
+        }
+      }
+    };
+
+    template<int comp_id>
+    struct do_omx_idle2loaded_comp
+    {
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
+      {
+        G_ACTION_LOG ();
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+        {
+          (*(fsm.pp_ops_))->do_omx_idle2loaded_comp (comp_id);
         }
       }
     };

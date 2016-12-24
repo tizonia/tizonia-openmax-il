@@ -76,7 +76,8 @@ graph::youtube::youtube ()
   : graph::graph ("youtubegraph"),
     fsm_ (new tiz::graph::youtubefsm::fsm (
         boost::msm::back::states_
-        << tiz::graph::youtubefsm::fsm::auto_detecting (&p_ops_)
+        << tiz::graph::youtubefsm::fsm::auto_detecting_0 (&p_ops_)
+        << tiz::graph::youtubefsm::fsm::auto_detecting_1 (&p_ops_)
         << tiz::graph::youtubefsm::fsm::updating_graph (&p_ops_)
         << tiz::graph::youtubefsm::fsm::reconfiguring_tunnel_0 (&p_ops_)
         << tiz::graph::youtubefsm::fsm::reconfiguring_tunnel_1 (&p_ops_)

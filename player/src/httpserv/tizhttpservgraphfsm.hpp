@@ -227,24 +227,6 @@ namespace tiz
           }
         };
 
-        struct do_source_omx_idle2exe
-        {
-          template <class FSM, class EVT, class SourceState, class TargetState>
-          void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
-          {
-            G_FSM_LOG();
-            if (fsm.pp_ops_ && *(fsm.pp_ops_))
-              {
-                // This is a httpservops-specific method
-                httpservops* p_ops = dynamic_cast<httpservops*>(*(fsm.pp_ops_));
-                if (p_ops)
-                  {
-                    p_ops->do_source_omx_idle2exe ();
-                  }
-              }
-          }
-        };
-
         struct do_flag_initial_config_done
         {
           template <class FSM, class EVT, class SourceState, class TargetState>
@@ -283,7 +265,7 @@ namespace tiz
           bmf::Row < probing             , bmf::none                , tg::config2idle     , bmf::ActionSequence_<
                                                                                               boost::mpl::vector<
                                                                                                 do_configure_stream,
-                                                                                                tg::do_source_omx_loaded2idle > > , bmf::euml::Not_< is_initial_configuration >       >,
+                                                                                                tg::do_omx_loaded2idle_comp<0> > > , bmf::euml::Not_< is_initial_configuration >       >,
           bmf::Row < probing             , bmf::none                , conf_exit           , bmf::none                             , tg::is_end_of_play                                >,
           bmf::Row < probing             , bmf::none                , probing             , bmf::ActionSequence_<
                                                                                               boost::mpl::vector<
@@ -296,7 +278,7 @@ namespace tiz
           bmf::Row < tg::config2idle     , tg::omx_trans_evt        , tg::idle2exe        , tg::do_omx_idle2exe                   , bmf::euml::And_<
                                                                                                                                       is_initial_configuration,
                                                                                                                                       tg::is_trans_complete >                         >,
-          bmf::Row < tg::config2idle     , tg::omx_trans_evt        , tg::idle2exe        , do_source_omx_idle2exe                , bmf::euml::And_<
+          bmf::Row < tg::config2idle     , tg::omx_trans_evt        , tg::idle2exe        , tg::do_omx_idle2exe_comp<0>           , bmf::euml::And_<
                                                                                                                                       bmf::euml::Not_< is_initial_configuration >,
                                                                                                                                       tg::is_trans_complete >                         >,
           //    +---+--------------------+--------------------------+---------------------+---------------------------------------+----------------------------------------------------+
@@ -378,42 +360,6 @@ namespace tiz
 
         // transition actions
 
-        struct do_source_omx_exe2idle
-        {
-          template <class FSM, class EVT, class SourceState, class TargetState>
-          void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
-          {
-            G_FSM_LOG();
-            if (fsm.pp_ops_ && *(fsm.pp_ops_))
-              {
-                // This is a httpservops-specific method
-                httpservops* p_ops = dynamic_cast<httpservops*>(*(fsm.pp_ops_));
-                if (p_ops)
-                  {
-                    p_ops->do_source_omx_exe2idle ();
-                  }
-              }
-          }
-        };
-
-        struct do_source_omx_idle2loaded
-        {
-          template <class FSM, class EVT, class SourceState, class TargetState>
-          void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
-          {
-            G_FSM_LOG();
-            if (fsm.pp_ops_ && *(fsm.pp_ops_))
-              {
-                // This is a httpservops-specific method
-                httpservops* p_ops = dynamic_cast<httpservops*>(*(fsm.pp_ops_));
-                if (p_ops)
-                  {
-                    p_ops->do_source_omx_idle2loaded ();
-                  }
-              }
-          }
-        };
-
         // guard conditions
 
         // Transition table for skipping
@@ -421,8 +367,8 @@ namespace tiz
           //         Start                 Event                       Next                      Action                      Guard
           //    +----+---------------------+---------------------------+-------------------------+---------------------------+---------------------------------+
           bmf::Row < skipping_initial      , bmf::none                 , tg::disabling_tunnel    , tg::do_disable_tunnel<0>                                      >,
-          bmf::Row < tg::disabling_tunnel  , tg::omx_port_disabled_evt , to_idle                 , do_source_omx_exe2idle    , tg::is_port_disabling_complete >,
-          bmf::Row < to_idle               , tg::omx_trans_evt         , tg::idle2loaded         , do_source_omx_idle2loaded , tg::is_trans_complete          >,
+          bmf::Row < tg::disabling_tunnel  , tg::omx_port_disabled_evt , to_idle                 , tg::do_omx_exe2idle_comp<0> , tg::is_port_disabling_complete >,
+          bmf::Row < to_idle               , tg::omx_trans_evt         , tg::idle2loaded         , tg::do_omx_idle2loaded_comp<0> , tg::is_trans_complete          >,
           bmf::Row < tg::idle2loaded       , tg::omx_trans_evt         , skip_exit               , tg::do_skip               , tg::is_trans_complete          >
           //    +----+---------------------+---------------------------+-------------------------+---------------------------+---------------------------------+
           > {};

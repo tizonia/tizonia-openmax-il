@@ -96,10 +96,11 @@ namespace tiz
       virtual void do_probe ();
       virtual void do_configure ();
       virtual void do_configure_source ();
+      virtual void do_configure_comp (const int comp_id);
       virtual void do_omx_loaded2idle ();
-      virtual void do_source_omx_loaded2idle ();
-      virtual void do_source_omx_idle2exe ();
+      virtual void do_omx_loaded2idle_comp (const int comp_id);
       virtual void do_omx_idle2exe ();
+      virtual void do_omx_idle2exe_comp (const int comp_id);
       virtual void do_ack_execd ();
       virtual void do_ack_stopped ();
       virtual void do_ack_paused ();
@@ -110,7 +111,9 @@ namespace tiz
       virtual void do_omx_pause2exe ();
       virtual void do_omx_pause2idle ();
       virtual void do_omx_exe2idle ();
+      virtual void do_omx_exe2idle_comp (const int comp_id);
       virtual void do_omx_idle2loaded ();
+      virtual void do_omx_idle2loaded_comp (const int comp_id);
       virtual void do_seek ();
       virtual void do_skip ();
       virtual void do_store_skip (const int jump);
@@ -188,6 +191,8 @@ namespace tiz
 
       virtual bool probe_stream_hook ();
       virtual OMX_ERRORTYPE transition_source (const OMX_STATETYPE to_state);
+      virtual OMX_ERRORTYPE transition_comp (const int comp_id,
+                                             const OMX_STATETYPE to_state);
       virtual OMX_ERRORTYPE transition_tunnel (
           const int tunnel_id, const OMX_COMMANDTYPE to_disabled_or_enabled);
 

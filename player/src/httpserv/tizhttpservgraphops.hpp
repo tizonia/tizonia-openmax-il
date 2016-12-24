@@ -53,9 +53,6 @@ namespace tiz
       void do_configure_server ();
       void do_configure_station ();
       void do_configure_stream ();
-      void do_source_omx_idle2exe ();
-      void do_source_omx_exe2idle ();
-      void do_source_omx_idle2loaded ();
       bool is_initial_configuration () const;
       void do_flag_initial_config_done ();
 

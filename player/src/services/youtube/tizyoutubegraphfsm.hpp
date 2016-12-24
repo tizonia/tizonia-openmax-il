@@ -29,7 +29,7 @@
 #define TIZYOUTUBEGRAPHFSM_HPP
 
 #define BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
-#define BOOST_MPL_LIMIT_VECTOR_SIZE 40
+#define BOOST_MPL_LIMIT_VECTOR_SIZE 50
 #define FUSION_MAX_VECTOR_SIZE      20
 #define SPIRIT_ARGUMENTS_LIMIT      20
 
@@ -72,12 +72,14 @@ namespace tiz
     {
       static char const* const state_names[] = { "inited",
                                                  "loaded",
-                                                 "auto_detecting",
+                                                 "auto_detecting_0",
+                                                 "auto_detecting_1",
                                                  "updating_graph",
                                                  "executing",
                                                  "exe2pause",
                                                  "pause",
                                                  "pause2exe",
+                                                 "pause2idle",
                                                  "reconfiguring_tunnel_0",
                                                  "reconfiguring_tunnel_1",
                                                  "reconfiguring_tunnel_2",
@@ -110,10 +112,13 @@ namespace tiz
       // states
 
       /* 'auto_detecting' is a submachine */
-      struct auto_detecting_ : public boost::msm::front::state_machine_def<auto_detecting_>
+      template<int tunnel_id>
+      struct auto_detecting_ : public boost::msm::front::state_machine_def<auto_detecting_< tunnel_id > >
       {
         // no need for exception handling
         typedef int no_exception_thrown;
+        // require deferred events capability
+        typedef int activate_deferred_events;
 
         // data members
         ops ** pp_ops_;
@@ -151,16 +156,16 @@ namespace tiz
           //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------+----------------------------+
           bmf::Row < tg::awaiting_port_disabled_evt   , tg::omx_port_disabled_evt   , tg::config2idle                 , bmf::ActionSequence_<
                                                                                                                           boost::mpl::vector<
-                                                                                                                            tg::do_configure_source,
-                                                                                                                            tg::do_source_omx_loaded2idle > > , tg::is_port_disabling_complete   >,
-          bmf::Row < tg::awaiting_port_disabled_evt   , tg::omx_port_disabled_evt   , tg::config2idle                    , bmf::ActionSequence_<
+                                                                                                                            tg::do_configure_comp<tunnel_id>,
+                                                                                                                            tg::do_omx_loaded2idle_comp<tunnel_id> > > , tg::is_port_disabling_complete  >,
+          bmf::Row < tg::awaiting_port_disabled_evt   , tg::omx_port_disabled_evt   , tg::config2idle                 , bmf::ActionSequence_<
                                                                                                                           boost::mpl::vector<
                                                                                                                             tg::do_enable_auto_detection<0,0>,
                                                                                                                             tg::do_omx_exe2idle > > , bmf::euml::And_<
                                                                                                                                                         tg::is_component_state<0, OMX_StateExecuting>,
                                                                                                                                                         tg::is_port_disabling_complete> >,
           //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------+----------------------------+
-          bmf::Row < tg::config2idle                  , tg::omx_trans_evt           , tg::idle2exe                    , tg::do_source_omx_idle2exe , tg::is_trans_complete  >,
+          bmf::Row < tg::config2idle                  , tg::omx_trans_evt           , tg::idle2exe                    , tg::do_omx_idle2exe_comp<0> , tg::is_trans_complete  >,
           //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------+----------------------------+
           bmf::Row < tg::idle2exe                     , tg::omx_trans_evt           , tg::executing                   , bmf::none              , tg::is_trans_complete      >,
           //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------+----------------------------+
@@ -184,7 +189,8 @@ namespace tiz
 
       };
       // typedef boost::msm::back::state_machine<auto_detecting_, boost::msm::back::mpl_graph_fsm_check> auto_detecting;
-      typedef boost::msm::back::state_machine<auto_detecting_> auto_detecting;
+      typedef boost::msm::back::state_machine<auto_detecting_<0> > auto_detecting_0;
+      typedef boost::msm::back::state_machine<auto_detecting_<1> > auto_detecting_1;
 
       /* 'updating_graph' is a submachine */
       struct updating_graph_ : public boost::msm::front::state_machine_def<updating_graph_>
@@ -460,19 +466,28 @@ namespace tiz
                                                                                                             tg::do_load_source,
                                                                                                             tg::do_ack_loaded> >                                   >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
-        bmf::Row < tg::loaded                   , tg::execute_evt           , auto_detecting          , boost::msm::front::ActionSequence_<
+        bmf::Row < tg::loaded                   , tg::execute_evt           , auto_detecting_0        , boost::msm::front::ActionSequence_<
                                                                                                           boost::mpl::vector<
                                                                                                             tg::do_store_config,
                                                                                                             tg::do_enable_auto_detection<0,0> > > , tg::last_op_succeeded    >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
-        bmf::Row < auto_detecting               , tg::omx_err_evt           , tg::exe2idle            , bmf::ActionSequence_<
+        bmf::Row < auto_detecting_0             , tg::omx_err_evt           , tg::exe2idle            , bmf::ActionSequence_<
                                                                                                           boost::mpl::vector<
                                                                                                             tg::do_record_fatal_error,
                                                                                                             tg::do_omx_exe2idle> >                                 >,
-        bmf::Row < auto_detecting               , tg::unload_evt            , tg::exe2idle            , tg::do_omx_exe2idle                                        >,
-        bmf::Row < auto_detecting
+        bmf::Row < auto_detecting_1             , tg::omx_err_evt           , tg::exe2idle            , bmf::ActionSequence_<
+                                                                                                          boost::mpl::vector<
+                                                                                                            tg::do_record_fatal_error,
+                                                                                                            tg::do_omx_exe2idle> >                                 >,
+        bmf::Row < auto_detecting_0             , tg::unload_evt            , tg::exe2idle            , tg::do_omx_exe2idle                                        >,
+        bmf::Row < auto_detecting_1             , tg::unload_evt            , tg::exe2idle            , tg::do_omx_exe2idle                                        >,
+        bmf::Row < auto_detecting_0
                    ::exit_pt
-                   <auto_detecting_
+                   <auto_detecting_<0>
+                    ::auto_detecting_exit>      , tg::auto_detected_evt     , auto_detecting_1        , bmf::none                                                  >,
+        bmf::Row < auto_detecting_1
+                   ::exit_pt
+                   <auto_detecting_<1>
                     ::auto_detecting_exit>      , tg::auto_detected_evt     , updating_graph          , bmf::none                                                  >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < updating_graph
@@ -513,20 +528,22 @@ namespace tiz
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < tg::pause2exe                , tg::omx_trans_evt         , tg::executing           , tg::do_ack_unpaused         , tg::is_trans_complete        >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
+        bmf::Row < tg::pause2idle               , tg::omx_trans_evt         , tg::idle2loaded         , tg::do_omx_idle2loaded      , tg::is_trans_complete        >,
+        //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < reconfiguring_tunnel_0
                    ::exit_pt
                    <reconfiguring_tunnel_<0>
-                    ::reconfiguring_tunnel_exit> , tg::tunnel_reconfigured_evt, tg::executing           , tg::do_mute                                                >,
+                    ::reconfiguring_tunnel_exit> , tg::tunnel_reconfigured_evt, tg::executing           , tg::do_mute                                              >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < reconfiguring_tunnel_1
                    ::exit_pt
                    <reconfiguring_tunnel_<1>
-                    ::reconfiguring_tunnel_exit> , tg::tunnel_reconfigured_evt, tg::executing           , tg::do_mute                                                >,
+                    ::reconfiguring_tunnel_exit> , tg::tunnel_reconfigured_evt, tg::executing           , tg::do_mute                                              >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < reconfiguring_tunnel_2
                    ::exit_pt
                    <reconfiguring_tunnel_<2>
-                    ::reconfiguring_tunnel_exit> , tg::tunnel_reconfigured_evt, tg::executing           , tg::do_mute                                                >,
+                    ::reconfiguring_tunnel_exit> , tg::tunnel_reconfigured_evt, tg::executing           , tg::do_mute                                              >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < skipping
                    ::exit_pt
@@ -547,7 +564,7 @@ namespace tiz
         bmf::Row < skipping
                    ::exit_pt
                    <skipping_
-                    ::skip_exit>                , tg::skipped_evt           , auto_detecting          , bmf::none                   , bmf::euml::Not_<
+                    ::skip_exit>                , tg::skipped_evt           , auto_detecting_0        , bmf::none                   , bmf::euml::Not_<
                                                                                                                                         tg::is_end_of_play >       >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < tg::exe2idle                 , tg::omx_err_evt           , bmf::none               , bmf::none                   , tg::is_error<OMX_ErrorStreamCorruptFatal> >,

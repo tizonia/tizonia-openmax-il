@@ -214,6 +214,11 @@ void graph::ops::do_configure_source ()
   // This is a no-op in the base class.
 }
 
+void graph::ops::do_configure_comp (const int comp_id)
+{
+  // This is a no-op in the base class.
+}
+
 void graph::ops::do_omx_loaded2idle ()
 {
   if (last_op_succeeded ())
@@ -225,23 +230,14 @@ void graph::ops::do_omx_loaded2idle ()
   }
 }
 
-void graph::ops::do_source_omx_loaded2idle ()
+void graph::ops::do_omx_loaded2idle_comp (const int comp_id)
 {
   if (last_op_succeeded ())
   {
+    const int comp_id = 0;
     G_OPS_BAIL_IF_ERROR (
-        transition_source (OMX_StateIdle),
+        transition_comp (comp_id, OMX_StateIdle),
         "Unable to transition source component from Loaded->Idle");
-  }
-}
-
-void graph::ops::do_source_omx_idle2exe ()
-{
-  if (last_op_succeeded ())
-  {
-    G_OPS_BAIL_IF_ERROR (
-        transition_source (OMX_StateExecuting),
-        "Unable to transition source component from Idle->Exe");
   }
 }
 
@@ -253,6 +249,16 @@ void graph::ops::do_omx_idle2exe ()
         util::transition_all (handles_, OMX_StateExecuting, OMX_StateIdle),
         "Unable to transition from Idle->Exe");
     record_expected_transitions (OMX_StateExecuting);
+  }
+}
+
+void graph::ops::do_omx_idle2exe_comp (const int comp_id)
+{
+  if (last_op_succeeded ())
+  {
+    G_OPS_BAIL_IF_ERROR (
+        transition_comp (comp_id, OMX_StateExecuting),
+        "Unable to transition source component from Idle->Exe");
   }
 }
 
@@ -366,6 +372,16 @@ void graph::ops::do_omx_exe2idle ()
   }
 }
 
+void graph::ops::do_omx_exe2idle_comp (const int comp_id)
+{
+  if (last_op_succeeded ())
+  {
+    G_OPS_BAIL_IF_ERROR (transition_comp (comp_id, OMX_StateIdle),
+                         "Unable to transition from Exe->Idle");
+    record_expected_transitions (OMX_StateIdle);
+  }
+}
+
 void graph::ops::do_omx_idle2loaded ()
 {
   if (last_op_succeeded ())
@@ -373,6 +389,16 @@ void graph::ops::do_omx_idle2loaded ()
     G_OPS_BAIL_IF_ERROR (
         util::transition_all (handles_, OMX_StateLoaded, OMX_StateIdle),
         "Unable to transition from Idle->Loaded");
+    record_expected_transitions (OMX_StateLoaded);
+  }
+}
+
+void graph::ops::do_omx_idle2loaded_comp (const int comp_id)
+{
+  if (last_op_succeeded ())
+  {
+    G_OPS_BAIL_IF_ERROR (transition_comp (comp_id, OMX_StateLoaded),
+                         "Unable to transition from Idle->Loaded");
     record_expected_transitions (OMX_StateLoaded);
   }
 }
@@ -892,14 +918,20 @@ bool graph::ops::probe_stream_hook ()
 OMX_ERRORTYPE
 graph::ops::transition_source (const OMX_STATETYPE to_state)
 {
+  const int comp_id = 0;
+  return transition_comp (comp_id, to_state);
+}
+
+OMX_ERRORTYPE
+graph::ops::transition_comp (const int comp_id, const OMX_STATETYPE to_state)
+{
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  const int source_component_index = 0;
-  rc = tiz::graph::util::transition_one (handles_, source_component_index,
+  rc = tiz::graph::util::transition_one (handles_, comp_id,
                                          to_state);
   if (OMX_ErrorNone == rc)
   {
     clear_expected_transitions ();
-    add_expected_transition (handles_[source_component_index], to_state);
+    add_expected_transition (handles_[comp_id], to_state);
   }
   return rc;
 }

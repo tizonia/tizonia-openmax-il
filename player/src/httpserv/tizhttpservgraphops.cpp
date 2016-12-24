@@ -123,33 +123,6 @@ void graph::httpservops::do_configure_stream ()
                        "Unable to set OMX_TizoniaIndexConfigIcecastMetadata");
 }
 
-void graph::httpservops::do_source_omx_idle2exe ()
-{
-  if (last_op_succeeded ())
-  {
-    G_OPS_BAIL_IF_ERROR (transition_source (OMX_StateExecuting),
-                         "Unable to transition file reader from Idle->Exe");
-  }
-}
-
-void graph::httpservops::do_source_omx_exe2idle ()
-{
-  if (last_op_succeeded ())
-  {
-    G_OPS_BAIL_IF_ERROR (transition_source (OMX_StateIdle),
-                         "Unable to transition file reader from Exe->Idle");
-  }
-}
-
-void graph::httpservops::do_source_omx_idle2loaded ()
-{
-  if (last_op_succeeded ())
-  {
-    G_OPS_BAIL_IF_ERROR (transition_source (OMX_StateLoaded),
-                         "Unable to transition file reader from Idle->Loaded");
-  }
-}
-
 bool graph::httpservops::is_initial_configuration () const
 {
   return is_initial_configuration_;
