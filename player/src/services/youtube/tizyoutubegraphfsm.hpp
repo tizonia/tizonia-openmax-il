@@ -150,33 +150,28 @@ namespace tiz
 
         // Transition table for auto_detecting
         struct transition_table : boost::mpl::vector<
-          //       Start                              Event                         Next                              Action                   Guard
-          //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------+----------------------------+
-          bmf::Row < tg::disabling_ports              , bmf::none                   , tg::awaiting_port_disabled_evt  , bmf::none              , bmf::none                  >,
-          //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------+----------------------------+
+          //       Start                              Event                         Next                              Action                                           Guard
+          //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------------------------------+----------------------------+
+          bmf::Row < tg::disabling_ports              , bmf::none                   , tg::awaiting_port_disabled_evt  , bmf::none                                      , bmf::none                  >,
+          //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------------------------------+----------------------------+
           bmf::Row < tg::awaiting_port_disabled_evt   , tg::omx_port_disabled_evt   , tg::config2idle                 , bmf::ActionSequence_<
                                                                                                                           boost::mpl::vector<
                                                                                                                             tg::do_configure_comp<tunnel_id>,
-                                                                                                                            tg::do_omx_loaded2idle_comp<tunnel_id> > > , tg::is_port_disabling_complete  >,
-          bmf::Row < tg::awaiting_port_disabled_evt   , tg::omx_port_disabled_evt   , tg::config2idle                 , bmf::ActionSequence_<
-                                                                                                                          boost::mpl::vector<
-                                                                                                                            tg::do_enable_auto_detection<0,0>,
-                                                                                                                            tg::do_omx_exe2idle > > , bmf::euml::And_<
-                                                                                                                                                        tg::is_component_state<0, OMX_StateExecuting>,
-                                                                                                                                                        tg::is_port_disabling_complete> >,
-          //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------+----------------------------+
-          bmf::Row < tg::config2idle                  , tg::omx_trans_evt           , tg::idle2exe                    , tg::do_omx_idle2exe_comp<0> , tg::is_trans_complete  >,
-          //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------+----------------------------+
-          bmf::Row < tg::idle2exe                     , tg::omx_trans_evt           , tg::executing                   , bmf::none              , tg::is_trans_complete      >,
-          //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------+----------------------------+
-          bmf::Row < tg::executing                    , tg::omx_port_settings_evt   , tg::awaiting_format_detected_evt, bmf::none              , bmf::none                  >,
-          bmf::Row < tg::executing                    , tg::omx_format_detected_evt , tg::awaiting_port_settings_evt  , bmf::none              , bmf::none                  >,
-          bmf::Row < tg::executing                    , tg::omx_err_evt             , bmf::none                       , tg::do_skip            , tg::is_error<OMX_ErrorFormatNotDetected> >,
-          //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------+----------------------------+
-          bmf::Row < tg::awaiting_format_detected_evt , tg::omx_format_detected_evt , auto_detecting_exit             , bmf::none              , bmf::none                  >,
-          //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------+----------------------------+
-          bmf::Row < tg::awaiting_port_settings_evt   , tg::omx_port_settings_evt   , auto_detecting_exit             , bmf::none              , bmf::none                  >
-          //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------+----------------------------+
+                                                                                                                            tg::do_enable_auto_detection<tunnel_id,tunnel_id>,
+                                                                                                                            tg::do_omx_loaded2idle_comp<tunnel_id> > > , tg::is_port_disabling_complete >,
+          //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------------------------------+----------------------------+
+          bmf::Row < tg::config2idle                  , tg::omx_trans_evt           , tg::idle2exe                    , tg::do_omx_idle2exe_comp<tunnel_id>            , tg::is_trans_complete  >,
+          //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------------------------------+----------------------------+
+          bmf::Row < tg::idle2exe                     , tg::omx_trans_evt           , tg::executing                   , bmf::none                                      , tg::is_trans_complete      >,
+          //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------------------------------+----------------------------+
+          bmf::Row < tg::executing                    , tg::omx_port_settings_evt   , tg::awaiting_format_detected_evt, bmf::none                                      , bmf::none                  >,
+          bmf::Row < tg::executing                    , tg::omx_format_detected_evt , tg::awaiting_port_settings_evt  , bmf::none                                      , bmf::none                  >,
+          bmf::Row < tg::executing                    , tg::omx_err_evt             , bmf::none                       , tg::do_skip                                    , tg::is_error<OMX_ErrorFormatNotDetected> >,
+          //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------------------------------+----------------------------+
+          bmf::Row < tg::awaiting_format_detected_evt , tg::omx_format_detected_evt , auto_detecting_exit             , bmf::none                                      , bmf::none                  >,
+          //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------------------------------+----------------------------+
+          bmf::Row < tg::awaiting_port_settings_evt   , tg::omx_port_settings_evt   , auto_detecting_exit             , bmf::none                                      , bmf::none                  >
+          //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------------------------------+----------------------------+
           > {};
 
         // Replaces the default no-transition response.
@@ -432,8 +427,8 @@ namespace tiz
                                                                                                      boost::mpl::vector<
                                                                                                        tg::do_mute,
                                                                                                        tg::do_tear_down_tunnels,
-                                                                                                       tg::do_destroy_component<1>,
-                                                                                                       tg::do_destroy_component<1>,
+                                                                                                       tg::do_destroy_comp<1>,
+                                                                                                       tg::do_destroy_comp<1>,
                                                                                                        tg::do_skip > >       , tg::is_port_disabling_complete >
           //    +----+---------------------+---------------------------+-------------------------+---------------------------+---------------------------------+
           > {};

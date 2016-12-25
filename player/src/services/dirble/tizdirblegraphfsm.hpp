@@ -424,8 +424,8 @@ namespace tiz
                                                                                                      boost::mpl::vector<
                                                                                                        tg::do_mute,
                                                                                                        tg::do_tear_down_tunnels,
-                                                                                                       tg::do_destroy_component<1>,
-                                                                                                       tg::do_destroy_component<1>,
+                                                                                                       tg::do_destroy_comp<1>,
+                                                                                                       tg::do_destroy_comp<1>,
                                                                                                        tg::do_skip > >       , tg::is_port_disabling_complete >
           //    +----+---------------------+---------------------------+-------------------------+---------------------------+---------------------------------+
           > {};

@@ -124,7 +124,7 @@ namespace tiz
       virtual void do_end_of_play ();
       virtual void do_tear_down_tunnels ();
       virtual void do_destroy_graph ();
-      virtual void do_destroy_component (const int handle_id);
+      virtual void do_destroy_comp (const int handle_id);
       virtual void do_ack_unloaded ();
       virtual void do_record_destination (
           const OMX_STATETYPE destination_state);

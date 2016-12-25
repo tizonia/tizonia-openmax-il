@@ -513,7 +513,7 @@ void graph::ops::do_destroy_graph ()
   role_lst_.clear();
 }
 
-void graph::ops::do_destroy_component (const int handle_id)
+void graph::ops::do_destroy_comp (const int handle_id)
 {
   assert (handle_id >= 0 && static_cast<std::size_t>(handle_id) < handles_.size ());
   assert (handle_id >= 0 && static_cast<std::size_t>(handle_id) < comp_lst_.size ());

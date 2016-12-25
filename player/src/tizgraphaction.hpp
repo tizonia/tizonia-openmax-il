@@ -565,7 +565,7 @@ namespace tiz
     };
 
     template<int handle_id>
-    struct do_destroy_component
+    struct do_destroy_comp
     {
       template < class FSM, class EVT, class SourceState, class TargetState >
       void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
@@ -573,7 +573,7 @@ namespace tiz
         G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
         {
-          (*(fsm.pp_ops_))->do_destroy_component (handle_id);
+          (*(fsm.pp_ops_))->do_destroy_comp (handle_id);
         }
       }
     };
