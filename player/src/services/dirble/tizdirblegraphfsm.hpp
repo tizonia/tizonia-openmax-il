@@ -455,7 +455,7 @@ namespace tiz
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < tg::inited                   , tg::load_evt              , tg::loaded              , bmf::ActionSequence_<
                                                                                                           boost::mpl::vector<
-                                                                                                            tg::do_load_source,
+                                                                                                            tg::do_load_comp<0>,
                                                                                                             tg::do_ack_loaded> >                                   >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < tg::loaded                   , tg::execute_evt           , auto_detecting          , boost::msm::front::ActionSequence_<

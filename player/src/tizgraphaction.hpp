@@ -126,7 +126,8 @@ namespace tiz
       }
     };
 
-    struct do_load_source
+    template<int comp_id>
+    struct do_load_comp
     {
       template <class FSM, class EVT, class SourceState, class TargetState>
       void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
@@ -134,7 +135,7 @@ namespace tiz
         G_ACTION_LOG();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
           {
-            (*(fsm.pp_ops_))->do_load_source ();
+            (*(fsm.pp_ops_))->do_load_comp (comp_id);
           }
       }
     };

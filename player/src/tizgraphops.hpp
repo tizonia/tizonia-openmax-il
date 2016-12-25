@@ -82,7 +82,7 @@ namespace tiz
 
     public:
       virtual void do_load ();
-      virtual void do_load_source ();
+      virtual void do_load_comp (const int comp_id);
       virtual void do_setup ();
       virtual void do_ack_loaded ();
       virtual void do_store_config (const tizgraphconfig_ptr_t &config);

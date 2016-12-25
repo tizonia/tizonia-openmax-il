@@ -112,12 +112,12 @@ void graph::ops::do_load ()
       "Unable to instantiate the component list.");
 }
 
-void graph::ops::do_load_source ()
+void graph::ops::do_load_comp (const int comp_id)
 {
   assert (!comp_lst_.empty ());
   assert (!role_lst_.empty ());
   // At this point we are instantiating a graph with a single component.
-  assert (comp_lst_.size () == 1);
+  assert (comp_lst_.size () == (unsigned int)comp_id + 1);
   tiz::graph::ops::do_load ();
 }
 
