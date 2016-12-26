@@ -153,6 +153,20 @@ namespace tiz
       }
     };
 
+    template<int tunnel_id>
+    struct do_setup_tunnel
+    {
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const& evt, FSM& fsm, SourceState&, TargetState&)
+      {
+        G_ACTION_LOG ();
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+        {
+          (*(fsm.pp_ops_))->do_setup_tunnel (tunnel_id);
+        }
+      }
+    };
+
     struct do_ack_loaded
     {
       template < class FSM, class EVT, class SourceState, class TargetState >

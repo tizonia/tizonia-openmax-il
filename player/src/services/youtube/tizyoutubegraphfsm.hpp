@@ -163,7 +163,10 @@ namespace tiz
           bmf::Row < tg::config2idle                  , tg::omx_trans_evt           , tg::idle2exe                    , tg::do_omx_idle2exe_comp<tunnel_id>            , tg::is_trans_complete      >,
           //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------------------------------+----------------------------+
           bmf::Row < tg::idle2exe                     , tg::omx_trans_evt           , tg::executing                   , bmf::none                                      , tg::is_trans_complete      >,
-          bmf::Row < tg::idle2exe                     , tg::omx_trans_evt           , tg::executing                   , tg::do_enable_tunnel<1>                        , bmf::euml::And_<
+          bmf::Row < tg::idle2exe                     , tg::omx_trans_evt           , tg::enabling_tunnel             , bmf::ActionSequence_<
+                                                                                                                          boost::mpl::vector<
+                                                                                                                            tg::do_setup_tunnel<0>,
+                                                                                                                            tg::do_enable_tunnel<0> > >                , bmf::euml::And_<
                                                                                                                                                                            tg::is_trans_complete,
                                                                                                                                                                            tg::is_tunnel_id<1, tunnel_id> > >,
           //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------------------------------+----------------------------+

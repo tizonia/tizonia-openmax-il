@@ -132,6 +132,17 @@ void graph::ops::do_setup ()
   }
 }
 
+void graph::ops::do_setup_tunnel (const int tunnel_id)
+{
+  if (last_op_succeeded ())
+  {
+    G_OPS_BAIL_IF_ERROR (util::setup_suppliers (handles_),
+                         "Unable to setup suppliers.");
+    G_OPS_BAIL_IF_ERROR (util::setup_tunnels (handles_),
+                         "Unable to setup the tunnels.");
+  }
+}
+
 void graph::ops::do_ack_loaded ()
 {
   TIZ_LOG (TIZ_PRIORITY_TRACE, " p_graph_ [%p]", p_graph_);
