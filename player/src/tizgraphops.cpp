@@ -123,22 +123,16 @@ void graph::ops::do_load_comp (const int comp_id)
 
 void graph::ops::do_setup ()
 {
-  if (last_op_succeeded ())
-  {
-    G_OPS_BAIL_IF_ERROR (util::setup_suppliers (handles_),
-                         "Unable to setup suppliers.");
-    G_OPS_BAIL_IF_ERROR (util::setup_tunnels (handles_),
-                         "Unable to setup the tunnels.");
-  }
+  do_setup_tunnel(OMX_ALL);
 }
 
 void graph::ops::do_setup_tunnel (const int tunnel_id)
 {
   if (last_op_succeeded ())
   {
-    G_OPS_BAIL_IF_ERROR (util::setup_suppliers (handles_),
+    G_OPS_BAIL_IF_ERROR (util::setup_suppliers (handles_, tunnel_id),
                          "Unable to setup suppliers.");
-    G_OPS_BAIL_IF_ERROR (util::setup_tunnels (handles_),
+    G_OPS_BAIL_IF_ERROR (util::setup_tunnels (handles_, tunnel_id),
                          "Unable to setup the tunnels.");
   }
 }

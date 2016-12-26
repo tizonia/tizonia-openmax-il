@@ -319,14 +319,17 @@ void graph::util::destroy_component (omx_comp_handle_lst_t &hdl_list,
 
 // TODO: Replace magic numbers in this function
 OMX_ERRORTYPE
-graph::util::setup_tunnels (const omx_comp_handle_lst_t &hdl_list)
+graph::util::setup_tunnels (const omx_comp_handle_lst_t &hdl_list,
+                            const int tunnel_id /* = OMX_ALL */)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
-  const int hdl_lst_size = hdl_list.size ();
+  const int first_hdl = (tunnel_id == OMX_ALL ? 0 : tunnel_id);
+  const int last_hdl
+      = (tunnel_id == OMX_ALL ? (hdl_list.size () - 1) : (tunnel_id + 1));
 
-  if (hdl_lst_size > 0)
+  if (last_hdl > 0)
     {
-      for (int i = 0; i < hdl_lst_size - 1 && OMX_ErrorNone == error; ++i)
+      for (int i = first_hdl; i < last_hdl && OMX_ErrorNone == error; ++i)
         {
           error = OMX_SetupTunnel (hdl_list[i], i == 0 ? 0 : 1, hdl_list[i + 1], 0);
         }
@@ -354,18 +357,21 @@ graph::util::tear_down_tunnels (const omx_comp_handle_lst_t &hdl_list)
 
 // TODO: Replace magic numbers in this function
 OMX_ERRORTYPE
-graph::util::setup_suppliers (const omx_comp_handle_lst_t &hdl_list)
+graph::util::setup_suppliers (const omx_comp_handle_lst_t &hdl_list,
+                              const int tunnel_id /* = OMX_ALL */)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
-  const int hdl_lst_size = hdl_list.size ();
+  const int first_hdl = (tunnel_id == OMX_ALL ? 0 : tunnel_id);
+  const int last_hdl
+      = (tunnel_id == OMX_ALL ? (hdl_list.size () - 1) : (tunnel_id + 1));
 
-  if (hdl_lst_size > 0)
+  if (last_hdl > 0)
     {
       OMX_PARAM_BUFFERSUPPLIERTYPE supplier;
       TIZ_INIT_OMX_PORT_STRUCT (supplier, 0);
       supplier.eBufferSupplier = OMX_BufferSupplyInput;
 
-      for (int i = 0; i < hdl_lst_size - 1 && OMX_ErrorNone == error; ++i)
+      for (int i = first_hdl; i < last_hdl && OMX_ErrorNone == error; ++i)
         {
           supplier.nPortIndex = i == 0 ? 0 : 1;
           error = OMX_SetParameter (hdl_list[i], OMX_IndexParamCompBufferSupplier,

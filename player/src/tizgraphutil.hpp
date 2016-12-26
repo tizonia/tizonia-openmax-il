@@ -83,10 +83,10 @@ namespace tiz
                                      const int handle_id);
 
       static OMX_ERRORTYPE setup_suppliers (
-          const omx_comp_handle_lst_t &hdl_list);
+          const omx_comp_handle_lst_t &hdl_list, const int tunnel_id = OMX_ALL);
 
       static OMX_ERRORTYPE setup_tunnels (
-          const omx_comp_handle_lst_t &hdl_list);
+          const omx_comp_handle_lst_t &hdl_list, const int tunnel_id = OMX_ALL);
 
       static OMX_ERRORTYPE tear_down_tunnels (
           const omx_comp_handle_lst_t &hdl_list);
