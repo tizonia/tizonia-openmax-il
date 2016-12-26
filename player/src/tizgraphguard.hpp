@@ -334,6 +334,23 @@ namespace tiz
       }
     };
 
+    template<int expected_tunnel_id, int tunnel_id>
+    struct is_tunnel_id
+    {
+      template < class EVT, class FSM, class SourceState, class TargetState >
+      bool operator()(EVT const& evt, FSM& fsm, SourceState&, TargetState&)
+      {
+        bool rc = false;
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+        {
+          rc = (expected_tunnel_id == tunnel_id);
+        }
+
+        G_GUARD_LOG (rc);
+        return rc;
+      }
+    };
+
   }  // namespace graph
 }  // namespace tiz
 

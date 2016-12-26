@@ -160,9 +160,14 @@ namespace tiz
                                                                                                                             tg::do_enable_auto_detection<tunnel_id,tunnel_id>,
                                                                                                                             tg::do_omx_loaded2idle_comp<tunnel_id> > > , tg::is_port_disabling_complete >,
           //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------------------------------+----------------------------+
-          bmf::Row < tg::config2idle                  , tg::omx_trans_evt           , tg::idle2exe                    , tg::do_omx_idle2exe_comp<tunnel_id>            , tg::is_trans_complete  >,
+          bmf::Row < tg::config2idle                  , tg::omx_trans_evt           , tg::idle2exe                    , tg::do_omx_idle2exe_comp<tunnel_id>            , tg::is_trans_complete      >,
           //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------------------------------+----------------------------+
           bmf::Row < tg::idle2exe                     , tg::omx_trans_evt           , tg::executing                   , bmf::none                                      , tg::is_trans_complete      >,
+          bmf::Row < tg::idle2exe                     , tg::omx_trans_evt           , tg::executing                   , tg::do_enable_tunnel<1>                        , bmf::euml::And_<
+                                                                                                                                                                           tg::is_trans_complete,
+                                                                                                                                                                           tg::is_tunnel_id<1, tunnel_id> > >,
+          //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------------------------------+----------------------------+
+          bmf::Row < tg::enabling_tunnel              , tg::omx_port_enabled_evt    , tg::executing                   , bmf::none                                      , tg::is_port_enabling_complete  >,
           //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------------------------------+----------------------------+
           bmf::Row < tg::executing                    , tg::omx_port_settings_evt   , tg::awaiting_format_detected_evt, bmf::none                                      , bmf::none                  >,
           bmf::Row < tg::executing                    , tg::omx_format_detected_evt , tg::awaiting_port_settings_evt  , bmf::none                                      , bmf::none                  >,
@@ -479,11 +484,11 @@ namespace tiz
         bmf::Row < auto_detecting_0
                    ::exit_pt
                    <auto_detecting_<0>
-                    ::auto_detecting_exit>      , tg::auto_detected_evt     , auto_detecting_1        , bmf::none                                                  >,
+                    ::auto_detecting_exit>      , tg::auto_detected_evt     , auto_detecting_1        , tg::do_load_comp<1>         , tg::last_op_succeeded        >,
         bmf::Row < auto_detecting_1
                    ::exit_pt
                    <auto_detecting_<1>
-                    ::auto_detecting_exit>      , tg::auto_detected_evt     , updating_graph          , bmf::none                                                  >,
+                    ::auto_detecting_exit>      , tg::auto_detected_evt     , updating_graph          , bmf::none                   , tg::last_op_succeeded        >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < updating_graph
                    ::exit_pt
