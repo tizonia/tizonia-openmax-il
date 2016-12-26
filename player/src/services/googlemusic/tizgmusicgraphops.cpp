@@ -100,21 +100,24 @@ void graph::gmusicops::do_disable_ports ()
                                 OMX_CommandPortDisable);
 }
 
-void graph::gmusicops::do_configure_source ()
+void graph::gmusicops::do_configure_comp (const int comp_id)
 {
-  tizgmusicconfig_ptr_t gmusic_config
-      = boost::dynamic_pointer_cast< gmusicconfig >(config_);
-  assert (gmusic_config);
+  if (comp_id == 0)
+  {
+    tizgmusicconfig_ptr_t gmusic_config
+        = boost::dynamic_pointer_cast< gmusicconfig > (config_);
+    assert (gmusic_config);
 
-  G_OPS_BAIL_IF_ERROR (
-      set_gmusic_user_and_device_id (
-          handles_[0], gmusic_config->get_user_name (),
-          gmusic_config->get_user_pass (), gmusic_config->get_device_id ()),
-      "Unable to set OMX_TizoniaIndexParamAudioGmusicSession");
+    G_OPS_BAIL_IF_ERROR (
+        set_gmusic_user_and_device_id (
+            handles_[0], gmusic_config->get_user_name (),
+            gmusic_config->get_user_pass (), gmusic_config->get_device_id ()),
+        "Unable to set OMX_TizoniaIndexParamAudioGmusicSession");
 
-  G_OPS_BAIL_IF_ERROR (
-      set_gmusic_playlist (handles_[0], playlist_->get_current_uri ()),
-      "Unable to set OMX_TizoniaIndexParamAudioGmusicPlaylist");
+    G_OPS_BAIL_IF_ERROR (
+        set_gmusic_playlist (handles_[0], playlist_->get_current_uri ()),
+        "Unable to set OMX_TizoniaIndexParamAudioGmusicPlaylist");
+  }
 }
 
 void graph::gmusicops::do_load ()

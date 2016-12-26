@@ -96,7 +96,6 @@ namespace tiz
       virtual void do_reconfigure_tunnel (const int tunnel_id);
       virtual void do_probe ();
       virtual void do_configure ();
-      virtual void do_configure_source ();
       virtual void do_configure_comp (const int comp_id);
       virtual void do_omx_loaded2idle ();
       virtual void do_omx_loaded2idle_comp (const int comp_id);

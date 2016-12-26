@@ -96,19 +96,22 @@ void graph::dirbleops::do_disable_ports ()
                                 OMX_CommandPortDisable);
 }
 
-void graph::dirbleops::do_configure_source ()
+void graph::dirbleops::do_configure_comp (const int comp_id)
 {
-  tizdirbleconfig_ptr_t dirble_config
-      = boost::dynamic_pointer_cast< dirbleconfig >(config_);
-  assert (dirble_config);
+  if (comp_id == 0)
+  {
+    tizdirbleconfig_ptr_t dirble_config
+        = boost::dynamic_pointer_cast< dirbleconfig > (config_);
+    assert (dirble_config);
 
-  G_OPS_BAIL_IF_ERROR (
-      set_dirble_api_key (handles_[0], dirble_config->get_api_key ()),
-      "Unable to set OMX_TizoniaIndexParamAudioDirbleSession");
+    G_OPS_BAIL_IF_ERROR (
+        set_dirble_api_key (handles_[0], dirble_config->get_api_key ()),
+        "Unable to set OMX_TizoniaIndexParamAudioDirbleSession");
 
-  G_OPS_BAIL_IF_ERROR (
-      set_dirble_playlist (handles_[0], playlist_->get_current_uri ()),
-      "Unable to set OMX_TizoniaIndexParamAudioDirblePlaylist");
+    G_OPS_BAIL_IF_ERROR (
+        set_dirble_playlist (handles_[0], playlist_->get_current_uri ()),
+        "Unable to set OMX_TizoniaIndexParamAudioDirblePlaylist");
+  }
 }
 
 void graph::dirbleops::do_load ()

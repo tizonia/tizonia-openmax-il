@@ -73,19 +73,6 @@ namespace tiz
       }
     };
 
-    struct do_configure_source
-    {
-      template <class FSM, class EVT, class SourceState, class TargetState>
-      void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
-      {
-        G_ACTION_LOG();
-        if (fsm.pp_ops_ && *(fsm.pp_ops_))
-          {
-            (*(fsm.pp_ops_))->do_configure_source ();
-          }
-      }
-    };
-
     template<int comp_id>
     struct do_configure_comp
     {

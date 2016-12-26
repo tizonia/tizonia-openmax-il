@@ -46,7 +46,7 @@ namespace tiz
     public:
       void do_enable_auto_detection (const int handle_id, const int port_id);
       void do_disable_ports ();
-      void do_configure_source ();
+      void do_configure_comp (const int comp_id);
       void do_load ();
       void do_configure ();
       void do_omx_exe2pause ();

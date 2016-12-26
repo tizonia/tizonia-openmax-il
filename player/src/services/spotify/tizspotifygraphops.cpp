@@ -97,20 +97,24 @@ void graph::spotifyops::do_disable_ports ()
                                 OMX_CommandPortDisable);
 }
 
-void graph::spotifyops::do_configure_source ()
+void graph::spotifyops::do_configure_comp (const int comp_id)
 {
-  tizspotifyconfig_ptr_t spotify_config
-      = boost::dynamic_pointer_cast< spotifyconfig >(config_);
-  assert (spotify_config);
+  if (comp_id == 0)
+  {
+    tizspotifyconfig_ptr_t spotify_config
+        = boost::dynamic_pointer_cast< spotifyconfig > (config_);
+    assert (spotify_config);
 
-  G_OPS_BAIL_IF_ERROR (
-      set_spotify_user_and_pass (handles_[0], spotify_config->get_user_name (),
-                                 spotify_config->get_user_pass ()),
-      "Unable to set OMX_TizoniaIndexParamAudioSpotifySession");
+    G_OPS_BAIL_IF_ERROR (
+        set_spotify_user_and_pass (handles_[0],
+                                   spotify_config->get_user_name (),
+                                   spotify_config->get_user_pass ()),
+        "Unable to set OMX_TizoniaIndexParamAudioSpotifySession");
 
-  G_OPS_BAIL_IF_ERROR (
-      set_spotify_playlist (handles_[0], playlist_->get_current_uri ()),
-      "Unable to set OMX_TizoniaIndexParamAudioSpotifyPlaylist");
+    G_OPS_BAIL_IF_ERROR (
+        set_spotify_playlist (handles_[0], playlist_->get_current_uri ()),
+        "Unable to set OMX_TizoniaIndexParamAudioSpotifyPlaylist");
+  }
 }
 
 void graph::spotifyops::do_load ()

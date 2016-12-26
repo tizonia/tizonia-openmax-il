@@ -80,11 +80,14 @@ void graph::httpclntops::do_disable_ports ()
                                 OMX_CommandPortDisable);
 }
 
-void graph::httpclntops::do_configure_source ()
+void graph::httpclntops::do_configure_comp (const int comp_id)
 {
-  G_OPS_BAIL_IF_ERROR (
-      util::set_content_uri (handles_[0], playlist_->get_current_uri ()),
-      "Unable to set OMX_IndexParamContentURI");
+  if (comp_id == 0)
+  {
+    G_OPS_BAIL_IF_ERROR (
+        util::set_content_uri (handles_[0], playlist_->get_current_uri ()),
+        "Unable to set OMX_IndexParamContentURI");
+  }
 }
 
 void graph::httpclntops::do_load ()

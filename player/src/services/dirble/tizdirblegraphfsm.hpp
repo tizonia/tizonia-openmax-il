@@ -150,7 +150,7 @@ namespace tiz
           //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------+----------------------------+
           bmf::Row < tg::awaiting_port_disabled_evt   , tg::omx_port_disabled_evt   , tg::config2idle                 , bmf::ActionSequence_<
                                                                                                                           boost::mpl::vector<
-                                                                                                                            tg::do_configure_source,
+                                                                                                                            tg::do_configure_comp<0>,
                                                                                                                             tg::do_omx_loaded2idle_comp<0> > > , tg::is_port_disabling_complete   >,
           bmf::Row < tg::awaiting_port_disabled_evt   , tg::omx_port_disabled_evt   , tg::config2idle                    , bmf::ActionSequence_<
                                                                                                                           boost::mpl::vector<

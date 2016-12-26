@@ -97,19 +97,22 @@ void graph::scloudops::do_disable_ports ()
                                 OMX_CommandPortDisable);
 }
 
-void graph::scloudops::do_configure_source ()
+void graph::scloudops::do_configure_comp (const int comp_id)
 {
-  tizscloudconfig_ptr_t scloud_config
-      = boost::dynamic_pointer_cast< scloudconfig >(config_);
-  assert (scloud_config);
+  if (comp_id == 0)
+  {
+    tizscloudconfig_ptr_t scloud_config
+        = boost::dynamic_pointer_cast< scloudconfig > (config_);
+    assert (scloud_config);
 
-  G_OPS_BAIL_IF_ERROR (
-      set_scloud_oauth_token (handles_[0], scloud_config->get_oauth_token ()),
-      "Unable to set OMX_TizoniaIndexParamAudioSoundCloudSession");
+    G_OPS_BAIL_IF_ERROR (
+        set_scloud_oauth_token (handles_[0], scloud_config->get_oauth_token ()),
+        "Unable to set OMX_TizoniaIndexParamAudioSoundCloudSession");
 
-  G_OPS_BAIL_IF_ERROR (
-      set_scloud_playlist (handles_[0], playlist_->get_current_uri ()),
-      "Unable to set OMX_TizoniaIndexParamAudioSoundCloudPlaylist");
+    G_OPS_BAIL_IF_ERROR (
+        set_scloud_playlist (handles_[0], playlist_->get_current_uri ()),
+        "Unable to set OMX_TizoniaIndexParamAudioSoundCloudPlaylist");
+  }
 }
 
 void graph::scloudops::do_load ()

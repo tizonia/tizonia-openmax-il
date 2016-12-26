@@ -96,17 +96,19 @@ void graph::youtubeops::do_disable_ports ()
                                 OMX_CommandPortDisable);
 }
 
-void graph::youtubeops::do_configure_source ()
+void graph::youtubeops::do_configure_comp (const int comp_id)
 {
-  tizyoutubeconfig_ptr_t youtube_config
-      = boost::dynamic_pointer_cast< youtubeconfig >(config_);
-  assert (youtube_config);
+  if (comp_id == 0)
+  {
+    tizyoutubeconfig_ptr_t youtube_config
+        = boost::dynamic_pointer_cast< youtubeconfig > (config_);
+    assert (youtube_config);
 
-  G_OPS_BAIL_IF_ERROR (
-      set_youtube_playlist (handles_[0], playlist_->get_current_uri ()),
-      "Unable to set OMX_TizoniaIndexParamAudioYoutubePlaylist");
+    G_OPS_BAIL_IF_ERROR (
+        set_youtube_playlist (handles_[0], playlist_->get_current_uri ()),
+        "Unable to set OMX_TizoniaIndexParamAudioYoutubePlaylist");
+  }
 }
-
 void graph::youtubeops::do_load ()
 {
   assert (!comp_lst_.empty ());

@@ -214,11 +214,6 @@ void graph::ops::do_configure ()
   // This is a no-op in the base class.
 }
 
-void graph::ops::do_configure_source ()
-{
-  // This is a no-op in the base class.
-}
-
 void graph::ops::do_configure_comp (const int comp_id)
 {
   // This is a no-op in the base class.
