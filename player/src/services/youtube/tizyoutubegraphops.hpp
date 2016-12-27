@@ -47,9 +47,7 @@ namespace tiz
       void do_enable_auto_detection (const int handle_id, const int port_id);
       void do_disable_ports ();
       void do_configure_comp (const int comp_id);
-      void do_load ();
       void do_load_comp (const int comp_id);
-      void do_configure ();
       void do_omx_loaded2idle ();
       void do_omx_idle2exe ();
       void do_reconfigure_tunnel (const int tunnel_id);
@@ -66,6 +64,8 @@ namespace tiz
                                          const std::string &playlist);
       void do_load_http_source ();
       void do_load_demuxer ();
+      void do_load_decoder ();
+      void do_load_renderer ();
       OMX_ERRORTYPE add_demuxer_to_component_list (
           omx_comp_name_lst_t &comp_list, omx_comp_role_lst_t &role_list);
       OMX_ERRORTYPE add_decoder_to_component_list (

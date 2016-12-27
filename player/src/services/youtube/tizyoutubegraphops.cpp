@@ -95,52 +95,19 @@ void graph::youtubeops::do_disable_ports ()
 
 void graph::youtubeops::do_configure_comp (const int comp_id)
 {
-  if (comp_id == 0)
+  if (last_op_succeeded ())
   {
-    G_OPS_BAIL_IF_ERROR (
-        set_youtube_playlist (handles_[0], playlist_->get_current_uri ()),
-        "Unable to set OMX_TizoniaIndexParamAudioYoutubePlaylist");
-  }
-}
-
-void graph::youtubeops::do_load ()
-{
-  assert (!comp_lst_.empty ());
-  assert (!role_lst_.empty ());
-
-  // At this point we are going to instantiate the remaining components in the
-  // graph, the audio decoder and the pcm renderer. The youtube source is
-  // already instantiated and in Executing state.
-
-  assert (comp_lst_.size () == 1);
-  assert (handles_.size () == 1);
-
-  G_OPS_BAIL_IF_ERROR (
-      get_encoding_type_from_container_demuxer (),
-      "Unable to retrieve the audio encoding from the container demuxer.");
-
-  omx_comp_name_lst_t comp_list;
-  omx_comp_role_lst_t role_list;
-  G_OPS_BAIL_IF_ERROR (add_decoder_to_component_list (comp_list, role_list),
-                       "Unknown/unhandled stream format.");
-
-  comp_list.push_back (tiz::graph::util::get_default_pcm_renderer ());
-  role_list.push_back ("audio_renderer.pcm");
-
-  tiz::graph::cbackhandler &cbacks = get_cback_handler ();
-  G_OPS_BAIL_IF_ERROR (
-      util::instantiate_comp_list (comp_list, handles_, h2n_, &(cbacks),
-                                   cbacks.get_omx_cbacks ()),
-      "Unable to instantiate the component list.");
-
-  // Now add the new components to the base class lists
-  comp_lst_.insert (comp_lst_.begin (), comp_list.begin (), comp_list.end ());
-  role_lst_.insert (role_lst_.begin (), role_list.begin (), role_list.end ());
-
-  if (inital_graph_load_)
-  {
-    inital_graph_load_ = false;
-    tiz::graph::util::dump_graph_info ("Youtube", "Connecting", "");
+    if (comp_id == 0)
+    {
+      G_OPS_BAIL_IF_ERROR (
+          set_youtube_playlist (handles_[0], playlist_->get_current_uri ()),
+          "Unable to set OMX_TizoniaIndexParamAudioYoutubePlaylist");
+    }
+    else if (comp_id == 3)
+    {
+      G_OPS_BAIL_IF_ERROR (apply_pcm_codec_info_from_decoder (),
+                           "Unable to set OMX_IndexParamAudioPcm");
+    }
   }
 }
 
@@ -154,14 +121,13 @@ void graph::youtubeops::do_load_comp (const int comp_id)
   {
     do_load_demuxer ();
   }
-}
-
-void graph::youtubeops::do_configure ()
-{
-  if (last_op_succeeded ())
+  else if (comp_id == 2)
   {
-    G_OPS_BAIL_IF_ERROR (apply_pcm_codec_info_from_decoder (),
-                         "Unable to set OMX_IndexParamAudioPcm");
+    do_load_decoder ();
+  }
+  else if (comp_id == 3)
+  {
+    do_load_renderer ();
   }
 }
 
@@ -313,6 +279,57 @@ void graph::youtubeops::do_load_demuxer ()
   omx_comp_role_lst_t role_list;
   G_OPS_BAIL_IF_ERROR (add_demuxer_to_component_list (comp_list, role_list),
                        "Unknown/unhandled container format.");
+
+  tiz::graph::cbackhandler &cbacks = get_cback_handler ();
+  G_OPS_BAIL_IF_ERROR (
+      util::instantiate_comp_list (comp_list, handles_, h2n_, &(cbacks),
+                                   cbacks.get_omx_cbacks ()),
+      "Unable to instantiate the component list.");
+
+  // Now add the new components to the base class lists
+  comp_lst_.insert (comp_lst_.begin (), comp_list.begin (), comp_list.end ());
+  role_lst_.insert (role_lst_.begin (), role_list.begin (), role_list.end ());
+}
+
+void graph::youtubeops::do_load_decoder ()
+{
+  assert (comp_lst_.size () == 2);
+  assert (role_lst_.size () == 2);
+  assert (handles_.size () == 2);
+
+  // The audio decoder needs to be instantiated next.
+
+  G_OPS_BAIL_IF_ERROR (
+      get_encoding_type_from_container_demuxer (),
+      "Unable to retrieve the audio encoding from the container demuxer.");
+
+  omx_comp_name_lst_t comp_list;
+  omx_comp_role_lst_t role_list;
+  G_OPS_BAIL_IF_ERROR (add_decoder_to_component_list (comp_list, role_list),
+                       "Unknown/unhandled stream format.");
+
+  tiz::graph::cbackhandler &cbacks = get_cback_handler ();
+  G_OPS_BAIL_IF_ERROR (
+      util::instantiate_comp_list (comp_list, handles_, h2n_, &(cbacks),
+                                   cbacks.get_omx_cbacks ()),
+      "Unable to instantiate the component list.");
+
+  // Now add the new components to the base class lists
+  comp_lst_.insert (comp_lst_.begin (), comp_list.begin (), comp_list.end ());
+  role_lst_.insert (role_lst_.begin (), role_list.begin (), role_list.end ());
+}
+
+void graph::youtubeops::do_load_renderer ()
+{
+  assert (comp_lst_.size () == 3);
+  assert (role_lst_.size () == 3);
+  assert (handles_.size () == 4);
+
+  // The audio renderer needs to be instantiated next.
+  omx_comp_name_lst_t comp_list;
+  omx_comp_role_lst_t role_list;
+  comp_list.push_back (tiz::graph::util::get_default_pcm_renderer ());
+  role_list.push_back ("audio_renderer.pcm");
 
   tiz::graph::cbackhandler &cbacks = get_cback_handler ();
   G_OPS_BAIL_IF_ERROR (

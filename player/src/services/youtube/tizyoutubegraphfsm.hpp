@@ -243,16 +243,18 @@ namespace tiz
           //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+--------------------------------+
           bmf::Row < updating_graph_initial         , bmf::none                 , tg::awaiting_port_disabled_evt  , bmf::ActionSequence_<
                                                                                                                       boost::mpl::vector<
-                                                                                                                        tg::do_load,
-                                                                                                                        tg::do_configure,
-                                                                                                                        tg::do_setup,
-                                                                                                                        tg::do_disable_tunnel<0> > > , bmf::none                      >,
+                                                                                                                        tg::do_load_comp<2>,
+                                                                                                                        tg::do_load_comp<3>,
+                                                                                                                        tg::do_configure_comp<3>,
+                                                                                                                        tg::do_setup_tunnel<1>,
+                                                                                                                        tg::do_setup_tunnel<2>,
+                                                                                                                        tg::do_disable_tunnel<1> > > , bmf::none                      >,
           //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+--------------------------------+
           bmf::Row < tg::awaiting_port_disabled_evt , tg::omx_port_disabled_evt , tg::config2idle                 , tg::do_omx_loaded2idle        , tg::is_port_disabling_complete >,
           //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+--------------------------------+
           bmf::Row < tg::config2idle                , tg::omx_trans_evt         , tg::idle2exe                    , tg::do_omx_idle2exe           , tg::is_trans_complete          >,
           //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+--------------------------------+
-          bmf::Row < tg::idle2exe                   , tg::omx_trans_evt         , tg::enabling_tunnel             , tg::do_enable_tunnel<0>       , tg::is_trans_complete          >,
+          bmf::Row < tg::idle2exe                   , tg::omx_trans_evt         , tg::enabling_tunnel             , tg::do_enable_tunnel<1>       , tg::is_trans_complete          >,
           //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+--------------------------------+
           bmf::Row < tg::enabling_tunnel            , tg::omx_port_enabled_evt  , updating_graph_exit             , bmf::none                     , tg::is_port_enabling_complete  >
           //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+--------------------------------+
