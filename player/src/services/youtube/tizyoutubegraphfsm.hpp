@@ -464,15 +464,12 @@ namespace tiz
       struct transition_table : boost::mpl::vector<
         //       Start                          Event                       Next                      Action                        Guard
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
-        bmf::Row < tg::inited                   , tg::load_evt              , tg::loaded              , bmf::ActionSequence_<
-                                                                                                          boost::mpl::vector<
-                                                                                                            tg::do_load_comp<0>,
-                                                                                                            tg::do_ack_loaded> >                                   >,
+        bmf::Row < tg::inited                   , tg::load_evt              , tg::loaded              , tg::do_ack_loaded           , bmf::none                    >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
-        bmf::Row < tg::loaded                   , tg::execute_evt           , auto_detecting_0        , boost::msm::front::ActionSequence_<
+        bmf::Row < tg::loaded                   , tg::execute_evt           , auto_detecting_0        , bmf::ActionSequence_<
                                                                                                           boost::mpl::vector<
                                                                                                             tg::do_store_config,
-                                                                                                            tg::do_enable_auto_detection<0,0> > > , tg::last_op_succeeded    >,
+                                                                                                            tg::do_load_comp<0> > > , tg::last_op_succeeded        >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < auto_detecting_0             , tg::omx_err_evt           , tg::exe2idle            , bmf::ActionSequence_<
                                                                                                           boost::mpl::vector<

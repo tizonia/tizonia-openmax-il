@@ -95,12 +95,10 @@ graph::youtube::~youtube ()
 
 graph::ops *graph::youtube::do_init ()
 {
+  // The youtube source will be added to the lists later on during
+  // auto_detecting_0.
   omx_comp_name_lst_t comp_list;
-  comp_list.push_back ("OMX.Aratelia.audio_source.http");
-
   omx_comp_role_lst_t role_list;
-  role_list.push_back ("audio_source.http.youtube");
-
   return new youtubeops (this, comp_list, role_list);
 }
 

@@ -59,7 +59,7 @@ namespace graph = tiz::graph;
 //
 // ops
 //
-graph::ops::ops (graph                     *p_graph, const omx_comp_name_lst_t &comp_lst,
+graph::ops::ops (graph *p_graph, const omx_comp_name_lst_t &comp_lst,
                  const omx_comp_role_lst_t &role_lst)
   : p_graph_ (p_graph),
     probe_ptr_ (),

@@ -48,6 +48,7 @@ namespace tiz
       void do_disable_ports ();
       void do_configure_comp (const int comp_id);
       void do_load ();
+      void do_load_comp (const int comp_id);
       void do_configure ();
       void do_omx_loaded2idle ();
       void do_omx_idle2exe ();
@@ -61,17 +62,22 @@ namespace tiz
                                   const OMX_U32 port);
 
     private:
-      OMX_ERRORTYPE transition_tunnel (
-          const int tunnel_id, const OMX_COMMANDTYPE to_disabled_or_enabled);
       OMX_ERRORTYPE set_youtube_playlist (const OMX_HANDLETYPE handle,
                                          const std::string &playlist);
+      void do_load_http_source ();
+      void do_load_demuxer ();
+      OMX_ERRORTYPE add_demuxer_to_component_list (
+          omx_comp_name_lst_t &comp_list, omx_comp_role_lst_t &role_list);
       OMX_ERRORTYPE add_decoder_to_component_list (
           omx_comp_name_lst_t &comp_list, omx_comp_role_lst_t &role_list);
+      OMX_ERRORTYPE transition_tunnel (
+          const int tunnel_id, const OMX_COMMANDTYPE to_disabled_or_enabled);
 
     private:
       // re-implemented from the base class
       bool probe_stream_hook ();
-      OMX_ERRORTYPE get_encoding_type_from_youtube_source ();
+      OMX_ERRORTYPE get_container_type_from_youtube_source ();
+      OMX_ERRORTYPE get_encoding_type_from_container_demuxer ();
       OMX_ERRORTYPE apply_pcm_codec_info_from_decoder ();
       OMX_ERRORTYPE get_channels_and_rate_from_decoder (
           OMX_U32 &channels, OMX_U32 &sampling_rate,
@@ -86,6 +92,7 @@ namespace tiz
 
     private:
       OMX_AUDIO_CODINGTYPE encoding_;
+      OMX_AUDIO_CODINGTYPE container_;
       OMX_AUDIO_PARAM_PCMMODETYPE renderer_pcmtype_;
       bool inital_graph_load_;
     };

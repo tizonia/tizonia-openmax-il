@@ -34,14 +34,14 @@
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
 
-#include <OMX_Core.h>
 #include <OMX_Component.h>
+#include <OMX_Core.h>
 #include <OMX_TizoniaExt.h>
 #include <tizplatform.h>
 
+#include "tizgraph.hpp"
 #include "tizgraphutil.hpp"
 #include "tizprobe.hpp"
-#include "tizgraph.hpp"
 #include "tizyoutubeconfig.hpp"
 #include "tizyoutubegraphops.hpp"
 
@@ -68,21 +68,18 @@ namespace
 // youtubeops
 //
 graph::youtubeops::youtubeops (graph *p_graph,
-                             const omx_comp_name_lst_t &comp_lst,
-                             const omx_comp_role_lst_t &role_lst)
+                               const omx_comp_name_lst_t &comp_lst,
+                               const omx_comp_role_lst_t &role_lst)
   : tiz::graph::ops (p_graph, comp_lst, role_lst),
     encoding_ (OMX_AUDIO_CodingAutoDetect),
-    inital_graph_load_(false)
+    inital_graph_load_ (false)
 {
   TIZ_INIT_OMX_PORT_STRUCT (renderer_pcmtype_, 0);
 }
 
 void graph::youtubeops::do_enable_auto_detection (const int handle_id,
-                                                 const int port_id)
+                                                  const int port_id)
 {
-  tizyoutubeconfig_ptr_t youtube_config
-      = boost::dynamic_pointer_cast< youtubeconfig >(config_);
-  assert (youtube_config);
   tiz::graph::ops::do_enable_auto_detection (handle_id, port_id);
 }
 
@@ -100,15 +97,12 @@ void graph::youtubeops::do_configure_comp (const int comp_id)
 {
   if (comp_id == 0)
   {
-    tizyoutubeconfig_ptr_t youtube_config
-        = boost::dynamic_pointer_cast< youtubeconfig > (config_);
-    assert (youtube_config);
-
     G_OPS_BAIL_IF_ERROR (
         set_youtube_playlist (handles_[0], playlist_->get_current_uri ()),
         "Unable to set OMX_TizoniaIndexParamAudioYoutubePlaylist");
   }
 }
+
 void graph::youtubeops::do_load ()
 {
   assert (!comp_lst_.empty ());
@@ -122,8 +116,8 @@ void graph::youtubeops::do_load ()
   assert (handles_.size () == 1);
 
   G_OPS_BAIL_IF_ERROR (
-      get_encoding_type_from_youtube_source (),
-      "Unable to retrieve the audio encoding from the youtube source.");
+      get_encoding_type_from_container_demuxer (),
+      "Unable to retrieve the audio encoding from the container demuxer.");
 
   omx_comp_name_lst_t comp_list;
   omx_comp_role_lst_t role_list;
@@ -144,13 +138,22 @@ void graph::youtubeops::do_load ()
   role_lst_.insert (role_lst_.begin (), role_list.begin (), role_list.end ());
 
   if (inital_graph_load_)
-    {
-      inital_graph_load_ = false;
-      tizyoutubeconfig_ptr_t youtube_config
-        = boost::dynamic_pointer_cast< youtubeconfig >(config_);
-      assert (youtube_config);
-      tiz::graph::util::dump_graph_info ("Youtube", "Connecting", "");
-    }
+  {
+    inital_graph_load_ = false;
+    tiz::graph::util::dump_graph_info ("Youtube", "Connecting", "");
+  }
+}
+
+void graph::youtubeops::do_load_comp (const int comp_id)
+{
+  if (comp_id == 0)
+  {
+    do_load_http_source ();
+  }
+  else if (comp_id == 1)
+  {
+    do_load_demuxer ();
+  }
 }
 
 void graph::youtubeops::do_configure ()
@@ -246,7 +249,8 @@ void graph::youtubeops::do_retrieve_metadata ()
   const int decoder_index = 1;
   index = 0;
   const bool use_first_as_heading = false;
-  while (OMX_ErrorNone == dump_metadata_item (index++, decoder_index, use_first_as_heading))
+  while (OMX_ErrorNone
+         == dump_metadata_item (index++, decoder_index, use_first_as_heading))
   {
   };
 
@@ -259,6 +263,149 @@ void graph::youtubeops::do_retrieve_metadata ()
       renderer_pcmtype_.nBitPerSample,
       renderer_pcmtype_.eNumData == OMX_NumericalDataSigned ? "s" : "u",
       renderer_pcmtype_.eEndian == OMX_EndianBig ? "b" : "l");
+}
+
+void graph::youtubeops::do_load_http_source ()
+{
+  assert (comp_lst_.size () == 0);
+  assert (role_lst_.size () == 0);
+  assert (handles_.size () == 0);
+
+  // The youtube source will be instantiated now.
+
+  omx_comp_name_lst_t comp_list;
+  comp_list.push_back ("OMX.Aratelia.audio_source.http");
+
+  omx_comp_role_lst_t role_list;
+  role_list.push_back ("audio_source.http.youtube");
+
+  tiz::graph::cbackhandler &cbacks = get_cback_handler ();
+  G_OPS_BAIL_IF_ERROR (
+      util::instantiate_comp_list (comp_list, handles_, h2n_, &(cbacks),
+                                   cbacks.get_omx_cbacks ()),
+      "Unable to instantiate the component list.");
+
+  // Now add the new component to the base class lists
+  comp_lst_.insert (comp_lst_.begin (), comp_list.begin (), comp_list.end ());
+  role_lst_.insert (role_lst_.begin (), role_list.begin (), role_list.end ());
+
+  if (inital_graph_load_)
+  {
+    inital_graph_load_ = false;
+    tiz::graph::util::dump_graph_info ("Youtube", "Connecting", "");
+  }
+}
+
+void graph::youtubeops::do_load_demuxer ()
+{
+  assert (comp_lst_.size () == 1);
+  assert (role_lst_.size () == 1);
+  assert (handles_.size () == 1);
+
+  // The youtube source is already instantiated. The container demuxer needs to
+  // be instantiated next.
+
+  G_OPS_BAIL_IF_ERROR (
+      get_container_type_from_youtube_source (),
+      "Unable to retrieve the audio encoding from the container demuxer.");
+
+  omx_comp_name_lst_t comp_list;
+  omx_comp_role_lst_t role_list;
+  G_OPS_BAIL_IF_ERROR (add_demuxer_to_component_list (comp_list, role_list),
+                       "Unknown/unhandled container format.");
+
+  tiz::graph::cbackhandler &cbacks = get_cback_handler ();
+  G_OPS_BAIL_IF_ERROR (
+      util::instantiate_comp_list (comp_list, handles_, h2n_, &(cbacks),
+                                   cbacks.get_omx_cbacks ()),
+      "Unable to instantiate the component list.");
+
+  // Now add the new components to the base class lists
+  comp_lst_.insert (comp_lst_.begin (), comp_list.begin (), comp_list.end ());
+  role_lst_.insert (role_lst_.begin (), role_list.begin (), role_list.end ());
+}
+
+OMX_ERRORTYPE
+graph::youtubeops::add_demuxer_to_component_list (
+    omx_comp_name_lst_t &comp_list, omx_comp_role_lst_t &role_list)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorFormatNotDetected;
+  if (OMX_AUDIO_CodingWEBM == container_)
+    {
+      comp_list.push_back ("OMX.Aratelia.container_demuxer.webm");
+      role_list.push_back ("container_demuxer.filter.webm");
+      rc = OMX_ErrorNone;
+    }
+  else if (OMX_AUDIO_CodingMP4 == container_)
+    {
+      // TODO
+      TIZ_LOG (TIZ_PRIORITY_ERROR,
+               "[OMX_ErrorFormatNotDetected] : Unhandled container format [OMX_AUDIO_CodingMP4].");
+    }
+  else if (OMX_AUDIO_CodingOGA == container_)
+    {
+      // TODO
+      TIZ_LOG (TIZ_PRIORITY_ERROR,
+               "[OMX_ErrorFormatNotDetected] : Unhandled container format [OMX_AUDIO_CodingOGA].");
+    }
+  else
+    {
+      TIZ_LOG (TIZ_PRIORITY_ERROR,
+               "[OMX_ErrorFormatNotDetected] : Unhandled container format [%d]...",
+               container_);
+    }
+  return rc;
+}
+
+OMX_ERRORTYPE
+graph::youtubeops::add_decoder_to_component_list (
+    omx_comp_name_lst_t &comp_list, omx_comp_role_lst_t &role_list)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  switch (encoding_)
+  {
+    case OMX_AUDIO_CodingMP3:
+    {
+      comp_list.push_back ("OMX.Aratelia.audio_decoder.mp3");
+      role_list.push_back ("audio_decoder.mp3");
+    }
+    break;
+    case OMX_AUDIO_CodingAAC:
+    {
+      comp_list.push_back ("OMX.Aratelia.audio_decoder.aac");
+      role_list.push_back ("audio_decoder.aac");
+    }
+    break;
+    case OMX_AUDIO_CodingVORBIS:
+    {
+      comp_list.push_back ("OMX.Aratelia.audio_decoder.vorbis");
+      role_list.push_back ("audio_decoder.vorbis");
+    }
+    break;
+    default:
+    {
+      if (OMX_AUDIO_CodingOPUS == encoding_)
+      {
+        comp_list.push_back ("OMX.Aratelia.audio_decoder.opusfile.opus");
+        role_list.push_back ("audio_decoder.opus");
+      }
+      else if (OMX_AUDIO_CodingFLAC == encoding_)
+      {
+        comp_list.push_back ("OMX.Aratelia.audio_decoder.flac");
+        role_list.push_back ("audio_decoder.flac");
+      }
+      else
+      {
+        TIZ_LOG (
+            TIZ_PRIORITY_ERROR,
+            "[OMX_ErrorFormatNotDetected] : Unhandled encoding type [%d]...",
+            encoding_);
+        rc = OMX_ErrorFormatNotDetected;
+      }
+    }
+    break;
+  };
+  return rc;
 }
 
 // TODO: Move this implementation to the base class (and remove also from
@@ -308,68 +455,29 @@ graph::youtubeops::transition_tunnel (
   return rc;
 }
 
-OMX_ERRORTYPE
-graph::youtubeops::add_decoder_to_component_list (
-    omx_comp_name_lst_t &comp_list, omx_comp_role_lst_t &role_list)
-{
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-  switch (encoding_)
-  {
-    case OMX_AUDIO_CodingMP3:
-    {
-      comp_list.push_back ("OMX.Aratelia.audio_decoder.mp3");
-      role_list.push_back ("audio_decoder.mp3");
-    }
-    break;
-    case OMX_AUDIO_CodingAAC:
-    {
-      comp_list.push_back ("OMX.Aratelia.audio_decoder.aac");
-      role_list.push_back ("audio_decoder.aac");
-    }
-    break;
-    case OMX_AUDIO_CodingVORBIS:
-    {
-      comp_list.push_back ("OMX.Aratelia.audio_decoder.vorbis");
-      role_list.push_back ("audio_decoder.vorbis");
-    }
-    break;
-    default:
-      {
-      if (OMX_AUDIO_CodingOPUS == encoding_)
-        {
-          comp_list.push_back ("OMX.Aratelia.audio_decoder.opusfile.opus");
-          role_list.push_back ("audio_decoder.opus");
-        }
-      else if (OMX_AUDIO_CodingFLAC == encoding_)
-        {
-          comp_list.push_back ("OMX.Aratelia.audio_decoder.flac");
-          role_list.push_back ("audio_decoder.flac");
-        }
-      else
-        {
-          TIZ_LOG (TIZ_PRIORITY_ERROR,
-                   "[OMX_ErrorFormatNotDetected] : Unhandled encoding type [%d]...",
-                   encoding_);
-          rc = OMX_ErrorFormatNotDetected;
-        }
-      }
-      break;
-  };
-  return rc;
-}
-
 bool graph::youtubeops::probe_stream_hook ()
 {
   return true;
 }
 
-OMX_ERRORTYPE graph::youtubeops::get_encoding_type_from_youtube_source ()
+OMX_ERRORTYPE graph::youtubeops::get_container_type_from_youtube_source ()
 {
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
   const OMX_U32 port_id = 0;
   TIZ_INIT_OMX_PORT_STRUCT (port_def, port_id);
   tiz_check_omx (
       OMX_GetParameter (handles_[0], OMX_IndexParamPortDefinition, &port_def));
+  container_ = port_def.format.audio.eEncoding;
+  return OMX_ErrorNone;
+}
+
+OMX_ERRORTYPE graph::youtubeops::get_encoding_type_from_container_demuxer ()
+{
+  OMX_PARAM_PORTDEFINITIONTYPE port_def;
+  const OMX_U32 port_id = 1;
+  TIZ_INIT_OMX_PORT_STRUCT (port_def, port_id);
+  tiz_check_omx (
+      OMX_GetParameter (handles_[1], OMX_IndexParamPortDefinition, &port_def));
   encoding_ = port_def.format.audio.eEncoding;
   return OMX_ErrorNone;
 }
@@ -381,10 +489,10 @@ graph::youtubeops::apply_pcm_codec_info_from_decoder ()
   OMX_U32 sampling_rate = 44100;
   std::string encoding_str;
 
-  tiz_check_omx (get_channels_and_rate_from_decoder (
-      channels, sampling_rate, encoding_str));
+  tiz_check_omx (get_channels_and_rate_from_decoder (channels, sampling_rate,
+                                                     encoding_str));
   tiz_check_omx (set_channels_and_rate_on_renderer (channels, sampling_rate,
-                                                        encoding_str));
+                                                    encoding_str));
   return OMX_ErrorNone;
 }
 
@@ -438,7 +546,7 @@ graph::youtubeops::get_channels_and_rate_from_decoder (
   if (OMX_ErrorNone == rc)
   {
     rc = tiz::graph::util::
-        get_channels_and_rate_from_audio_port_v2< OMX_AUDIO_PARAM_PCMMODETYPE >(
+        get_channels_and_rate_from_audio_port_v2< OMX_AUDIO_PARAM_PCMMODETYPE > (
             handle, port_id, OMX_IndexParamAudioPcm, channels, sampling_rate);
   }
   TIZ_LOG (TIZ_PRIORITY_TRACE, "outcome = [%s]", tiz_err_to_str (rc));
@@ -488,28 +596,28 @@ graph::youtubeops::set_channels_and_rate_on_renderer (
 
 OMX_ERRORTYPE
 graph::youtubeops::set_youtube_playlist (const OMX_HANDLETYPE handle,
-                                       const std::string &playlist)
+                                         const std::string &playlist)
 {
   // Set the Youtube playlist
   OMX_TIZONIA_AUDIO_PARAM_YOUTUBEPLAYLISTTYPE playlisttype;
   TIZ_INIT_OMX_STRUCT (playlisttype);
   tiz_check_omx (OMX_GetParameter (
-      handle, static_cast< OMX_INDEXTYPE >(
-                  OMX_TizoniaIndexParamAudioYoutubePlaylist),
+      handle,
+      static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioYoutubePlaylist),
       &playlisttype));
   copy_omx_string (playlisttype.cPlaylistName, playlist);
 
   tizyoutubeconfig_ptr_t youtube_config
-      = boost::dynamic_pointer_cast< youtubeconfig >(config_);
+      = boost::dynamic_pointer_cast< youtubeconfig > (config_);
   assert (youtube_config);
 
   playlisttype.ePlaylistType = youtube_config->get_playlist_type ();
   playlisttype.bShuffle = playlist_->shuffle () ? OMX_TRUE : OMX_FALSE;
 
-  return OMX_SetParameter (handle,
-                           static_cast< OMX_INDEXTYPE >(
-                               OMX_TizoniaIndexParamAudioYoutubePlaylist),
-                           &playlisttype);
+  return OMX_SetParameter (
+      handle,
+      static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioYoutubePlaylist),
+      &playlisttype);
 }
 
 bool graph::youtubeops::is_fatal_error (const OMX_ERRORTYPE error) const
@@ -530,8 +638,8 @@ bool graph::youtubeops::is_fatal_error (const OMX_ERRORTYPE error) const
 }
 
 void graph::youtubeops::do_record_fatal_error (const OMX_HANDLETYPE handle,
-                                              const OMX_ERRORTYPE error,
-                                              const OMX_U32 port)
+                                               const OMX_ERRORTYPE error,
+                                               const OMX_U32 port)
 {
   tiz::graph::ops::do_record_fatal_error (handle, error, port);
   if (error == OMX_ErrorContentURIError)
@@ -575,7 +683,7 @@ void graph::youtubeops::do_reconfigure_first_tunnel ()
           "Unable to set the MP3 settings on the audio decoder");
     }
     break;
-  default:
+    default:
     {
       // TODO
     }
@@ -590,7 +698,8 @@ void graph::youtubeops::do_reconfigure_second_tunnel ()
   const OMX_U32 demuxer_port_id = 1;
   TIZ_INIT_OMX_PORT_STRUCT (demuxer_audio_format, demuxer_port_id);
   G_OPS_BAIL_IF_ERROR (
-      OMX_GetParameter (handles_[1], OMX_IndexParamAudioPortFormat, &demuxer_audio_format),
+      OMX_GetParameter (handles_[1], OMX_IndexParamAudioPortFormat,
+                        &demuxer_audio_format),
       "Unable to retrieve the audio port format from the demuxer");
 
   // Retrieve the pcm settings from the renderer component
@@ -602,8 +711,8 @@ void graph::youtubeops::do_reconfigure_second_tunnel ()
       "Unable to retrieve the PCM settings from the pcm renderer");
 
   // Now assign the current settings to the renderer structure
-//   renderer_pcmtype.nChannels = demuxer_audio_format.nChannels;
-//   renderer_pcmtype.nSamplingRate = demuxer_audio_format.nSamplingRate;
+  //   renderer_pcmtype.nChannels = demuxer_audio_format.nChannels;
+  //   renderer_pcmtype.nSamplingRate = demuxer_audio_format.nSamplingRate;
 
   // Set the new pcm settings
   G_OPS_BAIL_IF_ERROR (
