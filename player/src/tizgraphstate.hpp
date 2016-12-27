@@ -222,6 +222,22 @@ namespace tiz
       void on_exit(Event const & evt, FSM & fsm) {G_STATE_LOG();}
     };
 
+    struct disabling_2nd_tunnel : public boost::msm::front::state<>
+    {
+      template <class Event,class FSM>
+      void on_entry(Event const & evt, FSM & fsm) {G_STATE_LOG();}
+      template <class Event,class FSM>
+      void on_exit(Event const & evt, FSM & fsm) {G_STATE_LOG();}
+    };
+
+    struct disabling_3rd_tunnel : public boost::msm::front::state<>
+    {
+      template <class Event,class FSM>
+      void on_entry(Event const & evt, FSM & fsm) {G_STATE_LOG();}
+      template <class Event,class FSM>
+      void on_exit(Event const & evt, FSM & fsm) {G_STATE_LOG();}
+    };
+
     struct enabling_tunnel : public boost::msm::front::state<>
     {
       template <class Event,class FSM>

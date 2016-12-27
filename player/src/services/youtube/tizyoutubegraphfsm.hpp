@@ -399,22 +399,6 @@ namespace tiz
           void on_entry(Event const & evt, FSM & fsm) {YOUTUBE_FSM_LOG();}
         };
 
-        struct disabling_2nd_tunnel : public boost::msm::front::state<>
-        {
-          template <class Event,class FSM>
-          void on_entry(Event const & evt, FSM & fsm) {YOUTUBE_FSM_LOG();}
-          template <class Event,class FSM>
-          void on_exit(Event const & evt, FSM & fsm) {YOUTUBE_FSM_LOG();}
-        };
-
-        struct enabling_2nd_tunnel : public boost::msm::front::state<>
-        {
-          template <class Event,class FSM>
-          void on_entry(Event const & evt, FSM & fsm) {YOUTUBE_FSM_LOG();}
-          template <class Event,class FSM>
-          void on_exit(Event const & evt, FSM & fsm) {YOUTUBE_FSM_LOG();}
-        };
-
         // the initial state. Must be defined
         typedef skipping_initial initial_state;
 
@@ -424,23 +408,26 @@ namespace tiz
 
         // Transition table for skipping
         struct transition_table : boost::mpl::vector<
-          //         Start                 Event                       Next                      Action                      Guard
-          //    +----+---------------------+---------------------------+-------------------------+---------------------------+---------------------------------+
-          bmf::Row < skipping_initial      , bmf::none                 , tg::disabling_tunnel    , bmf::ActionSequence_<
-                                                                                                     boost::mpl::vector<
-                                                                                                       tg::do_mute,
-                                                                                                       tg::do_disable_tunnel<0> > >                           >,
-          bmf::Row < tg::disabling_tunnel  , tg::omx_port_disabled_evt , disabling_2nd_tunnel    , tg::do_disable_tunnel<1>  , tg::is_port_disabling_complete >,
-          bmf::Row < tg::disabling_tunnel  , tg::skip_evt              , bmf::none               , bmf::Defer                                                 >,
-          bmf::Row < disabling_2nd_tunnel  , tg::skip_evt              , bmf::none               , bmf::Defer                                                 >,
-          bmf::Row < disabling_2nd_tunnel  , tg::omx_port_disabled_evt , skip_exit               , bmf::ActionSequence_<
-                                                                                                     boost::mpl::vector<
-                                                                                                       tg::do_mute,
-                                                                                                       tg::do_tear_down_tunnels,
-                                                                                                       tg::do_destroy_comp<1>,
-                                                                                                       tg::do_destroy_comp<1>,
-                                                                                                       tg::do_skip > >       , tg::is_port_disabling_complete >
-          //    +----+---------------------+---------------------------+-------------------------+---------------------------+---------------------------------+
+          //         Start                     Event                       Next                          Action                      Guard
+          //    +----+-------------------------+---------------------------+-----------------------------+---------------------------+---------------------------------+
+          bmf::Row < skipping_initial          , bmf::none                 , tg::disabling_tunnel        , bmf::ActionSequence_<
+                                                                                                             boost::mpl::vector<
+                                                                                                               tg::do_mute,
+                                                                                                               tg::do_disable_tunnel<0> > >                               >,
+          bmf::Row < tg::disabling_tunnel      , tg::skip_evt              , bmf::none                   , bmf::Defer                                                 >,
+          bmf::Row < tg::disabling_tunnel      , tg::omx_port_disabled_evt , tg::disabling_2nd_tunnel    , tg::do_disable_tunnel<1>  , tg::is_port_disabling_complete >,
+          bmf::Row < tg::disabling_2nd_tunnel  , tg::skip_evt              , bmf::none                   , bmf::Defer                                                 >,
+          bmf::Row < tg::disabling_2nd_tunnel  , tg::omx_port_disabled_evt , tg::disabling_3rd_tunnel    , tg::do_disable_tunnel<2>  , tg::is_port_disabling_complete >,
+          bmf::Row < tg::disabling_3rd_tunnel  , tg::skip_evt              , bmf::none                   , bmf::Defer                                                 >,
+          bmf::Row < tg::disabling_3rd_tunnel  , tg::omx_port_disabled_evt , skip_exit                   , bmf::ActionSequence_<
+                                                                                                             boost::mpl::vector<
+                                                                                                               tg::do_mute,
+                                                                                                               tg::do_tear_down_tunnels,
+                                                                                                               tg::do_destroy_comp<3>,
+                                                                                                               tg::do_destroy_comp<2>,
+                                                                                                               tg::do_destroy_comp<1>,
+                                                                                                             tg::do_skip > >         , tg::is_port_disabling_complete >
+          //    +----+-------------------------+---------------------------+-----------------------------+---------------------------+---------------------------------+
           > {};
 
         // Replaces the default no-transition response.
