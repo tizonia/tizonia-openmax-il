@@ -295,8 +295,8 @@ krn_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
 
         default:
           {
-            TIZ_ERROR (ap_hdl, "[OMX_ErrorUnsupportedIndex] : [0x%08x]...",
-                       a_index);
+            TIZ_ERROR (ap_hdl, "[OMX_ErrorUnsupportedIndex] : [0x%08x] = [%s]...",
+                       a_index, tiz_idx_to_str (a_index));
             return OMX_ErrorUnsupportedIndex;
           }
       };
