@@ -1138,7 +1138,7 @@ void tiz::programopts::init_youtube_options ()
 
   register_consume_function (&tiz::programopts::consume_youtube_client_options);
   all_youtube_client_options_ = boost::assign::list_of ("youtube-audio-stream")
-    ("youtube-audio-playlist");
+    ("youtube-audio-playlist")("youtube-audio-search");
 }
 
 void tiz::programopts::init_input_uri_option ()
@@ -1640,7 +1640,8 @@ int tiz::programopts::consume_youtube_client_options (bool &done,
     done = true;
 
     const int playlist_option_count = vm_.count ("youtube-audio-stream")
-      + vm_.count ("youtube-audio-playlist");
+                                      + vm_.count ("youtube-audio-playlist")
+                                      + vm_.count ("youtube-audio-search");
 
     if (playlist_option_count > 1)
     {
@@ -1849,8 +1850,9 @@ bool tiz::programopts::validate_dirble_client_options () const
 bool tiz::programopts::validate_youtube_client_options () const
 {
   bool outcome = false;
-  unsigned int youtube_opts_count
-      = vm_.count ("youtube-audio-stream") + vm_.count ("youtube-audio-playlist");
+  unsigned int youtube_opts_count = vm_.count ("youtube-audio-stream")
+                                    + vm_.count ("youtube-audio-playlist")
+                                    + vm_.count ("youtube-audio-search");
 
   std::vector< std::string > all_valid_options = all_youtube_client_options_;
   concat_option_lists (all_valid_options, all_global_options_);
