@@ -321,7 +321,7 @@ namespace tiz
         struct transition_table : boost::mpl::vector<
           //       Start                            Event                         Next                              Action                           Guard
           //    +--+--------------------------------+---------------------------+---------------------------------+----------------------------------+--------------------------------+
-          bmf::Row < reconfiguring_tunnel_initial   , bmf::none                 , tg::awaiting_port_disabled_evt  , tg::do_disable_tunnel<tunnel_id>         , bmf::none                      >,
+          bmf::Row < reconfiguring_tunnel_initial   , bmf::none                 , tg::awaiting_port_disabled_evt  , tg::do_disable_tunnel<tunnel_id> , bmf::none                      >,
           //    +--+--------------------------------+---------------------------+---------------------------------+----------------------------------+--------------------------------+
           bmf::Row < tg::awaiting_port_disabled_evt , tg::omx_port_disabled_evt , tg::enabling_tunnel             , bmf::ActionSequence_<
                                                                                                                       boost::mpl::vector<

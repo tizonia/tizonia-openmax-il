@@ -245,10 +245,22 @@ void graph::youtubeops::do_load_http_source ()
   omx_comp_role_lst_t role_list;
   role_list.push_back ("audio_source.http.youtube");
 
+  G_OPS_BAIL_IF_ERROR (util::verify_comp_list (comp_list),
+                       "Unable to verify the component list.");
+
+  omx_comp_role_pos_lst_t role_positions;
+  G_OPS_BAIL_IF_ERROR (
+      util::verify_role_list (comp_list, role_list, role_positions),
+      "Unable to verify the role list.");
+
   tiz::graph::cbackhandler &cbacks = get_cback_handler ();
   G_OPS_BAIL_IF_ERROR (
       util::instantiate_comp_list (comp_list, handles_, h2n_, &(cbacks),
                                    cbacks.get_omx_cbacks ()),
+      "Unable to instantiate the component list.");
+
+  G_OPS_BAIL_IF_ERROR (
+      util::set_role_list (handles_, role_list, role_positions),
       "Unable to instantiate the component list.");
 
   // Now add the new component to the base class lists
