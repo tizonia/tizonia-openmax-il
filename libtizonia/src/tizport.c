@@ -1225,6 +1225,9 @@ port_set_portdef_format (void * ap_obj,
                          const OMX_PARAM_PORTDEFINITIONTYPE * ap_pdef)
 {
   /* To be implemented by derived classes */
+  TIZ_NOTICE (handleOf (ap_obj),
+              "This function should have been implemented in the derived class");
+  assert (0);
   return OMX_ErrorNone;
 }
 
