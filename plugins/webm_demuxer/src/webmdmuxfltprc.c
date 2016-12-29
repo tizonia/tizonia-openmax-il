@@ -854,6 +854,10 @@ send_auto_detect_event (webmdmuxflt_prc_t * ap_prc, OMX_S32 * ap_coding_type,
   assert (ap_coding_type);
   if (*ap_coding_type != a_coding_type1 && *ap_coding_type != a_coding_type2)
     {
+      TIZ_DEBUG (handleOf (ap_prc),
+                 "Issuing OMX_EventPortFormatDetected - audio_coding_type_ [%X]",
+                 *ap_coding_type);
+
       /* TODO: update the output port with the corresponding audio or video settings detected */
       tiz_srv_issue_event ((OMX_PTR) ap_prc, OMX_EventPortFormatDetected, 0, 0,
                            NULL);
@@ -900,25 +904,22 @@ alloc_nestegg (webmdmuxflt_prc_t * ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  if (tiz_filter_prc_output_headers_available (ap_prc))
-    {
-      int nestegg_rc = 0;
-      assert (!ap_prc->p_ne_);
-      nestegg_rc = nestegg_init (&ap_prc->p_ne_, ap_prc->ne_io_, ne_log, -1);
+  int nestegg_rc = 0;
+  assert (!ap_prc->p_ne_);
+  nestegg_rc = nestegg_init (&ap_prc->p_ne_, ap_prc->ne_io_, ne_log, -1);
 
-      if (0 != nestegg_rc)
-        {
-          dealloc_nestegg (ap_prc);
-          tiz_buffer_clear (ap_prc->p_store_);
-        }
-      else
-        {
-          rc = send_port_auto_detect_events (ap_prc);
-          ap_prc->ne_inited_ = true;
-        }
-      TIZ_DEBUG (handleOf (ap_prc), "nestegg inited = %s",
-                 (ap_prc->ne_inited_ ? "TRUE" : "FALSE"));
+  if (0 != nestegg_rc)
+    {
+      dealloc_nestegg (ap_prc);
+      tiz_buffer_clear (ap_prc->p_store_);
     }
+  else
+    {
+      rc = send_port_auto_detect_events (ap_prc);
+      ap_prc->ne_inited_ = true;
+    }
+  TIZ_DEBUG (handleOf (ap_prc), "nestegg inited = %s",
+             (ap_prc->ne_inited_ ? "TRUE" : "FALSE"));
   return rc;
 }
 
