@@ -61,7 +61,7 @@ namespace tiz
                                   const OMX_U32 port);
 
     private:
-      OMX_ERRORTYPE transition_tunnel (
+      OMX_ERRORTYPE switch_tunnel (
           const int tunnel_id, const OMX_COMMANDTYPE to_disabled_or_enabled);
       OMX_ERRORTYPE set_gmusic_user_and_device_id (
           const OMX_HANDLETYPE handle, const std::string &user,

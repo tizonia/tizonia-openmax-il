@@ -226,7 +226,7 @@ void graph::httpclntops::do_reconfigure_tunnel (const int tunnel_id)
 // TODO: Move this implementation to the base class (and remove also from
 // httpservops)
 OMX_ERRORTYPE
-graph::httpclntops::transition_tunnel (
+graph::httpclntops::switch_tunnel (
     const int tunnel_id, const OMX_COMMANDTYPE to_disabled_or_enabled)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;

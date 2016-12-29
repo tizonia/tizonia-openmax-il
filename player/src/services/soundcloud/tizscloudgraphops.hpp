@@ -61,7 +61,7 @@ namespace tiz
                                   const OMX_U32 port);
 
     private:
-      OMX_ERRORTYPE transition_tunnel (
+      OMX_ERRORTYPE switch_tunnel (
           const int tunnel_id, const OMX_COMMANDTYPE to_disabled_or_enabled);
       OMX_ERRORTYPE set_scloud_oauth_token (const OMX_HANDLETYPE handle,
                                             const std::string &oauth_token);

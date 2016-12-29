@@ -267,7 +267,7 @@ void graph::dirbleops::do_retrieve_metadata ()
 // TODO: Move this implementation to the base class (and remove also from
 // httpservops)
 OMX_ERRORTYPE
-graph::dirbleops::transition_tunnel (
+graph::dirbleops::switch_tunnel (
     const int tunnel_id, const OMX_COMMANDTYPE to_disabled_or_enabled)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;

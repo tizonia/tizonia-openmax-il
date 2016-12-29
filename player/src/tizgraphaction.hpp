@@ -221,6 +221,20 @@ namespace tiz
       }
     };
 
+    template<int tunnel_id>
+    struct do_loaded2idle_tunnel
+    {
+      template <class FSM, class EVT, class SourceState, class TargetState>
+      void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
+      {
+        G_ACTION_LOG ();
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+        {
+          (*(fsm.pp_ops_))->do_loaded2idle_tunnel (tunnel_id);
+        }
+      }
+    };
+
     struct do_idle2exe
     {
       template < class FSM, class EVT, class SourceState, class TargetState >
@@ -244,6 +258,20 @@ namespace tiz
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
         {
           (*(fsm.pp_ops_))->do_idle2exe_comp (comp_id);
+        }
+      }
+    };
+
+    template<int tunnel_id>
+    struct do_idle2exe_tunnel
+    {
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
+      {
+        G_ACTION_LOG ();
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+        {
+          (*(fsm.pp_ops_))->do_idle2exe_tunnel (tunnel_id);
         }
       }
     };

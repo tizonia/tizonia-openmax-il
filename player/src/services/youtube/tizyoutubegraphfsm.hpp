@@ -249,11 +249,11 @@ namespace tiz
                                                                                                                         tg::do_configure_comp<3>,
                                                                                                                         tg::do_setup_tunnel<1>,
                                                                                                                         tg::do_setup_tunnel<2>,
-                                                                                                                        tg::do_disable_tunnel<1> > > , bmf::none                      >,
+                                                                                                                        tg::do_disable_tunnel<1> > > , bmf::none                   >,
           //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+--------------------------------+
-          bmf::Row < tg::awaiting_port_disabled_evt , tg::omx_port_disabled_evt , tg::config2idle                 , tg::do_loaded2idle        , tg::is_port_disabling_complete >,
+          bmf::Row < tg::awaiting_port_disabled_evt , tg::omx_port_disabled_evt , tg::config2idle                 , tg::do_loaded2idle_tunnel<2>  , tg::is_port_disabling_complete >,
           //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+--------------------------------+
-          bmf::Row < tg::config2idle                , tg::omx_trans_evt         , tg::idle2exe                    , tg::do_idle2exe           , tg::is_trans_complete          >,
+          bmf::Row < tg::config2idle                , tg::omx_trans_evt         , tg::idle2exe                    , tg::do_idle2exe_tunnel<2>     , tg::is_trans_complete          >,
           //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+--------------------------------+
           bmf::Row < tg::idle2exe                   , tg::omx_trans_evt         , tg::enabling_tunnel             , tg::do_enable_tunnel<1>       , tg::is_trans_complete          >,
           //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+--------------------------------+

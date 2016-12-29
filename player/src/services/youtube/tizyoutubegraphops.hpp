@@ -48,8 +48,6 @@ namespace tiz
       void do_disable_comp_ports (const int comp_id, const int port_id);
       void do_configure_comp (const int comp_id);
       void do_load_comp (const int comp_id);
-      void do_loaded2idle ();
-      void do_idle2exe ();
       void do_reconfigure_tunnel (const int tunnel_id);
       void do_skip ();
       void do_retrieve_metadata ();
@@ -70,7 +68,7 @@ namespace tiz
           omx_comp_name_lst_t &comp_list, omx_comp_role_lst_t &role_list);
       OMX_ERRORTYPE add_decoder_to_component_list (
           omx_comp_name_lst_t &comp_list, omx_comp_role_lst_t &role_list);
-      OMX_ERRORTYPE transition_tunnel (
+      OMX_ERRORTYPE switch_tunnel (
           const int tunnel_id, const OMX_COMMANDTYPE to_disabled_or_enabled);
 
     private:

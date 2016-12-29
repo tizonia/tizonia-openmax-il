@@ -243,7 +243,7 @@ graph::httpservops::configure_stream_metadata ()
 }
 
 OMX_ERRORTYPE
-graph::httpservops::transition_tunnel (const int tunnel_id,
+graph::httpservops::switch_tunnel (const int tunnel_id,
     const OMX_COMMANDTYPE to_disabled_or_enabled)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;

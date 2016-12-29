@@ -162,42 +162,6 @@ void graph::youtubeops::do_load_comp (const int comp_id)
   }
 }
 
-void graph::youtubeops::do_loaded2idle ()
-{
-  if (last_op_succeeded ())
-  {
-    // Transition the decoder and the renderer components to Idle
-    omx_comp_handle_lst_t decoder_and_renderer_handles;
-    decoder_and_renderer_handles.push_back (handles_[1]);  // the decoder
-    decoder_and_renderer_handles.push_back (handles_[2]);  // the renderer
-    G_OPS_BAIL_IF_ERROR (
-        util::transition_all (decoder_and_renderer_handles, OMX_StateIdle,
-                              OMX_StateLoaded),
-        "Unable to transition deoder and renderer from Loaded->Idle");
-    clear_expected_transitions ();
-    add_expected_transition (handles_[1], OMX_StateIdle);
-    add_expected_transition (handles_[2], OMX_StateIdle);
-  }
-}
-
-void graph::youtubeops::do_idle2exe ()
-{
-  if (last_op_succeeded ())
-  {
-    // Transition the decoder and the renderer components to Exe
-    omx_comp_handle_lst_t decoder_and_renderer_handles;
-    decoder_and_renderer_handles.push_back (handles_[1]);  // the decoder
-    decoder_and_renderer_handles.push_back (handles_[2]);  // the renderer
-    G_OPS_BAIL_IF_ERROR (
-        util::transition_all (decoder_and_renderer_handles, OMX_StateExecuting,
-                              OMX_StateIdle),
-        "Unable to transition decoder and renderer from Idle->Exe");
-    clear_expected_transitions ();
-    add_expected_transition (handles_[1], OMX_StateExecuting);
-    add_expected_transition (handles_[2], OMX_StateExecuting);
-  }
-}
-
 void graph::youtubeops::do_reconfigure_tunnel (const int tunnel_id)
 {
   if (last_op_succeeded ())
@@ -489,7 +453,7 @@ graph::youtubeops::add_decoder_to_component_list (
 // TODO: Move this implementation to the base class (and remove also from
 // httpservops)
 OMX_ERRORTYPE
-graph::youtubeops::transition_tunnel (
+graph::youtubeops::switch_tunnel (
     const int tunnel_id, const OMX_COMMANDTYPE to_disabled_or_enabled)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;

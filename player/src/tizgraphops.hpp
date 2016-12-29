@@ -29,18 +29,18 @@
 #ifndef TIZGRAPHOPS_HPP
 #define TIZGRAPHOPS_HPP
 
-#include <boost/thread.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/thread.hpp>
 
 #include <string>
 
-#include <tizplatform.h>
 #include <OMX_Core.h>
+#include <tizplatform.h>
 
 #include "tizgraphtypes.hpp"
-#include "tizprobe.hpp"
 #include "tizplaylist.hpp"
+#include "tizprobe.hpp"
 
 #define G_OPS_BAIL_IF_ERROR(exp, str)                                         \
   do                                                                          \
@@ -99,8 +99,10 @@ namespace tiz
       virtual void do_configure_comp (const int comp_id);
       virtual void do_loaded2idle ();
       virtual void do_loaded2idle_comp (const int comp_id);
+      virtual void do_loaded2idle_tunnel (const int tunnel_id);
       virtual void do_idle2exe ();
       virtual void do_idle2exe_comp (const int comp_id);
+      virtual void do_idle2exe_tunnel (const int tunnel_id);
       virtual void do_ack_execd ();
       virtual void do_ack_stopped ();
       virtual void do_ack_paused ();
@@ -151,7 +153,8 @@ namespace tiz
       bool is_trans_complete (const OMX_HANDLETYPE handle,
                               const OMX_STATETYPE to_state);
       bool is_destination_state (const OMX_STATETYPE to_state);
-      bool is_component_state (const int handle_id, const OMX_STATETYPE state_id);
+      bool is_component_state (const int handle_id,
+                               const OMX_STATETYPE state_id);
       bool is_port_disabling_complete (const OMX_HANDLETYPE handle,
                                        const OMX_U32 port_id);
       bool is_port_enabling_complete (const OMX_HANDLETYPE handle,
@@ -183,7 +186,7 @@ namespace tiz
           const OMX_HANDLETYPE handle, const OMX_U32 port_id,
           const OMX_COMMANDTYPE disable_or_enable);
 
-      typedef void (tiz::probe::*stream_info_dump_func_t)(void);
+      typedef void (tiz::probe::*stream_info_dump_func_t) (void);
       virtual OMX_ERRORTYPE probe_stream (
           const OMX_PORTDOMAINTYPE omx_domain, const int omx_coding,
           const std::string &graph_id, const std::string &graph_action,
@@ -193,12 +196,16 @@ namespace tiz
       virtual OMX_ERRORTYPE transition_source (const OMX_STATETYPE to_state);
       virtual OMX_ERRORTYPE transition_comp (const int comp_id,
                                              const OMX_STATETYPE to_state);
-      virtual OMX_ERRORTYPE transition_tunnel (
+      virtual OMX_ERRORTYPE transition_tunnel (const int tunnel_id,
+                                               const OMX_STATETYPE to_state,
+                                               const OMX_STATETYPE from_state);
+      virtual OMX_ERRORTYPE switch_tunnel (
           const int tunnel_id, const OMX_COMMANDTYPE to_disabled_or_enabled);
 
       virtual OMX_ERRORTYPE dump_metadata_item (const OMX_U32 index,
                                                 const int comp_index,
-                                                const bool use_first_as_heading = true);
+                                                const bool use_first_as_heading
+                                                = true);
 
       cbackhandler &get_cback_handler () const;
 

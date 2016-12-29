@@ -173,7 +173,7 @@ void graph::ops::do_disable_tunnel (const int tunnel_id)
     std::string err_msg ("Unable to disable tunnel id [");
     err_msg.append (boost::lexical_cast< std::string >(tunnel_id));
     err_msg.append ("]");
-    G_OPS_BAIL_IF_ERROR (transition_tunnel (tunnel_id, OMX_CommandPortDisable),
+    G_OPS_BAIL_IF_ERROR (switch_tunnel (tunnel_id, OMX_CommandPortDisable),
                          err_msg);
   }
 }
@@ -185,7 +185,7 @@ void graph::ops::do_enable_tunnel (const int tunnel_id)
     std::string err_msg ("Unable to enable tunnel id [");
     err_msg.append (boost::lexical_cast< std::string >(tunnel_id));
     err_msg.append ("]");
-    G_OPS_BAIL_IF_ERROR (transition_tunnel (tunnel_id, OMX_CommandPortEnable),
+    G_OPS_BAIL_IF_ERROR (switch_tunnel (tunnel_id, OMX_CommandPortEnable),
                          err_msg);
   }
 }
@@ -236,7 +236,17 @@ void graph::ops::do_loaded2idle_comp (const int comp_id)
   {
     G_OPS_BAIL_IF_ERROR (
         transition_comp (comp_id, OMX_StateIdle),
-        "Unable to transition source component from Loaded->Idle");
+        "Unable to transition component from Loaded->Idle");
+  }
+}
+
+void graph::ops::do_loaded2idle_tunnel (const int tunnel_id)
+{
+  if (last_op_succeeded ())
+  {
+    G_OPS_BAIL_IF_ERROR (
+        transition_tunnel (tunnel_id, OMX_StateIdle, OMX_StateLoaded),
+        "Unable to transition tunnel from Loaded->Idle");
   }
 }
 
@@ -257,7 +267,17 @@ void graph::ops::do_idle2exe_comp (const int comp_id)
   {
     G_OPS_BAIL_IF_ERROR (
         transition_comp (comp_id, OMX_StateExecuting),
-        "Unable to transition source component from Idle->Exe");
+        "Unable to transition component from Idle->Exe");
+  }
+}
+
+void graph::ops::do_idle2exe_tunnel (const int tunnel_id)
+{
+  if (last_op_succeeded ())
+  {
+    G_OPS_BAIL_IF_ERROR (
+        transition_tunnel (tunnel_id, OMX_StateExecuting, OMX_StateIdle),
+        "Unable to transition tunnel from Idle->Exe");
   }
 }
 
@@ -937,6 +957,31 @@ graph::ops::transition_comp (const int comp_id, const OMX_STATETYPE to_state)
 
 OMX_ERRORTYPE
 graph::ops::transition_tunnel (const int tunnel_id,
+                               const OMX_STATETYPE to_state,
+                               const OMX_STATETYPE from_state)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+
+  if (to_state != from_state)
+  {
+    const int comp_a = tunnel_id;
+    const int comp_b = tunnel_id + 1;
+    omx_comp_handle_lst_t hdl_list;
+    hdl_list.push_back (handles_[comp_a]);
+    hdl_list.push_back (handles_[comp_b]);
+    rc = tiz::graph::util::transition_all (hdl_list, to_state, from_state);
+    if (OMX_ErrorNone == rc)
+    {
+      clear_expected_transitions ();
+      add_expected_transition (handles_[comp_a], to_state);
+      add_expected_transition (handles_[comp_b], to_state);
+    }
+  }
+  return rc;
+}
+
+OMX_ERRORTYPE
+graph::ops::switch_tunnel (const int tunnel_id,
                                const OMX_COMMANDTYPE to_disabled_or_enabled)
 {
   // Default implementation. To be overriden by derived classes.

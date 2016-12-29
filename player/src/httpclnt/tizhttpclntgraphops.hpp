@@ -56,7 +56,7 @@ namespace tiz
       void do_reconfigure_tunnel (const int tunnel_id);
 
     private:
-      OMX_ERRORTYPE transition_tunnel (
+      OMX_ERRORTYPE switch_tunnel (
           const int tunnel_id, const OMX_COMMANDTYPE to_disabled_or_enabled);
 
     private:
