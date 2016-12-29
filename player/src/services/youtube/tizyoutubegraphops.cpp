@@ -428,7 +428,7 @@ graph::youtubeops::add_decoder_to_component_list (
     {
       if (OMX_AUDIO_CodingOPUS == encoding_)
       {
-        comp_list.push_back ("OMX.Aratelia.audio_decoder.opusfile.opus");
+        comp_list.push_back ("OMX.Aratelia.audio_decoder.opus");
         role_list.push_back ("audio_decoder.opus");
       }
       else if (OMX_AUDIO_CodingFLAC == encoding_)
