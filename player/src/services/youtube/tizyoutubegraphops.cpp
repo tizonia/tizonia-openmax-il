@@ -381,7 +381,7 @@ void graph::youtubeops::do_load_renderer ()
 {
   assert (comp_lst_.size () == 3);
   assert (role_lst_.size () == 3);
-  assert (handles_.size () == 4);
+  assert (handles_.size () == 3);
 
   // The audio renderer needs to be instantiated next.
   omx_comp_name_lst_t comp_list;
@@ -494,7 +494,7 @@ graph::youtubeops::transition_tunnel (
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (0 == tunnel_id || 1 == tunnel_id);
+  assert (0 == tunnel_id || 1 == tunnel_id || 2 == tunnel_id);
   assert (to_disabled_or_enabled == OMX_CommandPortDisable
           || to_disabled_or_enabled == OMX_CommandPortEnable);
 
@@ -514,18 +514,29 @@ graph::youtubeops::transition_tunnel (
     add_expected_port_transition (handles_[youtube_source_index],
                                   youtube_source_output_port,
                                   to_disabled_or_enabled);
-    const int decoder_index = 1;
-    const int decoder_input_port = 0;
-    add_expected_port_transition (handles_[decoder_index], decoder_input_port,
+    const int demuxer_index = 1;
+    const int demuxer_input_port = 0;
+    add_expected_port_transition (handles_[demuxer_index], demuxer_input_port,
                                   to_disabled_or_enabled);
   }
   else if (OMX_ErrorNone == rc && 1 == tunnel_id)
   {
-    const int decoder_index = 1;
+    const int demuxer_index = 1;
+    const int demuxer_output_port = 1;
+    add_expected_port_transition (handles_[demuxer_index], demuxer_output_port,
+                                  to_disabled_or_enabled);
+    const int decoder_index = 2;
+    const int decoder_input_port = 0;
+    add_expected_port_transition (handles_[decoder_index], decoder_input_port,
+                                  to_disabled_or_enabled);
+  }
+  else if (OMX_ErrorNone == rc && 2 == tunnel_id)
+  {
+    const int decoder_index = 2;
     const int decoder_output_port = 1;
     add_expected_port_transition (handles_[decoder_index], decoder_output_port,
                                   to_disabled_or_enabled);
-    const int renderer_index = 2;
+    const int renderer_index = 3;
     const int renderer_input_port = 0;
     add_expected_port_transition (handles_[renderer_index], renderer_input_port,
                                   to_disabled_or_enabled);
@@ -581,7 +592,7 @@ graph::youtubeops::get_channels_and_rate_from_decoder (
     OMX_U32 &channels, OMX_U32 &sampling_rate, std::string &encoding_str) const
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  const OMX_HANDLETYPE handle = handles_[1];  // decoder's handle
+  const OMX_HANDLETYPE handle = handles_[2];  // decoder's handle
   const OMX_U32 port_id = 1;                  // decoder's output port
 
   switch (encoding_)
@@ -639,7 +650,7 @@ graph::youtubeops::set_channels_and_rate_on_renderer (
     const OMX_U32 channels, const OMX_U32 sampling_rate,
     const std::string encoding_str)
 {
-  const OMX_HANDLETYPE handle = handles_[2];  // renderer's handle
+  const OMX_HANDLETYPE handle = handles_[3];  // renderer's handle
   const OMX_U32 port_id = 0;                  // renderer's input port
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "channels = [%d] sampling_rate = [%d]", channels,
