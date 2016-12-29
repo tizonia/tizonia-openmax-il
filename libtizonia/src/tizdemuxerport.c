@@ -35,6 +35,8 @@
 #include <tizplatform.h>
 
 #include "tizutils.h"
+#include "tizaudioport.h"
+#include "tizaudioport_decls.h"
 #include "tizpcmport.h"
 #include "tizvideoport.h"
 #include "tizdemuxerport.h"
@@ -44,6 +46,50 @@
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.tizonia.demuxerport"
 #endif
+
+static inline OMX_ERRORTYPE
+update_audio_coding_type (void * ap_obj, const OMX_AUDIO_CODINGTYPE a_encoding)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  tiz_demuxerport_t * p_obj = ap_obj;
+  tiz_audioport_t *p_audio_port = NULL;
+  tiz_port_t * p_base = ap_obj;
+
+  assert (ap_obj);
+  p_audio_port = p_obj->p_port_;
+
+  if (a_encoding >= OMX_AUDIO_CodingMax)
+    {
+      TIZ_ERROR (handleOf (ap_obj),
+                 "[OMX_ErrorBadParameter] : "
+                 "(Bad encoding [0x%08x]...)",
+                 a_encoding);
+      rc = OMX_ErrorBadParameter;
+      goto end;
+    }
+
+  if (!tiz_vector_find (p_audio_port->p_encodings_, (const OMX_PTR) (&a_encoding)))
+    {
+      TIZ_ERROR (handleOf (ap_obj),
+                 "[OMX_ErrorUnsupportedSetting] : "
+                 "(Encoding not supported [0x%08x]...)",
+                 a_encoding);
+      rc = OMX_ErrorUnsupportedSetting;
+      goto end;
+    }
+
+  /* All well */
+
+  /* Update this port's OMX_AUDIO_PARAM_PORTFORMATTYPE structure */
+  p_audio_port->port_format_.eEncoding = a_encoding;
+
+  /* Now update the base class' OMX_PARAM_PORTDEFINITIONTYPE */
+  p_base->portdef_.format.audio.eEncoding = a_encoding;
+
+end:
+
+  return rc;
+}
 
 /*
  * tizdemuxerport class
@@ -59,7 +105,7 @@ demuxerport_ctor (void * ap_obj, va_list * app)
   /* Make a copy of the incoming va_list before it gets parsed by the parent
      class:
      The expected arguments are:
-     port_opts
+     tiz_port_options_t
 
      */
   va_copy (app_copy, *app);
@@ -85,44 +131,15 @@ demuxerport_ctor (void * ap_obj, va_list * app)
             {
               /* Let's instantiate a PCM port */
               OMX_AUDIO_CODINGTYPE * p_encodings = NULL;
-              OMX_AUDIO_PARAM_PCMMODETYPE * p_pcmmode = NULL;
-              OMX_AUDIO_CONFIG_VOLUMETYPE * p_volume = NULL;
-              OMX_AUDIO_CONFIG_MUTETYPE * p_mute = NULL;
-              OMX_AUDIO_CODINGTYPE encodings[]
-                = {OMX_AUDIO_CodingUnused, OMX_AUDIO_CodingMax};
 
-              /* Register the PCM port indexes, so this port receives the get/set
-               requests */
-              tiz_check_omx_ret_null (
-                tiz_port_register_index (p_obj, OMX_IndexParamAudioPcm));
-              tiz_check_omx_ret_null (
-                tiz_port_register_index (p_obj, OMX_IndexConfigAudioVolume));
-              tiz_check_omx_ret_null (
-                tiz_port_register_index (p_obj, OMX_IndexConfigAudioMute));
-
-              /* Get the array of OMX_AUDIO_CODINGTYPE values  (mandatory argument) */
+              /* Get the array of OMX_AUDIO_CODINGTYPE values (mandatory argument) */
               p_encodings = va_arg (app_copy, OMX_AUDIO_CODINGTYPE *);
               assert (p_encodings);
 
-              /* Get the OMX_AUDIO_PARAM_PCMMODETYPE structure (mandatory argument) */
-              p_pcmmode = va_arg (app_copy, OMX_AUDIO_PARAM_PCMMODETYPE *);
-              assert (p_pcmmode);
-
-              /* Get the OMX_AUDIO_CONFIG_VOLUMETYPE structure (mandatory argument) */
-              p_volume = va_arg (app_copy, OMX_AUDIO_CONFIG_VOLUMETYPE *);
-              assert (p_volume);
-
-              TIZ_TRACE (handleOf (ap_obj), "p_volume->sVolume.nValue [%d]",
-                         p_volume->sVolume.nValue);
-
-              /* Get the OMX_AUDIO_CONFIG_MUTETYPE structure (mandatory argument) */
-              p_mute = va_arg (app_copy, OMX_AUDIO_CONFIG_MUTETYPE *);
-              assert (p_mute);
-
               p_obj->p_port_
-                = factory_new (typeOf (ap_obj, "tizpcmport"), p_opts,
-                               &encodings, p_pcmmode, p_volume, p_mute);
-              if (NULL == p_obj->p_port_)
+                = factory_new (typeOf (ap_obj, "tizaudioport"), p_opts,
+                               p_encodings);
+              if (!p_obj->p_port_)
                 {
                   return NULL;
                 }
@@ -216,7 +233,6 @@ demuxerport_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
 
       case OMX_IndexParamAudioPortFormat:
       case OMX_IndexParamVideoPortFormat:
-      case OMX_IndexParamAudioPcm:
         {
           /* Delegate to the domain-specific port */
           if (OMX_ErrorUnsupportedIndex
@@ -299,6 +315,7 @@ demuxerport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
       default:
         {
           /* Delegate to the base port */
+          TIZ_DEBUG(ap_hdl, "delegating to base port");
           return super_SetParameter (typeOf (ap_obj, "tizdemuxerport"), ap_obj,
                                      ap_hdl, a_index, ap_struct);
         }
@@ -385,6 +402,40 @@ demuxerport_SetConfig (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
   return rc;
 }
 
+static OMX_ERRORTYPE
+demuxerport_set_portdef_format (void * ap_obj,
+                              const OMX_PARAM_PORTDEFINITIONTYPE * ap_pdef)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  tiz_demuxerport_t * p_obj = ap_obj;
+  tiz_port_t * p_base = ap_obj;
+
+  assert (p_obj);
+  assert (ap_pdef);
+
+  if (OMX_PortDomainAudio == p_base->portdef_.eDomain)
+    {
+      p_base->portdef_.format.audio.pNativeRender
+        = ap_pdef->format.audio.pNativeRender;
+      p_base->portdef_.format.audio.bFlagErrorConcealment
+        = ap_pdef->format.audio.bFlagErrorConcealment;
+      TIZ_TRACE (handleOf (ap_obj), "PORT [%d] audio.eEncoding [%d]",
+                 tiz_port_index (ap_obj), ap_pdef->format.audio.eEncoding);
+      rc = update_audio_coding_type (p_obj, ap_pdef->format.audio.eEncoding);
+    }
+  else if (OMX_PortDomainVideo == p_base->portdef_.eDomain)
+    {
+      /* TODO */
+      assert (0);
+      rc = OMX_ErrorUndefined;
+    }
+  else
+    {
+      assert (0);
+    }
+  return rc;
+}
+
 static bool
 demuxerport_check_tunnel_compat (const void * ap_obj,
                                  OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
@@ -461,6 +512,8 @@ tiz_demuxerport_init (void * ap_tos, void * ap_hdl)
      tiz_api_GetConfig, demuxerport_GetConfig,
      /* TIZ_CLASS_COMMENT: */
      tiz_api_SetConfig, demuxerport_SetConfig,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_port_set_portdef_format, demuxerport_set_portdef_format,
      /* TIZ_CLASS_COMMENT: */
      tiz_port_check_tunnel_compat, demuxerport_check_tunnel_compat,
      /* TIZ_CLASS_COMMENT: stop value*/
