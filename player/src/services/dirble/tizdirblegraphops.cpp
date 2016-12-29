@@ -169,7 +169,7 @@ void graph::dirbleops::do_configure ()
   }
 }
 
-void graph::dirbleops::do_omx_loaded2idle ()
+void graph::dirbleops::do_loaded2idle ()
 {
   if (last_op_succeeded ())
   {
@@ -187,7 +187,7 @@ void graph::dirbleops::do_omx_loaded2idle ()
   }
 }
 
-void graph::dirbleops::do_omx_idle2exe ()
+void graph::dirbleops::do_idle2exe ()
 {
   if (last_op_succeeded ())
   {

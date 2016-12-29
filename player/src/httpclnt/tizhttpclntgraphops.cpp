@@ -135,17 +135,17 @@ void graph::httpclntops::do_configure ()
   }
 }
 
-void graph::httpclntops::do_omx_exe2pause ()
+void graph::httpclntops::do_exe2pause ()
 {
   // No-op. This is to disable pause in this graph
 }
 
-void graph::httpclntops::do_omx_pause2exe ()
+void graph::httpclntops::do_pause2exe ()
 {
   // No-op. This is to disable pause in this graph
 }
 
-void graph::httpclntops::do_omx_loaded2idle ()
+void graph::httpclntops::do_loaded2idle ()
 {
   if (last_op_succeeded ())
   {
@@ -163,7 +163,7 @@ void graph::httpclntops::do_omx_loaded2idle ()
   }
 }
 
-void graph::httpclntops::do_omx_idle2exe ()
+void graph::httpclntops::do_idle2exe ()
 {
   if (last_op_succeeded ())
   {

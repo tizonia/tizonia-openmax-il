@@ -261,11 +261,11 @@ namespace tiz
           bmf::Row < probing             , bmf::none                , tg::config2idle     , bmf::ActionSequence_<
                                                                                               boost::mpl::vector<
                                                                                                 do_configure_stream,
-                                                                                                tg::do_omx_loaded2idle > >        , is_initial_configuration                          >,
+                                                                                                tg::do_loaded2idle > >        , is_initial_configuration                          >,
           bmf::Row < probing             , bmf::none                , tg::config2idle     , bmf::ActionSequence_<
                                                                                               boost::mpl::vector<
                                                                                                 do_configure_stream,
-                                                                                                tg::do_omx_loaded2idle_comp<0> > > , bmf::euml::Not_< is_initial_configuration >       >,
+                                                                                                tg::do_loaded2idle_comp<0> > > , bmf::euml::Not_< is_initial_configuration >       >,
           bmf::Row < probing             , bmf::none                , conf_exit           , bmf::none                             , tg::is_end_of_play                                >,
           bmf::Row < probing             , bmf::none                , probing             , bmf::ActionSequence_<
                                                                                               boost::mpl::vector<
@@ -275,10 +275,10 @@ namespace tiz
                                                                                                                                       bmf::euml::Not_< tg::is_end_of_play >,
                                                                                                                                       bmf::euml::Not_< tg::is_probing_result_ok > >  >,
           //    +---+--------------------+--------------------------+---------------------+---------------------------------------+----------------------------------------------------+
-          bmf::Row < tg::config2idle     , tg::omx_trans_evt        , tg::idle2exe        , tg::do_omx_idle2exe                   , bmf::euml::And_<
+          bmf::Row < tg::config2idle     , tg::omx_trans_evt        , tg::idle2exe        , tg::do_idle2exe                   , bmf::euml::And_<
                                                                                                                                       is_initial_configuration,
                                                                                                                                       tg::is_trans_complete >                         >,
-          bmf::Row < tg::config2idle     , tg::omx_trans_evt        , tg::idle2exe        , tg::do_omx_idle2exe_comp<0>           , bmf::euml::And_<
+          bmf::Row < tg::config2idle     , tg::omx_trans_evt        , tg::idle2exe        , tg::do_idle2exe_comp<0>           , bmf::euml::And_<
                                                                                                                                       bmf::euml::Not_< is_initial_configuration >,
                                                                                                                                       tg::is_trans_complete >                         >,
           //    +---+--------------------+--------------------------+---------------------+---------------------------------------+----------------------------------------------------+
@@ -367,8 +367,8 @@ namespace tiz
           //         Start                 Event                       Next                      Action                      Guard
           //    +----+---------------------+---------------------------+-------------------------+---------------------------+---------------------------------+
           bmf::Row < skipping_initial      , bmf::none                 , tg::disabling_tunnel    , tg::do_disable_tunnel<0>                                      >,
-          bmf::Row < tg::disabling_tunnel  , tg::omx_port_disabled_evt , to_idle                 , tg::do_omx_exe2idle_comp<0> , tg::is_port_disabling_complete >,
-          bmf::Row < to_idle               , tg::omx_trans_evt         , tg::idle2loaded         , tg::do_omx_idle2loaded_comp<0> , tg::is_trans_complete          >,
+          bmf::Row < tg::disabling_tunnel  , tg::omx_port_disabled_evt , to_idle                 , tg::do_exe2idle_comp<0> , tg::is_port_disabling_complete >,
+          bmf::Row < to_idle               , tg::omx_trans_evt         , tg::idle2loaded         , tg::do_idle2loaded_comp<0> , tg::is_trans_complete          >,
           bmf::Row < tg::idle2loaded       , tg::omx_trans_evt         , skip_exit               , tg::do_skip               , tg::is_trans_complete          >
           //    +----+---------------------+---------------------------+-------------------------+---------------------------+---------------------------------+
           > {};
@@ -425,7 +425,7 @@ namespace tiz
                                                                                  tg::do_destroy_graph> >     , tg::is_end_of_play      >,
         //    +---+----------------+---------------------+-----------------+---------------------------------+--------------------------+
         bmf::Row < tg::executing   , tg::skip_evt        , skipping        , tg::do_store_skip                                         >,
-        bmf::Row < tg::executing   , tg::unload_evt      , tg::exe2idle    , tg::do_omx_exe2idle                                       >,
+        bmf::Row < tg::executing   , tg::unload_evt      , tg::exe2idle    , tg::do_exe2idle                                       >,
         bmf::Row < tg::executing   , tg::omx_err_evt     , skipping        , bmf::none                                                 >,
         bmf::Row < tg::executing   , tg::omx_err_evt     , skipping        , tg::do_record_fatal_error       , tg::is_fatal_error      >,
         bmf::Row < tg::executing   , tg::omx_eos_evt     , skipping        , bmf::none                       , tg::is_last_eos         >,
@@ -452,7 +452,7 @@ namespace tiz
                     ::skip_exit>   , skipped_evt         , configuring     , bmf::none                       , bmf::euml::Not_<
                                                                                                                  tg::is_end_of_play >   >,
         //    +---+----------------+---------------------+-----------------+---------------------------------+--------------------------+
-        bmf::Row < tg::exe2idle    , tg::omx_trans_evt   , tg::idle2loaded , tg::do_omx_idle2loaded          , tg::is_trans_complete    >,
+        bmf::Row < tg::exe2idle    , tg::omx_trans_evt   , tg::idle2loaded , tg::do_idle2loaded          , tg::is_trans_complete    >,
         //    +---+----------------+---------------------+-----------------+---------------------------------+--------------------------+
         bmf::Row < tg::idle2loaded , tg::omx_trans_evt   , tg::unloaded    , bmf::ActionSequence_<
                                                                                boost::mpl::vector<

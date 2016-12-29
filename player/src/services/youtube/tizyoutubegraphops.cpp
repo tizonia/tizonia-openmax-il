@@ -162,7 +162,7 @@ void graph::youtubeops::do_load_comp (const int comp_id)
   }
 }
 
-void graph::youtubeops::do_omx_loaded2idle ()
+void graph::youtubeops::do_loaded2idle ()
 {
   if (last_op_succeeded ())
   {
@@ -180,7 +180,7 @@ void graph::youtubeops::do_omx_loaded2idle ()
   }
 }
 
-void graph::youtubeops::do_omx_idle2exe ()
+void graph::youtubeops::do_idle2exe ()
 {
   if (last_op_succeeded ())
   {

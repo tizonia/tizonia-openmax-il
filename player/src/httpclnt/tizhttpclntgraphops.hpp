@@ -49,10 +49,10 @@ namespace tiz
       void do_configure_comp (const int comp_id);
       void do_load ();
       void do_configure ();
-      void do_omx_exe2pause ();
-      void do_omx_pause2exe ();
-      void do_omx_loaded2idle ();
-      void do_omx_idle2exe ();
+      void do_exe2pause ();
+      void do_pause2exe ();
+      void do_loaded2idle ();
+      void do_idle2exe ();
       void do_reconfigure_tunnel (const int tunnel_id);
 
     private:

@@ -159,7 +159,7 @@ void graph::spotifyops::do_configure ()
   }
 }
 
-void graph::spotifyops::do_omx_loaded2idle ()
+void graph::spotifyops::do_loaded2idle ()
 {
   if (last_op_succeeded ())
   {
@@ -174,7 +174,7 @@ void graph::spotifyops::do_omx_loaded2idle ()
   }
 }
 
-void graph::spotifyops::do_omx_idle2exe ()
+void graph::spotifyops::do_idle2exe ()
 {
   if (last_op_succeeded ())
   {

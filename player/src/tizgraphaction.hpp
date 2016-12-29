@@ -194,7 +194,7 @@ namespace tiz
       }
     };
 
-    struct do_omx_loaded2idle
+    struct do_loaded2idle
     {
       template < class FSM, class EVT, class SourceState, class TargetState >
       void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
@@ -202,13 +202,13 @@ namespace tiz
         G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
         {
-          (*(fsm.pp_ops_))->do_omx_loaded2idle ();
+          (*(fsm.pp_ops_))->do_loaded2idle ();
         }
       }
     };
 
     template<int comp_id>
-    struct do_omx_loaded2idle_comp
+    struct do_loaded2idle_comp
     {
       template <class FSM, class EVT, class SourceState, class TargetState>
       void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
@@ -216,12 +216,12 @@ namespace tiz
         G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
         {
-          (*(fsm.pp_ops_))->do_omx_loaded2idle_comp (comp_id);
+          (*(fsm.pp_ops_))->do_loaded2idle_comp (comp_id);
         }
       }
     };
 
-    struct do_omx_idle2exe
+    struct do_idle2exe
     {
       template < class FSM, class EVT, class SourceState, class TargetState >
       void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
@@ -229,13 +229,13 @@ namespace tiz
         G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
         {
-          (*(fsm.pp_ops_))->do_omx_idle2exe ();
+          (*(fsm.pp_ops_))->do_idle2exe ();
         }
       }
     };
 
     template<int comp_id>
-    struct do_omx_idle2exe_comp
+    struct do_idle2exe_comp
     {
       template < class FSM, class EVT, class SourceState, class TargetState >
       void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
@@ -243,7 +243,7 @@ namespace tiz
         G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
         {
-          (*(fsm.pp_ops_))->do_omx_idle2exe_comp (comp_id);
+          (*(fsm.pp_ops_))->do_idle2exe_comp (comp_id);
         }
       }
     };
@@ -352,7 +352,7 @@ namespace tiz
       }
     };
 
-    struct do_omx_exe2pause
+    struct do_exe2pause
     {
       template < class FSM, class EVT, class SourceState, class TargetState >
       void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
@@ -360,12 +360,12 @@ namespace tiz
         G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
         {
-          (*(fsm.pp_ops_))->do_omx_exe2pause ();
+          (*(fsm.pp_ops_))->do_exe2pause ();
         }
       }
     };
 
-    struct do_omx_pause2exe
+    struct do_pause2exe
     {
       template < class FSM, class EVT, class SourceState, class TargetState >
       void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
@@ -373,12 +373,12 @@ namespace tiz
         G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
         {
-          (*(fsm.pp_ops_))->do_omx_pause2exe ();
+          (*(fsm.pp_ops_))->do_pause2exe ();
         }
       }
     };
 
-    struct do_omx_pause2idle
+    struct do_pause2idle
     {
       template < class FSM, class EVT, class SourceState, class TargetState >
       void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
@@ -386,12 +386,12 @@ namespace tiz
         G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
         {
-          (*(fsm.pp_ops_))->do_omx_pause2idle ();
+          (*(fsm.pp_ops_))->do_pause2idle ();
         }
       }
     };
 
-    struct do_omx_exe2idle
+    struct do_exe2idle
     {
       template < class FSM, class EVT, class SourceState, class TargetState >
       void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
@@ -399,13 +399,13 @@ namespace tiz
         G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
         {
-          (*(fsm.pp_ops_))->do_omx_exe2idle ();
+          (*(fsm.pp_ops_))->do_exe2idle ();
         }
       }
     };
 
     template<int comp_id>
-    struct do_omx_exe2idle_comp
+    struct do_exe2idle_comp
     {
       template < class FSM, class EVT, class SourceState, class TargetState >
       void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
@@ -413,7 +413,7 @@ namespace tiz
         G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
         {
-          (*(fsm.pp_ops_))->do_omx_exe2idle_comp (comp_id);
+          (*(fsm.pp_ops_))->do_exe2idle_comp (comp_id);
         }
       }
     };
@@ -431,7 +431,7 @@ namespace tiz
       }
     };
 
-    struct do_omx_idle2loaded
+    struct do_idle2loaded
     {
       template < class FSM, class EVT, class SourceState, class TargetState >
       void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
@@ -439,13 +439,13 @@ namespace tiz
         G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
         {
-          (*(fsm.pp_ops_))->do_omx_idle2loaded ();
+          (*(fsm.pp_ops_))->do_idle2loaded ();
         }
       }
     };
 
     template<int comp_id>
-    struct do_omx_idle2loaded_comp
+    struct do_idle2loaded_comp
     {
       template < class FSM, class EVT, class SourceState, class TargetState >
       void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
@@ -453,7 +453,7 @@ namespace tiz
         G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
         {
-          (*(fsm.pp_ops_))->do_omx_idle2loaded_comp (comp_id);
+          (*(fsm.pp_ops_))->do_idle2loaded_comp (comp_id);
         }
       }
     };

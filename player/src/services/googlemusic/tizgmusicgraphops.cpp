@@ -168,7 +168,7 @@ void graph::gmusicops::do_configure ()
   }
 }
 
-void graph::gmusicops::do_omx_loaded2idle ()
+void graph::gmusicops::do_loaded2idle ()
 {
   if (last_op_succeeded ())
   {
@@ -186,7 +186,7 @@ void graph::gmusicops::do_omx_loaded2idle ()
   }
 }
 
-void graph::gmusicops::do_omx_idle2exe ()
+void graph::gmusicops::do_idle2exe ()
 {
   if (last_op_succeeded ())
   {

@@ -219,7 +219,7 @@ void graph::ops::do_configure_comp (const int comp_id)
   // This is a no-op in the base class.
 }
 
-void graph::ops::do_omx_loaded2idle ()
+void graph::ops::do_loaded2idle ()
 {
   if (last_op_succeeded ())
   {
@@ -230,7 +230,7 @@ void graph::ops::do_omx_loaded2idle ()
   }
 }
 
-void graph::ops::do_omx_loaded2idle_comp (const int comp_id)
+void graph::ops::do_loaded2idle_comp (const int comp_id)
 {
   if (last_op_succeeded ())
   {
@@ -240,7 +240,7 @@ void graph::ops::do_omx_loaded2idle_comp (const int comp_id)
   }
 }
 
-void graph::ops::do_omx_idle2exe ()
+void graph::ops::do_idle2exe ()
 {
   if (last_op_succeeded ())
   {
@@ -251,7 +251,7 @@ void graph::ops::do_omx_idle2exe ()
   }
 }
 
-void graph::ops::do_omx_idle2exe_comp (const int comp_id)
+void graph::ops::do_idle2exe_comp (const int comp_id)
 {
   if (last_op_succeeded ())
   {
@@ -309,7 +309,7 @@ void graph::ops::do_ack_volume ()
   }
 }
 
-void graph::ops::do_omx_exe2pause ()
+void graph::ops::do_exe2pause ()
 {
   assert (!handles_.empty ());
   if (last_op_succeeded ())
@@ -324,7 +324,7 @@ void graph::ops::do_omx_exe2pause ()
   }
 }
 
-void graph::ops::do_omx_pause2exe ()
+void graph::ops::do_pause2exe ()
 {
   assert (!handles_.empty ());
   if (last_op_succeeded ())
@@ -339,7 +339,7 @@ void graph::ops::do_omx_pause2exe ()
   }
 }
 
-void graph::ops::do_omx_pause2idle ()
+void graph::ops::do_pause2idle ()
 {
   assert (!handles_.empty ());
   if (last_op_succeeded ())
@@ -360,7 +360,7 @@ void graph::ops::do_omx_pause2idle ()
   }
 }
 
-void graph::ops::do_omx_exe2idle ()
+void graph::ops::do_exe2idle ()
 {
   if (last_op_succeeded ())
   {
@@ -371,7 +371,7 @@ void graph::ops::do_omx_exe2idle ()
   }
 }
 
-void graph::ops::do_omx_exe2idle_comp (const int comp_id)
+void graph::ops::do_exe2idle_comp (const int comp_id)
 {
   if (last_op_succeeded ())
   {
@@ -381,7 +381,7 @@ void graph::ops::do_omx_exe2idle_comp (const int comp_id)
   }
 }
 
-void graph::ops::do_omx_idle2loaded ()
+void graph::ops::do_idle2loaded ()
 {
   if (last_op_succeeded ())
   {
@@ -392,7 +392,7 @@ void graph::ops::do_omx_idle2loaded ()
   }
 }
 
-void graph::ops::do_omx_idle2loaded_comp (const int comp_id)
+void graph::ops::do_idle2loaded_comp (const int comp_id)
 {
   if (last_op_succeeded ())
   {

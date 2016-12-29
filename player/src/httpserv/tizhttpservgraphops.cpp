@@ -75,12 +75,12 @@ void graph::httpservops::do_probe ()
       "Unable to probe the stream.");
 }
 
-void graph::httpservops::do_omx_exe2pause ()
+void graph::httpservops::do_exe2pause ()
 {
   // No-op. This is to disable pause in this graph
 }
 
-void graph::httpservops::do_omx_pause2exe ()
+void graph::httpservops::do_pause2exe ()
 {
   // No-op. This is to disable pause in this graph
 }

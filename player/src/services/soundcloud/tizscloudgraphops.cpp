@@ -161,7 +161,7 @@ void graph::scloudops::do_configure ()
   }
 }
 
-void graph::scloudops::do_omx_loaded2idle ()
+void graph::scloudops::do_loaded2idle ()
 {
   if (last_op_succeeded ())
   {
@@ -179,7 +179,7 @@ void graph::scloudops::do_omx_loaded2idle ()
   }
 }
 
-void graph::scloudops::do_omx_idle2exe ()
+void graph::scloudops::do_idle2exe ()
 {
   if (last_op_succeeded ())
   {

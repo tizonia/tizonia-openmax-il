@@ -45,8 +45,8 @@ namespace tiz
 
     public:
       void do_probe ();
-      void do_omx_exe2pause ();
-      void do_omx_pause2exe ();
+      void do_exe2pause ();
+      void do_pause2exe ();
       void do_volume (const int step);
       void do_mute ();
 

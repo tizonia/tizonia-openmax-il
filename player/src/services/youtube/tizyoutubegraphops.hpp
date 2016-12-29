@@ -48,8 +48,8 @@ namespace tiz
       void do_disable_comp_ports (const int comp_id, const int port_id);
       void do_configure_comp (const int comp_id);
       void do_load_comp (const int comp_id);
-      void do_omx_loaded2idle ();
-      void do_omx_idle2exe ();
+      void do_loaded2idle ();
+      void do_idle2exe ();
       void do_reconfigure_tunnel (const int tunnel_id);
       void do_skip ();
       void do_retrieve_metadata ();

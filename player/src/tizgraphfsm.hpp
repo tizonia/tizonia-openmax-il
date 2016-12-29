@@ -161,7 +161,7 @@ namespace tiz
           boost::msm::front::Row < probing                     , boost::msm::front::none  , config2idle                , boost::msm::front::ActionSequence_<
                                                                                                                            boost::mpl::vector<
                                                                                                                              do_configure,
-                                                                                                                             do_omx_loaded2idle > >           , boost::msm::front::euml::Not_<
+                                                                                                                             do_loaded2idle > >           , boost::msm::front::euml::Not_<
                                                                                                                                                                   is_port_settings_evt_required >      >,
           boost::msm::front::Row < probing                     , boost::msm::front::none  , conf_exit                  , boost::msm::front::none              , is_end_of_play                         >,
           boost::msm::front::Row < probing                     , boost::msm::front::none  , probing                    , boost::msm::front::ActionSequence_<
@@ -177,9 +177,9 @@ namespace tiz
           boost::msm::front::Row < awaiting_port_settings_evt  , omx_port_settings_evt    , config2idle                , boost::msm::front::ActionSequence_<
                                                                                                                            boost::mpl::vector<
                                                                                                                              do_configure,
-                                                                                                                             do_omx_loaded2idle > >                                                    >,
+                                                                                                                             do_loaded2idle > >                                                    >,
           //    +-----------------+----------------------------+--------------------------+----------------------------+--------------------------------------+----------------------------------------+
-          boost::msm::front::Row < config2idle                 , omx_trans_evt            , idle2exe                   , do_omx_idle2exe                      , is_trans_complete                      >,
+          boost::msm::front::Row < config2idle                 , omx_trans_evt            , idle2exe                   , do_idle2exe                      , is_trans_complete                      >,
           //    +-----------------+----------------------------+--------------------------+----------------------------+--------------------------------------+----------------------------------------+
           boost::msm::front::Row < idle2exe                    , omx_trans_evt            , conf_exit                  , boost::msm::front::none              , is_trans_complete                      >
           //    +-----------------+----------------------------+--------------------------+----------------------------+--------------------------------------+----------------------------------------+
@@ -229,7 +229,7 @@ namespace tiz
             G_FSM_LOG();
             if (fsm.pp_ops_ && *(fsm.pp_ops_))
               {
-                (*(fsm.pp_ops_))->do_omx_exe2idle ();
+                (*(fsm.pp_ops_))->do_exe2idle ();
               }
           }
           template <class Event,class FSM>
@@ -257,7 +257,7 @@ namespace tiz
         struct transition_table : boost::mpl::vector<
           //                       Start             Event            Next                   Action                           Guard
           //    +-----------------+------------------+----------------+----------------------+--------------------------------+---------------------------+
-          boost::msm::front::Row < to_idle           , omx_trans_evt  , idle2loaded          , do_omx_idle2loaded             , is_trans_complete         >,
+          boost::msm::front::Row < to_idle           , omx_trans_evt  , idle2loaded          , do_idle2loaded             , is_trans_complete         >,
           boost::msm::front::Row < idle2loaded       , omx_trans_evt  , skip_exit            , do_skip                        , is_trans_complete         >
           //    +-----------------+------------------+----------------+----------------------+--------------------------------+---------------------------+
           > {};
@@ -320,12 +320,12 @@ namespace tiz
         boost::msm::front::Row < executing   , volume_step_evt , boost::msm::front::none , do_volume_step                                 >,
         boost::msm::front::Row < executing   , volume_evt      , boost::msm::front::none , do_volume                                      >,
         boost::msm::front::Row < executing   , mute_evt        , boost::msm::front::none , do_mute                                        >,
-        boost::msm::front::Row < executing   , pause_evt       , exe2pause               , do_omx_exe2pause                               >,
+        boost::msm::front::Row < executing   , pause_evt       , exe2pause               , do_exe2pause                               >,
         boost::msm::front::Row < executing   , stop_evt        , exe2idle                , boost::msm::front::ActionSequence_<
                                                                                              boost::mpl::vector<
                                                                                                do_record_destination < OMX_StateIdle >,
-                                                                                               do_omx_exe2idle> >                         >,
-        boost::msm::front::Row < executing   , unload_evt      , exe2idle                , do_omx_exe2idle                                >,
+                                                                                               do_exe2idle> >                         >,
+        boost::msm::front::Row < executing   , unload_evt      , exe2idle                , do_exe2idle                                >,
         boost::msm::front::Row < executing   , omx_err_evt     , skipping                , boost::msm::front::none                        >,
         boost::msm::front::Row < executing   , omx_err_evt     , skipping                , do_record_fatal_error   , is_fatal_error       >,
         boost::msm::front::Row < executing   , omx_eos_evt     , skipping                , boost::msm::front::none , is_last_eos          >,
@@ -354,17 +354,17 @@ namespace tiz
         //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
         boost::msm::front::Row < exe2pause   , omx_trans_evt   , pause                   , do_ack_paused           , is_trans_complete    >,
         //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
-        boost::msm::front::Row < pause       , execute_evt     , pause2exe               , do_omx_pause2exe                               >,
-        boost::msm::front::Row < pause       , pause_evt       , pause2exe               , do_omx_pause2exe                               >,
+        boost::msm::front::Row < pause       , execute_evt     , pause2exe               , do_pause2exe                               >,
+        boost::msm::front::Row < pause       , pause_evt       , pause2exe               , do_pause2exe                               >,
         boost::msm::front::Row < pause       , stop_evt        , pause2idle              , boost::msm::front::ActionSequence_<
                                                                                              boost::mpl::vector<
                                                                                                do_record_destination < OMX_StateIdle >,
-                                                                                               do_omx_pause2idle > >                      >,
-        boost::msm::front::Row < pause       , unload_evt      , pause2idle              , do_omx_pause2idle                              >,
+                                                                                               do_pause2idle > >                      >,
+        boost::msm::front::Row < pause       , unload_evt      , pause2idle              , do_pause2idle                              >,
         //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
         boost::msm::front::Row < pause2exe   , omx_trans_evt   , executing               , do_ack_unpaused         , is_trans_complete    >,
         //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
-        boost::msm::front::Row < pause2idle  , omx_trans_evt   , idle2loaded             , do_omx_idle2loaded      , is_trans_complete    >,
+        boost::msm::front::Row < pause2idle  , omx_trans_evt   , idle2loaded             , do_idle2loaded      , is_trans_complete    >,
         boost::msm::front::Row < pause2idle  , omx_trans_evt   , idle                    , boost::msm::front::ActionSequence_<
                                                                                              boost::mpl::vector<
                                                                                                do_record_destination <
@@ -374,7 +374,7 @@ namespace tiz
                                                                                                                        is_destination_state <
                                                                                                                          OMX_StateIdle > > >,
         //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
-        boost::msm::front::Row < exe2idle    , omx_trans_evt   , idle2loaded             , do_omx_idle2loaded      , is_trans_complete    >,
+        boost::msm::front::Row < exe2idle    , omx_trans_evt   , idle2loaded             , do_idle2loaded      , is_trans_complete    >,
         boost::msm::front::Row < exe2idle    , omx_trans_evt   , idle                    , boost::msm::front::ActionSequence_<
                                                                                              boost::mpl::vector<
                                                                                                do_record_destination <
@@ -387,8 +387,8 @@ namespace tiz
         boost::msm::front::Row < idle        , execute_evt     , executing               , boost::msm::front::ActionSequence_<
                                                                                              boost::mpl::vector<
                                                                                                do_ack_execd,
-                                                                                               do_omx_idle2exe > >                        >,
-        boost::msm::front::Row < idle        , unload_evt      , idle2loaded             , do_omx_idle2loaded                             >,
+                                                                                               do_idle2exe > >                        >,
+        boost::msm::front::Row < idle        , unload_evt      , idle2loaded             , do_idle2loaded                             >,
         //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
         boost::msm::front::Row < idle2loaded , omx_trans_evt   , unloaded                , boost::msm::front::ActionSequence_<
                                                                                              boost::mpl::vector<

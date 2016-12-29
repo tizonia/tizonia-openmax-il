@@ -152,9 +152,9 @@ namespace tiz
           bmf::Row < tg::awaiting_port_disabled_evt   , tg::omx_port_disabled_evt   , tg::config2idle                 , bmf::ActionSequence_<
                                                                                                                           boost::mpl::vector<
                                                                                                                             tg::do_configure_comp<0>,
-                                                                                                                            tg::do_omx_loaded2idle_comp<0> > > , tg::is_port_disabling_complete   >,
+                                                                                                                            tg::do_loaded2idle_comp<0> > > , tg::is_port_disabling_complete   >,
           //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------+----------------------------+
-          bmf::Row < tg::config2idle                  , tg::omx_trans_evt           , tg::idle2exe                    , tg::do_omx_idle2exe_comp<0> , tg::is_trans_complete  >,
+          bmf::Row < tg::config2idle                  , tg::omx_trans_evt           , tg::idle2exe                    , tg::do_idle2exe_comp<0> , tg::is_trans_complete  >,
           //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------+----------------------------+
           bmf::Row < tg::idle2exe                     , tg::omx_trans_evt           , tg::executing                   , bmf::none              , tg::is_trans_complete      >,
           //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------+----------------------------+
@@ -233,9 +233,9 @@ namespace tiz
                                                                                                                         tg::do_setup,
                                                                                                                         tg::do_disable_tunnel<0> > > , bmf::none                      >,
           //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+--------------------------------+
-          bmf::Row < tg::awaiting_port_disabled_evt , tg::omx_port_disabled_evt , tg::config2idle                 , tg::do_omx_loaded2idle        , tg::is_port_disabling_complete >,
+          bmf::Row < tg::awaiting_port_disabled_evt , tg::omx_port_disabled_evt , tg::config2idle                 , tg::do_loaded2idle        , tg::is_port_disabling_complete >,
           //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+--------------------------------+
-          bmf::Row < tg::config2idle                , tg::omx_trans_evt         , tg::idle2exe                    , tg::do_omx_idle2exe           , tg::is_trans_complete          >,
+          bmf::Row < tg::config2idle                , tg::omx_trans_evt         , tg::idle2exe                    , tg::do_idle2exe           , tg::is_trans_complete          >,
           //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+--------------------------------+
           bmf::Row < tg::idle2exe                   , tg::omx_trans_evt         , tg::enabling_tunnel             , tg::do_enable_tunnel<0>       , tg::is_trans_complete          >,
           //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+--------------------------------+
@@ -461,8 +461,8 @@ namespace tiz
         bmf::Row < auto_detecting               , tg::omx_err_evt           , tg::exe2idle            , bmf::ActionSequence_<
                                                                                                           boost::mpl::vector<
                                                                                                             tg::do_record_fatal_error,
-                                                                                                            tg::do_omx_exe2idle> >                                 >,
-        bmf::Row < auto_detecting               , tg::unload_evt            , tg::exe2idle            , tg::do_omx_exe2idle                                        >,
+                                                                                                            tg::do_exe2idle> >                                 >,
+        bmf::Row < auto_detecting               , tg::unload_evt            , tg::exe2idle            , tg::do_exe2idle                                        >,
         bmf::Row < auto_detecting
                    ::exit_pt
                    <auto_detecting_
@@ -479,11 +479,11 @@ namespace tiz
         bmf::Row < tg::executing                , tg::omx_err_evt           , tg::exe2idle            , bmf::ActionSequence_<
                                                                                                           boost::mpl::vector<
                                                                                                             tg::do_record_fatal_error,
-                                                                                                            tg::do_omx_exe2idle> >                                 >,
-        bmf::Row < tg::executing                , tg::unload_evt            , tg::exe2idle            , tg::do_omx_exe2idle                                        >,
+                                                                                                            tg::do_exe2idle> >                                 >,
+        bmf::Row < tg::executing                , tg::unload_evt            , tg::exe2idle            , tg::do_exe2idle                                        >,
         bmf::Row < tg::executing                , tg::omx_port_settings_evt , reconfiguring_tunnel_0  , tg::do_mute                                                >,
         bmf::Row < tg::executing                , tg::omx_port_settings_evt , reconfiguring_tunnel_1  , tg::do_mute                 , tg::is_tunnel_altered<1>     >,
-        bmf::Row < tg::executing                , tg::pause_evt             , tg::exe2pause           , tg::do_omx_exe2pause                                       >,
+        bmf::Row < tg::executing                , tg::pause_evt             , tg::exe2pause           , tg::do_exe2pause                                       >,
         bmf::Row < tg::executing                , tg::volume_step_evt       , bmf::none               , tg::do_volume_step                                         >,
         bmf::Row < tg::executing                , tg::volume_evt            , bmf::none               , tg::do_volume                                              >,
         bmf::Row < tg::executing                , tg::mute_evt              , bmf::none               , tg::do_mute                                                >,
@@ -494,13 +494,13 @@ namespace tiz
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < tg::exe2pause                , tg::omx_trans_evt         , tg::pause               , tg::do_ack_paused           , tg::is_trans_complete        >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
-        bmf::Row < tg::pause                    , tg::execute_evt           , tg::pause2exe           , tg::do_omx_pause2exe                                       >,
-        bmf::Row < tg::pause                    , tg::pause_evt             , tg::pause2exe           , tg::do_omx_pause2exe                                       >,
+        bmf::Row < tg::pause                    , tg::execute_evt           , tg::pause2exe           , tg::do_pause2exe                                       >,
+        bmf::Row < tg::pause                    , tg::pause_evt             , tg::pause2exe           , tg::do_pause2exe                                       >,
         bmf::Row < tg::pause                    , tg::stop_evt              , tg::pause2idle          , bmf::ActionSequence_<
                                                                                                           boost::mpl::vector<
                                                                                                             tg::do_record_destination < OMX_StateIdle >,
-                                                                                                            tg::do_omx_pause2idle > >                              >,
-        bmf::Row < tg::pause                    , tg::unload_evt            , tg::pause2idle          , tg::do_omx_pause2idle                                      >,
+                                                                                                            tg::do_pause2idle > >                              >,
+        bmf::Row < tg::pause                    , tg::unload_evt            , tg::pause2idle          , tg::do_pause2idle                                      >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < tg::pause2exe                , tg::omx_trans_evt         , tg::executing           , tg::do_ack_unpaused         , tg::is_trans_complete        >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
@@ -538,7 +538,7 @@ namespace tiz
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < tg::exe2idle                 , tg::omx_err_evt           , tg::exe2idle            , bmf::none                   , bmf::euml::Not_<
                                                                                                                                         tg::is_fatal_error >       >,
-        bmf::Row < tg::exe2idle                 , tg::omx_trans_evt         , tg::idle2loaded         , tg::do_omx_idle2loaded      , tg::is_trans_complete        >,
+        bmf::Row < tg::exe2idle                 , tg::omx_trans_evt         , tg::idle2loaded         , tg::do_idle2loaded      , tg::is_trans_complete        >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < tg::idle2loaded              , tg::omx_trans_evt         , tg::unloaded            , bmf::ActionSequence_<
                                                                                                           boost::mpl::vector<
