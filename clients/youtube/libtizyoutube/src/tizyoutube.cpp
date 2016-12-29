@@ -301,7 +301,8 @@ int tizyoutube::get_current_stream ()
     }
 
   const int file_size = bp::extract< int >(py_yt_proxy_.attr ("current_audio_stream_file_size")());
-  current_stream_file_size_.assign (boost::lexical_cast< std::string >(file_size));
+  current_stream_file_size_.assign (boost::lexical_cast< std::string >(file_size / (1024 * 1024)));
+  current_stream_file_size_.append (" MiB");
 
   const char * p_duration = bp::extract< char const * >(py_yt_proxy_.attr ("current_audio_stream_duration")());
   if (p_duration)
