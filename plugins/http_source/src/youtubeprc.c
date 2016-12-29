@@ -128,6 +128,7 @@ set_audio_coding_on_port (youtube_prc_t * ap_prc)
   tiz_check_omx (tiz_krn_SetParameter_internal (
     tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
     OMX_IndexParamPortDefinition, &port_def));
+  TIZ_DEBUG(handleOf(ap_prc), "audio_coding_type_ [%X]", ap_prc->audio_coding_type_);
   return OMX_ErrorNone;
 }
 
@@ -272,7 +273,10 @@ send_port_auto_detect_events (youtube_prc_t * ap_prc)
   if (ap_prc->audio_coding_type_ != OMX_AUDIO_CodingUnused
       && ap_prc->audio_coding_type_ != OMX_AUDIO_CodingAutoDetect)
     {
-      TIZ_DEBUG (handleOf (ap_prc), "Issuing OMX_EventPortFormatDetected");
+      TIZ_DEBUG (
+        handleOf (ap_prc),
+        "Issuing OMX_EventPortFormatDetected - audio_coding_type_ [%X]",
+        ap_prc->audio_coding_type_);
       tiz_srv_issue_event ((OMX_PTR) ap_prc, OMX_EventPortFormatDetected, 0, 0,
                            NULL);
       TIZ_DEBUG (handleOf (ap_prc), "Issuing OMX_EventPortSettingsChanged");
