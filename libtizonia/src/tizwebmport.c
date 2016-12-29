@@ -169,14 +169,31 @@ webmport_check_tunnel_compat (const void * ap_obj,
   assert (ap_this_def);
   assert (ap_other_def);
 
-  if (ap_other_def->eDomain != ap_this_def->eDomain)
+  if (ap_other_def->eDomain != OMX_PortDomainAudio
+      && ap_other_def->eDomain != OMX_PortDomainVideo)
     {
       TIZ_ERROR (handleOf (ap_obj),
                  "port [%d] check_tunnel_compat : "
-                 "Audio domain not found, instead found domain [%d]",
+                 "Audio or Video domain not found, instead found domain [%d]",
                  p_obj->pid_, ap_other_def->eDomain);
       return false;
     }
+
+  if ((ap_other_def->eDomain == OMX_PortDomainAudio
+       && ap_other_def->format.audio.eEncoding != OMX_AUDIO_CodingWEBM)
+      && (ap_other_def->eDomain == OMX_PortDomainVideo
+          && ap_other_def->format.video.eCompressionFormat
+               != OMX_AUDIO_CodingWEBM))
+    {
+      TIZ_ERROR (handleOf (ap_obj),
+                 "port [%d] check_tunnel_compat : "
+                 "Unknown encoding found [%d]",
+                 p_obj->pid_, ap_other_def->format.audio.eEncoding);
+      return false;
+    }
+
+  TIZ_TRACE (handleOf (ap_obj), "port [%d] check_tunnel_compat [OK]",
+             p_obj->pid_);
 
   return true;
 }
