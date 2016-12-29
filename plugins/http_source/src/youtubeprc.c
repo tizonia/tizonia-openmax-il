@@ -128,7 +128,8 @@ set_audio_coding_on_port (youtube_prc_t * ap_prc)
   tiz_check_omx (tiz_krn_SetParameter_internal (
     tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
     OMX_IndexParamPortDefinition, &port_def));
-  TIZ_DEBUG(handleOf(ap_prc), "audio_coding_type_ [%X]", ap_prc->audio_coding_type_);
+  TIZ_DEBUG (handleOf (ap_prc), "audio_coding_type_ [%X]",
+             ap_prc->audio_coding_type_);
   return OMX_ErrorNone;
 }
 
