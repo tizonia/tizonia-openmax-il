@@ -190,6 +190,8 @@ init_opus_decoder (opusd_prc_t * ap_prc)
     ap_prc->channels_ = -1;
     ap_prc->preskip_ = 0;
 
+    TIZ_DEBUG (handleOf (ap_prc), "nbytes [%d] : ", nbytes);
+
     header_offset = process_opus_header (
       handleOf (ap_prc), p_data, nbytes, &(ap_prc->rate_),
       &(ap_prc->mapping_family_), &(ap_prc->channels_), &(ap_prc->preskip_),

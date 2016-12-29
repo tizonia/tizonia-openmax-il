@@ -152,6 +152,7 @@ opus_header_parse(OMX_HANDLETYPE ap_hdl, const unsigned char *packet, int len, O
    str[8] = 0;
    if (len<19)return 0;
    read_chars(&p, (unsigned char*)str, 8);
+   TIZ_DEBUG(ap_hdl, "header [%s]", str);
    if (memcmp(str, "OpusHead", 8)!=0)
       return 0;
 
