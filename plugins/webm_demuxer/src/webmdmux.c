@@ -36,6 +36,7 @@
 #include <OMX_Core.h>
 #include <OMX_Component.h>
 #include <OMX_Types.h>
+#include <OMX_TizoniaExt.h>
 
 #include <tizplatform.h>
 
@@ -90,11 +91,9 @@ instantiate_filter_webm_input_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_audio_output_port (OMX_HANDLETYPE ap_hdl, const OMX_U32 port_id)
 {
-  OMX_AUDIO_PARAM_PCMMODETYPE pcmmode;
-  OMX_AUDIO_CONFIG_VOLUMETYPE volume;
-  OMX_AUDIO_CONFIG_MUTETYPE mute;
   OMX_AUDIO_CODINGTYPE encodings[]
-    = {OMX_AUDIO_CodingUnused, OMX_AUDIO_CodingMax};
+    = {OMX_AUDIO_CodingUnused, OMX_AUDIO_CodingAutoDetect, OMX_AUDIO_CodingOPUS,
+       OMX_AUDIO_CodingVORBIS, OMX_AUDIO_CodingMax};
   tiz_port_options_t port_opts = {
     OMX_PortDomainAudio,
     OMX_DirOutput,
@@ -107,40 +106,8 @@ instantiate_audio_output_port (OMX_HANDLETYPE ap_hdl, const OMX_U32 port_id)
     -1 /* use -1 for now */
   };
 
-  /* The demuxer port expects to receive PCM mode, volume and mute structures
-     when instantiated as an audio domain port */
-
-  /* Initialize the pcm info */
-  pcmmode.nSize = sizeof (OMX_AUDIO_PARAM_PCMMODETYPE);
-  pcmmode.nVersion.nVersion = OMX_VERSION;
-  pcmmode.nPortIndex = port_id;
-  pcmmode.nChannels = 2;
-  pcmmode.eNumData = OMX_NumericalDataSigned;
-  pcmmode.eEndian = OMX_EndianLittle;
-  pcmmode.bInterleaved = OMX_TRUE;
-  pcmmode.nBitPerSample = 16;
-  pcmmode.nSamplingRate = 48000;
-  pcmmode.ePCMMode = OMX_AUDIO_PCMModeLinear;
-  pcmmode.eChannelMapping[0] = OMX_AUDIO_ChannelLF;
-  pcmmode.eChannelMapping[1] = OMX_AUDIO_ChannelRF;
-
-  /* Initialize the pcm struct */
-  volume.nSize = sizeof (OMX_AUDIO_CONFIG_VOLUMETYPE);
-  volume.nVersion.nVersion = OMX_VERSION;
-  volume.nPortIndex = port_id;
-  volume.bLinear = OMX_FALSE;
-  volume.sVolume.nValue = 50;
-  volume.sVolume.nMin = 0;
-  volume.sVolume.nMax = 100;
-
-  /* Initialize the mute struct */
-  mute.nSize = sizeof (OMX_AUDIO_CONFIG_MUTETYPE);
-  mute.nVersion.nVersion = OMX_VERSION;
-  mute.nPortIndex = port_id;
-  mute.bMute = OMX_FALSE;
-
   return factory_new (tiz_get_type (ap_hdl, "tizdemuxerport"), &port_opts,
-                      &encodings, &pcmmode, &volume, &mute);
+                      &encodings);
 }
 
 static OMX_PTR
