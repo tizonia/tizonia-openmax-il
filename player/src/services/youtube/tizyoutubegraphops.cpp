@@ -72,6 +72,7 @@ graph::youtubeops::youtubeops (graph *p_graph,
                                const omx_comp_role_lst_t &role_lst)
   : tiz::graph::ops (p_graph, comp_lst, role_lst),
     encoding_ (OMX_AUDIO_CodingAutoDetect),
+    container_ (OMX_AUDIO_CodingAutoDetect),
     inital_graph_load_ (false)
 {
   TIZ_INIT_OMX_PORT_STRUCT (renderer_pcmtype_, 0);
@@ -83,14 +84,44 @@ void graph::youtubeops::do_enable_auto_detection (const int handle_id,
   tiz::graph::ops::do_enable_auto_detection (handle_id, port_id);
 }
 
-void graph::youtubeops::do_disable_ports ()
+void graph::youtubeops::do_disable_comp_ports (const int comp_id,
+                                               const int port_id)
 {
-  OMX_U32 youtube_source_port = 0;
-  G_OPS_BAIL_IF_ERROR (util::disable_port (handles_[0], youtube_source_port),
-                       "Unable to disable youtube source's output port.");
-  clear_expected_port_transitions ();
-  add_expected_port_transition (handles_[0], youtube_source_port,
-                                OMX_CommandPortDisable);
+  if (comp_id == 0)
+  {
+    // Disable the http source's input port
+    OMX_U32 youtube_source_port = 0;
+    G_OPS_BAIL_IF_ERROR (
+        util::disable_port (handles_[comp_id], youtube_source_port),
+        "Unable to disable youtube source's output port.");
+    clear_expected_port_transitions ();
+    add_expected_port_transition (handles_[comp_id], youtube_source_port,
+                                  OMX_CommandPortDisable);
+  }
+  else if (comp_id == 1)
+  {
+    // Disable the demuxer's input port
+    OMX_U32 demuxer_input_port = 0;
+    G_OPS_BAIL_IF_ERROR (
+        util::disable_port (handles_[comp_id], demuxer_input_port),
+        "Unable to disable demuxer's audio port.");
+    // Disable the demuxer's output ports (both of them)
+    OMX_U32 demuxer_audio_port = 1;
+    G_OPS_BAIL_IF_ERROR (
+        util::disable_port (handles_[comp_id], demuxer_audio_port),
+        "Unable to disable demuxer's audio port.");
+    OMX_U32 demuxer_video_port = 2;
+    G_OPS_BAIL_IF_ERROR (
+        util::disable_port (handles_[comp_id], demuxer_video_port),
+        "Unable to disable demuxer's video port.");
+    clear_expected_port_transitions ();
+    add_expected_port_transition (handles_[comp_id], demuxer_input_port,
+                                  OMX_CommandPortDisable);
+    add_expected_port_transition (handles_[comp_id], demuxer_audio_port,
+                                  OMX_CommandPortDisable);
+    add_expected_port_transition (handles_[comp_id], demuxer_video_port,
+                                  OMX_CommandPortDisable);
+  }
 }
 
 void graph::youtubeops::do_configure_comp (const int comp_id)
@@ -287,15 +318,30 @@ void graph::youtubeops::do_load_demuxer ()
       get_container_type_from_youtube_source (),
       "Unable to retrieve the audio encoding from the container demuxer.");
 
+  omx_comp_handle_lst_t hdl_list;
   omx_comp_name_lst_t comp_list;
   omx_comp_role_lst_t role_list;
   G_OPS_BAIL_IF_ERROR (add_demuxer_to_component_list (comp_list, role_list),
                        "Unknown/unhandled container format.");
 
+  G_OPS_BAIL_IF_ERROR (util::verify_comp_list (comp_list),
+                       "Unable to verify the component list.");
+
+  omx_comp_role_pos_lst_t role_positions;
+  G_OPS_BAIL_IF_ERROR (
+      util::verify_role_list (comp_list, role_list, role_positions),
+      "Unable to verify the role list.");
+
   tiz::graph::cbackhandler &cbacks = get_cback_handler ();
   G_OPS_BAIL_IF_ERROR (
       util::instantiate_comp_list (comp_list, handles_, h2n_, &(cbacks),
                                    cbacks.get_omx_cbacks ()),
+      "Unable to instantiate the component list.");
+
+  hdl_list.insert (hdl_list.begin (), handles_.rbegin (),
+                   handles_.rbegin () + 1);
+  G_OPS_BAIL_IF_ERROR (
+      util::set_role_list (hdl_list, role_list, role_positions),
       "Unable to instantiate the component list.");
 
   // Now add the new components to the base class lists
@@ -360,29 +406,32 @@ graph::youtubeops::add_demuxer_to_component_list (
 {
   OMX_ERRORTYPE rc = OMX_ErrorFormatNotDetected;
   if (OMX_AUDIO_CodingWEBM == container_)
-    {
-      comp_list.push_back ("OMX.Aratelia.container_demuxer.webm");
-      role_list.push_back ("container_demuxer.filter.webm");
-      rc = OMX_ErrorNone;
-    }
+  {
+    comp_list.push_back ("OMX.Aratelia.container_demuxer.webm");
+    role_list.push_back ("container_demuxer.filter.webm");
+    rc = OMX_ErrorNone;
+  }
   else if (OMX_AUDIO_CodingMP4 == container_)
-    {
-      // TODO
-      TIZ_LOG (TIZ_PRIORITY_ERROR,
-               "[OMX_ErrorFormatNotDetected] : Unhandled container format [OMX_AUDIO_CodingMP4].");
-    }
+  {
+    // TODO
+    TIZ_LOG (TIZ_PRIORITY_ERROR,
+             "[OMX_ErrorFormatNotDetected] : Unhandled container format "
+             "[OMX_AUDIO_CodingMP4].");
+  }
   else if (OMX_AUDIO_CodingOGA == container_)
-    {
-      // TODO
-      TIZ_LOG (TIZ_PRIORITY_ERROR,
-               "[OMX_ErrorFormatNotDetected] : Unhandled container format [OMX_AUDIO_CodingOGA].");
-    }
+  {
+    // TODO
+    TIZ_LOG (TIZ_PRIORITY_ERROR,
+             "[OMX_ErrorFormatNotDetected] : Unhandled container format "
+             "[OMX_AUDIO_CodingOGA].");
+  }
   else
-    {
-      TIZ_LOG (TIZ_PRIORITY_ERROR,
-               "[OMX_ErrorFormatNotDetected] : Unhandled container format [%d]...",
-               container_);
-    }
+  {
+    TIZ_LOG (
+        TIZ_PRIORITY_ERROR,
+        "[OMX_ErrorFormatNotDetected] : Unhandled container format [%d]...",
+        container_);
+  }
   return rc;
 }
 
@@ -497,6 +546,7 @@ OMX_ERRORTYPE graph::youtubeops::get_container_type_from_youtube_source ()
   tiz_check_omx (
       OMX_GetParameter (handles_[0], OMX_IndexParamPortDefinition, &port_def));
   container_ = port_def.format.audio.eEncoding;
+  TIZ_LOG (TIZ_PRIORITY_DEBUG, "container_ = [%X]", container_);
   return OMX_ErrorNone;
 }
 
@@ -508,6 +558,7 @@ OMX_ERRORTYPE graph::youtubeops::get_encoding_type_from_container_demuxer ()
   tiz_check_omx (
       OMX_GetParameter (handles_[1], OMX_IndexParamPortDefinition, &port_def));
   encoding_ = port_def.format.audio.eEncoding;
+  TIZ_LOG (TIZ_PRIORITY_DEBUG, "encoding_ = [%X]", encoding_);
   return OMX_ErrorNone;
 }
 

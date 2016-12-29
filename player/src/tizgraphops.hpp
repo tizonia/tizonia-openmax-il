@@ -89,7 +89,7 @@ namespace tiz
       virtual void do_store_config (const tizgraphconfig_ptr_t &config);
       virtual void do_enable_auto_detection (const int handle_id,
                                              const int port_id);
-      virtual void do_disable_ports ();
+      virtual void do_disable_comp_ports (const int comp_id, const int port_id);
       virtual void do_disable_tunnel (const int tunnel_id);
       virtual void do_enable_tunnel (const int tunnel_id);
       virtual void do_flush_tunnel (const int tunnel_id);

@@ -135,7 +135,8 @@ namespace tiz
         };
 
         // the initial state. Must be defined
-        typedef tg::disabling_ports initial_state;
+        typedef tg::disabling_ports<0, 0> disabling_comp_ports;
+        typedef disabling_comp_ports initial_state;
 
         // transition actions
 
@@ -145,7 +146,7 @@ namespace tiz
         struct transition_table : boost::mpl::vector<
           //       Start                              Event                         Next                              Action                   Guard
           //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------+----------------------------+
-          bmf::Row < tg::disabling_ports              , bmf::none                   , tg::awaiting_port_disabled_evt  , bmf::none              , bmf::none                  >,
+          bmf::Row < disabling_comp_ports             , bmf::none                   , tg::awaiting_port_disabled_evt  , bmf::none              , bmf::none                  >,
           //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------+----------------------------+
           bmf::Row < tg::awaiting_port_disabled_evt   , tg::omx_port_disabled_evt   , tg::config2idle                 , bmf::ActionSequence_<
                                                                                                                           boost::mpl::vector<

@@ -161,7 +161,7 @@ void graph::ops::do_enable_auto_detection (const int handle_id, const int port_i
       "Unable to set OMX_IndexParamPortDefinition (port auto detection)");
 }
 
-void graph::ops::do_disable_ports ()
+void graph::ops::do_disable_comp_ports (const int comp_id, const int port_id)
 {
   // This is a no-op in the base class.
 }
@@ -234,7 +234,6 @@ void graph::ops::do_omx_loaded2idle_comp (const int comp_id)
 {
   if (last_op_succeeded ())
   {
-    const int comp_id = 0;
     G_OPS_BAIL_IF_ERROR (
         transition_comp (comp_id, OMX_StateIdle),
         "Unable to transition source component from Loaded->Idle");

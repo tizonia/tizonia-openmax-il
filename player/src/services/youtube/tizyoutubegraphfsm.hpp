@@ -30,8 +30,8 @@
 
 #define BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
 #define BOOST_MPL_LIMIT_VECTOR_SIZE 50
-#define FUSION_MAX_VECTOR_SIZE      20
-#define SPIRIT_ARGUMENTS_LIMIT      20
+#define FUSION_MAX_VECTOR_SIZE      30
+#define SPIRIT_ARGUMENTS_LIMIT      30
 
 #include <sys/time.h>
 
@@ -142,7 +142,8 @@ namespace tiz
         };
 
         // the initial state. Must be defined
-        typedef tg::disabling_ports initial_state;
+        typedef tg::disabling_ports<tunnel_id, tunnel_id> disabling_comp_ports;
+        typedef disabling_comp_ports initial_state;
 
         // transition actions
 
@@ -152,7 +153,7 @@ namespace tiz
         struct transition_table : boost::mpl::vector<
           //       Start                              Event                         Next                              Action                                           Guard
           //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------------------------------+----------------------------+
-          bmf::Row < tg::disabling_ports              , bmf::none                   , tg::awaiting_port_disabled_evt  , bmf::none                                      , bmf::none                  >,
+          bmf::Row < disabling_comp_ports             , bmf::none                   , tg::awaiting_port_disabled_evt  , bmf::none                                      , bmf::none                  >,
           //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------------------------------+----------------------------+
           bmf::Row < tg::awaiting_port_disabled_evt   , tg::omx_port_disabled_evt   , tg::config2idle                 , bmf::ActionSequence_<
                                                                                                                           boost::mpl::vector<

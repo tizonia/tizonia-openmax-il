@@ -54,7 +54,7 @@ namespace tiz
                     const omx_comp_role_lst_t &role_lst);
 
     public:
-      void do_disable_ports ();
+      void do_disable_comp_ports (const int comp_id, const int port_id);
       void do_probe ();
       bool is_port_settings_evt_required () const;
       bool is_disabled_evt_required () const;

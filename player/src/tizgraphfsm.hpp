@@ -140,7 +140,8 @@ namespace tiz
         };
 
         // the initial state. Must be defined
-        typedef disabling_ports initial_state;
+        typedef disabling_ports<0, 0> disabling_comp_ports;
+        typedef disabling_comp_ports initial_state;
 
         // transition actions
 
@@ -150,8 +151,8 @@ namespace tiz
         struct transition_table : boost::mpl::vector<
           //                       Start                       Event                      Next                         Action                                 Guard
           //    +-----------------+----------------------------+--------------------------+----------------------------+--------------------------------------+----------------------------------------+
-          boost::msm::front::Row < disabling_ports             , boost::msm::front::none  , awaiting_port_disabled_evt , boost::msm::front::none              , is_disabled_evt_required               >,
-          boost::msm::front::Row < disabling_ports             , boost::msm::front::none  , probing                    , do_probe                             , boost::msm::front::euml::Not_<
+          boost::msm::front::Row < disabling_comp_ports        , boost::msm::front::none  , awaiting_port_disabled_evt , boost::msm::front::none              , is_disabled_evt_required               >,
+          boost::msm::front::Row < disabling_comp_ports        , boost::msm::front::none  , probing                    , do_probe                             , boost::msm::front::euml::Not_<
                                                                                                                                                                   is_disabled_evt_required >           >,
           //    +-----------------+----------------------------+--------------------------+----------------------------+--------------------------------------+----------------------------------------+
           boost::msm::front::Row < awaiting_port_disabled_evt  , omx_port_disabled_evt    , probing                    , do_probe                             , is_port_disabling_complete             >,

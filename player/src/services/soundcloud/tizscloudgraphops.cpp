@@ -87,13 +87,13 @@ void graph::scloudops::do_enable_auto_detection (const int handle_id,
                                      scloud_config->get_oauth_token ().c_str ());
 }
 
-void graph::scloudops::do_disable_ports ()
+void graph::scloudops::do_disable_comp_ports (const int comp_id, const int port_id)
 {
-  OMX_U32 scloud_source_port = 0;
-  G_OPS_BAIL_IF_ERROR (util::disable_port (handles_[0], scloud_source_port),
+  OMX_U32 scloud_source_port = port_id;
+  G_OPS_BAIL_IF_ERROR (util::disable_port (handles_[comp_id], scloud_source_port),
                        "Unable to disable scloud source's output port.");
   clear_expected_port_transitions ();
-  add_expected_port_transition (handles_[0], scloud_source_port,
+  add_expected_port_transition (handles_[comp_id], scloud_source_port,
                                 OMX_CommandPortDisable);
 }
 

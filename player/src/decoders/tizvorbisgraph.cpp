@@ -80,7 +80,7 @@ graph::vorbisdecops::vorbisdecops (graph *p_graph,
 {
 }
 
-void graph::vorbisdecops::do_disable_ports ()
+void graph::vorbisdecops::do_disable_comp_ports (const int comp_id, const int port_id)
 {
   OMX_U32 demuxers_video_port = 1;
   G_OPS_BAIL_IF_ERROR (util::disable_port (handles_[0], demuxers_video_port),

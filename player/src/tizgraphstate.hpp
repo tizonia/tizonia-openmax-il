@@ -199,6 +199,7 @@ namespace tiz
       }
     };
 
+    template <int comp_id, int port_id>
     struct disabling_ports : public boost::msm::front::state<>
     {
       template <class Event,class FSM>
@@ -207,7 +208,7 @@ namespace tiz
         G_STATE_LOG();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
           {
-            (*(fsm.pp_ops_))->do_disable_ports ();
+            (*(fsm.pp_ops_))->do_disable_comp_ports (comp_id, port_id);
           }
       }
       template <class Event,class FSM>

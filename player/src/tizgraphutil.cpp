@@ -323,9 +323,9 @@ graph::util::setup_tunnels (const omx_comp_handle_lst_t &hdl_list,
                             const int tunnel_id /* = OMX_ALL */)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
-  const int first_hdl = (tunnel_id == OMX_ALL ? 0 : tunnel_id);
+  const int first_hdl = (tunnel_id == (int) OMX_ALL ? 0 : tunnel_id);
   const int last_hdl
-      = (tunnel_id == OMX_ALL ? (hdl_list.size () - 1) : (tunnel_id + 1));
+      = (tunnel_id == (int) OMX_ALL ? (hdl_list.size () - 1) : (tunnel_id + 1));
 
   if (last_hdl > 0)
     {
@@ -361,9 +361,9 @@ graph::util::setup_suppliers (const omx_comp_handle_lst_t &hdl_list,
                               const int tunnel_id /* = OMX_ALL */)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
-  const int first_hdl = (tunnel_id == OMX_ALL ? 0 : tunnel_id);
+  const int first_hdl = (tunnel_id == (int) OMX_ALL ? 0 : tunnel_id);
   const int last_hdl
-      = (tunnel_id == OMX_ALL ? (hdl_list.size () - 1) : (tunnel_id + 1));
+      = (tunnel_id == (int) OMX_ALL ? (hdl_list.size () - 1) : (tunnel_id + 1));
 
   if (last_hdl > 0)
     {
@@ -462,7 +462,8 @@ bool graph::util::verify_transition_one (const OMX_HANDLETYPE handle,
   {
     transition_verified = true;
   }
-
+  TIZ_LOG (TIZ_PRIORITY_DEBUG, "current state [%s] expected [%s]",
+           tiz_state_to_str (state), tiz_state_to_str (to));
   return transition_verified;
 }
 

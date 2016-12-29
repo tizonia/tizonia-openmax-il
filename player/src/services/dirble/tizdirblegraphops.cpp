@@ -86,13 +86,13 @@ void graph::dirbleops::do_enable_auto_detection (const int handle_id,
   tiz::graph::ops::do_enable_auto_detection (handle_id, port_id);
 }
 
-void graph::dirbleops::do_disable_ports ()
+void graph::dirbleops::do_disable_comp_ports (const int comp_id, const int port_id)
 {
-  OMX_U32 dirble_source_port = 0;
-  G_OPS_BAIL_IF_ERROR (util::disable_port (handles_[0], dirble_source_port),
+  OMX_U32 dirble_source_port = port_id;
+  G_OPS_BAIL_IF_ERROR (util::disable_port (handles_[comp_id], dirble_source_port),
                        "Unable to disable dirble source's output port.");
   clear_expected_port_transitions ();
-  add_expected_port_transition (handles_[0], dirble_source_port,
+  add_expected_port_transition (handles_[comp_id], dirble_source_port,
                                 OMX_CommandPortDisable);
 }
 

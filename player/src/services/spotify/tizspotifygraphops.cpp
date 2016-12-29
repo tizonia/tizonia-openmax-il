@@ -87,13 +87,13 @@ void graph::spotifyops::do_enable_auto_detection (const int handle_id,
                                      spotify_config->get_user_name ().c_str ());
 }
 
-void graph::spotifyops::do_disable_ports ()
+void graph::spotifyops::do_disable_comp_ports (const int comp_id, const int port_id)
 {
-  OMX_U32 spotify_source_port = 0;
-  G_OPS_BAIL_IF_ERROR (util::disable_port (handles_[0], spotify_source_port),
+  OMX_U32 spotify_source_port = port_id;
+  G_OPS_BAIL_IF_ERROR (util::disable_port (handles_[comp_id], spotify_source_port),
                        "Unable to disable spotify source's output port.");
   clear_expected_port_transitions ();
-  add_expected_port_transition (handles_[0], spotify_source_port,
+  add_expected_port_transition (handles_[comp_id], spotify_source_port,
                                 OMX_CommandPortDisable);
 }
 
