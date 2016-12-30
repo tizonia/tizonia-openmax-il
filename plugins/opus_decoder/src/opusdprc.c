@@ -486,6 +486,7 @@ static void
 reset_stream_parameters (opusd_prc_t * ap_prc)
 {
   assert (ap_prc);
+  TIZ_DEBUG (handleOf(ap_prc), "Resetting stream parameters");
   ap_prc->packet_count_ = 0;
   ap_prc->rate_ = 0;
   ap_prc->mapping_family_ = 0;
@@ -599,7 +600,7 @@ opusd_prc_buffers_ready (const void * ap_obj)
           tiz_check_omx (rc);
           p_prc->opus_header_parsed_ = true;
         }
-      if (!p_prc->opus_comments_parsed_)
+      if (!p_prc->opus_comments_parsed_ && p_prc->packet_count_ < 5)
         {
           rc = parse_opus_comments (p_prc);
           tiz_check_true_ret_val (!(OMX_ErrorNoMore == rc), OMX_ErrorNone);
