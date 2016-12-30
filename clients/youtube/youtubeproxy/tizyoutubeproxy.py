@@ -21,10 +21,11 @@ Access YouTube to retrieve audio stream URLs and create a playback queue.
 
 """
 
-from __future__ import unicode_literals
+from __future__ import print_function, unicode_literals
 
 import pafy
 import sys
+import os
 import logging
 import random
 import unicodedata
@@ -44,6 +45,8 @@ ISO8601_TIMEDUR_EX = re.compile(r'PT((\d{1,3})H)?((\d{1,3})M)?((\d{1,2})S)?')
 
 API_KEY = 'AIzaSyAv9KX5r5WfzfAKlf4mhQMHKmHr-Uw-WOc'
 
+not_utf8_environment = "UTF-8" not in os.environ.get("LANG", "")
+
 class _Colors:
     """A trivial class that defines various ANSI color codes.
 
@@ -56,11 +59,51 @@ class _Colors:
     FAIL = '\033[91m'
     ENDC = '\033[0m'
 
+def utf8_replace(txt):
+    """ Replace unsupported characters in unicode string, returns unicode. """
+    sse = sys.stdout.encoding
+    txt = txt.encode(sse, "replace").decode("utf8", "ignore")
+    return txt
+
+def xenc(stuff):
+    """ Replace unsupported characters. """
+    if sys.stdout.isatty():
+        return utf8_replace(stuff) if not_utf8_environment else stuff
+
+    else:
+        return stuff.encode("utf8", errors="replace")
+
+def xprint(stuff, end=None):
+    """ Compatible print. """
+    print(xenc(stuff), end=end)
+
+def printstreams(streams):
+    """ Dump stream info. """
+
+    fstring = "{0:<7}{1:<8}{2:<7}{3:<15}{4:<10}       "
+    out = []
+    l = len(streams)
+    text = " [Fetching stream info]      >"
+
+    for n, s in enumerate(streams):
+        sys.stdout.write(text + "-" * n + ">" + " " * (l - n - 1) + "<\r")
+        sys.stdout.flush()
+        megs = "%3.f" % (s.get_filesize() / 1024 ** 2) + " MB"
+        q = "[%s]" % s.quality
+        out.append(fstring.format(n + 1, s.mediatype, s.extension, q, megs))
+
+    sys.stdout.write("\r")
+    xprint(fstring.format("Stream", "Type", "Format", "Quality", " Size"))
+    xprint(fstring.format("------", "----", "------", "-------", " ----"))
+
+    for x in out:
+        xprint(x)
+
 def pretty_print(color, msg=""):
     """Print message with color.
 
     """
-    print color + msg + _Colors.ENDC
+    print(color + msg + _Colors.ENDC)
 
 def print_msg(msg=""):
     """Print a normal message.
@@ -231,11 +274,11 @@ class tizyoutubeproxy(object):
         """ Retrieve the current stream's title.
 
         """
-        logging.info("current_audio_stream_title")
         stream = self.now_playing_stream
         title = ''
         if stream:
             title = to_ascii(stream['a'].title).encode("utf-8")
+        logging.info("current_audio_stream_title : {0}".format(title))
         return title
 
     def current_audio_stream_author(self):
@@ -314,6 +357,17 @@ class tizyoutubeproxy(object):
         if stream:
             file_extension = to_ascii(stream['a'].extension).encode("utf-8")
         return file_extension
+
+    def current_audio_stream_https_url(self):
+        """ Retrieve the current stream's video https url.
+
+        """
+        logging.info("current_audio_stream_https_url")
+        stream = self.now_playing_stream
+        https_url = ''
+        if stream:
+            https_url = to_ascii(stream['a'].url_https).encode("utf-8")
+        return https_url
 
     def clear_queue(self):
         """ Clears the playback queue.
@@ -411,6 +465,10 @@ class tizyoutubeproxy(object):
                     logging.info("__retrieve_stream_url : no suitable audio found")
                     raise AttributeError()
                 stream.update({'a': audio, 'v': video})
+
+#             streams = stream.get('v').audiostreams[::-1]
+#             pprint.pprint(streams)
+#             printstreams(streams)
 
             self.now_playing_stream = stream
             logging.info("__retrieve_stream_url url : {0}".format(stream['a'].url))
