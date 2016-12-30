@@ -323,6 +323,10 @@ int tizyoutube::get_current_stream ()
   if (p_description)
     {
       current_stream_description_.assign(p_description);
+      current_stream_description_.erase (
+          std::remove (current_stream_description_.begin (),
+                       current_stream_description_.end (), '\n'),
+          current_stream_description_.end ());
     }
 
   const char * p_file_extension = bp::extract< char const * >(py_yt_proxy_.attr ("current_audio_stream_file_extension")());
