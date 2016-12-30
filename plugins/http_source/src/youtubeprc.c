@@ -318,7 +318,7 @@ update_metadata (youtube_prc_t * ap_prc)
 {
   assert (ap_prc);
 
-  /* Clear previous metatada items */
+  /* Clear previous metadata items */
   tiz_krn_clear_metadata (tiz_get_krn (handleOf (ap_prc)));
 
   /* Audio stream title */
@@ -356,7 +356,7 @@ update_metadata (youtube_prc_t * ap_prc)
     ap_prc, "Description",
     tiz_youtube_get_current_audio_stream_description (ap_prc->p_youtube_)));
 
-  /* Signal that a new set of metatadata items is available */
+  /* Signal that a new set of metadata items is available */
   (void) tiz_srv_issue_event ((OMX_PTR) ap_prc, OMX_EventIndexSettingChanged,
                               OMX_ALL, /* no particular port associated */
                               OMX_IndexConfigMetadataItem, /* index of the
