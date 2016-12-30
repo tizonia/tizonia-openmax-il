@@ -255,6 +255,16 @@ const char *tiz_youtube_get_current_audio_stream_file_extension (
     tiz_youtube_t *ap_youtube);
 
 /**
+* Retrieve the current stream's video https url.
+*
+* @ingroup libtizyoutube
+*
+* @param ap_gmusic The tiz_youtube handle.
+*/
+const char *tiz_youtube_get_current_audio_stream_https_url (
+    tiz_youtube_t *ap_youtube);
+
+/**
  * Destroy the tiz_youtube handle.
  *
  * @ingroup libtizyoutube
