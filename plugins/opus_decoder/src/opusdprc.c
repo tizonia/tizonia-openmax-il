@@ -160,6 +160,79 @@ headers_available (opusd_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
+store_metadata (opusd_prc_t * ap_prc, const char * ap_header_name,
+                const char * ap_header_info)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  OMX_CONFIG_METADATAITEMTYPE * p_meta = NULL;
+  size_t metadata_len = 0;
+  size_t info_len = 0;
+
+  assert (ap_prc);
+  if (ap_header_name && ap_header_info)
+    {
+      info_len = strnlen (ap_header_info, OMX_MAX_STRINGNAME_SIZE - 1) + 1;
+      metadata_len = sizeof (OMX_CONFIG_METADATAITEMTYPE) + info_len;
+
+      if (NULL == (p_meta = (OMX_CONFIG_METADATAITEMTYPE *) tiz_mem_calloc (
+                     1, metadata_len)))
+        {
+          rc = OMX_ErrorInsufficientResources;
+        }
+      else
+        {
+          const size_t name_len
+            = strnlen (ap_header_name, OMX_MAX_STRINGNAME_SIZE - 1) + 1;
+          strncpy ((char *) p_meta->nKey, ap_header_name, name_len - 1);
+          p_meta->nKey[name_len - 1] = '\0';
+          p_meta->nKeySizeUsed = name_len;
+
+          strncpy ((char *) p_meta->nValue, ap_header_info, info_len - 1);
+          p_meta->nValue[info_len - 1] = '\0';
+          p_meta->nValueMaxSize = info_len;
+          p_meta->nValueSizeUsed = info_len;
+
+          p_meta->nSize = metadata_len;
+          p_meta->nVersion.nVersion = OMX_VERSION;
+          p_meta->eScopeMode = OMX_MetadataScopeAllLevels;
+          p_meta->nScopeSpecifier = 0;
+          p_meta->nMetadataItemIndex = 0;
+          p_meta->eSearchMode = OMX_MetadataSearchValueSizeByIndex;
+          p_meta->eKeyCharset = OMX_MetadataCharsetASCII;
+          p_meta->eValueCharset = OMX_MetadataCharsetASCII;
+
+          rc = tiz_krn_store_metadata (tiz_get_krn (handleOf (ap_prc)), p_meta);
+        }
+    }
+  return rc;
+}
+
+static void
+store_stream_metadata (opusd_prc_t * ap_prc)
+{
+  assert (ap_prc);
+
+  {
+    char info[100];
+
+    (void) tiz_krn_clear_metadata (tiz_get_krn (handleOf (ap_prc)));
+
+    snprintf (info, 99, "%d Ch, %d Hz", ap_prc->channels_, ap_prc->rate_);
+    info[99] = '\000';
+    (void) store_metadata (ap_prc, "Opus Stream", info);
+  }
+
+  /* Signal that a new set of metadata items is available */
+  (void) tiz_srv_issue_event ((OMX_PTR) ap_prc, OMX_EventIndexSettingChanged,
+                              OMX_ALL, /* no particular port associated */
+                              OMX_IndexConfigMetadataItem, /* index of the
+                                                             struct that has
+                                                             been modififed */
+                              NULL);
+
+}
+
+static OMX_ERRORTYPE
 init_opus_decoder (opusd_prc_t * ap_prc)
 {
   OMX_BUFFERHEADERTYPE * p_in
@@ -210,6 +283,8 @@ init_opus_decoder (opusd_prc_t * ap_prc)
                "preskip [%d] gain [%f] streams [%d]",
                ap_prc->rate_, ap_prc->mapping_family_, ap_prc->channels_,
                ap_prc->preskip_, gain, streams);
+
+    store_stream_metadata(ap_prc);
 
     p_in->nOffset += header_offset;
     p_in->nFilledLen -= header_offset;
