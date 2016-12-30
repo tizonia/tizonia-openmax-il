@@ -170,7 +170,8 @@ webmport_check_tunnel_compat (const void * ap_obj,
   assert (ap_other_def);
 
   if (ap_other_def->eDomain != OMX_PortDomainAudio
-      && ap_other_def->eDomain != OMX_PortDomainVideo)
+      && ap_other_def->eDomain != OMX_PortDomainVideo
+      && ap_other_def->eDomain != OMX_PortDomainOther)
     {
       TIZ_ERROR (handleOf (ap_obj),
                  "port [%d] check_tunnel_compat : "
@@ -183,7 +184,10 @@ webmport_check_tunnel_compat (const void * ap_obj,
        && ap_other_def->format.audio.eEncoding != OMX_AUDIO_CodingWEBM)
       && (ap_other_def->eDomain == OMX_PortDomainVideo
           && ap_other_def->format.video.eCompressionFormat
-               != OMX_AUDIO_CodingWEBM))
+               != OMX_AUDIO_CodingWEBM)
+      && (ap_other_def->eDomain == OMX_PortDomainOther
+          && ap_other_def->format.other.eFormat
+               != OMX_OTHER_FormatBinary))
     {
       TIZ_ERROR (handleOf (ap_obj),
                  "port [%d] check_tunnel_compat : "
