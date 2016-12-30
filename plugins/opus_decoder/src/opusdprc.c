@@ -66,6 +66,8 @@
 /* Forward declarations */
 static OMX_ERRORTYPE
 opusd_prc_deallocate_resources (void *);
+static OMX_ERRORTYPE
+opusd_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid);
 
 static inline OMX_BUFFERHEADERTYPE **
 get_header_ptr (opusd_prc_t * ap_prc, const OMX_U32 a_pid)
@@ -229,7 +231,6 @@ store_stream_metadata (opusd_prc_t * ap_prc)
                                                              struct that has
                                                              been modififed */
                               NULL);
-
 }
 
 static OMX_ERRORTYPE
@@ -265,6 +266,8 @@ init_opus_decoder (opusd_prc_t * ap_prc)
 
     TIZ_DEBUG (handleOf (ap_prc), "nbytes [%d] : ", nbytes);
 
+    assert (!ap_prc->p_opus_dec_);
+
     header_offset = process_opus_header (
       handleOf (ap_prc), p_data, nbytes, &(ap_prc->rate_),
       &(ap_prc->mapping_family_), &(ap_prc->channels_), &(ap_prc->preskip_),
@@ -284,7 +287,7 @@ init_opus_decoder (opusd_prc_t * ap_prc)
                ap_prc->rate_, ap_prc->mapping_family_, ap_prc->channels_,
                ap_prc->preskip_, gain, streams);
 
-    store_stream_metadata(ap_prc);
+    store_stream_metadata (ap_prc);
 
     p_in->nOffset += header_offset;
     p_in->nFilledLen -= header_offset;
@@ -441,6 +444,44 @@ transform_buffer (opusd_prc_t * ap_prc)
   return OMX_ErrorNone;
 }
 
+static OMX_ERRORTYPE
+allocate_output_buffer (opusd_prc_t * ap_prc)
+{
+  assert (ap_prc);
+  if (!ap_prc->p_out_buf_)
+    {
+      if (!(ap_prc->p_out_buf_ = tiz_mem_alloc (
+              sizeof (float) * ARATELIA_OPUS_DECODER_PORT_MIN_OUTPUT_BUF_SIZE)))
+        {
+          return OMX_ErrorInsufficientResources;
+        }
+    }
+  return OMX_ErrorNone;
+}
+
+static void
+deallocate_output_buffer (opusd_prc_t * ap_prc)
+{
+  assert (ap_prc);
+  if (ap_prc->p_out_buf_)
+    {
+      tiz_mem_free (ap_prc->p_out_buf_);
+      ap_prc->p_out_buf_ = NULL;
+    }
+}
+
+static void
+reset_output_buffer (opusd_prc_t * ap_prc)
+{
+  assert (ap_prc);
+  if (ap_prc->p_out_buf_)
+    {
+      tiz_mem_set (
+        ap_prc->p_out_buf_, 0,
+        sizeof (float) * ARATELIA_OPUS_DECODER_PORT_MIN_OUTPUT_BUF_SIZE);
+    }
+}
+
 static void
 reset_stream_parameters (opusd_prc_t * ap_prc)
 {
@@ -453,6 +494,14 @@ reset_stream_parameters (opusd_prc_t * ap_prc)
   ap_prc->eos_ = false;
   ap_prc->opus_header_parsed_ = false;
   ap_prc->opus_comments_parsed_ = false;
+  if (ap_prc->p_opus_dec_)
+    {
+      opus_multistream_decoder_ctl (ap_prc->p_opus_dec_, OPUS_RESET_STATE);
+    }
+  if (ap_prc->p_out_buf_)
+    {
+      reset_output_buffer (ap_prc);
+    }
 }
 
 /*
@@ -490,14 +539,7 @@ opusd_prc_dtor (void * ap_obj)
 static OMX_ERRORTYPE
 opusd_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
 {
-  opusd_prc_t * p_prc = ap_obj;
-  assert (p_prc);
-  if (!(p_prc->p_out_buf_ = tiz_mem_alloc (
-          sizeof (float) * ARATELIA_OPUS_DECODER_PORT_MIN_OUTPUT_BUF_SIZE)))
-    {
-      return OMX_ErrorInsufficientResources;
-    }
-  return OMX_ErrorNone;
+  return allocate_output_buffer (ap_obj);
 }
 
 static OMX_ERRORTYPE
@@ -510,6 +552,7 @@ opusd_prc_deallocate_resources (void * ap_obj)
       opus_multistream_decoder_destroy (p_prc->p_opus_dec_);
       p_prc->p_opus_dec_ = NULL;
     }
+  deallocate_output_buffer (p_prc);
   return OMX_ErrorNone;
 }
 
@@ -588,6 +631,8 @@ opusd_prc_port_disable (const void * ap_prc, OMX_U32 a_pid)
   if (OMX_ALL == a_pid || ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX == a_pid)
     {
       p_prc->in_port_disabled_ = true;
+      (void) opusd_prc_deallocate_resources (p_prc);
+      reset_stream_parameters (p_prc);
     }
   if (OMX_ALL == a_pid || ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX == a_pid)
     {
@@ -604,6 +649,7 @@ opusd_prc_port_enable (const void * ap_prc, OMX_U32 a_pid)
   if (OMX_ALL == a_pid || ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX == a_pid)
     {
       p_prc->in_port_disabled_ = false;
+      (void) opusd_prc_allocate_resources (p_prc, a_pid);
     }
   if (OMX_ALL == a_pid || ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX == a_pid)
     {
