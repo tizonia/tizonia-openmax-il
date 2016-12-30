@@ -207,7 +207,7 @@ void graph::youtubeops::do_retrieve_metadata ()
   };
 
   // Now extract metadata from the decoder
-  const int decoder_index = 1;
+  const int decoder_index = 2;
   index = 0;
   const bool use_first_as_heading = false;
   while (OMX_ErrorNone
@@ -215,7 +215,7 @@ void graph::youtubeops::do_retrieve_metadata ()
   {
   };
 
-  OMX_GetParameter (handles_[2], OMX_IndexParamAudioPcm, &renderer_pcmtype_);
+  OMX_GetParameter (handles_[3], OMX_IndexParamAudioPcm, &renderer_pcmtype_);
 
   // Now print renderer metadata
   TIZ_PRINTF_MAG (
@@ -632,9 +632,9 @@ graph::youtubeops::set_channels_and_rate_on_renderer (
   renderer_pcmtype_.eEndian
       = (encoding_ == OMX_AUDIO_CodingMP3 ? OMX_EndianBig : OMX_EndianLittle);
 
-  if (OMX_AUDIO_CodingOPUS == encoding_ || OMX_AUDIO_CodingVORBIS == encoding_)
+  if (OMX_AUDIO_CodingVORBIS == encoding_)
   {
-    // Opus and Vorbis decoders output 32 bit samples (floats)
+    // Vorbis decoders outputs 32 bit samples (floats)
     renderer_pcmtype_.nBitPerSample = 32;
   }
 
