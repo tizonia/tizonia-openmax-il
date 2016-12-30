@@ -31,6 +31,7 @@
 
 #include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <algorithm>
 
@@ -1022,7 +1023,9 @@ graph::ops::dump_metadata_item (const OMX_U32 index, const int comp_index,
 
     rc = OMX_GetConfig (handles_[comp_index], OMX_IndexConfigMetadataItem,
                         p_meta);
-    if (OMX_ErrorNone == rc)
+    if (OMX_ErrorNone == rc
+        && strnlen ((const char *)p_meta->nKey, OMX_MAX_STRINGNAME_SIZE)
+        && strnlen ((const char *)p_meta->nValue, OMX_MAX_STRINGNAME_SIZE))
     {
       if (0 == index && use_first_as_heading)
         {
