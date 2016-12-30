@@ -764,7 +764,7 @@ static void
 reset_stream_parameters (webmdmuxflt_prc_t * ap_prc)
 {
   assert (ap_prc);
-
+  TIZ_DEBUG (handleOf(ap_prc), "Resetting stream parameters");
   ap_prc->ne_inited_ = false;
   ap_prc->audio_auto_detect_on_ = false;
   ap_prc->audio_coding_type_ = OMX_AUDIO_CodingUnused;
