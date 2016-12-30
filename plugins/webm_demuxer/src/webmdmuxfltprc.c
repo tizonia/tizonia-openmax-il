@@ -775,6 +775,8 @@ reset_stream_parameters (webmdmuxflt_prc_t * ap_prc)
   reset_nestegg_members (ap_prc);
 
   tiz_buffer_clear (ap_prc->p_webm_store_);
+  tiz_buffer_clear (ap_prc->p_aud_store_);
+  tiz_buffer_clear (ap_prc->p_vid_store_);
   tiz_filter_prc_update_eos_flag (ap_prc, false);
 }
 
@@ -1083,6 +1085,8 @@ webmdmuxflt_prc_ctor (void * ap_prc, va_list * app)
     = super_ctor (typeOf (ap_prc, "webmdmuxfltprc"), ap_prc, app);
   assert (p_prc);
   p_prc->p_webm_store_ = NULL;
+  p_prc->p_aud_store_ = NULL;
+  p_prc->p_vid_store_ = NULL;
   reset_stream_parameters (p_prc);
   g_handle = handleOf (ap_prc);
   return p_prc;
