@@ -705,81 +705,12 @@ void graph::youtubeops::do_record_fatal_error (const OMX_HANDLETYPE handle,
 
 void graph::youtubeops::do_reconfigure_first_tunnel ()
 {
-  switch (encoding_)
-  {
-    case OMX_AUDIO_CodingMP3:
-    {
-      // Retrieve the mp3 settings from the youtube source component
-      OMX_AUDIO_PARAM_MP3TYPE youtube_mp3type;
-      const OMX_U32 youtube_port_id = 0;
-      TIZ_INIT_OMX_PORT_STRUCT (youtube_mp3type, youtube_port_id);
-      G_OPS_BAIL_IF_ERROR (
-          OMX_GetParameter (handles_[0], OMX_IndexParamAudioMp3,
-                            &youtube_mp3type),
-          "Unable to retrieve the MP3 settings from the youtube source");
-
-      // Retrieve the mp3 settings from the decoder component
-      OMX_AUDIO_PARAM_MP3TYPE decoder_mp3type;
-      const OMX_U32 decoder_port_id = 0;
-      TIZ_INIT_OMX_PORT_STRUCT (decoder_mp3type, decoder_port_id);
-      G_OPS_BAIL_IF_ERROR (
-          OMX_GetParameter (handles_[1], OMX_IndexParamAudioMp3,
-                            &decoder_mp3type),
-          "Unable to retrieve the MP3 settings from the audio decoder");
-
-      // Now assign the current settings to the decoder structure
-      decoder_mp3type.nChannels = youtube_mp3type.nChannels;
-      decoder_mp3type.nSampleRate = youtube_mp3type.nSampleRate;
-
-      // Set the new mp3 settings
-      G_OPS_BAIL_IF_ERROR (
-          OMX_SetParameter (handles_[1], OMX_IndexParamAudioMp3,
-                            &decoder_mp3type),
-          "Unable to set the MP3 settings on the audio decoder");
-    }
-    break;
-    default:
-    {
-      // TODO
-    }
-    break;
-  };
+  // TODO
 }
 
 void graph::youtubeops::do_reconfigure_second_tunnel ()
 {
-  // Retrieve the audio port format from the demuxer component
-  OMX_AUDIO_PARAM_PORTFORMATTYPE demuxer_audio_format;
-  const OMX_U32 demuxer_port_id = 1;
-  TIZ_INIT_OMX_PORT_STRUCT (demuxer_audio_format, demuxer_port_id);
-  G_OPS_BAIL_IF_ERROR (
-      OMX_GetParameter (handles_[1], OMX_IndexParamAudioPortFormat,
-                        &demuxer_audio_format),
-      "Unable to retrieve the audio port format from the demuxer");
-
-  // Retrieve the pcm settings from the renderer component
-  OMX_AUDIO_PARAM_PCMMODETYPE renderer_pcmtype;
-  const OMX_U32 renderer_port_id = 0;
-  TIZ_INIT_OMX_PORT_STRUCT (renderer_pcmtype, renderer_port_id);
-  G_OPS_BAIL_IF_ERROR (
-      OMX_GetParameter (handles_[2], OMX_IndexParamAudioPcm, &renderer_pcmtype),
-      "Unable to retrieve the PCM settings from the pcm renderer");
-
-  // Now assign the current settings to the renderer structure
-  //   renderer_pcmtype.nChannels = demuxer_audio_format.nChannels;
-  //   renderer_pcmtype.nSamplingRate = demuxer_audio_format.nSamplingRate;
-
-  // Set the new pcm settings
-  G_OPS_BAIL_IF_ERROR (
-      OMX_SetParameter (handles_[2], OMX_IndexParamAudioPcm, &renderer_pcmtype),
-      "Unable to set the PCM settings on the audio renderer");
-
-  TIZ_PRINTF_MAG (
-      "     %ld Ch, %g KHz, %lu:%s:%s\n", renderer_pcmtype.nChannels,
-      ((float)renderer_pcmtype.nSamplingRate) / 1000,
-      renderer_pcmtype.nBitPerSample,
-      renderer_pcmtype.eNumData == OMX_NumericalDataSigned ? "s" : "u",
-      renderer_pcmtype.eEndian == OMX_EndianBig ? "b" : "l");
+  // TODO
 }
 
 void graph::youtubeops::do_reconfigure_third_tunnel ()
