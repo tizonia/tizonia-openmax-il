@@ -824,7 +824,7 @@ static void toggle_mute (pulsear_prc_t *ap_prc, const bool a_mute)
 
   {
     long new_volume = (a_mute ? 0 : ap_prc->volume_);
-    TIZ_PRINTF_DBG_YEL ("new volume = %ld - ap_prc->volume_ [%d]\n",
+    TIZ_DEBUG (handleOf (ap_prc), "new volume = %ld - ap_prc->volume_ [%d]",
                new_volume, ap_prc->volume_);
     set_pa_sink_volume (ap_prc, new_volume);
   }
@@ -832,13 +832,13 @@ static void toggle_mute (pulsear_prc_t *ap_prc, const bool a_mute)
 
 static void set_volume (pulsear_prc_t *ap_prc, const long a_volume)
 {
-    TIZ_PRINTF_DBG_YEL ("ap_prc->volume_ [%d]\n",
-               ap_prc->volume_);
+  TIZ_DEBUG (handleOf(ap_prc), "ap_prc->volume_ [%d]",
+             ap_prc->volume_);
   if (set_pa_sink_volume (ap_prc, a_volume))
     {
       assert (ap_prc);
       ap_prc->volume_ = a_volume;
-      TIZ_TRACE (handleOf (ap_prc), "ap_prc->volume_ = %ld", ap_prc->volume_);
+      TIZ_DEBUG (handleOf (ap_prc), "ap_prc->volume_ = %ld", ap_prc->volume_);
     }
 }
 
@@ -959,6 +959,7 @@ static OMX_ERRORTYPE pulsear_prc_allocate_resources (void *ap_prc,
      component has already been initialised. */
   if (!(p_prc->p_ev_timer_))
     {
+      set_volume(ap_prc, ARATELIA_PCM_RENDERER_DEFAULT_VOLUME_VALUE);
       tiz_check_omx (
           tiz_srv_timer_watcher_init (p_prc, &(p_prc->p_ev_timer_)));
       rc = init_pulseaudio (ap_prc);
@@ -1154,6 +1155,7 @@ static OMX_ERRORTYPE pulsear_prc_port_enable (const void *ap_obj,
       tiz_check_omx (pulsear_prc_allocate_resources (p_prc, OMX_ALL));
       tiz_check_omx (pulsear_prc_prepare_to_transfer (p_prc, OMX_ALL));
       tiz_check_omx (pulsear_prc_transfer_and_process (p_prc, OMX_ALL));
+      TIZ_DEBUG (handleOf (p_prc), "p_prc->volume_ [%d]", p_prc->volume_);
     }
   return OMX_ErrorNone;
 }
@@ -1164,6 +1166,8 @@ static OMX_ERRORTYPE pulsear_prc_config_change (void *ap_obj, OMX_U32 a_pid,
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   pulsear_prc_t *p_prc = ap_obj;
   assert (ap_obj);
+  TIZ_PRINTF_DBG_YEL ("[pulsear_prc_config_change] : [%s]\n",
+                      tiz_idx_to_str (a_config_idx));
   if (ARATELIA_PCM_RENDERER_PORT_INDEX == a_pid)
     {
       if (OMX_IndexConfigAudioVolume == a_config_idx)
@@ -1174,7 +1178,6 @@ static OMX_ERRORTYPE pulsear_prc_config_change (void *ap_obj, OMX_U32 a_pid,
               tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
               OMX_IndexConfigAudioVolume, &volume));
           TIZ_PRINTF_DBG_YEL (
-/*               handleOf (p_prc), */
               "[OMX_IndexConfigAudioVolume] : volume.sVolume.nValue = %ld\n",
               volume.sVolume.nValue);
           if (volume.sVolume.nValue <= ARATELIA_PCM_RENDERER_MAX_VOLUME_VALUE
@@ -1192,7 +1195,6 @@ static OMX_ERRORTYPE pulsear_prc_config_change (void *ap_obj, OMX_U32 a_pid,
               tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
               OMX_IndexConfigAudioMute, &mute));
           TIZ_PRINTF_DBG_YEL (
-/*                               handleOf (p_prc), */
                      "[OMX_IndexConfigAudioMute] : bMute = [%s]\n",
                      (mute.bMute == OMX_FALSE ? "FALSE" : "TRUE"));
           toggle_mute (p_prc, mute.bMute == OMX_TRUE ? true : false);
