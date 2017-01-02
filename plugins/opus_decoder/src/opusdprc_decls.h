@@ -47,6 +47,7 @@ struct opusd_prc
   OpusMSDecoder * p_opus_dec_;
   OMX_BUFFERHEADERTYPE * p_in_hdr_;
   OMX_BUFFERHEADERTYPE * p_out_hdr_;
+  OMX_AUDIO_PARAM_PCMMODETYPE pcmmode_;
   float * p_out_buf_;
   opus_int64 packet_count_;
   int rate_;
