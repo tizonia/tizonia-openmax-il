@@ -34,8 +34,8 @@ import json
 from collections import namedtuple
 
 # For use during debugging
-# import pprint
-# from traceback import print_exception
+import pprint
+from traceback import print_exception
 
 logging.captureWarnings(True)
 logging.getLogger().addHandler(logging.NullHandler())
@@ -136,7 +136,7 @@ def exception_handler(exception_type, exception, traceback):
 
     print_err("[YouTube] (%s) : %s" % (exception_type.__name__, exception))
     del traceback # unused
-    # print_exception(exception_type, exception, traceback)
+    #print_exception(exception_type, exception, traceback)
 
 sys.excepthook = exception_handler
 
@@ -204,7 +204,8 @@ class tizyoutubeproxy(object):
             if not yt_audio:
                 raise ValueError(str("No WebM audio stream for : %s" % arg))
 
-            self.add_to_playback_queue(audio=yt_audio, video=yt_video)
+            yt_info = VideoInfo(ytid=arg, title=yt_audio.title)
+            self.add_to_playback_queue(audio=yt_audio, video=yt_video, info=yt_info)
 
             self.__update_play_queue_order()
 
@@ -227,7 +228,10 @@ class tizyoutubeproxy(object):
                 for item in items:
                     yt_video = item.get('pafy')
                     if yt_video:
-                        yt_audio = yt_video.getbestaudio(preftype="webm")
+                        try:
+                            yt_audio = yt_video.getbestaudio(preftype="webm")
+                        except:
+                            logging.error("pafy execption")
                         if yt_audio:
                             self.add_to_playback_queue(audio=yt_audio, video=yt_video)
 
@@ -358,16 +362,16 @@ class tizyoutubeproxy(object):
             file_extension = to_ascii(stream['a'].extension).encode("utf-8")
         return file_extension
 
-    def current_audio_stream_https_url(self):
-        """ Retrieve the current stream's video https url.
+    def current_audio_stream_video_id(self):
+        """ Retrieve the current stream's video id.
 
         """
-        logging.info("current_audio_stream_https_url")
+        logging.info("current_audio_stream_video_id")
         stream = self.now_playing_stream
-        https_url = ''
+        video_id = ''
         if stream:
-            https_url = to_ascii(stream['a'].url_https).encode("utf-8")
-        return https_url
+            video_id = to_ascii(stream['i'].ytid).encode("utf-8")
+        return video_id
 
     def clear_queue(self):
         """ Clears the playback queue.
@@ -384,7 +388,7 @@ class tizyoutubeproxy(object):
         if len(self.queue) and self.queue_index:
             stream = self.queue[self.queue_index]
             print_nfo("[YouTube] [Stream] '{0}' removed." \
-                      .format(to_ascii(stream.title).encode("utf-8")))
+                      .format(to_ascii(stream['i'].title).encode("utf-8")))
             del self.queue[self.queue_index]
             self.queue_index -= 1
             if self.queue_index < 0:
@@ -458,7 +462,8 @@ class tizyoutubeproxy(object):
 
         """
         try:
-            if not stream.get('v'):
+            if not stream.get('v') or not stream.get('a'):
+                logging.info("__retrieve_stream_url ytid : {0}".format(stream['i'].ytid))
                 video = pafy.new(stream['i'].ytid)
                 audio = video.getbestaudio(preftype="webm")
                 if not audio:
@@ -471,9 +476,9 @@ class tizyoutubeproxy(object):
 #             printstreams(streams)
 
             self.now_playing_stream = stream
-            logging.info("__retrieve_stream_url url : {0}".format(stream['a'].url))
+            logging.info("__retrieve_stream_url url       : {0}".format(stream['a'].url))
             logging.info("__retrieve_stream_url bitrate   : {0}".format(stream['a'].bitrate))
-            logging.info("__retrieve_stream_url extension: {0}".format(stream['a'].extension))
+            logging.info("__retrieve_stream_url extension : {0}".format(stream['a'].extension))
             return stream['a'].url.encode("utf-8")
 
         except AttributeError:
