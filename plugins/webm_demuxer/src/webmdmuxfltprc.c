@@ -811,7 +811,8 @@ set_audio_coding_on_port (webmdmuxflt_prc_t * ap_prc)
   assert (ap_prc);
 
   TIZ_DEBUG (handleOf (ap_prc),
-             " audio: %.2fhz %u bit %u channels %llu preskip %llu preroll",
+             " audio [%s]: %.2fhz %u bit %u channels %llu preskip %llu preroll",
+             tiz_audio_coding_to_str(ap_prc->audio_coding_type_),
              ap_prc->ne_audio_params_.rate, ap_prc->ne_audio_params_.depth,
              ap_prc->ne_audio_params_.channels,
              ap_prc->ne_audio_params_.codec_delay,
