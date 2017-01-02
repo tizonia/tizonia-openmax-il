@@ -44,7 +44,6 @@ struct vorbisd_prc
 {
   /* Object */
   const tiz_filter_prc_t _;
-  void *p_opus_dec_;
   FishSound *p_fsnd_;
   FishSoundInfo fsinfo_;
   bool started_;
