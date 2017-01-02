@@ -358,7 +358,7 @@ update_metadata (youtube_prc_t * ap_prc)
   /* URL */
   tiz_check_omx (store_metadata (
     ap_prc, "Video URL",
-    tiz_youtube_get_current_audio_stream_https_url (ap_prc->p_youtube_)));
+    tiz_youtube_get_current_audio_stream_video_id (ap_prc->p_youtube_)));
 
   /* Signal that a new set of metadata items is available */
   (void) tiz_srv_issue_event ((OMX_PTR) ap_prc, OMX_EventIndexSettingChanged,
