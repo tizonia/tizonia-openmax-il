@@ -635,6 +635,55 @@ static const tiz_idx_str_t tiz_idx_to_str_tbl[] = {
   {OMX_IndexVendorStartUnused, (const OMX_STRING) "OMX_IndexVendorStartUnused"},
   {OMX_IndexMax, (const OMX_STRING) "OMX_IndexMax"}};
 
+typedef struct tiz_audio_coding_str tiz_audio_coding_str_t;
+struct tiz_audio_coding_str
+{
+  OMX_AUDIO_CODINGTYPE cod;
+  const OMX_STRING str;
+};
+
+static const tiz_audio_coding_str_t tiz_audio_coding_to_str_tbl[] = {
+  {OMX_AUDIO_CodingUnused, (const OMX_STRING) "OMX_AUDIO_CodingUnused"},
+  {OMX_AUDIO_CodingAutoDetect, (const OMX_STRING) "OMX_AUDIO_CodingAutoDetect"},
+  {OMX_AUDIO_CodingPCM, (const OMX_STRING) "OMX_AUDIO_CodingPCM"},
+  {OMX_AUDIO_CodingADPCM, (const OMX_STRING) "OMX_AUDIO_CodingADPCM"},
+  {OMX_AUDIO_CodingAMR, (const OMX_STRING) "OMX_AUDIO_CodingAMR"},
+  {OMX_AUDIO_CodingGSMFR, (const OMX_STRING) "OMX_AUDIO_CodingGSMFR"},
+  {OMX_AUDIO_CodingGSMEFR, (const OMX_STRING) "OMX_AUDIO_CodingGSMEFR"},
+  {OMX_AUDIO_CodingGSMHR, (const OMX_STRING) "OMX_AUDIO_CodingGSMHR"},
+  {OMX_AUDIO_CodingPDCFR, (const OMX_STRING) "OMX_AUDIO_CodingPDCFR"},
+  {OMX_AUDIO_CodingPDCEFR, (const OMX_STRING) "OMX_AUDIO_CodingPDCEFR"},
+  {OMX_AUDIO_CodingPDCHR, (const OMX_STRING) "OMX_AUDIO_CodingPDCHR"},
+  {OMX_AUDIO_CodingTDMAFR, (const OMX_STRING) "OMX_AUDIO_CodingTDMAFR"},
+  {OMX_AUDIO_CodingTDMAEFR, (const OMX_STRING) "OMX_AUDIO_CodingTDMAEFR"},
+  {OMX_AUDIO_CodingQCELP8, (const OMX_STRING) "OMX_AUDIO_CodingQCELP8"},
+  {OMX_AUDIO_CodingQCELP13, (const OMX_STRING) "OMX_AUDIO_CodingQCELP13"},
+  {OMX_AUDIO_CodingEVRC, (const OMX_STRING) "OMX_AUDIO_CodingEVRC"},
+  {OMX_AUDIO_CodingSMV, (const OMX_STRING) "OMX_AUDIO_CodingSMV"},
+  {OMX_AUDIO_CodingG711, (const OMX_STRING) "OMX_AUDIO_CodingG711"},
+  {OMX_AUDIO_CodingG723, (const OMX_STRING) "OMX_AUDIO_CodingG723"},
+  {OMX_AUDIO_CodingG726, (const OMX_STRING) "OMX_AUDIO_CodingG726"},
+  {OMX_AUDIO_CodingG729, (const OMX_STRING) "OMX_AUDIO_CodingG729"},
+  {OMX_AUDIO_CodingAAC, (const OMX_STRING) "OMX_AUDIO_CodingAAC"},
+  {OMX_AUDIO_CodingMP3, (const OMX_STRING) "OMX_AUDIO_CodingMP3"},
+  {OMX_AUDIO_CodingSBC, (const OMX_STRING) "OMX_AUDIO_CodingSBC"},
+  {OMX_AUDIO_CodingVORBIS, (const OMX_STRING) "OMX_AUDIO_CodingVORBIS"},
+  {OMX_AUDIO_CodingWMA, (const OMX_STRING) "OMX_AUDIO_CodingWMA"},
+  {OMX_AUDIO_CodingRA, (const OMX_STRING) "OMX_AUDIO_CodingRA"},
+  {OMX_AUDIO_CodingMIDI, (const OMX_STRING) "OMX_AUDIO_CodingMIDI"},
+  {OMX_AUDIO_CodingKhronosExtensions,
+   (const OMX_STRING) "OMX_AUDIO_CodingKhronosExtensions"},
+  {OMX_AUDIO_CodingVendorStartUnused,
+   (const OMX_STRING) "OMX_AUDIO_CodingVendorStartUnused"},
+  {OMX_AUDIO_CodingOPUS, (const OMX_STRING) "OMX_AUDIO_CodingOPUS"},
+  {OMX_AUDIO_CodingFLAC, (const OMX_STRING) "OMX_AUDIO_CodingFLAC"},
+  {OMX_AUDIO_CodingSPEEX, (const OMX_STRING) "OMX_AUDIO_CodingSPEEX"},
+  {OMX_AUDIO_CodingOGA, (const OMX_STRING) "OMX_AUDIO_CodingOGA"},
+  {OMX_AUDIO_CodingMP2, (const OMX_STRING) "OMX_AUDIO_CodingMP2"},
+  {OMX_AUDIO_CodingMP4, (const OMX_STRING) "OMX_AUDIO_CodingMP4"},
+  {OMX_AUDIO_CodingWEBM, (const OMX_STRING) "OMX_AUDIO_CodingWEBM"},
+  {OMX_AUDIO_CodingMax, (const OMX_STRING) "OMX_AUDIO_CodingMax"}};
+
 /*@observer@*/ OMX_STRING
 tiz_cmd_to_str (OMX_COMMANDTYPE a_cmd)
 {
@@ -735,6 +784,24 @@ tiz_idx_to_str (OMX_INDEXTYPE a_idx)
     }
 
   return (OMX_STRING) "Unknown OpenMAX IL index";
+}
+
+/*@observer@*/ OMX_STRING
+tiz_audio_coding_to_str (OMX_AUDIO_CODINGTYPE a_cod)
+{
+  const size_t count
+    = sizeof (tiz_audio_coding_to_str_tbl) / sizeof (tiz_audio_coding_str_t);
+  size_t i = 0;
+
+  for (i = 0; i < count; ++i)
+    {
+      if (tiz_audio_coding_to_str_tbl[i].cod == a_cod)
+        {
+          return tiz_audio_coding_to_str_tbl[i].str;
+        }
+    }
+
+  return (OMX_STRING) "Unknown OpenMAX IL Audio Coding Type";
 }
 
 void

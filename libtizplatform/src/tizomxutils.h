@@ -34,6 +34,7 @@ extern "C" {
 #endif
 
 #include <OMX_Types.h>
+#include <OMX_Audio.h>
 #include <OMX_Core.h>
 
 #include "tizmem.h"
@@ -69,6 +70,8 @@ tiz_err_to_str (OMX_ERRORTYPE a_err);
 tiz_dir_to_str (OMX_DIRTYPE a_dir);
 /*@observer@ */ OMX_STRING
 tiz_idx_to_str (OMX_INDEXTYPE a_idx);
+/*@observer@ */ OMX_STRING
+tiz_audio_coding_to_str (OMX_AUDIO_CODINGTYPE a_cod);
 
 void
 tiz_util_reset_eos_flag (OMX_BUFFERHEADERTYPE * p_hdr);
