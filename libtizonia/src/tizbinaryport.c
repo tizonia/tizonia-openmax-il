@@ -285,6 +285,17 @@ binaryport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
   return rc;
 }
 
+static OMX_ERRORTYPE
+binaryport_set_portdef_format (void * ap_obj,
+                              const OMX_PARAM_PORTDEFINITIONTYPE * ap_pdef)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  tiz_binaryport_t * p_obj = ap_obj;
+  assert (p_obj);
+  assert (ap_pdef);
+  return rc;
+}
+
 static bool
 binaryport_check_tunnel_compat (const void * ap_obj,
                                 OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
@@ -357,6 +368,8 @@ tiz_binaryport_init (void * ap_tos, void * ap_hdl)
      tiz_api_GetParameter, binaryport_GetParameter,
      /* TIZ_CLASS_COMMENT: */
      tiz_api_SetParameter, binaryport_SetParameter,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_port_set_portdef_format, binaryport_set_portdef_format,
      /* TIZ_CLASS_COMMENT: */
      tiz_port_check_tunnel_compat, binaryport_check_tunnel_compat,
      /* TIZ_CLASS_COMMENT: stop value*/
