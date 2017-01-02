@@ -618,7 +618,7 @@ opusd_prc_buffers_ready (const void * ap_obj)
 }
 
 static OMX_ERRORTYPE
-opusd_proc_port_flush (const void * ap_obj, OMX_U32 a_pid)
+opusd_prc_port_flush (const void * ap_obj, OMX_U32 a_pid)
 {
   opusd_prc_t * p_obj = (opusd_prc_t *) ap_obj;
   return release_headers (p_obj, a_pid);
@@ -718,7 +718,7 @@ opusd_prc_init (void * ap_tos, void * ap_hdl)
      /* TIZ_CLASS_COMMENT: */
      tiz_prc_buffers_ready, opusd_prc_buffers_ready,
      /* TIZ_CLASS_COMMENT: */
-     tiz_prc_port_flush, opusd_proc_port_flush,
+     tiz_prc_port_flush, opusd_prc_port_flush,
      /* TIZ_CLASS_COMMENT: */
      tiz_prc_port_disable, opusd_prc_port_disable,
      /* TIZ_CLASS_COMMENT: */
