@@ -218,12 +218,12 @@ extern "C" const char *tiz_youtube_get_current_audio_stream_file_extension (
   return ap_youtube->p_proxy_->get_current_audio_stream_file_extension ();
 }
 
-extern "C" const char *tiz_youtube_get_current_audio_stream_https_url (
+extern "C" const char *tiz_youtube_get_current_audio_stream_video_id (
     tiz_youtube_t *ap_youtube)
 {
   assert (ap_youtube);
   assert (ap_youtube->p_proxy_);
-  return ap_youtube->p_proxy_->get_current_audio_stream_https_url ();
+  return ap_youtube->p_proxy_->get_current_audio_stream_video_id ();
 }
 
 extern "C" void tiz_youtube_destroy (tiz_youtube_t *ap_youtube)

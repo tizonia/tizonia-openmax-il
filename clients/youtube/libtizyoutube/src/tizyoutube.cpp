@@ -93,7 +93,7 @@ tizyoutube::tizyoutube ()
     current_stream_view_count_ (),
     current_stream_description_ (),
     current_stream_file_extension_ (),
-    current_stream_https_url_ ()
+    current_stream_video_id_ ()
 {
 }
 
@@ -277,9 +277,9 @@ const char *tizyoutube::get_current_audio_stream_file_extension ()
   return current_stream_file_extension_.empty () ? NULL : current_stream_file_extension_.c_str ();
 }
 
-const char *tizyoutube::get_current_audio_stream_https_url ()
+const char *tizyoutube::get_current_audio_stream_video_id ()
 {
-  return current_stream_https_url_.empty () ? NULL : current_stream_https_url_.c_str ();
+  return current_stream_video_id_.empty () ? NULL : current_stream_video_id_.c_str ();
 }
 
 int tizyoutube::get_current_stream ()
@@ -293,7 +293,7 @@ int tizyoutube::get_current_stream ()
   current_stream_view_count_.clear ();
   current_stream_description_.clear ();
   current_stream_file_extension_.clear ();
-  current_stream_https_url_.clear ();
+  current_stream_video_id_.clear ();
 
   const char * p_title = bp::extract< char const * >(py_yt_proxy_.attr ("current_audio_stream_title")());
   if (p_title)
@@ -346,10 +346,10 @@ int tizyoutube::get_current_stream ()
       current_stream_file_extension_.assign(p_file_extension);
     }
 
-  const char * p_https_url = bp::extract< char const * >(py_yt_proxy_.attr ("current_audio_stream_https_url")());
-  if (p_https_url)
+  const char * p_video_id = bp::extract< char const * >(py_yt_proxy_.attr ("current_audio_stream_video_id")());
+  if (p_video_id)
     {
-      current_stream_https_url_.assign(p_https_url);
+      current_stream_video_id_.assign(p_video_id);
     }
 
   return rc;
