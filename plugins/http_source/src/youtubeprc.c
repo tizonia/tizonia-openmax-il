@@ -90,9 +90,6 @@ obtain_coding_type (youtube_prc_t * ap_prc, char * ap_info)
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (ap_prc);
   assert (ap_info);
-
-  TIZ_TRACE (handleOf (ap_prc), "encoding type  : [%s]", ap_info);
-
   if (memcmp (ap_info, "audio/webm", 10) == 0)
     {
       /* The webm container */
@@ -108,6 +105,8 @@ obtain_coding_type (youtube_prc_t * ap_prc, char * ap_info)
       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingUnused;
       rc = OMX_ErrorInsufficientResources;
     }
+  TIZ_TRACE (handleOf (ap_prc), "encoding type  : [%s] - [%s]", ap_info,
+             tiz_audio_coding_to_str (ap_prc->audio_coding_type_));
   return rc;
 }
 
@@ -128,8 +127,8 @@ set_audio_coding_on_port (youtube_prc_t * ap_prc)
   tiz_check_omx (tiz_krn_SetParameter_internal (
     tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
     OMX_IndexParamPortDefinition, &port_def));
-  TIZ_DEBUG (handleOf (ap_prc), "audio_coding_type_ [%X]",
-             ap_prc->audio_coding_type_);
+  TIZ_DEBUG (handleOf (ap_prc), "audio_coding_type_ [%s]",
+             tiz_audio_coding_to_str (ap_prc->audio_coding_type_));
   return OMX_ErrorNone;
 }
 
