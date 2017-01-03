@@ -655,6 +655,7 @@ gmusic_prc_ctor (void * ap_obj, va_list * app)
   p_prc->num_channels_ = 2;
   p_prc->samplerate_ = 44100;
   p_prc->content_length_bytes_ = 0;
+  p_prc->bytes_before_eos_ = 0;
   p_prc->auto_detect_on_ = false;
   p_prc->bitrate_ = ARATELIA_HTTP_SOURCE_DEFAULT_BIT_RATE_KBITS;
   update_cache_size (p_prc);
