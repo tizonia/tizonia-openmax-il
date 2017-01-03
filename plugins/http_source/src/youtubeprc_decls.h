@@ -59,6 +59,8 @@ struct youtube_prc
   OMX_S32 audio_coding_type_;
   OMX_U32 num_channels_;
   OMX_U32 samplerate_;
+  OMX_U32 content_length_bytes_;
+  OMX_U32 bytes_before_eos_;
   bool auto_detect_on_;
   int bitrate_;
   int cache_bytes_;

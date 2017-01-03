@@ -110,6 +110,45 @@ obtain_coding_type (youtube_prc_t * ap_prc, char * ap_info)
   return rc;
 }
 
+static int
+convert_str_to_int (youtube_prc_t * ap_prc, const char * ap_start,
+                    char ** ap_end)
+{
+  long val = -1;
+  assert (ap_prc);
+  assert (ap_start);
+  assert (ap_end);
+
+  errno = 0;
+  val = strtol (ap_start, ap_end, 0);
+
+  if ((errno == ERANGE && (val == LONG_MAX || val == LONG_MIN))
+      || (errno != 0 && val == 0))
+    {
+      TIZ_ERROR (handleOf (ap_prc),
+                 "Error retrieving the number of channels : [%s]",
+                 strerror (errno));
+    }
+  else if (*ap_end == ap_start)
+    {
+      TIZ_ERROR (handleOf (ap_prc),
+                 "Error retrieving the number of channels : "
+                 "[No digits were found]");
+    }
+  return val;
+}
+
+static void
+obtain_content_length (youtube_prc_t * ap_prc, char * ap_info)
+{
+  char * p_end = NULL;
+
+  assert (ap_prc);
+  assert (ap_info);
+  ap_prc->content_length_bytes_ = convert_str_to_int (ap_prc, ap_info, &p_end);
+  ap_prc->bytes_before_eos_ = ap_prc->content_length_bytes_;
+}
+
 static OMX_ERRORTYPE
 set_audio_coding_on_port (youtube_prc_t * ap_prc)
 {
@@ -260,6 +299,10 @@ obtain_audio_encoding_from_headers (youtube_prc_t * ap_prc,
                   (void) set_audio_coding_on_port (ap_prc);
                 }
             }
+          else if (memcmp (name, "Content-Length", 14) == 0)
+            {
+              obtain_content_length (ap_prc, p_info);
+            }
           tiz_mem_free (p_info);
         }
       }
@@ -357,7 +400,7 @@ update_metadata (youtube_prc_t * ap_prc)
 
   /* URL */
   tiz_check_omx (store_metadata (
-    ap_prc, "Video URL",
+    ap_prc, "Video Id",
     tiz_youtube_get_current_audio_stream_video_id (ap_prc->p_youtube_)));
 
   /* Signal that a new set of metadata items is available */
@@ -434,6 +477,16 @@ release_buffer (youtube_prc_t * ap_prc)
 
   if (ap_prc->p_outhdr_)
     {
+      if (ap_prc->bytes_before_eos_ > ap_prc->p_outhdr_->nFilledLen)
+        {
+          ap_prc->bytes_before_eos_ -= ap_prc->p_outhdr_->nFilledLen;
+        }
+      else
+        {
+          ap_prc->bytes_before_eos_ = 0;
+          ap_prc->eos_ = true;
+        }
+
       if (ap_prc->eos_)
         {
           ap_prc->eos_ = false;
@@ -535,22 +588,9 @@ connection_lost (OMX_PTR ap_arg)
 {
   youtube_prc_t * p_prc = ap_arg;
   assert (p_prc);
-  TIZ_PRINTF_DBG_RED ("connection_lost\n");
+  TIZ_PRINTF_DBG_RED ("connection_lost - bytes_before_eos_ [%d]\n",
+                      p_prc->bytes_before_eos_);
 
-  if (p_prc->auto_detect_on_)
-    {
-      /* Oops... unable to connect to the station */
-
-      /* Make sure this url will not get processed again... */
-      p_prc->remove_current_url_ = true;
-
-      /* Get ready to auto-detect another stream */
-      set_auto_detect_on_port (p_prc);
-      prepare_for_port_auto_detection (p_prc);
-
-      /* Signal the client */
-      tiz_srv_issue_err_event ((OMX_PTR) p_prc, OMX_ErrorFormatNotDetected);
-    }
   /* Return false to indicate that there is no need to start the automatic
      reconnection procedure */
   return false;
@@ -663,6 +703,8 @@ youtube_prc_ctor (void * ap_obj, va_list * app)
   p_prc->audio_coding_type_ = OMX_AUDIO_CodingUnused;
   p_prc->num_channels_ = 2;
   p_prc->samplerate_ = 44100;
+  p_prc->content_length_bytes_ = 0;
+  p_prc->bytes_before_eos_ = 0;
   p_prc->auto_detect_on_ = false;
   p_prc->bitrate_ = ARATELIA_HTTP_SOURCE_DEFAULT_BIT_RATE_KBITS;
   update_cache_size (p_prc);
