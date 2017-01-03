@@ -78,12 +78,15 @@
   while (0)
 
 /* Forward declarations */
-static OMX_ERRORTYPE pulsear_prc_deallocate_resources (void *ap_obj);
-static int init_pulseaudio_context (pulsear_prc_t *ap_prc);
-static void set_volume (pulsear_prc_t *ap_prc, const long a_volume);
+static OMX_ERRORTYPE
+pulsear_prc_deallocate_resources (void * ap_obj);
+static int
+init_pulseaudio_context (pulsear_prc_t * ap_prc);
+static void
+set_volume (pulsear_prc_t * ap_prc, const long a_volume);
 
-static OMX_STRING pulseaudio_context_state_to_str (
-    const pa_context_state_t a_state)
+static OMX_STRING
+pulseaudio_context_state_to_str (const pa_context_state_t a_state)
 {
   switch (a_state)
     {
@@ -108,8 +111,8 @@ static OMX_STRING pulseaudio_context_state_to_str (
   return (OMX_STRING) "Unknown PA context state";
 }
 
-static OMX_STRING pulseaudio_stream_state_to_str (
-    const pa_stream_state_t a_state)
+static OMX_STRING
+pulseaudio_stream_state_to_str (const pa_stream_state_t a_state)
 {
   switch (a_state)
     {
@@ -129,8 +132,8 @@ static OMX_STRING pulseaudio_stream_state_to_str (
   return (OMX_STRING) "Unknown PA stream state";
 }
 
-static OMX_STRING pulseaudio_operation_state_to_str (
-    const pa_operation_state_t a_state)
+static OMX_STRING
+pulseaudio_operation_state_to_str (const pa_operation_state_t a_state)
 {
   switch (a_state)
     {
@@ -146,7 +149,8 @@ static OMX_STRING pulseaudio_operation_state_to_str (
   return (OMX_STRING) "Unknown PA operation state";
 }
 
-static bool ready_to_process (pulsear_prc_t *ap_prc)
+static bool
+ready_to_process (pulsear_prc_t * ap_prc)
 {
   assert (ap_prc);
   TIZ_TRACE (handleOf (ap_prc),
@@ -159,18 +163,19 @@ static bool ready_to_process (pulsear_prc_t *ap_prc)
           && !ap_prc->port_disabled_ && !ap_prc->stopped_);
 }
 
-static OMX_BUFFERHEADERTYPE *get_header (pulsear_prc_t *ap_prc)
+static OMX_BUFFERHEADERTYPE *
+get_header (pulsear_prc_t * ap_prc)
 {
-  OMX_BUFFERHEADERTYPE *p_hdr = NULL;
+  OMX_BUFFERHEADERTYPE * p_hdr = NULL;
   assert (ap_prc);
 
   if (!ap_prc->port_disabled_)
     {
       if (!ap_prc->p_inhdr_)
         {
-          (void)tiz_krn_claim_buffer (tiz_get_krn (handleOf (ap_prc)),
-                                      ARATELIA_PCM_RENDERER_PORT_INDEX, 0,
-                                      &ap_prc->p_inhdr_);
+          (void) tiz_krn_claim_buffer (tiz_get_krn (handleOf (ap_prc)),
+                                       ARATELIA_PCM_RENDERER_PORT_INDEX, 0,
+                                       &ap_prc->p_inhdr_);
           if (ap_prc->p_inhdr_)
             {
               TIZ_TRACE (handleOf (ap_prc),
@@ -183,7 +188,8 @@ static OMX_BUFFERHEADERTYPE *get_header (pulsear_prc_t *ap_prc)
   return p_hdr;
 }
 
-static OMX_ERRORTYPE release_header (pulsear_prc_t *ap_prc)
+static OMX_ERRORTYPE
+release_header (pulsear_prc_t * ap_prc)
 {
   assert (ap_prc);
 
@@ -193,15 +199,16 @@ static OMX_ERRORTYPE release_header (pulsear_prc_t *ap_prc)
                  ap_prc->p_inhdr_);
       ap_prc->p_inhdr_->nOffset = 0;
       ap_prc->p_inhdr_->nFilledLen = 0;
-      tiz_check_omx (tiz_krn_release_buffer (
-          tiz_get_krn (handleOf (ap_prc)), ARATELIA_PCM_RENDERER_PORT_INDEX,
-          ap_prc->p_inhdr_));
+      tiz_check_omx (tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_prc)),
+                                             ARATELIA_PCM_RENDERER_PORT_INDEX,
+                                             ap_prc->p_inhdr_));
       ap_prc->p_inhdr_ = NULL;
     }
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE buffer_emptied (pulsear_prc_t *ap_prc)
+static OMX_ERRORTYPE
+buffer_emptied (pulsear_prc_t * ap_prc)
 {
   assert (ap_prc);
   assert (ap_prc->p_inhdr_);
@@ -211,17 +218,18 @@ static OMX_ERRORTYPE buffer_emptied (pulsear_prc_t *ap_prc)
     {
       TIZ_DEBUG (handleOf (ap_prc), "OMX_BUFFERFLAG_EOS in HEADER [%p]",
                  ap_prc->p_inhdr_);
-      tiz_srv_issue_event ((OMX_PTR)ap_prc, OMX_EventBufferFlag, 0,
+      tiz_srv_issue_event ((OMX_PTR) ap_prc, OMX_EventBufferFlag, 0,
                            ap_prc->p_inhdr_->nFlags, NULL);
     }
 
   return release_header (ap_prc);
 }
 
-static OMX_ERRORTYPE render_pcm_data (pulsear_prc_t *ap_prc)
+static OMX_ERRORTYPE
+render_pcm_data (pulsear_prc_t * ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  OMX_BUFFERHEADERTYPE *p_hdr = NULL;
+  OMX_BUFFERHEADERTYPE * p_hdr = NULL;
   assert (ap_prc);
 
   while ((p_hdr = get_header (ap_prc)) && ap_prc->pa_nbytes_ > 0)
@@ -229,16 +237,16 @@ static OMX_ERRORTYPE render_pcm_data (pulsear_prc_t *ap_prc)
       if (p_hdr->nFilledLen > 0)
         {
           const int bytes_to_write
-              = MIN (ap_prc->pa_nbytes_, p_hdr->nFilledLen);
+            = MIN (ap_prc->pa_nbytes_, p_hdr->nFilledLen);
           assert (ap_prc->p_pa_loop_);
           assert (ap_prc->p_pa_context_);
 
           pa_threaded_mainloop_lock (ap_prc->p_pa_loop_);
           int result = pa_stream_write (
-              ap_prc->p_pa_stream_, p_hdr->pBuffer + p_hdr->nOffset,
-              bytes_to_write, NULL, 0, PA_SEEK_RELATIVE);
+            ap_prc->p_pa_stream_, p_hdr->pBuffer + p_hdr->nOffset,
+            bytes_to_write, NULL, 0, PA_SEEK_RELATIVE);
           /* TODO : Check return code */
-          (void)result;
+          (void) result;
           pa_threaded_mainloop_unlock (ap_prc->p_pa_loop_);
           p_hdr->nFilledLen -= bytes_to_write;
           p_hdr->nOffset += bytes_to_write;
@@ -255,13 +263,14 @@ static OMX_ERRORTYPE render_pcm_data (pulsear_prc_t *ap_prc)
   return rc;
 }
 
-static void pulseaudio_context_state_cback (struct pa_context *ap_context,
-                                            void *ap_userdata)
+static void
+pulseaudio_context_state_cback (struct pa_context * ap_context,
+                                void * ap_userdata)
 {
-  pulsear_prc_t *p_prc = ap_userdata;
+  pulsear_prc_t * p_prc = ap_userdata;
   assert (p_prc);
   TIZ_TRACE (handleOf (p_prc), "[%s]", pulseaudio_context_state_to_str (
-                                           pa_context_get_state (ap_context)));
+                                         pa_context_get_state (ap_context)));
 
   switch (pa_context_get_state (ap_context))
     {
@@ -280,17 +289,19 @@ static void pulseaudio_context_state_cback (struct pa_context *ap_context,
     }
 }
 
-static void pulseaudio_context_subscribe_cback (
-    pa_context *ap_context, pa_subscription_event_type_t a_event,
-    uint32_t a_idx, void *ap_userdata)
+static void
+pulseaudio_context_subscribe_cback (pa_context * ap_context,
+                                    pa_subscription_event_type_t a_event,
+                                    uint32_t a_idx, void * ap_userdata)
 {
   TIZ_TRACE (handleOf (ap_userdata), "");
 }
 
-static void pulseaudio_stream_state_cback_handler (
-    OMX_PTR ap_prc, tiz_event_pluggable_t *ap_event)
+static void
+pulseaudio_stream_state_cback_handler (OMX_PTR ap_prc,
+                                       tiz_event_pluggable_t * ap_event)
 {
-  pulsear_prc_t *p_prc = ap_prc;
+  pulsear_prc_t * p_prc = ap_prc;
   assert (p_prc);
   assert (ap_event);
 
@@ -299,11 +310,11 @@ static void pulseaudio_stream_state_cback_handler (
       TIZ_TRACE (handleOf (p_prc),
                  "PA STREAM STATE -> : [%s] stopped [%s] p_pa_stream_ [%p]",
                  pulseaudio_stream_state_to_str (
-                     *(pa_stream_state_t *)ap_event->p_data),
+                   *(pa_stream_state_t *) ap_event->p_data),
                  p_prc->stopped_ ? "YES" : "NO", p_prc->p_pa_stream_);
 
-      p_prc->pa_stream_state_ = *((pa_stream_state_t *)(ap_event->p_data));
-      TIZ_PRINTF_DBG_YEL ("PA STREAM STATE : [%s]\n",
+      p_prc->pa_stream_state_ = *((pa_stream_state_t *) (ap_event->p_data));
+      TIZ_DEBUG (handleOf (p_prc), "PA STREAM STATE : [%s]",
                  pulseaudio_stream_state_to_str (p_prc->pa_stream_state_));
 
       if (PA_STREAM_READY == p_prc->pa_stream_state_ && p_prc->pending_volume_)
@@ -316,73 +327,76 @@ static void pulseaudio_stream_state_cback_handler (
   tiz_mem_free (ap_event);
 }
 
-static void pulseaudio_stream_state_cback (pa_stream *stream, void *userdata)
+static void
+pulseaudio_stream_state_cback (pa_stream * stream, void * userdata)
 {
-  pulsear_prc_t *p_prc = userdata;
+  pulsear_prc_t * p_prc = userdata;
   assert (p_prc);
   {
-    tiz_event_pluggable_t *p_event
-        = tiz_mem_calloc (1, sizeof(tiz_event_pluggable_t));
+    tiz_event_pluggable_t * p_event
+      = tiz_mem_calloc (1, sizeof (tiz_event_pluggable_t));
     if (p_event)
       {
         p_event->p_servant = p_prc;
-        p_event->p_data = tiz_mem_calloc (1, sizeof(pa_stream_state_t));
+        p_event->p_data = tiz_mem_calloc (1, sizeof (pa_stream_state_t));
         p_event->pf_hdlr = pulseaudio_stream_state_cback_handler;
         if (p_event->p_data)
           {
-            *((pa_stream_state_t *)(p_event->p_data))
-                = pa_stream_get_state (p_prc->p_pa_stream_);
+            *((pa_stream_state_t *) (p_event->p_data))
+              = pa_stream_get_state (p_prc->p_pa_stream_);
           }
         tiz_comp_event_pluggable (handleOf (p_prc), p_event);
       }
   }
 }
 
-static void pulseaudio_stream_suspended_cback (pa_stream *stream,
-                                               void *userdata)
+static void
+pulseaudio_stream_suspended_cback (pa_stream * stream, void * userdata)
 {
-  pulsear_prc_t *p_prc = userdata;
+  pulsear_prc_t * p_prc = userdata;
   assert (p_prc);
   assert (stream == p_prc->p_pa_stream_ || NULL == p_prc->p_pa_stream_);
   assert (p_prc->p_pa_loop_);
   TIZ_TRACE (handleOf (p_prc), "");
 }
 
-static void pulseaudio_stream_write_cback_handler (
-    OMX_PTR ap_prc, tiz_event_pluggable_t *ap_event)
+static void
+pulseaudio_stream_write_cback_handler (OMX_PTR ap_prc,
+                                       tiz_event_pluggable_t * ap_event)
 {
-  pulsear_prc_t *p_prc = ap_prc;
+  pulsear_prc_t * p_prc = ap_prc;
   assert (p_prc);
   assert (ap_event);
   assert (ap_event->p_data);
-  p_prc->pa_nbytes_ += *((size_t *)ap_event->p_data);
+  p_prc->pa_nbytes_ += *((size_t *) ap_event->p_data);
   /* We only render the available data if the component's current state
      allows it */
   if (ready_to_process (p_prc))
     {
-      (void)render_pcm_data (p_prc);
+      (void) render_pcm_data (p_prc);
     }
   tiz_mem_free (ap_event->p_data);
   tiz_mem_free (ap_event);
 }
 
-static void pulseaudio_stream_write_cback (pa_stream *stream, size_t nbytes,
-                                           void *userdata)
+static void
+pulseaudio_stream_write_cback (pa_stream * stream, size_t nbytes,
+                               void * userdata)
 {
-  pulsear_prc_t *p_prc = userdata;
+  pulsear_prc_t * p_prc = userdata;
   assert (p_prc);
 
   if (p_prc->p_pa_loop_)
     {
-      tiz_event_pluggable_t *p_event
-          = tiz_mem_calloc (1, sizeof(tiz_event_pluggable_t));
+      tiz_event_pluggable_t * p_event
+        = tiz_mem_calloc (1, sizeof (tiz_event_pluggable_t));
       if (p_event)
         {
           p_event->p_servant = p_prc;
-          p_event->p_data = tiz_mem_calloc (1, sizeof(nbytes));
+          p_event->p_data = tiz_mem_calloc (1, sizeof (nbytes));
           if (p_event->p_data)
             {
-              *((size_t *)(p_event->p_data)) = nbytes;
+              *((size_t *) (p_event->p_data)) = nbytes;
             }
           p_event->pf_hdlr = pulseaudio_stream_write_cback_handler;
           tiz_comp_event_pluggable (handleOf (p_prc), p_event);
@@ -391,16 +405,17 @@ static void pulseaudio_stream_write_cback (pa_stream *stream, size_t nbytes,
     }
 }
 
-static void pulseaudio_stream_success_cback (pa_stream *s, int success,
-                                             void *userdata)
+static void
+pulseaudio_stream_success_cback (pa_stream * s, int success, void * userdata)
 {
-  pulsear_prc_t *p_prc = userdata;
+  pulsear_prc_t * p_prc = userdata;
   assert (p_prc);
   assert (p_prc->p_pa_loop_);
   pa_threaded_mainloop_signal (p_prc->p_pa_loop_, 0);
 }
 
-static void deinit_pulseaudio_stream (pulsear_prc_t *ap_prc)
+static void
+deinit_pulseaudio_stream (pulsear_prc_t * ap_prc)
 {
   assert (ap_prc);
   TIZ_TRACE (handleOf (ap_prc), "");
@@ -416,7 +431,8 @@ static void deinit_pulseaudio_stream (pulsear_prc_t *ap_prc)
   ap_prc->pa_stream_state_ = PA_STREAM_UNCONNECTED;
 }
 
-static void deinit_pulseaudio_context (pulsear_prc_t *ap_prc)
+static void
+deinit_pulseaudio_context (pulsear_prc_t * ap_prc)
 {
   assert (ap_prc);
   TIZ_TRACE (handleOf (ap_prc), "");
@@ -430,7 +446,8 @@ static void deinit_pulseaudio_context (pulsear_prc_t *ap_prc)
     }
 }
 
-static void deinit_pulseaudio (pulsear_prc_t *ap_prc)
+static void
+deinit_pulseaudio (pulsear_prc_t * ap_prc)
 {
   assert (ap_prc);
   TIZ_TRACE (handleOf (ap_prc), "");
@@ -444,7 +461,8 @@ static void deinit_pulseaudio (pulsear_prc_t *ap_prc)
     }
 }
 
-static bool await_pulseaudio_context_connection (pulsear_prc_t *ap_prc)
+static bool
+await_pulseaudio_context_connection (pulsear_prc_t * ap_prc)
 {
   int rc = PA_ERR_UNKNOWN;
   bool done = false;
@@ -497,8 +515,8 @@ end:
   return rc;
 }
 
-static int init_pulseaudio_sample_spec (pulsear_prc_t *ap_prc,
-                                        pa_sample_spec *ap_spec)
+static int
+init_pulseaudio_sample_spec (pulsear_prc_t * ap_prc, pa_sample_spec * ap_spec)
 {
   OMX_ERRORTYPE omx_rc = OMX_ErrorNone;
   int rc = PA_ERR_UNKNOWN;
@@ -509,47 +527,47 @@ static int init_pulseaudio_sample_spec (pulsear_prc_t *ap_prc,
   /* Retrieve pcm params from the input port */
   TIZ_INIT_OMX_PORT_STRUCT (ap_prc->pcmmode_, ARATELIA_PCM_RENDERER_PORT_INDEX);
   if (OMX_ErrorNone != (omx_rc = tiz_api_GetParameter (
-                            tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
-                            OMX_IndexParamAudioPcm, &ap_prc->pcmmode_)))
+                          tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+                          OMX_IndexParamAudioPcm, &ap_prc->pcmmode_)))
     {
       TIZ_ERROR (handleOf (ap_prc), "[%s]", tiz_err_to_str (omx_rc));
     }
   else
     {
       TIZ_NOTICE (
-          handleOf (ap_prc),
-          "nChannels = [%d] nBitPerSample = [%d] "
-          "nSamplingRate = [%d] eNumData = [%d] eEndian = [%d] "
-          "bInterleaved = [%s] ePCMMode = [%d]",
-          ap_prc->pcmmode_.nChannels, ap_prc->pcmmode_.nBitPerSample,
-          ap_prc->pcmmode_.nSamplingRate, ap_prc->pcmmode_.eNumData,
-          ap_prc->pcmmode_.eEndian,
-          ap_prc->pcmmode_.bInterleaved == OMX_TRUE ? "OMX_TRUE" : "OMX_FALSE",
-          ap_prc->pcmmode_.ePCMMode);
+        handleOf (ap_prc),
+        "nChannels = [%d] nBitPerSample = [%d] "
+        "nSamplingRate = [%d] eNumData = [%d] eEndian = [%d] "
+        "bInterleaved = [%s] ePCMMode = [%d]",
+        ap_prc->pcmmode_.nChannels, ap_prc->pcmmode_.nBitPerSample,
+        ap_prc->pcmmode_.nSamplingRate, ap_prc->pcmmode_.eNumData,
+        ap_prc->pcmmode_.eEndian,
+        ap_prc->pcmmode_.bInterleaved == OMX_TRUE ? "OMX_TRUE" : "OMX_FALSE",
+        ap_prc->pcmmode_.ePCMMode);
 
       if (ap_prc->pcmmode_.nBitPerSample == 16)
         {
           ap_spec->format = ap_prc->pcmmode_.eEndian == OMX_EndianBig
-                                ? PA_SAMPLE_S16BE
-                                : PA_SAMPLE_S16LE;
+                              ? PA_SAMPLE_S16BE
+                              : PA_SAMPLE_S16LE;
         }
       else if (ap_prc->pcmmode_.nBitPerSample == 24)
         {
           ap_spec->format = ap_prc->pcmmode_.eEndian == OMX_EndianBig
-                                ? PA_SAMPLE_S24BE
-                                : PA_SAMPLE_S24LE;
+                              ? PA_SAMPLE_S24BE
+                              : PA_SAMPLE_S24LE;
         }
       else if (ap_prc->pcmmode_.nBitPerSample == 32)
         {
           ap_spec->format = ap_prc->pcmmode_.eEndian == OMX_EndianBig
-                                ? PA_SAMPLE_FLOAT32BE
-                                : PA_SAMPLE_FLOAT32LE;
+                              ? PA_SAMPLE_FLOAT32BE
+                              : PA_SAMPLE_FLOAT32LE;
         }
       else
         {
           ap_spec->format = ap_prc->pcmmode_.eEndian == OMX_EndianBig
-                                ? PA_SAMPLE_S16BE
-                                : PA_SAMPLE_S16LE;
+                              ? PA_SAMPLE_S16BE
+                              : PA_SAMPLE_S16LE;
         }
 
       ap_spec->rate = ap_prc->pcmmode_.nSamplingRate;
@@ -564,7 +582,8 @@ static int init_pulseaudio_sample_spec (pulsear_prc_t *ap_prc,
 
 /* Pulseaudio mainloop lock must have been acquired before calling this
    function */
-static int init_pulseaudio_stream (pulsear_prc_t *ap_prc)
+static int
+init_pulseaudio_stream (pulsear_prc_t * ap_prc)
 {
   int rc = PA_ERR_UNKNOWN;
 
@@ -604,26 +623,26 @@ static int init_pulseaudio_stream (pulsear_prc_t *ap_prc)
     goto_end_on_pa_error (init_pulseaudio_sample_spec (ap_prc, &spec));
 
     ap_prc->p_pa_stream_ = pa_stream_new (
-        ap_prc->p_pa_context_, ARATELIA_PCM_RENDERER_PULSEAUDIO_STREAM_NAME,
-        &spec, NULL);
+      ap_prc->p_pa_context_, ARATELIA_PCM_RENDERER_PULSEAUDIO_STREAM_NAME,
+      &spec, NULL);
     goto_end_on_null (ap_prc->p_pa_stream_);
 
     pa_stream_set_suspended_callback (
-        ap_prc->p_pa_stream_, pulseaudio_stream_suspended_cback, ap_prc);
+      ap_prc->p_pa_stream_, pulseaudio_stream_suspended_cback, ap_prc);
     pa_stream_set_state_callback (ap_prc->p_pa_stream_,
                                   pulseaudio_stream_state_cback, ap_prc);
     pa_stream_set_write_callback (ap_prc->p_pa_stream_,
                                   pulseaudio_stream_write_cback, ap_prc);
 
     goto_end_on_pa_error (pa_stream_connect_playback (
-        ap_prc->p_pa_stream_,
-        ARATELIA_PCM_RENDERER_PULSEAUDIO_SINK_NAME, /* Name of the sink to
+      ap_prc->p_pa_stream_,
+      ARATELIA_PCM_RENDERER_PULSEAUDIO_SINK_NAME, /* Name of the sink to
                                                        connect to, or NULL for
                                                        default */
-        NULL,   /* Buffering attributes, or NULL for default */
-        0,      /* Additional flags, or 0 for default */
-        NULL,   /* Initial volume, or NULL for default */
-        NULL)); /* Synchronize this stream with the specified one, or NULL for
+      NULL,   /* Buffering attributes, or NULL for default */
+      0,      /* Additional flags, or 0 for default */
+      NULL,   /* Initial volume, or NULL for default */
+      NULL)); /* Synchronize this stream with the specified one, or NULL for
                    a standalone stream  */
 
     /* All good */
@@ -642,7 +661,8 @@ static int init_pulseaudio_stream (pulsear_prc_t *ap_prc)
 
 /* Pulseaudio mainloop lock must have been acquired before calling this
    function */
-static int init_pulseaudio_context (pulsear_prc_t *ap_prc)
+static int
+init_pulseaudio_context (pulsear_prc_t * ap_prc)
 {
   int rc = PA_ERR_UNKNOWN;
 
@@ -659,8 +679,8 @@ static int init_pulseaudio_context (pulsear_prc_t *ap_prc)
 
   /* Instantiate a pulsaudio context */
   ap_prc->p_pa_context_
-      = pa_context_new (pa_threaded_mainloop_get_api (ap_prc->p_pa_loop_),
-                        ARATELIA_PCM_RENDERER_PULSEAUDIO_APP_NAME);
+    = pa_context_new (pa_threaded_mainloop_get_api (ap_prc->p_pa_loop_),
+                      ARATELIA_PCM_RENDERER_PULSEAUDIO_APP_NAME);
   goto_end_on_null (ap_prc->p_pa_context_);
 
   /* Establish the state change callback */
@@ -668,12 +688,12 @@ static int init_pulseaudio_context (pulsear_prc_t *ap_prc)
                                  pulseaudio_context_state_cback, ap_prc);
   /* Establish the pulseaudio server event subscription callback */
   pa_context_set_subscribe_callback (
-      ap_prc->p_pa_context_, pulseaudio_context_subscribe_cback, ap_prc);
+    ap_prc->p_pa_context_, pulseaudio_context_subscribe_cback, ap_prc);
 
   /* Connect the context to the pulseaudio server */
   goto_end_on_pa_error (pa_context_connect (
-      ap_prc->p_pa_context_, NULL, /* Connect to the default server */
-      (pa_context_flags_t)0, NULL));
+    ap_prc->p_pa_context_, NULL, /* Connect to the default server */
+    (pa_context_flags_t) 0, NULL));
 
   /* All good */
   rc = PA_OK;
@@ -689,7 +709,8 @@ end:
   return rc;
 }
 
-static OMX_ERRORTYPE init_pulseaudio (pulsear_prc_t *ap_prc)
+static OMX_ERRORTYPE
+init_pulseaudio (pulsear_prc_t * ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
 
@@ -736,8 +757,9 @@ end:
   return rc;
 }
 
-static bool pulseaudio_wait_for_operation (pulsear_prc_t *ap_prc,
-                                           struct pa_operation *ap_op)
+static bool
+pulseaudio_wait_for_operation (pulsear_prc_t * ap_prc,
+                               struct pa_operation * ap_op)
 {
   pa_operation_state_t op_state = PA_OPERATION_CANCELLED;
 
@@ -757,13 +779,14 @@ static bool pulseaudio_wait_for_operation (pulsear_prc_t *ap_prc,
   return (PA_OPERATION_DONE == op_state);
 }
 
-static inline OMX_ERRORTYPE do_flush (pulsear_prc_t *ap_prc)
+static inline OMX_ERRORTYPE
+do_flush (pulsear_prc_t * ap_prc)
 {
   assert (ap_prc);
   if (ap_prc->p_pa_loop_ && ap_prc->p_pa_stream_
       && PA_STREAM_READY == ap_prc->pa_stream_state_)
     {
-      pa_operation *p_op = NULL;
+      pa_operation * p_op = NULL;
       pa_threaded_mainloop_lock (ap_prc->p_pa_loop_);
       p_op = pa_stream_flush (ap_prc->p_pa_stream_,
                               pulseaudio_stream_success_cback, ap_prc);
@@ -780,7 +803,8 @@ static inline OMX_ERRORTYPE do_flush (pulsear_prc_t *ap_prc)
   return release_header (ap_prc);
 }
 
-static bool set_pa_sink_volume (pulsear_prc_t *ap_prc, const long a_volume)
+static bool
+set_pa_sink_volume (pulsear_prc_t * ap_prc, const long a_volume)
 {
   bool rc = false;
   assert (ap_prc);
@@ -788,22 +812,28 @@ static bool set_pa_sink_volume (pulsear_prc_t *ap_prc, const long a_volume)
   if (ap_prc->p_pa_loop_ && ap_prc->p_pa_context_ && ap_prc->p_pa_stream_)
     {
       struct pa_cvolume cvolume;
-      pa_operation *p_op = NULL;
+      pa_operation * p_op = NULL;
 
-      TIZ_PRINTF_DBG_YEL ("%p [%p] %p vol [%ld] [%s] [%s]\n",
-                          ap_prc->p_pa_loop_ , ap_prc->p_pa_context_ , ap_prc->p_pa_stream_, a_volume,
-                          pulseaudio_context_state_to_str (pa_context_get_state (ap_prc->p_pa_context_)),
-                          pulseaudio_stream_state_to_str (pa_stream_get_state (ap_prc->p_pa_stream_)));
+      TIZ_DEBUG (handleOf (ap_prc),
+                 "%p [%p] %p vol [%ld] [%s] [%s] pa_vol_.channels[%d]",
+                 ap_prc->p_pa_loop_, ap_prc->p_pa_context_,
+                 ap_prc->p_pa_stream_, a_volume,
+                 pulseaudio_context_state_to_str (
+                   pa_context_get_state (ap_prc->p_pa_context_)),
+                 pulseaudio_stream_state_to_str (
+                   pa_stream_get_state (ap_prc->p_pa_stream_)),
+                 ap_prc->pa_vol_.channels);
 
-      (void)pa_cvolume_set (&cvolume, ap_prc->pa_vol_.channels,
-                            (pa_volume_t)a_volume * PA_VOLUME_NORM / 100 + 0.5);
+      (void) pa_cvolume_set (
+        &cvolume, ap_prc->pcmmode_.nChannels,
+        (pa_volume_t) a_volume * PA_VOLUME_NORM / 100 + 0.5);
       pa_threaded_mainloop_lock (ap_prc->p_pa_loop_);
       p_op = pa_context_set_sink_input_volume (
-          ap_prc->p_pa_context_, pa_stream_get_index (ap_prc->p_pa_stream_),
-          &cvolume, NULL, NULL);
+        ap_prc->p_pa_context_, pa_stream_get_index (ap_prc->p_pa_stream_),
+        &cvolume, NULL, NULL);
       if (!p_op)
         {
-          TIZ_PRINTF_DBG_YEL ("Unable to set pulsaudio volume\n");
+          TIZ_DEBUG (handleOf (ap_prc), "Unable to set pulsaudio volume");
           ap_prc->pending_volume_ = a_volume;
         }
       else
@@ -815,10 +845,16 @@ static bool set_pa_sink_volume (pulsear_prc_t *ap_prc, const long a_volume)
         }
       pa_threaded_mainloop_unlock (ap_prc->p_pa_loop_);
     }
+  else
+    {
+      TIZ_WARN (handleOf (ap_prc), "Unable to set sink volume");
+      ap_prc->pending_volume_ = a_volume;
+    }
   return rc;
 }
 
-static void toggle_mute (pulsear_prc_t *ap_prc, const bool a_mute)
+static void
+toggle_mute (pulsear_prc_t * ap_prc, const bool a_mute)
 {
   assert (ap_prc);
 
@@ -830,10 +866,10 @@ static void toggle_mute (pulsear_prc_t *ap_prc, const bool a_mute)
   }
 }
 
-static void set_volume (pulsear_prc_t *ap_prc, const long a_volume)
+static void
+set_volume (pulsear_prc_t * ap_prc, const long a_volume)
 {
-  TIZ_DEBUG (handleOf(ap_prc), "ap_prc->volume_ [%d]",
-             ap_prc->volume_);
+  TIZ_DEBUG (handleOf (ap_prc), "ap_prc->volume_ [%d]", ap_prc->volume_);
   if (set_pa_sink_volume (ap_prc, a_volume))
     {
       assert (ap_prc);
@@ -842,12 +878,17 @@ static void set_volume (pulsear_prc_t *ap_prc, const long a_volume)
     }
 }
 
-static void prepare_volume_ramp (pulsear_prc_t *ap_prc)
+static void
+prepare_volume_ramp (pulsear_prc_t * ap_prc)
 {
   assert (ap_prc);
   pa_volume_t vol = ARATELIA_PCM_RENDERER_DEFAULT_VOLUME_VALUE;
-  (void)pa_cvolume_init (&(ap_prc->pa_vol_));
-  (void)pa_cvolume_set (&(ap_prc->pa_vol_), ap_prc->pcmmode_.nChannels, vol);
+  (void) pa_cvolume_init (&(ap_prc->pa_vol_));
+  ap_prc->pa_vol_.channels = ap_prc->pcmmode_.nChannels;
+  (void) pa_cvolume_set (&(ap_prc->pa_vol_), ap_prc->pa_vol_.channels, vol);
+
+  TIZ_DEBUG (handleOf (ap_prc), "pa_vol_.channels[%d]",
+             ap_prc->pa_vol_.channels);
 
   if (ap_prc->ramp_enabled_)
     {
@@ -855,14 +896,15 @@ static void prepare_volume_ramp (pulsear_prc_t *ap_prc)
       set_volume (ap_prc, ap_prc->ramp_volume_);
       ap_prc->ramp_volume_ = ARATELIA_PCM_RENDERER_DEFAULT_VOLUME_VALUE;
       ap_prc->ramp_step_count_ = ARATELIA_PCM_RENDERER_DEFAULT_RAMP_STEP_COUNT;
-      ap_prc->ramp_step_ = (double)ap_prc->ramp_volume_
-                           / (double)ap_prc->ramp_step_count_;
+      ap_prc->ramp_step_
+        = (double) ap_prc->ramp_volume_ / (double) ap_prc->ramp_step_count_;
       TIZ_TRACE (handleOf (ap_prc), "ramp_step_ = [%d] ramp_step_count_ = [%d]",
                  ap_prc->ramp_step_, ap_prc->ramp_step_count_);
     }
 }
 
-static OMX_ERRORTYPE start_volume_ramp (pulsear_prc_t *ap_prc)
+static OMX_ERRORTYPE
+start_volume_ramp (pulsear_prc_t * ap_prc)
 {
   assert (ap_prc);
   if (ap_prc->ramp_enabled_)
@@ -873,25 +915,27 @@ static OMX_ERRORTYPE start_volume_ramp (pulsear_prc_t *ap_prc)
           TIZ_TRACE (handleOf (ap_prc), "ramp_volume_ = [%d]",
                      ap_prc->ramp_volume_);
           tiz_check_omx (tiz_srv_timer_watcher_start (
-              ap_prc, ap_prc->p_ev_timer_, 0.2, 0.2));
+            ap_prc, ap_prc->p_ev_timer_, 0.2, 0.2));
         }
     }
   return OMX_ErrorNone;
 }
 
-static void stop_volume_ramp (pulsear_prc_t *ap_prc)
+static void
+stop_volume_ramp (pulsear_prc_t * ap_prc)
 {
   assert (ap_prc);
   if (ap_prc->ramp_enabled_)
     {
       if (ap_prc->p_ev_timer_)
         {
-          (void)tiz_srv_timer_watcher_stop (ap_prc, ap_prc->p_ev_timer_);
+          (void) tiz_srv_timer_watcher_stop (ap_prc, ap_prc->p_ev_timer_);
         }
     }
 }
 
-static OMX_ERRORTYPE apply_ramp_step (pulsear_prc_t *ap_prc)
+static OMX_ERRORTYPE
+apply_ramp_step (pulsear_prc_t * ap_prc)
 {
   assert (ap_prc);
   if (ap_prc->ramp_enabled_)
@@ -915,10 +959,11 @@ static OMX_ERRORTYPE apply_ramp_step (pulsear_prc_t *ap_prc)
  * pulsearprc
  */
 
-static void *pulsear_prc_ctor (void *ap_prc, va_list *app)
+static void *
+pulsear_prc_ctor (void * ap_prc, va_list * app)
 {
-  pulsear_prc_t *p_prc
-      = super_ctor (typeOf (ap_prc, "pulsearprc"), ap_prc, app);
+  pulsear_prc_t * p_prc
+    = super_ctor (typeOf (ap_prc, "pulsearprc"), ap_prc, app);
   p_prc->p_inhdr_ = NULL;
   p_prc->port_disabled_ = false;
   p_prc->paused_ = false;
@@ -939,9 +984,10 @@ static void *pulsear_prc_ctor (void *ap_prc, va_list *app)
   return p_prc;
 }
 
-static void *pulsear_prc_dtor (void *ap_prc)
+static void *
+pulsear_prc_dtor (void * ap_prc)
 {
-  (void)pulsear_prc_deallocate_resources (ap_prc);
+  (void) pulsear_prc_deallocate_resources (ap_prc);
   return super_dtor (typeOf (ap_prc, "pulsearprc"), ap_prc);
 }
 
@@ -949,33 +995,33 @@ static void *pulsear_prc_dtor (void *ap_prc)
  * from tizsrv class
  */
 
-static OMX_ERRORTYPE pulsear_prc_allocate_resources (void *ap_prc,
-                                                     OMX_U32 a_pid)
+static OMX_ERRORTYPE
+pulsear_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
 {
-  pulsear_prc_t *p_prc = ap_prc;
+  pulsear_prc_t * p_prc = ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (p_prc);
   /* If the timer event has already been initialised, we assume the whole
      component has already been initialised. */
   if (!(p_prc->p_ev_timer_))
     {
-      set_volume(ap_prc, ARATELIA_PCM_RENDERER_DEFAULT_VOLUME_VALUE);
-      tiz_check_omx (
-          tiz_srv_timer_watcher_init (p_prc, &(p_prc->p_ev_timer_)));
+      set_volume (ap_prc, p_prc->volume_);
+      tiz_check_omx (tiz_srv_timer_watcher_init (p_prc, &(p_prc->p_ev_timer_)));
       rc = init_pulseaudio (ap_prc);
     }
   return rc;
 }
 
-static OMX_ERRORTYPE pulsear_prc_deallocate_resources (void *ap_prc)
+static OMX_ERRORTYPE
+pulsear_prc_deallocate_resources (void * ap_prc)
 {
-  pulsear_prc_t *p_prc = ap_prc;
+  pulsear_prc_t * p_prc = ap_prc;
   assert (p_prc);
   TIZ_TRACE (handleOf (p_prc), "port disabled ? [%s]",
              p_prc->port_disabled_ ? "YES" : "NO");
   if (p_prc->p_ev_timer_)
     {
-      (void)tiz_srv_timer_watcher_stop (p_prc, p_prc->p_ev_timer_);
+      (void) tiz_srv_timer_watcher_stop (p_prc, p_prc->p_ev_timer_);
       tiz_srv_timer_watcher_destroy (p_prc, p_prc->p_ev_timer_);
       p_prc->p_ev_timer_ = NULL;
     }
@@ -983,10 +1029,10 @@ static OMX_ERRORTYPE pulsear_prc_deallocate_resources (void *ap_prc)
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE pulsear_prc_prepare_to_transfer (void *ap_prc,
-                                                      OMX_U32 a_pid)
+static OMX_ERRORTYPE
+pulsear_prc_prepare_to_transfer (void * ap_prc, OMX_U32 a_pid)
 {
-  pulsear_prc_t *p_prc = ap_prc;
+  pulsear_prc_t * p_prc = ap_prc;
   assert (p_prc);
   p_prc->ramp_step_ = 0;
   p_prc->ramp_step_count_ = ARATELIA_PCM_RENDERER_DEFAULT_RAMP_STEP_COUNT;
@@ -994,10 +1040,10 @@ static OMX_ERRORTYPE pulsear_prc_prepare_to_transfer (void *ap_prc,
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE pulsear_prc_transfer_and_process (void *ap_prc,
-                                                       OMX_U32 a_pid)
+static OMX_ERRORTYPE
+pulsear_prc_transfer_and_process (void * ap_prc, OMX_U32 a_pid)
 {
-  pulsear_prc_t *p_prc = ap_prc;
+  pulsear_prc_t * p_prc = ap_prc;
   assert (ap_prc);
   p_prc->stopped_ = false;
   prepare_volume_ramp (p_prc);
@@ -1006,9 +1052,10 @@ static OMX_ERRORTYPE pulsear_prc_transfer_and_process (void *ap_prc,
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE pulsear_prc_stop_and_return (void *ap_prc)
+static OMX_ERRORTYPE
+pulsear_prc_stop_and_return (void * ap_prc)
 {
-  pulsear_prc_t *p_prc = ap_prc;
+  pulsear_prc_t * p_prc = ap_prc;
   assert (ap_prc);
   p_prc->stopped_ = true;
   stop_volume_ramp (ap_prc);
@@ -1019,9 +1066,10 @@ static OMX_ERRORTYPE pulsear_prc_stop_and_return (void *ap_prc)
  * from tizprc class
  */
 
-static OMX_ERRORTYPE pulsear_prc_buffers_ready (const void *ap_prc)
+static OMX_ERRORTYPE
+pulsear_prc_buffers_ready (const void * ap_prc)
 {
-  pulsear_prc_t *p_prc = (pulsear_prc_t *)ap_prc;
+  pulsear_prc_t * p_prc = (pulsear_prc_t *) ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (p_prc);
   if (ready_to_process (p_prc))
@@ -1031,11 +1079,11 @@ static OMX_ERRORTYPE pulsear_prc_buffers_ready (const void *ap_prc)
   return rc;
 }
 
-static OMX_ERRORTYPE pulsear_prc_timer_ready (void *ap_prc,
-                                              tiz_event_timer_t *ap_ev_timer,
-                                              void *ap_arg, const uint32_t a_id)
+static OMX_ERRORTYPE
+pulsear_prc_timer_ready (void * ap_prc, tiz_event_timer_t * ap_ev_timer,
+                         void * ap_arg, const uint32_t a_id)
 {
-  pulsear_prc_t *p_prc = (pulsear_prc_t *)ap_prc;
+  pulsear_prc_t * p_prc = (pulsear_prc_t *) ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (p_prc);
   TIZ_TRACE (handleOf (ap_prc), "Received timer event");
@@ -1047,9 +1095,10 @@ static OMX_ERRORTYPE pulsear_prc_timer_ready (void *ap_prc,
   return rc;
 }
 
-static OMX_ERRORTYPE pulsear_prc_pause (const void *ap_prc)
+static OMX_ERRORTYPE
+pulsear_prc_pause (const void * ap_prc)
 {
-  pulsear_prc_t *p_prc = (pulsear_prc_t *)ap_prc;
+  pulsear_prc_t * p_prc = (pulsear_prc_t *) ap_prc;
   assert (p_prc);
 
   p_prc->paused_ = true;
@@ -1060,9 +1109,8 @@ static OMX_ERRORTYPE pulsear_prc_pause (const void *ap_prc)
       pa_threaded_mainloop_lock (p_prc->p_pa_loop_);
       if (!pa_stream_is_corked (p_prc->p_pa_stream_))
         {
-          pa_operation *p_op
-              = pa_stream_cork (p_prc->p_pa_stream_, true,
-                                pulseaudio_stream_success_cback, p_prc);
+          pa_operation * p_op = pa_stream_cork (
+            p_prc->p_pa_stream_, true, pulseaudio_stream_success_cback, p_prc);
           if (p_op)
             {
               if (!pulseaudio_wait_for_operation (p_prc, p_op))
@@ -1077,9 +1125,10 @@ static OMX_ERRORTYPE pulsear_prc_pause (const void *ap_prc)
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE pulsear_prc_resume (const void *ap_prc)
+static OMX_ERRORTYPE
+pulsear_prc_resume (const void * ap_prc)
 {
-  pulsear_prc_t *p_prc = (pulsear_prc_t *)ap_prc;
+  pulsear_prc_t * p_prc = (pulsear_prc_t *) ap_prc;
   assert (p_prc);
 
   p_prc->paused_ = false;
@@ -1089,9 +1138,8 @@ static OMX_ERRORTYPE pulsear_prc_resume (const void *ap_prc)
       pa_threaded_mainloop_lock (p_prc->p_pa_loop_);
       if (pa_stream_is_corked (p_prc->p_pa_stream_))
         {
-          pa_operation *p_op
-              = pa_stream_cork (p_prc->p_pa_stream_, false,
-                                pulseaudio_stream_success_cback, p_prc);
+          pa_operation * p_op = pa_stream_cork (
+            p_prc->p_pa_stream_, false, pulseaudio_stream_success_cback, p_prc);
           if (p_op)
             {
               if (!pulseaudio_wait_for_operation (p_prc, p_op))
@@ -1106,17 +1154,19 @@ static OMX_ERRORTYPE pulsear_prc_resume (const void *ap_prc)
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE pulsear_prc_port_flush (const void *ap_obj,
-                                             OMX_U32 TIZ_UNUSED (a_pid))
+static OMX_ERRORTYPE
+pulsear_prc_port_flush (const void * ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
 {
-  return do_flush ((pulsear_prc_t *)ap_obj);
+  return do_flush ((pulsear_prc_t *) ap_obj);
 }
 
-static OMX_ERRORTYPE pulsear_prc_port_disable (const void *ap_prc,
-                                               OMX_U32 TIZ_UNUSED (a_pid))
+static OMX_ERRORTYPE
+pulsear_prc_port_disable (const void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid))
 {
-  pulsear_prc_t *p_prc = (pulsear_prc_t *)ap_prc;
+  pulsear_prc_t * p_prc = (pulsear_prc_t *) ap_prc;
   assert (p_prc);
+  TIZ_DEBUG (handleOf (p_prc), "p_prc->port_disabled_ [%s] p_prc->volume_ [%d]",
+             (p_prc->port_disabled_ ? "YES" : "NO"), p_prc->volume_);
   if (!p_prc->port_disabled_)
     {
       p_prc->port_disabled_ = true;
@@ -1124,7 +1174,7 @@ static OMX_ERRORTYPE pulsear_prc_port_disable (const void *ap_prc,
       if (p_prc->p_pa_loop_ && p_prc->p_pa_stream_
           && PA_STREAM_READY == p_prc->pa_stream_state_)
         {
-          pa_operation *p_op = NULL;
+          pa_operation * p_op = NULL;
           pa_threaded_mainloop_lock (p_prc->p_pa_loop_);
           p_op = pa_stream_flush (p_prc->p_pa_stream_,
                                   pulseaudio_stream_success_cback, p_prc);
@@ -1141,14 +1191,16 @@ static OMX_ERRORTYPE pulsear_prc_port_disable (const void *ap_prc,
     }
 
   /* Release any buffers held  */
-  return release_header ((pulsear_prc_t *)p_prc);
+  return release_header ((pulsear_prc_t *) p_prc);
 }
 
-static OMX_ERRORTYPE pulsear_prc_port_enable (const void *ap_obj,
-                                              OMX_U32 TIZ_UNUSED (a_pid))
+static OMX_ERRORTYPE
+pulsear_prc_port_enable (const void * ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
 {
-  pulsear_prc_t *p_prc = (pulsear_prc_t *)ap_obj;
+  pulsear_prc_t * p_prc = (pulsear_prc_t *) ap_obj;
   assert (p_prc);
+  TIZ_DEBUG (handleOf (p_prc), "p_prc->port_disabled_ [%s] p_prc->volume_ [%d]",
+             (p_prc->port_disabled_ ? "YES" : "NO"), p_prc->volume_);
   if (p_prc->port_disabled_)
     {
       p_prc->port_disabled_ = false;
@@ -1160,29 +1212,31 @@ static OMX_ERRORTYPE pulsear_prc_port_enable (const void *ap_obj,
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE pulsear_prc_config_change (void *ap_obj, OMX_U32 a_pid,
-                                                OMX_INDEXTYPE a_config_idx)
+static OMX_ERRORTYPE
+pulsear_prc_config_change (void * ap_obj, OMX_U32 a_pid,
+                           OMX_INDEXTYPE a_config_idx)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  pulsear_prc_t *p_prc = ap_obj;
+  pulsear_prc_t * p_prc = ap_obj;
   assert (ap_obj);
-  TIZ_PRINTF_DBG_YEL ("[pulsear_prc_config_change] : [%s]\n",
-                      tiz_idx_to_str (a_config_idx));
+  TIZ_DEBUG (handleOf (p_prc), "[pulsear_prc_config_change] : [%s]",
+             tiz_idx_to_str (a_config_idx));
   if (ARATELIA_PCM_RENDERER_PORT_INDEX == a_pid)
     {
       if (OMX_IndexConfigAudioVolume == a_config_idx)
         {
           OMX_AUDIO_CONFIG_VOLUMETYPE volume;
           TIZ_INIT_OMX_PORT_STRUCT (volume, ARATELIA_PCM_RENDERER_PORT_INDEX);
-          tiz_check_omx (tiz_api_GetConfig (
-              tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
-              OMX_IndexConfigAudioVolume, &volume));
-          TIZ_PRINTF_DBG_YEL (
-              "[OMX_IndexConfigAudioVolume] : volume.sVolume.nValue = %ld\n",
-              volume.sVolume.nValue);
+          tiz_check_omx (
+            tiz_api_GetConfig (tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
+                               OMX_IndexConfigAudioVolume, &volume));
+          TIZ_DEBUG (
+            handleOf (p_prc),
+            "[OMX_IndexConfigAudioVolume] : volume.sVolume.nValue = %ld",
+            volume.sVolume.nValue);
           if (volume.sVolume.nValue <= ARATELIA_PCM_RENDERER_MAX_VOLUME_VALUE
               && volume.sVolume.nValue
-                 >= ARATELIA_PCM_RENDERER_MIN_VOLUME_VALUE)
+                   >= ARATELIA_PCM_RENDERER_MIN_VOLUME_VALUE)
             {
               set_volume (p_prc, volume.sVolume.nValue);
             }
@@ -1191,11 +1245,11 @@ static OMX_ERRORTYPE pulsear_prc_config_change (void *ap_obj, OMX_U32 a_pid,
         {
           OMX_AUDIO_CONFIG_MUTETYPE mute;
           TIZ_INIT_OMX_PORT_STRUCT (mute, ARATELIA_PCM_RENDERER_PORT_INDEX);
-          tiz_check_omx (tiz_api_GetConfig (
-              tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
-              OMX_IndexConfigAudioMute, &mute));
-          TIZ_PRINTF_DBG_YEL (
-                     "[OMX_IndexConfigAudioMute] : bMute = [%s]\n",
+          tiz_check_omx (tiz_api_GetConfig (tiz_get_krn (handleOf (p_prc)),
+                                            handleOf (p_prc),
+                                            OMX_IndexConfigAudioMute, &mute));
+          TIZ_DEBUG (handleOf (p_prc),
+                     "[OMX_IndexConfigAudioMute] : bMute = [%s]",
                      (mute.bMute == OMX_FALSE ? "FALSE" : "TRUE"));
           toggle_mute (p_prc, mute.bMute == OMX_TRUE ? true : false);
         }
@@ -1207,7 +1261,8 @@ static OMX_ERRORTYPE pulsear_prc_config_change (void *ap_obj, OMX_U32 a_pid,
  * pulsear_prc_class
  */
 
-static void *pulsear_prc_class_ctor (void *ap_obj, va_list *app)
+static void *
+pulsear_prc_class_ctor (void * ap_obj, va_list * app)
 {
   /* NOTE: Class methods might be added in the future. None for now. */
   return super_ctor (typeOf (ap_obj, "pulsearprc_class"), ap_obj, app);
@@ -1217,64 +1272,66 @@ static void *pulsear_prc_class_ctor (void *ap_obj, va_list *app)
  * initialization
  */
 
-void *pulsear_prc_class_init (void *ap_tos, void *ap_hdl)
+void *
+pulsear_prc_class_init (void * ap_tos, void * ap_hdl)
 {
-  void *tizprc = tiz_get_type (ap_hdl, "tizprc");
-  void *pulsearprc_class = factory_new
-      /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-      (classOf (tizprc), "pulsearprc_class", classOf (tizprc),
-       sizeof(pulsear_prc_class_t),
-       /* TIZ_CLASS_COMMENT: */
-       ap_tos, ap_hdl,
-       /* TIZ_CLASS_COMMENT: class constructor */
-       ctor, pulsear_prc_class_ctor,
-       /* TIZ_CLASS_COMMENT: stop value*/
-       0);
+  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void * pulsearprc_class = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (classOf (tizprc), "pulsearprc_class", classOf (tizprc),
+     sizeof (pulsear_prc_class_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, pulsear_prc_class_ctor,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
   return pulsearprc_class;
 }
 
-void *pulsear_prc_init (void *ap_tos, void *ap_hdl)
+void *
+pulsear_prc_init (void * ap_tos, void * ap_hdl)
 {
-  void *tizprc = tiz_get_type (ap_hdl, "tizprc");
-  void *pulsearprc_class = tiz_get_type (ap_hdl, "pulsearprc_class");
+  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void * pulsearprc_class = tiz_get_type (ap_hdl, "pulsearprc_class");
   TIZ_LOG_CLASS (pulsearprc_class);
-  void *pulsearprc = factory_new
-      /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-      (pulsearprc_class, "pulsearprc", tizprc, sizeof(pulsear_prc_t),
-       /* TIZ_CLASS_COMMENT: */
-       ap_tos, ap_hdl,
-       /* TIZ_CLASS_COMMENT: class constructor */
-       ctor, pulsear_prc_ctor,
-       /* TIZ_CLASS_COMMENT: class destructor */
-       dtor, pulsear_prc_dtor,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_allocate_resources, pulsear_prc_allocate_resources,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_deallocate_resources, pulsear_prc_deallocate_resources,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_prepare_to_transfer, pulsear_prc_prepare_to_transfer,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_transfer_and_process, pulsear_prc_transfer_and_process,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_stop_and_return, pulsear_prc_stop_and_return,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_timer_ready, pulsear_prc_timer_ready,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_buffers_ready, pulsear_prc_buffers_ready,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_pause, pulsear_prc_pause,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_resume, pulsear_prc_resume,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_port_flush, pulsear_prc_port_flush,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_port_disable, pulsear_prc_port_disable,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_port_enable, pulsear_prc_port_enable,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_config_change, pulsear_prc_config_change,
-       /* TIZ_CLASS_COMMENT: stop value */
-       0);
+  void * pulsearprc = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (pulsearprc_class, "pulsearprc", tizprc, sizeof (pulsear_prc_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, pulsear_prc_ctor,
+     /* TIZ_CLASS_COMMENT: class destructor */
+     dtor, pulsear_prc_dtor,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_allocate_resources, pulsear_prc_allocate_resources,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_deallocate_resources, pulsear_prc_deallocate_resources,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_prepare_to_transfer, pulsear_prc_prepare_to_transfer,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_transfer_and_process, pulsear_prc_transfer_and_process,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_stop_and_return, pulsear_prc_stop_and_return,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_timer_ready, pulsear_prc_timer_ready,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_buffers_ready, pulsear_prc_buffers_ready,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_pause, pulsear_prc_pause,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_resume, pulsear_prc_resume,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_port_flush, pulsear_prc_port_flush,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_port_disable, pulsear_prc_port_disable,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_port_enable, pulsear_prc_port_enable,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_config_change, pulsear_prc_config_change,
+     /* TIZ_CLASS_COMMENT: stop value */
+     0);
 
   return pulsearprc;
 }
