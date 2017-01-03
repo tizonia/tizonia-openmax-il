@@ -108,7 +108,6 @@ static void
 ready_playlist_map_free_func (OMX_PTR ap_key, OMX_PTR ap_value)
 {
   tiz_mem_free (ap_key);
-  tiz_mem_free (ap_value);
 }
 
 static OMX_S32
@@ -128,8 +127,7 @@ not_ready_playlist_map_compare_func (OMX_PTR ap_key1, OMX_PTR ap_key2)
 static void
 not_ready_playlist_map_free_func (OMX_PTR ap_key, OMX_PTR ap_value)
 {
-  tiz_mem_free (ap_key);
-  tiz_mem_free (ap_value);
+/*   tiz_mem_free (ap_key); */
 }
 
 static unsigned int
