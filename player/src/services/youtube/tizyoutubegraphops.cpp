@@ -98,7 +98,19 @@ void graph::youtubeops::do_disable_comp_ports (const int comp_id,
     add_expected_port_transition (handles_[comp_id], youtube_source_port,
                                   OMX_CommandPortDisable);
   }
-  else if (comp_id == 1)
+  else if (comp_id == 1 && port_id == 0)
+  {
+    // Disable the demuxer's input port
+    OMX_U32 demuxer_input_port = 0;
+    G_OPS_BAIL_IF_ERROR (
+        util::disable_port (handles_[comp_id], demuxer_input_port),
+        "Unable to disable demuxer's audio port.");
+
+    add_expected_port_transition (handles_[comp_id], demuxer_input_port,
+                                  OMX_CommandPortDisable);
+  }
+
+  else if (comp_id == 1 && port_id == 1)
   {
     // Disable the demuxer's input port
     OMX_U32 demuxer_input_port = 0;

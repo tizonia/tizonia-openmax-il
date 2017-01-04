@@ -257,7 +257,8 @@ namespace tiz
                                                                                                                         tg::do_configure_comp<3>,
                                                                                                                         tg::do_setup_tunnel<1>,
                                                                                                                         tg::do_setup_tunnel<2>,
-                                                                                                                        tg::do_disable_tunnel<1> > > , bmf::none                   >,
+                                                                                                                        tg::do_disable_tunnel<1>
+                                                                                                                        > >                       , bmf::none                      >,
           //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+--------------------------------+
           bmf::Row < tg::awaiting_port_disabled_evt , tg::omx_port_disabled_evt , tg::config2idle                 , tg::do_loaded2idle_tunnel<2>  , tg::is_port_disabling_complete >,
           //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+--------------------------------+
@@ -335,8 +336,9 @@ namespace tiz
           bmf::Row < tg::awaiting_port_disabled_evt , tg::omx_port_disabled_evt , tg::enabling_tunnel             , bmf::ActionSequence_<
                                                                                                                       boost::mpl::vector<
                                                                                                                         tg::do_reconfigure_tunnel<tunnel_id>,
-                                                                                                                        tg::do_enable_tunnel<tunnel_id> > >  , tg::is_port_disabling_complete >,
-          bmf::Row < tg::awaiting_port_disabled_evt , tg::skip_evt              , bmf::none                       , bmf::Defer                                                                >,
+                                                                                                                        tg::do_enable_tunnel<tunnel_id>
+                                                                                                                        > >                          , tg::is_port_disabling_complete >,
+          bmf::Row < tg::awaiting_port_disabled_evt , tg::skip_evt              , bmf::none                       , bmf::Defer                                                        >,
           //    +--+--------------------------------+---------------------------+---------------------------------+----------------------------------+--------------------------------+
           bmf::Row < tg::enabling_tunnel            , tg::omx_port_enabled_evt  , reconfiguring_tunnel_exit       , bmf::none                        , tg::is_port_enabling_complete  >
           //    +--+--------------------------------+---------------------------+---------------------------------+----------------------------------+--------------------------------+
@@ -422,7 +424,8 @@ namespace tiz
           bmf::Row < skipping_initial          , bmf::none                 , tg::disabling_tunnel        , bmf::ActionSequence_<
                                                                                                              boost::mpl::vector<
                                                                                                                tg::do_mute,
-                                                                                                               tg::do_disable_tunnel<0> > >                               >,
+                                                                                                               tg::do_disable_tunnel<0>
+                                                                                                               > >                                                    >,
           bmf::Row < tg::disabling_tunnel      , tg::skip_evt              , bmf::none                   , bmf::Defer                                                 >,
           bmf::Row < tg::disabling_tunnel      , tg::omx_port_disabled_evt , tg::disabling_2nd_tunnel    , tg::do_disable_tunnel<1>  , tg::is_port_disabling_complete >,
           bmf::Row < tg::disabling_2nd_tunnel  , tg::skip_evt              , bmf::none                   , bmf::Defer                                                 >,
@@ -435,7 +438,8 @@ namespace tiz
                                                                                                                tg::do_destroy_comp<3>,
                                                                                                                tg::do_destroy_comp<2>,
                                                                                                                tg::do_destroy_comp<1>,
-                                                                                                             tg::do_skip > >         , tg::is_port_disabling_complete >
+                                                                                                               tg::do_skip
+                                                                                                             > >                     , tg::is_port_disabling_complete >
           //    +----+-------------------------+---------------------------+-----------------------------+---------------------------+---------------------------------+
           > {};
 
@@ -508,11 +512,10 @@ namespace tiz
         bmf::Row < tg::executing                , tg::volume_step_evt       , bmf::none               , tg::do_volume_step                                         >,
         bmf::Row < tg::executing                , tg::volume_evt            , bmf::none               , tg::do_volume                                              >,
         bmf::Row < tg::executing                , tg::mute_evt              , bmf::none               , tg::do_mute                                                >,
-        bmf::Row < tg::executing                , tg::skip_evt              , skipping                , tg::do_store_skip                                          >,
-        bmf::Row < tg::executing                , tg::omx_eos_evt           , bmf::none               , tg::do_retrieve_metadata    , tg::is_last_eos              >,
-        bmf::Row < tg::executing                , tg::omx_eos_evt           , bmf::none               , tg::do_skip                 , tg::is_first_eos             >,
         bmf::Row < tg::executing                , tg::omx_err_evt           , skipping                , bmf::none                   , tg::is_error<OMX_ErrorStreamCorruptFatal> >,
         bmf::Row < tg::executing                , tg::omx_err_evt           , skipping                , bmf::none                   , tg::is_error<OMX_ErrorFormatNotDetected> >,
+        bmf::Row < tg::executing                , tg::skip_evt              , skipping                , tg::do_store_skip           , bmf::none                    >,
+        bmf::Row < tg::executing                , tg::omx_eos_evt           , skipping                , bmf::none                   , tg::is_last_eos              >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < tg::exe2pause                , tg::omx_trans_evt         , tg::pause               , tg::do_ack_paused           , tg::is_trans_complete        >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
@@ -526,12 +529,12 @@ namespace tiz
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < tg::pause2exe                , tg::omx_trans_evt         , tg::executing           , tg::do_ack_unpaused         , tg::is_trans_complete        >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
-        bmf::Row < tg::pause2idle               , tg::omx_trans_evt         , tg::idle2loaded         , tg::do_idle2loaded      , tg::is_trans_complete            >,
+        bmf::Row < tg::pause2idle               , tg::omx_trans_evt         , tg::idle2loaded         , tg::do_idle2loaded          , tg::is_trans_complete        >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < reconfiguring_tunnel_0
                    ::exit_pt
                    <reconfiguring_tunnel_<0>
-                    ::reconfiguring_tunnel_exit> , tg::tunnel_reconfigured_evt, tg::executing           , tg::do_mute                                              >,
+                    ::reconfiguring_tunnel_exit>, tg::tunnel_reconfigured_evt, tg::executing          , tg::do_mute                                                >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < reconfiguring_tunnel_1
                    ::exit_pt
