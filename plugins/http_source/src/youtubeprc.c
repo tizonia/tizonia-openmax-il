@@ -318,8 +318,8 @@ send_port_auto_detect_events (youtube_prc_t * ap_prc)
     {
       TIZ_DEBUG (
         handleOf (ap_prc),
-        "Issuing OMX_EventPortFormatDetected - audio_coding_type_ [%X]",
-        ap_prc->audio_coding_type_);
+        "Issuing OMX_EventPortFormatDetected - audio_coding_type_ [%s]",
+        tiz_audio_coding_to_str (ap_prc->audio_coding_type_));
       tiz_srv_issue_event ((OMX_PTR) ap_prc, OMX_EventPortFormatDetected, 0, 0,
                            NULL);
       TIZ_DEBUG (handleOf (ap_prc), "Issuing OMX_EventPortSettingsChanged");
@@ -591,6 +591,21 @@ connection_lost (OMX_PTR ap_arg)
   TIZ_PRINTF_DBG_RED ("connection_lost - bytes_before_eos_ [%d]\n",
                       p_prc->bytes_before_eos_);
 
+  if (p_prc->auto_detect_on_)
+    {
+      /* Oops... unable to connect to the station */
+
+      /* Make sure this url will not get processed again... */
+      p_prc->remove_current_url_ = true;
+
+      /* Get ready to auto-detect another stream */
+      set_auto_detect_on_port (p_prc);
+      prepare_for_port_auto_detection (p_prc);
+
+      /* Signal the client */
+      tiz_srv_issue_err_event ((OMX_PTR) p_prc, OMX_ErrorFormatNotDetected);
+    }
+
   /* Return false to indicate that there is no need to start the automatic
      reconnection procedure */
   return false;
@@ -611,8 +626,8 @@ prepare_for_port_auto_detection (youtube_prc_t * ap_prc)
     = (OMX_AUDIO_CodingAutoDetect == ap_prc->audio_coding_type_) ? true : false;
 
   TIZ_TRACE (
-    handleOf (ap_prc), "auto_detect_on_ [%s]...audio_coding_type_ [%d]",
-    ap_prc->auto_detect_on_ ? "true" : "false", ap_prc->audio_coding_type_);
+    handleOf (ap_prc), "auto_detect_on_ [%s]...audio_coding_type_ [%s]",
+    ap_prc->auto_detect_on_ ? "true" : "false", tiz_audio_coding_to_str (ap_prc->audio_coding_type_));
 
   return OMX_ErrorNone;
 }
