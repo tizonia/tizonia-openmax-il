@@ -516,7 +516,7 @@ static void
 reset_stream_parameters (opusd_prc_t * ap_prc)
 {
   assert (ap_prc);
-  TIZ_DEBUG (handleOf(ap_prc), "Resetting stream parameters");
+  TIZ_DEBUG (handleOf (ap_prc), "Resetting stream parameters");
   ap_prc->packet_count_ = 0;
   ap_prc->rate_ = 0;
   ap_prc->mapping_family_ = 0;
@@ -600,7 +600,6 @@ opusd_prc_prepare_to_transfer (void * ap_obj, OMX_U32 a_pid)
   TIZ_TRACE (handleOf (p_prc),
              "sample rate renderer = [%d] channels renderer = [%d]",
              p_prc->pcmmode_.nSamplingRate, p_prc->pcmmode_.nChannels);
-
 
   reset_stream_parameters (ap_obj);
   return OMX_ErrorNone;
