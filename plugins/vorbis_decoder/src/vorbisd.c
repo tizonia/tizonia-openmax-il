@@ -55,26 +55,27 @@
  *@ingroup plugins
  */
 
-static OMX_VERSIONTYPE vorbis_decoder_version = { { 1, 0, 0, 0 } };
+static OMX_VERSIONTYPE vorbis_decoder_version = {{1, 0, 0, 0}};
 
-static OMX_PTR instantiate_input_port (OMX_HANDLETYPE ap_hdl)
+static OMX_PTR
+instantiate_input_port (OMX_HANDLETYPE ap_hdl)
 {
   OMX_AUDIO_PARAM_VORBISTYPE vorbistype;
   OMX_AUDIO_CODINGTYPE encodings[]
-      = { OMX_AUDIO_CodingVORBIS, OMX_AUDIO_CodingMax };
-  tiz_port_options_t vorbis_port_opts
-      = { OMX_PortDomainAudio,
-          OMX_DirInput,
-          ARATELIA_VORBIS_DECODER_PORT_MIN_BUF_COUNT,
-          ARATELIA_VORBIS_DECODER_PORT_MIN_INPUT_BUF_SIZE,
-          ARATELIA_VORBIS_DECODER_PORT_NONCONTIGUOUS,
-          ARATELIA_VORBIS_DECODER_PORT_ALIGNMENT,
-          ARATELIA_VORBIS_DECODER_PORT_SUPPLIERPREF,
-          { ARATELIA_VORBIS_DECODER_INPUT_PORT_INDEX, NULL, NULL, NULL },
-          1 /* slave port's index  */
-      };
+    = {OMX_AUDIO_CodingVORBIS, OMX_AUDIO_CodingMax};
+  tiz_port_options_t vorbis_port_opts = {
+    OMX_PortDomainAudio,
+    OMX_DirInput,
+    ARATELIA_VORBIS_DECODER_PORT_MIN_BUF_COUNT,
+    ARATELIA_VORBIS_DECODER_PORT_MIN_INPUT_BUF_SIZE,
+    ARATELIA_VORBIS_DECODER_PORT_NONCONTIGUOUS,
+    ARATELIA_VORBIS_DECODER_PORT_ALIGNMENT,
+    ARATELIA_VORBIS_DECODER_PORT_SUPPLIERPREF,
+    {ARATELIA_VORBIS_DECODER_INPUT_PORT_INDEX, NULL, NULL, NULL},
+    1 /* slave port's index  */
+  };
 
-  vorbistype.nSize = sizeof(OMX_AUDIO_PARAM_VORBISTYPE);
+  vorbistype.nSize = sizeof (OMX_AUDIO_PARAM_VORBISTYPE);
   vorbistype.nVersion.nVersion = OMX_VERSION;
   vorbistype.nPortIndex = 0;
   vorbistype.nChannels = 2;
@@ -90,27 +91,27 @@ static OMX_PTR instantiate_input_port (OMX_HANDLETYPE ap_hdl)
                       &encodings, &vorbistype);
 }
 
-static OMX_PTR instantiate_output_port (OMX_HANDLETYPE ap_hdl)
+static OMX_PTR
+instantiate_output_port (OMX_HANDLETYPE ap_hdl)
 {
   OMX_AUDIO_PARAM_PCMMODETYPE pcmmode;
   OMX_AUDIO_CONFIG_VOLUMETYPE volume;
   OMX_AUDIO_CONFIG_MUTETYPE mute;
-  OMX_AUDIO_CODINGTYPE encodings[]
-      = { OMX_AUDIO_CodingPCM, OMX_AUDIO_CodingMax };
-  tiz_port_options_t pcm_port_opts
-      = { OMX_PortDomainAudio,
-          OMX_DirOutput,
-          ARATELIA_VORBIS_DECODER_PORT_MIN_BUF_COUNT,
-          ARATELIA_VORBIS_DECODER_PORT_MIN_OUTPUT_BUF_SIZE,
-          ARATELIA_VORBIS_DECODER_PORT_NONCONTIGUOUS,
-          ARATELIA_VORBIS_DECODER_PORT_ALIGNMENT,
-          ARATELIA_VORBIS_DECODER_PORT_SUPPLIERPREF,
-          { ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX, NULL, NULL, NULL },
-          0 /* Master port */
-      };
+  OMX_AUDIO_CODINGTYPE encodings[] = {OMX_AUDIO_CodingPCM, OMX_AUDIO_CodingMax};
+  tiz_port_options_t pcm_port_opts = {
+    OMX_PortDomainAudio,
+    OMX_DirOutput,
+    ARATELIA_VORBIS_DECODER_PORT_MIN_BUF_COUNT,
+    ARATELIA_VORBIS_DECODER_PORT_MIN_OUTPUT_BUF_SIZE,
+    ARATELIA_VORBIS_DECODER_PORT_NONCONTIGUOUS,
+    ARATELIA_VORBIS_DECODER_PORT_ALIGNMENT,
+    ARATELIA_VORBIS_DECODER_PORT_SUPPLIERPREF,
+    {ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX, NULL, NULL, NULL},
+    0 /* Master port */
+  };
 
   /* Instantiate the pcm port */
-  pcmmode.nSize = sizeof(OMX_AUDIO_PARAM_PCMMODETYPE);
+  pcmmode.nSize = sizeof (OMX_AUDIO_PARAM_PCMMODETYPE);
   pcmmode.nVersion.nVersion = OMX_VERSION;
   pcmmode.nPortIndex = 1;
   pcmmode.nChannels = 2;
@@ -123,7 +124,7 @@ static OMX_PTR instantiate_output_port (OMX_HANDLETYPE ap_hdl)
   pcmmode.eChannelMapping[0] = OMX_AUDIO_ChannelLF;
   pcmmode.eChannelMapping[1] = OMX_AUDIO_ChannelRF;
 
-  volume.nSize = sizeof(OMX_AUDIO_CONFIG_VOLUMETYPE);
+  volume.nSize = sizeof (OMX_AUDIO_CONFIG_VOLUMETYPE);
   volume.nVersion.nVersion = OMX_VERSION;
   volume.nPortIndex = 1;
   volume.bLinear = OMX_FALSE;
@@ -131,7 +132,7 @@ static OMX_PTR instantiate_output_port (OMX_HANDLETYPE ap_hdl)
   volume.sVolume.nMin = 0;
   volume.sVolume.nMax = 100;
 
-  mute.nSize = sizeof(OMX_AUDIO_CONFIG_MUTETYPE);
+  mute.nSize = sizeof (OMX_AUDIO_CONFIG_MUTETYPE);
   mute.nVersion.nVersion = OMX_VERSION;
   mute.nPortIndex = 1;
   mute.bMute = OMX_FALSE;
@@ -140,7 +141,8 @@ static OMX_PTR instantiate_output_port (OMX_HANDLETYPE ap_hdl)
                       &encodings, &pcmmode, &volume, &mute);
 }
 
-static OMX_PTR instantiate_config_port (OMX_HANDLETYPE ap_hdl)
+static OMX_PTR
+instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
   return factory_new (tiz_get_type (ap_hdl, "tizconfigport"),
                       NULL, /* this port does not take options */
@@ -148,7 +150,8 @@ static OMX_PTR instantiate_config_port (OMX_HANDLETYPE ap_hdl)
                       vorbis_decoder_version);
 }
 
-static OMX_PTR instantiate_processor (OMX_HANDLETYPE ap_hdl)
+static OMX_PTR
+instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
   return factory_new (tiz_get_type (ap_hdl, "vorbisdprc"));
 }
@@ -157,25 +160,25 @@ OMX_ERRORTYPE
 OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 {
   tiz_role_factory_t role_factory;
-  const tiz_role_factory_t *rf_list[] = { &role_factory };
+  const tiz_role_factory_t * rf_list[] = {&role_factory};
   tiz_type_factory_t vorbisdprc_type;
-  const tiz_type_factory_t *tf_list[] = { &vorbisdprc_type };
+  const tiz_type_factory_t * tf_list[] = {&vorbisdprc_type};
 
-  strcpy ((OMX_STRING)role_factory.role, ARATELIA_VORBIS_DECODER_DEFAULT_ROLE);
+  strcpy ((OMX_STRING) role_factory.role, ARATELIA_VORBIS_DECODER_DEFAULT_ROLE);
   role_factory.pf_cport = instantiate_config_port;
   role_factory.pf_port[0] = instantiate_input_port;
   role_factory.pf_port[1] = instantiate_output_port;
   role_factory.nports = 2;
   role_factory.pf_proc = instantiate_processor;
 
-  strcpy ((OMX_STRING)vorbisdprc_type.class_name, "vorbisdprc_class");
+  strcpy ((OMX_STRING) vorbisdprc_type.class_name, "vorbisdprc_class");
   vorbisdprc_type.pf_class_init = vorbisd_prc_class_init;
-  strcpy ((OMX_STRING)vorbisdprc_type.object_name, "vorbisdprc");
+  strcpy ((OMX_STRING) vorbisdprc_type.object_name, "vorbisdprc");
   vorbisdprc_type.pf_object_init = vorbisd_prc_init;
 
   /* Initialize the component infrastructure */
   tiz_check_omx (
-      tiz_comp_init (ap_hdl, ARATELIA_VORBIS_DECODER_COMPONENT_NAME));
+    tiz_comp_init (ap_hdl, ARATELIA_VORBIS_DECODER_COMPONENT_NAME));
 
   /* Register the "vorbisdprc" class */
   tiz_check_omx (tiz_comp_register_types (ap_hdl, tf_list, 1));

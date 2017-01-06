@@ -44,10 +44,11 @@ struct vorbisd_prc
 {
   /* Object */
   const tiz_filter_prc_t _;
-  FishSound *p_fsnd_;
+  FishSound * p_fsnd_;
   FishSoundInfo fsinfo_;
+  OMX_AUDIO_PARAM_PCMMODETYPE pcmmode_;
   bool started_;
-  OMX_U8 *p_store_;
+  OMX_U8 * p_store_;
   OMX_U32 store_size_;
   OMX_U32 store_offset_;
 };

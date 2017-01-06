@@ -29,6 +29,7 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include <signal.h>
 
 #include <assert.h>
 #include <limits.h>
@@ -169,107 +170,33 @@ write_frame_float_ilv (float * to, const float * from, const int channels)
     }
 }
 
-static int
-fishsound_decoded_callback (FishSound * ap_fsound, float * app_pcm[],
-                            long frames, void * ap_user_data)
+static OMX_ERRORTYPE
+update_pcm_mode (vorbisd_prc_t * ap_prc, const OMX_U32 a_samplerate,
+                 const OMX_U32 a_channels)
 {
-  int rc = FISH_SOUND_CONTINUE;
-  vorbisd_prc_t * p_prc = ap_user_data;
-  OMX_BUFFERHEADERTYPE * p_out = NULL;
-
-  (void) ap_fsound;
-  assert (app_pcm);
-  assert (ap_user_data);
-
-  TIZ_TRACE (handleOf (p_prc), "frames [%d] ", frames);
-
-  /* Possible return values are: */
-
-  /* FISH_SOUND_CONTINUE Continue decoding */
-  /* FISH_SOUND_STOP_OK Stop decoding immediately and return control to the
-     fish_sound_decode() caller */
-  /* FISH_SOUND_STOP_ERR Stop decoding immediately, purge buffered data, and
-     return control to the fish_sound_decode() caller */
-
-  if (!p_prc->started_)
+  assert (ap_prc);
+  if (a_samplerate != ap_prc->pcmmode_.nSamplingRate
+      || a_channels != ap_prc->pcmmode_.nChannels)
     {
-      p_prc->started_ = true;
-      fish_sound_command (p_prc->p_fsnd_, FISH_SOUND_GET_INFO,
-                          &(p_prc->fsinfo_), sizeof (FishSoundInfo));
-      if (p_prc->fsinfo_.channels > 2
-          || p_prc->fsinfo_.format != FISH_SOUND_VORBIS)
-        {
-          TIZ_ERROR (handleOf (p_prc),
-                     "Supported Vorbis "
-                     "streams up tp 2 channels only.");
-          rc = FISH_SOUND_STOP_ERR;
-          goto end;
-        }
-      TIZ_NOTICE (handleOf (p_prc), "Channels [%d] sampling rate [%d]",
-                  p_prc->fsinfo_.channels, p_prc->fsinfo_.samplerate);
+      TIZ_DEBUG (handleOf (ap_prc),
+                 "Updating pcm mode : old samplerate [%d] new samplerate [%d]",
+                 ap_prc->pcmmode_.nSamplingRate, a_samplerate);
+      TIZ_DEBUG (handleOf (ap_prc),
+                 "Updating pcm mode : old channels [%d] new channels [%d]",
+                 ap_prc->pcmmode_.nChannels, a_channels);
+      ap_prc->pcmmode_.nSamplingRate = a_samplerate;
+      ap_prc->pcmmode_.nChannels = a_channels;
+      tiz_check_omx (tiz_krn_SetParameter_internal (
+        tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+        OMX_IndexParamAudioPcm, &(ap_prc->pcmmode_)));
+      tiz_srv_issue_event ((OMX_PTR) ap_prc, OMX_EventPortSettingsChanged,
+                           ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX,
+                           OMX_IndexParamAudioPcm, /* the index of the
+                                                      struct that has
+                                                      been modififed */
+                           NULL);
     }
-
-  p_out = tiz_filter_prc_get_header (p_prc,
-                                     ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX);
-  if (NULL == p_out)
-    {
-      TIZ_TRACE (handleOf (p_prc),
-                 "No more output buffers "
-                 "available at the moment");
-      rc = FISH_SOUND_STOP_OK;
-      goto end;
-    }
-
-  {
-    /* write decoded PCM samples */
-    size_t i = 0;
-    size_t frame_len = sizeof (float) * p_prc->fsinfo_.channels;
-    size_t frames_alloc = ((p_out->nAllocLen - p_out->nOffset) / frame_len);
-    size_t frames_to_write = (frames > frames_alloc) ? frames_alloc : frames;
-    size_t bytes_to_write = frames_to_write * frame_len;
-    assert (p_out);
-
-    for (i = 0; i < frames_to_write; ++i)
-      {
-        size_t frame_offset = i * frame_len;
-        size_t float_offset = i * p_prc->fsinfo_.channels;
-        float * out
-          = (float *) (p_out->pBuffer + p_out->nOffset + frame_offset);
-        write_frame_float_ilv (out, ((float *) app_pcm) + float_offset,
-                               p_prc->fsinfo_.channels);
-      }
-    p_out->nFilledLen += bytes_to_write;
-    p_out->nOffset += bytes_to_write;
-
-    if (frames_to_write < frames)
-      {
-        /* Temporarily store the data until an omx buffer is
-         * available */
-        OMX_U32 nbytes_remaining = (frames - frames_to_write) * frame_len;
-        TIZ_TRACE (handleOf (p_prc), "Need to store [%d] bytes",
-                   nbytes_remaining);
-        nbytes_remaining = store_data (
-          p_prc, (OMX_U8 *) (app_pcm[frames_to_write * sizeof (float)]),
-          nbytes_remaining);
-      }
-
-    if (tiz_filter_prc_is_eos (p_prc))
-      {
-        /* Propagate EOS flag to output */
-        p_out->nFlags |= OMX_BUFFERFLAG_EOS;
-        tiz_filter_prc_update_eos_flag (p_prc, false);
-        TIZ_TRACE (handleOf (p_prc), "Propagating EOS flag to output");
-      }
-    /* TODO: Shouldn't ignore this rc */
-    (void) tiz_filter_prc_release_header (
-      p_prc, ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX);
-    /* Let's process one input buffer at a time, for now */
-    rc = FISH_SOUND_STOP_OK;
-  }
-
-end:
-
-  return rc;
+  return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
@@ -345,6 +272,112 @@ store_stream_metadata (vorbisd_prc_t * ap_prc)
                               NULL);
 }
 
+static int
+fishsound_decoded_callback (FishSound * ap_fsound, float * app_pcm[],
+                            long frames, void * ap_user_data)
+{
+  int rc = FISH_SOUND_CONTINUE;
+  vorbisd_prc_t * p_prc = ap_user_data;
+  OMX_BUFFERHEADERTYPE * p_out = NULL;
+
+  (void) ap_fsound;
+  assert (app_pcm);
+  assert (ap_user_data);
+
+  TIZ_TRACE (handleOf (p_prc), "frames [%d] ", frames);
+
+  /* Possible return values are: */
+
+  /* FISH_SOUND_CONTINUE Continue decoding */
+  /* FISH_SOUND_STOP_OK Stop decoding immediately and return control to the
+     fish_sound_decode() caller */
+  /* FISH_SOUND_STOP_ERR Stop decoding immediately, purge buffered data, and
+     return control to the fish_sound_decode() caller */
+
+  if (!p_prc->started_)
+    {
+      p_prc->started_ = true;
+      fish_sound_command (p_prc->p_fsnd_, FISH_SOUND_GET_INFO,
+                          &(p_prc->fsinfo_), sizeof (FishSoundInfo));
+      if (p_prc->fsinfo_.channels > 2
+          || p_prc->fsinfo_.format != FISH_SOUND_VORBIS)
+        {
+          TIZ_ERROR (handleOf (p_prc),
+                     "Supported Vorbis "
+                     "streams up tp 2 channels only.");
+          rc = FISH_SOUND_STOP_ERR;
+          goto end;
+        }
+      TIZ_NOTICE (handleOf (p_prc), "Channels [%d] sampling rate [%d]",
+                  p_prc->fsinfo_.channels, p_prc->fsinfo_.samplerate);
+      store_stream_metadata (p_prc);
+      (void) update_pcm_mode (p_prc, p_prc->fsinfo_.samplerate,
+                              p_prc->fsinfo_.channels);
+    }
+
+  p_out = tiz_filter_prc_get_header (p_prc,
+                                     ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX);
+  if (NULL == p_out)
+    {
+      TIZ_TRACE (handleOf (p_prc),
+                 "No more output buffers "
+                 "available at the moment");
+      rc = FISH_SOUND_STOP_OK;
+      goto end;
+    }
+
+  {
+    /* write decoded PCM samples */
+    size_t i = 0;
+    size_t frame_len = sizeof (float) * p_prc->fsinfo_.channels;
+    size_t frames_alloc = ((p_out->nAllocLen - p_out->nOffset) / frame_len);
+    size_t frames_to_write = (frames > frames_alloc) ? frames_alloc : frames;
+    size_t bytes_to_write = frames_to_write * frame_len;
+    assert (p_out);
+
+    for (i = 0; i < frames_to_write; ++i)
+      {
+        size_t frame_offset = i * frame_len;
+        size_t float_offset = i * p_prc->fsinfo_.channels;
+        float * out
+          = (float *) (p_out->pBuffer + p_out->nOffset + frame_offset);
+        write_frame_float_ilv (out, ((float *) app_pcm) + float_offset,
+                               p_prc->fsinfo_.channels);
+      }
+    p_out->nFilledLen += bytes_to_write;
+    p_out->nOffset += bytes_to_write;
+
+    if (frames_to_write < frames)
+      {
+        /* Temporarily store the data until an omx buffer is
+         * available */
+        OMX_U32 nbytes_remaining = (frames - frames_to_write) * frame_len;
+        TIZ_TRACE (handleOf (p_prc), "Need to store [%d] bytes",
+                   nbytes_remaining);
+        nbytes_remaining = store_data (
+          p_prc, (OMX_U8 *) (app_pcm[frames_to_write * sizeof (float)]),
+          nbytes_remaining);
+      }
+
+    if (tiz_filter_prc_is_eos (p_prc))
+      {
+        /* Propagate EOS flag to output */
+        p_out->nFlags |= OMX_BUFFERFLAG_EOS;
+        tiz_filter_prc_update_eos_flag (p_prc, false);
+        TIZ_TRACE (handleOf (p_prc), "Propagating EOS flag to output");
+      }
+    /* TODO: Shouldn't ignore this rc */
+    (void) tiz_filter_prc_release_header (
+      p_prc, ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX);
+    /* Let's process one input buffer at a time, for now */
+    rc = FISH_SOUND_STOP_OK;
+  }
+
+end:
+
+  return rc;
+}
+
 static OMX_ERRORTYPE
 init_vorbis_decoder (vorbisd_prc_t * ap_prc)
 {
@@ -381,10 +414,6 @@ end:
       fish_sound_delete (ap_prc->p_fsnd_);
       ap_prc->p_fsnd_ = NULL;
     }
-  else
-    {
-      store_stream_metadata (ap_prc);
-    }
 
   return rc;
 }
@@ -407,6 +436,9 @@ transform_buffer (vorbisd_prc_t * ap_prc)
 
   assert (ap_prc);
 
+  TIZ_TRACE (handleOf (ap_prc), "HEADER [%p] nFilledLen [%d] nFlags [%d] ",
+             p_in, p_in->nFilledLen, p_in->nFlags);
+
   if (0 == p_in->nFilledLen)
     {
       TIZ_TRACE (handleOf (ap_prc), "HEADER [%p] nFlags [%d] is empty", p_in,
@@ -421,12 +453,14 @@ transform_buffer (vorbisd_prc_t * ap_prc)
             ap_prc, ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX));
         }
     }
+  /*   raise(SIGTRAP); */
 
   if (p_in->nFilledLen > 0)
     {
       unsigned char * p_data = p_in->pBuffer + p_in->nOffset;
       const long len = p_in->nFilledLen;
       long bytes_consumed = fish_sound_decode (ap_prc->p_fsnd_, p_data, len);
+      TIZ_PRINTF_DBG_RED ("sadasd 2\n");
       TIZ_TRACE (handleOf (ap_prc), "p_in->nFilledLen [%d] ", p_in->nFilledLen);
       TIZ_TRACE (handleOf (ap_prc), "bytes_consumed [%d] ", bytes_consumed);
 
@@ -515,7 +549,7 @@ reset_stream_parameters (vorbisd_prc_t * ap_prc)
   tiz_mem_set (&(ap_prc->fsinfo_), 0, sizeof (FishSoundInfo));
   if (ap_prc->p_store_)
     {
-      tiz_mem_set(ap_prc->p_store_, 0, ap_prc->store_size_);
+      tiz_mem_set (ap_prc->p_store_, 0, ap_prc->store_size_);
       ap_prc->store_offset_ = 0;
     }
 }
@@ -587,6 +621,14 @@ vorbisd_prc_prepare_to_transfer (void * ap_obj, OMX_U32 a_pid)
 {
   vorbisd_prc_t * p_prc = ap_obj;
   assert (p_prc);
+  TIZ_INIT_OMX_PORT_STRUCT (p_prc->pcmmode_,
+                            ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX);
+  tiz_check_omx (tiz_api_GetParameter (tiz_get_krn (handleOf (p_prc)),
+                                       handleOf (p_prc), OMX_IndexParamAudioPcm,
+                                       &(p_prc->pcmmode_)));
+  TIZ_TRACE (handleOf (p_prc),
+             "sample rate renderer = [%d] channels renderer = [%d]",
+             p_prc->pcmmode_.nSamplingRate, p_prc->pcmmode_.nChannels);
   reset_stream_parameters (p_prc);
   return OMX_ErrorNone;
 }
@@ -615,13 +657,26 @@ vorbisd_prc_buffers_ready (const void * ap_obj)
 
   assert (p_prc);
 
-  TIZ_TRACE (handleOf (p_prc), "eos [%s] ",
-             tiz_filter_prc_is_eos (p_prc) ? "YES" : "NO");
+  TIZ_TRACE (handleOf (p_prc), "eos [%s] avail [%s]",
+             tiz_filter_prc_is_eos (p_prc) ? "YES" : "NO",
+             tiz_filter_prc_headers_available (p_prc) ? "YES" : "NO");
   while (tiz_filter_prc_headers_available (p_prc) && OMX_ErrorNone == rc)
     {
       rc = transform_buffer (p_prc);
     }
 
+  if (tiz_filter_prc_is_eos (p_prc))
+    {
+      OMX_BUFFERHEADERTYPE * p_out = tiz_filter_prc_get_header (
+        p_prc, ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX);
+      if (p_out)
+        {
+          p_out->nFlags |= OMX_BUFFERFLAG_EOS;
+          tiz_filter_prc_update_eos_flag (p_prc, false);
+          tiz_check_omx (tiz_filter_prc_release_header (
+            p_prc, ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX));
+        }
+    }
   return rc;
 }
 
