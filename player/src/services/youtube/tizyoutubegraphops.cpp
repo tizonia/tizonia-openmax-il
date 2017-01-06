@@ -146,6 +146,11 @@ void graph::youtubeops::do_configure_comp (const int comp_id)
           set_youtube_playlist (handles_[0], playlist_->get_current_uri ()),
           "Unable to set OMX_TizoniaIndexParamAudioYoutubePlaylist");
     }
+    else if (comp_id == 2)
+    {
+      G_OPS_BAIL_IF_ERROR (apply_default_config_on_decoder (),
+                           "Unable to apply the decoder's initial configuration");
+    }
     else if (comp_id == 3)
     {
       G_OPS_BAIL_IF_ERROR (apply_pcm_codec_info_from_decoder (),
@@ -546,6 +551,34 @@ OMX_ERRORTYPE graph::youtubeops::get_encoding_type_from_container_demuxer ()
       OMX_GetParameter (handles_[1], OMX_IndexParamPortDefinition, &port_def));
   encoding_ = port_def.format.audio.eEncoding;
   TIZ_LOG (TIZ_PRIORITY_DEBUG, "encoding_ = [%X]", encoding_);
+  return OMX_ErrorNone;
+}
+
+OMX_ERRORTYPE
+graph::youtubeops::apply_default_config_on_decoder ()
+{
+  if (OMX_AUDIO_CodingVORBIS == encoding_)
+  {
+    const OMX_HANDLETYPE handle = handles_[2];  // vorbis decoder's handle
+    const OMX_U32 port_id = 0;                  // vorbis decoder's input port
+    OMX_U32 channels;
+    OMX_U32 sampling_rate;
+
+    tiz_check_omx (
+        tiz::graph::util::
+            get_channels_and_rate_from_audio_port< OMX_AUDIO_PARAM_VORBISTYPE > (
+                handle, port_id, OMX_IndexParamAudioVorbis, channels,
+                sampling_rate));
+
+    channels = 2;
+    sampling_rate = 44100;
+
+    tiz_check_omx (
+        tiz::graph::util::
+            set_channels_and_rate_on_audio_port< OMX_AUDIO_PARAM_VORBISTYPE > (
+                handle, port_id, OMX_IndexParamAudioVorbis, channels,
+                sampling_rate));
+  }
   return OMX_ErrorNone;
 }
 

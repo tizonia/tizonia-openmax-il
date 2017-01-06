@@ -254,6 +254,7 @@ namespace tiz
                                                                                                                       boost::mpl::vector<
                                                                                                                         tg::do_load_comp<2>,
                                                                                                                         tg::do_load_comp<3>,
+                                                                                                                        tg::do_configure_comp<2>,
                                                                                                                         tg::do_configure_comp<3>,
                                                                                                                         tg::do_setup_tunnel<1>,
                                                                                                                         tg::do_setup_tunnel<2>,

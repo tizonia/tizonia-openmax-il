@@ -76,6 +76,7 @@ namespace tiz
       bool probe_stream_hook ();
       OMX_ERRORTYPE get_container_type_from_youtube_source ();
       OMX_ERRORTYPE get_encoding_type_from_container_demuxer ();
+      OMX_ERRORTYPE apply_default_config_on_decoder ();
       OMX_ERRORTYPE apply_pcm_codec_info_from_decoder ();
       OMX_ERRORTYPE get_channels_and_rate_from_decoder (
           OMX_U32 &channels, OMX_U32 &sampling_rate,
