@@ -162,8 +162,10 @@ tiz_vector_length (const tiz_vector_t * p_vec)
 void
 tiz_vector_clear (tiz_vector_t * p_vec)
 {
-  assert (p_vec);
-  utarray_clear (p_vec->p_uta);
+  if (p_vec)
+    {
+      utarray_clear (p_vec->p_uta);
+    }
   return;
 }
 
