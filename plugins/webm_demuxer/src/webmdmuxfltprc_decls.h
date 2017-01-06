@@ -51,7 +51,11 @@ struct webmdmuxflt_prc
   tiz_buffer_t * p_webm_store_;
   tiz_buffer_t * p_aud_store_;
   tiz_buffer_t * p_vid_store_;
+  tiz_vector_t * p_aud_header_lengths_;
+  tiz_vector_t * p_vid_header_lengths_;
   bool ne_inited_;
+  bool audio_metadata_delivered_;
+  bool video_metadata_delivered_;
   bool audio_auto_detect_on_;
   OMX_S32 audio_coding_type_;
   bool video_auto_detect_on_;

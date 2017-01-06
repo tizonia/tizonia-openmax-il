@@ -244,8 +244,7 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   webmdmuxfltprc_type.pf_object_init = webmdmuxflt_prc_init;
 
   /* Initialize the component infrastructure */
-  tiz_check_omx (
-    tiz_comp_init (ap_hdl, ARATELIA_WEBM_DEMUXER_COMPONENT_NAME));
+  tiz_check_omx (tiz_comp_init (ap_hdl, ARATELIA_WEBM_DEMUXER_COMPONENT_NAME));
 
   /* Register the various classes */
   tiz_check_omx (tiz_comp_register_types (ap_hdl, tf_list, 2));

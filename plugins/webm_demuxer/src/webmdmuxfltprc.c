@@ -256,6 +256,7 @@ ne_log (nestegg * ctx, unsigned int severity, char const * fmt, ...)
     }
 }
 
+#ifndef NDEBUG
 static void
 print_audio_codec_metadata (webmdmuxflt_prc_t * ap_prc,
                             const unsigned int a_header_idx,
@@ -274,6 +275,7 @@ print_audio_codec_metadata (webmdmuxflt_prc_t * ap_prc,
       TIZ_DEBUG (handleOf (ap_prc), "   [%c]", ap_codec_data[k]);
     }
 }
+#endif
 
 static void
 propagate_eos_if_required (webmdmuxflt_prc_t * ap_prc,
@@ -338,91 +340,93 @@ release_output_header (webmdmuxflt_prc_t * ap_prc, const OMX_U32 a_pid)
 }
 
 OMX_ERRORTYPE
-output_metadata_elements (webmdmuxflt_prc_t * ap_prc, const OMX_U32 a_pid)
+deliver_codec_metadata (webmdmuxflt_prc_t * ap_prc, const OMX_U32 a_pid)
 {
   OMX_BUFFERHEADERTYPE * p_hdr = NULL;
-  tiz_buffer_t * p_out_store
-    = ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX == a_pid ? ap_prc->p_aud_store_
-                                                         : ap_prc->p_vid_store_;
+  bool * p_metadata_delivered = NULL;
+  tiz_buffer_t * p_out_store = NULL;
+  tiz_vector_t * p_header_lengths = NULL;
+
   assert (ap_prc);
+
+  p_metadata_delivered = ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX == a_pid
+                           ? &(ap_prc->audio_metadata_delivered_)
+                           : &(ap_prc->video_metadata_delivered_);
+  assert (p_metadata_delivered);
+
+  p_out_store = ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX == a_pid
+                  ? ap_prc->p_aud_store_
+                  : ap_prc->p_vid_store_;
+  assert (p_out_store);
+
+  p_header_lengths = ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX == a_pid
+                       ? ap_prc->p_aud_header_lengths_
+                       : ap_prc->p_vid_header_lengths_;
+  assert (p_header_lengths);
 
   if (tiz_buffer_available (p_out_store)
       && (p_hdr = tiz_filter_prc_get_header (ap_prc, a_pid)))
     {
-      /* Copy the data in the temp audio buffer */
-      size_t nbytes_to_copy
-        = MIN (TIZ_OMX_BUF_AVAIL (p_hdr), tiz_buffer_available (p_out_store));
+      size_t headerlen = 0;
+      size_t * p_headerlen = tiz_vector_at (p_header_lengths, (OMX_S32) 0);
+      assert (p_headerlen);
+      headerlen = *p_headerlen;
+
+      /* Copy the data into the omx buffer */
+      size_t nbytes_to_copy = MIN (TIZ_OMX_BUF_AVAIL (p_hdr), headerlen);
       memcpy (TIZ_OMX_BUF_PTR (p_hdr) + p_hdr->nFilledLen,
               tiz_buffer_get (p_out_store), nbytes_to_copy);
       tiz_buffer_advance (p_out_store, nbytes_to_copy);
       p_hdr->nFilledLen += nbytes_to_copy;
+      TIZ_DEBUG (
+        handleOf (ap_prc), "nbytes_to_copy [%u] nFilledLen [%d] avail [%d]",
+        nbytes_to_copy, p_hdr->nFilledLen, tiz_buffer_available (p_out_store));
+      tiz_vector_erase (p_header_lengths, (OMX_S32) 0, (OMX_S32) 1);
       tiz_check_omx (release_output_header (ap_prc, a_pid));
     }
-  return OMX_ErrorNone;
-}
 
-static OMX_ERRORTYPE
-output_audio_codec_metadata (webmdmuxflt_prc_t * ap_prc,
-                             unsigned char * ap_codec_data, size_t a_length)
-{
-  OMX_BUFFERHEADERTYPE * p_hdr = get_aud_hdr (ap_prc);
-
-  assert (ap_prc);
-  assert (ap_codec_data);
-  assert (a_length);
-
-  if (p_hdr)
+  if (0 == tiz_vector_length (p_header_lengths))
     {
-      memcpy (TIZ_OMX_BUF_PTR (p_hdr) + p_hdr->nFilledLen, ap_codec_data,
-              MIN (TIZ_OMX_BUF_AVAIL (p_hdr), a_length));
-      p_hdr->nFilledLen += a_length;
-      TIZ_DEBUG (handleOf (ap_prc), "copy to buffer p_hdr [%p] - len %u", p_hdr,
-                 p_hdr->nFilledLen);
-      tiz_check_omx (release_output_header (
-        ap_prc, ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX));
+      *p_metadata_delivered = true;
     }
-  else
-    {
-      /* There are no omx buffers yet on this port, use a temp buffer */
-      int pushed = tiz_buffer_push (
-        ap_prc->p_aud_store_, ap_codec_data, a_length);
-      tiz_check_true_ret_val ((pushed == a_length),
-                              OMX_ErrorInsufficientResources);
-    }
-
-  TIZ_DEBUG (handleOf (ap_prc), "copied metadata to buffer - len %u", a_length);
 
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
-output_video_codec_metadata (webmdmuxflt_prc_t * ap_prc,
-                             unsigned char * ap_codec_data, size_t a_length)
+store_audio_codec_metadata (webmdmuxflt_prc_t * ap_prc,
+                            unsigned char * ap_codec_data, size_t a_length)
 {
-  OMX_BUFFERHEADERTYPE * p_hdr = get_vid_hdr (ap_prc);
-
+  int pushed = 0;
   assert (ap_prc);
   assert (ap_codec_data);
   assert (a_length);
 
-  if (p_hdr)
-    {
-      memcpy (TIZ_OMX_BUF_PTR (p_hdr) + p_hdr->nFilledLen, ap_codec_data,
-              MIN (TIZ_OMX_BUF_AVAIL (p_hdr), a_length));
-      p_hdr->nFilledLen += a_length;
-      TIZ_DEBUG (handleOf (ap_prc), "copy to buffer p_hdr [%p] - len %u", p_hdr,
-                 p_hdr->nFilledLen);
-      tiz_check_omx (release_output_header (
-        ap_prc, ARATELIA_WEBM_DEMUXER_FILTER_PORT_2_INDEX));
-    }
-  else
-    {
-      /* There are no omx buffers yet on this port, use a temp buffer */
-      int pushed = tiz_buffer_push (
-        ap_prc->p_vid_store_, ap_codec_data, a_length);
-      tiz_check_true_ret_val ((pushed == a_length),
-                              OMX_ErrorInsufficientResources);
-    }
+  pushed = tiz_buffer_push (ap_prc->p_aud_store_, ap_codec_data, a_length);
+  tiz_check_true_ret_val ((pushed == a_length), OMX_ErrorInsufficientResources);
+  tiz_check_omx (
+    tiz_vector_push_back (ap_prc->p_aud_header_lengths_, &a_length));
+
+  TIZ_DEBUG (handleOf (ap_prc),
+             "copied metadata (len %u) to temp out buffer (%d) ", a_length,
+             tiz_buffer_available (ap_prc->p_aud_store_));
+
+  return OMX_ErrorNone;
+}
+
+static OMX_ERRORTYPE
+store_video_codec_metadata (webmdmuxflt_prc_t * ap_prc,
+                            unsigned char * ap_codec_data, size_t a_length)
+{
+  int pushed = 0;
+  assert (ap_prc);
+  assert (ap_codec_data);
+  assert (a_length);
+
+  pushed = tiz_buffer_push (ap_prc->p_vid_store_, ap_codec_data, a_length);
+  tiz_check_true_ret_val ((pushed == a_length), OMX_ErrorInsufficientResources);
+  tiz_check_omx (
+    tiz_vector_push_back (ap_prc->p_vid_header_lengths_, &a_length));
 
   TIZ_DEBUG (handleOf (ap_prc), "copied metadata to buffer - len %u", a_length);
 
@@ -503,8 +507,6 @@ extract_track_data (webmdmuxflt_prc_t * ap_prc, const unsigned int a_track,
       return OMX_ErrorNone;
     }
 
-  output_metadata_elements (ap_prc, a_pid);
-
   p_hdr = tiz_filter_prc_get_header (ap_prc, a_pid);
   if (p_hdr)
     {
@@ -534,6 +536,10 @@ extract_track_data (webmdmuxflt_prc_t * ap_prc, const unsigned int a_track,
           TIZ_DEBUG (handleOf (ap_prc), "copy to buffer p_hdr [%p] - len %u",
                      p_hdr, p_hdr->nFilledLen);
           ++ap_prc->ne_chunk_;
+        }
+      else
+        {
+          TIZ_WARN (handleOf (ap_prc), "Unable to extract packet");
         }
 
       WEBMDMUX_LOG_STATE (ap_prc);
@@ -712,13 +718,21 @@ alloc_output_stores (webmdmuxflt_prc_t * ap_prc)
     tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                           OMX_IndexParamPortDefinition, &vid_port_def));
 
-  assert (ap_prc->p_aud_store_ == NULL);
+  assert (!ap_prc->p_aud_store_);
   tiz_check_omx (
     tiz_buffer_init (&(ap_prc->p_aud_store_), aud_port_def.nBufferSize));
 
-  assert (ap_prc->p_vid_store_ == NULL);
+  assert (!ap_prc->p_vid_store_);
   tiz_check_omx (
     tiz_buffer_init (&(ap_prc->p_vid_store_), vid_port_def.nBufferSize));
+
+  assert (!ap_prc->p_aud_header_lengths_);
+  tiz_check_omx (
+    tiz_vector_init (&(ap_prc->p_aud_header_lengths_), sizeof (size_t)));
+
+  assert (!ap_prc->p_vid_header_lengths_);
+  tiz_check_omx (
+    tiz_vector_init (&(ap_prc->p_vid_header_lengths_), sizeof (size_t)));
 
   return OMX_ErrorNone;
 }
@@ -764,8 +778,10 @@ static void
 reset_stream_parameters (webmdmuxflt_prc_t * ap_prc)
 {
   assert (ap_prc);
-  TIZ_DEBUG (handleOf(ap_prc), "Resetting stream parameters");
+  TIZ_DEBUG (handleOf (ap_prc), "Resetting stream parameters");
   ap_prc->ne_inited_ = false;
+  ap_prc->audio_metadata_delivered_ = false;
+  ap_prc->video_metadata_delivered_ = false;
   ap_prc->audio_auto_detect_on_ = false;
   ap_prc->audio_coding_type_ = OMX_AUDIO_CodingUnused;
   ap_prc->video_auto_detect_on_ = false;
@@ -777,6 +793,9 @@ reset_stream_parameters (webmdmuxflt_prc_t * ap_prc)
   tiz_buffer_clear (ap_prc->p_webm_store_);
   tiz_buffer_clear (ap_prc->p_aud_store_);
   tiz_buffer_clear (ap_prc->p_vid_store_);
+  tiz_vector_clear (ap_prc->p_aud_header_lengths_);
+  tiz_vector_clear (ap_prc->p_vid_header_lengths_);
+
   tiz_filter_prc_update_eos_flag (ap_prc, false);
 }
 
@@ -802,6 +821,10 @@ dealloc_output_stores (
   ap_prc->p_aud_store_ = NULL;
   tiz_buffer_destroy (ap_prc->p_vid_store_);
   ap_prc->p_vid_store_ = NULL;
+  tiz_vector_destroy (ap_prc->p_aud_header_lengths_);
+  ap_prc->p_aud_header_lengths_ = NULL;
+  tiz_vector_destroy (ap_prc->p_vid_header_lengths_);
+  ap_prc->p_vid_header_lengths_ = NULL;
 }
 
 static OMX_ERRORTYPE
@@ -812,7 +835,7 @@ set_audio_coding_on_port (webmdmuxflt_prc_t * ap_prc)
 
   TIZ_DEBUG (handleOf (ap_prc),
              " audio [%s]: %.2fhz %u bit %u channels %llu preskip %llu preroll",
-             tiz_audio_coding_to_str(ap_prc->audio_coding_type_),
+             tiz_audio_coding_to_str (ap_prc->audio_coding_type_),
              ap_prc->ne_audio_params_.rate, ap_prc->ne_audio_params_.depth,
              ap_prc->ne_audio_params_.channels,
              ap_prc->ne_audio_params_.codec_delay,
@@ -865,8 +888,9 @@ set_video_coding_on_port (webmdmuxflt_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
-read_audio_metadata (webmdmuxflt_prc_t * ap_prc, const unsigned int a_track_idx,
-                     const int a_codec_id, const int a_track_type)
+read_audio_codec_metadata (webmdmuxflt_prc_t * ap_prc,
+                           const unsigned int a_track_idx, const int a_codec_id,
+                           const int a_track_type)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (ap_prc);
@@ -900,20 +924,24 @@ read_audio_metadata (webmdmuxflt_prc_t * ap_prc, const unsigned int a_track_idx,
           size_t length = 0;
           on_nestegg_error_ret_omx_oom (nestegg_track_codec_data (
             ap_prc->p_ne_, a_track_idx, header_idx, &p_codec_data, &length));
+#ifndef NDEBUG
           print_audio_codec_metadata (ap_prc, header_idx, nheaders,
                                       p_codec_data, length);
-          /* Put the audio specific codec data on an OMX buffer */
+#endif
+          /* Put the audio specific codec data on a temporary buffer */
           tiz_check_omx (
-            output_audio_codec_metadata (ap_prc, p_codec_data, length));
+            store_audio_codec_metadata (ap_prc, p_codec_data, length));
         }
+
       tiz_check_omx (set_audio_coding_on_port (ap_prc));
     }
   return rc;
 }
 
 static OMX_ERRORTYPE
-read_video_metadata (webmdmuxflt_prc_t * ap_prc, const unsigned int a_track_idx,
-                     const int a_codec_id, const int a_track_type)
+read_video_codec_metadata (webmdmuxflt_prc_t * ap_prc,
+                           const unsigned int a_track_idx, const int a_codec_id,
+                           const int a_track_type)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (ap_prc);
@@ -944,7 +972,7 @@ read_video_metadata (webmdmuxflt_prc_t * ap_prc, const unsigned int a_track_idx,
             ap_prc->p_ne_, a_track_idx, header_idx, &p_codec_data, &length));
           /* Put the video specific codec data on an OMX buffer */
           tiz_check_omx (
-            output_video_codec_metadata (ap_prc, p_codec_data, length));
+            store_video_codec_metadata (ap_prc, p_codec_data, length));
         }
 
       tiz_check_omx (set_video_coding_on_port (ap_prc));
@@ -977,9 +1005,9 @@ obtain_track_info (webmdmuxflt_prc_t * ap_prc)
       print_track_info (ap_prc, ntracks, track_idx, track_type, codec_id);
 
       tiz_check_omx (
-        read_audio_metadata (ap_prc, track_idx, codec_id, track_type));
+        read_audio_codec_metadata (ap_prc, track_idx, codec_id, track_type));
       tiz_check_omx (
-        read_video_metadata (ap_prc, track_idx, codec_id, track_type));
+        read_video_codec_metadata (ap_prc, track_idx, codec_id, track_type));
     }
   return rc;
 }
@@ -1088,6 +1116,8 @@ webmdmuxflt_prc_ctor (void * ap_prc, va_list * app)
   p_prc->p_webm_store_ = NULL;
   p_prc->p_aud_store_ = NULL;
   p_prc->p_vid_store_ = NULL;
+  p_prc->p_aud_header_lengths_ = NULL;
+  p_prc->p_vid_header_lengths_ = NULL;
   reset_stream_parameters (p_prc);
   g_handle = handleOf (ap_prc);
   return p_prc;
@@ -1168,6 +1198,14 @@ webmdmuxflt_prc_buffers_ready (const void * ap_prc)
     }
 
   if (p_prc->ne_inited_)
+    {
+      tiz_check_omx (deliver_codec_metadata (
+        p_prc, ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX));
+      tiz_check_omx (deliver_codec_metadata (
+        p_prc, ARATELIA_WEBM_DEMUXER_FILTER_PORT_2_INDEX));
+    }
+
+  if (p_prc->audio_metadata_delivered_ && p_prc->video_metadata_delivered_)
     {
       rc = demux_stream (p_prc);
       if (OMX_ErrorNotReady == rc)
