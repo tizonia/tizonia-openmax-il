@@ -396,6 +396,17 @@ class tizyoutubeproxy(object):
             video_id = to_ascii(stream['i'].ytid).encode("utf-8")
         return video_id
 
+    def current_audio_stream_published(self):
+        """ Retrieve the current stream's upload date and time.
+
+        """
+        logging.info("current_audio_stream_published")
+        stream = self.now_playing_stream
+        video_id = ''
+        if stream:
+            published = to_ascii(stream['v'].published).encode("utf-8")
+        return published
+
     def clear_queue(self):
         """ Clears the playback queue.
 
