@@ -34,11 +34,11 @@ import json
 from collections import namedtuple
 
 # For use during debugging
-import pprint
-from traceback import print_exception
+# import pprint
+# from traceback import print_exception
 
 logging.captureWarnings(True)
-logging.getLogger().addHandler(logging.NullHandler())
+#logging.getLogger().addHandler(logging.NullHandler())
 logging.getLogger().setLevel(logging.DEBUG)
 
 ISO8601_TIMEDUR_EX = re.compile(r'PT((\d{1,3})H)?((\d{1,3})M)?((\d{1,2})S)?')
@@ -135,8 +135,8 @@ def exception_handler(exception_type, exception, traceback):
     """
 
     print_err("[YouTube] (%s) : %s" % (exception_type.__name__, exception))
-    # del traceback # unused
-    print_exception(exception_type, exception, traceback)
+    del traceback # unused
+    # print_exception(exception_type, exception, traceback)
 
 sys.excepthook = exception_handler
 
@@ -263,6 +263,34 @@ class tizyoutubeproxy(object):
                     break
                 query['pageToken'] = wdata2['nextPageToken']
                 wdata2 = pafy.call_gdata('search', query)
+
+            self.__update_play_queue_order()
+
+        except ValueError:
+            raise ValueError(str("No items found : %s" % arg))
+
+    def enqueue_audio_mix(self, arg):
+        """Obtain a YouTube mix associated to a given video id or url and add all audio
+        streams in the mix playlist to the playback queue.
+
+        :param arg: a YouTube video id
+
+        """
+        logging.info('enqueue_audio_mix : %s', arg)
+        try:
+            count = len(self.queue)
+
+            yt_video = pafy.new(arg)
+            playlist = yt_video.mix
+            if len(playlist) > 0:
+                for yt_video in playlist:
+                    video_id = yt_video.videoid
+                    video_title = yt_video.title
+                    yt_info = VideoInfo(ytid=video_id, title=video_title)
+                    self.add_to_playback_queue(video=yt_video, info=yt_info)
+
+            if count == len(self.queue):
+                raise ValueError
 
             self.__update_play_queue_order()
 
@@ -466,9 +494,9 @@ class tizyoutubeproxy(object):
                     raise AttributeError()
                 stream.update({'a': audio, 'v': video})
 
-            streams = stream.get('v').audiostreams[::-1]
-            pprint.pprint(streams)
-            printstreams(streams)
+            # streams = stream.get('v').audiostreams[::-1]
+            # pprint.pprint(streams)
+            # printstreams(streams)
 
             self.now_playing_stream = stream
             logging.info("__retrieve_stream_url url       : {0}".format(stream['a'].url))
