@@ -282,6 +282,16 @@ const char *tiz_youtube_get_current_audio_stream_video_id (
     tiz_youtube_t *ap_youtube);
 
 /**
+* Retrieve the current streams upload date and time.
+*
+* @ingroup libtizyoutube
+*
+* @param ap_gmusic The tiz_youtube handle.
+*/
+const char *tiz_youtube_get_current_audio_stream_published (
+    tiz_youtube_t *ap_youtube);
+
+/**
  * Destroy the tiz_youtube handle.
  *
  * @ingroup libtizyoutube

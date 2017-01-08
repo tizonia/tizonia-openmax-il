@@ -75,6 +75,7 @@ public:
   const char * get_current_audio_stream_description ();
   const char * get_current_audio_stream_file_extension ();
   const char * get_current_audio_stream_video_id ();
+  const char * get_current_audio_stream_published ();
 
 private:
   int get_current_stream ();
@@ -90,6 +91,7 @@ private:
   std::string current_stream_description_;
   std::string current_stream_file_extension_;
   std::string current_stream_video_id_;
+  std::string current_stream_published_;
   boost::python::object py_main_;
   boost::python::object py_global_;
   boost::python::object py_yt_proxy_;

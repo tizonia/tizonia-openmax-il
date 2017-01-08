@@ -234,6 +234,14 @@ extern "C" const char *tiz_youtube_get_current_audio_stream_video_id (
   return ap_youtube->p_proxy_->get_current_audio_stream_video_id ();
 }
 
+extern "C" const char *tiz_youtube_get_current_audio_stream_published (
+    tiz_youtube_t *ap_youtube)
+{
+  assert (ap_youtube);
+  assert (ap_youtube->p_proxy_);
+  return ap_youtube->p_proxy_->get_current_audio_stream_published ();
+}
+
 extern "C" void tiz_youtube_destroy (tiz_youtube_t *ap_youtube)
 {
   if (ap_youtube)

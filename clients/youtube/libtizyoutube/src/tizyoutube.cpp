@@ -93,7 +93,8 @@ tizyoutube::tizyoutube ()
     current_stream_view_count_ (),
     current_stream_description_ (),
     current_stream_file_extension_ (),
-    current_stream_video_id_ ()
+    current_stream_video_id_ (),
+    current_stream_published_ ()
 {
 }
 
@@ -290,6 +291,11 @@ const char *tizyoutube::get_current_audio_stream_video_id ()
   return current_stream_video_id_.empty () ? NULL : current_stream_video_id_.c_str ();
 }
 
+const char *tizyoutube::get_current_audio_stream_published ()
+{
+  return current_stream_published_.empty () ? NULL : current_stream_published_.c_str ();
+}
+
 int tizyoutube::get_current_stream ()
 {
   int rc = 0;
@@ -302,6 +308,7 @@ int tizyoutube::get_current_stream ()
   current_stream_description_.clear ();
   current_stream_file_extension_.clear ();
   current_stream_video_id_.clear ();
+  current_stream_published_.clear ();
 
   const char * p_title = bp::extract< char const * >(py_yt_proxy_.attr ("current_audio_stream_title")());
   if (p_title)
@@ -358,6 +365,12 @@ int tizyoutube::get_current_stream ()
   if (p_video_id)
     {
       current_stream_video_id_.assign(p_video_id);
+    }
+
+  const char * p_published = bp::extract< char const * >(py_yt_proxy_.attr ("current_audio_stream_published")());
+  if (p_published)
+    {
+      current_stream_published_.assign(p_published);
     }
 
   return rc;
