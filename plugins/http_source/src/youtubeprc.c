@@ -682,6 +682,11 @@ enqueue_playlist_items (youtube_prc_t * ap_prc)
             rc = tiz_youtube_play_audio_playlist (ap_prc->p_youtube_, p_playlist);
           }
           break;
+        case OMX_AUDIO_YoutubePlaylistTypeAudioMix:
+          {
+            rc = tiz_youtube_play_audio_mix (ap_prc->p_youtube_, p_playlist);
+          }
+          break;
         case OMX_AUDIO_YoutubePlaylistTypeAudioSearch:
           {
             rc = tiz_youtube_play_audio_search (ap_prc->p_youtube_, p_playlist);
