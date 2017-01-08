@@ -135,8 +135,8 @@ def exception_handler(exception_type, exception, traceback):
     """
 
     print_err("[YouTube] (%s) : %s" % (exception_type.__name__, exception))
-    del traceback # unused
-    #print_exception(exception_type, exception, traceback)
+    # del traceback # unused
+    print_exception(exception_type, exception, traceback)
 
 sys.excepthook = exception_handler
 
@@ -222,18 +222,13 @@ class tizyoutubeproxy(object):
         try:
             count = len(self.queue)
 
-            playlist = pafy.get_playlist(arg)
-            items = playlist.get('items')
-            if len(items) > 0:
-                for item in items:
-                    yt_video = item.get('pafy')
-                    if yt_video:
-                        try:
-                            yt_audio = yt_video.getbestaudio(preftype="webm")
-                        except:
-                            logging.error("pafy execption")
-                        if yt_audio:
-                            self.add_to_playback_queue(audio=yt_audio, video=yt_video)
+            playlist = pafy.get_playlist2(arg)
+            if len(playlist) > 0:
+                if yt_video:
+                    video_id = yt_video.videoid
+                    video_title = yt_video.title
+                    yt_info = VideoInfo(ytid=video_id, title=video_title)
+                    self.add_to_playback_queue(video=yt_video, info=yt_info)
 
             if count == len(self.queue):
                 raise ValueError
@@ -262,7 +257,7 @@ class tizyoutubeproxy(object):
                     self.add_to_playback_queue(info=track_info)
                     count += 1
 
-                if count > 50:
+                if count > 100:
                     break
                 if not wdata2.get('nextPageToken'):
                     break
@@ -471,9 +466,9 @@ class tizyoutubeproxy(object):
                     raise AttributeError()
                 stream.update({'a': audio, 'v': video})
 
-#             streams = stream.get('v').audiostreams[::-1]
-#             pprint.pprint(streams)
-#             printstreams(streams)
+            streams = stream.get('v').audiostreams[::-1]
+            pprint.pprint(streams)
+            printstreams(streams)
 
             self.now_playing_stream = stream
             logging.info("__retrieve_stream_url url       : {0}".format(stream['a'].url))
