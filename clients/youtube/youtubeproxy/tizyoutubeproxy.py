@@ -38,7 +38,7 @@ from collections import namedtuple
 # from traceback import print_exception
 
 logging.captureWarnings(True)
-#logging.getLogger().addHandler(logging.NullHandler())
+logging.getLogger().addHandler(logging.NullHandler())
 logging.getLogger().setLevel(logging.DEBUG)
 
 ISO8601_TIMEDUR_EX = re.compile(r'PT((\d{1,3})H)?((\d{1,3})M)?((\d{1,2})S)?')
