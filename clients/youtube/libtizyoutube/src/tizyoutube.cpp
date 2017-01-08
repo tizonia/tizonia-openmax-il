@@ -144,6 +144,14 @@ int tizyoutube::play_audio_playlist (const std::string &url_or_id)
   return rc;
 }
 
+int tizyoutube::play_audio_mix (const std::string &url_or_id)
+{
+  int rc = 0;
+  try_catch_wrapper (
+      py_yt_proxy_.attr ("enqueue_audio_mix")(bp::object (url_or_id)));
+  return rc;
+}
+
 int tizyoutube::play_audio_search (const std::string &search)
 {
   int rc = 0;

@@ -116,6 +116,23 @@ int tiz_youtube_play_audio_playlist (tiz_youtube_t *ap_youtube,
                                      const char *ap_url_or_id);
 
 /**
+ * Retrieve the YouTube mix associated to to given video id or url andd all the
+ * audio streams of the mix playlust to the playback queue.
+ *
+ * After calling this method, the various tiz_youtube_get* methods can be
+ * used to interact with the playback queue.
+ *
+ * @ingroup libtizyoutube
+ *
+ * @param ap_youtube The tiz_youtube handle.
+ * @param ap_url_or_id A playlist full url or playlist id.
+ *
+ * @return 0 on success
+ */
+int tiz_youtube_play_audio_mix (tiz_youtube_t *ap_youtube,
+                                const char *ap_url_or_id);
+
+/**
  * Add all the audio streams of a YouTube search to the playback queue.
  *
  * After calling this method, the various tiz_youtube_get* methods can be

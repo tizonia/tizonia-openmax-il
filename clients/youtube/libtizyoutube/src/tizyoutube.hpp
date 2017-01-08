@@ -57,6 +57,7 @@ public:
 
   int play_audio_stream (const std::string &url_or_id);
   int play_audio_playlist (const std::string &url_or_id);
+  int play_audio_mix (const std::string &url_or_id);
   int play_audio_search (const std::string &search);
 
   void clear_queue ();
