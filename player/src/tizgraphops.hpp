@@ -121,6 +121,7 @@ namespace tiz
       virtual void do_store_skip (const int jump);
       virtual void do_volume_step (const int step);
       virtual void do_volume (const double vol);
+      virtual void do_restore_volume ();
       virtual void do_mute ();
       virtual void do_error ();
       virtual void do_end_of_play ();

@@ -486,6 +486,25 @@ void graph::ops::do_volume (const double vol)
 }
 
 /**
+ * Default implementation of do_restore_volume () operation. It applies the
+ * last known volume on port #0 of the last element of the graph.
+ *
+ */
+void graph::ops::do_restore_volume ()
+{
+  if (last_op_succeeded ())
+  {
+    OMX_U32 input_port = 0;
+    assert (!handles_.empty ());
+    TIZ_LOG (TIZ_PRIORITY_TRACE, "volume_ = %d", volume_);
+    G_OPS_BAIL_IF_ERROR (util::apply_volume (handles_[handles_.size () - 1],
+                                             input_port, ((double) volume_ / (double) 100), volume_),
+                         "Unable to restore the existing volume");
+    TIZ_LOG (TIZ_PRIORITY_TRACE, "volume_ = %d", volume_);
+  }
+}
+
+/**
  * Default implementation of do_mute () operation. It applies mute/unmute on
  * port #0 of the last element of the graph.
  *
