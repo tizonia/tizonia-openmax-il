@@ -23,15 +23,13 @@ Access YouTube to retrieve audio stream URLs and create a playback queue.
 
 from __future__ import print_function, unicode_literals
 
-import pafy
 import sys
 import os
 import logging
 import random
 import unicodedata
 import re
-import json
-from collections import namedtuple
+import pafy
 
 # For use during debugging
 # import pprint
@@ -45,7 +43,7 @@ ISO8601_TIMEDUR_EX = re.compile(r'PT((\d{1,3})H)?((\d{1,3})M)?((\d{1,2})S)?')
 
 API_KEY = 'AIzaSyAv9KX5r5WfzfAKlf4mhQMHKmHr-Uw-WOc'
 
-not_utf8_environment = "UTF-8" not in os.environ.get("LANG", "")
+NOT_UTF8_ENVIRONMENT = "UTF-8" not in os.environ.get("LANG", "")
 
 class _Colors:
     """A trivial class that defines various ANSI color codes.
@@ -59,45 +57,49 @@ class _Colors:
     FAIL = '\033[91m'
     ENDC = '\033[0m'
 
+# This code is here for debugging purposes
 def utf8_replace(txt):
     """ Replace unsupported characters in unicode string, returns unicode. """
     sse = sys.stdout.encoding
     txt = txt.encode(sse, "replace").decode("utf8", "ignore")
     return txt
 
+# This code is here for debugging purposes
 def xenc(stuff):
     """ Replace unsupported characters. """
     if sys.stdout.isatty():
-        return utf8_replace(stuff) if not_utf8_environment else stuff
+        return utf8_replace(stuff) if NOT_UTF8_ENVIRONMENT else stuff
 
     else:
         return stuff.encode("utf8", errors="replace")
 
+# This code is here for debugging purposes
 def xprint(stuff, end=None):
     """ Compatible print. """
     print(xenc(stuff), end=end)
 
-def printstreams(streams):
+# This code is here for debugging purposes
+def dump_stream_info(streams):
     """ Dump stream info. """
 
     fstring = "{0:<7}{1:<8}{2:<7}{3:<15}{4:<10}       "
     out = []
-    l = len(streams)
+    length = len(streams)
     text = " [Fetching stream info]      >"
 
-    for n, s in enumerate(streams):
-        sys.stdout.write(text + "-" * n + ">" + " " * (l - n - 1) + "<\r")
+    for num, stream in enumerate(streams):
+        sys.stdout.write(text + "-" * num + ">" + " " * (length - num - 1) + "<\r")
         sys.stdout.flush()
-        megs = "%3.f" % (s.get_filesize() / 1024 ** 2) + " MB"
-        q = "[%s]" % s.quality
-        out.append(fstring.format(n + 1, s.mediatype, s.extension, q, megs))
+        megs = "%3.f" % (stream.get_filesize() / 1024 ** 2) + " MB"
+        qual = "[%s]" % stream.quality
+        out.append(fstring.format(num + 1, stream.mediatype, stream.extension, qual, megs))
 
     sys.stdout.write("\r")
     xprint(fstring.format("Stream", "Type", "Format", "Quality", " Size"))
     xprint(fstring.format("------", "----", "------", "-------", " ----"))
 
-    for x in out:
-        xprint(x)
+    for line in out:
+        xprint(line)
 
 def pretty_print(color, msg=""):
     """Print message with color.
@@ -155,6 +157,78 @@ def to_ascii(msg):
     """
 
     return unicodedata.normalize('NFKD', unicode(msg)).encode('ASCII', 'ignore')
+
+def get_track_id_from_json(item):
+    """ Try to extract a video Id from a pafy query response """
+    fields = ['contentDetails/videoId',
+              'snippet/resourceId/videoId',
+              'id/videoId',
+              'id']
+    for field in fields:
+        node = item
+        for part in field.split('/'):
+            if node and isinstance(node, dict):
+                node = node.get(part)
+        if node:
+            return node
+    return ''
+
+def get_tracks_from_json(jsons):
+    """ Get search results from pafy's call_gdata response """
+
+    items = jsons.get("items")
+    if not items:
+        logging.info("got unexpected data or no search results")
+        return ()
+
+    # fetch detailed information about items from videos API
+    query_string = {'part':'contentDetails,statistics,snippet',
+                    'id': ','.join([get_track_id_from_json(i) for i in items])}
+
+    wdata = pafy.call_gdata('videos', query_string)
+
+    items_vidinfo = wdata.get('items', [])
+    # enhance search results by adding information from videos API response
+    for searchresult, vidinfoitem in zip(items, items_vidinfo):
+        searchresult.update(vidinfoitem)
+
+    # populate list of video objects
+    songs = []
+    for item in items:
+
+        try:
+
+            ytid = get_track_id_from_json(item)
+            snippet = item.get('snippet', {})
+            title = snippet.get('title', '').strip()
+            info = VideoInfo(ytid=ytid, title=title)
+
+        except Exception as exception:
+
+            logging.info('Error during metadata extraction/instantiation of ' +
+                         'search result {}\n{}'.format(ytid, exception))
+
+        songs.append(info)
+
+    # return video objects
+    return songs
+
+def generate_search_query(term):
+    """ Return the query string for pafy's call_gdata. """
+
+    query_string = {
+        'q': term,
+        'maxResults': 50,
+        'safeSearch': "none",
+        'order': 'relevance',
+        'part': 'id,snippet',
+        'type': 'video',
+        'videoDuration': 'any',
+        'key': API_KEY,
+        'videoCategoryId' : 10 # search music
+    }
+
+    return query_string
 
 class VideoInfo(object):
     """ Class to represent a YouTube video.
@@ -223,6 +297,7 @@ class tizyoutubeproxy(object):
             count = len(self.queue)
 
             playlist = pafy.get_playlist2(arg)
+            yt_video = None
             if len(playlist) > 0:
                 if yt_video:
                     video_id = yt_video.videoid
@@ -247,13 +322,13 @@ class tizyoutubeproxy(object):
         """
         logging.info('enqueue_audio_search : %s', arg)
         try:
-            query = self._generate_search_qs(arg)
+            query = generate_search_query(arg)
             wdata = pafy.call_gdata('search', query)
 
             wdata2 = wdata
             count = 0
             while True:
-                for track_info in self._get_tracks_from_json(wdata2):
+                for track_info in get_tracks_from_json(wdata2):
                     self.add_to_playback_queue(info=track_info)
                     count += 1
 
@@ -267,7 +342,7 @@ class tizyoutubeproxy(object):
             self.__update_play_queue_order()
 
         except ValueError:
-            raise ValueError(str("No items found : %s" % arg))
+            raise ValueError(str("No videos found : %s" % arg))
 
     def enqueue_audio_mix(self, arg):
         """Obtain a YouTube mix associated to a given video id or url and add all audio
@@ -295,7 +370,7 @@ class tizyoutubeproxy(object):
             self.__update_play_queue_order()
 
         except ValueError:
-            raise ValueError(str("No items found : %s" % arg))
+            raise ValueError(str("No videos found : %s" % arg))
 
     def current_audio_stream_title(self):
         """ Retrieve the current stream's title.
@@ -305,7 +380,7 @@ class tizyoutubeproxy(object):
         title = ''
         if stream:
             title = to_ascii(stream['a'].title).encode("utf-8")
-        logging.info("current_audio_stream_title : {0}".format(title))
+        logging.info("current_audio_stream_title : %s", title)
         return title
 
     def current_audio_stream_author(self):
@@ -402,7 +477,6 @@ class tizyoutubeproxy(object):
         """
         logging.info("current_audio_stream_published")
         stream = self.now_playing_stream
-        video_id = ''
         if stream:
             published = to_ascii(stream['v'].published).encode("utf-8")
         return published
@@ -497,7 +571,7 @@ class tizyoutubeproxy(object):
         """
         try:
             if not stream.get('v') or not stream.get('a'):
-                logging.info("__retrieve_stream_url ytid : {0}".format(stream['i'].ytid))
+                logging.info("__retrieve_stream_url ytid : %s", stream['i'].ytid)
                 video = pafy.new(stream['i'].ytid)
                 audio = video.getbestaudio(preftype="webm")
                 if not audio:
@@ -507,93 +581,20 @@ class tizyoutubeproxy(object):
 
             # streams = stream.get('v').audiostreams[::-1]
             # pprint.pprint(streams)
-            # printstreams(streams)
+            # dump_stream_info(streams)
 
             self.now_playing_stream = stream
-            logging.info("__retrieve_stream_url url       : {0}".format(stream['a'].url))
-            logging.info("__retrieve_stream_url bitrate   : {0}".format(stream['a'].bitrate))
-            logging.info("__retrieve_stream_url extension : {0}".format(stream['a'].extension))
+            logging.info("__retrieve_stream_url url       : %s", stream['a'].url)
+            logging.info("__retrieve_stream_url bitrate   : %s", stream['a'].bitrate)
+            logging.info("__retrieve_stream_url extension : %s", stream['a'].extension)
             return stream['a'].url.encode("utf-8")
 
         except AttributeError:
             logging.info("Could not retrieve the stream url!")
             raise
 
-    def _get_tracks_from_json(self, jsons):
-        """ Get search results from API response """
-
-        items = jsons.get("items")
-        if not items:
-            logging.info("got unexpected data or no search results")
-            return ()
-
-        # fetch detailed information about items from videos API
-        qs = {'part':'contentDetails,statistics,snippet',
-              'id': ','.join([self._get_track_id_from_json(i) for i in items])}
-
-        wdata = pafy.call_gdata('videos', qs)
-
-        items_vidinfo = wdata.get('items', [])
-        # enhance search results by adding information from videos API response
-        for searchresult, vidinfoitem in zip(items, items_vidinfo):
-            searchresult.update(vidinfoitem)
-
-        # populate list of video objects
-        songs = []
-        for item in items:
-
-            try:
-
-                ytid = self._get_track_id_from_json(item)
-                snippet = item.get('snippet', {})
-                title = snippet.get('title', '').strip()
-                info = VideoInfo(ytid=ytid, title=title)
-
-            except Exception as e:
-
-                logging.info('Error during metadata extraction/instantiation of ' +
-                    'search result {}\n{}'.format(ytid, e))
-
-            songs.append(info)
-
-        # return video objects
-        return songs
-
-    def _get_track_id_from_json(self, item):
-        """ Try to extract video Id from various response types """
-        fields = ['contentDetails/videoId',
-                  'snippet/resourceId/videoId',
-                  'id/videoId',
-                  'id']
-        for field in fields:
-            node = item
-            for p in field.split('/'):
-                if node and isinstance(node, dict):
-                    node = node.get(p)
-            if node:
-                return node
-        return ''
-
-    def _generate_search_qs(self, term):
-        """ Return query string. """
-
-        aliases = dict(views='viewCount')
-        qs = {
-            'q': term,
-            'maxResults': 50,
-            'safeSearch': "none",
-            'order': 'relevance',
-            'part': 'id,snippet',
-            'type': 'video',
-            'videoDuration': 'any',
-            'key': API_KEY,
-            'videoCategoryId' : 10 # search music
-        }
-
-        return qs
-
-
     def add_to_playback_queue(self, audio=None, video=None, info=None):
+        """ Add to the playback queue. """
 
         if audio:
             print_nfo("[YouTube] [Stream] '{0}' [{1}]." \
