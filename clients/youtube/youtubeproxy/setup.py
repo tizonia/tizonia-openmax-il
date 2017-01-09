@@ -47,6 +47,7 @@ setup(
     license              = "Apache License, Version 2.0",
     description          = 'Tizonia YouTube proxy',
     install_requires     = [
+#        'pfy >= 0.5.2',
     ],
     classifiers          = [
         "Development Status :: 2 - Pre-Alpha",
