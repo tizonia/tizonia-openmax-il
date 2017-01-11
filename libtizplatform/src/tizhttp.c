@@ -161,6 +161,7 @@ insert_kv_pair (tiz_http_parser_t * ap_parser, const char * ap_key,
     {
       tiz_mem_free (p_kvp->p_key);
       tiz_mem_free (p_kvp->p_value);
+      tiz_mem_free (p_kvp);
       return 1;
     }
 
