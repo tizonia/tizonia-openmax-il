@@ -63,7 +63,7 @@ function pretty_print {
 }
 
 function usage {
-    pretty_print "$blue" "tizonia-remote @PACKAGE_VERSION@. Copyright (C) 2016 Juan A. Rubio"
+    pretty_print "$blue" "tizonia-remote @PACKAGE_VERSION@. Copyright (C) 2017 Juan A. Rubio"
     pretty_print "$blue" "This software is part of the Tizonia project <http://tizonia.org>"
 
     echo

@@ -202,7 +202,7 @@ function print_dashes {
 #   None
 ##################################################################
 function print_banner_and_license {
-    pretty_print "$BLU" "$1 $TIZONIA_RELEASE_VERSION. Copyright (C) 2016 Juan A. Rubio"
+    pretty_print "$BLU" "$1 $TIZONIA_RELEASE_VERSION. Copyright (C) 2017 Juan A. Rubio"
     pretty_print "$BLU" "This software is part of the Tizonia project <http://tizonia.org>."
 
     echo
