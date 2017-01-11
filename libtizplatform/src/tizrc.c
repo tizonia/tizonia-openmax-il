@@ -299,6 +299,7 @@ get_node (const tiz_rcfile_t * ap_rc, char * str, keyval_t ** app_kv)
   if (-1 != ret)
     {
       *app_kv = p_kv;
+      tiz_mem_free (value);
     }
 
   return ret;
