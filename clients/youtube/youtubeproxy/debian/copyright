@@ -18,7 +18,7 @@ License: Apache
  limitations under the License.
 
 Files: debian/*
-Copyright: 2016 Juan A. Rubio <juan.rubio@aratelia.com>
+Copyright: 2017 Juan A. Rubio <juan.rubio@aratelia.com>
 License: GPL-2+
  This package is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
