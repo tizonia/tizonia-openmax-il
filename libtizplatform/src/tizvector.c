@@ -63,6 +63,7 @@ tiz_vector_init (tiz_vector_t ** app_vector, size_t a_elem_size)
 
   if (NULL == (p_vec->p_icd = (UT_icd *) tiz_mem_calloc (1, sizeof (UT_icd))))
     {
+      tiz_mem_free (p_vec);
       return OMX_ErrorInsufficientResources;
     }
 
