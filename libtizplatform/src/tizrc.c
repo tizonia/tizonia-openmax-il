@@ -570,6 +570,7 @@ tiz_rcfile_init (tiz_rcfile_t ** pp_rc)
   else
     {
       *pp_rc = NULL;
+      tiz_mem_free (p_rc);
       rc = OMX_ErrorInsufficientResources;
     }
 
