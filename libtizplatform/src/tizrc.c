@@ -252,6 +252,8 @@ get_node (const tiz_rcfile_t * ap_rc, char * str, keyval_t ** app_kv)
                       p_kv->valcount++;
                     }
                 }
+              tiz_mem_free (value);
+              value = NULL;
             }
           else
             {
@@ -294,12 +296,12 @@ get_node (const tiz_rcfile_t * ap_rc, char * str, keyval_t ** app_kv)
           ret = 0;
         }
       tiz_mem_free (key);
+      key = NULL;
     }
 
   if (-1 != ret)
     {
       *app_kv = p_kv;
-      tiz_mem_free (value);
     }
 
   return ret;
