@@ -517,8 +517,6 @@ transform_buffer (vorbisd_prc_t * ap_prc)
         }
     }
 
-  assert (p_in->nFilledLen >= 0);
-
   if (0 == p_in->nFilledLen)
     {
       TIZ_TRACE (handleOf (ap_prc), "HEADER [%p] nFlags [%d] is empty", p_in,
