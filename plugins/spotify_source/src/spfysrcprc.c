@@ -441,7 +441,7 @@ send_port_auto_detect_events (spfysrc_prc_t * ap_prc)
   assert (ap_prc);
 
   if (ap_prc->audio_coding_type_ != OMX_AUDIO_CodingUnused
-      || ap_prc->audio_coding_type_ != OMX_AUDIO_CodingAutoDetect)
+      && ap_prc->audio_coding_type_ != OMX_AUDIO_CodingAutoDetect)
     {
       TIZ_DEBUG (handleOf (ap_prc), "Issuing OMX_EventPortFormatDetected");
       tiz_srv_issue_event ((OMX_PTR) ap_prc, OMX_EventPortFormatDetected, 0, 0,
