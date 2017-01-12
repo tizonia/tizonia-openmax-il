@@ -461,7 +461,7 @@ deinit_pulseaudio (pulsear_prc_t * ap_prc)
     }
 }
 
-static bool
+static int
 await_pulseaudio_context_connection (pulsear_prc_t * ap_prc)
 {
   int rc = PA_ERR_UNKNOWN;
