@@ -111,7 +111,7 @@ namespace
   {
     char ch;
     init_termios (echo);
-    ch = getchar ();
+    ch = (char)getchar ();
     reset_termios ();
     return ch;
   }
