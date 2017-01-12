@@ -1341,8 +1341,9 @@ srv_write_omx_buffer (httpr_server_t * ap_server, httpr_listener_t * ap_lstnr)
             srv_write_to_listener (ap_server, ap_lstnr, p_buffer, len, &bytes));
           assert (bytes >= 0);
 
-          p_lstnr_buf->len -= bytes;
-          assert (p_lstnr_buf->len >= 0);
+          p_lstnr_buf->len
+            = bytes > p_lstnr_buf->len ? 0 : (p_lstnr_buf->len - bytes);
+
           if (p_lstnr_buf->len > 0)
             {
               memmove (p_lstnr_buf->p_data, p_lstnr_buf->p_data + bytes,
