@@ -1,5 +1,5 @@
-tizyoutube (0.5.0-1) unstable; urgency=low
+tizyoutube (0.6.0-1) unstable; urgency=low
 
-  * Initial release (Closes: #141)
+  * Initial release (Closes: #286)
 
- -- Juan A. Rubio <juan.rubio@aratelia.com>  Fri, 17 Jun 2016 06:06:20 +0100
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Fri, 13 Jan 2017 16:55:01 +0000
