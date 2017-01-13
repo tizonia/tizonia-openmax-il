@@ -1,9 +1,9 @@
 # Tizonia #
 
-* A music player and audio streaming client/server for Linux.
-* With support for Spotify, Google Play Music (including Unlimited),
+* A command-line music player and audio streaming client/server for Linux.
+* With support for Spotify, Google Play Music (including Unlimited), YouTube,
   SoundCloud and Dirble.
-* A multimedia framework based on OpenMAX IL 1.2 provisional specification.
+* A multimedia framework based on OpenMAX IL 1.2.
 
 [![Build Status](https://travis-ci.org/tizonia/tizonia-openmax-il.png)](https://travis-ci.org/tizonia/tizonia-openmax-il)  |  [![Coverity Scan Build Status](https://scan.coverity.com/projects/594/badge.svg)](https://scan.coverity.com/projects/594)  |  [![Documentation Status](https://readthedocs.org/projects/tizonia-openmax-il/badge/?version=master)](https://readthedocs.org/projects/tizonia-openmax-il/?badge=master)
 
@@ -20,7 +20,7 @@ To install the
 
 ```
 
-> NOTE: This installs the latest version of Tizonia's Debian packages from [Bintray](https://bintray.com/tizonia) and all their dependencies.
+> NOTE: This installs the latest Tizonia Debian packages from [Bintray](https://bintray.com/tizonia) along with all their dependencies.
 
 Finally, to use *Spotify*, *Google Play Music*, *SoundCloud* and *Dirble*,
 introduce your credentials in Tizonia's config file (see instructions inside
@@ -28,12 +28,15 @@ the file for more information):
 
 ```bash
 
-    $HOME/.config/tizonia/tizonia.conf
+    $ mkdir -p $HOME/.config/tizonia
+    $ cp /etc/tizonia/tizonia.conf/tizonia.conf $HOME/.config/tizonia/tizonia.conf
+
+    ( now edit $HOME/.config/tizonia/tizonia.conf )
 
 ```
 
 The Debian packages are hosted on [Bintray](https://bintray.com/tizonia), with
-the following distro/arch combinations (NOTE: i386 packages are not built anymore):
+the following distro/arch combinations (NOTE: i386 packages not built anymore):
 
 | Ubuntu Trusty (14.04) | Ubuntu Xenial (16.04) | Debian Jessie (8) | Raspbian Jessie (8) |
 |         :---:         |        :---:          |        :---:      |       :---:         |
@@ -48,9 +51,10 @@ the following distro/arch combinations (NOTE: i386 packages are not built anymor
 
 ### `tizonia`: command line music player and audio streaming client/server ###
 
-* Stream audio from Spotify (Spotify Premium required).
-* Stream audio from Google Play Music (including Unlimited features).
-* Stream audio from SoundCloud.
+* Stream playlists from Spotify (Spotify Premium required).
+* Search and stream audio from Google Play Music (including Unlimited features).
+* Search and stream audio from YouTube.
+* Search and stream audio from SoundCloud.
 * Search and stream Internet radio stations with Dirble.
 * Playback of local media files (mp3, mp2, mpa, m2a, aac, ogg/vorbis, opus,
   wav, aiff, and flac).
@@ -89,6 +93,7 @@ the following distro/arch combinations (NOTE: i386 packages are not built anymor
 5. OpenMAX IL 1.2 codecs/plugins
   * Spotify streaming service client (libspotify),
   * Google Play Music streaming service client (based on 'gmusicapi' Python module + libcurl)
+  * YouTube audio streaming service client (based on 'pafy' Python module + libcurl)
   * SoundCloud streaming service client (based on 'soundcloud' Python module + libcurl)
   * Dirble internet radio station directory (Dirble REST API + libcurl)
   * mp3 decoders (libmad and libmpg123),
@@ -100,6 +105,7 @@ the following distro/arch combinations (NOTE: i386 packages are not built anymor
   * VORBIS decoder (libfishsound)
   * PCM renderers (ALSA and Pulseaudio)
   * OGG demuxer (liboggz)
+  * WEBM demuxer (libnestegg)
   * HTTP renderer (i.e. ala icecast, for LAN streaming)
   * HTTP source (based on libcurl)
   * mp3 encoder (based on LAME),
