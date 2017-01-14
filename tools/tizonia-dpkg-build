@@ -484,7 +484,7 @@ function do_tizonia_deps {
     python -c "import gmusicapi"
     if [[ "$?" -ne 0 ]]; then
         #         local GMUSICAPI_DIR=gmusicapi
-        sudo pip install gmusicapi
+        sudo -H pip install --upgrade gmusicapi
         # if [[ ! -d "$TEMP_DIR"/gmusicapi ]]; then
         #    cd "$TEMP_DIR" \
         #    && git clone https://github.com/simon-weber/gmusicapi gmusicapi
@@ -498,9 +498,25 @@ function do_tizonia_deps {
     # Install Python pip-based dependencies : soundcloud
     python -c "import soundcloud"
     if [[ "$?" -ne 0 ]]; then
-        sudo pip install soundcloud
+        sudo pip install --upgrade soundcloud
     else
         pretty_print "$GRN" "[soundcloud] : installed."
+    fi
+
+    # Install Python pip-based dependencies : youtube-dl
+    python -c "import youtube-dl"
+    if [[ "$?" -ne 0 ]]; then
+        sudo pip install --upgrade youtube-dl
+    else
+        pretty_print "$GRN" "[youtube-dl] : installed."
+    fi
+
+    # Install Python pip-based dependencies : pafy
+    python -c "import pafy"
+    if [[ "$?" -ne 0 ]]; then
+        sudo pip install --upgrade pafy
+    else
+        pretty_print "$GRN" "[pafy] : installed."
     fi
 
     # Backup installation of Spotify. Can be used if Modipy's repo is not available.
