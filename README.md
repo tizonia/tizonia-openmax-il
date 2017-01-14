@@ -7,7 +7,7 @@
 
 [![Build Status](https://travis-ci.org/tizonia/tizonia-openmax-il.png)](https://travis-ci.org/tizonia/tizonia-openmax-il)  |  [![Coverity Scan Build Status](https://scan.coverity.com/projects/594/badge.svg)](https://scan.coverity.com/projects/594)  |  [![Documentation Status](https://readthedocs.org/projects/tizonia-openmax-il/badge/?version=master)](https://readthedocs.org/projects/tizonia-openmax-il/?badge=master)
 
-## Install the latest binary release (v0.5.0)
+## Install the latest release
 
 To install the
 [latest release](https://github.com/tizonia/tizonia-openmax-il/releases/latest):
@@ -42,6 +42,26 @@ the following distro/arch combinations (NOTE: i386 packages not built anymore):
 |         :---:         |        :---:          |        :---:      |       :---:         |
 |     amd64, armhf      |     amd64, armhf      |    amd64, armhf   |      armhf          |
 | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-trusty/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-trusty/_latestVersion)  | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-xenial/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-xenial/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-jessie/_latestVersion)  | [ ![Download](https://api.bintray.com/packages/tizonia/raspbian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/raspbian/tizonia-jessie/_latestVersion) |
+
+### If your are upgrading to v0.6.0 from a previous release
+
+IMPORTANT: If your are upgrading to v0.6.0, please note that plugins are now
+installed under ${libdir}/tizonia0-plugins12, that means, you will need to
+add 'tizonia0-plugins12' to your 'component-paths' configuration variable
+in *tizonia.conf*.
+
+e.g. before 0.6.0:
+
+```
+    component-paths = /usr/lib/arm-linux-gnueabihf;
+```
+
+
+after 0.6.0:
+
+```
+    component-paths = /usr/lib/arm-linux-gnueabihf/tizonia0-plugins12;
+```
 
 ## 'tizonia' usage ##
 
