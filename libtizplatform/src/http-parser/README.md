@@ -1,7 +1,7 @@
 HTTP Parser
 ===========
 
-[![Build Status](https://travis-ci.org/joyent/http-parser.png?branch=master)](https://travis-ci.org/joyent/http-parser)
+[![Build Status](https://api.travis-ci.org/nodejs/http-parser.svg?branch=master)](https://travis-ci.org/nodejs/http-parser)
 
 This is a parser for HTTP messages written in C. It parses both requests and
 responses. The parser is designed to be used in performance HTTP
@@ -148,7 +148,7 @@ callback in a threadsafe manner. This allows http-parser to be used in
 multi-threaded contexts.
 
 Example:
-```
+```c
  typedef struct {
   socket_t sock;
   void* buffer;
@@ -184,7 +184,7 @@ void http_parser_thread(socket_t sock) {
  parser supplied to callback functions */
  parser->data = my_data;
 
- http_parser_settings settings; / * set up callbacks */
+ http_parser_settings settings; /* set up callbacks */
  settings.on_url = my_url_callback;
 
  /* execute parser */
