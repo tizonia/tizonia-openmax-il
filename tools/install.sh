@@ -43,14 +43,14 @@ sudo apt-get -y --force-yes install python-dev curl apt-transport-https libffi-d
 # To install libspotify deb packages, add Mopidy's archive to APT's
 # sources.list
 grep -q "apt.mopidy.com" /etc/apt/sources.list
-if [ $? -eq 1 ]; then
+if [[ "$?" -eq 1 ]]; then
     curl 'http://apt.mopidy.com/mopidy.gpg' | sudo apt-key add -
     echo "deb http://apt.mopidy.com/ stable main contrib non-free" | sudo tee -a /etc/apt/sources.list
 fi
 
 # Add Tizonia's archive to APT's sources.list
 grep -q "dl.bintray.com/tizonia" /etc/apt/sources.list
-if [ $? -eq 1 ]; then
+if [[ "$?" -eq 1 ]]; then
     curl -k 'https://bintray.com/user/downloadSubjectPublicKey?username=tizonia' | sudo apt-key add -
     echo "deb https://dl.bintray.com/tizonia/$DISTRO $RELEASE main" | sudo tee -a /etc/apt/sources.list
 fi
@@ -60,8 +60,10 @@ sudo apt-get update
 
 # Using pip, install Simon Weber's gmusicapi and soundcloud's API wrapper
 sudo apt-get -y install python-pip \
-    && ( sudo pip install gmusicapi || sudo pip install gmusicapi ) \
-    && sudo pip install soundcloud
+    && ( sudo -H pip install --upgrade gmusicapi || sudo -H pip install --upgrade gmusicapi ) \
+    && sudo -H pip install --upgrade soundcloud \
+    && sudo -H pip install --upgrade youtube-dl \
+    && sudo -H pip install --upgrade pafy
 
 # Install libspotify
 sudo apt-get -y install libspotify12
@@ -70,10 +72,10 @@ sudo apt-get -y install libspotify12
 sudo apt-get -y install tizonia-all
 
 # Copy Tizonia's config file to the user's config directory
-if [ $? -eq 0 ]; then
+if [[ "$?" -eq 0 ]]; then
     TIZ_CONFIG_DIR="$HOME/.config/tizonia"
     TIZ_CONFIG_FILE="$TIZ_CONFIG_DIR/tizonia.conf"
-    if [ ! -e "$TIZ_CONFIG_FILE" ]; then
+    if [[ ! -e "$TIZ_CONFIG_FILE" ]]; then
         mkdir "$TIZ_CONFIG_DIR"
         cp /etc/tizonia/tizonia.conf/tizonia.conf "$TIZ_CONFIG_FILE"
     fi
@@ -81,10 +83,10 @@ fi
 
 # Simple test to verify that everything went well
 which tizonia > /dev/null
-if [ $? -eq 0 ]; then
+if [[ "$?" -eq 0 ]]; then
     echo ; tizonia
     printf "\nTizonia is now installed.\n"
-    printf "Please add Spotify, Google Music and Soundcloud credentials in : $TIZ_CONFIG_FILE\n"
+    printf "Please add Spotify, Google Music, Soundcloud, and Dirble credentials in : $TIZ_CONFIG_FILE\n"
 else
     echo "Oops. Something went wrong!"
     exit 1
