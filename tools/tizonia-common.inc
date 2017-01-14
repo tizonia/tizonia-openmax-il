@@ -68,7 +68,6 @@ declare -Ar TIZ_PROJECT_DIRS=( \
     [tizspotifysrc]="plugins/spotify_source" \
     [tizvorbisdec]="plugins/vorbis_decoder" \
     [tizwebmdmux]="plugins/webm_demuxer" \
-    [tizoggmux]="plugins/ogg_muxer" \
     [tizonia-player]="player" \
     [tizonia-config]="config" \
 )
@@ -108,7 +107,6 @@ readonly TIZ_PROJECTS_ORDERED=( \
     tizspotifysrc \
     tizvorbisdec \
     tizwebmdmux \
-    tizoggmux \
     tizonia-player \
     tizonia-config \
 )
