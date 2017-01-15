@@ -36,19 +36,19 @@ the file for more information):
 ```
 
 The Debian packages are hosted on [Bintray](https://bintray.com/tizonia), with
-the following distro/arch combinations (NOTE: i386 packages not built anymore):
+the following distro/arch combinations (NOTE: 14.04 packages not being built anymore):
 
-| Ubuntu Trusty (14.04) | Ubuntu Xenial (16.04) | Debian Jessie (8) | Raspbian Jessie (8) |
-|         :---:         |        :---:          |        :---:      |       :---:         |
-|     amd64, armhf      |     amd64, armhf      |    amd64, armhf   |      armhf          |
-| [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-trusty/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-trusty/_latestVersion)  | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-xenial/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-xenial/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-jessie/_latestVersion)  | [ ![Download](https://api.bintray.com/packages/tizonia/raspbian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/raspbian/tizonia-jessie/_latestVersion) |
+| Ubuntu Xenial (16.04) | Debian Jessie (8) | Raspbian Jessie (8) |
+|        :---:          |        :---:      |       :---:         |
+|     amd64, armhf      |    amd64, armhf   |      armhf          |
+| [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-xenial/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-xenial/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-jessie/_latestVersion)  | [ ![Download](https://api.bintray.com/packages/tizonia/raspbian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/raspbian/tizonia-jessie/_latestVersion) |
 
-### If your are upgrading to v0.6.0 from a previous release
+### IMPORTANT: If your are upgrading to v0.6.0 from a previous release
 
-IMPORTANT: If your are upgrading to v0.6.0, please note that plugins are now
-installed under ${libdir}/tizonia0-plugins12, that means, you will need to
-add 'tizonia0-plugins12' to your 'component-paths' configuration variable
-in *tizonia.conf*.
+If your are upgrading to v0.6.0, please note that plugins are now installed
+under ${libdir}/tizonia0-plugins12, that means, you will need to add
+'tizonia0-plugins12' to your 'component-paths' configuration variable in
+*tizonia.conf*.
 
 e.g. before 0.6.0:
 
@@ -141,7 +141,7 @@ after 0.6.0:
 
 ## Building from source ##
 
-To build and install from source, follow the these steps (Ubuntu 14.04 is
+To build and install from source, follow the these steps (Ubuntu 16.04 is
 assumed, but should work on other relatively recent debian-based distros).
 
 ### Dependencies ###
