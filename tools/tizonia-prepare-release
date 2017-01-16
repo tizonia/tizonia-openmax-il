@@ -161,13 +161,13 @@ function main {
     update_debian_changelog_files
 
     # Do the following manual steps at this point
-    # 7.- Update README.md (as needed).
-    # 8.- Close github issue: release v0.x.x
-    # 9.- Create release and tag on GitHub.
+    # 7.- Update README.md (as many changes as needed).
+    # 8.- Close github issue: release vx.x.x
+    # 9.- Create release and tag it on GitHub.
 
     update_changelog
 
-    # Now Delete the tag in, push the changes to CHANGELOG.md and re-create the tag
+    # Now Delete the tag on Github, push the changes to CHANGELOG.md and re-create the tag
     # $ git tag -l
     # $ git tag -d v0.2.0
     # $ git push origin :refs/tags/v0.2.0
