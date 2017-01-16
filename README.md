@@ -66,7 +66,7 @@ after 0.6.0:
 
 ## 'tizonia' usage ##
 
-![alt text](https://github.com/tizonia/tizonia-openmax-il/blob/master/docs/animated-gifs/tizonia-gmusic-screencast.gif "Tizonia usage")
+![alt text](https://github.com/tizonia/tizonia-openmax-il/blob/master/docs/animated-gifs/tizonia-usage-screencast.gif "Tizonia usage")
 
 ## The Tizonia project
 
