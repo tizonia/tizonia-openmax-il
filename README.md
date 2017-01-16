@@ -142,77 +142,55 @@ after 0.6.0:
 
 ## Building from source ##
 
-To build and install from source, follow the these steps (Ubuntu 16.04 is
-assumed, but should work on other relatively recent debian-based distros).
+To build and install from source, follow these steps (Ubuntu 16.04 is assumed,
+but should work on other recent Debian-based distros).
 
 ### Dependencies ###
 
 To install all the development dependencies, the easiest way is to use the
-'tizonia-dev-build' script. This script lives under the 'tools' folder and
+'tizonia-dev-build' tool. This script lives under the 'tools' folder and
 maintains an up-to-date list of all the packages that are required in a
 Debian-compatible system to be able to build Tizonia from source.
 
-> NOTE: The following command also installs Mopidy's 'libspotify-dev' package,
-> and the 'gmusicapi' and 'soundcloud' python packages.
+> NOTE: The following command installs Mopidy's 'libspotify-dev' package, the
+> 'gmusicapi', 'soundcloud', 'youtube-dl' and 'pafy' python packages, among
+> other things.
 
 ```bash
 
     $ cd tools
+
+    # Define the following environment variables
+    $ export TIZONIA_REPO_DIR=/path/to/tizonia/repo # (e.g. /home/juan/work/tizonia)
+    $ export TIZONIA_INSTALL_DIR=/path/to/install/basedir # (e.g. /home/juan/temp)
+
+    # Install everything needed to build Tizonia on a Debian/Ubuntu system
     $ ./tizonia-dev-build --deps
 
 ```
 
-#### libspotify ####
+#### Building ####
 
-> NOTE: libspotify-dev will be installed by 'tizonia-dev-build --deps',
-> including the addition of Mopidy's APT archive. However, these instructions
-> are left here for reference.
-
-libspotify-dev needs to be present in the system. It can be installed from
-[Mopidy](https://github.com/mopidy/libspotify-deb) APT archive, like this:
+After the dependencies have been installed, build and install the Tizonia
+OpenMAX IL framework, the IL plugins and the 'tizonia' command-line
+application:
 
 ```bash
 
-    $ wget -q -O - http://apt.mopidy.com/mopidy.gpg | sudo apt-key add - \
-        && echo "deb http://apt.mopidy.com/ stable main contrib non-free" | sudo tee -a /etc/apt/sources.list \
-        && echo "deb-src http://apt.mopidy.com/ stable main contrib non-free" | sudo tee -a /etc/apt/sources.list \
-        && sudo apt-get update \
-        && sudo apt-get install libspotify12 libspotify-dev -qq
+   $ cd tools
+
+   # Configure all Tizonia sub-projects with 'release' flags, build and
+   # install.
+   $ ./tizonia-dev-build --release --install
+
+   or
+
+   # Configure with 'debug' flags, build and install.
+   $ ./tizonia-dev-build --debug --install
 
 ```
 
-#### Google Play Music ####
-
-> NOTE: 'gmusicapi' will be installed by 'tizonia-dev-build --deps'. However,
-> these instructions are left here for reference.
-
-To stream from Google Play Music, Simon Weber's
-[gmusicapi](https://github.com/simon-weber/gmusicapi) python library needs to
-be installed.
-
-```bash
-
-    $ sudo pip install gmusicapi
-
-```
-
-#### SoundCloud ####
-
-> NOTE: 'soundcloud' will be installed by 'tizonia-dev-build --deps'. However,
-> these instructions are left here for reference.
-
-To stream from SoundCloud, the official SoundCloud Python wrapper needs to be
-installed.
-
-```bash
-
-    $ sudo pip install soundcloud
-
-```
-
-#### Building Tizonia ####
-
-From the top of Tizonia's repo, do the standard:
+Alternatively, from the top of Tizonia's repo, one can also do the familiar:
 
 ```bash
 
@@ -220,26 +198,6 @@ From the top of Tizonia's repo, do the standard:
     $ ./configure
     $ make
     $ make install
-
-```
-
-This will configure, build and install the Tizonia OpenMAX IL framework, the IL
-plugins and the 'tizonia' command-line player application.
-
-
-Alternatively, the *tizonia-dev-build* tool also can be used, which makes the build process a bit easier:
-
-```bash
-
-   $ cd tools
-   $ export TIZONIA_REPO_DIR=/path/to/tizonia/repo # (e.g. /home/juan/work/tizonia)
-   $ export TIZONIA_INSTALL_DIR=/path/to/install/basedir # (e.g. /home/juan/temp)
-   $ ./tizonia-dev-build --deps # installs everything needed to build Tizonia on a Debian/Ubuntu system
-   $ ./tizonia-dev-build --release --install # Configure all Tizonia sub-projects with 'release' flags, build them, and install their binaries
-
-   or
-
-   $ ./tizonia-dev-build --debug --install # Configure all Tizonia sub-projects with 'debug' flags, build them, and install their binaries
 
 ```
 
