@@ -1,6 +1,6 @@
 # Tizonia #
 
-* A command-line music player and audio streaming client/server for Linux.
+* A command-line music streaming client/server for Linux.
 * With support for Spotify, Google Play Music (including Unlimited), YouTube,
   SoundCloud and Dirble.
 * A multimedia framework based on OpenMAX IL 1.2.
@@ -45,12 +45,13 @@ the following distro/arch combinations (NOTE: 14.04 packages not being built any
 
 ### IMPORTANT: If your are upgrading to v0.6.0 from a previous release
 
-If your are upgrading to v0.6.0, please note that plugins are now installed
-under ${libdir}/tizonia0-plugins12, that means, you will need to add
-'tizonia0-plugins12' to your 'component-paths' configuration variable in
-*tizonia.conf*.
+If you are upgrading to v0.6.0, please note that plugins are now being
+installed in a different directory, ${libdir}/tizonia0-plugins12; that means,
+you will need to update your existing *tizonia.conf*, or else *tizonia* will
+not work.  Just add 'tizonia0-plugins12' to the 'component-paths' configuration
+variable in *tizonia.conf*.
 
-e.g. before 0.6.0:
+i.e. before 0.6.0:
 
 ```
     component-paths = /usr/lib/arm-linux-gnueabihf;
@@ -211,7 +212,7 @@ installed.
 
 #### Building Tizonia ####
 
-From the top of Tizonia's repo, do:
+From the top of Tizonia's repo, do the standard:
 
 ```bash
 
@@ -224,6 +225,23 @@ From the top of Tizonia's repo, do:
 
 This will configure, build and install the Tizonia OpenMAX IL framework, the IL
 plugins and the 'tizonia' command-line player application.
+
+
+Alternatively, the *tizonia-dev-build* tool also can be used, which makes the build process a bit easier:
+
+```bash
+
+   $ cd tools
+   $ export TIZONIA_REPO_DIR=/path/to/tizonia/repo # (e.g. /home/juan/work/tizonia)
+   $ export TIZONIA_INSTALL_DIR=/path/to/install/basedir # (e.g. /home/juan/temp)
+   $ ./tizonia-dev-build --deps # installs everything needed to build Tizonia on a Debian/Ubuntu system
+   $ ./tizonia-dev-build --release --install # Configure all Tizonia sub-projects with 'release' flags, build them, and install their binaries
+
+   or
+
+   $ ./tizonia-dev-build --debug --install # Configure all Tizonia sub-projects with 'debug' flags, build them, and install their binaries
+
+```
 
 ### Tizonia configuration file ###
 
@@ -260,11 +278,13 @@ library by Christophe Henry (MSM is in turn based on
 MSM is used to generate a number of state machines that control the tunneled
 OpenMAX IL components for the various playback uses cases. The state machines
 are quite large and MSM is known for not being easy on the compilers. Building
-`tizonia` requires quite a bit of RAM (~2.5 GB).
+the `tizonia` command-line app in 'debug' configuration (with debug symbols,
+etc) requires quite a bit of RAM.
 
 You may see GCC crashing like below; simply keep running `make -j1` or `make
 -j1 install` until the application is fully built (it will finish eventually,
-given the sufficient amount RAM).
+given the sufficient amount RAM). An alternative to that is to build in
+'release' mode.
 
 ```bash
 
