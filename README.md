@@ -169,7 +169,7 @@ Debian-compatible system to be able to build Tizonia from source.
 
 ```
 
-#### Building ####
+### Building ###
 
 After the dependencies have been installed, build and install the Tizonia
 OpenMAX IL framework, the IL plugins and the 'tizonia' command-line
@@ -226,7 +226,7 @@ found by the DBUS services. E.g:
 
 ```
 
-#### Known issues ####
+### Known issues ###
 
 The `tizonia` player app makes heavy use the the the
 [Boost Meta State Machine (MSM)](http://www.boost.org/doc/libs/1_55_0/libs/msm/doc/HTML/index.html)
