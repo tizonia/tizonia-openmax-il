@@ -112,10 +112,10 @@ after 0.6.0:
   * 'tizrmd' : a D-Bus-based Resource Manager daemon server.
   * 'libtizrmproxy' : a C client library to interface with the RM daemon.
 5. OpenMAX IL 1.2 codecs/plugins
-  * Spotify streaming service client (libspotify),
-  * Google Play Music streaming service client (based on 'gmusicapi' Python module + libcurl)
-  * YouTube audio streaming service client (based on 'pafy' Python module + libcurl)
-  * SoundCloud streaming service client (based on 'soundcloud' Python module + libcurl)
+  * Spotify streaming service client ([libspotify](https://github.com/mopidy/libspotify-deb)),
+  * Google Play Music streaming service client (based on [gmusicapi](https://github.com/simon-weber/gmusicapi))
+  * YouTube audio streaming service client (based on [pafy](https://github.com/mps-youtube/pafy))
+  * SoundCloud streaming service client (based on [soundcloud-python](https://github.com/soundcloud/soundcloud-python))
   * Dirble internet radio station directory (Dirble REST API + libcurl)
   * mp3 decoders (libmad and libmpg123),
   * mpeg audio (mp2) decoder (libmpg123),
@@ -128,8 +128,8 @@ after 0.6.0:
   * OGG demuxer (liboggz)
   * WEBM demuxer (libnestegg)
   * HTTP renderer (i.e. ala icecast, for LAN streaming)
-  * HTTP source (based on libcurl)
-  * mp3 encoder (based on LAME),
+  * HTTP source (libcurl)
+  * mp3 encoder (LAME),
   * a VP8 video decoder (libvpx),
   * a YUV video renderer (libsdl)
   * general purpose plugins, like binary file readers and writers
