@@ -1,7 +1,8 @@
 name: tizonia
-version: 0.5.0
+version: 0.6.0
 summary:  The Tizonia project
 description: Tizonia\'s OpenMAX IL 1.2 framework and command-line music/cloud player.
+grade: devel
 confinement: devmode  # use "strict" to enforce system access only via declared interfaces
 
 build-packages:
@@ -64,21 +65,23 @@ apps:
 
 parts:
   pypideps:
-    plugin: python2
+    plugin: python
     python-packages:
       - soundcloud
       - gmusicapi
+      - youtube-dl
+      - pafy
     filesets:
       modules:
         - lib/python2.7/dist-packages/*
     stage:
       - $modules
-    snap:
+    prime:
       - $modules
   tizonia:
     plugin: autotools
     source: https://github.com/tizonia/tizonia-openmax-il.git
-    configflags: [--prefix=/]
+    configflags: [--silent, --enable-silent-rules]
     after:
       - pypideps
     filesets:
@@ -95,7 +98,7 @@ parts:
       - $headers
       - $modules
       - $libraries
-    snap:
+    prime:
       - $binaries
       - $headers
       - $modules
