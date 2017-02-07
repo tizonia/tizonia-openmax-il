@@ -36,12 +36,12 @@ the file for more information):
 ```
 
 The Debian packages are hosted on [Bintray](https://bintray.com/tizonia), with
-the following distro/arch combinations (NOTE: 14.04 packages not being built anymore):
+the following distro/arch combinations (NOTE: 14.04 packages are being built again):
 
-| Ubuntu Xenial (16.04) | Debian Jessie (8) | Raspbian Jessie (8) |
-|        :---:          |        :---:      |       :---:         |
-|     amd64, armhf      |    amd64, armhf   |      armhf          |
-| [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-xenial/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-xenial/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-jessie/_latestVersion)  | [ ![Download](https://api.bintray.com/packages/tizonia/raspbian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/raspbian/tizonia-jessie/_latestVersion) |
+| Ubuntu Trusty (14.04) | Ubuntu Xenial (16.04) | Debian Jessie (8) | Raspbian Jessie (8) |
+|        :---:          |        :---:          |        :---:      |       :---:         |
+|     amd64, armhf      |     amd64, armhf      |    amd64, armhf   |      armhf          |
+| [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-trusty/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-trusty/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-xenial/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-xenial/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-jessie/_latestVersion)  | [ ![Download](https://api.bintray.com/packages/tizonia/raspbian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/raspbian/tizonia-jessie/_latestVersion) |
 
 ### IMPORTANT: If your are upgrading to v0.6.0 from a previous release
 
