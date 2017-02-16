@@ -277,10 +277,12 @@ class tizgmusicproxy(object):
         try:
             self.__update_local_library()
             artist = None
+            artist_dict = None
             if arg not in self.library.keys():
                 for name, art in self.library.iteritems():
                     if arg.lower() in name.lower():
-                        artist = art
+                        artist = name
+                        artist_dict = art
                         print_wrn("[Google Play Music] '{0}' not found. " \
                                   "Playing '{1}' instead." \
                                   .format(arg.encode('utf-8'), \
@@ -290,15 +292,16 @@ class tizgmusicproxy(object):
                     # Play some random artist from the library
                     random.seed()
                     artist = random.choice(self.library.keys())
-                    artist = self.library[artist]
+                    artist_dict = self.library[artist]
                     print_wrn("[Google Play Music] '{0}' not found. "\
                               "Feeling lucky?." \
                               .format(arg.encode('utf-8')))
             else:
-                artist = self.library[arg]
+                artist = arg
+                artist_dict = self.library[arg]
             tracks_added = 0
-            for album in artist:
-                tracks_added += self.__enqueue_tracks(artist[album])
+            for album in artist_dict:
+                tracks_added += self.__enqueue_tracks(artist_dict[album])
             print_wrn("[Google Play Music] Playing '{0}'." \
                       .format(to_ascii(artist)))
             self.__update_play_queue_order()
