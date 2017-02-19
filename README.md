@@ -7,10 +7,20 @@
 
 [![Build Status](https://travis-ci.org/tizonia/tizonia-openmax-il.png)](https://travis-ci.org/tizonia/tizonia-openmax-il)  |  [![Coverity Scan Build Status](https://scan.coverity.com/projects/594/badge.svg)](https://scan.coverity.com/projects/594)  |  [![Documentation Status](https://readthedocs.org/projects/tizonia-openmax-il/badge/?version=master)](https://readthedocs.org/projects/tizonia-openmax-il/?badge=master)
 
-## Install the latest release
+## Installation
 
-To install the
-[latest release](https://github.com/tizonia/tizonia-openmax-il/releases/latest):
+Tizonia's Debian packages are available from
+[Bintray](https://bintray.com/tizonia), with the following distro/arch
+combinations:
+
+| Ubuntu Trusty (14.04) | Ubuntu Xenial (16.04) | Debian Jessie (8) | Raspbian Jessie (8) |
+|        :---:          |        :---:          |        :---:      |       :---:         |
+|     amd64, armhf      |     amd64, armhf      |    amd64, armhf   |      armhf          |
+| [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-trusty/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-trusty/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-xenial/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-xenial/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-jessie/_latestVersion)  | [ ![Download](https://api.bintray.com/packages/tizonia/raspbian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/raspbian/tizonia-jessie/_latestVersion) |
+
+This script installs the
+[latest](https://github.com/tizonia/tizonia-openmax-il/releases/latest)
+release and all the dependencies.
 
 ```bash
 
@@ -20,11 +30,13 @@ To install the
 
 ```
 
-> NOTE: This installs the latest Tizonia Debian packages from [Bintray](https://bintray.com/tizonia) along with all their dependencies.
+> NOTE: The usual disclaimers apply: trust no-one. Have a look at the installation script before running it in your system.
 
-Finally, to use *Spotify*, *Google Play Music*, *SoundCloud* and *Dirble*,
-introduce your credentials in Tizonia's config file (see instructions inside
-the file for more information):
+## Configuration
+
+To use *Spotify*, *Google Play Music*, *SoundCloud* and *Dirble*, introduce
+your credentials in Tizonia's config file (see instructions inside the file for
+more information):
 
 ```bash
 
@@ -35,15 +47,7 @@ the file for more information):
 
 ```
 
-The Debian packages are hosted on [Bintray](https://bintray.com/tizonia), with
-the following distro/arch combinations (NOTE: 14.04 packages are being built again):
-
-| Ubuntu Trusty (14.04) | Ubuntu Xenial (16.04) | Debian Jessie (8) | Raspbian Jessie (8) |
-|        :---:          |        :---:          |        :---:      |       :---:         |
-|     amd64, armhf      |     amd64, armhf      |    amd64, armhf   |      armhf          |
-| [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-trusty/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-trusty/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-xenial/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-xenial/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-jessie/_latestVersion)  | [ ![Download](https://api.bintray.com/packages/tizonia/raspbian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/raspbian/tizonia-jessie/_latestVersion) |
-
-### IMPORTANT: If your are upgrading to v0.6.0 from a previous release
+### IMPORTANT: If you are upgrading to v0.6.0 from a previous release
 
 If you are upgrading to v0.6.0, please note that plugins are now being
 installed in a different directory, ${libdir}/tizonia0-plugins12; that means,
@@ -64,13 +68,13 @@ after 0.6.0:
     component-paths = /usr/lib/arm-linux-gnueabihf/tizonia0-plugins12;
 ```
 
-## 'tizonia' usage ##
+## Usage
 
 ![alt text](https://github.com/tizonia/tizonia-openmax-il/blob/master/docs/animated-gifs/tizonia-usage-screencast.gif "Tizonia usage")
 
 ## The Tizonia project
 
-### `tizonia`: command line music player and audio streaming client/server ###
+### `tizonia`: A command line music player and audio streaming client/server ###
 
 * Stream playlists from Spotify (Spotify Premium required).
 * Search and stream audio from Google Play Music (including Unlimited features).
