@@ -660,7 +660,7 @@ tiz::programopts::gmusic_playlist_type ()
     }
   else
     {
-      assert (0);
+      gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeUnknown;
     }
 
   return gmusic_playlist_type_;
@@ -756,7 +756,7 @@ tiz::programopts::scloud_playlist_type ()
     }
   else
     {
-      assert (0);
+      scloud_playlist_type_ = OMX_AUDIO_SoundCloudPlaylistTypeUnknown;
     }
 
   return scloud_playlist_type_;
@@ -815,7 +815,7 @@ tiz::programopts::dirble_playlist_type ()
     }
   else
     {
-      assert (0);
+      dirble_playlist_type_ = OMX_AUDIO_DirblePlaylistTypeUnknown;
     }
 
   return dirble_playlist_type_;
@@ -869,7 +869,7 @@ tiz::programopts::youtube_playlist_type ()
     }
   else
     {
-      assert (0);
+      youtube_playlist_type_ = OMX_AUDIO_YoutubePlaylistTypeUnknown;
     }
 
   return youtube_playlist_type_;
@@ -1411,6 +1411,13 @@ int tiz::programopts::consume_spotify_client_options (bool &done,
       oss << "A playlist must be specified.";
       msg.assign (oss.str ());
     }
+    else if (spotify_playlist_.empty())
+    {
+      rc = EXIT_FAILURE;
+      std::ostringstream oss;
+      oss << "A playlist value must be specified.";
+      msg.assign (oss.str ());
+    }
     else
     {
       rc = call_handler (option_handlers_map_.find ("spotify-stream"));
@@ -1508,6 +1515,13 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
       oss << "A playlist must be specified.";
       msg.assign (oss.str ());
     }
+    else if (OMX_AUDIO_GmusicPlaylistTypeUnknown == gmusic_playlist_type ())
+    {
+      rc = EXIT_FAILURE;
+      std::ostringstream oss;
+      oss << "A playlist value must be specified.";
+      msg.assign (oss.str ());
+    }
     else
     {
       rc = call_handler (option_handlers_map_.find ("gmusic-stream"));
@@ -1574,6 +1588,13 @@ int tiz::programopts::consume_scloud_client_options (bool &done,
       oss << "A playlist must be specified.";
       msg.assign (oss.str ());
     }
+    else if (OMX_AUDIO_SoundCloudPlaylistTypeUnknown == scloud_playlist_type ())
+    {
+      rc = EXIT_FAILURE;
+      std::ostringstream oss;
+      oss << "A playlist value must be specified.";
+      msg.assign (oss.str ());
+    }
     else
     {
       rc = call_handler (option_handlers_map_.find ("scloud-stream"));
@@ -1631,6 +1652,13 @@ int tiz::programopts::consume_dirble_client_options (bool &done,
       oss << "A playlist must be specified.";
       msg.assign (oss.str ());
     }
+    else if (OMX_AUDIO_DirblePlaylistTypeUnknown == dirble_playlist_type ())
+    {
+      rc = EXIT_FAILURE;
+      std::ostringstream oss;
+      oss << "A playlist value must be specified.";
+      msg.assign (oss.str ());
+    }
     else
     {
       rc = call_handler (option_handlers_map_.find ("dirble-stream"));
@@ -1668,6 +1696,13 @@ int tiz::programopts::consume_youtube_client_options (bool &done,
       rc = EXIT_FAILURE;
       std::ostringstream oss;
       oss << "A playlist type must be specified.";
+      msg.assign (oss.str ());
+    }
+    else if (OMX_AUDIO_YoutubePlaylistTypeUnknown == youtube_playlist_type ())
+    {
+      rc = EXIT_FAILURE;
+      std::ostringstream oss;
+      oss << "A playlist value must be specified.";
       msg.assign (oss.str ());
     }
     else
