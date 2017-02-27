@@ -294,6 +294,8 @@ class tizyoutubeproxy(object):
         # Create multiprocess queues
         self.task_queue = Queue()
         self.done_queue = Queue()
+        # Workers
+        self.workers = list()
 
     def set_play_mode(self, mode):
         """ Set the playback mode.
@@ -604,10 +606,12 @@ class tizyoutubeproxy(object):
 
         """
         try:
-            for _ in range(WORKER_PROCESSES):
-                Process(target=obtain_stream, \
-                        args=(self.task_queue, \
-                              self.done_queue)).start()
+            if not len(self.workers):
+                for _ in range(WORKER_PROCESSES):
+                    proc = Process(target=obtain_stream, \
+                                   args=(self.task_queue, \
+                                         self.done_queue)).start()
+                    self.workers.append(proc)
 
             while not self.done_queue.empty():
                 stream = self.done_queue.get()
