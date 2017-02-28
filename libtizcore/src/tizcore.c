@@ -643,8 +643,8 @@ instantiate_comp_lib (const OMX_STRING ap_path, const OMX_STRING ap_name,
     }
   full_name[len] = 0;
 
-  if (NULL == (*app_dl_hdl
-               = dlopen (strcat (full_name, ap_name), RTLD_LAZY | RTLD_GLOBAL)))
+  if (NULL == (*app_dl_hdl = dlopen (strncat (full_name, ap_name, PATH_MAX),
+                                     RTLD_LAZY | RTLD_GLOBAL)))
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR,
                "[OMX_ErrorUndefined] : "
