@@ -511,13 +511,13 @@ tiz_rcfile_init (tiz_rcfile_t ** pp_rc)
     {
       TIZ_LOG (TIZ_PRIORITY_TRACE, "HOME [%s] ...", p_env_str);
       snprintf (g_rcfiles[1].name, sizeof (g_rcfiles[1].name) - 1,
-                "%s/.config/tizonia/tizonia.conf", p_env_str ? p_env_str : "");
+                "%s/.config/tizonia/tizonia.conf", p_env_str);
     }
 
   if ((p_env_str = getenv ("TIZONIA_RC_FILE")))
     {
       snprintf (g_rcfiles[2].name, sizeof (g_rcfiles[2].name) - 1, "%s",
-                p_env_str ? p_env_str : "");
+                p_env_str);
     }
 
   if (!(p_rc = (tiz_rcfile_t *) tiz_mem_calloc (1, sizeof (tiz_rcfile_t))))
