@@ -1390,29 +1390,28 @@ get_core (void)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  /* TODO: Fix error handling!! */
-
   if (!pg_core)
     {
       pg_core = (tiz_core_t *) tiz_mem_calloc (1, sizeof (tiz_core_t));
       if (!pg_core)
         {
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "Initializing core instance.",
+                   pg_core);
           return NULL;
         }
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "Initializing core instance [%p]...",
-               pg_core);
 
       pg_core->p_core = NULL;
 
       if (OMX_ErrorNone != (rc = tiz_sem_init (&(pg_core->sem), 0)))
         {
-          TIZ_LOG (TIZ_PRIORITY_TRACE, "Error Initializing core instance...");
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "Initializing semaphore instance.");
           return NULL;
         }
 
       if (OMX_ErrorNone != (rc = tiz_queue_init (&(pg_core->p_queue),
                                                  TIZ_CORE_QUEUE_MAX_ITEMS)))
         {
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "Initializing queue instance.");
           return NULL;
         }
 
@@ -1420,10 +1419,10 @@ get_core (void)
       pg_core->state = ETIZCoreStateStarting;
       pg_core->p_registry = NULL;
 
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "IL Core initialization success...");
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "IL Core initialization success.");
     }
 
-  return (rc == OMX_ErrorNone) ? pg_core : NULL;
+  return pg_core;
 }
 
 static OMX_ERRORTYPE
@@ -1431,7 +1430,7 @@ start_core (void)
 {
   tiz_core_t * p_core = get_core ();
 
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "Starting IL core thread with cache in [%p]...",
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Starting IL core thread with cache in [%p].",
            p_core);
 
   assert (p_core);
@@ -1439,9 +1438,9 @@ start_core (void)
   /* Create IL Core thread */
   tiz_thread_create (&(p_core->thread), 0, 0, il_core_thread_func, p_core);
 
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "waiting on thread creation...");
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "waiting on thread creation.");
   tiz_sem_wait (&(p_core->sem));
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "thread creation complete...");
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "thread creation complete.");
 
   return OMX_ErrorNone;
 }
@@ -1502,7 +1501,7 @@ gp_to_st_err (OMX_ERRORTYPE a_getparam_err)
       case OMX_ErrorUnsupportedIndex:
       case OMX_ErrorSeperateTablesUsed:
       default:
-        /* Return something allowed... */
+        /* Return something allowed. */
         return OMX_ErrorBadParameter;
     };
 }
@@ -1558,7 +1557,7 @@ do_tunnel_requests (OMX_HANDLETYPE ap_outhdl, OMX_U32 a_outport,
     {
       /* Verify the input port */
       /* Init the struct values just in case */
-      /* they were overwritten in the previous call... */
+      /* they were overwritten in the previous call. */
       port_def.nSize = (OMX_U32) sizeof (OMX_PARAM_PORTDEFINITIONTYPE);
       port_def.nVersion.nVersion = (OMX_U32) OMX_VERSION;
       port_def.nPortIndex = a_inport;
@@ -1585,7 +1584,7 @@ do_tunnel_requests (OMX_HANDLETYPE ap_outhdl, OMX_U32 a_outport,
           /* Undo the tunnel request on the component with the output port */
           if (p_outcmp)
             {
-              /* Ignore additional errors at this point... */
+              /* Ignore additional errors at this point. */
               (void) p_outcmp->ComponentTunnelRequest (p_outcmp, a_outport,
                                                        NULL, 0, &tsetup);
             }
