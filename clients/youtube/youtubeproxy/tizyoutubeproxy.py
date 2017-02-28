@@ -265,8 +265,8 @@ def obtain_stream(inqueue, outqueue):
             logging.info("extension : %s", stream['a'].extension)
             outqueue.put(stream)
 
-        except AttributeError:
-            logging.info("Could not retrieve the stream url!")
+        except IOError:
+            print_err("%s : Unable to retrieve the audio stream URL, stream['i'].ytid")
 
 class VideoInfo(object):
     """ Class to represent a YouTube video in the queue.
@@ -340,13 +340,11 @@ class tizyoutubeproxy(object):
             count = len(self.queue)
 
             playlist = pafy.get_playlist2(arg)
-            yt_video = None
             if len(playlist) > 0:
-                if yt_video:
-                    video_id = yt_video.videoid
-                    video_title = yt_video.title
-                    yt_info = VideoInfo(ytid=video_id, title=video_title)
-                    self.add_to_playback_queue(video=yt_video, info=yt_info)
+                for yt_video in playlist:
+                    self.add_to_playback_queue(video=yt_video, \
+                                               info=VideoInfo(ytid=yt_video.videoid, \
+                                                              title=yt_video.title))
 
             if count == len(self.queue):
                 raise ValueError
