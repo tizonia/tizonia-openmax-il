@@ -398,7 +398,7 @@ graph::graph::post_cmd (tiz::graph::cmd *p_cmd)
   if (p_ops_ && p_queue_)
     {
       tiz_check_omx_ret_oom (tiz_mutex_lock (&mutex_));
-      (void) tiz_queue_send (p_queue_, p_cmd));
+      (void) tiz_queue_send (p_queue_, p_cmd);
       tiz_check_omx_ret_oom (tiz_mutex_unlock (&mutex_));
     }
   return OMX_ErrorNone;
