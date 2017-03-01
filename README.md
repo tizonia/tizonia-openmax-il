@@ -7,6 +7,10 @@
 
 [![Build Status](https://travis-ci.org/tizonia/tizonia-openmax-il.png)](https://travis-ci.org/tizonia/tizonia-openmax-il)  |  [![Coverity Scan Build Status](https://scan.coverity.com/projects/594/badge.svg)](https://scan.coverity.com/projects/594)  |  [![Documentation Status](https://readthedocs.org/projects/tizonia-openmax-il/badge/?version=master)](https://readthedocs.org/projects/tizonia-openmax-il/?badge=master)
 
+## Usage
+
+![alt text](https://github.com/tizonia/tizonia-openmax-il/blob/master/docs/animated-gifs/tizonia-usage-screencast.gif "Tizonia usage")
+
 ## Installation
 
 Tizonia's Debian packages are available from
@@ -20,7 +24,7 @@ combinations:
 
 This script installs the
 [latest](https://github.com/tizonia/tizonia-openmax-il/releases/latest)
-release and all the dependencies.
+release and all the dependencies, including [gmusicapi](https://github.com/simon-weber/gmusicapi), [soundcloud](https://github.com/soundcloud/soundcloud-python), [pafy](https://github.com/mps-youtube/pafy), and [youtube-dl](https://github.com/rg3/youtube-dl).
 
 ```bash
 
@@ -47,6 +51,19 @@ more information):
 
 ```
 
+## Upgrade
+
+To upgrade Tizonia, run 'apt-get' as usual, but also make sure the Python dependencies are up-to-date.
+
+```bash
+
+    $ sudo apt-get update && sudo apt-get upgrade
+
+    # (Note that new versions of some of these Python packages are released frequently)
+    $ sudo -H pip install --upgrade youtube-dl pafy gmusicapi soundcloud
+
+```
+
 ### IMPORTANT: If you are upgrading to v0.6.0 from a previous release
 
 If you are upgrading to v0.6.0, please note that plugins are now being
@@ -67,10 +84,6 @@ after 0.6.0:
 ```
     component-paths = /usr/lib/arm-linux-gnueabihf/tizonia0-plugins12;
 ```
-
-## Usage
-
-![alt text](https://github.com/tizonia/tizonia-openmax-il/blob/master/docs/animated-gifs/tizonia-usage-screencast.gif "Tizonia usage")
 
 ## The Tizonia project
 
@@ -157,7 +170,7 @@ maintains an up-to-date list of all the packages that are required in a
 Debian-compatible system to be able to build Tizonia from source.
 
 > NOTE: The following command installs Mopidy's 'libspotify-dev' package, the
-> 'gmusicapi', 'soundcloud', 'youtube-dl' and 'pafy' python packages, among
+> 'gmusicapi', 'soundcloud', 'pafy' and 'youtube-dl python packages, among
 > other things.
 
 ```bash
