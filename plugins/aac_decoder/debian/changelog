@@ -1,3 +1,9 @@
+tizaacdec (0.7.0-1) unstable; urgency=low
+
+  * New upstream release (Closes: #293)
+
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Thu, 02 Mar 2017 10:44:52 +0000
+
 tizaacdec (0.6.0-1) unstable; urgency=low
 
   * New upstream release (Closes: #286)
