@@ -1,26 +1,5 @@
 # Change Log
 
-## [v0.6.1](https://github.com/tizonia/tizonia-openmax-il/tree/v0.6.1) (2017-03-01)
-[Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.6.0...v0.6.1)
-
-**Improvements:**
-
-- clients-youtube: skipping to a new song takes too long the first time, faster after that [\#291](https://github.com/tizonia/tizonia-openmax-il/issues/291)
-
-**Fixed bugs:**
-
-- player: tizonia '--youtube-audio-playlist' always returns "Playlist not found" [\#292](https://github.com/tizonia/tizonia-openmax-il/issues/292)
-- tizonia: application crashes if option values are not provided [\#290](https://github.com/tizonia/tizonia-openmax-il/issues/290)
-- googlemusic: --gmusic-artist outputs dictionary contents instead of artist name [\#289](https://github.com/tizonia/tizonia-openmax-il/issues/289)
-- Coverity Scan \(CID 1352370\) \[/usr/include/boost/msm/back/dispatch\_table.hpp:dispatch\_table\] : Uninitialized pointer field [\#237](https://github.com/tizonia/tizonia-openmax-il/issues/237)
-- Coverity Scan \(CID 1352368\) \[/usr/include/boost/msm/back/state\_machine.hpp:state\_machine\] : Uninitialized scalar field [\#235](https://github.com/tizonia/tizonia-openmax-il/issues/235)
-- Coverity Scan \(CID 1087243\) \[/libtizcore/src/tizcore.c:instantiate\_comp\_lib\] : Copy into fixed size buffer [\#234](https://github.com/tizonia/tizonia-openmax-il/issues/234)
-- Coverity Scan \(CID 1352350\) \[/player/src/tizgraphmgrops.cpp:deinit\] : Double lock [\#216](https://github.com/tizonia/tizonia-openmax-il/issues/216)
-- Coverity Scan \(CID 993663\) \[/libtizplatform/src/ev/ev.c:infy\_cb\] : Untrusted array index read [\#197](https://github.com/tizonia/tizonia-openmax-il/issues/197)
-- Coverity Scan \(CID 1087266\) \[/libtizonia/src/tizutils.c:tiz\_fsm\_state\_to\_str\] : Mixing enum types [\#175](https://github.com/tizonia/tizonia-openmax-il/issues/175)
-- Coverity Scan \(CID 1087305\) \[/libtizcore/src/tizcore.c:get\_core\] : Logically dead code [\#164](https://github.com/tizonia/tizonia-openmax-il/issues/164)
-- Coverity Scan \(CID 1087304\) \[/libtizplatform/src/tizrc.c:tiz\_rcfile\_init\] : Logically dead code [\#163](https://github.com/tizonia/tizonia-openmax-il/issues/163)
-
 ## [v0.6.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.6.0) (2017-01-16)
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.5.0...v0.6.0)
 
