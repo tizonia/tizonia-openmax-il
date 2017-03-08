@@ -127,6 +127,7 @@ class tizgmusicproxy(object):
     all_songs_album_title = "All Songs"
     thumbs_up_playlist_name = "Thumbs Up"
 
+    # pylint: disable=too-many-instance-attributes,too-many-public-methods
     def __init__(self, email, password, device_id):
         self.__gmusic = Mobileclient()
         self.__email = email
