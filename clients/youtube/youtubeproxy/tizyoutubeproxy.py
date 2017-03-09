@@ -180,8 +180,13 @@ def get_track_id_from_json(item):
             return node
     return ''
 
-def get_tracks_from_json(jsons):
-    """ Get search results from pafy's call_gdata response """
+def get_tracks_from_json(jsons, howmany=0):
+    """ Get search results from pafy's call_gdata response
+
+        :param jsons: The result of calling pafy.call_gdata('search', query)
+        :param howmany: The maximum number of tracks to retrieve (0 means, no limit)
+
+    """
 
     items = jsons.get("items")
     if not items:
@@ -216,6 +221,8 @@ def get_tracks_from_json(jsons):
                          'search result {}\n{}'.format(ytid, exception))
 
         songs.append(info)
+        if howmany != 0 and len(songs) == howmany:
+            break
 
     # return video objects
     return songs
@@ -409,6 +416,31 @@ class tizyoutubeproxy(object):
                 raise ValueError
 
             self.__update_play_queue_order()
+
+        except ValueError:
+            raise ValueError(str("No videos found : %s" % arg))
+
+    def enqueue_audio_mix_search(self, arg):
+        """Obtain a YouTube mix associated to a given textual search and add all the
+        audio streams in the mix playlist to the playback queue.
+
+        :param arg: a search string
+
+        """
+        logging.info('arg : %s', arg)
+        try:
+            query = generate_search_query(arg)
+            wdata = pafy.call_gdata('search', query)
+
+            wdata2 = wdata
+            count = len(self.queue)
+            for track_info in get_tracks_from_json(wdata2, 1):
+                if track_info and track_info.ytid:
+                    self.enqueue_audio_mix(track_info.ytid)
+                break
+
+            if count == len(self.queue):
+                raise ValueError
 
         except ValueError:
             raise ValueError(str("No videos found : %s" % arg))
