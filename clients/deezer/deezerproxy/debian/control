@@ -1,0 +1,14 @@
+Source: tizdeezerproxy
+Maintainer: Juan A. Rubio <juan.rubio@aratelia.com>
+Section: python
+Priority: optional
+Build-Depends: python-setuptools (>= 0.6b3), python-all (>= 2.6.6-3), debhelper (>= 7)
+Standards-Version: 3.9.1
+
+Package: python-tizdeezerproxy
+Architecture: all
+Depends: ${misc:Depends}, ${python:Depends}
+Description: Tizonia Deezer proxy
+ Tizonia's Deezer proxy.
+ .
+ This package contains Tizonia's Deezer proxy Python module.
