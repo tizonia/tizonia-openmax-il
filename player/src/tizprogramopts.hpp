@@ -220,6 +220,7 @@ namespace tiz
     std::string youtube_audio_playlist_;
     std::string youtube_audio_mix_;
     std::string youtube_audio_search_;
+    std::string youtube_audio_mix_search_;
     std::vector< std::string > youtube_playlist_container_;
     OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE youtube_playlist_type_;
     std::vector<consume_function_t> consume_functions_;
