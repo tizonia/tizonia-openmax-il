@@ -1,0 +1,5 @@
+tizchromecastproxy (0.7.0-1) unstable; urgency=low
+
+  * Initial release (Closes: #141)
+
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Fri, 04 Dec 2015 04:19:38 +0000

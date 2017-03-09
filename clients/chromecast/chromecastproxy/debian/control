@@ -1,0 +1,14 @@
+Source: tizchromecastproxy
+Maintainer: Juan A. Rubio <juan.rubio@aratelia.com>
+Section: python
+Priority: optional
+Build-Depends: python-setuptools (>= 0.6b3), python-all (>= 2.6.6-3), debhelper (>= 7)
+Standards-Version: 3.9.1
+
+Package: python-tizchromecastproxy
+Architecture: all
+Depends: ${misc:Depends}, ${python:Depends}
+Description: Tizonia Chromecast proxy
+ Tizonia's Chromecast proxy.
+ .
+ This package contains Tizonia's Chromecast proxy Python module.
