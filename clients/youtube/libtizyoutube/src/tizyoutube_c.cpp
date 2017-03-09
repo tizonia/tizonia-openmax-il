@@ -29,8 +29,8 @@
 #include <config.h>
 #endif
 
-#include <stdlib.h>
 #include <assert.h>
+#include <stdlib.h>
 
 #include "tizyoutube.hpp"
 #include "tizyoutube_c.h"
@@ -72,7 +72,7 @@ extern "C" int tiz_youtube_init (tiz_youtube_ptr_t *app_youtube)
 
   assert (app_youtube);
 
-  if ((p_youtube = (tiz_youtube_t *)calloc (1, sizeof(tiz_youtube_t))))
+  if ((p_youtube = (tiz_youtube_t *)calloc (1, sizeof (tiz_youtube_t))))
     {
       if (!youtube_alloc_data (p_youtube))
         {
@@ -104,7 +104,7 @@ extern "C" void tiz_youtube_set_playback_mode (
   assert (ap_youtube);
   assert (ap_youtube->p_proxy_);
   return ap_youtube->p_proxy_->set_playback_mode (
-      static_cast< tizyoutube::playback_mode >(mode));
+      static_cast< tizyoutube::playback_mode > (mode));
 }
 
 extern "C" int tiz_youtube_play_audio_stream (tiz_youtube_t *ap_youtube,
@@ -124,7 +124,7 @@ extern "C" int tiz_youtube_play_audio_playlist (tiz_youtube_t *ap_youtube,
 }
 
 extern "C" int tiz_youtube_play_audio_mix (tiz_youtube_t *ap_youtube,
-                                                const char *ap_url_or_id)
+                                           const char *ap_url_or_id)
 {
   assert (ap_youtube);
   assert (ap_youtube->p_proxy_);
@@ -139,6 +139,14 @@ extern "C" int tiz_youtube_play_audio_search (tiz_youtube_t *ap_youtube,
   return ap_youtube->p_proxy_->play_audio_search (ap_search);
 }
 
+extern "C" int tiz_youtube_play_audio_mix_search (tiz_youtube_t *ap_youtube,
+                                                  const char *ap_search)
+{
+  assert (ap_youtube);
+  assert (ap_youtube->p_proxy_);
+  return ap_youtube->p_proxy_->play_audio_mix_search (ap_search);
+}
+
 extern "C" void tiz_youtube_clear_queue (tiz_youtube_t *ap_youtube)
 {
   assert (ap_youtube);
@@ -146,16 +154,16 @@ extern "C" void tiz_youtube_clear_queue (tiz_youtube_t *ap_youtube)
   ap_youtube->p_proxy_->clear_queue ();
 }
 
-extern "C" const char *tiz_youtube_get_next_url (tiz_youtube_t *ap_youtube,
-                                                const bool a_remove_current_url)
+extern "C" const char *tiz_youtube_get_next_url (
+    tiz_youtube_t *ap_youtube, const bool a_remove_current_url)
 {
   assert (ap_youtube);
   assert (ap_youtube->p_proxy_);
   return ap_youtube->p_proxy_->get_next_url (a_remove_current_url);
 }
 
-extern "C" const char *tiz_youtube_get_prev_url (tiz_youtube_t *ap_youtube,
-                                                const bool a_remove_current_url)
+extern "C" const char *tiz_youtube_get_prev_url (
+    tiz_youtube_t *ap_youtube, const bool a_remove_current_url)
 {
   assert (ap_youtube);
   assert (ap_youtube->p_proxy_);
