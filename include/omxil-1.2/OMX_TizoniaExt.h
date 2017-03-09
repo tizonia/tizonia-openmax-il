@@ -425,8 +425,9 @@ typedef enum OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE {
     OMX_AUDIO_YoutubePlaylistTypeUnknown = 0, /**< PlaylistType type unknown (Default). */
     OMX_AUDIO_YoutubePlaylistTypeAudioStream, /**< Audio playback from a youtube video url or video id. */
     OMX_AUDIO_YoutubePlaylistTypeAudioPlaylist, /**< Audio playback from a youtube playlist url or playlist id. */
-    OMX_AUDIO_YoutubePlaylistTypeAudioMix, /**< Audio playback from a youtube mix playlist associated to a url or video id. */
+    OMX_AUDIO_YoutubePlaylistTypeAudioMix, /**< Audio playback from a youtube mix associated to a url or video id. */
     OMX_AUDIO_YoutubePlaylistTypeAudioSearch, /**< Audio playback from a youtube search. */
+    OMX_AUDIO_YoutubePlaylistTypeAudioMixSearch, /**< Audio playback from a youtube mix associated to a search term. */
     OMX_AUDIO_YoutubePlaylistTypeKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
     OMX_AUDIO_YoutubePlaylistTypeVendorStartUnused = 0x7F000000, /**< Reserved region for introducing Vendor Extensions */
     OMX_AUDIO_YoutubePlaylistTypeMax = 0x7FFFFFFF
