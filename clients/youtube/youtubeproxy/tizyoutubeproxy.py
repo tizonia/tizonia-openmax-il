@@ -273,7 +273,8 @@ def obtain_stream(inqueue, outqueue):
             outqueue.put(stream)
 
         except IOError:
-            print_err("%s : Unable to retrieve the audio stream URL, stream['i'].ytid")
+            print_err("[YouTube] Could not retrieve the audio stream URL for '{0}'"\
+                      .format(to_ascii(stream['i'].ytid).encode("utf-8")))
 
 class VideoInfo(object):
     """ Class to represent a YouTube video in the queue.
@@ -390,16 +391,20 @@ class tizyoutubeproxy(object):
             self.__update_play_queue_order()
 
         except ValueError:
-            raise ValueError(str("No videos found : %s" % arg))
+            raise ValueError(str("Could not find any mixes : %s" % arg))
 
-    def enqueue_audio_mix(self, arg):
+    def enqueue_audio_mix(self, arg, feelinglucky=True):
         """Obtain a YouTube mix associated to a given video id or url and add all audio
         streams in the mix playlist to the playback queue.
 
         :param arg: a YouTube video id
 
+        :param feelinglucky: If True, it will perform another YouTube search to find
+        alternatives if the original mix cannot be found.
+
         """
         logging.info('arg : %s', arg)
+        yt_video = None
         try:
             count = len(self.queue)
 
@@ -417,8 +422,17 @@ class tizyoutubeproxy(object):
 
             self.__update_play_queue_order()
 
-        except ValueError:
-            raise ValueError(str("No videos found : %s" % arg))
+        except IndexError:
+            if not feelinglucky:
+                raise ValueError
+            else:
+                print_wrn("[YouTube] Could not find a mix for '{0}'. "\
+                          "Searching YouTube instead. Feeling lucky?." \
+                          .format(arg.encode('utf-8')))
+                if yt_video.title:
+                    self.enqueue_audio_search(yt_video.title)
+                else:
+                    self.enqueue_audio_stream(arg)
 
     def enqueue_audio_mix_search(self, arg):
         """Obtain a YouTube mix associated to a given textual search and add all the
@@ -434,16 +448,19 @@ class tizyoutubeproxy(object):
 
             wdata2 = wdata
             count = len(self.queue)
-            for track_info in get_tracks_from_json(wdata2, 1):
+            for track_info in get_tracks_from_json(wdata2):
                 if track_info and track_info.ytid:
-                    self.enqueue_audio_mix(track_info.ytid)
-                break
+                    try:
+                        self.enqueue_audio_mix(track_info.ytid, feelinglucky=False)
+                        break
+                    except ValueError:
+                        logging.info('Could not find a mix. Trying another video')
 
             if count == len(self.queue):
                 raise ValueError
 
         except ValueError:
-            raise ValueError(str("No videos found : %s" % arg))
+            raise ValueError(str("Could not find any mixes : %s" % arg))
 
     def current_audio_stream_title(self):
         """ Retrieve the current stream's title.
