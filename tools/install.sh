@@ -21,27 +21,32 @@
 
 # Run the install actions in a subshell
 (
-
-if cat /etc/*-release | grep raspbian; then
+RELIDS=$(cat /etc/*-release)
+if echo "$RELIDS" | grep raspbian; then
   DISTRO="raspbian" ; RELEASE="jessie"
-elif cat /etc/*-release | grep jessie; then
+elif echo "$RELIDS" | grep jessie; then
   DISTRO="debian" ; RELEASE="jessie"
-elif cat /etc/*-release | grep trusty; then
+elif echo "$RELIDS" | grep trusty; then
   DISTRO="ubuntu" ; RELEASE="trusty"
-elif cat /etc/*-release | grep vivid; then
+elif echo "$RELIDS" | grep freya; then
+  # freya is based on trusty
+  DISTRO="ubuntu" ; RELEASE="trusty"
+elif echo "$RELIDS" | grep vivid; then
   DISTRO="ubuntu" ; RELEASE="vivid"
-elif cat /etc/*-release | grep xenial; then
+elif echo "$RELIDS" | grep xenial; then
+  DISTRO="ubuntu" ; RELEASE="xenial"
+elif echo "$RELIDS" | grep loki; then
+  # loki is based on xenial
   DISTRO="ubuntu" ; RELEASE="xenial"
 else
   echo "Can't find a supported debian-based distribution."
   exit 1
 fi
 
-# Make sure some required packages are already installed
+# Let's make sure these packages are already installed before installing anything else.
 sudo apt-get -y --force-yes install python-dev curl apt-transport-https libffi-dev libssl-dev
 
-# To install libspotify deb packages, add Mopidy's archive to APT's
-# sources.list
+# Add Mopidy's archive to APT's sources.list (required to install 'libspotify')
 grep -q "apt.mopidy.com" /etc/apt/sources.list
 if [[ "$?" -eq 1 ]]; then
     curl 'http://apt.mopidy.com/mopidy.gpg' | sudo apt-key add -
@@ -58,18 +63,23 @@ fi
 # Resynchronize APT's package index files
 sudo apt-get update
 
-# Using pip, install Simon Weber's gmusicapi and soundcloud's API wrapper
+# Python dependencies. Using pip, install gmusicapi, soundcloud, youtube-dl and
+# pafy
 sudo apt-get -y install python-pip \
-    && ( sudo -H pip install --upgrade gmusicapi || sudo -H pip install --upgrade gmusicapi ) \
+    && sudo -H pip install --upgrade gmusicapi \
     && sudo -H pip install --upgrade soundcloud \
     && sudo -H pip install --upgrade youtube-dl \
     && sudo -H pip install --upgrade pafy
 
-# Install libspotify
-sudo apt-get -y install libspotify12
+# Install 'libspotify'
+if [[ "$?" -eq 0 ]]; then
+    sudo apt-get -y install libspotify12
+fi
 
 # Install Tizonia
-sudo apt-get -y install tizonia-all
+if [[ "$?" -eq 0 ]]; then
+    sudo apt-get -y install tizonia-all
+fi
 
 # Copy Tizonia's config file to the user's config directory
 if [[ "$?" -eq 0 ]]; then
@@ -84,14 +94,12 @@ fi
 # Simple test to verify that everything went well
 which tizonia > /dev/null
 if [[ "$?" -eq 0 ]]; then
-    echo ; tizonia
-    printf "\nTizonia is now installed.\n"
+    echo ; tizonia ; echo
+    printf "Tizonia is now installed.\n\n"
     printf "Please add Spotify, Google Music, Soundcloud, and Dirble credentials in : $TIZ_CONFIG_FILE\n"
 else
     echo "Oops. Something went wrong!"
     exit 1
 fi
 
-exit 0
-
-) # end running in a subshell 
+) # end running in a subshell
