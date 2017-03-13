@@ -76,16 +76,16 @@ namespace
 
   void start_chromecast (boost::python::object &py_global,
                      boost::python::object &py_gm_proxy,
-                     const std::string &oauth_token)
+                     const std::string &name_or_ip)
   {
     bp::object pychromecastproxy = py_global["tizchromecastproxy"];
     py_gm_proxy
-        = pychromecastproxy (oauth_token.c_str ());
+        = pychromecastproxy (name_or_ip.c_str ());
   }
 }
 
-tizchromecast::tizchromecast (const std::string &oauth_token)
-  : oauth_token_ (oauth_token)
+tizchromecast::tizchromecast (const std::string &name_or_ip)
+  : name_or_ip_ (name_or_ip)
 {
 }
 
@@ -104,7 +104,7 @@ int tizchromecast::start ()
 {
   int rc = 0;
   try_catch_wrapper (
-      start_chromecast (py_global_, py_gm_proxy_, oauth_token_));
+      start_chromecast (py_global_, py_gm_proxy_, name_or_ip_));
   return rc;
 }
 
@@ -147,84 +147,84 @@ void tizchromecast::set_playback_mode (const playback_mode mode)
 int tizchromecast::get_current_track ()
 {
   int rc = 1;
-  current_user_.clear ();
-  current_title_.clear ();
+//   current_user_.clear ();
+//   current_title_.clear ();
 
-  const bp::tuple &info1 = bp::extract< bp::tuple >(
-      py_gm_proxy_.attr ("current_track_title_and_user")());
-  const char *p_user = bp::extract< char const * >(info1[0]);
-  const char *p_title = bp::extract< char const * >(info1[1]);
+//   const bp::tuple &info1 = bp::extract< bp::tuple >(
+//       py_gm_proxy_.attr ("current_track_title_and_user")());
+//   const char *p_user = bp::extract< char const * >(info1[0]);
+//   const char *p_title = bp::extract< char const * >(info1[1]);
 
-  if (p_user)
-    {
-      current_user_.assign (p_user);
-    }
-  if (p_title)
-    {
-      current_title_.assign (p_title);
-    }
+//   if (p_user)
+//     {
+//       current_user_.assign (p_user);
+//     }
+//   if (p_title)
+//     {
+//       current_title_.assign (p_title);
+//     }
 
-  int duration
-      = bp::extract< int >(py_gm_proxy_.attr ("current_track_duration")());
+//   int duration
+//       = bp::extract< int >(py_gm_proxy_.attr ("current_track_duration")());
 
-  int seconds = 0;
-  current_duration_.clear ();
-  if (duration)
-    {
-      duration /= 1000;
-      seconds = duration % 60;
-      int minutes = (duration - seconds) / 60;
-      int hours = 0;
-      if (minutes >= 60)
-        {
-          int total_minutes = minutes;
-          minutes = total_minutes % 60;
-          hours = (total_minutes - minutes) / 60;
-        }
+//   int seconds = 0;
+//   current_duration_.clear ();
+//   if (duration)
+//     {
+//       duration /= 1000;
+//       seconds = duration % 60;
+//       int minutes = (duration - seconds) / 60;
+//       int hours = 0;
+//       if (minutes >= 60)
+//         {
+//           int total_minutes = minutes;
+//           minutes = total_minutes % 60;
+//           hours = (total_minutes - minutes) / 60;
+//         }
 
-      if (hours > 0)
-        {
-          current_duration_.append (boost::lexical_cast< std::string >(hours));
-          current_duration_.append ("h:");
-        }
+//       if (hours > 0)
+//         {
+//           current_duration_.append (boost::lexical_cast< std::string >(hours));
+//           current_duration_.append ("h:");
+//         }
 
-      if (minutes > 0)
-        {
-          current_duration_.append (
-              boost::lexical_cast< std::string >(minutes));
-          current_duration_.append ("m:");
-        }
-    }
+//       if (minutes > 0)
+//         {
+//           current_duration_.append (
+//               boost::lexical_cast< std::string >(minutes));
+//           current_duration_.append ("m:");
+//         }
+//     }
 
-  char seconds_str[3];
-  sprintf (seconds_str, "%02i", seconds);
-  current_duration_.append (seconds_str);
-  current_duration_.append ("s");
+//   char seconds_str[3];
+//   sprintf (seconds_str, "%02i", seconds);
+//   current_duration_.append (seconds_str);
+//   current_duration_.append ("s");
 
-  const int track_year = bp::extract< int >(py_gm_proxy_.attr ("current_track_year")());
-  current_track_year_.assign (boost::lexical_cast< std::string >(track_year));
+//   const int track_year = bp::extract< int >(py_gm_proxy_.attr ("current_track_year")());
+//   current_track_year_.assign (boost::lexical_cast< std::string >(track_year));
 
-  const char *p_track_permalink = bp::extract< char const * >(
-      py_gm_proxy_.attr ("current_track_permalink")());
-  if (p_track_permalink)
-    {
-      current_track_permalink_.assign (p_track_permalink);
-    }
+//   const char *p_track_permalink = bp::extract< char const * >(
+//       py_gm_proxy_.attr ("current_track_permalink")());
+//   if (p_track_permalink)
+//     {
+//       current_track_permalink_.assign (p_track_permalink);
+//     }
 
-  const char *p_track_license = bp::extract< char const * >(
-      py_gm_proxy_.attr ("current_track_license")());
-  if (p_track_license)
-    {
-      current_track_license_.assign (p_track_license);
-    }
+//   const char *p_track_license = bp::extract< char const * >(
+//       py_gm_proxy_.attr ("current_track_license")());
+//   if (p_track_license)
+//     {
+//       current_track_license_.assign (p_track_license);
+//     }
 
-  const int track_likes = bp::extract< int >(py_gm_proxy_.attr ("current_track_likes")());
-  current_track_likes_.assign (boost::lexical_cast< std::string >(track_likes));
+//   const int track_likes = bp::extract< int >(py_gm_proxy_.attr ("current_track_likes")());
+//   current_track_likes_.assign (boost::lexical_cast< std::string >(track_likes));
 
-  if (p_user || p_title)
-    {
-      rc = 0;
-    }
+//   if (p_user || p_title)
+//     {
+//       rc = 0;
+//     }
 
   return rc;
 }

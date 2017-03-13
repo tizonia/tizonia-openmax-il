@@ -47,7 +47,7 @@ public:
     };
 
 public:
-  tizchromecast (const std::string &oauth_token);
+  tizchromecast (const std::string &name_or_ip);
   ~tizchromecast ();
 
   int init ();
@@ -61,7 +61,7 @@ private:
   int get_current_track ();
 
 private:
-  std::string oauth_token_;
+  std::string name_or_ip_;
   boost::python::object py_main_;
   boost::python::object py_global_;
   boost::python::object py_gm_proxy_;

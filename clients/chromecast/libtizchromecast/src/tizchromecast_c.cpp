@@ -50,13 +50,13 @@ static void chromecast_free_data (tiz_chromecast_t *ap_chromecast)
 }
 
 static int chromecast_alloc_data (tiz_chromecast_t *ap_chromecast,
-                                  const char *ap_oauth_token)
+                                  const char *ap_name_or_ip)
 {
   int rc = 0;
   assert (ap_chromecast);
   try
     {
-      ap_chromecast->p_proxy_ = new tizchromecast (ap_oauth_token);
+      ap_chromecast->p_proxy_ = new tizchromecast (ap_name_or_ip);
     }
   catch (...)
     {
@@ -67,17 +67,17 @@ static int chromecast_alloc_data (tiz_chromecast_t *ap_chromecast,
 }
 
 extern "C" int tiz_chromecast_init (tiz_chromecast_ptr_t *app_chromecast,
-                                const char *ap_oauth_token)
+                                const char *ap_name_or_ip)
 {
   tiz_chromecast_t *p_chromecast = NULL;
   int rc = 1;
 
   assert (app_chromecast);
-  assert (ap_oauth_token);
+  assert (ap_name_or_ip);
 
   if ((p_chromecast = (tiz_chromecast_t *)calloc (1, sizeof(tiz_chromecast_t))))
     {
-      if (!chromecast_alloc_data (p_chromecast, ap_oauth_token))
+      if (!chromecast_alloc_data (p_chromecast, ap_name_or_ip))
         {
           tizchromecast *p_gm = p_chromecast->p_proxy_;
           assert (p_gm);
