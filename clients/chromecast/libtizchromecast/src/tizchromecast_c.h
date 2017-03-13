@@ -55,8 +55,7 @@ typedef /*@null@ */ tiz_chromecast_t *tiz_chromecast_ptr_t;
  * Various playback modes that control the playback queue.
  * @ingroup libtizchromecast
  */
-typedef enum tiz_chromecast_playback_mode
-{
+typedef enum tiz_chromecast_playback_mode {
   ETIZChromecastPlaybackModeNormal,
   ETIZChromecastPlaybackModeShuffle,
   ETIZChromecastPlaybackModeMax
@@ -69,12 +68,12 @@ typedef enum tiz_chromecast_playback_mode
  *
  * @param app_chromecast A pointer to the chromecast handle which will be
  * initialised.
- * @param ap_oauth_token A Chromecast email account.
+ * @param ap_name_or_ip A Chromecast device name or ip address.
  *
  * @return 0 on success.
  */
 int tiz_chromecast_init (/*@null@ */ tiz_chromecast_ptr_t *app_chromecast,
-                     const char *ap_oauth_token);
+                         const char *ap_name_or_ip);
 
 /**
  * Clear the playback queue.
@@ -83,8 +82,8 @@ int tiz_chromecast_init (/*@null@ */ tiz_chromecast_ptr_t *app_chromecast,
  *
  * @param ap_chromecast The chromecast handle.
  */
-void tiz_chromecast_set_playback_mode (tiz_chromecast_t *ap_chromecast,
-                                   const tiz_chromecast_playback_mode_t mode);
+void tiz_chromecast_set_playback_mode (
+    tiz_chromecast_t *ap_chromecast, const tiz_chromecast_playback_mode_t mode);
 
 /**
  * Destroy the chromecast handle.
