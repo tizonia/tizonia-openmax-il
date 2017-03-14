@@ -17,8 +17,7 @@
 """@package tizchromecastproxy
 Simple Chromecast proxy/wrapper.
 
-Access Chromecast using a user account to retrieve track URLs and create a play
-queue for streaming.
+Access a Chromecast device to initiate and manage audio streaming sessions..
 
 """
 
@@ -30,6 +29,8 @@ import random
 import chromecast
 import collections
 import unicodedata
+import threading
+import Queue
 from requests.exceptions import HTTPError
 from operator import itemgetter
 
@@ -94,15 +95,6 @@ def exception_handler(exception_type, exception, traceback):
 
 sys.excepthook = exception_handler
 
-class TizEnumeration(set):
-    """A simple enumeration class.
-
-    """
-    def __getattr__(self, name):
-        if name in self:
-            return name
-        raise AttributeError
-
 def to_ascii(msg):
     """Unicode to ascii helper.
 
@@ -110,37 +102,92 @@ def to_ascii(msg):
 
     return unicodedata.normalize('NFKD', unicode(msg)).encode('ASCII', 'ignore')
 
-class tizchromecastproxy(object):
-    """A class that logs into a Chromecast account, retrieves track URLs
-    on behalf of the user and creates and manages a playback queue.
+class ChromecastCmdIf(object):
+    """
+    Abstract class for commands that will be processed by the ChromecastWorker
+    worker thread
+    """
+
+    @abstractmethod
+    def run(self, manager):
+        """
+        Runs the command.
+        """
+
+class ChromecastCmdSetup(ChromecastCmdIf):
+    """
 
     """
-    def __init__(self, oauth_token):
-        self.__api = chromecast.Client(
-            access_token=oauth_token
-        )
 
-        self.queue = list()
-        self.queue_index = -1
-        self.play_queue_order = list()
-        self.play_modes = TizEnumeration(["NORMAL", "SHUFFLE"])
-        self.current_play_mode = self.play_modes.NORMAL
-        self.now_playing_track = None
+    def __init__ (self, url, content_type, title=None, thumb=None,
+                  current_time=0, autoplay=True,
+                  stream_type=STREAM_TYPE_BUFFERED):
+        self.url = url
+        self.content_type = content_type
+        self.title = title
+        self.thumb = thumb
+        self.current_time = current_time
+        self.autoplay = autoplay
+        self.stream_type = stream_type
+
+    def run (self, manager):
+        log_line ("SkemaBaseProfileEmpty.run")
+
+class ChromecastWorker(threading.Thread):
+    """
+
+    """
+    def __init__ (self, name_or_ip, *args, **kwargs):
+        threading.Thread.__init__(self, *args, **kwargs)
+        self.queue = Queue.Queue(0)
+
+    def setup (self, url, content_type, title=None, thumb=None,
+               current_time=0, autoplay=True,
+               stream_type=STREAM_TYPE_BUFFERED):
+        self.queue.put(ChromecastCmdSetup(url, content_type, title, thumb,
+               current_time, autoplay, stream_type))
+
+    def run (self):
+
+        while True:
+            cmd = self.queue.get()
+            if cmd is None:
+                break
+            cmd.run(self)
+            self.queue.task_done()
+
+        self.queue.task_done()
+        return
+
+    def tear_down (self):
+        self.queue.put(None)
+        self.queue.join()
+
+    def play(self):
+        """ Send the PLAY command. """
+        self._send_command({MESSAGE_TYPE: TYPE_PLAY})
+
+    def pause(self):
+        """ Send the PAUSE command. """
+        self._send_command({MESSAGE_TYPE: TYPE_PAUSE})
+
+    def stop(self):
+        """ Send the STOP command. """
+        self._send_command({MESSAGE_TYPE: TYPE_STOP})
+
+class tizchromecastproxy(object):
+    """A class that interfaces with a Chromecast device to initiate and manage
+    audio streaming sessions.
+
+    """
+    def __init__(self, name_or_ip):
+        self.worker = ChromecastWorker(name_or_ip)
 
     def logout(self):
-        """ Reset the session to an unauthenticated, default state.
+        """ Reset the session to default state.
 
         """
-        self.__api.logout()
-
-    def set_play_mode(self, mode):
-        """ Set the playback mode.
-
-        :param mode: curren tvalid values are "NORMAL" and "SHUFFLE"
-
-        """
-        self.current_play_mode = getattr(self.play_modes, mode)
-        self.__update_play_queue_order()
+        self.woker.stop()
 
 if __name__ == "__main__":
     tizchromecastproxy()
