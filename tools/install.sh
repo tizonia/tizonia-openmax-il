@@ -26,20 +26,18 @@ if echo "$RELIDS" | grep raspbian; then
   DISTRO="raspbian" ; RELEASE="jessie"
 elif echo "$RELIDS" | grep jessie; then
   DISTRO="debian" ; RELEASE="jessie"
-elif echo "$RELIDS" | grep trusty; then
-  DISTRO="ubuntu" ; RELEASE="trusty"
-elif echo "$RELIDS" | grep freya; then
-  # freya is based on trusty
+elif echo "$RELIDS" | grep -E 'trusty|freya|qiana|rebecca|rafaela|rosa|sarah'; then
+  # NOTE: Elementary OS 'freya' is based on trusty
+  # NOTE: LinuxMint 'qiana' 'rebecca' 'rafaela' 'rosa' 'sarah' are all based on trusty
   DISTRO="ubuntu" ; RELEASE="trusty"
 elif echo "$RELIDS" | grep vivid; then
   DISTRO="ubuntu" ; RELEASE="vivid"
-elif echo "$RELIDS" | grep xenial; then
-  DISTRO="ubuntu" ; RELEASE="xenial"
-elif echo "$RELIDS" | grep loki; then
-  # loki is based on xenial
+elif echo "$RELIDS" | grep -E 'xenial|loki|sarah|serena'; then
+  # NOTE: Elementary OS 'loki' is based on xenial
+  # Linux Mint 'sarah' and 'serena' are based on xenial
   DISTRO="ubuntu" ; RELEASE="xenial"
 else
-  echo "Can't find a supported debian-based distribution."
+  echo "Can't find a supported Debian or Ubuntu-based distribution."
   exit 1
 fi
 
@@ -86,7 +84,7 @@ if [[ "$?" -eq 0 ]]; then
     TIZ_CONFIG_DIR="$HOME/.config/tizonia"
     TIZ_CONFIG_FILE="$TIZ_CONFIG_DIR/tizonia.conf"
     if [[ ! -e "$TIZ_CONFIG_FILE" ]]; then
-        mkdir "$TIZ_CONFIG_DIR"
+        mkdir -p "$TIZ_CONFIG_DIR"
         cp /etc/tizonia/tizonia.conf/tizonia.conf "$TIZ_CONFIG_FILE"
     fi
 fi
