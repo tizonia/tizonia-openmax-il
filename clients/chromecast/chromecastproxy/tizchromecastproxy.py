@@ -31,6 +31,7 @@ import collections
 import unicodedata
 import threading
 import Queue
+import pychromecast
 from requests.exceptions import HTTPError
 from operator import itemgetter
 
@@ -130,8 +131,32 @@ class ChromecastCmdSetup(ChromecastCmdIf):
         self.autoplay = autoplay
         self.stream_type = stream_type
 
-    def run (self, manager):
-        log_line ("SkemaBaseProfileEmpty.run")
+    def run (self, worker):
+        worker.cast.play_media(self.url, self.content_type, self.title,
+                               self.thumb, self.current_time, self.autoplay,
+                               self.stream_type)
+
+
+class ChromecastCmdPlay(ChromecastCmdIf):
+    """
+
+    """
+    def run (self, worker):
+        worker.cast.media_controller.play()
+
+class ChromecastCmdPause(ChromecastCmdIf):
+    """
+
+    """
+    def run (self, worker):
+        worker.cast.media_controller.pause()
+
+class ChromecastCmdStop(ChromecastCmdIf):
+    """
+
+    """
+    def run (self, worker):
+        worker.cast.media_controller.stop()
 
 class ChromecastWorker(threading.Thread):
     """
@@ -140,21 +165,33 @@ class ChromecastWorker(threading.Thread):
     def __init__ (self, name_or_ip, *args, **kwargs):
         threading.Thread.__init__(self, *args, **kwargs)
         self.queue = Queue.Queue(0)
+        self.name_or_ip = name_or_ip
+        self.cast = cast = pychromecast.Chromecast(self.name_or_ip)
 
     def setup (self, url, content_type, title=None, thumb=None,
                current_time=0, autoplay=True,
                stream_type=STREAM_TYPE_BUFFERED):
-        self.queue.put(ChromecastCmdSetup(url, content_type, title, thumb,
-               current_time, autoplay, stream_type))
+        if self.cast:
+            self.queue.put(ChromecastCmdSetup(url, content_type, title, thumb,
+                                              current_time, autoplay, stream_type))
 
     def run (self):
-
+        polltime = 0.1
         while True:
-            cmd = self.queue.get()
-            if cmd is None:
-                break
-            cmd.run(self)
-            self.queue.task_done()
+            if self.cast:
+                can_read, _, _ = select.select([self.cast.socket_client.get_socket()], [], [], polltime)
+                if can_read:
+                    self.cast.socket_client.run_once()
+                do_actions(self.cast, t)
+
+            if not self.queue.empty():
+                cmd = self.queue.get()
+                if cmd is None:
+                    if self.cast:
+                        cast.media_controller.tear_down()
+                    break
+                cmd.run(self)
+                self.queue.task_done()
 
         self.queue.task_done()
         return
@@ -165,15 +202,18 @@ class ChromecastWorker(threading.Thread):
 
     def play(self):
         """ Send the PLAY command. """
-        self._send_command({MESSAGE_TYPE: TYPE_PLAY})
+        if self.cast:
+            self.queue.put(ChromecastCmdPlay())
 
     def pause(self):
         """ Send the PAUSE command. """
-        self._send_command({MESSAGE_TYPE: TYPE_PAUSE})
+        if self.cast:
+            self.queue.put(ChromecastCmdPause())
 
     def stop(self):
         """ Send the STOP command. """
-        self._send_command({MESSAGE_TYPE: TYPE_STOP})
+        if self.cast:
+            self.queue.put(ChromecastCmdStop())
 
 class tizchromecastproxy(object):
     """A class that interfaces with a Chromecast device to initiate and manage
@@ -183,11 +223,14 @@ class tizchromecastproxy(object):
     def __init__(self, name_or_ip):
         self.worker = ChromecastWorker(name_or_ip)
 
-    def logout(self):
-        """ Reset the session to default state.
+    def setup(url, content_type, title=None, thumb=None,
+              current_time=0, autoplay=True,
+              stream_type=STREAM_TYPE_BUFFERED)
+        self.worker.setup(url, content_type, title, thumb,
+                          current_time, autoplay, stream_type)
 
-        """
-        self.woker.stop()
+    def tear_down()
+        self.worker.tear_down()
 
 if __name__ == "__main__":
     tizchromecastproxy()
