@@ -105,13 +105,14 @@ int tizchromecast::start ()
   int rc = 0;
   try_catch_wrapper (
       start_chromecast (py_global_, py_gm_proxy_, name_or_ip_));
+  try_catch_wrapper (py_gm_proxy_.attr ("setup")());
   return rc;
 }
 
 void tizchromecast::stop ()
 {
   int rc = 0;
-  // try_catch_wrapper (py_gm_proxy_.attr ("logout")());
+  try_catch_wrapper (py_gm_proxy_.attr ("tear_down")());
   (void)rc;
 }
 
@@ -120,33 +121,9 @@ void tizchromecast::deinit ()
   // boost::python doesn't support Py_Finalize() yet!
 }
 
-void tizchromecast::set_playback_mode (const playback_mode mode)
-{
-  int rc = 0;
-  switch(mode)
-    {
-    case PlaybackModeNormal:
-      {
-        try_catch_wrapper (py_gm_proxy_.attr ("set_play_mode")("NORMAL"));
-      }
-      break;
-    case PlaybackModeShuffle:
-      {
-        try_catch_wrapper (py_gm_proxy_.attr ("set_play_mode")("SHUFFLE"));
-      }
-      break;
-    default:
-      {
-        assert (0);
-      }
-      break;
-    };
-  (void)rc;
-}
-
-int tizchromecast::get_current_track ()
-{
-  int rc = 1;
+// int tizchromecast::get_current_track ()
+// {
+//   int rc = 1;
 //   current_user_.clear ();
 //   current_title_.clear ();
 
@@ -226,5 +203,5 @@ int tizchromecast::get_current_track ()
 //       rc = 0;
 //     }
 
-  return rc;
-}
+//   return rc;
+// }

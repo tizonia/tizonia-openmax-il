@@ -55,11 +55,6 @@ public:
   void stop ();
   void deinit ();
 
-  void set_playback_mode (const playback_mode mode);
-
-private:
-  int get_current_track ();
-
 private:
   std::string name_or_ip_;
   boost::python::object py_main_;

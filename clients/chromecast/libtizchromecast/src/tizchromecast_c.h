@@ -52,16 +52,6 @@ typedef struct tiz_chromecast tiz_chromecast_t;
 typedef /*@null@ */ tiz_chromecast_t *tiz_chromecast_ptr_t;
 
 /**
- * Various playback modes that control the playback queue.
- * @ingroup libtizchromecast
- */
-typedef enum tiz_chromecast_playback_mode {
-  ETIZChromecastPlaybackModeNormal,
-  ETIZChromecastPlaybackModeShuffle,
-  ETIZChromecastPlaybackModeMax
-} tiz_chromecast_playback_mode_t;
-
-/**
  * Initialize the chromecast handle.
  *
  * @ingroup libtizchromecast
@@ -74,16 +64,6 @@ typedef enum tiz_chromecast_playback_mode {
  */
 int tiz_chromecast_init (/*@null@ */ tiz_chromecast_ptr_t *app_chromecast,
                          const char *ap_name_or_ip);
-
-/**
- * Clear the playback queue.
- *
- * @ingroup libtizchromecast
- *
- * @param ap_chromecast The chromecast handle.
- */
-void tiz_chromecast_set_playback_mode (
-    tiz_chromecast_t *ap_chromecast, const tiz_chromecast_playback_mode_t mode);
 
 /**
  * Destroy the chromecast handle.

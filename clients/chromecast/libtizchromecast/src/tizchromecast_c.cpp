@@ -101,15 +101,6 @@ extern "C" int tiz_chromecast_init (tiz_chromecast_ptr_t *app_chromecast,
   return rc;
 }
 
-extern "C" void tiz_chromecast_set_playback_mode (
-    tiz_chromecast_t *ap_chromecast, const tiz_chromecast_playback_mode_t mode)
-{
-  assert (ap_chromecast);
-  assert (ap_chromecast->p_proxy_);
-  return ap_chromecast->p_proxy_->set_playback_mode (
-      static_cast< tizchromecast::playback_mode >(mode));
-}
-
 extern "C" void tiz_chromecast_destroy (tiz_chromecast_t *ap_chromecast)
 {
   if (ap_chromecast)
