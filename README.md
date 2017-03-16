@@ -22,6 +22,8 @@ combinations:
 |     amd64, armhf      |     amd64, armhf      |    amd64, armhf   |      armhf          |
 | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-trusty/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-trusty/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-xenial/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-xenial/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-jessie/_latestVersion)  | [ ![Download](https://api.bintray.com/packages/tizonia/raspbian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/raspbian/tizonia-jessie/_latestVersion) |
 
+> NOTE: Elementary OS and Linux Mint are also supported on releases based on Ubuntu 'Trusty' or Ubuntu 'Xenial'.
+
 This script installs the
 [latest](https://github.com/tizonia/tizonia-openmax-il/releases/latest)
 release and all the dependencies, including [gmusicapi](https://github.com/simon-weber/gmusicapi), [soundcloud](https://github.com/soundcloud/soundcloud-python), [pafy](https://github.com/mps-youtube/pafy), and [youtube-dl](https://github.com/rg3/youtube-dl).
