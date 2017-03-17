@@ -40,18 +40,18 @@
 #include "tizchromecast_c.h"
 
 #define CHROMECAST_TEST_TIMEOUT 2500
-#define CHROMECAST_USERNAME     "xxx"
-#define CHROMECAST_PASS         "xxx"
+#define CHROMECAST_DEVICE_NAME  "Chromecast-Ultra"
 
-#define CHROMECAST_USER "TWIT"
-#define CHROMECAST_PLAYLIST "metal"
+#define URL "http://localhost:8010"
+#define CONTENT_TYPE "audio/mp3"
+#define TITLE "Tizonia Audio Stream"
 
 #define CMD_LEN 1000
 #define PLAYER "tizonia"
 
 static bool chromecast_credentials_present (void)
 {
-  if (!strcmp (CHROMECAST_USERNAME, "xxx"))
+  if (!strcmp (CHROMECAST_DEVICE_NAME, "xxx"))
     {
       return false;
     }
@@ -61,11 +61,11 @@ static bool chromecast_credentials_present (void)
 START_TEST (test_chromecast_play_media)
 {
   tiz_chromecast_t *p_chromecast = NULL;
-  int rc = tiz_chromecast_init (&p_chromecast, CHROMECAST_USERNAME, CHROMECAST_PASS);
+  int rc = tiz_chromecast_init (&p_chromecast, CHROMECAST_DEVICE_NAME);
   ck_assert (0 == rc);
   ck_assert (p_chromecast);
 
-  rc = tiz_chromecast_load (p_chromecast);
+  rc = tiz_chromecast_load (p_chromecast, URL, CONTENT_TYPE, TITLE);
   ck_assert (0 == rc);
 
 /*   while (1) */
