@@ -1,3 +1,16 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [Building from source](#building-from-source)
+  - [Dependencies](#dependencies)
+  - [Building](#building)
+  - [Tizonia's configuration file](#tizonias-configuration-file)
+  - [Resource Manager's D-BUS service activation file (optional)](#resource-managers-d-bus-service-activation-file-optional)
+  - [Known issues](#known-issues)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 ## Building from source ##
 
 To build and install from source, follow these steps (Ubuntu 16.04 is assumed,
