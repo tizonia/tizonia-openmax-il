@@ -111,6 +111,8 @@ declare -ar TIZ_TIZONIA_DEPS=( \
     sqlite3 \
     dbus-x11 \
     mercurial \
+    git \
+    checkinstall \
 )
 
 declare -ar TIZ_DEBIAN_PKGS=( \

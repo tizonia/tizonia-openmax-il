@@ -303,7 +303,11 @@ function main {
             raise_error "Build failure."
         fi
 
-        sudo checkinstall
+        sudo checkinstall \
+             --nodoc \
+             --pkgname tizonia-all-testing \
+             --pkgversion 0.7.0d \
+             --maintainer='Juan\ A.\ Rubio\ \<jarubio2001@gmail.com\>'
         if [[ "$?" != 0 ]]; then
             raise_error "checkinstall failure."
         fi
