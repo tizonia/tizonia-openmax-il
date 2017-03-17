@@ -18,7 +18,7 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# Tizonia #
+# Tizonia
 
 * A command-line music streaming client/server for Linux.
 * With support for Spotify, Google Play Music (including Unlimited), YouTube,
@@ -27,11 +27,11 @@
 
 [![Build Status](https://travis-ci.org/tizonia/tizonia-openmax-il.png)](https://travis-ci.org/tizonia/tizonia-openmax-il)  |  [![Coverity Scan Build Status](https://scan.coverity.com/projects/594/badge.svg)](https://scan.coverity.com/projects/594)  |  [![Documentation Status](https://readthedocs.org/projects/tizonia-openmax-il/badge/?version=master)](https://readthedocs.org/projects/tizonia-openmax-il/?badge=master)
 
-## Usage
+# Usage
 
 ![alt text](https://github.com/tizonia/tizonia-openmax-il/blob/master/docs/animated-gifs/tizonia-usage-screencast.gif "Tizonia usage")
 
-## Installation
+# Installation
 
 Tizonia's Debian packages are available from
 [Bintray](https://bintray.com/tizonia), with the following distro/arch
@@ -107,9 +107,9 @@ after 0.6.0:
     component-paths = /usr/lib/arm-linux-gnueabihf/tizonia0-plugins12;
 ```
 
-## The Tizonia project
+# The Tizonia project
 
-### `tizonia`: A command line music player and audio streaming client/server ###
+## `tizonia`: A command line music player and audio streaming client/server
 
 * Stream playlists from Spotify (Spotify Premium required).
 * Search and stream audio from Google Play Music (including Unlimited features).
@@ -125,7 +125,7 @@ after 0.6.0:
 * Based on Tizonia's own OpenMAX IL-based multimedia framework. That means, no
   gstreamer, libav, or ffmpeg dependencies.
 
-### OpenMAX IL 1.2 multimedia framework ###
+## OpenMAX IL 1.2 multimedia framework
 
 1. 'libtizonia' : OpenMAX IL 1.2 component framework
   * A C library for creating OpenMAX IL 1.2 plugins (encoders, decoders,
@@ -174,21 +174,21 @@ after 0.6.0:
   * general purpose plugins, like binary file readers and writers
   * etc...
 
-### Skema: Tizonia's Python test execution framework ###
+## Skema: Tizonia's Python test execution framework
   * Test execution framework to build and test arbitrary OpenMAX IL graphs (tunneled and
     non-tunneled) using a custom, [easy-to-write XML syntax](http://github.com/tizonia/tizonia-openmax-il/wiki/Mp3Playback101).
   * Skema's Github repo: http://github.com/tizonia/skema
 
-## Building Tizonia ##
+# Building Tizonia
 
 See [BUILDING.md](BUILDING.md) for instructions on how to build Tizonia from source.
 
 
-## License ##
+# License
 
 Tizonia OpenMAX IL is released under the GNU Lesser General Public License
 version 3.
 
-## More information ##
+# More information
 
 For more information, please visit the project web site at http://www.tizonia.org
