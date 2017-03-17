@@ -101,8 +101,7 @@ tizgraph_ptr_t graphmgr::ops::get_graph (const std::string &uri)
     {
       // TODO: Check rc
       std::pair< tizgraph_ptr_map_t::iterator, bool > rc
-          = graph_registry_.insert (
-              std::make_pair< std::string, tizgraph_ptr_t >(encoding, g_ptr));
+          = graph_registry_.insert (std::make_pair (encoding, g_ptr));
       if (rc.second)
       {
         // TODO: Check rc

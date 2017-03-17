@@ -63,8 +63,7 @@ namespace
       DBus::Path path (value);
       it << path;
       TIZ_PRINTF_RED ("key [%s] val [%s]\n", key.c_str (), value.c_str ());
-      dbus_meta.insert (std::make_pair< std::string, DBus::Variant >(
-          key, DBus::Variant (it)));
+      dbus_meta.insert (std::make_pair (key, DBus::Variant (it)));
     }
     return dbus_meta;
   }

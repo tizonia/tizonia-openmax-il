@@ -65,9 +65,13 @@ graphmgr::ops *graphmgr::decodemgr::do_init (
   graphmgr_caps.has_track_list_ = true;
   graphmgr_caps.identity_.assign ("Tizonia version ");
   graphmgr_caps.identity_.append (PACKAGE_VERSION);
-  graphmgr_caps.uri_schemes_ = boost::assign::list_of("file");
-  graphmgr_caps.mime_types_ = boost::assign::list_of
-    ("audio/mpg")("audio/mp3")("audio/aac")("audio/aacp")("audio/vorbis")("audio/opus")("audio/flac");
+  graphmgr_caps.uri_schemes_
+      = boost::assign::list_of ("file")
+            .convert_to_container< std::vector< std::string > > ();
+  graphmgr_caps.mime_types_
+      = boost::assign::list_of ("audio/mpg") ("audio/mp3") ("audio/aac") (
+            "audio/aacp") ("audio/vorbis") ("audio/opus") ("audio/flac")
+            .convert_to_container< std::vector< std::string > > ();
   graphmgr_caps.minimum_rate_ = 1.0;
   graphmgr_caps.maximum_rate_ = 1.0;
   graphmgr_caps.can_go_next_ = true;
