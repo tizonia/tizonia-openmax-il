@@ -115,7 +115,7 @@ class ChromecastCmdIf(object):
         Runs the command.
         """
 
-class ChromecastCmdSetup(ChromecastCmdIf):
+class ChromecastCmdLoad(ChromecastCmdIf):
     """
 
     """
@@ -168,12 +168,12 @@ class ChromecastWorker(threading.Thread):
         self.name_or_ip = name_or_ip
         self.cast = cast = pychromecast.Chromecast(self.name_or_ip)
 
-    def setup (self, url, content_type, title=None, thumb=None,
-               current_time=0, autoplay=True,
-               stream_type=STREAM_TYPE_BUFFERED):
+    def load (self, url, content_type, title=None, thumb=None,
+              current_time=0, autoplay=True,
+              stream_type=STREAM_TYPE_BUFFERED):
         if self.cast:
-            self.queue.put(ChromecastCmdSetup(url, content_type, title, thumb,
-                                              current_time, autoplay, stream_type))
+            self.queue.put(ChromecastCmdLoad(url, content_type, title, thumb,
+                                             current_time, autoplay, stream_type))
 
     def run (self):
         polltime = 0.1
@@ -196,7 +196,7 @@ class ChromecastWorker(threading.Thread):
         self.queue.task_done()
         return
 
-    def tear_down (self):
+    def unload (self):
         self.queue.put(None)
         self.queue.join()
 
@@ -223,14 +223,14 @@ class tizchromecastproxy(object):
     def __init__(self, name_or_ip):
         self.worker = ChromecastWorker(name_or_ip)
 
-    def setup(url, content_type, title=None, thumb=None,
-              current_time=0, autoplay=True,
-              stream_type=STREAM_TYPE_BUFFERED)
-        self.worker.setup(url, content_type, title, thumb,
-                          current_time, autoplay, stream_type)
+    def load(url, content_type, title=None, thumb=None,
+             current_time=0, autoplay=True,
+             stream_type=STREAM_TYPE_BUFFERED)
+        self.worker.load(url, content_type, title, thumb,
+                         current_time, autoplay, stream_type)
 
-    def tear_down()
-        self.worker.tear_down()
+    def unload()
+        self.worker.unload()
 
 if __name__ == "__main__":
     tizchromecastproxy()
