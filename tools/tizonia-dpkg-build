@@ -91,6 +91,8 @@ declare -ar TIZ_TIZONIA_DEPS=( \
     libsndfile1-dev \
     libffi-dev \
     libssl-dev \
+    libspotify12 \
+    libspotify-dev \
     python-dev \
     python-setuptools \
     python-pip \
@@ -448,19 +450,15 @@ function do_tizonia_deps {
 
     # Add mopidy APT archive to sources, if not added already
     # and install libspotify using mopidy's deb packages
-    local spotify=$(sudo ldconfig -p | grep -c libspotify)
-    if [[ "$spotify" -eq "0" ]]; then
-        grep -q 'apt.mopidy.com' /etc/apt/sources.list
-        if [[ "$?" -ne 0 ]]; then
-            # Add Mopidy APT archive to sources.list
-            pretty_print "$BLU" "[libspotify] : installing libspotify debian packages."
-            wget -q -O - http://apt.mopidy.com/mopidy.gpg | sudo apt-key add -
-            echo deb http://apt.mopidy.com/ stable main contrib non-free | sudo tee -a /etc/apt/sources.list
-            echo deb-src http://apt.mopidy.com/ stable main contrib non-free | sudo tee -a /etc/apt/sources.list
-            sudo apt-get update
-            sudo apt-get install libspotify12 libspotify-dev -qq --force-yes
-            pretty_print "$GRN" "[libspotify] : installed."
-        fi
+    grep -q 'apt.mopidy.com' /etc/apt/sources.list
+    if [[ "$?" -ne 0 ]]; then
+        # Add Mopidy APT archive to sources.list
+        pretty_print "$BLU" "[libspotify] : adding Mopidy APT archive to sources.list."
+        wget -q -O - http://apt.mopidy.com/mopidy.gpg | sudo apt-key add -
+        echo deb http://apt.mopidy.com/ stable main contrib non-free | sudo tee -a /etc/apt/sources.list
+        echo deb-src http://apt.mopidy.com/ stable main contrib non-free | sudo tee -a /etc/apt/sources.list
+        sudo apt-get update
+        pretty_print "$GRN" "[libspotify] : added Mopidy APT archive."
     fi
 
     # Install tizonia's binary dependencies
@@ -504,7 +502,7 @@ function do_tizonia_deps {
     fi
 
     # Install Python pip-based dependencies : youtube-dl
-    python -c "import youtube-dl"
+    python -c "import youtube_dl"
     if [[ "$?" -ne 0 ]]; then
         sudo pip install --upgrade youtube-dl
     else
