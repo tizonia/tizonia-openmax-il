@@ -61,11 +61,10 @@ void *tizrmproxy::register_client (
   std::vector< unsigned char > uuid_vec;
   uuid_vec.assign (&uuid[0], &uuid[0] + 128);
 
-  std::pair< clients_map_t::iterator, bool > rv = clients_.insert (
-      std::make_pair< std::vector< unsigned char >, client_data >(
-          uuid_vec,
-          client_data (ap_cname, uuid_vec, grp_id, grp_pri, apf_waitend,
-                       apf_preempt, apf_preempt_end, ap_data)));
+  std::pair< clients_map_t::iterator, bool > rv
+    = clients_.insert (std::make_pair (
+      uuid_vec, client_data (ap_cname, uuid_vec, grp_id, grp_pri, apf_waitend,
+                             apf_preempt, apf_preempt_end, ap_data)));
 
   tiz_uuid_str (&(uuid_vec[0]), uuid_str);
 
