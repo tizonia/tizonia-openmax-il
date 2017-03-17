@@ -476,7 +476,7 @@ function do_tizonia_deps {
     # Install a new version of pip
     echo "Installing a fresher version of pip..."
     wget https://bootstrap.pypa.io/get-pip.py \
-        && sudo python get-pip.py
+        && sudo -H python get-pip.py
 
     # Install Python pip-based dependencies : gmusicapi
     python -c "import gmusicapi"
