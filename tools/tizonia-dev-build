@@ -284,16 +284,31 @@ function main {
 
     elif [[ ("$debian" == 1) ]]; then
 
-#         print_banner "Reconfiguring [$TIZONIA_PROJ_NAME] for [Debian] build - Install dir [/usr]..." "$YEL"
-#         autoreconf -ifs \
-#             && ./configure \
-#             --prefix=/usr \
-#             --libdir=/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH) \
-#             CFLAGS='-O0 -ggdb -Wall -Werror -I/usr/include/tizonia' \
-#             CXXFLAGS='-O0 -ggdb -Wall'
+        print_banner "Reconfiguring [$TIZONIA_PROJ_NAME] for [Debian] build - Install dir [/usr]..." "$YEL"
+        autoreconf -ifs \
+            && ./configure \
+            --silent \
+            --enable-silent-rules \
+            --prefix=/usr \
+            --libdir=/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH) \
+            CFLAGS='-O2 -s -DNDEBUG'  \
+            CXXFLAGS='-O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security'
 
-         print_banner "--debian option is currently disabled..." "$YEL"
-         exit "$E_BADARGS"
+        if [[ "$?" != 0 ]]; then
+            raise_error "Configuration failure."
+        fi
+
+        make
+        if [[ "$?" != 0 ]]; then
+            raise_error "Build failure."
+        fi
+
+        sudo checkinstall
+        if [[ "$?" != 0 ]]; then
+            raise_error "checkinstall failure."
+        fi
+
+        exit 0
 
     elif [[ ("$release" == 1) ]];  then
 
