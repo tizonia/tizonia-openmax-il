@@ -68,7 +68,7 @@ Copy *tizonia.conf* into the user's config folder:
 ```bash
 
     $ mkdir -p $HOME/.config/tizonia \
-        && cp config/src/tizonia.conf $HOME/.config/tizonia
+        && cp $TIZONIA_REPO_DIR/config/src/tizonia.conf $HOME/.config/tizonia
 
 ```
 
