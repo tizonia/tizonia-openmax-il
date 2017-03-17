@@ -58,197 +58,40 @@ static bool chromecast_credentials_present (void)
   return true;
 }
 
-START_TEST (test_chromecast_play_stream)
+START_TEST (test_chromecast_play_media)
 {
   tiz_chromecast_t *p_chromecast = NULL;
   int rc = tiz_chromecast_init (&p_chromecast, CHROMECAST_USERNAME, CHROMECAST_PASS);
   ck_assert (0 == rc);
   ck_assert (p_chromecast);
 
-  rc = tiz_chromecast_play_stream (p_chromecast);
+  rc = tiz_chromecast_load (p_chromecast);
   ck_assert (0 == rc);
 
 /*   while (1) */
   {
 /*     char cmd[CMD_LEN]; */
     {
-      const char *next_url = tiz_chromecast_get_next_url (p_chromecast);
-      ck_assert (next_url);
-      fprintf (stderr, "url = %s\n", next_url);
+      const int result = tiz_chromecast_play (p_chromecast);
+      ck_assert (0 == result);
+      fprintf (stderr, "result = %d\n", result);
     }
 
     {
-      const char *user = tiz_chromecast_get_current_track_user (p_chromecast);
-      ck_assert (user);
-      fprintf (stderr, "user = %s\n", user);
+      const int result = tiz_chromecast_pause (p_chromecast);
+      ck_assert (0 == result);
+      fprintf (stderr, "result = %d\n", result);
     }
 
     {
-      const char *title = tiz_chromecast_get_current_track_title (p_chromecast);
-      ck_assert (title);
-      fprintf (stderr, "title = %s\n", title);
-    }
-
-    {
-      const char *duration
-          = tiz_chromecast_get_current_track_duration (p_chromecast);
-      ck_assert (duration);
-      fprintf (stderr, "duration = %s\n", duration);
-    }
-
-    {
-      const char *year = tiz_chromecast_get_current_track_year (p_chromecast);
-      ck_assert (year);
-      fprintf (stderr, "year = %s\n", year);
-    }
-
-    {
-      const char *permalink = tiz_chromecast_get_current_track_permalink (p_chromecast);
-      ck_assert (permalink);
-      fprintf (stderr, "permalink = %s\n", permalink);
-    }
-
-    {
-      const char *license = tiz_chromecast_get_current_track_license (p_chromecast);
-      ck_assert (license);
-      fprintf (stderr, "license = %s\n", license);
+      const int result = tiz_chromecast_stop (p_chromecast);
+      ck_assert (0 == result);
+      fprintf (stderr, "result = %d\n", result);
     }
 
 /*     snprintf (cmd, CMD_LEN, "%s \"%s\"", PLAYER, next_url); */
 /*     fprintf (stderr, "cmd = %s\n", cmd); */
 /*     ck_assert (-1 != system (cmd)); */
-  }
-
-  tiz_chromecast_destroy (p_chromecast);
-}
-END_TEST
-
-START_TEST (test_chromecast_play_creator)
-{
-  tiz_chromecast_t *p_chromecast = NULL;
-  int rc = tiz_chromecast_init (&p_chromecast, CHROMECAST_USERNAME, CHROMECAST_PASS);
-  ck_assert (0 == rc);
-  ck_assert (p_chromecast);
-
-  rc = tiz_chromecast_play_creator (p_chromecast, CHROMECAST_USER);
-  ck_assert (0 == rc);
-
-/*   while (1) */
-  {
-/*     char cmd[CMD_LEN]; */
-
-    {
-      const char *next_url = tiz_chromecast_get_next_url (p_chromecast);
-      ck_assert (next_url);
-      fprintf (stderr, "url = %s\n", next_url);
-    }
-
-    {
-      const char *user = tiz_chromecast_get_current_track_user (p_chromecast);
-      ck_assert (user);
-      fprintf (stderr, "user = %s\n", user);
-    }
-
-    {
-      const char *title = tiz_chromecast_get_current_track_title (p_chromecast);
-      ck_assert (title);
-      fprintf (stderr, "title = %s\n", title);
-    }
-
-    {
-      const char *duration
-          = tiz_chromecast_get_current_track_duration (p_chromecast);
-      ck_assert (duration);
-      fprintf (stderr, "duration = %s\n", duration);
-    }
-
-    {
-      const char *year = tiz_chromecast_get_current_track_year (p_chromecast);
-      ck_assert (year);
-      fprintf (stderr, "year = %s\n", year);
-    }
-
-    {
-      const char *permalink = tiz_chromecast_get_current_track_permalink (p_chromecast);
-      ck_assert (permalink);
-      fprintf (stderr, "permalink = %s\n", permalink);
-    }
-
-    {
-      const char *license = tiz_chromecast_get_current_track_license (p_chromecast);
-      ck_assert (license);
-      fprintf (stderr, "license = %s\n", license);
-    }
-
-    /*     snprintf (cmd, CMD_LEN, "%s \"%s\"", PLAYER, next_url); */
-    /*     fprintf (stderr, "cmd = %s\n", cmd); */
-    /*     ck_assert (-1 != system (cmd)); */
-  }
-
-  tiz_chromecast_destroy (p_chromecast);
-}
-END_TEST
-
-START_TEST (test_chromecast_play_playlist)
-{
-  tiz_chromecast_t *p_chromecast = NULL;
-  int rc = tiz_chromecast_init (&p_chromecast, CHROMECAST_USERNAME, CHROMECAST_PASS);
-  ck_assert (0 == rc);
-  ck_assert (p_chromecast);
-
-  rc = tiz_chromecast_play_playlist (p_chromecast, CHROMECAST_PLAYLIST);
-  ck_assert (0 == rc);
-
-  /* while (1) */
-  {
-/*     char cmd[CMD_LEN]; */
-
-    {
-      const char *next_url = tiz_chromecast_get_next_url (p_chromecast);
-      ck_assert (next_url);
-      fprintf (stderr, "url = %s\n", next_url);
-    }
-
-    {
-      const char *user = tiz_chromecast_get_current_track_user (p_chromecast);
-      ck_assert (user);
-      fprintf (stderr, "user = %s\n", user);
-    }
-
-    {
-      const char *title = tiz_chromecast_get_current_track_title (p_chromecast);
-      ck_assert (title);
-      fprintf (stderr, "title = %s\n", title);
-    }
-
-    {
-      const char *duration
-          = tiz_chromecast_get_current_track_duration (p_chromecast);
-      ck_assert (duration);
-      fprintf (stderr, "duration = %s\n", duration);
-    }
-
-    {
-      const char *year = tiz_chromecast_get_current_track_year (p_chromecast);
-      ck_assert (year);
-      fprintf (stderr, "year = %s\n", year);
-    }
-
-    {
-      const char *permalink = tiz_chromecast_get_current_track_permalink (p_chromecast);
-      ck_assert (permalink);
-      fprintf (stderr, "permalink = %s\n", permalink);
-    }
-
-    {
-      const char *license = tiz_chromecast_get_current_track_license (p_chromecast);
-      ck_assert (license);
-      fprintf (stderr, "license = %s\n", license);
-    }
-
-    /*     snprintf (cmd, CMD_LEN, "%s '%s'", PLAYER, next_url); */
-    /*     fprintf (stderr, "cmd = %s\n", cmd); */
-    /*     ck_assert (-1 != system (cmd)); */
   }
 
   tiz_chromecast_destroy (p_chromecast);
@@ -264,9 +107,7 @@ chromecast_suite (void)
   /* test case */
   tc_chromecast = tcase_create ("Chromecast client lib unit tests");
   tcase_set_timeout (tc_chromecast, CHROMECAST_TEST_TIMEOUT);
-  tcase_add_test (tc_chromecast, test_chromecast_play_stream);
-  tcase_add_test (tc_chromecast, test_chromecast_play_creator);
-  tcase_add_test (tc_chromecast, test_chromecast_play_playlist);
+  tcase_add_test (tc_chromecast, test_chromecast_play_media);
   suite_add_tcase (s, tc_chromecast);
 
   return s;

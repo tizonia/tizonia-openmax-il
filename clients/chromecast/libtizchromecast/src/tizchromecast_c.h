@@ -39,7 +39,7 @@ extern "C" {
 * @defgroup libtizchromecast 'libtizchromecast' : Tizonia's Chromecast client
 * library
 *
-* A C library to access the Chromecast streaming service.
+* A C library to access and control a Chromecast streaming device.
 *
 * @ingroup Tizonia
 */
@@ -64,6 +64,63 @@ typedef /*@null@ */ tiz_chromecast_t *tiz_chromecast_ptr_t;
  */
 int tiz_chromecast_init (/*@null@ */ tiz_chromecast_ptr_t *app_chromecast,
                          const char *ap_name_or_ip);
+
+/**
+ * Loads a new audio stream URL into the Chromecast media player.
+ *
+ * After calling this method, the various tiz_gmusic_get* methods can be
+ * used to interact with the playback queue.
+ *
+ * @ingroup libtizchromecast
+ *
+ * @param ap_chromecast The Tizonia Chromecast handle.
+ * @param ap_url The stream url.
+ * @param ap_content_type MIME content type of the media being played.
+ * @param ap_title The title of the media being played.
+ *
+ * @return 0 on success
+ */
+int tiz_chromecast_load (tiz_chromecast_t *ap_chromecast,
+                         const char *ap_url, const char *ap_content_type,
+                         const char *ap_title);
+
+/**
+ * Begin playback of the content that was loaded with the load call, playback
+ * is continued from the current time position.
+ *
+ * @ingroup libtizchromecast
+ *
+ * @param ap_chromecast The Tizonia Chromecast handle.
+ *
+ * @return 0 on success
+ */
+int tiz_chromecast_play (tiz_chromecast_t *ap_chromecast);
+
+/**
+ * Stop playback of the current content. Triggers a STATUS event notification
+ * to all sender applications.
+ *
+ * After this command the content will no longer be loaded and the
+ * mediaSessionId is invalidated.
+ *
+ * @ingroup libtizchromecast
+ *
+ * @param ap_chromecast The Tizonia Chromecast handle.
+ *
+ * @return 0 on success
+ */
+int tiz_chromecast_stop (tiz_chromecast_t *ap_chromecast);
+
+/**
+ * Pause playback of the content that was loaded with the load call.
+ *
+ * @ingroup libtizchromecast
+ *
+ * @param ap_chromecast The Tizonia Chromecast handle.
+ *
+ * @return 0 on success
+ */
+int tiz_chromecast_pause (tiz_chromecast_t *ap_chromecast);
 
 /**
  * Destroy the chromecast handle.

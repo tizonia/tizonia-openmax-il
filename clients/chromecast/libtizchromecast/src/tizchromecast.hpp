@@ -36,17 +36,6 @@
 class tizchromecast
 {
 public:
-  /**
-   * Various playback modes that control the playback queue.
-   */
-  enum playback_mode
-    {
-      PlaybackModeNormal,
-      PlaybackModeShuffle,
-      PlaybackModeMax
-    };
-
-public:
   tizchromecast (const std::string &name_or_ip);
   ~tizchromecast ();
 
@@ -55,11 +44,20 @@ public:
   void stop ();
   void deinit ();
 
+  int media_load (const std::string &url, const std::string &content_type,
+                  const std::string &title);
+  int media_play ();
+  int media_stop ();
+  int media_pause ();
+
 private:
   std::string name_or_ip_;
+  std::string url_;
+  std::string content_type_;
+  std::string title_;
   boost::python::object py_main_;
   boost::python::object py_global_;
-  boost::python::object py_gm_proxy_;
+  boost::python::object py_cc_proxy_;
 };
 
 #endif  // TIZCHROMECAST_HPP
