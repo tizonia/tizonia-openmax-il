@@ -177,12 +177,13 @@ Debian-compatible system to be able to build Tizonia from source.
 
 ```bash
 
-    $ cd tools
-
     # Setup the following environment variables
     $ export TIZONIA_REPO_DIR=/path/to/tizonia/repo # (e.g. /home/juan/work/tizonia)
     $ export TIZONIA_INSTALL_DIR=/path/to/install/basedir # (e.g. /home/juan/temp)
     $ export PATH=$TIZONIA_REPO_DIR/tools:$PATH
+
+    $ cd $TIZONIA_REPO_DIR/tools
+
 
     # Install everything needed to build Tizonia on a Debian/Ubuntu system
     $ ./tizonia-dev-build --deps
@@ -197,7 +198,7 @@ application:
 
 ```bash
 
-   $ cd tools
+   $ cd $TIZONIA_REPO_DIR/tools
 
    # Configure all Tizonia sub-projects with 'release' flags, build and
    # install.
