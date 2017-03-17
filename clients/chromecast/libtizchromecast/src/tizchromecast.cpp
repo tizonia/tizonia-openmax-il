@@ -29,8 +29,8 @@
 #include <config.h>
 #endif
 
-#include <iostream>
 #include <boost/lexical_cast.hpp>
+#include <iostream>
 
 #include "tizchromecast.hpp"
 
@@ -63,7 +63,7 @@ namespace bp = boost::python;
 namespace
 {
   void init_chromecast (boost::python::object &py_main,
-                    boost::python::object &py_global)
+                        boost::python::object &py_global)
   {
     Py_Initialize ();
 
@@ -75,12 +75,11 @@ namespace
   }
 
   void start_chromecast (boost::python::object &py_global,
-                     boost::python::object &py_gm_proxy,
-                     const std::string &name_or_ip)
+                         boost::python::object &py_cc_proxy,
+                         const std::string &name_or_ip)
   {
     bp::object pychromecastproxy = py_global["tizchromecastproxy"];
-    py_gm_proxy
-        = pychromecastproxy (name_or_ip.c_str ());
+    py_cc_proxy = pychromecastproxy (name_or_ip.c_str ());
   }
 }
 
@@ -103,22 +102,52 @@ int tizchromecast::init ()
 int tizchromecast::start ()
 {
   int rc = 0;
-  try_catch_wrapper (
-      start_chromecast (py_global_, py_gm_proxy_, name_or_ip_));
-  try_catch_wrapper (py_gm_proxy_.attr ("setup")());
+  try_catch_wrapper (start_chromecast (py_global_, py_cc_proxy_, name_or_ip_));
+  try_catch_wrapper (py_cc_proxy_.attr ("load") ());
   return rc;
 }
 
 void tizchromecast::stop ()
 {
   int rc = 0;
-  try_catch_wrapper (py_gm_proxy_.attr ("tear_down")());
+  try_catch_wrapper (py_cc_proxy_.attr ("unload") ());
   (void)rc;
 }
 
 void tizchromecast::deinit ()
 {
   // boost::python doesn't support Py_Finalize() yet!
+}
+
+int tizchromecast::media_load (const std::string &url,
+                               const std::string &content_type,
+                               const std::string &title)
+{
+  int rc = 0;
+  try_catch_wrapper (py_cc_proxy_.attr ("load") (
+      bp::object (url), bp::object (content_type), bp::object (title)));
+  return rc;
+}
+
+int tizchromecast::media_play ()
+{
+  int rc = 0;
+  try_catch_wrapper (py_cc_proxy_.attr ("play") ());
+  return rc;
+}
+
+int tizchromecast::media_stop ()
+{
+  int rc = 0;
+  try_catch_wrapper (py_cc_proxy_.attr ("stop") ());
+  return rc;
+}
+
+int tizchromecast::media_pause ()
+{
+  int rc = 0;
+  try_catch_wrapper (py_cc_proxy_.attr ("pause") ());
+  return rc;
 }
 
 // int tizchromecast::get_current_track ()
@@ -128,7 +157,7 @@ void tizchromecast::deinit ()
 //   current_title_.clear ();
 
 //   const bp::tuple &info1 = bp::extract< bp::tuple >(
-//       py_gm_proxy_.attr ("current_track_title_and_user")());
+//       py_cc_proxy_.attr ("current_track_title_and_user")());
 //   const char *p_user = bp::extract< char const * >(info1[0]);
 //   const char *p_title = bp::extract< char const * >(info1[1]);
 
@@ -142,7 +171,7 @@ void tizchromecast::deinit ()
 //     }
 
 //   int duration
-//       = bp::extract< int >(py_gm_proxy_.attr ("current_track_duration")());
+//       = bp::extract< int >(py_cc_proxy_.attr ("current_track_duration")());
 
 //   int seconds = 0;
 //   current_duration_.clear ();
@@ -161,7 +190,8 @@ void tizchromecast::deinit ()
 
 //       if (hours > 0)
 //         {
-//           current_duration_.append (boost::lexical_cast< std::string >(hours));
+//           current_duration_.append (boost::lexical_cast< std::string
+//           >(hours));
 //           current_duration_.append ("h:");
 //         }
 
@@ -178,25 +208,29 @@ void tizchromecast::deinit ()
 //   current_duration_.append (seconds_str);
 //   current_duration_.append ("s");
 
-//   const int track_year = bp::extract< int >(py_gm_proxy_.attr ("current_track_year")());
-//   current_track_year_.assign (boost::lexical_cast< std::string >(track_year));
+//   const int track_year = bp::extract< int >(py_cc_proxy_.attr
+//   ("current_track_year")());
+//   current_track_year_.assign (boost::lexical_cast< std::string
+//   >(track_year));
 
 //   const char *p_track_permalink = bp::extract< char const * >(
-//       py_gm_proxy_.attr ("current_track_permalink")());
+//       py_cc_proxy_.attr ("current_track_permalink")());
 //   if (p_track_permalink)
 //     {
 //       current_track_permalink_.assign (p_track_permalink);
 //     }
 
 //   const char *p_track_license = bp::extract< char const * >(
-//       py_gm_proxy_.attr ("current_track_license")());
+//       py_cc_proxy_.attr ("current_track_license")());
 //   if (p_track_license)
 //     {
 //       current_track_license_.assign (p_track_license);
 //     }
 
-//   const int track_likes = bp::extract< int >(py_gm_proxy_.attr ("current_track_likes")());
-//   current_track_likes_.assign (boost::lexical_cast< std::string >(track_likes));
+//   const int track_likes = bp::extract< int >(py_cc_proxy_.attr
+//   ("current_track_likes")());
+//   current_track_likes_.assign (boost::lexical_cast< std::string
+//   >(track_likes));
 
 //   if (p_user || p_title)
 //     {

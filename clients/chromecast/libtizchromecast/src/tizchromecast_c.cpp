@@ -29,8 +29,8 @@
 #include <config.h>
 #endif
 
-#include <stdlib.h>
 #include <assert.h>
+#include <stdlib.h>
 
 #include "tizchromecast.hpp"
 #include "tizchromecast_c.h"
@@ -67,7 +67,7 @@ static int chromecast_alloc_data (tiz_chromecast_t *ap_chromecast,
 }
 
 extern "C" int tiz_chromecast_init (tiz_chromecast_ptr_t *app_chromecast,
-                                const char *ap_name_or_ip)
+                                    const char *ap_name_or_ip)
 {
   tiz_chromecast_t *p_chromecast = NULL;
   int rc = 1;
@@ -75,7 +75,8 @@ extern "C" int tiz_chromecast_init (tiz_chromecast_ptr_t *app_chromecast,
   assert (app_chromecast);
   assert (ap_name_or_ip);
 
-  if ((p_chromecast = (tiz_chromecast_t *)calloc (1, sizeof(tiz_chromecast_t))))
+  if ((p_chromecast
+       = (tiz_chromecast_t *)calloc (1, sizeof (tiz_chromecast_t))))
     {
       if (!chromecast_alloc_data (p_chromecast, ap_name_or_ip))
         {
@@ -99,6 +100,38 @@ extern "C" int tiz_chromecast_init (tiz_chromecast_ptr_t *app_chromecast,
   *app_chromecast = p_chromecast;
 
   return rc;
+}
+
+extern "C" int tiz_chromecast_load (tiz_chromecast_t *ap_chromecast,
+                                    const char *ap_url,
+                                    const char *ap_content_type,
+                                    const char *ap_title)
+{
+  assert (ap_chromecast);
+  assert (ap_chromecast->p_proxy_);
+  return ap_chromecast->p_proxy_->media_load (ap_url, ap_content_type,
+                                              ap_title);
+}
+
+extern "C" int tiz_chromecast_play (tiz_chromecast_t *ap_chromecast)
+{
+  assert (ap_chromecast);
+  assert (ap_chromecast->p_proxy_);
+  return ap_chromecast->p_proxy_->media_play ();
+}
+
+extern "C" int tiz_chromecast_stop (tiz_chromecast_t *ap_chromecast)
+{
+  assert (ap_chromecast);
+  assert (ap_chromecast->p_proxy_);
+  return ap_chromecast->p_proxy_->media_stop ();
+}
+
+extern "C" int tiz_chromecast_pause (tiz_chromecast_t *ap_chromecast)
+{
+  assert (ap_chromecast);
+  assert (ap_chromecast->p_proxy_);
+  return ap_chromecast->p_proxy_->media_pause ();
 }
 
 extern "C" void tiz_chromecast_destroy (tiz_chromecast_t *ap_chromecast)
