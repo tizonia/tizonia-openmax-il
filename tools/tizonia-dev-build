@@ -50,11 +50,15 @@ function usage {
     echo
     echo
     print_banner " Typical workflow" "$MAG"
-    pretty_print "$CYA" " 1.- Install Tizonia's development dependencies: "
+    pretty_print "$CYA" " 1.- Define environment variables needed by this script: "
+    pretty_print "$YEL" "     $ export TIZONIA_REPO_DIR=/path/to/tizonia/repo # (e.g. /home/juan/work/tizonia)"
+    pretty_print "$YEL" "     $ export TIZONIA_INSTALL_DIR=/path/to/install/basedir # (e.g. /home/juan/temp)"
+    pretty_print "$YEL" "     $ export PATH=$TIZONIA_REPO_DIR/tools:$PATH"
+    pretty_print "$CYA" " 2.- Install Tizonia's development dependencies: "
     pretty_print "$YEL" "     $ TIZONIA_REPO_DIR=$TIZONIA_REPO_DIR TIZONIA_INSTALL_DIR=$HOME/temp tizonia-dev-build --deps"
-    pretty_print "$CYA" " 2.- Recursively configure ('debug' flavor), and then make and install the binaries (from top of Tizonia's repo): "
+    pretty_print "$CYA" " 3.- Recursively configure ('debug' flavor), and then make and install the binaries (from top of Tizonia's repo): "
     pretty_print "$YEL" "     $ TIZONIA_REPO_DIR=$TIZONIA_REPO_DIR TIZONIA_INSTALL_DIR=$HOME/temp tizonia-dev-build --debug --install"
-    pretty_print "$CYA" " 2.- Recursively configure ('debug' flavor), and then make and install the binaries (from Tizonia's 'player' sub-dir): "
+    pretty_print "$CYA" " 4.- Recursively configure ('debug' flavor), and then make and install the binaries (from Tizonia's 'player' sub-dir): "
     pretty_print "$YEL" "     $ TIZONIA_REPO_DIR=$TIZONIA_REPO_DIR TIZONIA_INSTALL_DIR=$HOME/temp tizonia-dev-build --debug --install --project=tizonia-player"
     echo
 } >&2

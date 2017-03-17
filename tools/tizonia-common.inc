@@ -192,15 +192,13 @@ function print_dashes {
 ##################################################################
 # Simple function to print a banner with copyright and license info
 #
-# Globals
-#   TIZONIA_RELEASE_VERSION
 # Arguments:
 #   The tool's basename (i.e. $(basename "$0"))
 # Returns:
 #   None
 ##################################################################
 function print_banner_and_license {
-    pretty_print "$BLU" "$1 $TIZONIA_RELEASE_VERSION. Copyright (C) 2017 Juan A. Rubio"
+    pretty_print "$BLU" "$1. Copyright (C) 2017 Juan A. Rubio"
     pretty_print "$BLU" "This software is part of the Tizonia project <http://tizonia.org>."
 
     echo
