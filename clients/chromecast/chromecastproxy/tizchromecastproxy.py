@@ -26,21 +26,22 @@ from __future__ import unicode_literals
 import sys
 import logging
 import random
-import chromecast
 import collections
 import unicodedata
 import threading
 import Queue
 import pychromecast
+from pychromecast.controllers.media import STREAM_TYPE_BUFFERED
+from abc import abstractmethod, abstractproperty
 from requests.exceptions import HTTPError
 from operator import itemgetter
 
 # For use during debugging
-# import pprint
-# from traceback import print_exception
+import pprint
+from traceback import print_exception
 
 logging.captureWarnings(True)
-logging.getLogger().addHandler(logging.NullHandler())
+#logging.getLogger().addHandler(logging.NullHandler())
 logging.getLogger().setLevel(logging.INFO)
 
 class _Colors:
@@ -91,8 +92,8 @@ def exception_handler(exception_type, exception, traceback):
     """
 
     print_err("[Chromecast] (%s) : %s" % (exception_type.__name__, exception))
-    del traceback # unused
-    #print_exception(exception_type, exception, traceback)
+    #del traceback # unused
+    print_exception(exception_type, exception, traceback)
 
 sys.excepthook = exception_handler
 
@@ -110,7 +111,7 @@ class ChromecastCmdIf(object):
     """
 
     @abstractmethod
-    def run(self, manager):
+    def run(self, worker):
         """
         Runs the command.
         """
@@ -166,7 +167,10 @@ class ChromecastWorker(threading.Thread):
         threading.Thread.__init__(self, *args, **kwargs)
         self.queue = Queue.Queue(0)
         self.name_or_ip = name_or_ip
+        logging.info("Trying to connect to chrome ")
         self.cast = cast = pychromecast.Chromecast(self.name_or_ip)
+        logging.info("Tried to connect to chrome ")
+
 
     def load (self, url, content_type, title=None, thumb=None,
               current_time=0, autoplay=True,
@@ -224,12 +228,11 @@ class tizchromecastproxy(object):
         self.worker = ChromecastWorker(name_or_ip)
 
     def load(url, content_type, title=None, thumb=None,
-             current_time=0, autoplay=True,
-             stream_type=STREAM_TYPE_BUFFERED)
+             current_time=0, autoplay=True, stream_type=STREAM_TYPE_BUFFERED):
         self.worker.load(url, content_type, title, thumb,
                          current_time, autoplay, stream_type)
 
-    def unload()
+    def unload():
         self.worker.unload()
 
 if __name__ == "__main__":
