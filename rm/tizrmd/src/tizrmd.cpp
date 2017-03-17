@@ -126,7 +126,7 @@ int32_t tizrmd::acquire (const uint32_t &rid, const uint32_t &quantity,
           rev_it = owners.rbegin ();
           for (uint32_t i = 0; i < preemption_counter; ++i)
           {
-            tizrmowner &cur_owner = *rev_it++;
+            const tizrmowner &cur_owner = *rev_it++;
             char uuid_str[129];
             tiz_uuid_str (&(cur_owner.uuid_[0]), uuid_str);
 
@@ -142,7 +142,7 @@ int32_t tizrmd::acquire (const uint32_t &rid, const uint32_t &quantity,
 
             // Store the owners info for when the acks are received
             // TODO: Check rc
-            preemptions_.insert (std::make_pair< tizrmowner, tizrmpreemptor >(
+            preemptions_.insert (std::make_pair (
                 cur_owner, tizrmpreemptor (tizrmowner (cname, uuid, grpid, pri,
                                                        rid, quantity),
                                            p_signaled_owners)));
