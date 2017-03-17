@@ -481,14 +481,7 @@ function do_tizonia_deps {
     # Install Python pip-based dependencies : gmusicapi
     python -c "import gmusicapi"
     if [[ "$?" -ne 0 ]]; then
-        #         local GMUSICAPI_DIR=gmusicapi
         sudo -H pip install --upgrade gmusicapi
-        # if [[ ! -d "$TEMP_DIR"/gmusicapi ]]; then
-        #    cd "$TEMP_DIR" \
-        #    && git clone https://github.com/simon-weber/gmusicapi gmusicapi
-        # fi
-        # cd "$TEMP_DIR"/gmusicapi \
-        #             && sudo python setup.py install
     else
         pretty_print "$GRN" "[gmusicapi] : installed."
     fi
@@ -496,7 +489,7 @@ function do_tizonia_deps {
     # Install Python pip-based dependencies : soundcloud
     python -c "import soundcloud"
     if [[ "$?" -ne 0 ]]; then
-        sudo pip install --upgrade soundcloud
+        sudo -H pip install --upgrade soundcloud
     else
         pretty_print "$GRN" "[soundcloud] : installed."
     fi
@@ -504,7 +497,7 @@ function do_tizonia_deps {
     # Install Python pip-based dependencies : youtube-dl
     python -c "import youtube_dl"
     if [[ "$?" -ne 0 ]]; then
-        sudo pip install --upgrade youtube-dl
+        sudo -H pip install --upgrade youtube-dl
     else
         pretty_print "$GRN" "[youtube-dl] : installed."
     fi
@@ -512,7 +505,7 @@ function do_tizonia_deps {
     # Install Python pip-based dependencies : pafy
     python -c "import pafy"
     if [[ "$?" -ne 0 ]]; then
-        sudo pip install --upgrade pafy
+        sudo -H pip install --upgrade pafy
     else
         pretty_print "$GRN" "[pafy] : installed."
     fi
