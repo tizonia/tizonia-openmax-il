@@ -3,18 +3,18 @@
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
 - [Tizonia](#tizonia)
-  - [Usage](#usage)
-  - [Installation](#installation)
+- [Usage](#usage)
+- [Installation](#installation)
   - [Configuration](#configuration)
   - [Upgrade](#upgrade)
     - [IMPORTANT: If you are upgrading to v0.6.0 from a previous release](#important-if-you-are-upgrading-to-v060-from-a-previous-release)
-  - [The Tizonia project](#the-tizonia-project)
-    - [`tizonia`: A command line music player and audio streaming client/server](#tizonia-a-command-line-music-player-and-audio-streaming-clientserver)
-    - [OpenMAX IL 1.2 multimedia framework](#openmax-il-12-multimedia-framework)
-    - [Skema: Tizonia's Python test execution framework](#skema-tizonias-python-test-execution-framework)
-  - [Building Tizonia](#building-tizonia)
-  - [License](#license)
-  - [More information](#more-information)
+- [The Tizonia project](#the-tizonia-project)
+  - [`tizonia`: A command line music player and audio streaming client/server](#tizonia-a-command-line-music-player-and-audio-streaming-clientserver)
+  - [OpenMAX IL 1.2 multimedia framework](#openmax-il-12-multimedia-framework)
+  - [Skema: Tizonia's Python test execution framework](#skema-tizonias-python-test-execution-framework)
+- [Building Tizonia](#building-tizonia)
+- [License](#license)
+- [More information](#more-information)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
