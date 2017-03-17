@@ -466,8 +466,7 @@ void tiz::programopts::print_usage_examples () const
 void tiz::programopts::set_option_handler (const std::string &option,
                                            const option_handler_t handler)
 {
-  option_handlers_map_.insert (
-      std::make_pair< std::string, option_handler_t >(option, handler));
+  option_handlers_map_.insert (std::make_pair (option, handler));
 }
 
 bool tiz::programopts::shuffle () const
@@ -917,7 +916,8 @@ void tiz::programopts::init_global_options ()
   register_consume_function (&tiz::programopts::consume_global_options);
   // TODO: help and version are not included. These should be moved out of
   // "global" and into its own category: "info"
-  all_global_options_ = boost::assign::list_of ("recurse")("shuffle")("daemon");
+  all_global_options_ = boost::assign::list_of ("recurse")("shuffle")("daemon")
+    .convert_to_container<std::vector<std::string> >();
 }
 
 void tiz::programopts::init_debug_options ()
@@ -932,7 +932,8 @@ void tiz::programopts::init_debug_options ()
       /* TIZ_CLASS_COMMENT: */
       ;
   register_consume_function (&tiz::programopts::consume_debug_options);
-  all_debug_options_ = boost::assign::list_of ("log-directory")("debug-info");
+  all_debug_options_ = boost::assign::list_of ("log-directory")("debug-info")
+    .convert_to_container<std::vector<std::string> >();
 }
 
 void tiz::programopts::init_omx_options ()
@@ -951,7 +952,8 @@ void tiz::programopts::init_omx_options ()
       ;
   register_consume_function (&tiz::programopts::consume_omx_options);
   all_omx_options_
-      = boost::assign::list_of ("comp-list")("roles-of-comp")("comps-of-role");
+      = boost::assign::list_of ("comp-list")("roles-of-comp")("comps-of-role")
+    .convert_to_container<std::vector<std::string> >();
 }
 
 void tiz::programopts::init_streaming_server_options ()
@@ -995,7 +997,8 @@ void tiz::programopts::init_streaming_server_options ()
       &tiz::programopts::consume_streaming_server_options);
   all_streaming_server_options_ = boost::assign::list_of ("server")("port")(
       "station-name")("station-genre")("no-icy-metadata")("bitrate-modes")(
-      "sampling-rates");
+      "sampling-rates")
+    .convert_to_container<std::vector<std::string> >();
 }
 
 void tiz::programopts::init_streaming_client_options ()
@@ -1006,7 +1009,8 @@ void tiz::programopts::init_streaming_client_options ()
        "Give a name/id to the remote stream.");
   register_consume_function (
       &tiz::programopts::consume_streaming_client_options);
-  all_streaming_client_options_ = boost::assign::list_of ("station-id");
+  all_streaming_client_options_ = boost::assign::list_of ("station-id")
+    .convert_to_container<std::vector<std::string> >();
 }
 
 void tiz::programopts::init_spotify_options ()
@@ -1023,7 +1027,8 @@ void tiz::programopts::init_spotify_options ()
        "A playlist from the user's library.");
   register_consume_function (&tiz::programopts::consume_spotify_client_options);
   all_spotify_client_options_ = boost::assign::list_of ("spotify-user")(
-      "spotify-password")("spotify-playlist");
+      "spotify-password")("spotify-playlist")
+    .convert_to_container<std::vector<std::string> >();
 }
 
 void tiz::programopts::init_gmusic_options ()
@@ -1078,7 +1083,8 @@ void tiz::programopts::init_gmusic_options ()
     ("gmusic-playlist")("gmusic-unlimited-station")("gmusic-unlimited-album")
     ("gmusic-unlimited-artist")("gmusic-unlimited-tracks")("gmusic-unlimited-genre")
     ("gmusic-unlimited-activity") ("gmusic-unlimited-feeling-lucky-station")
-    ("gmusic-unlimited-promoted-tracks");
+    ("gmusic-unlimited-promoted-tracks")
+    .convert_to_container<std::vector<std::string> >();
 }
 
 void tiz::programopts::init_scloud_options ()
@@ -1115,7 +1121,8 @@ void tiz::programopts::init_scloud_options ()
   all_scloud_client_options_ = boost::assign::list_of ("soundcloud-oauth-token")
     ("soundcloud-user-stream")("soundcloud-user-likes")
     ("soundcloud-user-playlist") ("soundcloud-creator")("soundcloud-tracks")
-    ("soundcloud-playlists") ("soundcloud-genres")("soundcloud-tags");
+    ("soundcloud-playlists") ("soundcloud-genres")("soundcloud-tags")
+    .convert_to_container<std::vector<std::string> >();
 }
 
 void tiz::programopts::init_dirble_options ()
@@ -1138,7 +1145,8 @@ void tiz::programopts::init_dirble_options ()
   register_consume_function (&tiz::programopts::consume_dirble_client_options);
   all_dirble_client_options_ = boost::assign::list_of ("dirble-api-key")
     ("dirble-popular-stations")("dirble-station")("dirble-category")
-    ("dirble-country");
+    ("dirble-country")
+    .convert_to_container<std::vector<std::string> >();
 }
 
 void tiz::programopts::init_youtube_options ()
@@ -1163,7 +1171,8 @@ void tiz::programopts::init_youtube_options ()
   register_consume_function (&tiz::programopts::consume_youtube_client_options);
   all_youtube_client_options_ = boost::assign::list_of ("youtube-audio-stream")
     ("youtube-audio-playlist")("youtube-audio-mix")("youtube-audio-search")
-    ("youtube-audio-mix-search");
+    ("youtube-audio-mix-search")
+    .convert_to_container<std::vector<std::string> >();
 }
 
 void tiz::programopts::init_input_uri_option ()
@@ -1175,7 +1184,8 @@ void tiz::programopts::init_input_uri_option ()
        "input file");
   positional_.add ("input-uris", -1);
   register_consume_function (&tiz::programopts::consume_local_decode_options);
-  all_input_uri_options_ = boost::assign::list_of ("input-uris");
+  all_input_uri_options_ = boost::assign::list_of ("input-uris")
+    .convert_to_container<std::vector<std::string> >();
 }
 
 unsigned int tiz::programopts::parse_command_line (int argc, char *argv[])

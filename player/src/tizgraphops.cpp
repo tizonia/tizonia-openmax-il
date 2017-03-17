@@ -934,8 +934,8 @@ graph::ops::probe_stream (const OMX_PORTDOMAINTYPE omx_domain,
         probe_ptr_->dump_stream_metadata ();
         boost::bind (boost::mem_fn (stream_info_dump_f), probe_ptr_)();
 
-        metadata_ = boost::assign::map_list_of
-          ("trackid", "1");
+        metadata_ = boost::assign::map_list_of ("trackid", "1")
+                        .convert_to_container< track_metadata_map_t > ();
         do_ack_metadata ();
       }
 

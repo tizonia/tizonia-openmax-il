@@ -71,8 +71,12 @@ graphmgr::ops *graphmgr::scloudmgr::do_init (
   graphmgr_caps.has_track_list_ = false;
   graphmgr_caps.identity_.assign ("Tizonia version ");
   graphmgr_caps.identity_.append (PACKAGE_VERSION);
-  graphmgr_caps.uri_schemes_ = boost::assign::list_of ("scloud");
-  graphmgr_caps.mime_types_ = boost::assign::list_of ("audio/pcm");
+  graphmgr_caps.uri_schemes_
+      = boost::assign::list_of ("scloud")
+            .convert_to_container< std::vector< std::string > > ();
+  graphmgr_caps.mime_types_
+      = boost::assign::list_of ("audio/pcm")
+            .convert_to_container< std::vector< std::string > > ();
   graphmgr_caps.minimum_rate_ = 1.0;
   graphmgr_caps.maximum_rate_ = 1.0;
   graphmgr_caps.can_go_next_ = false;
@@ -108,8 +112,7 @@ tizgraph_ptr_t graphmgr::scloudmgrops::get_graph (
     {
       // TODO: Check rc
       std::pair< tizgraph_ptr_map_t::iterator, bool > rc
-          = graph_registry_.insert (
-              std::make_pair< std::string, tizgraph_ptr_t >(encoding, g_ptr));
+          = graph_registry_.insert (std::make_pair (encoding, g_ptr));
       if (rc.second)
       {
         // TODO: Check rc
