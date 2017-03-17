@@ -29,16 +29,13 @@ Debian-compatible system to build Tizonia from source.
 
 ```bash
 
-    # Setup the following environment variables
-    $ export TIZONIA_REPO_DIR=/path/to/tizonia/repo # (e.g. /home/juan/work/tizonia)
-    $ export TIZONIA_INSTALL_DIR=/path/to/install/basedir # (e.g. /home/juan/temp)
+    Setup the following environment variables
+    $ export TIZONIA_REPO_DIR=/path/to/tizonia/repo # (e.g. /home/user/tizonia-openmax-il)
+    $ export TIZONIA_INSTALL_DIR=/path/to/install/dir # (e.g. /usr or /home/user/temp)
     $ export PATH=$TIZONIA_REPO_DIR/tools:$PATH
 
-    $ cd $TIZONIA_REPO_DIR/tools
-
-
-    # Install everything needed to build Tizonia on a Debian/Ubuntu system
-    $ ./tizonia-dev-build --deps
+    Install everything needed to build Tizonia from source (Debian derivative assumed)
+    $ cd tools/tizonia-dev-build --deps
 
 ```
 
@@ -50,16 +47,18 @@ application:
 
 ```bash
 
-   $ cd $TIZONIA_REPO_DIR/tools
-
-   # Configure all Tizonia sub-projects with 'release' flags, build and
-   # install.
-   $ ./tizonia-dev-build --release --install
+   Configure all sub-projects with 'release' flags, build and install.
+   $ tools/tizonia-dev-build --release --install
 
    or
 
-   # Configure with 'debug' flags, build and install.
-   $ ./tizonia-dev-build --debug --install
+   Configure with 'debug' flags, build and install.
+   $ tools/tizonia-dev-build --debug --install
+
+   or
+
+   Configure, build, and install a single 'deb' package in one go, for testing purposes
+   $ tools/tizonia-dev-build --debian
 
 ```
 
