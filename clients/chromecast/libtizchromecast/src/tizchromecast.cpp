@@ -124,7 +124,7 @@ int tizchromecast::media_load (const std::string &url,
                                const std::string &title)
 {
   int rc = 0;
-  try_catch_wrapper (py_cc_proxy_.attr ("load") (
+  try_catch_wrapper (py_cc_proxy_.attr ("media_load") (
       bp::object (url), bp::object (content_type), bp::object (title)));
   return rc;
 }
@@ -132,14 +132,14 @@ int tizchromecast::media_load (const std::string &url,
 int tizchromecast::media_play ()
 {
   int rc = 0;
-  try_catch_wrapper (py_cc_proxy_.attr ("play") ());
+  try_catch_wrapper (py_cc_proxy_.attr ("media_play") ());
   return rc;
 }
 
 int tizchromecast::media_stop ()
 {
   int rc = 0;
-  try_catch_wrapper (py_cc_proxy_.attr ("stop") ());
+  try_catch_wrapper (py_cc_proxy_.attr ("media_stop") ());
   return rc;
 }
 

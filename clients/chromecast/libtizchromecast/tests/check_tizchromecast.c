@@ -36,14 +36,16 @@
 #include <stdio.h>
 #include <check.h>
 #include <assert.h>
+#include <unistd.h>
 
 #include "tizchromecast_c.h"
 
 #define CHROMECAST_TEST_TIMEOUT 2500
 #define CHROMECAST_DEVICE_NAME  "Chromecast-Ultra"
 
-#define URL "http://localhost:8010"
-#define CONTENT_TYPE "audio/mp3"
+/* #define URL "http://192.168.1.130:8010" */
+#define URL "http://server6.20comunicacion.com:8102/"
+#define CONTENT_TYPE "audio/mpeg"
 #define TITLE "Tizonia Audio Stream"
 
 #define CMD_LEN 1000
@@ -62,32 +64,30 @@ START_TEST (test_chromecast_play_media)
 {
   tiz_chromecast_t *p_chromecast = NULL;
   int rc = tiz_chromecast_init (&p_chromecast, CHROMECAST_DEVICE_NAME);
+  fprintf (stderr, "init = %d\n", rc);
   ck_assert (0 == rc);
   ck_assert (p_chromecast);
 
   rc = tiz_chromecast_load (p_chromecast, URL, CONTENT_TYPE, TITLE);
+  fprintf (stderr, "load = %d\n", rc);
   ck_assert (0 == rc);
 
 /*   while (1) */
   {
-/*     char cmd[CMD_LEN]; */
-/*     { */
-/*       const int result = tiz_chromecast_play (p_chromecast); */
-/*       ck_assert (0 == result); */
-/*       fprintf (stderr, "result = %d\n", result); */
-/*     } */
+    char cmd[CMD_LEN];
+    {
+      const int result = tiz_chromecast_play (p_chromecast);
+      fprintf (stderr, "play = %d\n", result);
+      ck_assert (0 == result);
+    }
 
-/*     { */
-/*       const int result = tiz_chromecast_pause (p_chromecast); */
-/*       ck_assert (0 == result); */
-/*       fprintf (stderr, "result = %d\n", result); */
-/*     } */
+    sleep(CHROMECAST_TEST_TIMEOUT);
 
-/*     { */
-/*       const int result = tiz_chromecast_stop (p_chromecast); */
-/*       ck_assert (0 == result); */
-/*       fprintf (stderr, "result = %d\n", result); */
-/*     } */
+    {
+      const int result = tiz_chromecast_stop (p_chromecast);
+      fprintf (stderr, "stop = %d\n", result);
+      ck_assert (0 == result);
+    }
 
 /*     snprintf (cmd, CMD_LEN, "%s \"%s\"", PLAYER, next_url); */
 /*     fprintf (stderr, "cmd = %s\n", cmd); */
