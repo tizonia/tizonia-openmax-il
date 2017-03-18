@@ -30,6 +30,7 @@ import collections
 import unicodedata
 import threading
 import Queue
+import select
 import pychromecast
 from pychromecast.controllers.media import STREAM_TYPE_BUFFERED
 from abc import abstractmethod, abstractproperty
@@ -40,9 +41,13 @@ from operator import itemgetter
 import pprint
 from traceback import print_exception
 
+FORMAT = '[%(asctime)s] [%(levelname)5s] [%(thread)d] ' \
+         '[%(module)s:%(funcName)s:%(lineno)d] - %(message)s'
+
 logging.captureWarnings(True)
 #logging.getLogger().addHandler(logging.NullHandler())
-logging.getLogger().setLevel(logging.INFO)
+logging.basicConfig(format=FORMAT)
+logging.getLogger().setLevel(logging.DEBUG)
 
 class _Colors:
     """A trivial class that defines various ANSI color codes.
@@ -169,55 +174,67 @@ class ChromecastWorker(threading.Thread):
         self.name_or_ip = name_or_ip
         logging.info("Trying to connect to chrome ")
         self.cast = cast = pychromecast.Chromecast(self.name_or_ip)
+        pprint.pprint(self.cast.media_controller.status)
         logging.info("Tried to connect to chrome ")
 
+    def stop (self):
+        logging.info("worker: putting None")
+        self.queue.put(None)
+        logging.info("worker: after None")
+        self.queue.join()
 
     def load (self, url, content_type, title=None, thumb=None,
               current_time=0, autoplay=True,
               stream_type=STREAM_TYPE_BUFFERED):
+        logging.info("worker")
         if self.cast:
             self.queue.put(ChromecastCmdLoad(url, content_type, title, thumb,
                                              current_time, autoplay, stream_type))
 
-    def run (self):
-        polltime = 0.1
-        while True:
-            if self.cast:
-                can_read, _, _ = select.select([self.cast.socket_client.get_socket()], [], [], polltime)
-                if can_read:
-                    self.cast.socket_client.run_once()
-                do_actions(self.cast, t)
-
-            if not self.queue.empty():
-                cmd = self.queue.get()
-                if cmd is None:
-                    if self.cast:
-                        cast.media_controller.tear_down()
-                    break
-                cmd.run(self)
-                self.queue.task_done()
-
-        self.queue.task_done()
-        return
-
-    def unload (self):
-        self.queue.put(None)
-        self.queue.join()
-
-    def play(self):
+    def media_play(self):
         """ Send the PLAY command. """
         if self.cast:
             self.queue.put(ChromecastCmdPlay())
 
-    def pause(self):
+    def media_pause(self):
         """ Send the PAUSE command. """
         if self.cast:
             self.queue.put(ChromecastCmdPause())
 
-    def stop(self):
+    def media_stop(self):
         """ Send the STOP command. """
         if self.cast:
             self.queue.put(ChromecastCmdStop())
+
+    def run (self):
+        polltime = 0.1
+        logging.info("worker: run")
+        while True:
+            logging.info("worker: run")
+            if self.cast:
+                logging.info("worker: select")
+                can_read, _, _ = select.select([self.cast.socket_client.get_socket()], [], [], polltime)
+                if can_read:
+                    logging.info("worker: can read")
+                    # self.cast.socket_client.run_once()
+                    logging.info("worker: after can read")
+
+            if not self.queue.empty():
+                logging.info("worker: queue not empty")
+                cmd = self.queue.get()
+                logging.info("worker: after queue get")
+                if cmd is None:
+                    logging.info("worker: cmd is None")
+                    if self.cast:
+                        logging.info("worker: tearing down")
+                        self.cast.media_controller.tear_down()
+                    break
+                else:
+                    cmd.run(self)
+                self.queue.task_done()
+
+        self.queue.task_done()
+        return
 
 class tizchromecastproxy(object):
     """A class that interfaces with a Chromecast device to initiate and manage
@@ -225,15 +242,22 @@ class tizchromecastproxy(object):
 
     """
     def __init__(self, name_or_ip):
+        logging.info("proxy")
         self.worker = ChromecastWorker(name_or_ip)
 
-    def load(url, content_type, title=None, thumb=None,
+    def start(self):
+        logging.info("proxy")
+        self.worker.start()
+
+    def stop(self):
+        logging.info("proxy")
+        self.worker.stop()
+
+    def load(self, url, content_type, title=None, thumb=None,
              current_time=0, autoplay=True, stream_type=STREAM_TYPE_BUFFERED):
+        logging.info("proxy")
         self.worker.load(url, content_type, title, thumb,
                          current_time, autoplay, stream_type)
-
-    def unload():
-        self.worker.unload()
 
 if __name__ == "__main__":
     tizchromecastproxy()
