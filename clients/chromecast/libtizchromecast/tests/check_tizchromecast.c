@@ -71,23 +71,23 @@ START_TEST (test_chromecast_play_media)
 /*   while (1) */
   {
 /*     char cmd[CMD_LEN]; */
-    {
-      const int result = tiz_chromecast_play (p_chromecast);
-      ck_assert (0 == result);
-      fprintf (stderr, "result = %d\n", result);
-    }
+/*     { */
+/*       const int result = tiz_chromecast_play (p_chromecast); */
+/*       ck_assert (0 == result); */
+/*       fprintf (stderr, "result = %d\n", result); */
+/*     } */
 
-    {
-      const int result = tiz_chromecast_pause (p_chromecast);
-      ck_assert (0 == result);
-      fprintf (stderr, "result = %d\n", result);
-    }
+/*     { */
+/*       const int result = tiz_chromecast_pause (p_chromecast); */
+/*       ck_assert (0 == result); */
+/*       fprintf (stderr, "result = %d\n", result); */
+/*     } */
 
-    {
-      const int result = tiz_chromecast_stop (p_chromecast);
-      ck_assert (0 == result);
-      fprintf (stderr, "result = %d\n", result);
-    }
+/*     { */
+/*       const int result = tiz_chromecast_stop (p_chromecast); */
+/*       ck_assert (0 == result); */
+/*       fprintf (stderr, "result = %d\n", result); */
+/*     } */
 
 /*     snprintf (cmd, CMD_LEN, "%s \"%s\"", PLAYER, next_url); */
 /*     fprintf (stderr, "cmd = %s\n", cmd); */
