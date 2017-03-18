@@ -103,14 +103,14 @@ int tizchromecast::start ()
 {
   int rc = 0;
   try_catch_wrapper (start_chromecast (py_global_, py_cc_proxy_, name_or_ip_));
-  try_catch_wrapper (py_cc_proxy_.attr ("load") ());
+  try_catch_wrapper (py_cc_proxy_.attr ("start") ());
   return rc;
 }
 
 void tizchromecast::stop ()
 {
   int rc = 0;
-  try_catch_wrapper (py_cc_proxy_.attr ("unload") ());
+  try_catch_wrapper (py_cc_proxy_.attr ("stop") ());
   (void)rc;
 }
 
