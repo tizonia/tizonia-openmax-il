@@ -39,28 +39,57 @@ Debian-compatible system to build Tizonia from source.
 
 ```
 
-### Building ###
+### Building
 
-After all the dependencies have been installed, build and install the Tizonia
-OpenMAX IL framework, the IL plugins and the 'tizonia' command-line
-application:
+Once all the dependencies have been installed, build and install the OpenMAX IL
+framework, all plugins and the 'tizonia' command-line application, using any of
+the following methods.
+
+#### 'Debug' variant
+
+The following command re-configures all sub-projects with 'debug' flags, builds
+and installs them.
 
 ```bash
 
-   Configure all sub-projects with 'release' flags, build and install.
-   $ tools/tizonia-dev-build --release --install
-
-   or
-
-   Configure with 'debug' flags, build and install.
    $ tools/tizonia-dev-build --debug --install
 
-   or
+```
 
-   Configure, build, and install a single 'deb' package in one go, for testing purposes
-   $ tools/tizonia-dev-build --debian
+#### 'Release' variant
+
+The following command re-configures all sub-projects with 'release' flags,
+builds and installs them.
+
+```bash
+
+   $ tools/tizonia-dev-build --release --install
 
 ```
+
+#### Single Debian package created with 'checkinstall'
+
+The following command configures all sub-projects with 'release' flags
+appropriate for a Debian/Ubuntu system, builds the whole repo, then using
+[checkinstall](https://debian-administration.org/article/147/Installing_packages_from_source_code_with_checkinstall)
+creates a single Debian package and installs it in the system. The package can
+then be removed via 'dpkg' or even moved to another machine for testing.
+
+> NOTE: This is not how the Debian packages hosted on Bintray are created. The
+  packages hosted on Bintray are fully 'debianized' packages created using the
+  'tizonia-qemu-debootstrap-env' script.
+
+```bash
+
+   This produces and install a Debian package called 'tizonia-all-testing'
+   $ tools/tizonia-dev-build --debian
+
+   To remove from the system, run:
+   $ dpkg -r tizonia-all-testing
+
+```
+
+#### The tradional method
 
 Alternatively, from the top of Tizonia's repo, one can also do the familiar:
 
