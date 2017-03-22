@@ -51,6 +51,15 @@ extern "C" {
 typedef struct tiz_chromecast tiz_chromecast_t;
 typedef /*@null@ */ tiz_chromecast_t *tiz_chromecast_ptr_t;
 
+
+/**
+ * This callback is invoked when .
+ *
+ * @param ap_arg The client data structure.
+ *
+ */
+typedef void (*tiz_chromecast_new_media_status_f) (void);
+
 /**
  * Initialize the chromecast handle.
  *
@@ -63,7 +72,8 @@ typedef /*@null@ */ tiz_chromecast_t *tiz_chromecast_ptr_t;
  * @return 0 on success.
  */
 int tiz_chromecast_init (/*@null@ */ tiz_chromecast_ptr_t *app_chromecast,
-                         const char *ap_name_or_ip);
+                         const char *ap_name_or_ip,
+                         tiz_chromecast_new_media_status_f apf_media_status);
 
 /**
  * Loads a new audio stream URL into the Chromecast media player.

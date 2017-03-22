@@ -81,6 +81,12 @@ namespace
     bp::object pychromecastproxy = py_global["tizchromecastproxy"];
     py_cc_proxy = pychromecastproxy (name_or_ip.c_str ());
   }
+
+  void callback_handler(std::string const& arg)
+  {
+    std::cout << "in handler: " << arg << std::endl;
+    printf("\n\n\n in handler \n\n\n");
+  }
 }
 
 tizchromecast::tizchromecast (const std::string &name_or_ip)
@@ -103,7 +109,10 @@ int tizchromecast::start ()
 {
   int rc = 0;
   try_catch_wrapper (start_chromecast (py_global_, py_cc_proxy_, name_or_ip_));
-  try_catch_wrapper (py_cc_proxy_.attr ("start") ());
+  typedef boost::function<void(std::string)> handler_fn;
+  handler_fn my_handler(boost::bind(callback_handler, _1));
+  callback_handler_ = bp::make_function(my_handler);
+  try_catch_wrapper (py_cc_proxy_.attr ("start") (bp::object (callback_handler_)));
   return rc;
 }
 
@@ -148,6 +157,11 @@ int tizchromecast::media_pause ()
   int rc = 0;
   try_catch_wrapper (py_cc_proxy_.attr ("pause") ());
   return rc;
+}
+
+void tizchromecast::new_media_status ()
+{
+  printf("Status update!\n");
 }
 
 // int tizchromecast::get_current_track ()
