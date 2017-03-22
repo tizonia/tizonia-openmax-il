@@ -25,7 +25,6 @@ from __future__ import unicode_literals
 
 import sys
 import logging
-import random
 import collections
 import unicodedata
 from multiprocessing import Process, Queue
@@ -35,8 +34,6 @@ from pychromecast.controllers.media import STREAM_TYPE_UNKNOWN
 from pychromecast.controllers.media import STREAM_TYPE_BUFFERED
 from pychromecast.controllers.media import STREAM_TYPE_LIVE
 from abc import abstractmethod, abstractproperty
-from requests.exceptions import HTTPError
-from operator import itemgetter
 
 # For use during debugging
 import pprint
@@ -145,15 +142,15 @@ class ChromecastCmdLoad(ChromecastCmdIf):
         st = mc.status
         try:
             pprint.pprint(st)
-            if not st.player_is_idle:
+            if not st.player_is_playing:
                 mc.stop()
             mc.play_media(self.url, self.content_type, self.title,
                           self.thumb, self.current_time, self.autoplay,
                           self.stream_type)
         except Exception as exception:
             print_err('Unable to load stream')
-        else:
-            mc.block_until_active()
+#         else:
+#             mc.block_until_active()
 
 
 class ChromecastCmdPlay(ChromecastCmdIf):
@@ -210,12 +207,13 @@ class ChromecastWorker(Process):
     """
 
     """
-    def __init__ (self, queue, name_or_ip, *args, **kwargs):
+    def __init__ (self, queue, name_or_ip, status_listener, *args, **kwargs):
         Process.__init__(self, *args, **kwargs)
         self.queue = queue
         self.name_or_ip = name_or_ip
         self.cast = None
         self.mc = None
+        self.status_listener = status_listener
 
     def start (self):
         logging.info("Creating the chromecast worker thread")
@@ -257,7 +255,8 @@ class ChromecastWorker(Process):
         """
 
         """
-        pprint.pprint(status)
+        logging.info("worker: calling client")
+        self.status_listener("called from Python")
 
 class tizchromecastproxy(object):
     """A class that interfaces with a Chromecast device to initiate and manage
@@ -269,9 +268,10 @@ class tizchromecastproxy(object):
         self.worker = None
         self.name_or_ip = name_or_ip
 
-    def start(self):
+    def start(self, status_listener):
         logging.info("Starting worker")
-        self.worker = ChromecastWorker(self.queue, self.name_or_ip)
+        self.worker = ChromecastWorker(self.queue, self.name_or_ip,
+                                       status_listener)
         self.worker.start()
 
     def stop(self):
