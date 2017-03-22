@@ -29,6 +29,32 @@
 #ifndef TIZCHROMECAST_HPP
 #define TIZCHROMECAST_HPP
 
+// ============================================================================
+// Enable support for boost::function
+// See http://stackoverflow.com/a/18648366/3962537
+// ----------------------------------------------------------------------------
+#include <boost/function.hpp>
+#include <boost/function_types/components.hpp>
+// ----------------------------------------------------------------------------
+namespace boost { namespace python { namespace detail {
+// ----------------------------------------------------------------------------
+// get_signature overloads must be declared before including
+// boost/python.hpp.  The declaration must be visible at the
+// point of definition of various Boost.Python templates during
+// the first phase of two phase lookup.  Boost.Python invokes the
+// get_signature function via qualified-id, thus ADL is disabled.
+// ----------------------------------------------------------------------------
+/// @brief Get the signature of a boost::function.
+template <typename Signature>
+inline typename boost::function_types::components<Signature>::type
+get_signature(boost::function<Signature>&, void* = 0)
+{
+    return typename boost::function_types::components<Signature>::type();
+}
+// ----------------------------------------------------------------------------
+}}} // namespace boost::python::detail
+// ============================================================================
+
 #include <boost/python.hpp>
 
 #include <string>
@@ -50,6 +76,8 @@ public:
   int media_stop ();
   int media_pause ();
 
+  void new_media_status ();
+
 private:
   std::string name_or_ip_;
   std::string url_;
@@ -58,6 +86,7 @@ private:
   boost::python::object py_main_;
   boost::python::object py_global_;
   boost::python::object py_cc_proxy_;
+  boost::python::object callback_handler_;
 };
 
 #endif  // TIZCHROMECAST_HPP

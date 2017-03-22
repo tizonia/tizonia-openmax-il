@@ -43,8 +43,9 @@
 #define CHROMECAST_TEST_TIMEOUT 2500
 #define CHROMECAST_DEVICE_NAME  "Chromecast-Ultra"
 
-/* #define URL "http://192.168.1.130:8010" */
-#define URL "http://server6.20comunicacion.com:8102/"
+#define URL "http://192.168.1.130:8010"
+/* #define URL "http://192.168.1.122:8010" */
+/* #define URL "http://server6.20comunicacion.com:8102/" */
 #define CONTENT_TYPE "audio/mpeg"
 #define TITLE "Tizonia Audio Stream"
 
@@ -60,10 +61,15 @@ static bool chromecast_credentials_present (void)
   return true;
 }
 
+void chromecast_new_media_status (void)
+{
+  printf ("New media status!!!\n");
+}
+
 START_TEST (test_chromecast_play_media)
 {
   tiz_chromecast_t *p_chromecast = NULL;
-  int rc = tiz_chromecast_init (&p_chromecast, CHROMECAST_DEVICE_NAME);
+  int rc = tiz_chromecast_init (&p_chromecast, CHROMECAST_DEVICE_NAME, chromecast_new_media_status);
   fprintf (stderr, "init = %d\n", rc);
   ck_assert (0 == rc);
   ck_assert (p_chromecast);

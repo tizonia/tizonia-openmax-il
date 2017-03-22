@@ -38,6 +38,7 @@
 struct tiz_chromecast
 {
   tizchromecast *p_proxy_;
+  tiz_chromecast_new_media_status_f pf_media_status;
 };
 
 static void chromecast_free_data (tiz_chromecast_t *ap_chromecast)
@@ -50,13 +51,15 @@ static void chromecast_free_data (tiz_chromecast_t *ap_chromecast)
 }
 
 static int chromecast_alloc_data (tiz_chromecast_t *ap_chromecast,
-                                  const char *ap_name_or_ip)
+                                  const char *ap_name_or_ip,
+                                  tiz_chromecast_new_media_status_f apf_media_status)
 {
   int rc = 0;
   assert (ap_chromecast);
   try
     {
       ap_chromecast->p_proxy_ = new tizchromecast (ap_name_or_ip);
+      ap_chromecast->pf_media_status = apf_media_status;
     }
   catch (...)
     {
@@ -67,7 +70,8 @@ static int chromecast_alloc_data (tiz_chromecast_t *ap_chromecast,
 }
 
 extern "C" int tiz_chromecast_init (tiz_chromecast_ptr_t *app_chromecast,
-                                    const char *ap_name_or_ip)
+                                    const char *ap_name_or_ip,
+                                    tiz_chromecast_new_media_status_f apf_media_status)
 {
   tiz_chromecast_t *p_chromecast = NULL;
   int rc = 1;
@@ -78,7 +82,7 @@ extern "C" int tiz_chromecast_init (tiz_chromecast_ptr_t *app_chromecast,
   if ((p_chromecast
        = (tiz_chromecast_t *)calloc (1, sizeof (tiz_chromecast_t))))
     {
-      if (!chromecast_alloc_data (p_chromecast, ap_name_or_ip))
+      if (!chromecast_alloc_data (p_chromecast, ap_name_or_ip, apf_media_status))
         {
           tizchromecast *p_gm = p_chromecast->p_proxy_;
           assert (p_gm);
