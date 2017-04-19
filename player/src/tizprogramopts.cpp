@@ -29,22 +29,22 @@
 #include <config.h>
 #endif
 
-#include <vector>
-#include <string>
+#include <algorithm>
 #include <iostream>
 #include <sstream>
-#include <algorithm>
+#include <string>
+#include <vector>
 
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
-#include <boost/range/algorithm/copy.hpp>
-#include <boost/range/adaptor/map.hpp>
-#include <boost/xpressive/xpressive.hpp>
 #include <boost/assign/list_of.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/foreach.hpp>
-#include <boost/mem_fn.hpp>
 #include <boost/bind.hpp>
+#include <boost/foreach.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/mem_fn.hpp>
+#include <boost/range/adaptor/map.hpp>
+#include <boost/range/algorithm/copy.hpp>
+#include <boost/xpressive/xpressive.hpp>
 
 #include <OMX_TizoniaExt.h>
 #include <tizplatform.h>
@@ -74,19 +74,18 @@ namespace
 
   struct program_option_is_defaulted
   {
-    explicit program_option_is_defaulted (
-        const boost::program_options::variables_map &vm)
+    explicit program_option_is_defaulted (const po::variables_map &vm)
       : vm_ (vm)
     {
     }
 
-    bool operator()(const std::string &option) const
+    bool operator() (const std::string &option) const
     {
       return vm_[option].defaulted ();
     }
 
   private:
-    const boost::program_options::variables_map &vm_;
+    const po::variables_map &vm_;
   };
 
   bool is_valid_sampling_rate (const int sampling_rate)
@@ -123,7 +122,7 @@ namespace
     rates.clear ();
     for (unsigned int i = 0; i < rate_strings.size () && rc; ++i)
     {
-      rates.push_back (boost::lexical_cast< int >(rate_strings[i]));
+      rates.push_back (boost::lexical_cast< int > (rate_strings[i]));
       rc = is_valid_sampling_rate (rates[i]);
     }
     rc &= !rates.empty ();
@@ -208,8 +207,7 @@ namespace
     {
       outcome = false;
     }
-    TIZ_PRINTF_DBG_RED ("outcome = [%s]\n",
-                          outcome ? "SUCCESS" : "FAILURE");
+    TIZ_PRINTF_DBG_RED ("outcome = [%s]\n", outcome ? "SUCCESS" : "FAILURE");
     return outcome;
   }
 
@@ -224,6 +222,37 @@ namespace
       container.assign (p_key);
     }
   }
+
+  // Workaround for 'implicit_option' behavioral change introduced in boost
+  // 1.59. See https://github.com/boostorg/program_options/issues/25
+#if (BOOST_VERSION >= 105900)
+  template < typename T >
+  struct greedy_implicit_value_impl : public po::typed_value< T >
+  {
+    using base = po::typed_value< T >;
+    greedy_implicit_value_impl (T *store_to) : po::typed_value< T > (store_to)
+    {
+    }
+    greedy_implicit_value_impl () : base (nullptr)
+    {
+    }
+    bool adjacent_tokens_only () const override
+    {
+      return false;
+    }
+    unsigned max_tokens () const override
+    {
+      return 1;
+    }
+  };
+  template < typename T >
+  po::typed_value< T > *greedy_implicit_value (T *store_to)
+  {
+    return new greedy_implicit_value_impl< T > (store_to);
+  }
+#else
+#define greedy_implicit_value po::value
+#endif
 }
 
 tiz::programopts::programopts (int argc, char *argv[])
@@ -296,13 +325,13 @@ tiz::programopts::programopts (int argc, char *argv[])
     dirble_country_ (),
     dirble_playlist_container_ (),
     dirble_playlist_type_ (OMX_AUDIO_DirblePlaylistTypeUnknown),
-    youtube_audio_stream_(),
-    youtube_audio_playlist_(),
-    youtube_audio_mix_(),
-    youtube_audio_search_(),
-    youtube_audio_mix_search_(),
-    youtube_playlist_container_(),
-    youtube_playlist_type_(OMX_AUDIO_YoutubePlaylistTypeUnknown),
+    youtube_audio_stream_ (),
+    youtube_audio_playlist_ (),
+    youtube_audio_mix_ (),
+    youtube_audio_search_ (),
+    youtube_audio_mix_search_ (),
+    youtube_playlist_container_ (),
+    youtube_playlist_type_ (OMX_AUDIO_YoutubePlaylistTypeUnknown),
     consume_functions_ (),
     all_global_options_ (),
     all_debug_options_ (),
@@ -389,28 +418,57 @@ void tiz::programopts::print_version () const
 {
   TIZ_PRINTF_BLU ("tizonia %s. Copyright (C) 2017 Juan A. Rubio\n",
                   PACKAGE_VERSION);
-  TIZ_PRINTF_BLU ("This software is part of the Tizonia project <http://tizonia.org>\n\n");
+  TIZ_PRINTF_BLU (
+      "This software is part of the Tizonia project <http://tizonia.org>\n\n");
 }
 
 void tiz::programopts::print_usage_help () const
 {
   print_version ();
   print_license ();
-  std::cout << " " << "Help topics:" << "\n\n";
-  std::cout << "  " << "global        Global options available with most features." << "\n";
-  std::cout << "  " << "openmax       Various OpenMAX IL query options." << "\n";
-  std::cout << "  " << "server        SHOUTcast/ICEcast streaming server options." << "\n";
-  std::cout << "  " << "client        SHOUTcast/ICEcast streaming client options." << "\n";
-  std::cout << "  " << "spotify       Spotify options." << "\n";
-  std::cout << "  " << "googlemusic   Google Play Music options." << "\n";
-  std::cout << "  " << "soundcloud    SoundCloud options." << "\n";
-  std::cout << "  " << "dirble        Dirble options." << "\n";
-  std::cout << "  " << "youtube       Youtube options." << "\n";
-  std::cout << "  " << "keyboard      Keyboard control." << "\n";
-  std::cout << "  " << "config        Configuration files." << "\n";
-  std::cout << "  " << "examples      Some command-line examples." << "\n";
+  std::cout << " "
+            << "Help topics:"
+            << "\n\n";
+  std::cout << "  "
+            << "global        Global options available with most features."
+            << "\n";
+  std::cout << "  "
+            << "openmax       Various OpenMAX IL query options."
+            << "\n";
+  std::cout << "  "
+            << "server        SHOUTcast/ICEcast streaming server options."
+            << "\n";
+  std::cout << "  "
+            << "client        SHOUTcast/ICEcast streaming client options."
+            << "\n";
+  std::cout << "  "
+            << "spotify       Spotify options."
+            << "\n";
+  std::cout << "  "
+            << "googlemusic   Google Play Music options."
+            << "\n";
+  std::cout << "  "
+            << "soundcloud    SoundCloud options."
+            << "\n";
+  std::cout << "  "
+            << "dirble        Dirble options."
+            << "\n";
+  std::cout << "  "
+            << "youtube       Youtube options."
+            << "\n";
+  std::cout << "  "
+            << "keyboard      Keyboard control."
+            << "\n";
+  std::cout << "  "
+            << "config        Configuration files."
+            << "\n";
+  std::cout << "  "
+            << "examples      Some command-line examples."
+            << "\n";
 
-  std::cout << "\n" << "Use \"tizonia --help topic\"." << "\n";
+  std::cout << "\n"
+            << "Use \"tizonia --help topic\"."
+            << "\n";
 }
 
 void tiz::programopts::print_usage_feature (po::options_description &desc) const
@@ -454,7 +512,8 @@ void tiz::programopts::print_usage_examples () const
   printf ("    * File formats currently supported for playback:\n");
   printf (
       "      * mp3, mp2, m2a, aac, (.aac only) flac (.flac, .ogg, .oga),\n"
-      "        opus (.opus, .ogg, .oga), vorbis (.ogg, .oga), wav, aiff, aif.\n");
+      "        opus (.opus, .ogg, .oga), vorbis (.ogg, .oga), wav, aiff, "
+      "aif.\n");
   printf (
       "\n tizonia --sampling-rates=44100,48000 -p 8011 --stream ~/Music\n\n");
   printf ("    * Streams files from the '~/Music' directory.\n");
@@ -559,8 +618,8 @@ const std::string &tiz::programopts::spotify_password () const
   return spotify_pass_;
 }
 
-const std::vector< std::string > &
-    tiz::programopts::spotify_playlist_container ()
+const std::vector< std::string >
+    &tiz::programopts::spotify_playlist_container ()
 {
   spotify_playlist_container_.clear ();
   spotify_playlist_container_.push_back (spotify_playlist_);
@@ -582,48 +641,47 @@ const std::string &tiz::programopts::gmusic_device_id () const
   return gmusic_device_id_;
 }
 
-const std::vector< std::string > &
-    tiz::programopts::gmusic_playlist_container ()
+const std::vector< std::string > &tiz::programopts::gmusic_playlist_container ()
 {
   gmusic_playlist_container_.clear ();
   if (!gmusic_artist_.empty ())
-    {
-      gmusic_playlist_container_.push_back (gmusic_artist_);
-    }
+  {
+    gmusic_playlist_container_.push_back (gmusic_artist_);
+  }
   else if (!gmusic_album_.empty ())
-    {
-      gmusic_playlist_container_.push_back (gmusic_album_);
-    }
+  {
+    gmusic_playlist_container_.push_back (gmusic_album_);
+  }
   else if (!gmusic_playlist_.empty ())
-    {
-      gmusic_playlist_container_.push_back (gmusic_playlist_);
-    }
+  {
+    gmusic_playlist_container_.push_back (gmusic_playlist_);
+  }
   else if (!gmusic_station_.empty ())
-    {
-      gmusic_playlist_container_.push_back (gmusic_station_);
-    }
+  {
+    gmusic_playlist_container_.push_back (gmusic_station_);
+  }
   else if (!gmusic_genre_.empty ())
-    {
-      gmusic_playlist_container_.push_back (gmusic_genre_);
-    }
+  {
+    gmusic_playlist_container_.push_back (gmusic_genre_);
+  }
   else if (!gmusic_activity_.empty ())
-    {
-      gmusic_playlist_container_.push_back (gmusic_activity_);
-    }
+  {
+    gmusic_playlist_container_.push_back (gmusic_activity_);
+  }
   else if (!gmusic_promoted_.empty ())
-    {
-      // With gmusic promoted songs option, no playlist "name" is actually
-      // required. But this helps keeping track of what is in the container.
-      gmusic_playlist_container_.push_back (gmusic_promoted_);
-    }
+  {
+    // With gmusic promoted songs option, no playlist "name" is actually
+    // required. But this helps keeping track of what is in the container.
+    gmusic_playlist_container_.push_back (gmusic_promoted_);
+  }
   else if (!gmusic_feeling_lucky_station_.empty ())
-    {
-      gmusic_playlist_container_.push_back (gmusic_feeling_lucky_station_);
-    }
+  {
+    gmusic_playlist_container_.push_back (gmusic_feeling_lucky_station_);
+  }
   else
-    {
-      assert (0);
-    }
+  {
+    assert (0);
+  }
   return gmusic_playlist_container_;
 }
 
@@ -631,37 +689,37 @@ OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE
 tiz::programopts::gmusic_playlist_type ()
 {
   if (!gmusic_artist_.empty ())
-    {
-      gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeArtist;
-    }
+  {
+    gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeArtist;
+  }
   else if (!gmusic_album_.empty ())
-    {
-      gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeAlbum;
-    }
+  {
+    gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeAlbum;
+  }
   else if (!gmusic_playlist_.empty ())
-    {
-      gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeUser;
-    }
+  {
+    gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeUser;
+  }
   else if (!gmusic_station_.empty () || !gmusic_feeling_lucky_station_.empty ())
-    {
-      gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeStation;
-    }
+  {
+    gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeStation;
+  }
   else if (!gmusic_genre_.empty ())
-    {
-      gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeGenre;
-    }
+  {
+    gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeGenre;
+  }
   else if (!gmusic_activity_.empty ())
-    {
-      gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeSituation;
-    }
+  {
+    gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeSituation;
+  }
   else if (!gmusic_promoted_.empty ())
-    {
-      gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypePromotedTracks;
-    }
+  {
+    gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypePromotedTracks;
+  }
   else
-    {
-      gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeUnknown;
-    }
+  {
+    gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeUnknown;
+  }
 
   return gmusic_playlist_type_;
 }
@@ -676,46 +734,45 @@ const std::string &tiz::programopts::scloud_oauth_token () const
   return scloud_oauth_token_;
 }
 
-const std::vector< std::string > &
-    tiz::programopts::scloud_playlist_container ()
+const std::vector< std::string > &tiz::programopts::scloud_playlist_container ()
 {
   scloud_playlist_container_.clear ();
   if (!scloud_user_stream_.empty ())
-    {
-      scloud_playlist_container_.push_back (scloud_user_stream_);
-    }
+  {
+    scloud_playlist_container_.push_back (scloud_user_stream_);
+  }
   else if (!scloud_user_likes_.empty ())
-    {
-      scloud_playlist_container_.push_back (scloud_user_likes_);
-    }
+  {
+    scloud_playlist_container_.push_back (scloud_user_likes_);
+  }
   else if (!scloud_user_playlist_.empty ())
-    {
-      scloud_playlist_container_.push_back (scloud_user_playlist_);
-    }
+  {
+    scloud_playlist_container_.push_back (scloud_user_playlist_);
+  }
   else if (!scloud_creator_.empty ())
-    {
-      scloud_playlist_container_.push_back (scloud_creator_);
-    }
+  {
+    scloud_playlist_container_.push_back (scloud_creator_);
+  }
   else if (!scloud_tracks_.empty ())
-    {
-      scloud_playlist_container_.push_back (scloud_tracks_);
-    }
+  {
+    scloud_playlist_container_.push_back (scloud_tracks_);
+  }
   else if (!scloud_playlists_.empty ())
-    {
-      scloud_playlist_container_.push_back (scloud_playlists_);
-    }
+  {
+    scloud_playlist_container_.push_back (scloud_playlists_);
+  }
   else if (!scloud_genres_.empty ())
-    {
-      scloud_playlist_container_.push_back (scloud_genres_);
-    }
+  {
+    scloud_playlist_container_.push_back (scloud_genres_);
+  }
   else if (!scloud_tags_.empty ())
-    {
-      scloud_playlist_container_.push_back (scloud_tags_);
-    }
+  {
+    scloud_playlist_container_.push_back (scloud_tags_);
+  }
   else
-    {
-      assert (0);
-    }
+  {
+    assert (0);
+  }
   return scloud_playlist_container_;
 }
 
@@ -723,41 +780,41 @@ OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE
 tiz::programopts::scloud_playlist_type ()
 {
   if (!scloud_user_stream_.empty ())
-    {
-      scloud_playlist_type_ = OMX_AUDIO_SoundCloudPlaylistTypeUserStream;
-    }
+  {
+    scloud_playlist_type_ = OMX_AUDIO_SoundCloudPlaylistTypeUserStream;
+  }
   else if (!scloud_user_likes_.empty ())
-    {
-      scloud_playlist_type_ = OMX_AUDIO_SoundCloudPlaylistTypeUserLikes;
-    }
+  {
+    scloud_playlist_type_ = OMX_AUDIO_SoundCloudPlaylistTypeUserLikes;
+  }
   else if (!scloud_user_playlist_.empty ())
-    {
-      scloud_playlist_type_ = OMX_AUDIO_SoundCloudPlaylistTypeUserPlaylist;
-    }
+  {
+    scloud_playlist_type_ = OMX_AUDIO_SoundCloudPlaylistTypeUserPlaylist;
+  }
   else if (!scloud_creator_.empty ())
-    {
-      scloud_playlist_type_ = OMX_AUDIO_SoundCloudPlaylistTypeCreator;
-    }
+  {
+    scloud_playlist_type_ = OMX_AUDIO_SoundCloudPlaylistTypeCreator;
+  }
   else if (!scloud_tracks_.empty ())
-    {
-      scloud_playlist_type_ = OMX_AUDIO_SoundCloudPlaylistTypeTracks;
-    }
+  {
+    scloud_playlist_type_ = OMX_AUDIO_SoundCloudPlaylistTypeTracks;
+  }
   else if (!scloud_playlists_.empty ())
-    {
-      scloud_playlist_type_ = OMX_AUDIO_SoundCloudPlaylistTypePlaylists;
-    }
+  {
+    scloud_playlist_type_ = OMX_AUDIO_SoundCloudPlaylistTypePlaylists;
+  }
   else if (!scloud_genres_.empty ())
-    {
-      scloud_playlist_type_ = OMX_AUDIO_SoundCloudPlaylistTypeGenres;
-    }
+  {
+    scloud_playlist_type_ = OMX_AUDIO_SoundCloudPlaylistTypeGenres;
+  }
   else if (!scloud_tags_.empty ())
-    {
-      scloud_playlist_type_ = OMX_AUDIO_SoundCloudPlaylistTypeTags;
-    }
+  {
+    scloud_playlist_type_ = OMX_AUDIO_SoundCloudPlaylistTypeTags;
+  }
   else
-    {
-      scloud_playlist_type_ = OMX_AUDIO_SoundCloudPlaylistTypeUnknown;
-    }
+  {
+    scloud_playlist_type_ = OMX_AUDIO_SoundCloudPlaylistTypeUnknown;
+  }
 
   return scloud_playlist_type_;
 }
@@ -767,30 +824,29 @@ const std::string &tiz::programopts::dirble_api_key () const
   return dirble_api_key_;
 }
 
-const std::vector< std::string > &
-    tiz::programopts::dirble_playlist_container ()
+const std::vector< std::string > &tiz::programopts::dirble_playlist_container ()
 {
   dirble_playlist_container_.clear ();
   if (!dirble_popular_stations_.empty ())
-    {
-      dirble_playlist_container_.push_back (dirble_popular_stations_);
-    }
+  {
+    dirble_playlist_container_.push_back (dirble_popular_stations_);
+  }
   else if (!dirble_stations_.empty ())
-    {
-      dirble_playlist_container_.push_back (dirble_stations_);
-    }
+  {
+    dirble_playlist_container_.push_back (dirble_stations_);
+  }
   else if (!dirble_category_.empty ())
-    {
-      dirble_playlist_container_.push_back (dirble_category_);
-    }
+  {
+    dirble_playlist_container_.push_back (dirble_category_);
+  }
   else if (!dirble_country_.empty ())
-    {
-      dirble_playlist_container_.push_back (dirble_country_);
-    }
+  {
+    dirble_playlist_container_.push_back (dirble_country_);
+  }
   else
-    {
-      assert (0);
-    }
+  {
+    assert (0);
+  }
   return dirble_playlist_container_;
 }
 
@@ -798,57 +854,57 @@ OMX_TIZONIA_AUDIO_DIRBLEPLAYLISTTYPE
 tiz::programopts::dirble_playlist_type ()
 {
   if (!dirble_popular_stations_.empty ())
-    {
-      dirble_playlist_type_ = OMX_AUDIO_DirblePlaylistTypePopularStations;
-    }
+  {
+    dirble_playlist_type_ = OMX_AUDIO_DirblePlaylistTypePopularStations;
+  }
   else if (!dirble_stations_.empty ())
-    {
-      dirble_playlist_type_ = OMX_AUDIO_DirblePlaylistTypeStations;
-    }
+  {
+    dirble_playlist_type_ = OMX_AUDIO_DirblePlaylistTypeStations;
+  }
   else if (!dirble_category_.empty ())
-    {
-      dirble_playlist_type_ = OMX_AUDIO_DirblePlaylistTypeCategory;
-    }
+  {
+    dirble_playlist_type_ = OMX_AUDIO_DirblePlaylistTypeCategory;
+  }
   else if (!dirble_country_.empty ())
-    {
-      dirble_playlist_type_ = OMX_AUDIO_DirblePlaylistTypeCountry;
-    }
+  {
+    dirble_playlist_type_ = OMX_AUDIO_DirblePlaylistTypeCountry;
+  }
   else
-    {
-      dirble_playlist_type_ = OMX_AUDIO_DirblePlaylistTypeUnknown;
-    }
+  {
+    dirble_playlist_type_ = OMX_AUDIO_DirblePlaylistTypeUnknown;
+  }
 
   return dirble_playlist_type_;
 }
 
-const std::vector< std::string > &
-    tiz::programopts::youtube_playlist_container ()
+const std::vector< std::string >
+    &tiz::programopts::youtube_playlist_container ()
 {
   youtube_playlist_container_.clear ();
   if (!youtube_audio_stream_.empty ())
-    {
-      youtube_playlist_container_.push_back (youtube_audio_stream_);
-    }
+  {
+    youtube_playlist_container_.push_back (youtube_audio_stream_);
+  }
   else if (!youtube_audio_playlist_.empty ())
-    {
-      youtube_playlist_container_.push_back (youtube_audio_playlist_);
-    }
+  {
+    youtube_playlist_container_.push_back (youtube_audio_playlist_);
+  }
   else if (!youtube_audio_mix_.empty ())
-    {
-      youtube_playlist_container_.push_back (youtube_audio_mix_);
-    }
+  {
+    youtube_playlist_container_.push_back (youtube_audio_mix_);
+  }
   else if (!youtube_audio_search_.empty ())
-    {
-      youtube_playlist_container_.push_back (youtube_audio_search_);
-    }
+  {
+    youtube_playlist_container_.push_back (youtube_audio_search_);
+  }
   else if (!youtube_audio_mix_search_.empty ())
-    {
-      youtube_playlist_container_.push_back (youtube_audio_mix_search_);
-    }
+  {
+    youtube_playlist_container_.push_back (youtube_audio_mix_search_);
+  }
   else
-    {
-      assert (0);
-    }
+  {
+    assert (0);
+  }
   return youtube_playlist_container_;
 }
 
@@ -856,29 +912,29 @@ OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE
 tiz::programopts::youtube_playlist_type ()
 {
   if (!youtube_audio_stream_.empty ())
-    {
-      youtube_playlist_type_ = OMX_AUDIO_YoutubePlaylistTypeAudioStream;
-    }
+  {
+    youtube_playlist_type_ = OMX_AUDIO_YoutubePlaylistTypeAudioStream;
+  }
   else if (!youtube_audio_playlist_.empty ())
-    {
-      youtube_playlist_type_ = OMX_AUDIO_YoutubePlaylistTypeAudioPlaylist;
-    }
+  {
+    youtube_playlist_type_ = OMX_AUDIO_YoutubePlaylistTypeAudioPlaylist;
+  }
   else if (!youtube_audio_mix_.empty ())
-    {
-      youtube_playlist_type_ = OMX_AUDIO_YoutubePlaylistTypeAudioMix;
-    }
+  {
+    youtube_playlist_type_ = OMX_AUDIO_YoutubePlaylistTypeAudioMix;
+  }
   else if (!youtube_audio_search_.empty ())
-    {
-      youtube_playlist_type_ = OMX_AUDIO_YoutubePlaylistTypeAudioSearch;
-    }
+  {
+    youtube_playlist_type_ = OMX_AUDIO_YoutubePlaylistTypeAudioSearch;
+  }
   else if (!youtube_audio_mix_search_.empty ())
-    {
-      youtube_playlist_type_ = OMX_AUDIO_YoutubePlaylistTypeAudioMixSearch;
-    }
+  {
+    youtube_playlist_type_ = OMX_AUDIO_YoutubePlaylistTypeAudioMixSearch;
+  }
   else
-    {
-      youtube_playlist_type_ = OMX_AUDIO_YoutubePlaylistTypeUnknown;
-    }
+  {
+    youtube_playlist_type_ = OMX_AUDIO_YoutubePlaylistTypeUnknown;
+  }
 
   return youtube_playlist_type_;
 }
@@ -896,8 +952,9 @@ void tiz::programopts::init_global_options ()
   global_.add_options ()
       /* TIZ_CLASS_COMMENT: This is to avoid the clang formatter messing up
          these lines*/
-      ("help,h", po::value< std::string >(&help_option_)
-                     ->implicit_value (std::string ("help")),
+      ("help,h",
+       greedy_implicit_value< std::string > (&help_option_)
+           ->implicit_value (std::string ("help")),
        "Print a usage message for a specific help topic (e.g. global, "
        "openmax, server, spotify, googlemusic, soundcloud, etc).")
       /* TIZ_CLASS_COMMENT: */
@@ -916,8 +973,9 @@ void tiz::programopts::init_global_options ()
   register_consume_function (&tiz::programopts::consume_global_options);
   // TODO: help and version are not included. These should be moved out of
   // "global" and into its own category: "info"
-  all_global_options_ = boost::assign::list_of ("recurse")("shuffle")("daemon")
-    .convert_to_container<std::vector<std::string> >();
+  all_global_options_
+      = boost::assign::list_of ("recurse") ("shuffle") ("daemon")
+            .convert_to_container< std::vector< std::string > > ();
 }
 
 void tiz::programopts::init_debug_options ()
@@ -926,14 +984,15 @@ void tiz::programopts::init_debug_options ()
       /* TIZ_CLASS_COMMENT: This is to avoid the clang formatter messing up
          these lines*/
       ("log-directory", po::value (&log_dir_),
-       "The directory to be used for the debug trace file.")(
+       "The directory to be used for the debug trace file.") (
           "debug-info", po::bool_switch (&debug_info_)->default_value (false),
           "Print debug-related information.")
       /* TIZ_CLASS_COMMENT: */
       ;
   register_consume_function (&tiz::programopts::consume_debug_options);
-  all_debug_options_ = boost::assign::list_of ("log-directory")("debug-info")
-    .convert_to_container<std::vector<std::string> >();
+  all_debug_options_
+      = boost::assign::list_of ("log-directory") ("debug-info")
+            .convert_to_container< std::vector< std::string > > ();
 }
 
 void tiz::programopts::init_omx_options ()
@@ -952,8 +1011,8 @@ void tiz::programopts::init_omx_options ()
       ;
   register_consume_function (&tiz::programopts::consume_omx_options);
   all_omx_options_
-      = boost::assign::list_of ("comp-list")("roles-of-comp")("comps-of-role")
-    .convert_to_container<std::vector<std::string> >();
+      = boost::assign::list_of ("comp-list") ("roles-of-comp") ("comps-of-role")
+            .convert_to_container< std::vector< std::string > > ();
 }
 
 void tiz::programopts::init_streaming_server_options ()
@@ -979,7 +1038,8 @@ void tiz::programopts::init_streaming_server_options ()
       ("bitrate-modes", po::value (&bitrates_),
        "A comma-separated list of "
        /* TIZ_CLASS_COMMENT: */
-       "bitrate modes (e.g. 'CBR,VBR'). Only media with these bitrate modes will be "
+       "bitrate modes (e.g. 'CBR,VBR'). Only media with these bitrate modes "
+       "will be "
        "in the playlist. Default: any.")
       /* TIZ_CLASS_COMMENT: */
       ("sampling-rates", po::value (&sampling_rates_),
@@ -995,10 +1055,11 @@ void tiz::programopts::init_streaming_server_options ()
   boost::split (bitrate_list_, bitrates_, boost::is_any_of (","));
   register_consume_function (
       &tiz::programopts::consume_streaming_server_options);
-  all_streaming_server_options_ = boost::assign::list_of ("server")("port")(
-      "station-name")("station-genre")("no-icy-metadata")("bitrate-modes")(
-      "sampling-rates")
-    .convert_to_container<std::vector<std::string> >();
+  all_streaming_server_options_
+      = boost::assign::list_of ("server") ("port") ("station-name") (
+            "station-genre") ("no-icy-metadata") ("bitrate-modes") (
+            "sampling-rates")
+            .convert_to_container< std::vector< std::string > > ();
 }
 
 void tiz::programopts::init_streaming_client_options ()
@@ -1009,8 +1070,9 @@ void tiz::programopts::init_streaming_client_options ()
        "Give a name/id to the remote stream.");
   register_consume_function (
       &tiz::programopts::consume_streaming_client_options);
-  all_streaming_client_options_ = boost::assign::list_of ("station-id")
-    .convert_to_container<std::vector<std::string> >();
+  all_streaming_client_options_
+      = boost::assign::list_of ("station-id")
+            .convert_to_container< std::vector< std::string > > ();
 }
 
 void tiz::programopts::init_spotify_options ()
@@ -1018,7 +1080,7 @@ void tiz::programopts::init_spotify_options ()
   spotify_.add_options ()
       /* TIZ_CLASS_COMMENT: */
       ("spotify-user", po::value (&spotify_user_),
-      "Spotify user name  (not required if provided via config file).")
+       "Spotify user name  (not required if provided via config file).")
       /* TIZ_CLASS_COMMENT: */
       ("spotify-password", po::value (&spotify_pass_),
        "Spotify user password  (not required if provided via config file).")
@@ -1026,9 +1088,10 @@ void tiz::programopts::init_spotify_options ()
       ("spotify-playlist", po::value (&spotify_playlist_),
        "A playlist from the user's library.");
   register_consume_function (&tiz::programopts::consume_spotify_client_options);
-  all_spotify_client_options_ = boost::assign::list_of ("spotify-user")(
-      "spotify-password")("spotify-playlist")
-    .convert_to_container<std::vector<std::string> >();
+  all_spotify_client_options_
+      = boost::assign::list_of ("spotify-user") ("spotify-password") (
+            "spotify-playlist")
+            .convert_to_container< std::vector< std::string > > ();
 }
 
 void tiz::programopts::init_gmusic_options ()
@@ -1036,13 +1099,16 @@ void tiz::programopts::init_gmusic_options ()
   gmusic_.add_options ()
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-user", po::value (&gmusic_user_),
-      "Google Play Music user name (not required if provided via config file).")
+       "Google Play Music user name (not required if provided via config "
+       "file).")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-password", po::value (&gmusic_pass_),
-       "Google Play Music user's password (not required if provided via config file).")
+       "Google Play Music user's password (not required if provided via config "
+       "file).")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-device-id", po::value (&gmusic_device_id_),
-       "Google Play Music device id (not required if provided via config file).")
+       "Google Play Music device id (not required if provided via config "
+       "file).")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-artist", po::value (&gmusic_artist_),
        "Play tracks from the user's library by artist.")
@@ -1054,16 +1120,20 @@ void tiz::programopts::init_gmusic_options ()
        "A playlist from the user's library.")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-unlimited-station", po::value (&gmusic_station_),
-       "Search and play Google Play Music Unlimited stations found in the user's library.")
+       "Search and play Google Play Music Unlimited stations found in the "
+       "user's library.")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-unlimited-album", po::value (&gmusic_album_),
-       "Search and play Google Play Music Unlimited tracks by album (best match only).")
+       "Search and play Google Play Music Unlimited tracks by album (best "
+       "match only).")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-unlimited-artist", po::value (&gmusic_artist_),
-       "Search and play Google Play Music Unlimited tracks by artist (best match only).")
+       "Search and play Google Play Music Unlimited tracks by artist (best "
+       "match only).")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-unlimited-tracks", po::value (&gmusic_playlist_),
-       "Search and play Google Play Music Unlimited tracks by name (50 first matches only).")
+       "Search and play Google Play Music Unlimited tracks by name (50 first "
+       "matches only).")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-unlimited-genre", po::value (&gmusic_genre_),
        "Search and play Google Play Music Unlimited tracks by genre.")
@@ -1072,19 +1142,23 @@ void tiz::programopts::init_gmusic_options ()
        "Search and play Google Play Music Unlimited tracks by activity.")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-unlimited-feeling-lucky-station",
-       "Play the user's Google Play Music Unlimited 'I'm Feeling Lucky' station.")
+       "Play the user's Google Play Music Unlimited 'I'm Feeling Lucky' "
+       "station.")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-unlimited-promoted-tracks",
        "Play Google Play Music Unlimited promoted tracks.");
 
   register_consume_function (&tiz::programopts::consume_gmusic_client_options);
-  all_gmusic_client_options_ = boost::assign::list_of ("gmusic-user")
-    ("gmusic-password")("gmusic-device-id")("gmusic-artist")("gmusic-album")
-    ("gmusic-playlist")("gmusic-unlimited-station")("gmusic-unlimited-album")
-    ("gmusic-unlimited-artist")("gmusic-unlimited-tracks")("gmusic-unlimited-genre")
-    ("gmusic-unlimited-activity") ("gmusic-unlimited-feeling-lucky-station")
-    ("gmusic-unlimited-promoted-tracks")
-    .convert_to_container<std::vector<std::string> >();
+  all_gmusic_client_options_
+      = boost::assign::list_of ("gmusic-user") ("gmusic-password") (
+            "gmusic-device-id") ("gmusic-artist") ("gmusic-album") (
+            "gmusic-playlist") ("gmusic-unlimited-station") (
+            "gmusic-unlimited-album") ("gmusic-unlimited-artist") (
+            "gmusic-unlimited-tracks") ("gmusic-unlimited-genre") (
+            "gmusic-unlimited-activity") (
+            "gmusic-unlimited-feeling-lucky-station") (
+            "gmusic-unlimited-promoted-tracks")
+            .convert_to_container< std::vector< std::string > > ();
 }
 
 void tiz::programopts::init_scloud_options ()
@@ -1092,13 +1166,13 @@ void tiz::programopts::init_scloud_options ()
   scloud_.add_options ()
       /* TIZ_CLASS_COMMENT: */
       ("soundcloud-oauth-token", po::value (&scloud_oauth_token_),
-       "SoundCloud user OAuth token (not required if provided via config file).")
+       "SoundCloud user OAuth token (not required if provided via config "
+       "file).")
       /* TIZ_CLASS_COMMENT: */
       ("soundcloud-user-stream",
        "Play the tracks currently listed in the user's stream.")
       /* TIZ_CLASS_COMMENT: */
-      ("soundcloud-user-likes",
-       "Play the tracks liked by the user.")
+      ("soundcloud-user-likes", "Play the tracks liked by the user.")
       /* TIZ_CLASS_COMMENT: */
       ("soundcloud-user-playlist", po::value (&scloud_user_playlist_),
        "Play a playlist from the user's collection.")
@@ -1113,16 +1187,18 @@ void tiz::programopts::init_scloud_options ()
        "Search and play playlists by title.")
       /* TIZ_CLASS_COMMENT: */
       ("soundcloud-genres", po::value (&scloud_genres_),
-       "Search and play genres top tracks (arg is a command-separated list).")
-      ("soundcloud-tags", po::value (&scloud_tags_),
-       "Search and play tags top tracks (arg is a command-separated list).");
+       "Search and play genres top tracks (arg is a command-separated list).") (
+          "soundcloud-tags", po::value (&scloud_tags_),
+          "Search and play tags top tracks (arg is a command-separated list).");
 
   register_consume_function (&tiz::programopts::consume_scloud_client_options);
-  all_scloud_client_options_ = boost::assign::list_of ("soundcloud-oauth-token")
-    ("soundcloud-user-stream")("soundcloud-user-likes")
-    ("soundcloud-user-playlist") ("soundcloud-creator")("soundcloud-tracks")
-    ("soundcloud-playlists") ("soundcloud-genres")("soundcloud-tags")
-    .convert_to_container<std::vector<std::string> >();
+  all_scloud_client_options_
+      = boost::assign::list_of ("soundcloud-oauth-token") (
+            "soundcloud-user-stream") ("soundcloud-user-likes") (
+            "soundcloud-user-playlist") ("soundcloud-creator") (
+            "soundcloud-tracks") ("soundcloud-playlists") (
+            "soundcloud-genres") ("soundcloud-tags")
+            .convert_to_container< std::vector< std::string > > ();
 }
 
 void tiz::programopts::init_dirble_options ()
@@ -1132,21 +1208,20 @@ void tiz::programopts::init_dirble_options ()
       ("dirble-api-key", po::value (&dirble_api_key_),
        "Dirble Api Key (not required if provided via config file).")
       /* TIZ_CLASS_COMMENT: */
-      ("dirble-popular-stations",
-       "Play Dirble's popular stations.")
+      ("dirble-popular-stations", "Play Dirble's popular stations.")
       /* TIZ_CLASS_COMMENT: */
       ("dirble-station", po::value (&dirble_stations_),
-       "Dirble station search.")
-      ("dirble-category", po::value (&dirble_category_),
-       "Dirble category search.")
-      ("dirble-country", po::value (&dirble_country_),
-       "Dirble country search.");
+       "Dirble station search.") ("dirble-category",
+                                  po::value (&dirble_category_),
+                                  "Dirble category search.") (
+          "dirble-country", po::value (&dirble_country_),
+          "Dirble country search.");
 
   register_consume_function (&tiz::programopts::consume_dirble_client_options);
-  all_dirble_client_options_ = boost::assign::list_of ("dirble-api-key")
-    ("dirble-popular-stations")("dirble-station")("dirble-category")
-    ("dirble-country")
-    .convert_to_container<std::vector<std::string> >();
+  all_dirble_client_options_
+      = boost::assign::list_of ("dirble-api-key") ("dirble-popular-stations") (
+            "dirble-station") ("dirble-category") ("dirble-country")
+            .convert_to_container< std::vector< std::string > > ();
 }
 
 void tiz::programopts::init_youtube_options ()
@@ -1169,10 +1244,11 @@ void tiz::programopts::init_youtube_options ()
        "Play a YouTube mix from a search term.");
 
   register_consume_function (&tiz::programopts::consume_youtube_client_options);
-  all_youtube_client_options_ = boost::assign::list_of ("youtube-audio-stream")
-    ("youtube-audio-playlist")("youtube-audio-mix")("youtube-audio-search")
-    ("youtube-audio-mix-search")
-    .convert_to_container<std::vector<std::string> >();
+  all_youtube_client_options_
+      = boost::assign::list_of ("youtube-audio-stream") (
+            "youtube-audio-playlist") ("youtube-audio-mix") (
+            "youtube-audio-search") ("youtube-audio-mix-search")
+            .convert_to_container< std::vector< std::string > > ();
 }
 
 void tiz::programopts::init_input_uri_option ()
@@ -1180,12 +1256,13 @@ void tiz::programopts::init_input_uri_option ()
   input_.add_options ()
       /* TIZ_CLASS_COMMENT: */
       ("input-uris",
-       po::value< std::vector< std::string > >(&uri_list_)->multitoken (),
+       po::value< std::vector< std::string > > (&uri_list_)->multitoken (),
        "input file");
   positional_.add ("input-uris", -1);
   register_consume_function (&tiz::programopts::consume_local_decode_options);
-  all_input_uri_options_ = boost::assign::list_of ("input-uris")
-    .convert_to_container<std::vector<std::string> >();
+  all_input_uri_options_
+      = boost::assign::list_of ("input-uris")
+            .convert_to_container< std::vector< std::string > > ();
 }
 
 unsigned int tiz::programopts::parse_command_line (int argc, char *argv[])
@@ -1250,7 +1327,7 @@ int tiz::programopts::consume_debug_options (bool &done, std::string &msg)
 }
 
 int tiz::programopts::consume_global_options (bool &done,
-                                               std::string & /* msg */)
+                                              std::string & /* msg */)
 {
   int rc = EXIT_FAILURE;
   done = false;
@@ -1259,57 +1336,57 @@ int tiz::programopts::consume_global_options (bool &done,
     done = true;
     rc = EXIT_SUCCESS;
     if (0 == help_option_.compare ("global"))
-      {
-        print_usage_feature (global_);
-      }
+    {
+      print_usage_feature (global_);
+    }
     else if (0 == help_option_.compare ("openmax"))
-      {
-        print_usage_feature (omx_);
-      }
+    {
+      print_usage_feature (omx_);
+    }
     else if (0 == help_option_.compare ("server"))
-      {
-        print_usage_feature (server_);
-      }
+    {
+      print_usage_feature (server_);
+    }
     else if (0 == help_option_.compare ("client"))
-      {
-        print_usage_feature (client_);
-      }
+    {
+      print_usage_feature (client_);
+    }
     else if (0 == help_option_.compare ("spotify"))
-      {
-        print_usage_feature (spotify_);
-      }
+    {
+      print_usage_feature (spotify_);
+    }
     else if (0 == help_option_.compare ("googlemusic"))
-      {
-        print_usage_feature (gmusic_);
-      }
+    {
+      print_usage_feature (gmusic_);
+    }
     else if (0 == help_option_.compare ("soundcloud"))
-      {
-        print_usage_feature (scloud_);
-      }
+    {
+      print_usage_feature (scloud_);
+    }
     else if (0 == help_option_.compare ("dirble"))
-      {
-        print_usage_feature (dirble_);
-      }
+    {
+      print_usage_feature (dirble_);
+    }
     else if (0 == help_option_.compare ("youtube"))
-      {
-        print_usage_feature (youtube_);
-      }
+    {
+      print_usage_feature (youtube_);
+    }
     else if (0 == help_option_.compare ("keyboard"))
-      {
-        print_usage_keyboard ();
-      }
+    {
+      print_usage_keyboard ();
+    }
     else if (0 == help_option_.compare ("config"))
-      {
-        print_usage_config ();
-      }
+    {
+      print_usage_config ();
+    }
     else if (0 == help_option_.compare ("examples"))
-      {
-        print_usage_examples ();
-      }
+    {
+      print_usage_examples ();
+    }
     else
-      {
-        print_usage_help ();
-      }
+    {
+      print_usage_help ();
+    }
   }
   else if (vm_.count ("version"))
   {
@@ -1412,13 +1489,14 @@ int tiz::programopts::consume_spotify_client_options (bool &done,
     done = true;
 
     if (spotify_user_.empty ())
-      {
-        retrieve_config_from_rc_file ("tizonia", "spotify.user", spotify_user_);
-      }
+    {
+      retrieve_config_from_rc_file ("tizonia", "spotify.user", spotify_user_);
+    }
     if (spotify_pass_.empty ())
-      {
-        retrieve_config_from_rc_file ("tizonia", "spotify.password", spotify_pass_);
-      }
+    {
+      retrieve_config_from_rc_file ("tizonia", "spotify.password",
+                                    spotify_pass_);
+    }
 
     if (spotify_user_.empty ())
     {
@@ -1434,7 +1512,7 @@ int tiz::programopts::consume_spotify_client_options (bool &done,
       oss << "A playlist must be specified.";
       msg.assign (oss.str ());
     }
-    else if (spotify_playlist_.empty())
+    else if (spotify_playlist_.empty ())
     {
       rc = EXIT_FAILURE;
       std::ostringstream oss;
@@ -1565,30 +1643,35 @@ int tiz::programopts::consume_scloud_client_options (bool &done,
   {
     done = true;
 
-    const int playlist_option_count = vm_.count ("soundcloud-user-stream")
-      + vm_.count ("soundcloud-user-likes") + vm_.count ("soundcloud-user-playlist")
-      + vm_.count ("soundcloud-creator") + vm_.count ("soundcloud-tracks")
-      + vm_.count("soundcloud-playlists") + vm_.count ("soundcloud-genres")
-      + vm_.count ("soundcloud-tags");
+    const int playlist_option_count
+        = vm_.count ("soundcloud-user-stream")
+          + vm_.count ("soundcloud-user-likes")
+          + vm_.count ("soundcloud-user-playlist")
+          + vm_.count ("soundcloud-creator") + vm_.count ("soundcloud-tracks")
+          + vm_.count ("soundcloud-playlists") + vm_.count ("soundcloud-genres")
+          + vm_.count ("soundcloud-tags");
 
     if (scloud_oauth_token_.empty ())
-      {
-        retrieve_config_from_rc_file ("tizonia", "soundcloud.oauth_token", scloud_oauth_token_);
-      }
+    {
+      retrieve_config_from_rc_file ("tizonia", "soundcloud.oauth_token",
+                                    scloud_oauth_token_);
+    }
 
     if (vm_.count ("soundcloud-user-stream"))
-      {
-        // This is not going to be used by the client code, but will help
-        // in sclound_playlist_type() to decide which playlist type value is returned.
-        scloud_user_stream_.assign ("SoundCloud user stream");
-      }
+    {
+      // This is not going to be used by the client code, but will help
+      // in sclound_playlist_type() to decide which playlist type value is
+      // returned.
+      scloud_user_stream_.assign ("SoundCloud user stream");
+    }
 
     if (vm_.count ("soundcloud-user-likes"))
-      {
-        // This is not going to be used by the client code, but will help
-        // in sclound_playlist_type() to decide which playlist type value is returned.
-        scloud_user_likes_.assign ("SoundCloud user likes");
-      }
+    {
+      // This is not going to be used by the client code, but will help
+      // in sclound_playlist_type() to decide which playlist type value is
+      // returned.
+      scloud_user_likes_.assign ("SoundCloud user likes");
+    }
 
     if (scloud_oauth_token_.empty ())
     {
@@ -1638,21 +1721,23 @@ int tiz::programopts::consume_dirble_client_options (bool &done,
   {
     done = true;
 
-    const int playlist_option_count = vm_.count ("dirble-popular-stations")
-      + vm_.count ("dirble-station") + vm_.count ("dirble-category")
-      + vm_.count ("dirble-country");
+    const int playlist_option_count
+        = vm_.count ("dirble-popular-stations") + vm_.count ("dirble-station")
+          + vm_.count ("dirble-category") + vm_.count ("dirble-country");
 
     if (dirble_api_key_.empty ())
-      {
-        retrieve_config_from_rc_file ("tizonia", "dirble.api_key", dirble_api_key_);
-      }
+    {
+      retrieve_config_from_rc_file ("tizonia", "dirble.api_key",
+                                    dirble_api_key_);
+    }
 
     if (vm_.count ("dirble-popular-stations"))
-      {
-        // This is not going to be used by the client code, but will help
-        // in dirble_playlist_type() to decide which playlist type value is returned.
-        dirble_popular_stations_.assign ("Dirble popular stations");
-      }
+    {
+      // This is not going to be used by the client code, but will help
+      // in dirble_playlist_type() to decide which playlist type value is
+      // returned.
+      dirble_popular_stations_.assign ("Dirble popular stations");
+    }
 
     if (dirble_api_key_.empty ())
     {
@@ -1693,7 +1778,7 @@ int tiz::programopts::consume_dirble_client_options (bool &done,
 }
 
 int tiz::programopts::consume_youtube_client_options (bool &done,
-                                                     std::string &msg)
+                                                      std::string &msg)
 {
   int rc = EXIT_FAILURE;
   done = false;
@@ -1761,7 +1846,7 @@ int tiz::programopts::consume_input_file_uris_option ()
   if (vm_.count ("input-uris"))
   {
     rc = EXIT_SUCCESS;
-    uri_list_ = vm_["input-uris"].as< std::vector< std::string > >();
+    uri_list_ = vm_["input-uris"].as< std::vector< std::string > > ();
   }
   return rc;
 }
@@ -1771,7 +1856,7 @@ int tiz::programopts::consume_input_http_uris_option ()
   int rc = EXIT_FAILURE;
   if (vm_.count ("input-uris"))
   {
-    uri_list_ = vm_["input-uris"].as< std::vector< std::string > >();
+    uri_list_ = vm_["input-uris"].as< std::vector< std::string > > ();
     bool all_ok = true;
     BOOST_FOREACH (std::string uri, uri_list_)
     {
@@ -1851,9 +1936,12 @@ bool tiz::programopts::validate_gmusic_client_options () const
       = vm_.count ("gmusic-user") + vm_.count ("gmusic-password")
         + vm_.count ("gmusic-device-id") + vm_.count ("gmusic-artist")
         + vm_.count ("gmusic-album") + vm_.count ("gmusic-playlist")
-        + vm_.count ("gmusic-unlimited-station") + vm_.count ("gmusic-unlimited-album")
-        + vm_.count ("gmusic-unlimited-artist") + vm_.count ("gmusic-unlimited-tracks")
-        + vm_.count ("gmusic-unlimited-genre") + vm_.count ("gmusic-unlimited-activity")
+        + vm_.count ("gmusic-unlimited-station")
+        + vm_.count ("gmusic-unlimited-album")
+        + vm_.count ("gmusic-unlimited-artist")
+        + vm_.count ("gmusic-unlimited-tracks")
+        + vm_.count ("gmusic-unlimited-genre")
+        + vm_.count ("gmusic-unlimited-activity")
         + vm_.count ("gmusic-unlimited-feeling-lucky-station")
         + vm_.count ("gmusic-unlimited-promoted-tracks")
         + vm_.count ("log-directory");
@@ -1867,8 +1955,7 @@ bool tiz::programopts::validate_gmusic_client_options () const
   {
     outcome = true;
   }
-  TIZ_PRINTF_DBG_RED ("outcome = [%s]\n",
-                      outcome ? "SUCCESS" : "FAILURE");
+  TIZ_PRINTF_DBG_RED ("outcome = [%s]\n", outcome ? "SUCCESS" : "FAILURE");
   return outcome;
 }
 
@@ -1877,11 +1964,12 @@ bool tiz::programopts::validate_scloud_client_options () const
   bool outcome = false;
   unsigned int scloud_opts_count
       = vm_.count ("soundcloud-oauth-token")
-        + vm_.count ("soundcloud-user-stream") + vm_.count ("soundcloud-user-likes")
-        + vm_.count ("soundcloud-user-playlist") + vm_.count ("soundcloud-creator")
-        + vm_.count ("soundcloud-tracks") + vm_.count ("soundcloud-playlists")
-        + vm_.count ("soundcloud-genres") + vm_.count ("soundcloud-tags")
-        + vm_.count ("log-directory");
+        + vm_.count ("soundcloud-user-stream")
+        + vm_.count ("soundcloud-user-likes")
+        + vm_.count ("soundcloud-user-playlist")
+        + vm_.count ("soundcloud-creator") + vm_.count ("soundcloud-tracks")
+        + vm_.count ("soundcloud-playlists") + vm_.count ("soundcloud-genres")
+        + vm_.count ("soundcloud-tags") + vm_.count ("log-directory");
 
   std::vector< std::string > all_valid_options = all_scloud_client_options_;
   concat_option_lists (all_valid_options, all_global_options_);
@@ -1892,8 +1980,7 @@ bool tiz::programopts::validate_scloud_client_options () const
   {
     outcome = true;
   }
-  TIZ_PRINTF_DBG_RED ("outcome = [%s]\n",
-                      outcome ? "SUCCESS" : "FAILURE");
+  TIZ_PRINTF_DBG_RED ("outcome = [%s]\n", outcome ? "SUCCESS" : "FAILURE");
   return outcome;
 }
 
@@ -1914,8 +2001,7 @@ bool tiz::programopts::validate_dirble_client_options () const
   {
     outcome = true;
   }
-  TIZ_PRINTF_DBG_RED ("outcome = [%s]\n",
-                      outcome ? "SUCCESS" : "FAILURE");
+  TIZ_PRINTF_DBG_RED ("outcome = [%s]\n", outcome ? "SUCCESS" : "FAILURE");
   return outcome;
 }
 
@@ -1937,8 +2023,7 @@ bool tiz::programopts::validate_youtube_client_options () const
   {
     outcome = true;
   }
-  TIZ_PRINTF_DBG_RED ("outcome = [%s]\n",
-                      outcome ? "SUCCESS" : "FAILURE");
+  TIZ_PRINTF_DBG_RED ("outcome = [%s]\n", outcome ? "SUCCESS" : "FAILURE");
   return outcome;
 }
 
