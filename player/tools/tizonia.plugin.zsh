@@ -18,43 +18,43 @@ tiz-check-empty-params () {
 # Tizonia's Spotify playlist playback
 spotify-playlist() {
     tiz-check-empty-params "$@" || return
-    eval tizonia "$(tiz-grab-env-options)" --spotify-playlist \""$@"\"
+    eval tizonia "$(tiz-grab-env-options)" --spotify-playlist=\""$@"\"
 }
 
 # Tizonia's Google Play Music artist search
 gmusic-artist-unlimited() {
     tiz-check-empty-params "$@" || return
-    eval tizonia "$(tiz-grab-env-options)" --gmusic-unlimited-artist \""$@"\"
+    eval tizonia "$(tiz-grab-env-options)" --gmusic-unlimited-artist=\""$@"\"
 }
 
 # Tizonia's Google Play Music album search
 gmusic-album-unlimited() {
     tiz-check-empty-params "$@" || return
-    eval tizonia "$(tiz-grab-env-options)" --gmusic-unlimited-album \""$@"\"
+    eval tizonia "$(tiz-grab-env-options)" --gmusic-unlimited-album=\""$@"\"
 }
 
 # Tizonia's Google Play Music song search
 gmusic-song-unlimited() {
     tiz-check-empty-params "$@" || return
-    eval tizonia "$(tiz-grab-env-options)" --gmusic-unlimited-tracks \""$@"\"
+    eval tizonia "$(tiz-grab-env-options)" --gmusic-unlimited-tracks=\""$@"\"
 }
 
 # Tizonia's Google Play Music genre search
 gmusic-genre-unlimited() {
     tiz-check-empty-params "$@" || return
-    eval tizonia "$(tiz-grab-env-options)" --gmusic-unlimited-genre \""$@"\"
+    eval tizonia "$(tiz-grab-env-options)" --gmusic-unlimited-genre=\""$@"\"
 }
 
 # Tizonia's Google Play Music station search
 gmusic-station-unlimited() {
     tiz-check-empty-params "$@" || return
-    eval tizonia "$(tiz-grab-env-options)" --gmusic-unlimited-station \""$@"\"
+    eval tizonia "$(tiz-grab-env-options)" --gmusic-unlimited-station=\""$@"\"
 }
 
 # Tizonia's Google Play Music situation search
 gmusic-activity-unlimited() {
     tiz-check-empty-params "$@" || return
-    eval tizonia "$(tiz-grab-env-options)" --gmusic-unlimited-activity \""$@"\"
+    eval tizonia "$(tiz-grab-env-options)" --gmusic-unlimited-activity=\""$@"\"
 }
 
 # Tizonia's SoundCloud user stream playlist
@@ -70,31 +70,31 @@ soundcloud-likes() {
 # Tizonia's SoundCloud creator search
 soundcloud-creator() {
     tiz-check-empty-params "$@" || return
-    eval tizonia "$(tiz-grab-env-options)" --soundcloud-creator \""$@"\"
+    eval tizonia "$(tiz-grab-env-options)" --soundcloud-creator=\""$@"\"
 }
 
 # Tizonia's SoundCloud tracks search
 soundcloud-tracks() {
     tiz-check-empty-params "$@" || return
-    eval tizonia "$(tiz-grab-env-options)" --soundcloud-tracks \""$@"\"
+    eval tizonia "$(tiz-grab-env-options)" --soundcloud-tracks=\""$@"\"
 }
 
 # Tizonia's SoundCloud playlist search
 soundcloud-playlists() {
     tiz-check-empty-params "$@" || return
-    eval tizonia "$(tiz-grab-env-options)" --soundcloud-playlists \""$@"\"
+    eval tizonia "$(tiz-grab-env-options)" --soundcloud-playlists=\""$@"\"
 }
 
 # Tizonia's SoundCloud creator search
 soundcloud-genres() {
     tiz-check-empty-params "$@" || return
-    eval tizonia "$(tiz-grab-env-options)" --soundcloud-creator \""$@"\"
+    eval tizonia "$(tiz-grab-env-options)" --soundcloud-creator=\""$@"\"
 }
 
 # Tizonia's SoundCloud creator search
 soundcloud-tags() {
     tiz-check-empty-params "$@" || return
-    eval tizonia "$(tiz-grab-env-options)" --soundcloud-tags \""$@"\"
+    eval tizonia "$(tiz-grab-env-options)" --soundcloud-tags=\""$@"\"
 }
 
 dirble-popular() {
@@ -103,37 +103,37 @@ dirble-popular() {
 
 dirble-station() {
     tiz-check-empty-params "$@" || return
-    eval tizonia "$(tiz-grab-env-options)" --dirble-station \""$@"\"
+    eval tizonia "$(tiz-grab-env-options)" --dirble-station=\""$@"\"
 }
 
 dirble-category() {
     tiz-check-empty-params "$@" || return
-    eval tizonia "$(tiz-grab-env-options)" --dirble-category \""$@"\"
+    eval tizonia "$(tiz-grab-env-options)" --dirble-category=\""$@"\"
 }
 
 dirble-country() {
     tiz-check-empty-params "$@" || return
-    eval tizonia "$(tiz-grab-env-options)" --dirble-country \""$@"\"
+    eval tizonia "$(tiz-grab-env-options)" --dirble-country=\""$@"\"
 }
 
 youtube-search() {
     tiz-check-empty-params "$@" || return
-    eval tizonia "$(tiz-grab-env-options)" --youtube-audio-search \""$@"\"
+    eval tizonia "$(tiz-grab-env-options)" --youtube-audio-search=\""$@"\"
 }
 
 youtube-mix() {
     tiz-check-empty-params "$@" || return
-    eval tizonia "$(tiz-grab-env-options)" --youtube-audio-mix \""$@"\"
+    eval tizonia "$(tiz-grab-env-options)" --youtube-audio-mix=\""$@"\"
 }
 
 youtube-playlist() {
     tiz-check-empty-params "$@" || return
-    eval tizonia "$(tiz-grab-env-options)" --youtube-audio-playlist \""$@"\"
+    eval tizonia "$(tiz-grab-env-options)" --youtube-audio-playlist=\""$@"\"
 }
 
 youtube-mix-search() {
     tiz-check-empty-params "$@" || return
-    eval tizonia "$(tiz-grab-env-options)" --youtube-audio-mix-search \""$@"\"
+    eval tizonia "$(tiz-grab-env-options)" --youtube-audio-mix-search=\""$@"\"
 }
 
 alias s='spotify-playlist'
