@@ -1,7 +1,7 @@
 name: tizonia
-version: 0.6.0
-summary:  The Tizonia project
-description: Tizonia\'s OpenMAX IL 1.2 framework and command-line music/cloud player.
+version: 0.7.0
+summary: Tizonia command-line cloud music player.
+description: Command-line cloud music player with support for Spotify, Google Play Music, YouTube, SoundCloud and Dirble.
 grade: devel
 confinement: devmode  # use "strict" to enforce system access only via declared interfaces
 
