@@ -57,7 +57,6 @@ build-packages:
   - wget
   - sqlite3
   - dbus-x11
-  - mercurial
 
 apps:
   tizonia:
@@ -92,43 +91,27 @@ parts:
       - libboost-all-dev
       - uuid-runtime
       - libsdl1.2-dev
-      - libvpx-dev
-      - libmp3lame-dev
-      - libfaad-dev
-      - libev-dev
+      - libvpx3
+      - libmp3lame0
+      - libfaad2
+      - libev4
       - libtag1-dev
-      - libfishsound1-dev
-      - libmediainfo-dev
+      - libfishsound1
+      - libmediainfo0v5
       - libcurl4-openssl-dev
       - libpulse-dev
-      - libmpg123-dev
-      - libvorbis-dev
-      - libopus-dev
-      - libopusfile-dev
-      - libogg-dev
-      - libflac-dev
-      - liboggz2-dev
-      - libsndfile1-dev
-      - libffi-dev
+      - libmpg123-0
+      - libvorbis0a
+      - libopus0
+      - libopusfile0
+      - libogg0
+      - libflac8
+      - liboggz2
+      - libsndfile1
+      - libffi6
       - libssl-dev
-      - python-dev
-      - python-setuptools
-      - python-pip
-      - python-decorator
-      - python-protobuf
-      - python-validictory
-      - python-bs4
-      - python-oauth2client
-      - python-dateutil
-      - python-mutagen
-      - python-crypto
-      - python-requests
-      - curl
-      - check
-      - wget
       - sqlite3
       - dbus-x11
-      - mercurial
     after:
       - pypideps
     filesets:
