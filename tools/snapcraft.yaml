@@ -5,83 +5,106 @@ description: Command-line cloud music player with support for Spotify, Google Pl
 grade: devel
 confinement: devmode  # use "strict" to enforce system access only via declared interfaces
 
-build-packages:
-  - build-essential
-  - autoconf
-  - autoconf-archive
-  - automake
-  - autotools-dev
-  - libtool
-  - libmad0-dev
-  - liblog4c-dev
-  - libasound2-dev
-  - libdbus-1-dev
-  - libdbus-c++-dev
-  - libsqlite3-dev
-  - libboost-all-dev
-  - uuid-dev
-  - libsdl1.2-dev
-  - libvpx-dev
-  - libmp3lame-dev
-  - libfaad-dev
-  - libev-dev
-  - libtag1-dev
-  - libfishsound1-dev
-  - libmediainfo-dev
-  - libcurl4-openssl-dev
-  - libpulse-dev
-  - libmpg123-dev
-  - libvorbis-dev
-  - libopus-dev
-  - libopusfile-dev
-  - libogg-dev
-  - libflac-dev
-  - liboggz2-dev
-  - libsndfile1-dev
-  - libffi-dev
-  - libssl-dev
-  - python-dev
-  - python-setuptools
-  - python-pip
-  - python-decorator
-  - python-protobuf
-  - python-validictory
-  - python-bs4
-  - python-oauth2client
-  - python-dateutil
-  - python-mutagen
-  - python-crypto
-  - python-requests
-  - curl
-  - check
-  - wget
-  - sqlite3
-  - dbus-x11
-
 apps:
   tizonia:
     command: ./bin/tizonia
+    plugs:
+      - home
+      - network
+      - network-bind
+      - pulseaudio
+      - removable-media
 
 parts:
   pypideps:
     plugin: python
+    python-version: python2
     python-packages:
       - soundcloud
       - gmusicapi
       - youtube-dl
       - pafy
-    filesets:
-      modules:
-        - lib/python2.7/dist-packages/*
-    stage:
-      - $modules
-    prime:
-      - $modules
   tizonia:
     plugin: autotools
     source: https://github.com/tizonia/tizonia-openmax-il.git
     configflags: [--silent, --enable-silent-rules]
     build-packages:
+      - build-essential
+      - autoconf
+      - autoconf-archive
+      - automake
+      - autotools-dev
+      - libtool
+      - libmad0-dev
+      - liblog4c-dev
+      - libasound2-dev
+      - libdbus-1-dev
+      - libdbus-c++-dev
+      - libsqlite3-dev
+      - libboost-all-dev
+      - uuid-dev
+      - libsdl1.2-dev
+      - libvpx-dev
+      - libmp3lame-dev
+      - libfaad-dev
+      - libev-dev
+      - libtag1-dev
+      - libfishsound1-dev
+      - libmediainfo-dev
+      - libcurl4-openssl-dev
+      - libpulse-dev
+      - libmpg123-dev
+      - libvorbis-dev
+      - libopus-dev
+      - libopusfile-dev
+      - libogg-dev
+      - libflac-dev
+      - liboggz2-dev
+      - libsndfile1-dev
+      - libffi-dev
+      - libssl-dev
+      - python-dev
+      - python-setuptools
+      - python-pip
+      - python-decorator
+      - python-protobuf
+      - python-validictory
+      - python-bs4
+      - python-oauth2client
+      - python-dateutil
+      - python-mutagen
+      - python-crypto
+      - python-requests
+      - curl
+      - check
+      - wget
+      - sqlite3
+      - dbus-x11
+    after:
+      - pypideps
+    filesets:
+      binaries:
+        - bin/*
+      headers:
+        - include/tizonia/*
+      modules:
+        - lib/python2.7/dist-packages/*
+      libraries:
+        - lib/lib*
+        - lib/tizonia0-plugins12/*
+    stage:
+      - $binaries
+      - $headers
+      - $modules
+      - $libraries
+    prime:
+      - $binaries
+      - $headers
+      - $modules
+      - $libraries
+  env:
+    plugin: nil
+    stage-packages:
       - libmad0
       - liblog4c3
       - libasound2
@@ -113,24 +136,4 @@ parts:
       - sqlite3
       - dbus-x11
     after:
-      - pypideps
-    filesets:
-      binaries:
-        - bin/*
-      headers:
-        - include/tizonia/*
-      modules:
-        - lib/python2.7/dist-packages/*
-      libraries:
-        - lib/lib*
-        - lib/tizonia0-plugins12/*
-    stage:
-      - $binaries
-      - $headers
-      - $modules
-      - $libraries
-    prime:
-      - $binaries
-      - $headers
-      - $modules
-      - $libraries
+      - tizonia
