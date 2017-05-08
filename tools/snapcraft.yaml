@@ -24,6 +24,13 @@ parts:
       - gmusicapi
       - youtube-dl
       - pafy
+    filesets:
+      modules:
+        - lib/python2.7/dist-packages/*
+    stage:
+      - $modules
+    prime:
+      - $modules
   tizonia:
     plugin: autotools
     source: https://github.com/tizonia/tizonia-openmax-il.git
@@ -61,6 +68,7 @@ parts:
       - libflac-dev
       - liboggz2-dev
       - libsndfile1-dev
+      - libspotify-dev
       - libffi-dev
       - libssl-dev
       - python-dev
@@ -91,7 +99,6 @@ parts:
         - lib/python2.7/dist-packages/*
       libraries:
         - lib/lib*
-        - lib/tizonia0-plugins12/*
     stage:
       - $binaries
       - $headers
@@ -108,21 +115,21 @@ parts:
       - libmad0
       - liblog4c3
       - libasound2
-      - libdbus-1-dev
-      - libdbus-c++-dev
+      - libdbus-1-3
+      - libdbus-c++-1-0v5
+      - libdbus-c++-bin
       - libsqlite3-0
       - libboost-all-dev
       - uuid-runtime
-      - libsdl1.2-dev
+      - libsdl1.2debian
       - libvpx3
       - libmp3lame0
       - libfaad2
       - libev4
-      - libtag1-dev
+      - libtag1v5
       - libfishsound1
       - libmediainfo0v5
       - libcurl4-openssl-dev
-      - libpulse-dev
       - libmpg123-0
       - libvorbis0a
       - libopus0
@@ -131,8 +138,9 @@ parts:
       - libflac8
       - liboggz2
       - libsndfile1
+      - libspotify12
       - libffi6
-      - libssl-dev
+      - libssl1.0.0
       - sqlite3
       - dbus-x11
     after:
