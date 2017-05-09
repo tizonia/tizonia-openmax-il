@@ -28,17 +28,6 @@ parts:
       - gmusicapi
       - youtube-dl
       - pafy
-    filesets:
-      modules:
-        - lib/python2.7/site-packages/*
-      shlibs:
-        - lib/x86_64-linux-gnu/*
-    stage:
-      - $modules
-      - $shlibs
-    prime:
-      - $modules
-      - $shlibs
   tizonia:
     plugin: autotools
     source: https://github.com/tizonia/tizonia-openmax-il.git
@@ -67,6 +56,7 @@ parts:
       - libtag1-dev
       - libfishsound1-dev
       - libmediainfo-dev
+      - libcurl3
       - libcurl4-openssl-dev
       - libpulse-dev
       - libmpg123-dev
@@ -100,7 +90,7 @@ parts:
     after:
       - pypideps
     organize:
-      ../installlib/python2.7/dist-packages: lib/python2.7/dist-packages
+      ../installlib/python2.7/dist-packages: lib/python2.7/site-packages
     filesets:
       configfiles:
         - etc/tizonia/*
@@ -109,7 +99,7 @@ parts:
       headers:
         - include/tizonia/*
       modules:
-        - lib/python2.7/dist-packages/*
+        - lib/python2.7/site-packages/*
       libraries:
         - lib/lib*
       plugins:
@@ -149,7 +139,6 @@ parts:
       - libtag1v5
       - libfishsound1
       - libmediainfo0v5
-      - libcurl4-openssl-dev
       - libmpg123-0
       - libvorbis0a
       - libopus0
@@ -159,9 +148,44 @@ parts:
       - liboggz2
       - libsndfile1
       - libspotify12
+      - libcurl3
       - libffi6
-      - libssl1.0.0
       - sqlite3
       - dbus-x11
+    filesets:
+      no-usr-lib-python2-dot-7:
+        - -usr/bin/2to3-2.7
+        - -usr/bin/pydoc2.7
+        - -usr/lib/python2.7/UserString.py
+        - -usr/lib/python2.7/base64.py
+        - -usr/lib/python2.7/cProfile.py
+        - -usr/lib/python2.7/cgi.py
+        - -usr/lib/python2.7/encodings/rot_13.py
+        - -usr/lib/python2.7/ensurepip/__init__.py
+        - -usr/lib/python2.7/keyword.py
+        - -usr/lib/python2.7/lib2to3/pgen2/token.py
+        - -usr/lib/python2.7/mimify.py
+        - -usr/lib/python2.7/pdb.py
+        - -usr/lib/python2.7/platform.py
+        - -usr/lib/python2.7/profile.py
+        - -usr/lib/python2.7/pydoc.py
+        - -usr/lib/python2.7/quopri.py
+        - -usr/lib/python2.7/sitecustomize.py
+        - -usr/lib/python2.7/smtpd.py
+        - -usr/lib/python2.7/smtplib.py
+        - -usr/lib/python2.7/symbol.py
+        - -usr/lib/python2.7/tabnanny.py
+        - -usr/lib/python2.7/test/pystone.py
+        - -usr/lib/python2.7/test/regrtest.py
+        - -usr/lib/python2.7/timeit.py
+        - -usr/lib/python2.7/trace.py
+        - -usr/lib/python2.7/uu.py
+        - -usr/lib/python2.7/webbrowser.py
+        - -usr/share/python/dh_python2
+        - -usr/share/python/pyversions.py
+    stage:
+      - $no-usr-lib-python2-dot-7
+    prime:
+      - $no-usr-lib-python2-dot-7
     after:
       - tizonia
