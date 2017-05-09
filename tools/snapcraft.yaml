@@ -1,9 +1,11 @@
 name: tizonia
 version: 0.7.0
 summary: Tizonia command-line cloud music player.
-description: Command-line cloud music player with support for Spotify, Google Play Music, YouTube, SoundCloud and Dirble.
-grade: devel
-confinement: devmode  # use "strict" to enforce system access only via declared interfaces
+description: |
+  Command-line cloud music player for Linux with support for Spotify,
+  Google Play Music, YouTube, SoundCloud and Dirble.
+grade: stable
+confinement: strict
 
 apps:
   tizonia:
@@ -13,6 +15,8 @@ apps:
       - network
       - network-bind
       - pulseaudio
+      - process-control
+      - alsa
       - removable-media
 
 parts:
@@ -26,14 +30,19 @@ parts:
       - pafy
     filesets:
       modules:
-        - lib/python2.7/dist-packages/*
+        - lib/python2.7/site-packages/*
+      shlibs:
+        - lib/x86_64-linux-gnu/*
     stage:
       - $modules
+      - $shlibs
     prime:
       - $modules
+      - $shlibs
   tizonia:
     plugin: autotools
     source: https://github.com/tizonia/tizonia-openmax-il.git
+    # source-tag: 0.7.0
     configflags: [--silent, --enable-silent-rules]
     build-packages:
       - build-essential
@@ -90,7 +99,11 @@ parts:
       - dbus-x11
     after:
       - pypideps
+    organize:
+      ../installlib/python2.7/dist-packages: lib/python2.7/dist-packages
     filesets:
+      configfiles:
+        - etc/tizonia/*
       binaries:
         - bin/*
       headers:
@@ -99,22 +112,29 @@ parts:
         - lib/python2.7/dist-packages/*
       libraries:
         - lib/lib*
+      plugins:
+        - lib/tizonia0-plugins12/lib*
     stage:
+      - $configfiles
       - $binaries
       - $headers
       - $modules
       - $libraries
+      - $plugins
     prime:
+      - $configfiles
       - $binaries
       - $headers
       - $modules
       - $libraries
+      - $plugins
   env:
     plugin: nil
     stage-packages:
       - libmad0
       - liblog4c3
       - libasound2
+      - libpulse0
       - libdbus-1-3
       - libdbus-c++-1-0v5
       - libdbus-c++-bin
