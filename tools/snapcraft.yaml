@@ -18,6 +18,7 @@ apps:
       - process-control
       - alsa
       - removable-media
+      - dbus
 
 parts:
   pypideps:
@@ -28,6 +29,14 @@ parts:
       - gmusicapi
       - youtube-dl
       - pafy
+    filesets:
+      no-include:
+        - -include
+    stage:
+      - $no-include
+    prime:
+      - $no-include
+
   tizonia:
     plugin: autotools
     source: https://github.com/tizonia/tizonia-openmax-il.git
@@ -92,32 +101,13 @@ parts:
     organize:
       ../installlib/python2.7/dist-packages: lib/python2.7/site-packages
     filesets:
-      configfiles:
-        - etc/tizonia/*
-      binaries:
-        - bin/*
-      headers:
-        - include/tizonia/*
-      modules:
-        - lib/python2.7/site-packages/*
-      libraries:
-        - lib/lib*
-      plugins:
-        - lib/tizonia0-plugins12/lib*
+      no-include:
+        - -include
     stage:
-      - $configfiles
-      - $binaries
-      - $headers
-      - $modules
-      - $libraries
-      - $plugins
+      - $no-include
     prime:
-      - $configfiles
-      - $binaries
-      - $headers
-      - $modules
-      - $libraries
-      - $plugins
+      - $no-include
+
   env:
     plugin: nil
     stage-packages:
@@ -153,6 +143,8 @@ parts:
       - sqlite3
       - dbus-x11
     filesets:
+      no-include:
+        - -include
       no-usr-lib-python2-dot-7:
         - -usr/bin/2to3-2.7
         - -usr/bin/pydoc2.7
@@ -184,8 +176,10 @@ parts:
         - -usr/share/python/dh_python2
         - -usr/share/python/pyversions.py
     stage:
+      - $no-include
       - $no-usr-lib-python2-dot-7
     prime:
+      - $no-include
       - $no-usr-lib-python2-dot-7
     after:
       - tizonia
