@@ -39,7 +39,7 @@ Debian-compatible system to build Tizonia from source.
     $ export PATH=$TIZONIA_REPO_DIR/tools:$PATH
 
     Install everything needed to build Tizonia from source (Debian derivative assumed)
-    $ cd tools/tizonia-dev-build --deps
+    $ tools/tizonia-dev-build --deps
 
 ```
 
