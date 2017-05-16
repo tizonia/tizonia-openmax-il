@@ -47,7 +47,7 @@
 #include "tizplatform_config.h"
 
 #ifndef SYSCONFDIR
-#define SYSCONFDIR "/etc/tizonia"
+#define SYSCONFDIR "/etc"
 #endif
 
 #ifdef TIZ_LOG_CATEGORY_NAME
@@ -74,7 +74,7 @@ static char * g_list_value_keys[] = {
 
 static const int g_num_list_value_keys = 1;
 
-static file_info_t g_rcfiles[] = {{"$SYSCONFDIR/tizonia.conf"},
+static file_info_t g_rcfiles[] = {{"$SYSCONFDIR/tizonia/tizonia.conf"},
                                   {"$HOME/.config/tizonia/tizonia.conf"},
                                   {"$TIZONIA_RC_FILE/tizonia.conf"}};
 
@@ -505,7 +505,7 @@ tiz_rcfile_init (tiz_rcfile_t ** pp_rc)
   assert (3 == g_num_rcfiles);
 
   snprintf (g_rcfiles[0].name, sizeof (g_rcfiles[0].name) - 1,
-            "%s/tizonia.conf", SYSCONFDIR);
+            "%s/tizonia/tizonia.conf", SYSCONFDIR);
 
   if ((p_env_str = getenv ("HOME")))
     {
