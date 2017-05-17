@@ -12,4 +12,8 @@ if [ ! -f $TIZONIA_USER_CONF_FILE ]; then
     # Now update the configuration paths to point inside the snap folders
     sed -irn "s%/lib/tizonia0\-plugins12%$SNAP/lib/tizonia0-plugins12%" $TIZONIA_USER_CONF_FILE
     sed -irn "s%/share/tizrmd%$SNAP/share/tizrmd%" $TIZONIA_USER_CONF_FILE
+else
+    echo "tizonia: configure hook - tizonia.conf exists"
 fi
+
+echo "tizonia: configure hook finished successfully"
