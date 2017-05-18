@@ -245,36 +245,41 @@ def generate_search_query(term):
     return query_string
 
 def obtain_stream(inqueue, outqueue):
-    """ Return the stream object after instantiating the pafy objecr. """
+    """ Return the stream object after instantiating the pafy object. """
 
     for stream in iter(inqueue.get, 'STOP'):
-        try:
-            logging.info("index     : %d", stream['q'])
-            if not stream.get('v') or not stream.get('a'):
-                logging.info("ytid : %s", stream['i'].ytid)
-                video = stream.get('v')
-                if not video:
-                    video = pafy.new(stream['i'].ytid)
-                audio = video.getbestaudio(preftype="webm")
-                if not audio:
-                    logging.info("no suitable audio found")
-                    continue
-                stream.update({'a': audio, 'v': video})
+        x = 1
+        audioFound = False
+        while not audioFound and x < 5:
+            x +=1
+            try:
+                logging.info("index     : %d", stream['q'])
+                if not stream.get('v') or not stream.get('a'):
+                    logging.info("ytid : %s", stream['i'].ytid)
+                    video = stream.get('v')
+                    if not video:
+                        video = pafy.new(stream['i'].ytid)
+                    audio = video.getbestaudio(preftype="webm")
+                    if not audio:
+                        logging.info("no suitable audio found")
+                        continue
+                    stream.update({'a': audio, 'v': video})
 
-            # streams = stream.get('v').audiostreams[::-1]
-            # pprint.pprint(streams)
-            # dump_stream_info(streams)
+                # streams = stream.get('v').audiostreams[::-1]
+                # pprint.pprint(streams)
+                # dump_stream_info(streams)
 
-            logging.info("index     : %d", stream['q'])
-            logging.info("url       : %s", stream['a'].url)
-            logging.info("title     : %s", to_ascii(stream['a'].title).encode("utf-8"))
-            logging.info("bitrate   : %s", stream['a'].bitrate)
-            logging.info("extension : %s", stream['a'].extension)
-            outqueue.put(stream)
+                logging.info("index     : %d", stream['q'])
+                logging.info("url       : %s", stream['a'].url)
+                logging.info("title     : %s", to_ascii(stream['a'].title).encode("utf-8"))
+                logging.info("bitrate   : %s", stream['a'].bitrate)
+                logging.info("extension : %s", stream['a'].extension)
+                outqueue.put(stream)
+                audioFound = True
 
-        except IOError:
-            print_err("[YouTube] Could not retrieve the audio stream URL for '{0}'"\
-                      .format(to_ascii(stream['i'].ytid).encode("utf-8")))
+            except IOError:
+                print_err("[YouTube] Could not retrieve the audio stream URL for '{0}'"\
+                          .format(to_ascii(stream['i'].ytid).encode("utf-8")))
 
 class VideoInfo(object):
     """ Class to represent a YouTube video in the queue.
