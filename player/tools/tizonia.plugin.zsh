@@ -21,16 +21,28 @@ spotify-playlist() {
     eval tizonia "$(tiz-grab-env-options)" --spotify-playlist=\""$@"\"
 }
 
-# Tizonia's Google Play Music artist search
+# Tizonia's Google Play Music artist unlimited search
 gmusic-artist-unlimited() {
     tiz-check-empty-params "$@" || return
     eval tizonia "$(tiz-grab-env-options)" --gmusic-unlimited-artist=\""$@"\"
 }
 
-# Tizonia's Google Play Music album search
+# Tizonia's Google Play Music artist search
+gmusic-artist() {
+    tiz-check-empty-params "$@" || return
+    eval tizonia "$(tiz-grab-env-options)" --gmusic-artist=\""$@"\"
+}
+
+# Tizonia's Google Play Music album unlimited search
 gmusic-album-unlimited() {
     tiz-check-empty-params "$@" || return
     eval tizonia "$(tiz-grab-env-options)" --gmusic-unlimited-album=\""$@"\"
+}
+
+# Tizonia's Google Play Music album search
+gmusic-album() {
+    tiz-check-empty-params "$@" || return
+    eval tizonia "$(tiz-grab-env-options)" --gmusic-album=\""$@"\"
 }
 
 # Tizonia's Google Play Music song search
