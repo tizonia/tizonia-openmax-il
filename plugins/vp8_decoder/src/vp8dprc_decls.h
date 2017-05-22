@@ -46,7 +46,8 @@ extern "C"
   enum vp8dprc_stream_type
   {
     STREAM_RAW,
-    STREAM_IVF
+    STREAM_IVF,
+    STREAM_UNKNOWN,
   };
 
   typedef struct vp8d_codec_buffer vp8d_codec_buffer_t;
