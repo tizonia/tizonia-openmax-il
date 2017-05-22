@@ -19,6 +19,8 @@
 # Script to package all the Tizonia sub-projects and create Debian packages
 #
 
+source tizonia-common.inc
+
 # Globals
 TIZONIA_DIR="$HOME/work/tizonia" # Default value for Tizonia repo's directory
 DEBIAN_DIR="$HOME/work/debian" # Default value for the debian packaging directory
@@ -26,20 +28,6 @@ TEMP_DIR="$HOME/temp" # Default value for the debian packaging directory
 DPKG_BUILD_PKG_CMD=""
 DISTRO_ID=""
 DISTRO_CODENAME=""
-
-# Constants
-readonly E_BADARGS=85
-readonly E_NOFILE=86
-readonly E_BAD_CLONE=87
-readonly CWD=$(pwd)
-
-readonly RED=1
-readonly GRN=2
-readonly YEL=3
-readonly BLU=4
-readonly MAG=5
-readonly CYA=6
-readonly WHI=7
 
 declare -ar TIZ_SUPPORTED_DISTROS=( \
     ubuntu \
@@ -129,83 +117,6 @@ declare -ar TIZ_DEBIAN_PKGS=( \
     python-stdeb \
 )
 
-declare -Ar TIZ_PROJECT_DIRS=( \
-    [tizilheaders]="include" \
-    [tizgmusicproxy]="clients/gmusic/gmusicproxy" \
-    [tizgmusic]="clients/gmusic/libtizgmusic" \
-    [tizsoundcloudproxy]="clients/soundcloud/soundcloudproxy" \
-    [tizsoundcloud]="clients/soundcloud/libtizsoundcloud" \
-    [tizdirbleproxy]="clients/dirble/dirbleproxy" \
-    [tizdirble]="clients/dirble/libtizdirble" \
-    [tizyoutubeproxy]="clients/youtube/youtubeproxy" \
-    [tizyoutube]="clients/youtube/libtizyoutube" \
-    [tizplatform]="libtizplatform" \
-    [tizrmd]="rm/tizrmd" \
-    [tizrmproxy]="rm/libtizrmproxy" \
-    [tizcore]="libtizcore" \
-    [tizonia]="libtizonia" \
-    [tizaacdec]="plugins/aac_decoder" \
-    [tizfr]="plugins/file_reader" \
-    [tizfw]="plugins/file_writer" \
-    [tizflacdec]="plugins/flac_decoder" \
-    [tizhttprnd]="plugins/http_renderer" \
-    [tizhttpsrc]="plugins/http_source" \
-    [tizmp3dec]="plugins/mp3_decoder" \
-    [tizmp3enc]="plugins/mp3_encoder" \
-    [tizmp3meta]="plugins/mp3_metadata" \
-    [tizmpgdec]="plugins/mpeg_audio_decoder" \
-    [tizoggdmux]="plugins/ogg_demuxer" \
-    [tizopusdec]="plugins/opus_decoder" \
-    [tizopusfiledec]="plugins/opusfile_decoder" \
-    [tizpcmdec]="plugins/pcm_decoder" \
-    [tizalsapcmrnd]="plugins/pcm_renderer_alsa" \
-    [tizpulsepcmrnd]="plugins/pcm_renderer_pa" \
-    [tizspotifysrc]="plugins/spotify_source" \
-    [tizvorbisdec]="plugins/vorbis_decoder" \
-    [tizwebmdmux]="plugins/webm_demuxer" \
-    [tizonia-player]="player" \
-    [tizonia-config]="config" \
-)
-
-readonly TIZ_PROJECTS=(${!TIZ_PROJECT_DIRS[@]})
-readonly TIZ_PROJECTS_ORDERED=( \
-    tizilheaders \
-    tizgmusicproxy \
-    tizgmusic \
-    tizsoundcloudproxy \
-    tizsoundcloud \
-    tizdirbleproxy \
-    tizdirble \
-    tizyoutubeproxy \
-    tizyoutube \
-    tizplatform \
-    tizrmd \
-    tizrmproxy \
-    tizcore \
-    tizonia \
-    tizaacdec \
-    tizfr \
-    tizfw \
-    tizflacdec \
-    tizhttprnd \
-    tizhttpsrc \
-    tizmp3dec \
-    tizmp3enc \
-    tizmp3meta \
-    tizmpgdec \
-    tizoggdmux \
-    tizopusdec \
-    tizopusfiledec \
-    tizpcmdec \
-    tizalsapcmrnd \
-    tizpulsepcmrnd \
-    tizspotifysrc \
-    tizvorbisdec \
-    tizwebmdmux \
-    tizonia-player \
-    tizonia-config \
-)
-
 readonly TIZ_PYTHON_PROJECTS=( \
     tizgmusicproxy \
     tizsoundcloudproxy \
@@ -251,6 +162,7 @@ declare -Ar TIZ_PROJECT_DIST_CMD=( \
     [tizpulsepcmrnd]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizspotifysrc]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizvorbisdec]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
+    [tizvp8dec]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizwebmdmux]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizonia-player]="$TIZ_C_CPP_PROJECT_DIST_PLAYER_CMD" \
     [tizonia-config]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
@@ -292,6 +204,7 @@ declare -Ar TIZ_PROJECT_DH_MAKE_CMD=( \
     [tizpulsepcmrnd]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizspotifysrc]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizvorbisdec]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
+    [tizvp8dec]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizwebmdmux]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizonia-player]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizonia-config]="$TIZ_PROJECT_DH_MAKE_I_CMD" \
@@ -330,6 +243,7 @@ declare -Ar TIZ_PROJECT_MAIN_PKG=( \
     [tizpulsepcmrnd]="libtizpulsepcmrnd0" \
     [tizspotifysrc]="libtizspotifysrc0" \
     [tizvorbisdec]="libtizvorbisdec0" \
+    [tizvp8dec]="libtizvp8dec0" \
     [tizwebmdmux]="libtizwebmdmux0" \
     [tizonia-player]="tizonia-player" \
     [tizonia-config]="tizonia-all" \
@@ -337,44 +251,6 @@ declare -Ar TIZ_PROJECT_MAIN_PKG=( \
 
 readonly TIZ_DPKG_BUILD_UNSIGNED_CMD="dpkg-buildpackage -us -uc -rfakeroot"
 readonly TIZ_DPKG_BUILD_SIGNED_CMD="dpkg-buildpackage --force-sign -rfakeroot"
-
-##################################################################
-# Simple function to print with color
-#
-# Globals
-#
-# Arguments:
-#
-# Returns:
-#   None
-##################################################################
-function pretty_print {
-    echo "$(tput setaf $1)$2$(tput sgr 0)" 1>&2
-}
-
-##################################################################
-# Simple function to print a banner
-#
-# Globals
-#
-# Arguments:
-#
-# Returns:
-#   None
-##################################################################
-function print_banner {
-    local msg="$1"
-    local color="$2"
-    local msg_sz=${#msg}
-    local dashes=$(print_dashes "$msg_sz")
-    if [[ "$color" == "" ]]; then
-        color="$RED"
-    fi
-    echo
-    pretty_print "$color" "$dashes"
-    pretty_print "$color" "$msg"
-    pretty_print "$color" "$dashes"
-}
 
 ##################################################################
 # Usage details
