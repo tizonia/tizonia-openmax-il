@@ -44,6 +44,8 @@ NOT_UTF8_ENVIRONMENT = "UTF-8" not in os.environ.get("LANG", "")
 
 WORKER_PROCESSES = 4
 
+STREAM_OBJECT_ACQUISITION_MAX_ATTEMPTS = 5
+
 FORMAT = '[%(asctime)s] [%(levelname)5s] [%(thread)d] ' \
          '[%(module)s:%(funcName)s:%(lineno)d] - %(message)s'
 
@@ -248,9 +250,9 @@ def obtain_stream(inqueue, outqueue):
     """ Return the stream object after instantiating the pafy object. """
 
     for stream in iter(inqueue.get, 'STOP'):
-        x = 1
+        x = 0
         audioFound = False
-        while not audioFound and x < 5:
+        while not audioFound and x < STREAM_OBJECT_ACQUISITION_MAX_ATTEMPTS:
             x +=1
             try:
                 logging.info("index     : %d", stream['q'])
@@ -278,8 +280,10 @@ def obtain_stream(inqueue, outqueue):
                 audioFound = True
 
             except IOError:
-                print_err("[YouTube] Could not retrieve the audio stream URL for '{0}'"\
-                          .format(to_ascii(stream['i'].ytid).encode("utf-8")))
+                print_err("[YouTube] Could not retrieve the audio stream URL for '{}' " \
+                          "(Attempt {} of {})."\
+                          .format(to_ascii(stream['i'].ytid).encode("utf-8"),
+                                  x, STREAM_OBJECT_ACQUISITION_MAX_ATTEMPTS))
 
 class VideoInfo(object):
     """ Class to represent a YouTube video in the queue.
