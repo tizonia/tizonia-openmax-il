@@ -52,6 +52,7 @@ Depends: tizilheaders,
     libtizpulsepcmrnd0,
     libtizspotifysrc0,
     libtizvorbisdec0,
+    libtizvp8dec0,
     tizonia-player,
     tizonia-config
 Description: Tizonia command-line music player (metapackage)
