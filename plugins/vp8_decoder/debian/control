@@ -25,7 +25,7 @@ Depends: libtizvp8dec0 (= ${binary:Version}),
 Description: Tizonia's OpenMAX IL VP8 decoder library, development files
  Tizonia's OpenMAX IL VP8 decoder library.
  .
- This package contains the development library libtizvp8dec.
+ This package contains the development library libtizvp8d.
 
 Package: libtizvp8dec0
 Section: libs
@@ -34,7 +34,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Tizonia's OpenMAX IL VP8 decoder library, run-time library
  Tizonia's OpenMAX IL VP8 decoder library.
  .
- This package contains the runtime library libtizvp8dec.
+ This package contains the runtime library libtizvp8d.
 
 Package: libtizvp8dec0-dbg
 Section: debug
@@ -44,4 +44,4 @@ Depends: libtizvp8dec0 (= ${binary:Version}), ${misc:Depends}
 Description: Tizonia's OpenMAX IL VP8 decoder library, debug symbols
  Tizonia's OpenMAX IL VP8 decoder library.
  .
- This package contains the detached debug symbols for libtizvp8dec.
+ This package contains the detached debug symbols for libtizvp8d.
