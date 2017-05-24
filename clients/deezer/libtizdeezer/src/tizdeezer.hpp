@@ -55,7 +55,13 @@ public:
   void stop ();
   void deinit ();
 
+  int play_album (const std::string &album);
+
+  void clear_queue ();
   void set_playback_mode (const playback_mode mode);
+
+  const char * get_next_url ();
+  const char * get_prev_url ();
 
 private:
   int get_current_track ();
@@ -64,7 +70,7 @@ private:
   std::string oauth_token_;
   boost::python::object py_main_;
   boost::python::object py_global_;
-  boost::python::object py_gm_proxy_;
+  boost::python::object py_dz_proxy_;
 };
 
 #endif  // TIZDEEZER_HPP

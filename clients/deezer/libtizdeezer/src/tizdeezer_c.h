@@ -87,6 +87,52 @@ void tiz_deezer_set_playback_mode (tiz_deezer_t *ap_deezer,
                                    const tiz_deezer_playback_mode_t mode);
 
 /**
+ * Add the tracks of the specified album to the playback queue.
+ *
+ * After calling this method, the various tiz_deezer_get* methods can be
+ * used to interact with the playback queue.
+ *
+ * @ingroup libtizdeezer
+ *
+ * @param ap_deezer The deezer handle.
+ * @param ap_album The album name.
+ *
+ * @return 0 on success
+ */
+int tiz_deezer_play_album (tiz_deezer_t *ap_deezer, const char *ap_album);
+
+/**
+ * Clear the playback queue.
+ *
+ * @ingroup libtizdeezer
+ *
+ * @param ap_deezer The deezer handle.
+ */
+void tiz_deezer_clear_queue (tiz_deezer_t *ap_deezer);
+
+/**
+ * Retrieve the next track url
+ *
+ * The the playback queue pointer moves one position forwards.
+ *
+ * @ingroup libtizdeezer
+ *
+ * @param ap_deezer The deezer handle.
+ */
+const char *tiz_deezer_get_next_url (tiz_deezer_t *ap_deezer);
+
+/**
+ * Retrieve the previous track url.
+ *
+ * The the playback queue pointer moves one position backwards.
+ *
+ * @ingroup libtizdeezer
+ *
+ * @param ap_deezer The deezer handle.
+ */
+const char *tiz_deezer_get_prev_url (tiz_deezer_t *ap_deezer);
+
+/**
  * Destroy the deezer handle.
  *
  * @ingroup libtizdeezer
