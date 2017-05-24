@@ -21,7 +21,7 @@
  * @file   sdlivr.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia - SDL Video Renderer component
+ * @brief  Tizonia - SDL Image/Video Renderer component
  *
  *
  */

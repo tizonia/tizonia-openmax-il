@@ -21,7 +21,7 @@
  * @file   sdlivrprc_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia - SDL Video Renderer processor class decls
+ * @brief  Tizonia - SDL Image/Video Renderer processor class decls
  *
  *
  */
