@@ -21,7 +21,7 @@
  * @file   sdlivr.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia - SDL Video Renderer constants
+ * @brief  Tizonia - SDL Image/Video Renderer constants
  *
  *
  */
