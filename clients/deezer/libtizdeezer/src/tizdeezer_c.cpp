@@ -110,6 +110,35 @@ extern "C" void tiz_deezer_set_playback_mode (
       static_cast< tizdeezer::playback_mode >(mode));
 }
 
+extern "C" int tiz_deezer_play_album (tiz_deezer_t *ap_deezer,
+                                      const char *ap_album)
+{
+  assert (ap_deezer);
+  assert (ap_deezer->p_proxy_);
+  return ap_deezer->p_proxy_->play_album (ap_album);
+}
+
+extern "C" void tiz_deezer_clear_queue (tiz_deezer_t *ap_deezer)
+{
+  assert (ap_deezer);
+  assert (ap_deezer->p_proxy_);
+  ap_deezer->p_proxy_->clear_queue ();
+}
+
+extern "C" const char *tiz_deezer_get_next_url (tiz_deezer_t *ap_deezer)
+{
+  assert (ap_deezer);
+  assert (ap_deezer->p_proxy_);
+  return ap_deezer->p_proxy_->get_next_url ();
+}
+
+extern "C" const char *tiz_deezer_get_prev_url (tiz_deezer_t *ap_deezer)
+{
+  assert (ap_deezer);
+  assert (ap_deezer->p_proxy_);
+  return ap_deezer->p_proxy_->get_prev_url ();
+}
+
 extern "C" void tiz_deezer_destroy (tiz_deezer_t *ap_deezer)
 {
   if (ap_deezer)

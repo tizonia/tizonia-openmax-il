@@ -75,11 +75,11 @@ namespace
   }
 
   void start_deezer (boost::python::object &py_global,
-                     boost::python::object &py_gm_proxy,
+                     boost::python::object &py_dz_proxy,
                      const std::string &oauth_token)
   {
     bp::object pydeezerproxy = py_global["tizdeezerproxy"];
-    py_gm_proxy
+    py_dz_proxy
         = pydeezerproxy (oauth_token.c_str ());
   }
 }
@@ -104,20 +104,79 @@ int tizdeezer::start ()
 {
   int rc = 0;
   try_catch_wrapper (
-      start_deezer (py_global_, py_gm_proxy_, oauth_token_));
+      start_deezer (py_global_, py_dz_proxy_, oauth_token_));
   return rc;
 }
 
 void tizdeezer::stop ()
 {
   int rc = 0;
-  // try_catch_wrapper (py_gm_proxy_.attr ("logout")());
+  // try_catch_wrapper (py_dz_proxy_.attr ("logout")());
   (void)rc;
 }
 
 void tizdeezer::deinit ()
 {
   // boost::python doesn't support Py_Finalize() yet!
+}
+
+int tizdeezer::play_album (const std::string &album,
+                           const bool a_unlimited_search)
+{
+  int rc = 0;
+  try_catch_wrapper (py_dz_proxy_.attr ("enqueue_album") (bp::object (album)));
+  return rc;
+}
+
+const char *tizdeezer::get_next_url ()
+{
+  current_url_.clear ();
+  try
+    {
+      const char *p_next_url
+          = bp::extract< char const * >(py_dz_proxy_.attr ("next_url")());
+      if (p_next_url && !get_current_song ())
+        {
+          current_url_.assign (p_next_url);
+        }
+    }
+  catch (bp::error_already_set &e)
+    {
+      PyErr_PrintEx (0);
+    }
+  catch (...)
+    {
+    }
+  return current_url_.empty () ? NULL : current_url_.c_str ();
+}
+
+const char *tizdeezer::get_prev_url ()
+{
+  current_url_.clear ();
+  try
+    {
+      const char *p_prev_url
+          = bp::extract< char const * >(py_dz_proxy_.attr ("prev_url")());
+      if (p_prev_url && !get_current_song ())
+        {
+          current_url_.assign (p_prev_url);
+        }
+    }
+  catch (bp::error_already_set &e)
+    {
+      PyErr_PrintEx (0);
+    }
+  catch (...)
+    {
+    }
+  return current_url_.empty () ? NULL : current_url_.c_str ();
+}
+
+void tizdeezer::clear_queue ()
+{
+  int rc = 0;
+  try_catch_wrapper (py_dz_proxy_.attr ("clear_queue")());
+  (void)rc;
 }
 
 void tizdeezer::set_playback_mode (const playback_mode mode)
@@ -127,12 +186,12 @@ void tizdeezer::set_playback_mode (const playback_mode mode)
     {
     case PlaybackModeNormal:
       {
-        try_catch_wrapper (py_gm_proxy_.attr ("set_play_mode")("NORMAL"));
+        try_catch_wrapper (py_dz_proxy_.attr ("set_play_mode")("NORMAL"));
       }
       break;
     case PlaybackModeShuffle:
       {
-        try_catch_wrapper (py_gm_proxy_.attr ("set_play_mode")("SHUFFLE"));
+        try_catch_wrapper (py_dz_proxy_.attr ("set_play_mode")("SHUFFLE"));
       }
       break;
     default:
@@ -151,7 +210,7 @@ int tizdeezer::get_current_track ()
   current_title_.clear ();
 
   const bp::tuple &info1 = bp::extract< bp::tuple >(
-      py_gm_proxy_.attr ("current_track_title_and_user")());
+      py_dz_proxy_.attr ("current_track_title_and_user")());
   const char *p_user = bp::extract< char const * >(info1[0]);
   const char *p_title = bp::extract< char const * >(info1[1]);
 
@@ -165,7 +224,7 @@ int tizdeezer::get_current_track ()
     }
 
   int duration
-      = bp::extract< int >(py_gm_proxy_.attr ("current_track_duration")());
+      = bp::extract< int >(py_dz_proxy_.attr ("current_track_duration")());
 
   int seconds = 0;
   current_duration_.clear ();
@@ -201,24 +260,24 @@ int tizdeezer::get_current_track ()
   current_duration_.append (seconds_str);
   current_duration_.append ("s");
 
-  const int track_year = bp::extract< int >(py_gm_proxy_.attr ("current_track_year")());
+  const int track_year = bp::extract< int >(py_dz_proxy_.attr ("current_track_year")());
   current_track_year_.assign (boost::lexical_cast< std::string >(track_year));
 
   const char *p_track_permalink = bp::extract< char const * >(
-      py_gm_proxy_.attr ("current_track_permalink")());
+      py_dz_proxy_.attr ("current_track_permalink")());
   if (p_track_permalink)
     {
       current_track_permalink_.assign (p_track_permalink);
     }
 
   const char *p_track_license = bp::extract< char const * >(
-      py_gm_proxy_.attr ("current_track_license")());
+      py_dz_proxy_.attr ("current_track_license")());
   if (p_track_license)
     {
       current_track_license_.assign (p_track_license);
     }
 
-  const int track_likes = bp::extract< int >(py_gm_proxy_.attr ("current_track_likes")());
+  const int track_likes = bp::extract< int >(py_dz_proxy_.attr ("current_track_likes")());
   current_track_likes_.assign (boost::lexical_cast< std::string >(track_likes));
 
   if (p_user || p_title)
