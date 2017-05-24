@@ -1,0 +1,47 @@
+Source: tizdslivrnd
+Priority: optional
+Maintainer: Juan A. Rubio <juan.rubio@aratelia.com>
+Build-Depends: debhelper (>= 8.0.0),
+               dh-autoreconf,
+               tizilheaders,
+               libtizplatform-dev,
+               libtizonia-dev,
+               libsdl1.2-dev
+Standards-Version: 3.9.4
+Section: libs
+Homepage: http://tizonia.org
+Vcs-Git: git://github.com/tizonia/tizonia-openmax-il.git
+Vcs-Browser: https://github.com/tizonia/tizonia-openmax-il
+
+Package: libtizdslivrnd-dev
+Section: libdevel
+Architecture: any
+Depends: libtizdslivrnd0 (= ${binary:Version}),
+         ${misc:Depends},
+         tizilheaders,
+         libtizplatform-dev,
+         libtizonia-dev,
+         libsdl1.2-dev
+Description: Tizonia's OpenMAX IL SDL Image/Video Renderer library, development files
+ Tizonia's OpenMAX IL SDL Image/Video Renderer library.
+ .
+ This package contains the development library libtizdslivr.
+
+Package: libtizdslivrnd0
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Tizonia's OpenMAX IL SDL Image/Video Renderer library, run-time library
+ Tizonia's OpenMAX IL SDL Image/Video Renderer library.
+ .
+ This package contains the runtime library libtizdslivr.
+
+Package: libtizdslivrnd0-dbg
+Section: debug
+Priority: extra
+Architecture: any
+Depends: libtizdslivrnd0 (= ${binary:Version}), ${misc:Depends}
+Description: Tizonia's OpenMAX IL SDL Image/Video Renderer library, debug symbols
+ Tizonia's OpenMAX IL SDL Image/Video Renderer library.
+ .
+ This package contains the detached debug symbols for libtizdslivr.
