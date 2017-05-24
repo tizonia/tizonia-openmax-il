@@ -27,11 +27,12 @@ from __future__ import unicode_literals
 import sys
 import logging
 import random
-import deezer
 import collections
 import unicodedata
 from requests.exceptions import HTTPError
 from operator import itemgetter
+
+from .deezer import DeezerClient
 
 # For use during debugging
 # import pprint
@@ -115,11 +116,8 @@ class tizdeezerproxy(object):
     on behalf of the user and creates and manages a playback queue.
 
     """
-    def __init__(self, oauth_token):
-        self.__api = deezer.Client(
-            access_token=oauth_token
-        )
-
+    def __init__(self, data_dir, user_id):
+        self.__api = DeezerClient(data_dir, user_id)
         self.queue = list()
         self.queue_index = -1
         self.play_queue_order = list()
@@ -141,6 +139,38 @@ class tizdeezerproxy(object):
         """
         self.current_play_mode = getattr(self.play_modes, mode)
         self.__update_play_queue_order()
+
+    def enqueue_album(self, arg):
+        """ Search the user's library for albums with a given name and adds
+        them to the playback queue.
+
+        """
+        try:
+            if not album and tentative_album:
+                album = tentative_album
+                artist = tentative_artist
+                print_wrn("[Google Play Music] '{0}' not found. " \
+                          "Playing '{1}' instead." \
+                          .format(arg.encode('utf-8'), \
+                          album.encode('utf-8')))
+            if not album:
+                # Play some random album from the library
+                random.seed()
+                artist = random.choice(self.library.keys())
+                album = random.choice(self.library[artist].keys())
+                print_wrn("[Google Play Music] '{0}' not found. "\
+                          "Feeling lucky?." \
+                          .format(arg.encode('utf-8')))
+
+            if not album:
+                raise KeyError("Album not found : {0}".format(arg))
+
+            self.__enqueue_tracks(self.library[artist][album])
+            print_wrn("[Google Play Music] Playing '{0}'." \
+                      .format(to_ascii(album)))
+            self.__update_play_queue_order()
+        except KeyError:
+            raise KeyError("Album not found : {0}".format(arg))
 
 if __name__ == "__main__":
     tizdeezerproxy()
