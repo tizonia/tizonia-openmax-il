@@ -168,24 +168,36 @@ is_ivf (OMX_U8 * p_buf, unsigned int * fourcc, unsigned int * width,
 }
 
 static int
-find_stream_info (OMX_U8 * p_buf, vp8dprc_stream_type_t * stream,
-                  unsigned int * fourcc, unsigned int * width,
-                  unsigned int * height, unsigned int * fps_den,
-                  unsigned int * fps_num)
+identify_stream (vp8d_prc_t * ap_prc, OMX_U8 * ap_buf,
+                 unsigned int * ap_fourcc, unsigned int * ap_width,
+                 unsigned int * ap_height, unsigned int * ap_fps_den,
+                 unsigned int * ap_fps_num)
 {
   int rc = EXIT_SUCCESS;
 
-  if (is_ivf (p_buf, fourcc, width, height, fps_den, fps_num))
+  assert (ap_prc);
+  assert (ap_buf);
+  assert (ap_fourcc);
+  assert (ap_width);
+  assert (ap_height);
+  assert (ap_fps_den);
+  assert (ap_fps_num);
+
+  if (is_ivf (ap_buf, ap_fourcc, ap_width, ap_height, ap_fps_den, ap_fps_num))
     {
-      *stream = STREAM_IVF;
+      TIZ_DEBUG(handleOf(ap_prc), "STREAM_IVF");
+      ap_prc->stream_type_ = STREAM_IVF;
     }
-  else if (is_raw (p_buf, fourcc, width, height, fps_den, fps_num))
+  else if (is_raw (ap_buf, ap_fourcc, ap_width, ap_height, ap_fps_den,
+                   ap_fps_num))
     {
-      *stream = STREAM_RAW;
+      TIZ_DEBUG(handleOf(ap_prc), "STREAM_RAW");
+      ap_prc->stream_type_ = STREAM_RAW;
     }
   else
     {
-      *stream = STREAM_UNKNOWN;
+      TIZ_DEBUG(handleOf(ap_prc), "STREAM_UNKNOWN");
+      ap_prc->stream_type_ = STREAM_UNKNOWN;
       rc = EXIT_FAILURE;
     }
 
@@ -343,25 +355,37 @@ buffer_filled (vp8d_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * ap_hdr)
 static void
 obtain_stream_info (vp8d_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * p_inhdr)
 {
-  unsigned int fourcc, width, height, fps_den, fps_num;
+  unsigned int fourcc = 0;
+  unsigned int width = 0;
+  unsigned int height = 0;
+  unsigned int fps_den = 0;
+  unsigned int fps_num = 0;
 
-  find_stream_info (p_inhdr->pBuffer, &(ap_prc->stream_type_), &fourcc, &width,
-                    &height, &fps_den, &fps_num);
+  assert (ap_prc);
+  assert (p_inhdr);
 
-  TIZ_TRACE (handleOf (ap_prc),
-             "asdasd Stream [%s] fourcc = [%d] width [%d] height [%d] "
-             "fps_den [%d] fps_num [%d]",
-             ap_prc->stream_type_ == STREAM_RAW
-               ? "RAW"
-               : (ap_prc->stream_type_ == STREAM_IVF ? "IVF" : "UKNOWN"),
-             fourcc, width, height, fps_den, fps_num);
-
-  if (STREAM_IVF == ap_prc->stream_type_)
+  if (EXIT_SUCCESS == identify_stream (ap_prc, p_inhdr->pBuffer, &fourcc,
+                                       &width, &height, &fps_den, &fps_num))
     {
-      /* Make sure we skip the IVF header the next time we read from the
-       * buffer */
-      p_inhdr->nOffset += 32;
-      p_inhdr->nFilledLen -= 32;
+      TIZ_TRACE (handleOf (ap_prc),
+                 "Stream [%s] fourcc = [%d] width [%d] height [%d] "
+                 "fps_den [%d] fps_num [%d]",
+                 ap_prc->stream_type_ == STREAM_RAW
+                   ? "RAW"
+                   : (ap_prc->stream_type_ == STREAM_IVF ? "IVF" : "UKNOWN"),
+                 fourcc, width, height, fps_den, fps_num);
+
+      if (STREAM_IVF == ap_prc->stream_type_)
+        {
+          /* Make sure we skip the IVF header the next time we read from the
+           * buffer */
+          p_inhdr->nOffset += 32;
+          p_inhdr->nFilledLen -= 32;
+        }
+    }
+  else
+    {
+      TIZ_ERROR (handleOf (ap_prc), "Unable to identify the stream type");
     }
 }
 
