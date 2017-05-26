@@ -39,6 +39,7 @@ readonly SKEMA_BIN_DIR="$SKEMA_DIR"/bin
 declare -ar SKEMA_EXEMPT_SUITES=( \
     "Mp3Streaming" \
     "Vp8Playback" \
+    "RawVp8Playback" \
     "VorbisDecodeBaseProfile" \
     "AacPlayback" \
     "Mp3StreamingClient" \
