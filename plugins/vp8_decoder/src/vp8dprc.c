@@ -87,27 +87,35 @@ mem_get_le32 (const void * vmem)
 }
 
 static int
-is_raw (OMX_U8 * p_buf, unsigned int * fourcc, unsigned int * width,
-        unsigned int * height, unsigned int * fps_den, unsigned int * fps_num)
+is_raw (const vp8d_prc_t * ap_prc, OMX_U8 * ap_buf, unsigned int * ap_fourcc,
+        unsigned int * ap_width, unsigned int * ap_height,
+        unsigned int * ap_fps_den, unsigned int * ap_fps_num)
 {
-  /*   unsigned char buf[32]; */
   vpx_codec_stream_info_t si;
   int i = 0;
   int is_raw = 0;
 
+  assert (ap_prc);
+  assert (ap_buf);
+  assert (ap_fourcc);
+  assert (ap_width);
+  assert (ap_height);
+  assert (ap_fps_den);
+  assert (ap_fps_num);
+
   si.sz = sizeof (si);
 
-  /*   if (mem_get_le32 (buf) < 256 * 1024 * 1024) */
   for (i = 0; i < sizeof (ifaces) / sizeof (ifaces[0]); i++)
     {
-      if (!vpx_codec_peek_stream_info (ifaces[i].iface, p_buf + 4, 32 - 4, &si))
+      if (VPX_CODEC_OK
+          == vpx_codec_peek_stream_info (ifaces[i].iface, ap_buf, 32, &si))
         {
           is_raw = 1;
-          *fourcc = ifaces[i].fourcc;
-          *width = si.w;
-          *height = si.h;
-          *fps_num = 30;
-          *fps_den = 1;
+          *ap_fourcc = ifaces[i].fourcc;
+          *ap_width = si.w;
+          *ap_height = si.h;
+          *ap_fps_num = 30;
+          *ap_fps_den = 1;
           break;
         }
     }
@@ -115,43 +123,55 @@ is_raw (OMX_U8 * p_buf, unsigned int * fourcc, unsigned int * width,
 }
 
 static int
-is_ivf (OMX_U8 * p_buf, unsigned int * fourcc, unsigned int * width,
-        unsigned int * height, unsigned int * fps_den, unsigned int * fps_num)
+is_ivf (const vp8d_prc_t * ap_prc, OMX_U8 * ap_buf, unsigned int * ap_fourcc,
+        unsigned int * ap_width, unsigned int * ap_height,
+        unsigned int * ap_fps_den, unsigned int * ap_fps_num)
 {
   int is_ivf = 0;
 
-  if (p_buf[0] == 'D' && p_buf[1] == 'K' && p_buf[2] == 'I' && p_buf[3] == 'F')
+  assert (ap_prc);
+  assert (ap_buf);
+  assert (ap_fourcc);
+  assert (ap_width);
+  assert (ap_height);
+  assert (ap_fps_den);
+  assert (ap_fps_num);
+
+  if (ap_buf[0] == 'D' && ap_buf[1] == 'K' && ap_buf[2] == 'I'
+      && ap_buf[3] == 'F')
     {
       is_ivf = 1;
 
-      if (mem_get_le16 (p_buf + 4) != 0)
-        fprintf (stderr,
-                 "Error: Unrecognized IVF version! This file may not"
-                 " decode properly.");
+      if (mem_get_le16 (ap_buf + 4) != 0)
+        {
+          TIZ_ERROR (handleOf (ap_prc),
+                     "Error: Unrecognized IVF version! This file may not"
+                     " decode properly.");
+        }
 
-      *fourcc = mem_get_le32 (p_buf + 8);
-      *width = mem_get_le16 (p_buf + 12);
-      *height = mem_get_le16 (p_buf + 14);
-      *fps_num = mem_get_le32 (p_buf + 16);
-      *fps_den = mem_get_le32 (p_buf + 20);
+      *ap_fourcc = mem_get_le32 (ap_buf + 8);
+      *ap_width = mem_get_le16 (ap_buf + 12);
+      *ap_height = mem_get_le16 (ap_buf + 14);
+      *ap_fps_num = mem_get_le32 (ap_buf + 16);
+      *ap_fps_den = mem_get_le32 (ap_buf + 20);
 
       /* Some versions of vpxenc used 1/(2*fps) for the timebase, so
        * we can guess the framerate using only the timebase in this
        * case. Other files would require reading ahead to guess the
        * timebase, like we do for webm.
        */
-      if (*fps_num < 1000)
+      if (*ap_fps_num < 1000)
         {
           /* Correct for the factor of 2 applied to the timebase in the
            * encoder.
            */
-          if (*fps_num & 1)
+          if (*ap_fps_num & 1)
             {
-              *fps_den <<= 1;
+              *ap_fps_den <<= 1;
             }
           else
             {
-              *fps_num >>= 1;
+              *ap_fps_num >>= 1;
             }
         }
       else
@@ -159,8 +179,8 @@ is_ivf (OMX_U8 * p_buf, unsigned int * fourcc, unsigned int * width,
           /* Don't know FPS for sure, and don't have readahead code
            * (yet?), so just default to 30fps.
            */
-          *fps_num = 30;
-          *fps_den = 1;
+          *ap_fps_num = 30;
+          *ap_fps_den = 1;
         }
     }
 
@@ -168,10 +188,9 @@ is_ivf (OMX_U8 * p_buf, unsigned int * fourcc, unsigned int * width,
 }
 
 static int
-identify_stream (vp8d_prc_t * ap_prc, OMX_U8 * ap_buf,
-                 unsigned int * ap_fourcc, unsigned int * ap_width,
-                 unsigned int * ap_height, unsigned int * ap_fps_den,
-                 unsigned int * ap_fps_num)
+identify_stream (vp8d_prc_t * ap_prc, OMX_U8 * ap_buf, unsigned int * ap_fourcc,
+                 unsigned int * ap_width, unsigned int * ap_height,
+                 unsigned int * ap_fps_den, unsigned int * ap_fps_num)
 {
   int rc = EXIT_SUCCESS;
 
@@ -183,20 +202,21 @@ identify_stream (vp8d_prc_t * ap_prc, OMX_U8 * ap_buf,
   assert (ap_fps_den);
   assert (ap_fps_num);
 
-  if (is_ivf (ap_buf, ap_fourcc, ap_width, ap_height, ap_fps_den, ap_fps_num))
+  if (is_ivf (ap_prc, ap_buf, ap_fourcc, ap_width, ap_height, ap_fps_den,
+              ap_fps_num))
     {
-      TIZ_DEBUG(handleOf(ap_prc), "STREAM_IVF");
+      TIZ_DEBUG (handleOf (ap_prc), "STREAM_IVF");
       ap_prc->stream_type_ = STREAM_IVF;
     }
-  else if (is_raw (ap_buf, ap_fourcc, ap_width, ap_height, ap_fps_den,
+  else if (is_raw (ap_prc, ap_buf, ap_fourcc, ap_width, ap_height, ap_fps_den,
                    ap_fps_num))
     {
-      TIZ_DEBUG(handleOf(ap_prc), "STREAM_RAW");
+      TIZ_DEBUG (handleOf (ap_prc), "STREAM_RAW");
       ap_prc->stream_type_ = STREAM_RAW;
     }
   else
     {
-      TIZ_DEBUG(handleOf(ap_prc), "STREAM_UNKNOWN");
+      TIZ_DEBUG (handleOf (ap_prc), "STREAM_UNKNOWN");
       ap_prc->stream_type_ = STREAM_UNKNOWN;
       rc = EXIT_FAILURE;
     }
