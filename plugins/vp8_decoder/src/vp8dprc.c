@@ -52,8 +52,27 @@
 #define RAW_FRAME_HDR_SZ (sizeof (uint32_t))
 #define VP8_FOURCC (0x00385056)
 
-#define CORRUPT_FRAME_THRESHOLD   (256 * 1024 * 1024)
+#define CORRUPT_FRAME_THRESHOLD (256 * 1024 * 1024)
 #define FRAME_TOO_SMALL_THRESHOLD (256 * 1024)
+
+#define bail_on_vpx_err_with_omx_err(expr, omx_err)                          \
+  do                                                                         \
+    {                                                                        \
+      vpx_codec_err_t vpx_err = VPX_CODEC_OK;                                \
+      if (VPX_CODEC_OK != (vpx_err = (expr)))                                \
+        {                                                                    \
+          const char * detail = vpx_codec_error_detail (&(ap_prc->vp8ctx_)); \
+          TIZ_ERROR (handleOf (ap_prc),                                      \
+                     "[%s] : vpx error "                                     \
+                     "(%s - %s)",                                            \
+                     tiz_err_to_str (omx_err),                               \
+                     vpx_codec_error (&(ap_prc->vp8ctx_)),                   \
+                     detail ? detail : "");                                  \
+          rc = omx_err;                                                      \
+          goto end;                                                          \
+        }                                                                    \
+    }                                                                        \
+  while (0)
 
 static const struct
 {
@@ -228,16 +247,16 @@ identify_stream (vp8d_prc_t * ap_prc, OMX_U8 * ap_buf, unsigned int * ap_fourcc,
 }
 
 static size_t
-read_from_omx_buffer (const vp8d_prc_t * ap_prc, void * ap_dst, const size_t a_bytes,
-                      OMX_BUFFERHEADERTYPE * ap_hdr)
+read_from_omx_buffer (const vp8d_prc_t * ap_prc, void * ap_dst,
+                      const size_t a_bytes, OMX_BUFFERHEADERTYPE * ap_hdr)
 {
   size_t to_read = a_bytes;
 
   assert (ap_dst);
   assert (ap_hdr);
 
-/*   TIZ_TRACE (handleOf(ap_prc), "a_bytes [%d], nFilledLen [%d] nOffset [%d]", */
-/*              a_bytes, ap_hdr->nFilledLen, ap_hdr->nOffset); */
+  /*   TIZ_TRACE (handleOf(ap_prc), "a_bytes [%d], nFilledLen [%d] nOffset [%d]", */
+  /*              a_bytes, ap_hdr->nFilledLen, ap_hdr->nOffset); */
 
   if (a_bytes)
     {
@@ -255,9 +274,9 @@ read_from_omx_buffer (const vp8d_prc_t * ap_prc, void * ap_dst, const size_t a_b
       ap_hdr->nOffset += to_read;
     }
 
-/*   TIZ_TRACE (handleOf(ap_prc), */
-/*              "a_bytes [%d], nFilledLen [%d] nOffset [%d] to_read [%d]", a_bytes, */
-/*              ap_hdr->nFilledLen, ap_hdr->nOffset, to_read); */
+  /*   TIZ_TRACE (handleOf(ap_prc), */
+  /*              "a_bytes [%d], nFilledLen [%d] nOffset [%d] to_read [%d]", a_bytes, */
+  /*              ap_hdr->nFilledLen, ap_hdr->nOffset, to_read); */
 
   return to_read;
 }
@@ -466,60 +485,60 @@ read_frame_raw (vp8d_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * ap_inhdr)
 {
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
   /* TODO */
-/*   char raw_hdr[RAW_FRAME_HDR_SZ]; */
-/*   size_t frame_size = 0; */
+  /*   char raw_hdr[RAW_FRAME_HDR_SZ]; */
+  /*   size_t frame_size = 0; */
 
-/*   if (fread (raw_hdr, RAW_FRAME_HDR_SZ, 1, infile) != 1) */
-/*     { */
-/*       if (!feof (infile)) */
-/*         { */
-/*           TIZ_ERROR (handleOf (ap_prc), "Failed to read RAW frame size"); */
-/*         } */
-/*     } */
-/*   else */
-/*     { */
-/*       frame_size = mem_get_le32 (raw_hdr); */
+  /*   if (fread (raw_hdr, RAW_FRAME_HDR_SZ, 1, infile) != 1) */
+  /*     { */
+  /*       if (!feof (infile)) */
+  /*         { */
+  /*           TIZ_ERROR (handleOf (ap_prc), "Failed to read RAW frame size"); */
+  /*         } */
+  /*     } */
+  /*   else */
+  /*     { */
+  /*       frame_size = mem_get_le32 (raw_hdr); */
 
-/*       if (frame_size > CORRUPT_FRAME_THRESHOLD) */
-/*         { */
-/*           TIZ_ERROR (handleOf (ap_prc), "Read invalid frame size (%u)", */
-/*                      (unsigned int) frame_size); */
-/*           frame_size = 0; */
-/*         } */
+  /*       if (frame_size > CORRUPT_FRAME_THRESHOLD) */
+  /*         { */
+  /*           TIZ_ERROR (handleOf (ap_prc), "Read invalid frame size (%u)", */
+  /*                      (unsigned int) frame_size); */
+  /*           frame_size = 0; */
+  /*         } */
 
-/*       if (frame_size < FRAME_TOO_SMALL_THRESHOLD) */
-/*         { */
-/*           TIZ_ERROR (handleOf (ap_prc), */
-/*                      "Read invalid frame size" */
-/*                      " (%u) - not a raw file?", */
-/*                      (unsigned int) frame_size); */
-/*         } */
+  /*       if (frame_size < FRAME_TOO_SMALL_THRESHOLD) */
+  /*         { */
+  /*           TIZ_ERROR (handleOf (ap_prc), */
+  /*                      "Read invalid frame size" */
+  /*                      " (%u) - not a raw file?", */
+  /*                      (unsigned int) frame_size); */
+  /*         } */
 
-/*       if (frame_size > *buffer_size) */
-/*         { */
-/*           uint8_t * new_buf = realloc (*buffer, 2 * frame_size); */
-/*           if (new_buf) */
-/*             { */
-/*               *buffer = new_buf; */
-/*               *buffer_size = 2 * frame_size; */
-/*             } */
-/*           else */
-/*             { */
-/*               TIZ_ERROR (handleOf (ap_prc), "Failed to allocate compressed data buffer"); */
-/*               frame_size = 0; */
-/*             } */
-/*         } */
-/*     } */
+  /*       if (frame_size > *buffer_size) */
+  /*         { */
+  /*           uint8_t * new_buf = realloc (*buffer, 2 * frame_size); */
+  /*           if (new_buf) */
+  /*             { */
+  /*               *buffer = new_buf; */
+  /*               *buffer_size = 2 * frame_size; */
+  /*             } */
+  /*           else */
+  /*             { */
+  /*               TIZ_ERROR (handleOf (ap_prc), "Failed to allocate compressed data buffer"); */
+  /*               frame_size = 0; */
+  /*             } */
+  /*         } */
+  /*     } */
 
-/*   if (!feof (infile)) */
-/*     { */
-/*       if (fread (*buffer, 1, frame_size, infile) != frame_size) */
-/*         { */
-/*           TIZ_ERROR (handleOf (ap_prc), "Failed to read full frame"); */
-/*           return 1; */
-/*         } */
-/*       *bytes_read = frame_size; */
-/*     } */
+  /*   if (!feof (infile)) */
+  /*     { */
+  /*       if (fread (*buffer, 1, frame_size, infile) != frame_size) */
+  /*         { */
+  /*           TIZ_ERROR (handleOf (ap_prc), "Failed to read full frame"); */
+  /*           return 1; */
+  /*         } */
+  /*       *bytes_read = frame_size; */
+  /*     } */
 
   return rc;
 }
@@ -651,44 +670,40 @@ decode_frame (vp8d_prc_t * ap_prc)
 
   p_buf = &(ap_prc->codec_buf_);
 
-  if (vpx_codec_decode (&(ap_prc->vp8ctx_), p_buf->p_data,
-                        (unsigned int) (p_buf->filled_len), NULL, 0))
+  bail_on_vpx_err_with_omx_err (
+    vpx_codec_decode (&(ap_prc->vp8ctx_), p_buf->p_data,
+                      (unsigned int) (p_buf->filled_len), NULL, 0),
+    OMX_ErrorStreamCorrupt);
+
+  if ((img = vpx_codec_get_frame (&(ap_prc->vp8ctx_), &iter)))
     {
-      const char * detail = vpx_codec_error_detail (&(ap_prc->vp8ctx_));
-      TIZ_ERROR (handleOf (ap_prc), "Failed to decode frame: %s - %s",
-                 vpx_codec_error (&(ap_prc->vp8ctx_)), detail ? detail : "");
-      rc = OMX_ErrorStreamCorrupt;
-    }
-  else
-    {
-      if ((img = vpx_codec_get_frame (&(ap_prc->vp8ctx_), &iter)))
+      unsigned int y;
+      uint8_t * buf = img->planes[VPX_PLANE_Y];
+
+      for (y = 0; y < img->d_h; y++)
         {
-          unsigned int y;
-          uint8_t * buf = img->planes[VPX_PLANE_Y];
+          out_put (ap_prc->p_outhdr_, buf, img->d_w);
+          buf += img->stride[VPX_PLANE_Y];
+        }
 
-          for (y = 0; y < img->d_h; y++)
-            {
-              out_put (ap_prc->p_outhdr_, buf, img->d_w);
-              buf += img->stride[VPX_PLANE_Y];
-            }
+      buf = img->planes[VPX_PLANE_U];
 
-          buf = img->planes[VPX_PLANE_U];
+      for (y = 0; y < (1 + img->d_h) / 2; y++)
+        {
+          out_put (ap_prc->p_outhdr_, buf, (1 + img->d_w) / 2);
+          buf += img->stride[VPX_PLANE_U];
+        }
 
-          for (y = 0; y < (1 + img->d_h) / 2; y++)
-            {
-              out_put (ap_prc->p_outhdr_, buf, (1 + img->d_w) / 2);
-              buf += img->stride[VPX_PLANE_U];
-            }
+      buf = img->planes[VPX_PLANE_V];
 
-          buf = img->planes[VPX_PLANE_V];
-
-          for (y = 0; y < (1 + img->d_h) / 2; y++)
-            {
-              out_put (ap_prc->p_outhdr_, buf, (1 + img->d_w) / 2);
-              buf += img->stride[VPX_PLANE_V];
-            }
+      for (y = 0; y < (1 + img->d_h) / 2; y++)
+        {
+          out_put (ap_prc->p_outhdr_, buf, (1 + img->d_w) / 2);
+          buf += img->stride[VPX_PLANE_V];
         }
     }
+
+end:
 
   p_buf->filled_len = 0;
 
