@@ -111,7 +111,6 @@ vp8port_ctor (void * ap_obj, va_list * app)
       p_obj->cbrtype_.nSize = p_pbrtype->nSize;
       p_obj->cbrtype_.nVersion.nVersion = p_pbrtype->nVersion.nVersion;
       p_obj->cbrtype_.nPortIndex = p_base->portdef_.nPortIndex;
-      ;
       p_obj->cbrtype_.nEncodeBitrate = p_pbrtype->nTargetBitrate;
     }
 
