@@ -34,15 +34,16 @@ source tizonia-common.inc
 function usage {
     print_banner_and_license $(basename "$0")
     echo
-    pretty_print "$GRN" "Usage : $(basename $0) [-a|--asan] [-c|--conf] [-d|--deps] [-g|--debug] [-i|--install] [-m|--make] [-p|--project <proj_name>] [-r|--release] [-s|--scan-build] [-v|--valgrind] [-w|--cwd]"
+    pretty_print "$GRN" "Usage : $(basename $0) [-a|--asan] [-b|--debian] [-c|--conf] [-d|--deps] [-e|--bear] [-g|--debug] [-i|--install] [-m|--make] [-p|--project <proj_name>] [-r|--release] [-s|--scan-build] [-v|--valgrind] [-w|--cwd]"
     pretty_print "$GRN" "       -a            : Configure for an Address Sanitizer (ASAN) type of build (requires clang)."
-#   pretty_print "$GRN" "       -b            : Configure for a 'Debian' type build (--libdir=/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH))."
-    pretty_print "$GRN" "       -c            : Configure for conformance testing."
+    pretty_print "$GRN" "       -b            : Configure for a 'Debian's checkinstall' type build (--libdir=/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH), then 'checkinstall')."
+    pretty_print "$GRN" "       -c            : Configure for OpenMAX IL conformance testing."
     pretty_print "$GRN" "       -d            : Install Tizonia's development dependencies."
+    pretty_print "$GRN" "       -e            : Create compilation database (compile_commands.json) using Bear. Expects a fully configured source tree."
     pretty_print "$GRN" "       -g            : Configure for a DEBUG type of build."
     pretty_print "$GRN" "       -i            : Make and install all sub-projects."
     pretty_print "$GRN" "       -m            : Make all sub-projects."
-    pretty_print "$GRN" "       -p            : Use the '<proj_name>' as the base folder for configuration/build."
+    pretty_print "$GRN" "       -p            : Use the '<proj_name>' as the base folder for configuration/build (i.e. to configure/build recursively from that point)."
     pretty_print "$GRN" "       -r            : Configure for a RELEASE type of build."
     pretty_print "$GRN" "       -s            : Configure for 'scan-build' (Clang static analyzer)."
     pretty_print "$GRN" "       -v            : Configure for Valgrind memory leak analysis."
@@ -80,12 +81,23 @@ function build_project {
     local exit_status=0
     local procs=$(nproc)
     local jobcnt=$(( $procs + 1 ))
+    local bearcmd='bear'
+    local bearopt='--append'
+
+    which bear > /dev/null
+    if [[ "$?" -ne 0 ]]; then
+        bearcmd='' ; bearopt=''
+    fi
+    if [[ ! -f compile_commands.json ]]; then
+        bearcmd='' ; bearopt=''
+    fi
+
     if [[ -z "$install_option" ]]; then
         print_banner "Building [$TIZONIA_PROJ_NAME] [$jobcnt jobs]" "$GRN"
-        make -s -j"$jobcnt" V=0 2>&1 | tee "$buildlog"
+        eval "$bearcmd" "$bearopt" make -s -j"$jobcnt" V=0 2>&1 | tee "$buildlog"
     else
         print_banner "Installing [$TIZONIA_PROJ_NAME] [$jobcnt jobs]" "$GRN"
-        make -s -j"$jobcnt" V=0 2>&1 install | tee "$buildlog"
+        eval "$bearcmd" "$bearopt" make -s -j"$jobcnt" V=0 2>&1 install | tee "$buildlog"
     fi
     exit_status="${PIPESTATUS[0]}"
     if [[ "$exit_status" != 0 ]]; then
@@ -93,10 +105,10 @@ function build_project {
         if [[ "$?" -eq 0 ]]; then
             if [[ -z "$install_option" ]]; then
                 print_banner "Building [$TIZONIA_PROJ_NAME] [2nd pass, 1 job]" "$GRN"
-                make -s -j1 V=0
+                eval "$bearcmd" "$bearopt" make -s -j1 V=0
             else
                 print_banner "Installing [$TIZONIA_PROJ_NAME] [2nd pass, 1 job]" "$GRN"
-                make -s -j1 V=0 install
+                eval "$bearcmd" "$bearopt" make -s -j1 V=0 install
             fi
             exit_status="$?"
         fi
@@ -120,6 +132,7 @@ function main {
     local exit_status=0
     local asan=0
     local debian=0
+    local beardb=0
     local conf=0
     local deps=0
     local project=0
@@ -133,7 +146,7 @@ function main {
     local cwd=0
 
     local progname=$(basename $0)
-    CMDLINE=$(getopt -o "abcdgimp:rsvw" --long "asan,debian,conf,deps,debug,install,make,project:,release,scan-build,valgrind,cwd," -n "$progname" -- "$@")
+    CMDLINE=$(getopt -o "abcdegimp:rsvw" --long "asan,debian,conf,deps,bear,debug,install,make,project:,release,scan-build,valgrind,cwd," -n "$progname" -- "$@")
     eval set -- "$CMDLINE"
     while true; do
         case "$1" in
@@ -148,6 +161,9 @@ function main {
                 ;;
             -d|--deps)
                 deps=1; shift
+                ;;
+            -e|--bear)
+                beardb=1; shift
                 ;;
             -g|--debug)
                 debug=1; shift
@@ -195,7 +211,7 @@ function main {
 
     local make_install_total=$(( $make + $install ))
 
-    local config_total=$(( $asan + $debian + $conf + $debug + $release + $scan + $valgrind ))
+    local config_total=$(( $asan + $debian + $conf + $debug + $beardb + $release + $scan + $valgrind ))
     if [[ ("$config_total" != 1) && ("$make_install_total" == 0) ]]; then
         usage
         exit "$E_BADARGS"
@@ -258,7 +274,7 @@ function main {
     fi
 
     local before="$(date +%s)"
-    
+
     if [[ ("$debug" == 1) ]]; then
 
         print_banner "Reconfiguring [$TIZONIA_PROJ_NAME] for [DEBUG] build - Install dir [$TIZONIA_INSTALL_DIR]..." "$YEL"
@@ -313,6 +329,16 @@ function main {
         fi
 
         exit 0
+
+    elif [[ ("$beardb" == 1) ]]; then
+
+        print_banner "Generating compilation dabatase and initial indexing for [RTAGS]..." "$YEL"
+        pretty_print "$MAG" "Cleaning source tree..."
+        make clean > /dev/null \
+            && pretty_print "$MAG" "Generating json compilation database using 'bear' ('bear' should have been installed already)..." \
+            && bear make -s \
+            && pretty_print "$MAG" "Indexing the source tree (the rtags is supposed to be installed and running at this point)" \
+            && rc -J .
 
     elif [[ ("$release" == 1) ]];  then
 
