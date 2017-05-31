@@ -20,10 +20,10 @@
 /**
  * @file   tizavcport.h
  * @author Gurkirpal Singh
- * 
+ *
  * @brief  AVC port class
- * 
- * 
+ *
+ *
  */
 
 #ifndef TIZAVCPORT_H
