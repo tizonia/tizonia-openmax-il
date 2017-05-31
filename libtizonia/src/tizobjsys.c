@@ -70,6 +70,7 @@
 #include "tizimageport.h"
 #include "tizotherport.h"
 #include "tizvp8port.h"
+#include "tizavcport.h"
 #include "tizivrport.h"
 #include "tizbinaryport.h"
 #include "tizdemuxerport.h"
@@ -158,6 +159,8 @@ enum tiz_os_type
   ETIZOtherport,
   ETIZVp8port_class,
   ETIZVp8port,
+  ETIZAvcport_class,
+  ETIZAvcport,
   ETIZIvrport_class,
   ETIZIvrport,
   ETIZBinaryport_class,
@@ -243,6 +246,8 @@ static const tiz_os_type_init_f tiz_os_type_to_fnt_tbl[] = {
   tiz_otherport_init,
   tiz_vp8port_class_init,
   tiz_vp8port_init,
+  tiz_avcport_class_init,
+  tiz_avcport_init,
   tiz_ivrport_class_init,
   tiz_ivrport_init,
   tiz_binaryport_class_init,
@@ -333,6 +338,8 @@ static tiz_os_type_str_t tiz_os_type_to_str_tbl[] = {
   {ETIZOtherport, "tizotherport"},
   {ETIZVp8port_class, "tizvp8port_class"},
   {ETIZVp8port, "tizvp8port"},
+  {ETIZAvcport_class, "tizavcport_class"},
+  {ETIZAvcport, "tizavcport"},
   {ETIZIvrport_class, "tizivrport_class"},
   {ETIZIvrport, "tizivrport"},
   {ETIZBinaryport_class, "tizbinaryport_class"},
