@@ -20,10 +20,10 @@
 /**
  * @file   tizavcport_decls.h
  * @author Gurkirpal Singh
- * 
+ *
  * @brief  avcport class declarations
- * 
- * 
+ *
+ *
  */
 
 #ifndef TIZAVCPORT_DECLS_H

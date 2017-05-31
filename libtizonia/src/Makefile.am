@@ -136,6 +136,7 @@ libtizonia_la_SOURCES = \
 	tizopusport.c \
 	tizflacport.c \
 	tizvp8port.c \
+	tizavcport.c \
 	tizivrport.c \
 	tizdemuxerport.c \
 	tizmuxerport.c \

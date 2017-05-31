@@ -59,18 +59,22 @@ avcport_ctor (void * ap_obj, va_list * app)
 
   assert (app);
 
+  /* TODO: This constructor needs to be reviewed to possibly initialise
+     structures with the defaults given in the spec for AVC decoder/encoder
+     ports */
+
   tiz_port_register_index (p_obj, OMX_IndexParamVideoAvc);
-  tiz_port_register_index (p_obj, OMX_IndexParamVideoProfileLevelCurrent);
   tiz_port_register_index (p_obj,
                            OMX_IndexParamVideoProfileLevelQuerySupported);
+  tiz_port_register_index (p_obj, OMX_IndexParamVideoProfileLevelCurrent);
 
   /* Register additional indexes used when the port is instantiated as an
    * output port during encoding */
   if (OMX_DirOutput == p_base->portdef_.eDir)
     {
       tiz_port_register_index (p_obj, OMX_IndexParamVideoBitrate);
-      tiz_port_register_index (p_obj, OMX_IndexConfigVideoBitrate);
       tiz_port_register_index (p_obj, OMX_IndexConfigVideoFramerate);
+      tiz_port_register_index (p_obj, OMX_IndexConfigVideoBitrate);
     }
 
   /* Initialize the OMX_VIDEO_PARAM_AVCTYPE structure */
@@ -85,7 +89,7 @@ avcport_ctor (void * ap_obj, va_list * app)
   if ((p_levels = va_arg (*app, OMX_VIDEO_AVCLEVELTYPE *)))
     {
       OMX_U32 i = 0;
-      while (OMX_VIDEO_AVCLevelHigh444 != p_levels[i])
+      while (OMX_VIDEO_AVCLevelMax != p_levels[i])
         {
           tiz_vector_push_back (p_obj->p_levels_, &p_levels[i++]);
         }
@@ -445,12 +449,13 @@ static OMX_ERRORTYPE
 avcport_set_portdef_format (void * ap_obj,
                             const OMX_PARAM_PORTDEFINITIONTYPE * ap_pdef)
 {
-  tiz_port_t * p_obj = (tiz_port_t *) ap_obj;
-  
+  tiz_port_t * p_base = (tiz_port_t *) ap_obj;
+
   assert (ap_pdef);
 
   p_base->portdef_.format.video.nFrameWidth = ap_pdef->format.video.nFrameWidth;
-  p_base->portdef_.format.video.nFrameHeight = ap_pdef->format.video.nFrameHeight;
+  p_base->portdef_.format.video.nFrameHeight
+    = ap_pdef->format.video.nFrameHeight;
   p_base->portdef_.format.video.xFramerate = ap_pdef->format.video.xFramerate;
 
   return OMX_ErrorNone;
