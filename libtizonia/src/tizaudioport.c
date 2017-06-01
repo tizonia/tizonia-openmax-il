@@ -231,6 +231,8 @@ audioport_set_portdef_format (void * ap_obj,
   assert (p_obj);
   assert (ap_pdef);
 
+  tiz_check_omx (update_audio_coding_type (p_obj, ap_pdef->format.audio.eEncoding));
+
   p_base->portdef_.format.audio.pNativeRender
     = ap_pdef->format.audio.pNativeRender;
   p_base->portdef_.format.audio.bFlagErrorConcealment
@@ -239,7 +241,7 @@ audioport_set_portdef_format (void * ap_obj,
   TIZ_TRACE (handleOf (ap_obj), "PORT [%d] audio.eEncoding [%d]",
              tiz_port_index (ap_obj), ap_pdef->format.audio.eEncoding);
 
-  return update_audio_coding_type (p_obj, ap_pdef->format.audio.eEncoding);
+  return OMX_ErrorNone;
 }
 
 /*
