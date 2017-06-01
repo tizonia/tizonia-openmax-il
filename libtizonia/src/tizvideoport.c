@@ -43,6 +43,90 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.tizonia.videoport"
 #endif
 
+static inline OMX_ERRORTYPE
+update_video_coding_type (void * ap_obj, const OMX_VIDEO_CODINGTYPE a_encoding)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  tiz_videoport_t * p_obj = ap_obj;
+  tiz_port_t * p_base = ap_obj;
+
+  assert (ap_obj);
+
+  if (a_encoding >= OMX_VIDEO_CodingMax)
+    {
+      TIZ_ERROR (handleOf (ap_obj),
+                 "[OMX_ErrorBadParameter] : "
+                 "(Bad encoding [0x%08x]...)",
+                 a_encoding);
+      rc = OMX_ErrorBadParameter;
+      goto end;
+    }
+
+  if (!tiz_vector_find (p_obj->p_video_encodings_, (const OMX_PTR) (&a_encoding)))
+    {
+      TIZ_ERROR (handleOf (ap_obj),
+                 "[OMX_ErrorUnsupportedSetting] : "
+                 "(Encoding not supported [0x%08x]...)",
+                 a_encoding);
+      rc = OMX_ErrorUnsupportedSetting;
+      goto end;
+    }
+
+  /* All well */
+
+  /* Update this port's OMX_VIDEO_PARAM_PORTFORMATTYPE structure */
+  p_obj->port_format_.eCompressionFormat = a_encoding;
+
+  /* Now update the base class' OMX_PARAM_PORTDEFINITIONTYPE */
+  p_base->portdef_.format.video.eCompressionFormat = a_encoding;
+
+end:
+
+  return rc;
+}
+
+static inline OMX_ERRORTYPE
+update_color_format_type (void * ap_obj, const OMX_COLOR_FORMATTYPE a_color_format)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  tiz_videoport_t * p_obj = ap_obj;
+  tiz_port_t * p_base = ap_obj;
+
+  assert (ap_obj);
+
+  if (a_color_format >= OMX_COLOR_FormatMax)
+    {
+      TIZ_ERROR (handleOf (ap_obj),
+                 "[OMX_ErrorBadParameter] : "
+                 "(Bad color format [0x%08x]...)",
+                 a_color_format);
+      rc = OMX_ErrorBadParameter;
+      goto end;
+    }
+
+  if (!tiz_vector_find (p_obj->p_color_formats_, (const OMX_PTR) (&a_color_format)))
+    {
+      TIZ_ERROR (handleOf (ap_obj),
+                 "[OMX_ErrorUnsupportedSetting] : "
+                 "(Color format not supported [0x%08x]...)",
+                 a_color_format);
+      rc = OMX_ErrorUnsupportedSetting;
+      goto end;
+    }
+
+  /* All well */
+
+  /* Update this port's OMX_VIDEO_PARAM_PORTFORMATTYPE structure */
+  p_obj->port_format_.eColorFormat = a_color_format;
+
+  /* Now update the base class' OMX_PARAM_PORTDEFINITIONTYPE */
+  p_base->portdef_.format.video.eColorFormat = a_color_format;
+
+end:
+
+  return rc;
+}
+
 /*
  * tizvideoport class
  */
@@ -309,6 +393,43 @@ videoport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
 }
 
 static OMX_ERRORTYPE
+videoport_set_portdef_format (void * ap_obj,
+                              const OMX_PARAM_PORTDEFINITIONTYPE * ap_pdef)
+{
+  tiz_videoport_t * p_obj = ap_obj;
+  tiz_port_t * p_base = ap_obj;
+
+  assert (p_obj);
+  assert (ap_pdef);
+
+  tiz_check_omx (update_video_coding_type (p_obj, ap_pdef->format.video.eCompressionFormat));
+
+  tiz_check_omx (update_color_format_type (p_obj, ap_pdef->format.video.eColorFormat));
+
+  p_base->portdef_.format.video.pNativeRender
+    = ap_pdef->format.video.pNativeRender;
+  p_base->portdef_.format.video.nFrameWidth = ap_pdef->format.video.nFrameWidth;
+  p_base->portdef_.format.video.nFrameHeight
+    = ap_pdef->format.video.nFrameHeight;
+  p_base->portdef_.format.video.nStride = ap_pdef->format.video.nStride;
+  p_base->portdef_.format.video.nSliceHeight
+    = ap_pdef->format.video.nSliceHeight;
+  p_base->portdef_.format.video.nBitrate = ap_pdef->format.video.nBitrate;
+  p_base->portdef_.format.video.xFramerate = ap_pdef->format.video.xFramerate;
+  p_base->portdef_.format.video.bFlagErrorConcealment
+    = ap_pdef->format.video.bFlagErrorConcealment;
+
+  /* Shadow copy is debatable; perhaps a deep copy would be needed. */
+  p_base->portdef_.format.video.pNativeWindow
+    = ap_pdef->format.video.pNativeWindow;
+
+  TIZ_TRACE (handleOf (ap_obj), "PORT [%d] video.eCompressionFormat [%d]",
+             tiz_port_index (ap_obj), ap_pdef->format.video.eCompressionFormat);
+
+  return OMX_ErrorNone;
+}
+
+static OMX_ERRORTYPE
 videoport_apply_slaving_behaviour (void * ap_obj, void * ap_mos_port,
                                    const OMX_INDEXTYPE a_index,
                                    const OMX_PTR ap_struct,
@@ -419,6 +540,8 @@ tiz_videoport_init (void * ap_tos, void * ap_hdl)
      tiz_api_GetParameter, videoport_GetParameter,
      /* TIZ_CLASS_COMMENT: */
      tiz_api_SetParameter, videoport_SetParameter,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_port_set_portdef_format, videoport_set_portdef_format,
      /* TIZ_CLASS_COMMENT: */
      tiz_port_apply_slaving_behaviour, videoport_apply_slaving_behaviour,
      /* TIZ_CLASS_COMMENT: stop value*/
