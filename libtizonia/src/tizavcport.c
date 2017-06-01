@@ -115,7 +115,6 @@ avcport_ctor (void * ap_obj, va_list * app)
       p_obj->cbrtype_.nSize = p_pbrtype->nSize;
       p_obj->cbrtype_.nVersion.nVersion = p_pbrtype->nVersion.nVersion;
       p_obj->cbrtype_.nPortIndex = p_base->portdef_.nPortIndex;
-      ;
       p_obj->cbrtype_.nEncodeBitrate = p_pbrtype->nTargetBitrate;
     }
 
@@ -232,6 +231,7 @@ avcport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
   TIZ_TRACE (ap_hdl, "PORT [%d] SetParameter [%s]...", tiz_port_index (ap_obj),
              tiz_idx_to_str (a_index));
   assert (p_obj);
+  assert (ap_struct);
 
   switch (a_index)
     {
@@ -246,7 +246,10 @@ avcport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
                 = (OMX_VIDEO_PARAM_AVCTYPE *) ap_struct;
               const OMX_VIDEO_AVCPROFILETYPE profile = p_avctype->eProfile;
               const OMX_VIDEO_AVCLEVELTYPE level = p_avctype->eLevel;
+              const OMX_VIDEO_AVCLOOPFILTERTYPE loopFilterMode
+                = p_avctype->eLoopFilterMode;
 
+              /* Check profile validity */
               if (profile > OMX_VIDEO_AVCProfileHigh444)
                 {
                   TIZ_ERROR (ap_hdl,
@@ -256,8 +259,7 @@ avcport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
                   return OMX_ErrorBadParameter;
                 }
 
-              p_obj->avctype_.eProfile = profile;
-
+              /* Check level validity */
               if (level > OMX_VIDEO_AVCLevel51)
                 {
                   TIZ_ERROR (ap_hdl,
@@ -267,7 +269,20 @@ avcport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
                   return OMX_ErrorBadParameter;
                 }
 
-              p_obj->avctype_.eLevel = level;
+              /* Check filter mode */
+              if (loopFilterMode > OMX_VIDEO_AVCLoopFilterDisableSliceBoundary)
+                {
+                  TIZ_ERROR (ap_hdl,
+                             "[OMX_ErrorBadParameter] : "
+                             "(Bad loop filter mode [0x%08x]...)",
+                             loopFilterMode);
+                  return OMX_ErrorBadParameter;
+                }
+
+              /* All standard-compliancy checks are done. Now simply copy the
+                 received struct (the decoder/encoder processor may want to do
+                 additional checks). */
+              p_obj->avctype_ = *p_avctype;
             }
           else
             {
