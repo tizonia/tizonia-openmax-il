@@ -460,22 +460,6 @@ avcport_SetConfig (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE
-avcport_set_portdef_format (void * ap_obj,
-                            const OMX_PARAM_PORTDEFINITIONTYPE * ap_pdef)
-{
-  tiz_port_t * p_base = (tiz_port_t *) ap_obj;
-
-  assert (ap_pdef);
-
-  p_base->portdef_.format.video.nFrameWidth = ap_pdef->format.video.nFrameWidth;
-  p_base->portdef_.format.video.nFrameHeight
-    = ap_pdef->format.video.nFrameHeight;
-  p_base->portdef_.format.video.xFramerate = ap_pdef->format.video.xFramerate;
-
-  return OMX_ErrorNone;
-}
-
 static bool
 avcport_check_tunnel_compat (const void * ap_obj,
                              OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
@@ -568,8 +552,6 @@ tiz_avcport_init (void * ap_tos, void * ap_hdl)
      tiz_api_GetConfig, avcport_GetConfig,
      /* TIZ_CLASS_COMMENT: */
      tiz_api_SetConfig, avcport_SetConfig,
-     /* TIZ_CLASS_COMMENT: */
-     tiz_port_set_portdef_format, avcport_set_portdef_format,
      /* TIZ_CLASS_COMMENT: */
      tiz_port_check_tunnel_compat, avcport_check_tunnel_compat,
      /* TIZ_CLASS_COMMENT: stop value*/

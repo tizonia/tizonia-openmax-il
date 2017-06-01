@@ -453,14 +453,6 @@ vp8port_SetConfig (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE
-vp8port_set_portdef_format (void * ap_obj,
-                            const OMX_PARAM_PORTDEFINITIONTYPE * ap_pdef)
-{
-  /* TODO */
-  return OMX_ErrorNone;
-}
-
 static bool
 vp8port_check_tunnel_compat (const void * ap_obj,
                              OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
@@ -553,8 +545,6 @@ tiz_vp8port_init (void * ap_tos, void * ap_hdl)
      tiz_api_GetConfig, vp8port_GetConfig,
      /* TIZ_CLASS_COMMENT: */
      tiz_api_SetConfig, vp8port_SetConfig,
-     /* TIZ_CLASS_COMMENT: */
-     tiz_port_set_portdef_format, vp8port_set_portdef_format,
      /* TIZ_CLASS_COMMENT: */
      tiz_port_check_tunnel_compat, vp8port_check_tunnel_compat,
      /* TIZ_CLASS_COMMENT: stop value*/
