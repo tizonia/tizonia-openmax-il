@@ -30,8 +30,7 @@
 #define VP8DPRC_DECLS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <stdbool.h>
@@ -42,47 +41,54 @@ extern "C"
 
 #include <tizprc_decls.h>
 
-  typedef enum vp8dprc_stream_type vp8dprc_stream_type_t;
-  enum vp8dprc_stream_type
-  {
-    STREAM_RAW,
-    STREAM_IVF,
-    STREAM_UNKNOWN,
-  };
+#define IVF_FRAME_HDR_SZ (sizeof (uint32_t) + sizeof (uint64_t))
+#define RAW_FRAME_HDR_SZ (sizeof (uint32_t))
+#define VP8_FOURCC (0x00385056)
 
-  typedef struct vp8d_codec_buffer vp8d_codec_buffer_t;
-  struct vp8d_codec_buffer
-  {
-    uint8_t *p_data;
-    size_t  frame_size;
-    size_t  filled_len;
-    size_t  alloc_len;
-  };
+#define CORRUPT_FRAME_THRESHOLD (256 * 1024 * 1024)
+#define FRAME_TOO_SMALL_THRESHOLD (256 * 1024)
 
-  typedef struct vp8d_prc vp8d_prc_t;
-  struct vp8d_prc
-  {
-    /* Object */
-    const tiz_prc_t _;
-    OMX_BUFFERHEADERTYPE *p_inhdr_;
-    OMX_BUFFERHEADERTYPE *p_outhdr_;
-    vpx_codec_ctx_t vp8ctx_;
-    bool first_buf_;
-    bool eos_;
-    vp8dprc_stream_type_t stream_type_;
-    vp8d_codec_buffer_t codec_buf_;
-  };
+typedef enum vp8dprc_stream_type vp8dprc_stream_type_t;
+enum vp8dprc_stream_type
+{
+  STREAM_RAW,
+  STREAM_IVF,
+  STREAM_UNKNOWN,
+};
 
-  typedef struct vp8d_prc_class vp8d_prc_class_t;
-  struct vp8d_prc_class
-  {
-    /* Class */
-    const tiz_prc_class_t _;
-    /* NOTE: Class methods might be added in the future */
-  };
+typedef struct vp8d_codec_buffer vp8d_codec_buffer_t;
+struct vp8d_codec_buffer
+{
+  uint8_t * p_data;
+  size_t frame_size;
+  size_t filled_len;
+  size_t alloc_len;
+};
+
+typedef struct vp8d_prc vp8d_prc_t;
+struct vp8d_prc
+{
+  /* Object */
+  const tiz_prc_t _;
+  OMX_BUFFERHEADERTYPE * p_inhdr_;
+  OMX_BUFFERHEADERTYPE * p_outhdr_;
+  vpx_codec_ctx_t vp8ctx_;
+  bool first_buf_;
+  bool eos_;
+  vp8dprc_stream_type_t stream_type_;
+  vp8d_codec_buffer_t codec_buf_;
+};
+
+typedef struct vp8d_prc_class vp8d_prc_class_t;
+struct vp8d_prc_class
+{
+  /* Class */
+  const tiz_prc_class_t _;
+  /* NOTE: Class methods might be added in the future */
+};
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* VP8DPRC_DECLS_H */
+#endif /* VP8DPRC_DECLS_H */
