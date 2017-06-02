@@ -140,6 +140,7 @@ is_raw (const vp8d_prc_t * ap_prc, OMX_U8 * ap_buf, unsigned int * ap_fourcc,
           *ap_fps_den = 1;
           break;
         }
+      TIZ_TRACE(handleOf(ap_prc), "Not a raw strem")
     }
   return is_raw;
 }
@@ -410,13 +411,13 @@ obtain_stream_info (vp8d_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * p_inhdr)
   if (EXIT_SUCCESS == identify_stream (ap_prc, p_inhdr->pBuffer, &fourcc,
                                        &width, &height, &fps_den, &fps_num))
     {
-      TIZ_TRACE (handleOf (ap_prc),
-                 "Stream [%s] fourcc = [%d] width [%d] height [%d] "
-                 "fps_den [%d] fps_num [%d]",
-                 ap_prc->stream_type_ == STREAM_RAW
-                   ? "RAW"
-                   : (ap_prc->stream_type_ == STREAM_IVF ? "IVF" : "UKNOWN"),
-                 fourcc, width, height, fps_den, fps_num);
+      TIZ_NOTICE (handleOf (ap_prc),
+                  "Stream [%s] fourcc = [%d] width [%d] height [%d] "
+                  "fps_den [%d] fps_num [%d]",
+                  ap_prc->stream_type_ == STREAM_RAW
+                    ? "RAW"
+                    : (ap_prc->stream_type_ == STREAM_IVF ? "IVF" : "UKNOWN"),
+                  fourcc, width, height, fps_den, fps_num);
 
       if (STREAM_IVF == ap_prc->stream_type_)
         {
@@ -434,111 +435,91 @@ obtain_stream_info (vp8d_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * p_inhdr)
   return rc;
 }
 
-static size_t
-read_frame_size (vp8d_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * ap_inhdr)
+static OMX_ERRORTYPE
+read_frame_size (vp8d_prc_t * ap_prc, const size_t a_hdr_size,
+                 OMX_BUFFERHEADERTYPE * ap_inhdr, size_t * ap_frame_size)
 {
-  char raw_hdr[IVF_FRAME_HDR_SZ];
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  char hdr[a_hdr_size];
   size_t bytes_read = 0;
   size_t frame_size = 0;
 
   assert (ap_prc);
+  assert (a_hdr_size > 0);
   assert (ap_inhdr);
   assert (ap_inhdr->nFilledLen > 0);
+  assert (ap_frame_size);
 
-  /* For both the raw and ivf formats, the frame size is the first 4 bytes
-   * of the frame header.
-   */
-  if (0 == (bytes_read = read_from_omx_buffer (
-                           ap_prc, raw_hdr, (ap_prc->stream_type_ == STREAM_IVF
-                                               ? IVF_FRAME_HDR_SZ
-                                               : RAW_FRAME_HDR_SZ),
-                           ap_inhdr)
-                         != 1))
+  if (0 == (bytes_read
+            = read_from_omx_buffer (ap_prc, hdr, a_hdr_size, ap_inhdr) != 1))
     {
       TIZ_ERROR (handleOf (ap_prc), "Failed to read frame size");
-      return 0;
+      rc = OMX_ErrorInsufficientResources;
+      goto end;
     }
   else
     {
-      frame_size = mem_get_le32 (raw_hdr);
+      frame_size = mem_get_le32 (hdr);
 
-      if (frame_size > 256 * 1024 * 1024)
+      if (frame_size > CORRUPT_FRAME_THRESHOLD)
         {
           TIZ_ERROR (handleOf (ap_prc), "Error: Read invalid frame size [%u]",
                      (unsigned int) frame_size);
-          return 0;
+          rc = OMX_ErrorStreamCorrupt;
+          goto end;
         }
 
-      if (ap_prc->stream_type_ == STREAM_RAW && frame_size > 256 * 1024)
+      if (ap_prc->stream_type_ == STREAM_RAW && frame_size < FRAME_TOO_SMALL_THRESHOLD)
         {
-          TIZ_ERROR (handleOf (ap_prc), "Warning: Read invalid frame size [%u]",
+          TIZ_ERROR (handleOf (ap_prc), "Error: Read invalid raw frame size [%u]",
                      (unsigned int) frame_size);
-          return 0;
+          rc = OMX_ErrorStreamCorrupt;
+          goto end;
         }
+
     }
 
-  return frame_size;
+ end:
+
+  *ap_frame_size = frame_size;
+
+  return rc;
 }
 
 static OMX_ERRORTYPE
 read_frame_raw (vp8d_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * ap_inhdr)
 {
-  OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
-  /* TODO */
-  /*   char raw_hdr[RAW_FRAME_HDR_SZ]; */
-  /*   size_t frame_size = 0; */
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  vp8d_codec_buffer_t * p_buf = NULL;
 
-  /*   if (fread (raw_hdr, RAW_FRAME_HDR_SZ, 1, infile) != 1) */
-  /*     { */
-  /*       if (!feof (infile)) */
-  /*         { */
-  /*           TIZ_ERROR (handleOf (ap_prc), "Failed to read RAW frame size"); */
-  /*         } */
-  /*     } */
-  /*   else */
-  /*     { */
-  /*       frame_size = mem_get_le32 (raw_hdr); */
+  assert (ap_prc);
+  assert (ap_inhdr);
+  assert (ap_inhdr->nFilledLen > 0);
 
-  /*       if (frame_size > CORRUPT_FRAME_THRESHOLD) */
-  /*         { */
-  /*           TIZ_ERROR (handleOf (ap_prc), "Read invalid frame size (%u)", */
-  /*                      (unsigned int) frame_size); */
-  /*           frame_size = 0; */
-  /*         } */
+  p_buf = &(ap_prc->codec_buf_);
 
-  /*       if (frame_size < FRAME_TOO_SMALL_THRESHOLD) */
-  /*         { */
-  /*           TIZ_ERROR (handleOf (ap_prc), */
-  /*                      "Read invalid frame size" */
-  /*                      " (%u) - not a raw file?", */
-  /*                      (unsigned int) frame_size); */
-  /*         } */
+  if (p_buf->filled_len == 0)
+    {
+      tiz_check_omx (read_frame_size (ap_prc, RAW_FRAME_HDR_SZ, ap_inhdr,
+                                      &(p_buf->frame_size)));
 
-  /*       if (frame_size > *buffer_size) */
-  /*         { */
-  /*           uint8_t * new_buf = realloc (*buffer, 2 * frame_size); */
-  /*           if (new_buf) */
-  /*             { */
-  /*               *buffer = new_buf; */
-  /*               *buffer_size = 2 * frame_size; */
-  /*             } */
-  /*           else */
-  /*             { */
-  /*               TIZ_ERROR (handleOf (ap_prc), "Failed to allocate compressed data buffer"); */
-  /*               frame_size = 0; */
-  /*             } */
-  /*         } */
-  /*     } */
-
-  /*   if (!feof (infile)) */
-  /*     { */
-  /*       if (fread (*buffer, 1, frame_size, infile) != frame_size) */
-  /*         { */
-  /*           TIZ_ERROR (handleOf (ap_prc), "Failed to read full frame"); */
-  /*           return 1; */
-  /*         } */
-  /*       *bytes_read = frame_size; */
-  /*     } */
+      if (p_buf->frame_size > p_buf->alloc_len)
+        {
+          uint8_t * new_buf = realloc (p_buf->p_data, 2 * p_buf->frame_size);
+          if (new_buf)
+            {
+              p_buf->p_data = new_buf;
+              p_buf->alloc_len = 2 * p_buf->frame_size;
+            }
+          else
+            {
+              TIZ_ERROR (handleOf (ap_prc),
+                         "Failed to (re)allocate compressed data buffer");
+              p_buf->frame_size = 0;
+              rc = OMX_ErrorInsufficientResources;
+            }
+        }
+    }
 
   return rc;
 }
@@ -562,25 +543,23 @@ read_frame_ivf (vp8d_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * ap_inhdr)
 
   if (p_buf->filled_len == 0)
     {
-      if (0 != (p_buf->frame_size = read_frame_size (ap_prc, ap_inhdr)))
-        {
-          if (p_buf->frame_size > p_buf->alloc_len)
-            {
-              uint8_t * new_buf
-                = realloc (p_buf->p_data, 2 * p_buf->frame_size);
+      tiz_check_omx (read_frame_size (ap_prc, IVF_FRAME_HDR_SZ, ap_inhdr,
+                                      &(p_buf->frame_size)));
 
-              if (new_buf)
-                {
-                  p_buf->p_data = new_buf;
-                  p_buf->alloc_len = 2 * p_buf->frame_size;
-                }
-              else
-                {
-                  TIZ_ERROR (handleOf (ap_prc),
-                             "Failed to (re)allocate compressed data buffer");
-                  p_buf->frame_size = 0;
-                  rc = OMX_ErrorInsufficientResources;
-                }
+      if (p_buf->frame_size > p_buf->alloc_len)
+        {
+          uint8_t * new_buf = realloc (p_buf->p_data, 2 * p_buf->frame_size);
+          if (new_buf)
+            {
+              p_buf->p_data = new_buf;
+              p_buf->alloc_len = 2 * p_buf->frame_size;
+            }
+          else
+            {
+              TIZ_ERROR (handleOf (ap_prc),
+                         "Failed to (re)allocate compressed data buffer");
+              p_buf->frame_size = 0;
+              rc = OMX_ErrorInsufficientResources;
             }
         }
     }
