@@ -135,8 +135,15 @@ is_raw (const vp8d_prc_t * ap_prc, OMX_U8 * ap_buf, unsigned int * ap_fourcc,
               *ap_fps_den = 1;
               break;
             }
-          TIZ_TRACE (handleOf (ap_prc), "Not a raw strem")
+          else
+            {
+              TIZ_TRACE (handleOf (ap_prc), "Not a raw strem");
+            }
         }
+    }
+  else
+    {
+      TIZ_WARN (handleOf (ap_prc), "Read invalid frame size");
     }
   return is_raw;
 }
@@ -249,11 +256,9 @@ read_from_omx_buffer (const vp8d_prc_t * ap_prc, void * ap_dst,
 {
   size_t to_read = a_bytes;
 
+  assert (ap_prc);
   assert (ap_dst);
   assert (ap_hdr);
-
-  /*   TIZ_TRACE (handleOf(ap_prc), "a_bytes [%d], nFilledLen [%d] nOffset [%d]", */
-  /*              a_bytes, ap_hdr->nFilledLen, ap_hdr->nOffset); */
 
   if (a_bytes)
     {
@@ -270,10 +275,6 @@ read_from_omx_buffer (const vp8d_prc_t * ap_prc, void * ap_dst,
       ap_hdr->nFilledLen -= to_read;
       ap_hdr->nOffset += to_read;
     }
-
-  /*   TIZ_TRACE (handleOf(ap_prc), */
-  /*              "a_bytes [%d], nFilledLen [%d] nOffset [%d] to_read [%d]", a_bytes, */
-  /*              ap_hdr->nFilledLen, ap_hdr->nOffset, to_read); */
 
   return to_read;
 }
@@ -457,7 +458,7 @@ read_frame_size (vp8d_prc_t * ap_prc, const size_t a_hdr_size,
   if (0 == (bytes_read
             = read_from_omx_buffer (ap_prc, hdr, a_hdr_size, ap_inhdr) != 1))
     {
-      TIZ_ERROR (handleOf (ap_prc), "Failed to read frame size");
+      TIZ_WARN (handleOf (ap_prc), "Failed to read frame size");
       rc = OMX_ErrorInsufficientResources;
       goto end;
     }
@@ -469,19 +470,19 @@ read_frame_size (vp8d_prc_t * ap_prc, const size_t a_hdr_size,
 
       if (frame_size > CORRUPT_FRAME_THRESHOLD)
         {
-          TIZ_ERROR (handleOf (ap_prc), "Error: Read invalid frame size [%u]",
+          TIZ_WARN (handleOf (ap_prc), "Error: Read invalid frame size [%u]",
                      (unsigned int) frame_size);
-          rc = OMX_ErrorStreamCorrupt;
+          rc = OMX_ErrorInsufficientResources;
           goto end;
         }
 
       if (ap_prc->stream_type_ == STREAM_RAW
           && frame_size < FRAME_TOO_SMALL_THRESHOLD)
         {
-          TIZ_ERROR (handleOf (ap_prc),
+          TIZ_WARN (handleOf (ap_prc),
                      "Error: Read invalid raw frame size [%u]",
                      (unsigned int) frame_size);
-          rc = OMX_ErrorStreamCorrupt;
+          rc = OMX_ErrorInsufficientResources;
           goto end;
         }
     }
@@ -507,23 +508,25 @@ read_frame_raw (vp8d_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * ap_inhdr)
 
   if (p_buf->filled_len == 0)
     {
-      tiz_check_omx (read_frame_size (ap_prc, RAW_FRAME_HDR_SZ, ap_inhdr,
-                                      &(p_buf->frame_size)));
-
-      if (p_buf->frame_size > p_buf->alloc_len)
+      if (OMX_ErrorNone == (rc = read_frame_size (ap_prc, RAW_FRAME_HDR_SZ, ap_inhdr,
+                                                  &(p_buf->frame_size))))
         {
-          uint8_t * new_buf = realloc (p_buf->p_data, 2 * p_buf->frame_size);
-          if (new_buf)
+          if (p_buf->frame_size > p_buf->alloc_len)
             {
-              p_buf->p_data = new_buf;
-              p_buf->alloc_len = 2 * p_buf->frame_size;
-            }
-          else
-            {
-              TIZ_ERROR (handleOf (ap_prc),
-                         "Failed to (re)allocate compressed data buffer");
-              p_buf->frame_size = 0;
-              rc = OMX_ErrorInsufficientResources;
+              uint8_t * new_buf
+                = realloc (p_buf->p_data, 2 * p_buf->frame_size);
+              if (new_buf)
+                {
+                  p_buf->p_data = new_buf;
+                  p_buf->alloc_len = 2 * p_buf->frame_size;
+                }
+              else
+                {
+                  TIZ_ERROR (handleOf (ap_prc),
+                             "Failed to (re)allocate compressed data buffer");
+                  p_buf->frame_size = 0;
+                  rc = OMX_ErrorInsufficientResources;
+                }
             }
         }
     }
@@ -542,9 +545,9 @@ read_frame_raw (vp8d_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * ap_inhdr)
                     ap_prc, (p_buf->p_data) + p_buf->filled_len,
                     p_buf->frame_size - p_buf->filled_len, ap_prc->p_inhdr_)))
             {
-              TIZ_ERROR (handleOf (ap_prc),
-                         "Failed to read a full frame (frame size = %u)",
-                         p_buf->frame_size);
+              TIZ_WARN (handleOf (ap_prc),
+                        "Failed to read a full frame (frame size = %u)",
+                        p_buf->frame_size);
               rc = OMX_ErrorInsufficientResources;
             }
         }
@@ -740,10 +743,11 @@ decode_stream (vp8d_prc_t * ap_prc)
       /* Step 2: Read a frame into our internal storage */
       if (p_inhdr->nFilledLen > 0)
         {
-          tiz_check_omx (read_frame (ap_prc, p_inhdr));
-
-          /* Step 3: Decode the frame just read */
-          tiz_check_omx (decode_frame (ap_prc));
+          if (OMX_ErrorNone == read_frame (ap_prc, p_inhdr))
+            {
+              /* Step 3: Decode the frame just read */
+              tiz_check_omx (decode_frame (ap_prc));
+            }
         }
 
       /* Step 4: Get rid of input and output buffers, if we can */

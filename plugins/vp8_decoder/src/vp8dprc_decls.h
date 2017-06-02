@@ -41,9 +41,11 @@ extern "C" {
 
 #include <tizprc_decls.h>
 
-#define IVF_FRAME_HDR_SZ (sizeof (uint32_t) + sizeof (uint64_t))
+#define IVF_FRAME_HDR_SZ (4 + 8) /* 4 byte size + 8 byte timestamp */
+#define IVF_FILE_HDR_SZ 32
 #define RAW_FRAME_HDR_SZ (sizeof (uint32_t))
 #define VP8_FOURCC (0x00385056)
+#define VP9_FOURCC (0x30395056)
 
 #define CORRUPT_FRAME_THRESHOLD (256 * 1024 * 1024)
 #define FRAME_TOO_SMALL_THRESHOLD (256 * 1024)
