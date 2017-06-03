@@ -125,7 +125,7 @@ is_raw (const vp8d_prc_t * ap_prc, OMX_U8 * ap_buf, unsigned int * ap_fourcc,
       for (i = 0; i < sizeof (ifaces) / sizeof (ifaces[0]); i++)
         {
           if (VPX_CODEC_OK
-              == vpx_codec_peek_stream_info (ifaces[i].iface, ap_buf, 32, &si))
+              == vpx_codec_peek_stream_info (ifaces[i].iface, ap_buf + 4, 32 - 4, &si))
             {
               is_raw = 1;
               *ap_fourcc = ifaces[i].fourcc;
@@ -423,13 +423,6 @@ obtain_stream_info (vp8d_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * p_inhdr)
            * buffer */
           p_inhdr->nOffset += 32;
           p_inhdr->nFilledLen -= 32;
-        }
-      else if (STREAM_RAW == ap_prc->stream_type_)
-        {
-          /* Make sure we skip the IVF header the next time we read from the
-           * buffer */
-/*           p_inhdr->nOffset += RAW_FRAME_HDR_SZ; */
-/*           p_inhdr->nFilledLen -= RAW_FRAME_HDR_SZ; */
         }
     }
   else
