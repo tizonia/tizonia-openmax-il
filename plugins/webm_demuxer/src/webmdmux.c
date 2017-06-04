@@ -129,7 +129,8 @@ instantiate_video_output_port (OMX_HANDLETYPE ap_hdl, const OMX_U32 port_id)
 {
   OMX_VIDEO_PORTDEFINITIONTYPE portdef;
   OMX_VIDEO_CODINGTYPE encodings[]
-    = {OMX_VIDEO_CodingUnused, OMX_VIDEO_CodingMax};
+    = {OMX_VIDEO_CodingUnused, OMX_VIDEO_CodingAutoDetect, OMX_VIDEO_CodingVP8,
+       OMX_VIDEO_CodingVP9, OMX_VIDEO_CodingMax};
   OMX_COLOR_FORMATTYPE formats[]
     = {OMX_COLOR_FormatUnused, OMX_COLOR_FormatMax};
   tiz_port_options_t port_opts = {
