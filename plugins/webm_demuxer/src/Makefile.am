@@ -27,11 +27,6 @@ noinst_HEADERS = \
 	webmdmuxfltprc_decls.h
 
 libtizwebmdemux_la_SOURCES = \
-	nestegg/halloc/src/halloc.c \
-	nestegg/halloc/halloc.h \
-	nestegg/halloc/src/align.h \
-	nestegg/halloc/src/hlist.h \
-	nestegg/halloc/src/macros.h \
 	nestegg/include/nestegg/nestegg.h \
 	nestegg/src/nestegg.c \
 	webmdmux.c \
@@ -43,8 +38,7 @@ libtizwebmdemux_la_CFLAGS = \
 	@TIZPLATFORM_CFLAGS@ \
 	@TIZONIA_CFLAGS@ \
 	-I$(top_srcdir)/src/nestegg/include \
-	-I$(top_srcdir)/src/nestegg/include/nestegg \
-	-I$(top_srcdir)/src/nestegg/halloc
+	-I$(top_srcdir)/src/nestegg/include/nestegg
 
 libtizwebmdemux_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@
 
