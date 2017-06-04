@@ -89,6 +89,22 @@ ne_io_tell (void * userdata)
   return 0;
 }
 
+/* static inline OMX_BUFFERHEADERTYPE * */
+/* get_aud_hdr (webmdmuxsrc_prc_t * ap_prc) */
+/* { */
+/*   assert (ap_prc); */
+/*   return tiz_filter_prc_get_header (ap_prc, */
+/*                                     ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX); */
+/* } */
+
+/* static inline OMX_BUFFERHEADERTYPE * */
+/* get_vid_hdr (webmdmuxsrc_prc_t * ap_prc) */
+/* { */
+/*   assert (ap_prc); */
+/*   return tiz_filter_prc_get_header (ap_prc, */
+/*                                     ARATELIA_WEBM_DEMUXER_FILTER_PORT_2_INDEX); */
+/* } */
+
 /* static OMX_ERRORTYPE init_demuxer (webmdmuxsrc_prc_t *ap_prc) */
 /* { */
 /*   OMX_ERRORTYPE rc = OMX_ErrorNone; */
