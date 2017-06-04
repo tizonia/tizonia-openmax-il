@@ -457,6 +457,35 @@ read_frame_size (vp8d_prc_t * ap_prc, const size_t a_hdr_size,
 }
 
 static OMX_ERRORTYPE
+realloc_codec_buffer_if_needed (vp8d_prc_t * ap_prc)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  vp8d_codec_buffer_t * p_buf = NULL;
+
+  assert (ap_prc);
+
+  p_buf = &(ap_prc->codec_buf_);
+
+  if (p_buf->frame_size > p_buf->alloc_len)
+    {
+      uint8_t * p_new_buf = realloc (p_buf->p_data, 2 * p_buf->frame_size);
+      if (p_new_buf)
+        {
+          p_buf->p_data = p_new_buf;
+          p_buf->alloc_len = 2 * p_buf->frame_size;
+        }
+      else
+        {
+          TIZ_ERROR (handleOf (ap_prc),
+                     "Failed to (re)allocate compressed data buffer");
+          p_buf->frame_size = 0;
+          rc = OMX_ErrorInsufficientResources;
+        }
+    }
+  return rc;
+}
+
+static OMX_ERRORTYPE
 read_frame_data_with_hdr (vp8d_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * ap_inhdr,
                           const size_t a_hdr_size)
 {
@@ -473,43 +502,19 @@ read_frame_data_with_hdr (vp8d_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * ap_inhdr,
     {
       tiz_check_omx (
         read_frame_size (ap_prc, a_hdr_size, ap_inhdr, &(p_buf->frame_size)));
-
-      if (p_buf->frame_size > p_buf->alloc_len)
-        {
-          uint8_t * new_buf = realloc (p_buf->p_data, 2 * p_buf->frame_size);
-          if (new_buf)
-            {
-              p_buf->p_data = new_buf;
-              p_buf->alloc_len = 2 * p_buf->frame_size;
-            }
-          else
-            {
-              TIZ_ERROR (handleOf (ap_prc),
-                         "Failed to (re)allocate compressed data buffer");
-              p_buf->frame_size = 0;
-              rc = OMX_ErrorInsufficientResources;
-            }
-        }
+      tiz_check_omx (realloc_codec_buffer_if_needed (ap_prc));
     }
 
-  if (OMX_ErrorNone == rc)
+  tiz_check_true_ret_val (p_buf->frame_size > 0,
+                          OMX_ErrorInsufficientResources);
+
+  if (p_buf->frame_size
+      != (p_buf->filled_len += read_from_omx_buffer (
+            ap_prc, (p_buf->p_data) + p_buf->filled_len,
+            p_buf->frame_size - p_buf->filled_len, ap_prc->p_inhdr_)))
     {
-      if (p_buf->frame_size == 0)
-        {
-          TIZ_ERROR (handleOf (ap_prc), "frame size = 0");
-          rc = OMX_ErrorInsufficientResources;
-        }
-      else
-        {
-          if (p_buf->frame_size
-              != (p_buf->filled_len += read_from_omx_buffer (
-                    ap_prc, (p_buf->p_data) + p_buf->filled_len,
-                    p_buf->frame_size - p_buf->filled_len, ap_prc->p_inhdr_)))
-            {
-              TIZ_WARN (handleOf (ap_prc), "Failed to read a full frame");
-              rc = OMX_ErrorInsufficientResources;
-            }
-        }
+      TIZ_WARN (handleOf (ap_prc), "Failed to read a full frame");
+      rc = OMX_ErrorInsufficientResources;
     }
 
   return rc;
@@ -529,23 +534,7 @@ read_frame_raw (vp8d_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * ap_inhdr)
 
   /* Expected a full compressed frame per omx buffer */
   p_buf->frame_size = ap_prc->p_inhdr_->nFilledLen;
-
-  if (p_buf->frame_size > p_buf->alloc_len)
-    {
-      uint8_t * new_buf = realloc (p_buf->p_data, 2 * p_buf->frame_size);
-      if (new_buf)
-        {
-          p_buf->p_data = new_buf;
-          p_buf->alloc_len = 2 * p_buf->frame_size;
-        }
-      else
-        {
-          TIZ_ERROR (handleOf (ap_prc),
-                     "Failed to (re)allocate compressed data buffer");
-          p_buf->frame_size = 0;
-          return OMX_ErrorInsufficientResources;
-        }
-    }
+  tiz_check_omx (realloc_codec_buffer_if_needed (ap_prc));
 
   if (p_buf->frame_size
       != (p_buf->filled_len += read_from_omx_buffer (
