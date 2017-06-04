@@ -175,7 +175,8 @@ is_ivf (vp8d_prc_t * ap_prc, OMX_U8 * ap_buf)
 }
 
 static int
-peek_raw_stream (vp8d_prc_t * ap_prc, const OMX_U8 * ap_buf, const size_t a_size_bytes)
+peek_raw_stream (vp8d_prc_t * ap_prc, const OMX_U8 * ap_buf,
+                 const size_t a_size_bytes)
 {
   vpx_codec_stream_info_t si;
   int i = 0;
@@ -188,8 +189,8 @@ peek_raw_stream (vp8d_prc_t * ap_prc, const OMX_U8 * ap_buf, const size_t a_size
 
   for (i = 0; i < sizeof (ifaces) / sizeof (ifaces[0]); i++)
     {
-      if (VPX_CODEC_OK
-          == vpx_codec_peek_stream_info (ifaces[i].iface, ap_buf, a_size_bytes, &si))
+      if (VPX_CODEC_OK == vpx_codec_peek_stream_info (ifaces[i].iface, ap_buf,
+                                                      a_size_bytes, &si))
         {
           is_raw = 1;
           ap_prc->info_.fourcc = ifaces[i].fourcc;
@@ -299,28 +300,24 @@ get_input_buffer (vp8d_prc_t * ap_prc)
 {
   assert (ap_prc);
 
-  if (ap_prc->p_inhdr_)
-    {
-      return ap_prc->p_inhdr_;
-    }
-  else
+  if (!ap_prc->p_inhdr_)
     {
       if (OMX_ErrorNone
-          == tiz_krn_claim_buffer (tiz_get_krn (handleOf (ap_prc)), 0, 0,
+          == tiz_krn_claim_buffer (tiz_get_krn (handleOf (ap_prc)),
+                                   ARATELIA_VP8_DECODER_INPUT_PORT_INDEX, 0,
                                    &ap_prc->p_inhdr_))
         {
+#ifndef NDEBUG
           if (ap_prc->p_inhdr_)
             {
               TIZ_TRACE (handleOf (ap_prc),
-                         "Claimed input HEADER [%p]..."
-                         "nFilledLen [%d]",
+                         "Claimed input HEADER [%p]... nFilledLen [%d]",
                          ap_prc->p_inhdr_, ap_prc->p_inhdr_->nFilledLen);
-              return ap_prc->p_inhdr_;
             }
+#endif
         }
     }
-
-  return NULL;
+  return ap_prc->p_inhdr_;
 }
 
 static OMX_BUFFERHEADERTYPE *
@@ -328,37 +325,24 @@ get_output_buffer (vp8d_prc_t * ap_prc)
 {
   assert (ap_prc);
 
-  TIZ_TRACE (handleOf (ap_prc), "eos_ = %s", ap_prc->eos_ ? "TRUE" : "FALSE");
-
-  if (ap_prc->p_outhdr_)
+  if (!ap_prc->p_outhdr_)
     {
-      return ap_prc->p_outhdr_;
-    }
-  else
-    {
-      tiz_pd_set_t ports;
-
-      TIZ_PD_ZERO (&ports);
       if (OMX_ErrorNone
-          == tiz_krn_select (tiz_get_krn (handleOf (ap_prc)), 2, &ports))
+          == tiz_krn_claim_buffer (tiz_get_krn (handleOf (ap_prc)),
+                                   ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX, 0,
+                                   &ap_prc->p_outhdr_))
         {
-          if (TIZ_PD_ISSET (1, &ports))
+#ifndef NDEBUG
+          if (ap_prc->p_outhdr_)
             {
-              if (OMX_ErrorNone
-                  == tiz_krn_claim_buffer (tiz_get_krn (handleOf (ap_prc)), 1,
-                                           0, &ap_prc->p_outhdr_))
-                {
-                  TIZ_TRACE (handleOf (ap_prc),
-                             "Claimed output HEADER [%p]..."
-                             "nFilledLen [%d]",
-                             ap_prc->p_outhdr_, ap_prc->p_outhdr_->nFilledLen);
-                  return ap_prc->p_outhdr_;
-                }
+              TIZ_TRACE (handleOf (ap_prc),
+                         "Claimed output HEADER [%p]...nFilledLen [%d]",
+                         ap_prc->p_outhdr_, ap_prc->p_outhdr_->nFilledLen);
             }
+#endif
         }
     }
-
-  return NULL;
+  return ap_prc->p_outhdr_;
 }
 
 static void
