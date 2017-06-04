@@ -54,7 +54,9 @@ typedef enum vp8d_stream_type vp8d_stream_type_t;
 enum vp8d_stream_type
 {
   STREAM_RAW,
+  STREAM_RAW_WITH_LENGTH_HDR,
   STREAM_IVF,
+  STREAM_WEBM,
   STREAM_UNKNOWN,
 };
 
