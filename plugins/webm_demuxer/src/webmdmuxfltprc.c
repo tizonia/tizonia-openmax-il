@@ -1,4 +1,4 @@
-/**
+x/**
  * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
@@ -969,9 +969,10 @@ read_video_codec_metadata (webmdmuxflt_prc_t * ap_prc,
       on_nestegg_error_ret_omx_oom (nestegg_track_video_params (
         ap_prc->p_ne_, a_track_idx, &ap_prc->ne_video_params_));
 
-      /* Retrieve the number of codec specific metadata items */
-      on_nestegg_error_ret_omx_oom (
-        nestegg_track_codec_data_count (ap_prc->p_ne_, a_track_idx, &nheaders));
+      /* Retrieve the number of codec specific metadata items. NOTE: ignore
+         return code as there might not be any. */
+      (void) nestegg_track_codec_data_count (ap_prc->p_ne_, a_track_idx,
+                                             &nheaders);
 
       TIZ_DEBUG (handleOf (ap_prc), "nheaders [%u]", nheaders);
 
