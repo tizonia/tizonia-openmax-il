@@ -37,6 +37,8 @@
 #include "tizutils.h"
 #include "tizaudioport.h"
 #include "tizaudioport_decls.h"
+#include "tizvideoport.h"
+#include "tizvideoport_decls.h"
 #include "tizpcmport.h"
 #include "tizvideoport.h"
 #include "tizdemuxerport.h"
@@ -47,6 +49,7 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.tizonia.demuxerport"
 #endif
 
+/* TODO: Remove duplicate. This function already exists in tizaudioport.c */
 static inline OMX_ERRORTYPE
 update_audio_coding_type (void * ap_obj, const OMX_AUDIO_CODINGTYPE a_encoding)
 {
@@ -85,6 +88,96 @@ update_audio_coding_type (void * ap_obj, const OMX_AUDIO_CODINGTYPE a_encoding)
 
   /* Now update the base class' OMX_PARAM_PORTDEFINITIONTYPE */
   p_base->portdef_.format.audio.eEncoding = a_encoding;
+
+end:
+
+  return rc;
+}
+
+/* TODO: Remove duplicate. This function already exists in tizvideoport.c */
+static inline OMX_ERRORTYPE
+update_video_coding_type (void * ap_obj, const OMX_VIDEO_CODINGTYPE a_encoding)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  tiz_demuxerport_t * p_obj = ap_obj;
+  tiz_videoport_t * p_video_port = NULL;
+  tiz_port_t * p_base = ap_obj;
+
+  assert (ap_obj);
+  p_video_port = p_obj->p_port_;
+
+  if (a_encoding >= OMX_VIDEO_CodingMax)
+    {
+      TIZ_ERROR (handleOf (ap_obj),
+                 "[OMX_ErrorBadParameter] : "
+                 "(Bad encoding [0x%08x]...)",
+                 a_encoding);
+      rc = OMX_ErrorBadParameter;
+      goto end;
+    }
+
+  if (!tiz_vector_find (p_video_port->p_video_encodings_, (const OMX_PTR) (&a_encoding)))
+    {
+      TIZ_ERROR (handleOf (ap_obj),
+                 "[OMX_ErrorUnsupportedSetting] : "
+                 "(Encoding not supported [0x%08x]...)",
+                 a_encoding);
+      rc = OMX_ErrorUnsupportedSetting;
+      goto end;
+    }
+
+  /* All well */
+
+  /* Update this port's OMX_VIDEO_PARAM_PORTFORMATTYPE structure */
+  p_video_port->port_format_.eCompressionFormat = a_encoding;
+
+  /* Now update the base class' OMX_PARAM_PORTDEFINITIONTYPE */
+  p_base->portdef_.format.video.eCompressionFormat = a_encoding;
+
+end:
+
+  return rc;
+}
+
+/* TODO: Remove duplicate. This function already exists in tizvideoport.c */
+static inline OMX_ERRORTYPE
+update_color_format_type (void * ap_obj, const OMX_COLOR_FORMATTYPE a_color_format)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  tiz_demuxerport_t * p_obj = ap_obj;
+  tiz_videoport_t * p_video_port = NULL;
+  tiz_port_t * p_base = ap_obj;
+
+  assert (ap_obj);
+  p_video_port = p_obj->p_port_;
+
+  if (a_color_format >= OMX_COLOR_FormatMax)
+    {
+      TIZ_ERROR (handleOf (ap_obj),
+                 "[OMX_ErrorBadParameter] : "
+                 "(Bad color format [0x%08x]...)",
+                 a_color_format);
+      rc = OMX_ErrorBadParameter;
+      goto end;
+    }
+
+  if (!tiz_vector_find (p_video_port->p_color_formats_, (const OMX_PTR) (&a_color_format)))
+    {
+      TIZ_ERROR (handleOf (ap_obj),
+                 "[OMX_ErrorUnsupportedSetting] : "
+                 "(Color format not supported [0x%08x]...)",
+                 a_color_format);
+      rc = OMX_ErrorUnsupportedSetting;
+      goto end;
+    }
+
+  /* All well */
+
+  /* Update this port's OMX_VIDEO_PARAM_PORTFORMATTYPE structure */
+  p_video_port->port_format_.eColorFormat = a_color_format;
+
+  /* Now update the base class' OMX_PARAM_PORTDEFINITIONTYPE */
+  p_base->portdef_.format.video.eColorFormat = a_color_format;
 
 end:
 
@@ -415,19 +508,44 @@ demuxerport_set_portdef_format (void * ap_obj,
 
   if (OMX_PortDomainAudio == p_base->portdef_.eDomain)
     {
+      tiz_check_omx (update_audio_coding_type (p_obj, ap_pdef->format.audio.eEncoding));
       p_base->portdef_.format.audio.pNativeRender
         = ap_pdef->format.audio.pNativeRender;
       p_base->portdef_.format.audio.bFlagErrorConcealment
         = ap_pdef->format.audio.bFlagErrorConcealment;
       TIZ_TRACE (handleOf (ap_obj), "PORT [%d] audio.eEncoding [%d]",
                  tiz_port_index (ap_obj), ap_pdef->format.audio.eEncoding);
-      rc = update_audio_coding_type (p_obj, ap_pdef->format.audio.eEncoding);
     }
   else if (OMX_PortDomainVideo == p_base->portdef_.eDomain)
     {
-      /* TODO */
-      assert (0);
-      rc = OMX_ErrorUndefined;
+      tiz_check_omx (update_video_coding_type (
+        p_obj, ap_pdef->format.video.eCompressionFormat));
+
+      tiz_check_omx (
+        update_color_format_type (p_obj, ap_pdef->format.video.eColorFormat));
+
+      p_base->portdef_.format.video.pNativeRender
+        = ap_pdef->format.video.pNativeRender;
+      p_base->portdef_.format.video.nFrameWidth
+        = ap_pdef->format.video.nFrameWidth;
+      p_base->portdef_.format.video.nFrameHeight
+        = ap_pdef->format.video.nFrameHeight;
+      p_base->portdef_.format.video.nStride = ap_pdef->format.video.nStride;
+      p_base->portdef_.format.video.nSliceHeight
+        = ap_pdef->format.video.nSliceHeight;
+      p_base->portdef_.format.video.nBitrate = ap_pdef->format.video.nBitrate;
+      p_base->portdef_.format.video.xFramerate
+        = ap_pdef->format.video.xFramerate;
+      p_base->portdef_.format.video.bFlagErrorConcealment
+        = ap_pdef->format.video.bFlagErrorConcealment;
+
+      /* Shadow copy is debatable; perhaps a deep copy would be needed. */
+      p_base->portdef_.format.video.pNativeWindow
+        = ap_pdef->format.video.pNativeWindow;
+
+      TIZ_TRACE (handleOf (ap_obj), "PORT [%d] video.eCompressionFormat [%d]",
+                 tiz_port_index (ap_obj),
+                 ap_pdef->format.video.eCompressionFormat);
     }
   else
     {
