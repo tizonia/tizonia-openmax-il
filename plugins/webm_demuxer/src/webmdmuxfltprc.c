@@ -23,8 +23,9 @@
  *
  * @brief  Tizonia - WebM demuxer filter processor
  *
- * TODO: Support for video demuxing (VP8/VP9 demuxing no handled yet)
- * TODO: Finalise support for audio demuxer (VORBIS not handled yet, only OPUS demuxing)
+ * TODO: Support for video demuxing (VP8/VP9 demuxing no handled yet).
+ * TODO: Finalise support for audio demuxer (VORBIS not handled yet, only OPUS demuxing).
+ * TODO: Seek support.
  *
  */
 
@@ -69,7 +70,7 @@ store_data (webmdmuxflt_prc_t * ap_prc);
         {                                                             \
           TIZ_ERROR (handleOf (ap_prc),                               \
                      "[OMX_ErrorInsufficientResources] : while using" \
-                     "libnestegg");                                   \
+                     " libnestegg");                                  \
           return OMX_ErrorInsufficientResources;                      \
         }                                                             \
     }                                                                 \
@@ -88,22 +89,6 @@ store_data (webmdmuxflt_prc_t * ap_prc);
         (tiz_filter_prc_output_headers_available (ap_prc) ? "YES" : "NO")); \
     }                                                                       \
   while (0)
-
-static inline OMX_BUFFERHEADERTYPE *
-get_aud_hdr (webmdmuxflt_prc_t * ap_prc)
-{
-  assert (ap_prc);
-  return tiz_filter_prc_get_header (ap_prc,
-                                    ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX);
-}
-
-static inline OMX_BUFFERHEADERTYPE *
-get_vid_hdr (webmdmuxflt_prc_t * ap_prc)
-{
-  assert (ap_prc);
-  return tiz_filter_prc_get_header (ap_prc,
-                                    ARATELIA_WEBM_DEMUXER_FILTER_PORT_2_INDEX);
-}
 
 static inline OMX_BUFFERHEADERTYPE *
 get_webm_hdr (webmdmuxflt_prc_t * ap_prc)
@@ -275,6 +260,25 @@ print_audio_codec_metadata (webmdmuxflt_prc_t * ap_prc,
       TIZ_DEBUG (handleOf (ap_prc), "   [%c]", ap_codec_data[k]);
     }
 }
+
+static void
+print_video_codec_metadata (webmdmuxflt_prc_t * ap_prc,
+                            const unsigned int a_header_idx,
+                            const unsigned int a_nheaders,
+                            unsigned char * ap_codec_data,
+                            size_t codec_data_length)
+{
+  size_t k = 0;
+  assert (ap_prc);
+  assert (ap_codec_data);
+  TIZ_DEBUG (handleOf (ap_prc), " Video header [%u] headers [%u] (%p, %u)",
+             a_header_idx, a_nheaders, ap_codec_data,
+             (unsigned int) codec_data_length);
+  for (k = 0; k < codec_data_length; ++k)
+    {
+      TIZ_DEBUG (handleOf (ap_prc), "   [%c]", ap_codec_data[k]);
+    }
+}
 #endif
 
 static void
@@ -428,7 +432,9 @@ store_video_codec_metadata (webmdmuxflt_prc_t * ap_prc,
   tiz_check_omx (
     tiz_vector_push_back (ap_prc->p_vid_header_lengths_, &a_length));
 
-  TIZ_DEBUG (handleOf (ap_prc), "copied metadata to buffer - len %u", a_length);
+  TIZ_DEBUG (handleOf (ap_prc),
+             "copied metadata (len %u) to temp out buffer (%d) ", a_length,
+             tiz_buffer_available (ap_prc->p_vid_store_));
 
   return OMX_ErrorNone;
 }
@@ -952,24 +958,33 @@ read_video_codec_metadata (webmdmuxflt_prc_t * ap_prc,
     {
       unsigned int nheaders = 0;
       unsigned int header_idx = 0;
-      size_t length = 0;
-      unsigned char * p_codec_data = NULL;
 
+      /* WebM video codecs are VP8 or VP9 */
       ap_prc->video_coding_type_
         = (a_codec_id == NESTEGG_CODEC_VP8 ? OMX_VIDEO_CodingVP8
                                            : OMX_VIDEO_CodingVP9);
       ap_prc->ne_video_track_ = a_track_idx;
 
+      /* Retrieve the video parameters */
       on_nestegg_error_ret_omx_oom (nestegg_track_video_params (
         ap_prc->p_ne_, a_track_idx, &ap_prc->ne_video_params_));
 
+      /* Retrieve the number of codec specific metadata items */
       on_nestegg_error_ret_omx_oom (
         nestegg_track_codec_data_count (ap_prc->p_ne_, a_track_idx, &nheaders));
 
+      TIZ_DEBUG (handleOf (ap_prc), "nheaders [%u]", nheaders);
+
       for (header_idx = 0; header_idx < nheaders; ++header_idx)
         {
+          size_t length = 0;
+          unsigned char * p_codec_data = NULL;
           on_nestegg_error_ret_omx_oom (nestegg_track_codec_data (
             ap_prc->p_ne_, a_track_idx, header_idx, &p_codec_data, &length));
+#ifndef NDEBUG
+          print_video_codec_metadata (ap_prc, header_idx, nheaders,
+                                      p_codec_data, length);
+#endif
           /* Put the video specific codec data on an OMX buffer */
           tiz_check_omx (
             store_video_codec_metadata (ap_prc, p_codec_data, length));
