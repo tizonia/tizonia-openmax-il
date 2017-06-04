@@ -211,7 +211,7 @@ extern "C" {
   do                                                                \
     {                                                               \
       if                                                            \
-        TIZ_LIKELY (expr)                                           \
+        TIZ_LIKELY ((expr))                                         \
         {                                                           \
         }                                                           \
       else                                                          \
@@ -235,7 +235,7 @@ extern "C" {
   do                                                                    \
     {                                                                   \
       if                                                                \
-        TIZ_LIKELY (expr)                                               \
+        TIZ_LIKELY ((expr))                                             \
         {                                                               \
         }                                                               \
       else                                                              \
