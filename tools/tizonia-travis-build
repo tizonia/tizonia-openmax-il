@@ -47,8 +47,6 @@ readonly SKEMA_BIN_DIR="$SKEMA_DIR"/bin
 # A list of skema test suites that should not be executed
 declare -ar SKEMA_EXEMPT_SUITES=( \
     "Mp3Streaming" \
-    "Vp8Playback" \
-    "WebmVp8Playback" \
     "VorbisDecodeBaseProfile" \
     "AacPlayback" \
     "Mp3StreamingClient" \
