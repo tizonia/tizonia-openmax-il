@@ -50,12 +50,23 @@ extern "C" {
 #define CORRUPT_FRAME_THRESHOLD (256 * 1024 * 1024)
 #define FRAME_TOO_SMALL_THRESHOLD (256 * 1024)
 
-typedef enum vp8dprc_stream_type vp8dprc_stream_type_t;
-enum vp8dprc_stream_type
+typedef enum vp8d_stream_type vp8d_stream_type_t;
+enum vp8d_stream_type
 {
   STREAM_RAW,
   STREAM_IVF,
   STREAM_UNKNOWN,
+};
+
+typedef struct vp8d_stream_info vp8d_stream_info_t;
+struct vp8d_stream_info
+{
+  vp8d_stream_type_t type;
+  unsigned int fourcc;
+  unsigned int width;
+  unsigned int height;
+  unsigned int fps_den;
+  unsigned int fps_num;
 };
 
 typedef struct vp8d_codec_buffer vp8d_codec_buffer_t;
@@ -72,13 +83,13 @@ struct vp8d_prc
 {
   /* Object */
   const tiz_prc_t _;
+  vp8d_stream_info_t info_;
+  vp8d_codec_buffer_t codec_buf_;
   OMX_BUFFERHEADERTYPE * p_inhdr_;
   OMX_BUFFERHEADERTYPE * p_outhdr_;
   vpx_codec_ctx_t vp8ctx_;
   bool first_buf_;
   bool eos_;
-  vp8dprc_stream_type_t stream_type_;
-  vp8d_codec_buffer_t codec_buf_;
 };
 
 typedef struct vp8d_prc_class vp8d_prc_class_t;

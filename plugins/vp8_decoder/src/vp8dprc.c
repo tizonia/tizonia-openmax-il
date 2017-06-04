@@ -67,6 +67,21 @@
     }                                                                        \
   while (0)
 
+#define VP8DPRC_LOG_STATE(ap_prc)                                           \
+  do                                                                        \
+    {                                                                       \
+      TIZ_DEBUG (handleOf (ap_prc),                                         \
+                 "Stream [%s] fourcc [%s] width [%d] height [%d] "          \
+                 "fps_den [%d] fps_num [%d]",                               \
+                 ap_prc->info_.type == STREAM_RAW                           \
+                   ? "RAW"                                                  \
+                   : (ap_prc->info_.type == STREAM_IVF ? "IVF" : "UKNOWN"), \
+                 ap_prc->info_.fourcc == VP8_FOURCC ? "VP8" : "OTHER",      \
+                 ap_prc->info_.width, ap_prc->info_.height,                 \
+                 ap_prc->info_.fps_den, ap_prc->info_.fps_num);             \
+    }                                                                       \
+  while (0)
+
 static const struct
 {
   char const * name;
@@ -120,12 +135,12 @@ is_raw (const vp8d_prc_t * ap_prc, OMX_U8 * ap_buf, unsigned int * ap_fourcc,
 
   si.sz = sizeof (si);
 
-  if (mem_get_le32(ap_buf) < CORRUPT_FRAME_THRESHOLD)
+  if (mem_get_le32 (ap_buf) < CORRUPT_FRAME_THRESHOLD)
     {
       for (i = 0; i < sizeof (ifaces) / sizeof (ifaces[0]); i++)
         {
-          if (VPX_CODEC_OK
-              == vpx_codec_peek_stream_info (ifaces[i].iface, ap_buf + 4, 32 - 4, &si))
+          if (VPX_CODEC_OK == vpx_codec_peek_stream_info (
+                                ifaces[i].iface, ap_buf + 4, 32 - 4, &si))
             {
               is_raw = 1;
               *ap_fourcc = ifaces[i].fourcc;
@@ -232,18 +247,18 @@ identify_stream (vp8d_prc_t * ap_prc, OMX_U8 * ap_buf, unsigned int * ap_fourcc,
               ap_fps_num))
     {
       TIZ_DEBUG (handleOf (ap_prc), "STREAM_IVF");
-      ap_prc->stream_type_ = STREAM_IVF;
+      ap_prc->info_.type = STREAM_IVF;
     }
   else if (is_raw (ap_prc, ap_buf, ap_fourcc, ap_width, ap_height, ap_fps_den,
                    ap_fps_num))
     {
       TIZ_DEBUG (handleOf (ap_prc), "STREAM_RAW");
-      ap_prc->stream_type_ = STREAM_RAW;
+      ap_prc->info_.type = STREAM_RAW;
     }
   else
     {
       TIZ_DEBUG (handleOf (ap_prc), "STREAM_UNKNOWN");
-      ap_prc->stream_type_ = STREAM_UNKNOWN;
+      ap_prc->info_.type = STREAM_UNKNOWN;
       rc = EXIT_FAILURE;
     }
 
@@ -396,28 +411,18 @@ static OMX_ERRORTYPE
 obtain_stream_info (vp8d_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * p_inhdr)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  unsigned int fourcc = 0;
-  unsigned int width = 0;
-  unsigned int height = 0;
-  unsigned int fps_den = 0;
-  unsigned int fps_num = 0;
 
   assert (ap_prc);
   assert (p_inhdr);
 
-  if (EXIT_SUCCESS == identify_stream (ap_prc, p_inhdr->pBuffer, &fourcc,
-                                       &width, &height, &fps_den, &fps_num))
+  if (EXIT_SUCCESS
+      == identify_stream (ap_prc, p_inhdr->pBuffer, &ap_prc->info_.fourcc,
+                          &ap_prc->info_.width, &ap_prc->info_.height,
+                          &ap_prc->info_.fps_den, &ap_prc->info_.fps_num))
     {
-      TIZ_NOTICE (handleOf (ap_prc),
-                  "Stream [%s] fourcc = [%s] width [%d] height [%d] "
-                  "fps_den [%d] fps_num [%d]",
-                  ap_prc->stream_type_ == STREAM_RAW
-                    ? "RAW"
-                    : (ap_prc->stream_type_ == STREAM_IVF ? "IVF" : "UKNOWN"),
-                  fourcc == VP8_FOURCC ? "VP8" : "OTHER", width, height,
-                  fps_den, fps_num);
+      VP8DPRC_LOG_STATE (ap_prc);
 
-      if (STREAM_IVF == ap_prc->stream_type_)
+      if (STREAM_IVF == ap_prc->info_.type)
         {
           /* Make sure we skip the IVF header the next time we read from the
            * buffer */
@@ -448,39 +453,22 @@ read_frame_size (vp8d_prc_t * ap_prc, const size_t a_hdr_size,
   assert (ap_inhdr->nFilledLen > 0);
   assert (ap_frame_size);
 
-  if (0 == (bytes_read
-            = read_from_omx_buffer (ap_prc, hdr, a_hdr_size, ap_inhdr) != 1))
+  tiz_check_true_ret_val (0 != (bytes_read = read_from_omx_buffer (
+                                  ap_prc, hdr, a_hdr_size, ap_inhdr)),
+                          OMX_ErrorInsufficientResources);
+
+  frame_size = mem_get_le32 (hdr);
+
+  TIZ_DEBUG (handleOf (ap_prc), "frame size = [%u]", frame_size);
+
+  tiz_check_true_ret_val (frame_size < CORRUPT_FRAME_THRESHOLD,
+                          OMX_ErrorInsufficientResources);
+
+  if (ap_prc->info_.type == STREAM_RAW)
     {
-      TIZ_WARN (handleOf (ap_prc), "Failed to read frame size");
-      rc = OMX_ErrorInsufficientResources;
-      goto end;
+      tiz_check_true_ret_val (frame_size > FRAME_TOO_SMALL_THRESHOLD,
+                              OMX_ErrorInsufficientResources);
     }
-  else
-    {
-      frame_size = mem_get_le32 (hdr);
-
-      TIZ_DEBUG (handleOf (ap_prc), "frame size = [%u]", frame_size);
-
-      if (frame_size > CORRUPT_FRAME_THRESHOLD)
-        {
-          TIZ_WARN (handleOf (ap_prc), "Error: Read invalid frame size [%u]",
-                     (unsigned int) frame_size);
-          rc = OMX_ErrorInsufficientResources;
-          goto end;
-        }
-
-      if (ap_prc->stream_type_ == STREAM_RAW
-          && frame_size < FRAME_TOO_SMALL_THRESHOLD)
-        {
-          TIZ_WARN (handleOf (ap_prc),
-                     "Error: Read invalid raw frame size [%u]",
-                     (unsigned int) frame_size);
-          rc = OMX_ErrorInsufficientResources;
-          goto end;
-        }
-    }
-
-end:
 
   *ap_frame_size = frame_size;
 
@@ -501,8 +489,9 @@ read_frame_raw (vp8d_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * ap_inhdr)
 
   if (p_buf->filled_len == 0)
     {
-      if (OMX_ErrorNone == (rc = read_frame_size (ap_prc, RAW_FRAME_HDR_SZ, ap_inhdr,
-                                                  &(p_buf->frame_size))))
+      if (OMX_ErrorNone
+          == (rc = read_frame_size (ap_prc, RAW_FRAME_HDR_SZ, ap_inhdr,
+                                    &(p_buf->frame_size))))
         {
           if (p_buf->frame_size > p_buf->alloc_len)
             {
@@ -522,30 +511,30 @@ read_frame_raw (vp8d_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * ap_inhdr)
                 }
             }
         }
-    }
 
-  if (OMX_ErrorNone == rc)
-    {
-      if (p_buf->frame_size == 0)
+      if (OMX_ErrorNone == rc)
         {
-          TIZ_ERROR (handleOf (ap_prc), "frame size = 0");
-          rc = OMX_ErrorInsufficientResources;
-        }
-      else
-        {
-          if (p_buf->frame_size
-              != (p_buf->filled_len += read_from_omx_buffer (
-                    ap_prc, (p_buf->p_data) + p_buf->filled_len,
-                    p_buf->frame_size - p_buf->filled_len, ap_prc->p_inhdr_)))
+          if (p_buf->frame_size == 0)
             {
-              TIZ_WARN (handleOf (ap_prc),
-                        "Failed to read a full frame (frame size = %u)",
-                        p_buf->frame_size);
+              TIZ_ERROR (handleOf (ap_prc), "frame size = 0");
               rc = OMX_ErrorInsufficientResources;
+            }
+          else
+            {
+              if (p_buf->frame_size
+                  != (p_buf->filled_len += read_from_omx_buffer (
+                        ap_prc, (p_buf->p_data) + p_buf->filled_len,
+                        p_buf->frame_size - p_buf->filled_len,
+                        ap_prc->p_inhdr_)))
+                {
+                  TIZ_WARN (handleOf (ap_prc),
+                            "Failed to read a full frame (frame size = %u)",
+                            p_buf->frame_size);
+                  rc = OMX_ErrorInsufficientResources;
+                }
             }
         }
     }
-
   return rc;
 }
 
@@ -618,7 +607,7 @@ read_frame (vp8d_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * ap_inhdr)
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (ap_prc);
 
-  switch (ap_prc->stream_type_)
+  switch (ap_prc->info_.type)
     {
       case STREAM_RAW:
         {
@@ -759,11 +748,24 @@ decode_stream (vp8d_prc_t * ap_prc)
 }
 
 static inline void
-free_codec_buffer (vp8d_prc_t * p_obj)
+free_codec_buffer (vp8d_prc_t * p_prc)
 {
-  assert (p_obj);
-  tiz_mem_free (p_obj->codec_buf_.p_data);
-  tiz_mem_set (&(p_obj->codec_buf_), 0, sizeof (p_obj->codec_buf_));
+  assert (p_prc);
+  tiz_mem_free (p_prc->codec_buf_.p_data);
+  tiz_mem_set (&(p_prc->codec_buf_), 0, sizeof (p_prc->codec_buf_));
+}
+
+static void
+reset_stream_parameters (vp8d_prc_t  * ap_prc)
+{
+  assert (ap_prc);
+  ap_prc->p_inhdr_ = 0;
+  ap_prc->p_outhdr_ = 0;
+  ap_prc->first_buf_ = true;
+  ap_prc->eos_ = false;
+  tiz_mem_set (&(ap_prc->info_), 0, sizeof (ap_prc->info_));
+  ap_prc->info_.type = STREAM_UNKNOWN;
+  free_codec_buffer(ap_prc);
 }
 
 static void
@@ -789,10 +791,7 @@ release_buffers (const void * ap_prc)
       p_prc->p_outhdr_ = NULL;
     }
 
-  if (p_prc->codec_buf_.p_data)
-    {
-      free_codec_buffer (p_prc);
-    }
+  free_codec_buffer (p_prc);
 }
 
 /*
@@ -804,12 +803,7 @@ vp8d_proc_ctor (void * ap_obj, va_list * app)
 {
   vp8d_prc_t * p_prc = super_ctor (typeOf (ap_obj, "vp8dprc"), ap_obj, app);
   assert (p_prc);
-  p_prc->p_inhdr_ = 0;
-  p_prc->p_outhdr_ = 0;
-  p_prc->first_buf_ = true;
-  p_prc->eos_ = false;
-  p_prc->stream_type_ = STREAM_UNKNOWN;
-  tiz_mem_set (&(p_prc->codec_buf_), 0, sizeof (p_prc->codec_buf_));
+  reset_stream_parameters(p_prc);
   return p_prc;
 }
 
@@ -904,6 +898,7 @@ vp8d_proc_port_flush (const void * ap_obj, OMX_U32 a_pid)
   vp8d_prc_t * p_prc = (vp8d_prc_t *) ap_obj;
   /* Release all buffers, regardless of the port this is received on */
   release_buffers (p_prc);
+  reset_stream_parameters(p_prc);
   return OMX_ErrorNone;
 }
 
@@ -913,6 +908,7 @@ vp8d_proc_port_disable (const void * ap_obj, OMX_U32 a_pid)
   vp8d_prc_t * p_prc = (vp8d_prc_t *) ap_obj;
   /* Release all buffers, regardless of the port this is received on */
   release_buffers (p_prc);
+  reset_stream_parameters(p_prc);
   return OMX_ErrorNone;
 }
 
