@@ -117,66 +117,12 @@ mem_get_le32 (const void * vmem)
 }
 
 static int
-is_raw (const vp8d_prc_t * ap_prc, OMX_U8 * ap_buf, unsigned int * ap_fourcc,
-        unsigned int * ap_width, unsigned int * ap_height,
-        unsigned int * ap_fps_den, unsigned int * ap_fps_num)
-{
-  vpx_codec_stream_info_t si;
-  int i = 0;
-  int is_raw = 0;
-
-  assert (ap_prc);
-  assert (ap_buf);
-  assert (ap_fourcc);
-  assert (ap_width);
-  assert (ap_height);
-  assert (ap_fps_den);
-  assert (ap_fps_num);
-
-  si.sz = sizeof (si);
-
-  if (mem_get_le32 (ap_buf) < CORRUPT_FRAME_THRESHOLD)
-    {
-      for (i = 0; i < sizeof (ifaces) / sizeof (ifaces[0]); i++)
-        {
-          if (VPX_CODEC_OK == vpx_codec_peek_stream_info (
-                                ifaces[i].iface, ap_buf + 4, 32 - 4, &si))
-            {
-              is_raw = 1;
-              *ap_fourcc = ifaces[i].fourcc;
-              *ap_width = si.w;
-              *ap_height = si.h;
-              *ap_fps_num = 30;
-              *ap_fps_den = 1;
-              break;
-            }
-          else
-            {
-              TIZ_TRACE (handleOf (ap_prc), "Not a raw strem");
-            }
-        }
-    }
-  else
-    {
-      TIZ_WARN (handleOf (ap_prc), "Read invalid frame size");
-    }
-  return is_raw;
-}
-
-static int
-is_ivf (const vp8d_prc_t * ap_prc, OMX_U8 * ap_buf, unsigned int * ap_fourcc,
-        unsigned int * ap_width, unsigned int * ap_height,
-        unsigned int * ap_fps_den, unsigned int * ap_fps_num)
+is_ivf (vp8d_prc_t * ap_prc, OMX_U8 * ap_buf)
 {
   int is_ivf = 0;
 
   assert (ap_prc);
   assert (ap_buf);
-  assert (ap_fourcc);
-  assert (ap_width);
-  assert (ap_height);
-  assert (ap_fps_den);
-  assert (ap_fps_num);
 
   if (ap_buf[0] == 'D' && ap_buf[1] == 'K' && ap_buf[2] == 'I'
       && ap_buf[3] == 'F')
@@ -190,29 +136,29 @@ is_ivf (const vp8d_prc_t * ap_prc, OMX_U8 * ap_buf, unsigned int * ap_fourcc,
                      " decode properly.");
         }
 
-      *ap_fourcc = mem_get_le32 (ap_buf + 8);
-      *ap_width = mem_get_le16 (ap_buf + 12);
-      *ap_height = mem_get_le16 (ap_buf + 14);
-      *ap_fps_num = mem_get_le32 (ap_buf + 16);
-      *ap_fps_den = mem_get_le32 (ap_buf + 20);
+      ap_prc->info_.fourcc = mem_get_le32 (ap_buf + 8);
+      ap_prc->info_.width = mem_get_le16 (ap_buf + 12);
+      ap_prc->info_.height = mem_get_le16 (ap_buf + 14);
+      ap_prc->info_.fps_num = mem_get_le32 (ap_buf + 16);
+      ap_prc->info_.fps_den = mem_get_le32 (ap_buf + 20);
 
       /* Some versions of vpxenc used 1/(2*fps) for the timebase, so
        * we can guess the framerate using only the timebase in this
        * case. Other files would require reading ahead to guess the
        * timebase, like we do for webm.
        */
-      if (*ap_fps_num < 1000)
+      if (ap_prc->info_.fps_num < 1000)
         {
           /* Correct for the factor of 2 applied to the timebase in the
            * encoder.
            */
-          if (*ap_fps_num & 1)
+          if (ap_prc->info_.fps_num & 1)
             {
-              *ap_fps_den <<= 1;
+              ap_prc->info_.fps_den <<= 1;
             }
           else
             {
-              *ap_fps_num >>= 1;
+              ap_prc->info_.fps_num >>= 1;
             }
         }
       else
@@ -220,8 +166,8 @@ is_ivf (const vp8d_prc_t * ap_prc, OMX_U8 * ap_buf, unsigned int * ap_fourcc,
           /* Don't know FPS for sure, and don't have readahead code
            * (yet?), so just default to 30fps.
            */
-          *ap_fps_num = 30;
-          *ap_fps_den = 1;
+          ap_prc->info_.fps_num = 30;
+          ap_prc->info_.fps_den = 1;
         }
     }
 
@@ -229,31 +175,85 @@ is_ivf (const vp8d_prc_t * ap_prc, OMX_U8 * ap_buf, unsigned int * ap_fourcc,
 }
 
 static int
-identify_stream (vp8d_prc_t * ap_prc, OMX_U8 * ap_buf, unsigned int * ap_fourcc,
-                 unsigned int * ap_width, unsigned int * ap_height,
-                 unsigned int * ap_fps_den, unsigned int * ap_fps_num)
+peek_raw_stream (vp8d_prc_t * ap_prc, const OMX_U8 * ap_buf, const size_t a_size_bytes)
+{
+  vpx_codec_stream_info_t si;
+  int i = 0;
+  int is_raw = 0;
+
+  assert (ap_prc);
+  assert (ap_buf);
+
+  si.sz = sizeof (si);
+
+  for (i = 0; i < sizeof (ifaces) / sizeof (ifaces[0]); i++)
+    {
+      if (VPX_CODEC_OK
+          == vpx_codec_peek_stream_info (ifaces[i].iface, ap_buf, a_size_bytes, &si))
+        {
+          is_raw = 1;
+          ap_prc->info_.fourcc = ifaces[i].fourcc;
+          ap_prc->info_.width = si.w;
+          ap_prc->info_.height = si.h;
+          ap_prc->info_.fps_num = 30;
+          ap_prc->info_.fps_den = 1;
+          break;
+        }
+      else
+        {
+          TIZ_TRACE (handleOf (ap_prc), "Not a raw strem");
+        }
+    }
+  return is_raw;
+}
+
+static int
+is_raw (vp8d_prc_t * ap_prc, OMX_U8 * ap_buf)
+{
+  return peek_raw_stream (ap_prc, ap_buf, 32);
+}
+
+static int
+is_raw_with_length_hdr (vp8d_prc_t * ap_prc, OMX_U8 * ap_buf)
+{
+  int is_raw = 0;
+
+  assert (ap_prc);
+  assert (ap_buf);
+
+  if (mem_get_le32 (ap_buf) < CORRUPT_FRAME_THRESHOLD)
+    {
+      is_raw = peek_raw_stream (ap_prc, ap_buf + 4, 32 - 4);
+    }
+  else
+    {
+      TIZ_WARN (handleOf (ap_prc), "Read invalid frame size");
+    }
+  return is_raw;
+}
+
+static int
+identify_stream (vp8d_prc_t * ap_prc, OMX_U8 * ap_buf)
 {
   int rc = EXIT_SUCCESS;
 
   assert (ap_prc);
   assert (ap_buf);
-  assert (ap_fourcc);
-  assert (ap_width);
-  assert (ap_height);
-  assert (ap_fps_den);
-  assert (ap_fps_num);
 
-  if (is_ivf (ap_prc, ap_buf, ap_fourcc, ap_width, ap_height, ap_fps_den,
-              ap_fps_num))
+  if (is_ivf (ap_prc, ap_buf))
     {
       TIZ_DEBUG (handleOf (ap_prc), "STREAM_IVF");
       ap_prc->info_.type = STREAM_IVF;
     }
-  else if (is_raw (ap_prc, ap_buf, ap_fourcc, ap_width, ap_height, ap_fps_den,
-                   ap_fps_num))
+  else if (is_raw (ap_prc, ap_buf))
     {
       TIZ_DEBUG (handleOf (ap_prc), "STREAM_RAW");
       ap_prc->info_.type = STREAM_RAW;
+    }
+  else if (is_raw_with_length_hdr (ap_prc, ap_buf))
+    {
+      TIZ_DEBUG (handleOf (ap_prc), "STREAM_RAW_WITH_LENGTH_HDR");
+      ap_prc->info_.type = STREAM_RAW_WITH_LENGTH_HDR;
     }
   else
     {
@@ -415,10 +415,7 @@ obtain_stream_info (vp8d_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * p_inhdr)
   assert (ap_prc);
   assert (p_inhdr);
 
-  if (EXIT_SUCCESS
-      == identify_stream (ap_prc, p_inhdr->pBuffer, &ap_prc->info_.fourcc,
-                          &ap_prc->info_.width, &ap_prc->info_.height,
-                          &ap_prc->info_.fps_den, &ap_prc->info_.fps_num))
+  if (EXIT_SUCCESS == identify_stream (ap_prc, p_inhdr->pBuffer))
     {
       VP8DPRC_LOG_STATE (ap_prc);
 
