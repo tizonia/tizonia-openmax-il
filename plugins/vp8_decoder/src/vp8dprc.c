@@ -1,6 +1,8 @@
 /**
  * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
  *
+ * Portions Copyright (c) 2013 The WebM project authors.
+ *
  * This file is part of Tizonia
  *
  * Tizonia is free software: you can redistribute it and/or modify it under the
@@ -92,6 +94,7 @@ static const struct
   {"vp8", &vpx_codec_vp8_dx_algo, VP8_FOURCC, 0x00FFFFFF},
 };
 
+/* NOTE: Code from libvpx's mem_ops.h */
 static unsigned int
 mem_get_le16 (const void * vmem)
 {
@@ -103,6 +106,7 @@ mem_get_le16 (const void * vmem)
   return val;
 }
 
+/* NOTE: Code from libvpx's mem_ops.h */
 static unsigned int
 mem_get_le32 (const void * vmem)
 {
@@ -116,6 +120,32 @@ mem_get_le32 (const void * vmem)
   return val;
 }
 
+/* NOTE: Code from libvpx's ivfdec.c */
+static void
+fix_framerate (int * num, int * den)
+{
+  // Some versions of vpxenc used 1/(2*fps) for the timebase, so
+  // we can guess the framerate using only the timebase in this
+  // case. Other files would require reading ahead to guess the
+  // timebase.
+  if (*den > 0 && *den < 1000000000 && *num > 0 && *num < 1000)
+    {
+      // Correct for the factor of 2 applied to the timebase in the encoder.
+      if (*num & 1)
+        *den *= 2;
+      else
+        *num /= 2;
+    }
+  else
+    {
+      // Don't know FPS for sure, and don't have readahead code
+      // (yet?), so just default to 30fps.
+      *num = 30;
+      *den = 1;
+    }
+}
+
+/* NOTE: With code from libvpx's ivfdec.c */
 static int
 is_ivf (vp8d_prc_t * ap_prc, OMX_U8 * ap_buf)
 {
@@ -141,39 +171,14 @@ is_ivf (vp8d_prc_t * ap_prc, OMX_U8 * ap_buf)
       ap_prc->info_.height = mem_get_le16 (ap_buf + 14);
       ap_prc->info_.fps_num = mem_get_le32 (ap_buf + 16);
       ap_prc->info_.fps_den = mem_get_le32 (ap_buf + 20);
-
-      /* Some versions of vpxenc used 1/(2*fps) for the timebase, so
-       * we can guess the framerate using only the timebase in this
-       * case. Other files would require reading ahead to guess the
-       * timebase, like we do for webm.
-       */
-      if (ap_prc->info_.fps_num < 1000)
-        {
-          /* Correct for the factor of 2 applied to the timebase in the
-           * encoder.
-           */
-          if (ap_prc->info_.fps_num & 1)
-            {
-              ap_prc->info_.fps_den <<= 1;
-            }
-          else
-            {
-              ap_prc->info_.fps_num >>= 1;
-            }
-        }
-      else
-        {
-          /* Don't know FPS for sure, and don't have readahead code
-           * (yet?), so just default to 30fps.
-           */
-          ap_prc->info_.fps_num = 30;
-          ap_prc->info_.fps_den = 1;
-        }
+      fix_framerate ((int *) &ap_prc->info_.fps_num,
+                     (int *) &ap_prc->info_.fps_den);
     }
 
   return is_ivf;
 }
 
+/* NOTE: With code from libvpx's vpxdec.c */
 static int
 peek_raw_stream (vp8d_prc_t * ap_prc, const OMX_U8 * ap_buf,
                  const size_t a_size_bytes)
@@ -361,7 +366,7 @@ buffer_emptied (vp8d_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * ap_hdr)
       ap_prc->eos_ = true;
     }
 
-  tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_prc)), 0, ap_hdr);
+  (void) tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_prc)), 0, ap_hdr);
   ap_prc->p_inhdr_ = NULL;
 }
 
@@ -386,8 +391,9 @@ buffer_filled (vp8d_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * ap_hdr)
       ap_prc->eos_ = false;
     }
 
-  tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_prc)),
-                          ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX, ap_hdr);
+  (void) tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_prc)),
+                                 ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX,
+                                 ap_hdr);
   ap_prc->p_outhdr_ = NULL;
 }
 
@@ -750,17 +756,17 @@ release_buffers (const void * ap_prc)
 
   if (p_prc->p_inhdr_)
     {
-      tiz_krn_release_buffer (tiz_get_krn (handleOf (p_prc)),
-                              ARATELIA_VP8_DECODER_INPUT_PORT_INDEX,
-                              p_prc->p_inhdr_);
+      (void) tiz_krn_release_buffer (tiz_get_krn (handleOf (p_prc)),
+                                     ARATELIA_VP8_DECODER_INPUT_PORT_INDEX,
+                                     p_prc->p_inhdr_);
       p_prc->p_inhdr_ = NULL;
     }
 
   if (p_prc->p_outhdr_)
     {
-      tiz_krn_release_buffer (tiz_get_krn (handleOf (p_prc)),
-                              ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX,
-                              p_prc->p_outhdr_);
+      (void) tiz_krn_release_buffer (tiz_get_krn (handleOf (p_prc)),
+                                     ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX,
+                                     p_prc->p_outhdr_);
       p_prc->p_outhdr_ = NULL;
     }
 
@@ -772,7 +778,7 @@ release_buffers (const void * ap_prc)
  */
 
 static void *
-vp8d_proc_ctor (void * ap_obj, va_list * app)
+vp8d_prc_ctor (void * ap_obj, va_list * app)
 {
   vp8d_prc_t * p_prc = super_ctor (typeOf (ap_obj, "vp8dprc"), ap_obj, app);
   assert (p_prc);
@@ -781,7 +787,7 @@ vp8d_proc_ctor (void * ap_obj, va_list * app)
 }
 
 static void *
-vp8d_proc_dtor (void * ap_obj)
+vp8d_prc_dtor (void * ap_obj)
 {
   vp8d_prc_t * p_obj = ap_obj;
   free_codec_buffer (p_obj);
@@ -793,44 +799,40 @@ vp8d_proc_dtor (void * ap_obj)
  */
 
 static OMX_ERRORTYPE
-vp8d_proc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
+vp8d_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
 {
-  vp8d_prc_t * p_prc = ap_obj;
-  vpx_codec_err_t err = VPX_CODEC_OK;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  vp8d_prc_t * ap_prc = ap_obj;
   int flags = 0;
 
-  assert (p_prc);
+  assert (ap_prc);
 
   /* TODO : vp8 decoder flags */
-  /*   flags = (postproc ? VPX_CODEC_USE_POSTPROC : 0) | */
+  /*   flags = (postprc ? VPX_CODEC_USE_POSTPRC : 0) | */
   /*     (ec_enabled ? VPX_CODEC_USE_ERROR_CONCEALMENT : 0); */
 
   /* Initialize codec */
-  if (VPX_CODEC_OK != (err = vpx_codec_dec_init (&(p_prc->vp8ctx_),
-                                                 ifaces[0].iface, NULL, flags)))
-    {
-      TIZ_ERROR (handleOf (p_prc),
-                 "[OMX_ErrorInsufficientResources] : "
-                 "Unable to init the vp8 decoder [%s]...",
-                 vpx_codec_err_to_string (err));
-      return OMX_ErrorInsufficientResources;
-    }
+  bail_on_vpx_err_with_omx_err (
+    vpx_codec_dec_init (&(ap_prc->vp8ctx_), ifaces[0].iface, NULL, flags),
+    OMX_ErrorInsufficientResources);
 
-  return OMX_ErrorNone;
+ end:
+
+  return rc;
 }
 
 static OMX_ERRORTYPE
-vp8d_proc_deallocate_resources (void * ap_obj)
+vp8d_prc_deallocate_resources (void * ap_obj)
 {
   vp8d_prc_t * p_prc = ap_obj;
   assert (p_prc);
   free_codec_buffer (p_prc);
-  vpx_codec_destroy (&(p_prc->vp8ctx_));
+  (void) vpx_codec_destroy (&(p_prc->vp8ctx_));
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
-vp8d_proc_prepare_to_transfer (void * ap_obj, OMX_U32 a_pid)
+vp8d_prc_prepare_to_transfer (void * ap_obj, OMX_U32 a_pid)
 {
   vp8d_prc_t * p_prc = ap_obj;
   assert (p_prc);
@@ -840,13 +842,13 @@ vp8d_proc_prepare_to_transfer (void * ap_obj, OMX_U32 a_pid)
 }
 
 static OMX_ERRORTYPE
-vp8d_proc_transfer_and_process (void * ap_obj, OMX_U32 a_pid)
+vp8d_prc_transfer_and_prcess (void * ap_obj, OMX_U32 a_pid)
 {
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
-vp8d_proc_stop_and_return (void * ap_obj)
+vp8d_prc_stop_and_return (void * ap_obj)
 {
   vp8d_prc_t * p_prc = (vp8d_prc_t *) ap_obj;
   /* Release all buffers, regardless of the port this is received on */
@@ -859,14 +861,14 @@ vp8d_proc_stop_and_return (void * ap_obj)
  */
 
 static OMX_ERRORTYPE
-vp8d_proc_buffers_ready (const void * ap_obj)
+vp8d_prc_buffers_ready (const void * ap_obj)
 {
   vp8d_prc_t * p_prc = (vp8d_prc_t *) ap_obj;
   return decode_stream (p_prc);
 }
 
 static OMX_ERRORTYPE
-vp8d_proc_port_flush (const void * ap_obj, OMX_U32 a_pid)
+vp8d_prc_port_flush (const void * ap_obj, OMX_U32 a_pid)
 {
   vp8d_prc_t * p_prc = (vp8d_prc_t *) ap_obj;
   /* Release all buffers, regardless of the port this is received on */
@@ -876,7 +878,7 @@ vp8d_proc_port_flush (const void * ap_obj, OMX_U32 a_pid)
 }
 
 static OMX_ERRORTYPE
-vp8d_proc_port_disable (const void * ap_obj, OMX_U32 a_pid)
+vp8d_prc_port_disable (const void * ap_obj, OMX_U32 a_pid)
 {
   vp8d_prc_t * p_prc = (vp8d_prc_t *) ap_obj;
   /* Release all buffers, regardless of the port this is received on */
@@ -886,7 +888,7 @@ vp8d_proc_port_disable (const void * ap_obj, OMX_U32 a_pid)
 }
 
 static OMX_ERRORTYPE
-vp8d_proc_port_enable (const void * ap_obj, OMX_U32 a_pid)
+vp8d_prc_port_enable (const void * ap_obj, OMX_U32 a_pid)
 {
   return OMX_ErrorNone;
 }
@@ -935,27 +937,27 @@ vp8d_prc_init (void * ap_tos, void * ap_hdl)
      /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
      /* TIZ_CLASS_COMMENT: class constructor */
-     ctor, vp8d_proc_ctor,
+     ctor, vp8d_prc_ctor,
      /* TIZ_CLASS_COMMENT: class destructor */
-     dtor, vp8d_proc_dtor,
+     dtor, vp8d_prc_dtor,
      /* TIZ_CLASS_COMMENT: */
-     tiz_srv_allocate_resources, vp8d_proc_allocate_resources,
+     tiz_srv_allocate_resources, vp8d_prc_allocate_resources,
      /* TIZ_CLASS_COMMENT: */
-     tiz_srv_deallocate_resources, vp8d_proc_deallocate_resources,
+     tiz_srv_deallocate_resources, vp8d_prc_deallocate_resources,
      /* TIZ_CLASS_COMMENT: */
-     tiz_srv_prepare_to_transfer, vp8d_proc_prepare_to_transfer,
+     tiz_srv_prepare_to_transfer, vp8d_prc_prepare_to_transfer,
      /* TIZ_CLASS_COMMENT: */
-     tiz_srv_transfer_and_process, vp8d_proc_transfer_and_process,
+     tiz_srv_transfer_and_process, vp8d_prc_transfer_and_prcess,
      /* TIZ_CLASS_COMMENT: */
-     tiz_srv_stop_and_return, vp8d_proc_stop_and_return,
+     tiz_srv_stop_and_return, vp8d_prc_stop_and_return,
      /* TIZ_CLASS_COMMENT: */
-     tiz_prc_buffers_ready, vp8d_proc_buffers_ready,
+     tiz_prc_buffers_ready, vp8d_prc_buffers_ready,
      /* TIZ_CLASS_COMMENT: */
-     tiz_prc_port_flush, vp8d_proc_port_flush,
+     tiz_prc_port_flush, vp8d_prc_port_flush,
      /* TIZ_CLASS_COMMENT: */
-     tiz_prc_port_disable, vp8d_proc_port_disable,
+     tiz_prc_port_disable, vp8d_prc_port_disable,
      /* TIZ_CLASS_COMMENT: */
-     tiz_prc_port_enable, vp8d_proc_port_enable,
+     tiz_prc_port_enable, vp8d_prc_port_enable,
      /* TIZ_CLASS_COMMENT: stop value*/
      0);
 
