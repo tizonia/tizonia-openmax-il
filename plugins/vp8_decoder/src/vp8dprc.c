@@ -271,6 +271,49 @@ identify_stream (vp8d_prc_t * ap_prc, OMX_U8 * ap_buf)
   return rc;
 }
 
+static OMX_ERRORTYPE
+update_output_port_params (vp8d_prc_t * ap_prc)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  vp8d_stream_info_t * p_inf = NULL;
+  OMX_VIDEO_PORTDEFINITIONTYPE * p_def = NULL;
+
+  assert (ap_prc);
+
+  p_inf = &(ap_prc->info_);
+  p_def = &(ap_prc->port_def_.format.video);
+
+  if (p_inf->width != p_def->nFrameWidth || p_inf->height != p_def->nFrameHeight
+      || p_inf->fps_num != p_def->xFramerate || p_inf->stride != p_def->nStride
+      || p_inf->slice_height != p_def->nSliceHeight)
+    {
+      TIZ_DEBUG (handleOf (ap_prc),
+                 "Updating video port format : nFrameWidth : old [%d] new [%d]",
+                 p_def->nFrameWidth, p_inf->width);
+      TIZ_DEBUG (handleOf (ap_prc),
+                 "Updating video port format : nFrameHeight old [%d] new [%d]",
+                 p_def->nFrameHeight, p_inf->height);
+
+      p_def->nFrameHeight = p_inf->height;
+      p_def->nFrameWidth = p_inf->width;
+      p_def->xFramerate = p_inf->fps_num;
+      p_def->nStride = p_inf->stride;
+      p_def->nSliceHeight = p_inf->slice_height;
+
+      tiz_check_omx (tiz_krn_SetParameter_internal (
+        tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+        OMX_IndexParamPortDefinition, &(ap_prc->port_def_)));
+
+      tiz_srv_issue_event ((OMX_PTR) ap_prc, OMX_EventPortSettingsChanged,
+                           ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX,
+                           OMX_IndexParamPortDefinition, /* the index of the
+                                                            struct that has
+                                                            been modififed */
+                           NULL);
+    }
+  return rc;
+}
+
 static size_t
 read_from_omx_buffer (const vp8d_prc_t * ap_prc, void * ap_dst,
                       const size_t a_bytes, OMX_BUFFERHEADERTYPE * ap_hdr)
@@ -644,6 +687,27 @@ decode_frame (vp8d_prc_t * ap_prc)
       unsigned int y;
       uint8_t * buf = img->planes[VPX_PLANE_Y];
 
+      if (!ap_prc->info_.stride)
+        {
+          TIZ_DEBUG (handleOf (ap_prc),
+                     "d_w = %u "
+                     "d_h = %u "
+                     "stride[VPX_PLANE_Y] = %d "
+                     "stride[VPX_PLANE_U] = %d "
+                     "stride[VPX_PLANE_V] = %d "
+                     "img fmt = %0x "
+                     "color = %0x "
+                     "range = %0x",
+                     img->d_w, img->d_h, img->stride[VPX_PLANE_Y],
+                     img->stride[VPX_PLANE_U], img->stride[VPX_PLANE_V],
+                     img->fmt, img->cs, img->range);
+          ap_prc->info_.stride = img->stride[VPX_PLANE_Y];
+          ap_prc->info_.slice_height = img->d_h;
+
+          /* Update the output port settings */
+          tiz_check_omx (update_output_port_params(ap_prc));
+        }
+
       for (y = 0; y < img->d_h; y++)
         {
           out_put (ap_prc->p_outhdr_, buf, img->d_w);
@@ -738,13 +802,17 @@ static void
 reset_stream_parameters (vp8d_prc_t * ap_prc)
 {
   assert (ap_prc);
+  tiz_mem_set (&(ap_prc->info_), 0, sizeof (ap_prc->info_));
+  ap_prc->info_.type = STREAM_UNKNOWN;
+  free_codec_buffer (ap_prc);
+  TIZ_INIT_OMX_PORT_STRUCT (ap_prc->port_def_,
+                            ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX);
+  TIZ_INIT_OMX_PORT_STRUCT (ap_prc->port_format_,
+                            ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX);
   ap_prc->p_inhdr_ = 0;
   ap_prc->p_outhdr_ = 0;
   ap_prc->first_buf_ = true;
   ap_prc->eos_ = false;
-  tiz_mem_set (&(ap_prc->info_), 0, sizeof (ap_prc->info_));
-  ap_prc->info_.type = STREAM_UNKNOWN;
-  free_codec_buffer (ap_prc);
 }
 
 static void
@@ -816,7 +884,7 @@ vp8d_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
     vpx_codec_dec_init (&(ap_prc->vp8ctx_), ifaces[0].iface, NULL, flags),
     OMX_ErrorInsufficientResources);
 
- end:
+end:
 
   return rc;
 }
@@ -835,14 +903,30 @@ static OMX_ERRORTYPE
 vp8d_prc_prepare_to_transfer (void * ap_obj, OMX_U32 a_pid)
 {
   vp8d_prc_t * p_prc = ap_obj;
+
   assert (p_prc);
+
+  TIZ_INIT_OMX_PORT_STRUCT (p_prc->port_def_,
+                            ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX);
+  TIZ_INIT_OMX_PORT_STRUCT (p_prc->port_format_,
+                            ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX);
+
+  tiz_check_omx (
+    tiz_api_GetParameter (tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
+                          OMX_IndexParamPortDefinition, &(p_prc->port_def_)));
+
+  tiz_check_omx (tiz_api_GetParameter (
+    tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
+    OMX_IndexParamVideoPortFormat, &(p_prc->port_format_)));
+
   p_prc->first_buf_ = true;
   p_prc->eos_ = false;
+
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
-vp8d_prc_transfer_and_prcess (void * ap_obj, OMX_U32 a_pid)
+vp8d_prc_transfer_and_process (void * ap_obj, OMX_U32 a_pid)
 {
   return OMX_ErrorNone;
 }
@@ -947,7 +1031,7 @@ vp8d_prc_init (void * ap_tos, void * ap_hdl)
      /* TIZ_CLASS_COMMENT: */
      tiz_srv_prepare_to_transfer, vp8d_prc_prepare_to_transfer,
      /* TIZ_CLASS_COMMENT: */
-     tiz_srv_transfer_and_process, vp8d_prc_transfer_and_prcess,
+     tiz_srv_transfer_and_process, vp8d_prc_transfer_and_process,
      /* TIZ_CLASS_COMMENT: */
      tiz_srv_stop_and_return, vp8d_prc_stop_and_return,
      /* TIZ_CLASS_COMMENT: */
