@@ -94,6 +94,8 @@ struct vp8d_prc
   OMX_BUFFERHEADERTYPE * p_inhdr_;
   OMX_BUFFERHEADERTYPE * p_outhdr_;
   vpx_codec_ctx_t vp8ctx_;
+  bool in_port_disabled_;
+  bool out_port_disabled_;
   bool first_buf_;
   bool eos_;
 };
