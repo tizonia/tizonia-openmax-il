@@ -373,21 +373,24 @@ get_output_buffer (vp8d_prc_t * ap_prc)
 {
   assert (ap_prc);
 
-  if (!ap_prc->p_outhdr_)
+  if (!ap_prc->out_port_disabled_)
     {
-      if (OMX_ErrorNone
-          == tiz_krn_claim_buffer (tiz_get_krn (handleOf (ap_prc)),
-                                   ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX, 0,
-                                   &ap_prc->p_outhdr_))
+      if (!ap_prc->p_outhdr_)
         {
-#ifndef NDEBUG
-          if (ap_prc->p_outhdr_)
+          if (OMX_ErrorNone
+              == tiz_krn_claim_buffer (tiz_get_krn (handleOf (ap_prc)),
+                                       ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX,
+                                       0, &ap_prc->p_outhdr_))
             {
-              TIZ_TRACE (handleOf (ap_prc),
-                         "Claimed output HEADER [%p]...nFilledLen [%d]",
-                         ap_prc->p_outhdr_, ap_prc->p_outhdr_->nFilledLen);
-            }
+#ifndef NDEBUG
+              if (ap_prc->p_outhdr_)
+                {
+                  TIZ_TRACE (handleOf (ap_prc),
+                             "Claimed output HEADER [%p]...nFilledLen [%d]",
+                             ap_prc->p_outhdr_, ap_prc->p_outhdr_->nFilledLen);
+                }
 #endif
+            }
         }
     }
   return ap_prc->p_outhdr_;
@@ -398,8 +401,6 @@ buffer_emptied (vp8d_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * ap_hdr)
 {
   assert (ap_prc);
   assert (ap_prc->p_inhdr_ == ap_hdr);
-
-  TIZ_TRACE (handleOf (ap_prc), "HEADER [%p] emptied ", ap_hdr);
 
   assert (ap_hdr->nFilledLen == 0);
   ap_hdr->nOffset = 0;
@@ -419,9 +420,6 @@ buffer_filled (vp8d_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * ap_hdr)
   assert (ap_prc);
   assert (ap_hdr);
   assert (ap_prc->p_outhdr_ == ap_hdr);
-
-  TIZ_TRACE (handleOf (ap_prc), "HEADER [%p] nFilledLen [%d] ", ap_hdr,
-             ap_hdr->nFilledLen);
 
   ap_hdr->nOffset = 0;
 
@@ -705,7 +703,7 @@ decode_frame (vp8d_prc_t * ap_prc)
           ap_prc->info_.slice_height = img->d_h;
 
           /* Update the output port settings */
-          tiz_check_omx (update_output_port_params(ap_prc));
+          tiz_check_omx (update_output_port_params (ap_prc));
         }
 
       for (y = 0; y < img->d_h; y++)
@@ -746,19 +744,10 @@ decode_stream (vp8d_prc_t * ap_prc)
   OMX_BUFFERHEADERTYPE * p_outhdr = NULL;
   assert (ap_prc);
 
-  while (!ap_prc->eos_)
+  while (!ap_prc->eos_ && (p_inhdr = get_input_buffer (ap_prc))
+         && (p_outhdr = get_output_buffer (ap_prc)))
     {
-      /* Step 1: Obtain input and output buffers */
-      p_inhdr = get_input_buffer (ap_prc);
-      p_outhdr = get_output_buffer (ap_prc);
-      if (!p_inhdr || !p_outhdr)
-        {
-          TIZ_TRACE (handleOf (ap_prc), "p_inhdr [%p] p_outhdr [%p]", p_inhdr,
-                     p_outhdr);
-          return OMX_ErrorNone;
-        }
-
-      /* This needs to be done only once */
+      /* Step 1: peak at the stream and find the stream parameters */
       if (ap_prc->first_buf_)
         {
           tiz_check_omx (obtain_stream_info (ap_prc, p_inhdr));
@@ -816,29 +805,36 @@ reset_stream_parameters (vp8d_prc_t * ap_prc)
 }
 
 static void
-release_buffers (const void * ap_prc)
+release_input_header (vp8d_prc_t * ap_prc)
 {
-  vp8d_prc_t * p_prc = (vp8d_prc_t *) ap_prc;
-
   assert (ap_prc);
-
-  if (p_prc->p_inhdr_)
+  if (ap_prc->p_inhdr_)
     {
-      (void) tiz_krn_release_buffer (tiz_get_krn (handleOf (p_prc)),
+      (void) tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_prc)),
                                      ARATELIA_VP8_DECODER_INPUT_PORT_INDEX,
-                                     p_prc->p_inhdr_);
-      p_prc->p_inhdr_ = NULL;
+                                     ap_prc->p_inhdr_);
+      ap_prc->p_inhdr_ = NULL;
     }
+}
 
-  if (p_prc->p_outhdr_)
+static void
+release_output_header (vp8d_prc_t * ap_prc)
+{
+  assert (ap_prc);
+  if (ap_prc->p_outhdr_)
     {
-      (void) tiz_krn_release_buffer (tiz_get_krn (handleOf (p_prc)),
+      (void) tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_prc)),
                                      ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX,
-                                     p_prc->p_outhdr_);
-      p_prc->p_outhdr_ = NULL;
+                                     ap_prc->p_outhdr_);
+      ap_prc->p_outhdr_ = NULL;
     }
+}
 
-  free_codec_buffer (p_prc);
+static void
+release_all_headers (vp8d_prc_t * ap_prc)
+{
+  release_input_header (ap_prc);
+  release_output_header (ap_prc);
 }
 
 /*
@@ -850,6 +846,8 @@ vp8d_prc_ctor (void * ap_obj, va_list * app)
 {
   vp8d_prc_t * p_prc = super_ctor (typeOf (ap_obj, "vp8dprc"), ap_obj, app);
   assert (p_prc);
+  p_prc->in_port_disabled_ = false;
+  p_prc->out_port_disabled_ = false;
   reset_stream_parameters (p_prc);
   return p_prc;
 }
@@ -935,8 +933,8 @@ static OMX_ERRORTYPE
 vp8d_prc_stop_and_return (void * ap_obj)
 {
   vp8d_prc_t * p_prc = (vp8d_prc_t *) ap_obj;
-  /* Release all buffers, regardless of the port this is received on */
-  release_buffers (p_prc);
+  /* Release all buffers */
+  release_all_headers (p_prc);
   return OMX_ErrorNone;
 }
 
@@ -955,9 +953,15 @@ static OMX_ERRORTYPE
 vp8d_prc_port_flush (const void * ap_obj, OMX_U32 a_pid)
 {
   vp8d_prc_t * p_prc = (vp8d_prc_t *) ap_obj;
-  /* Release all buffers, regardless of the port this is received on */
-  release_buffers (p_prc);
-  reset_stream_parameters (p_prc);
+  if (OMX_ALL == a_pid || ARATELIA_VP8_DECODER_INPUT_PORT_INDEX == a_pid)
+    {
+      release_input_header (p_prc);
+      reset_stream_parameters (p_prc);
+    }
+  if (OMX_ALL == a_pid || ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX == a_pid)
+    {
+      release_output_header (p_prc);
+    }
   return OMX_ErrorNone;
 }
 
@@ -965,15 +969,39 @@ static OMX_ERRORTYPE
 vp8d_prc_port_disable (const void * ap_obj, OMX_U32 a_pid)
 {
   vp8d_prc_t * p_prc = (vp8d_prc_t *) ap_obj;
-  /* Release all buffers, regardless of the port this is received on */
-  release_buffers (p_prc);
-  reset_stream_parameters (p_prc);
+  assert (p_prc);
+  if (OMX_ALL == a_pid || ARATELIA_VP8_DECODER_INPUT_PORT_INDEX == a_pid)
+    {
+      p_prc->in_port_disabled_ = true;
+      /* Release all buffers */
+      release_all_headers (p_prc);
+      reset_stream_parameters (p_prc);
+    }
+  if (OMX_ALL == a_pid || ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX == a_pid)
+    {
+      p_prc->out_port_disabled_ = true;
+      release_output_header (p_prc);
+    }
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
 vp8d_prc_port_enable (const void * ap_obj, OMX_U32 a_pid)
 {
+  vp8d_prc_t * p_prc = (vp8d_prc_t *) ap_obj;
+  assert (p_prc);
+  if (OMX_ALL == a_pid || ARATELIA_VP8_DECODER_INPUT_PORT_INDEX == a_pid)
+    {
+      if (p_prc->in_port_disabled_)
+        {
+          reset_stream_parameters (p_prc);
+          p_prc->in_port_disabled_ = false;
+        }
+    }
+  if (OMX_ALL == a_pid || ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX == a_pid)
+    {
+      p_prc->out_port_disabled_ = false;
+    }
   return OMX_ErrorNone;
 }
 
