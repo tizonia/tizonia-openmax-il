@@ -55,20 +55,16 @@
  *@ingroup plugins
  */
 
-static OMX_VERSIONTYPE yuv_renderer_version = { {1, 0, 0, 0} };
+static OMX_VERSIONTYPE yuv_renderer_version = {{1, 0, 0, 0}};
 
 static OMX_PTR
 instantiate_input_port (OMX_HANDLETYPE ap_hdl)
 {
   OMX_VIDEO_PORTDEFINITIONTYPE portdef;
-  OMX_VIDEO_CODINGTYPE encodings[] = {
-    OMX_VIDEO_CodingUnused,
-    OMX_VIDEO_CodingMax
-  };
-  OMX_COLOR_FORMATTYPE formats[] = {
-    OMX_COLOR_FormatYUV420Planar,
-    OMX_COLOR_FormatMax
-  };
+  OMX_VIDEO_CODINGTYPE encodings[]
+    = {OMX_VIDEO_CodingUnused, OMX_VIDEO_CodingMax};
+  OMX_COLOR_FORMATTYPE formats[]
+    = {OMX_COLOR_FormatYUV420Planar, OMX_COLOR_FormatMax};
   tiz_port_options_t rawvideo_port_opts = {
     OMX_PortDomainVideo,
     OMX_DirInput,
@@ -78,33 +74,32 @@ instantiate_input_port (OMX_HANDLETYPE ap_hdl)
     ARATELIA_YUV_RENDERER_PORT_ALIGNMENT,
     ARATELIA_YUV_RENDERER_PORT_SUPPLIERPREF,
     {ARATELIA_YUV_RENDERER_PORT_INDEX, NULL, NULL, NULL},
-    0                           /* use 0 for now */
+    0 /* use 0 for now */
   };
 
   /* This figures are based on the defaults defined in the standard for the YUV
    * Overlay Image/Video Renderer */
-  portdef.pNativeRender         = NULL;
-  portdef.nFrameWidth           = 176;
-  portdef.nFrameHeight          = 220;
-  portdef.nStride               = 0;
-  portdef.nSliceHeight          = 0;
-  portdef.nBitrate              = 64000;
-  portdef.xFramerate            = 15;
+  portdef.pNativeRender = NULL;
+  portdef.nFrameWidth = 176;
+  portdef.nFrameHeight = 220;
+  portdef.nStride = 0;
+  portdef.nSliceHeight = 0;
+  portdef.nBitrate = 64000;
+  portdef.xFramerate = 15;
   portdef.bFlagErrorConcealment = OMX_FALSE;
-  portdef.eCompressionFormat    = OMX_VIDEO_CodingUnused;
-  portdef.eColorFormat          = OMX_COLOR_FormatYUV420Planar;
-  portdef.pNativeWindow         = NULL;
+  portdef.eCompressionFormat = OMX_VIDEO_CodingUnused;
+  portdef.eColorFormat = OMX_COLOR_FormatYUV420Planar;
+  portdef.pNativeWindow = NULL;
 
-  return factory_new (tiz_get_type (ap_hdl, "tizivrport"),
-                      &rawvideo_port_opts, &portdef,
-                      &encodings, &formats);
+  return factory_new (tiz_get_type (ap_hdl, "tizivrport"), &rawvideo_port_opts,
+                      &portdef, &encodings, &formats);
 }
 
 static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
   return factory_new (tiz_get_type (ap_hdl, "tizconfigport"),
-                      NULL,   /* this port does not take options */
+                      NULL, /* this port does not take options */
                       ARATELIA_YUV_RENDERER_COMPONENT_NAME,
                       yuv_renderer_version);
 }
@@ -119,15 +114,15 @@ OMX_ERRORTYPE
 OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 {
   tiz_role_factory_t role_factory;
-  const tiz_role_factory_t *rf_list[] = { &role_factory };
+  const tiz_role_factory_t * rf_list[] = {&role_factory};
   tiz_type_factory_t sdlivrprc_type;
-  const tiz_type_factory_t *tf_list[] = { &sdlivrprc_type};
+  const tiz_type_factory_t * tf_list[] = {&sdlivrprc_type};
 
   strcpy ((OMX_STRING) role_factory.role, ARATELIA_YUV_RENDERER_DEFAULT_ROLE);
-  role_factory.pf_cport   = instantiate_config_port;
+  role_factory.pf_cport = instantiate_config_port;
   role_factory.pf_port[0] = instantiate_input_port;
-  role_factory.nports     = 1;
-  role_factory.pf_proc    = instantiate_processor;
+  role_factory.nports = 1;
+  role_factory.pf_proc = instantiate_processor;
 
   strcpy ((OMX_STRING) sdlivrprc_type.class_name, "sdlivrprc_class");
   sdlivrprc_type.pf_class_init = sdlivr_prc_class_init;

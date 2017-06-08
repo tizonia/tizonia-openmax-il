@@ -29,25 +29,26 @@
 #define SDLIVR_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <OMX_Core.h>
 #include <OMX_Types.h>
 
-#define ARATELIA_YUV_RENDERER_DEFAULT_ROLE             "iv_renderer.yuv.overlay"
-#define ARATELIA_YUV_RENDERER_COMPONENT_NAME           "OMX.Aratelia.iv_renderer.yuv.overlay"
-#define ARATELIA_YUV_RENDERER_PORT_INDEX               0 /* With libtizonia, port indexes must start at index 0 */
-#define ARATELIA_YUV_RENDERER_PORT_MIN_BUF_COUNT       2
-#define ARATELIA_YUV_RENDERER_PORT_MIN_INPUT_BUF_SIZE  8192
+#define ARATELIA_YUV_RENDERER_DEFAULT_ROLE "iv_renderer.yuv.overlay"
+#define ARATELIA_YUV_RENDERER_COMPONENT_NAME \
+  "OMX.Aratelia.iv_renderer.yuv.overlay"
+#define ARATELIA_YUV_RENDERER_PORT_INDEX \
+  0 /* With libtizonia, port indexes must start at index 0 */
+#define ARATELIA_YUV_RENDERER_PORT_MIN_BUF_COUNT 2
+#define ARATELIA_YUV_RENDERER_PORT_MIN_INPUT_BUF_SIZE 8192
 #define ARATELIA_YUV_RENDERER_PORT_MIN_OUTPUT_BUF_SIZE 8192
-#define ARATELIA_YUV_RENDERER_PORT_NONCONTIGUOUS       OMX_FALSE
-#define ARATELIA_YUV_RENDERER_PORT_ALIGNMENT           0
-#define ARATELIA_YUV_RENDERER_PORT_SUPPLIERPREF        OMX_BufferSupplyInput
+#define ARATELIA_YUV_RENDERER_PORT_NONCONTIGUOUS OMX_FALSE
+#define ARATELIA_YUV_RENDERER_PORT_ALIGNMENT 0
+#define ARATELIA_YUV_RENDERER_PORT_SUPPLIERPREF OMX_BufferSupplyInput
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* SDLIVR_H */
+#endif /* SDLIVR_H */
