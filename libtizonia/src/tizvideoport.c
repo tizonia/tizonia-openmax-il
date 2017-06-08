@@ -43,6 +43,102 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.tizonia.videoport"
 #endif
 
+static OMX_ERRORTYPE
+videoport_SetParameter_common (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
+                               OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+{
+  tiz_videoport_t * p_obj = (tiz_videoport_t *) ap_obj;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+
+  TIZ_TRACE (ap_hdl, "SetParameter [%s]...", tiz_idx_to_str (a_index));
+  assert (p_obj);
+
+  switch (a_index)
+    {
+      case OMX_IndexParamVideoPortFormat:
+        {
+          const OMX_VIDEO_PARAM_PORTFORMATTYPE * p_video_format
+            = (OMX_VIDEO_PARAM_PORTFORMATTYPE *) ap_struct;
+          OMX_VIDEO_CODINGTYPE encoding = p_video_format->eCompressionFormat;
+          OMX_COLOR_FORMATTYPE format = p_video_format->eColorFormat;
+
+          if (OMX_VIDEO_CodingUnused == p_obj->port_format_.eCompressionFormat)
+            {
+              if (OMX_COLOR_FormatUnused == p_video_format->eColorFormat)
+                {
+                  TIZ_ERROR (ap_hdl,
+                             "[OMX_ErrorBadParameter] : "
+                             "(Both Compression Format and Color can not be "
+                             "Unused at the same time)",
+                             encoding);
+                  return OMX_ErrorBadParameter;
+                }
+
+              if (encoding >= OMX_VIDEO_CodingMax)
+                {
+                  TIZ_ERROR (ap_hdl,
+                             "[OMX_ErrorBadParameter] : "
+                             "(Bad compression format [0x%08x]...)",
+                             encoding);
+                  return OMX_ErrorBadParameter;
+                }
+
+              if (!tiz_vector_find (p_obj->p_color_formats_, &format))
+                {
+                  TIZ_ERROR (ap_hdl,
+                             "[OMX_ErrorUnsupportedSetting] : "
+                             "(Color format not supported [0x%08x]...)",
+                             format);
+                  return OMX_ErrorUnsupportedSetting;
+                }
+
+              p_obj->port_format_.eColorFormat = format;
+              p_obj->port_format_.xFramerate = p_video_format->xFramerate;
+
+              TIZ_TRACE (ap_hdl,
+                         "Set color format [0x%08x] "
+                         "and framerate [0x%08x]...",
+                         format, p_video_format->xFramerate);
+            }
+          else
+            {
+              if (OMX_COLOR_FormatUnused != p_video_format->eColorFormat)
+                {
+                  TIZ_ERROR (ap_hdl,
+                             "[OMX_ErrorBadParameter] : "
+                             "(Expected OMX_COLOR_FormatUnused)");
+                  return OMX_ErrorBadParameter;
+                }
+
+              if (!tiz_vector_find (p_obj->p_video_encodings_, &encoding))
+                {
+                  TIZ_ERROR (ap_hdl,
+                             "[OMX_ErrorUnsupportedSetting] : "
+                             "(Can't find enconding [0x%08x])",
+                             encoding);
+                  return OMX_ErrorUnsupportedSetting;
+                }
+              else
+                {
+                  p_obj->port_format_.eCompressionFormat = encoding;
+                  TIZ_TRACE (ap_hdl, "Set video encoding [0x%08x]...",
+                             encoding);
+                }
+            }
+        }
+        break;
+
+      default:
+        {
+          /* Try the parent's indexes */
+          rc = super_SetParameter (typeOf (ap_obj, "tizvideoport"), ap_obj,
+                                   ap_hdl, a_index, ap_struct);
+        }
+    };
+
+  return rc;
+}
+
 static inline OMX_ERRORTYPE
 update_video_coding_type (void * ap_obj, const OMX_VIDEO_CODINGTYPE a_encoding)
 {
@@ -285,7 +381,6 @@ videoport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
                         OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   tiz_videoport_t * p_obj = (tiz_videoport_t *) ap_obj;
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   TIZ_TRACE (ap_hdl, "SetParameter [%s]...", tiz_idx_to_str (a_index));
   assert (p_obj);
@@ -310,86 +405,13 @@ videoport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
                      "SetParameter [OMX_IndexParamPortDefinition]... "
                      "Slave port, cannot update frame width or height",
                      tiz_port_dir (p_obj));
+          assert (0);
           return OMX_ErrorBadParameter;
         }
     }
 
-  switch (a_index)
-    {
-      case OMX_IndexParamVideoPortFormat:
-        {
-          const OMX_VIDEO_PARAM_PORTFORMATTYPE * p_video_format
-            = (OMX_VIDEO_PARAM_PORTFORMATTYPE *) ap_struct;
-          OMX_VIDEO_CODINGTYPE encoding = p_video_format->eCompressionFormat;
-          OMX_COLOR_FORMATTYPE format = p_video_format->eColorFormat;
-
-          if (OMX_VIDEO_CodingUnused == p_obj->port_format_.eCompressionFormat)
-            {
-              if (OMX_COLOR_FormatUnused == p_video_format->eColorFormat)
-                {
-                  /* Both Compression Format and Color can not be Unused at the
-                 * same time. */
-                  return OMX_ErrorBadParameter;
-                }
-
-              if (encoding >= OMX_VIDEO_CodingMax)
-                {
-                  TIZ_ERROR (ap_hdl,
-                             "OMX_ErrorBadParameter "
-                             "(Bad compression format [0x%08x]...)",
-                             encoding);
-                  return OMX_ErrorBadParameter;
-                }
-
-              if (!tiz_vector_find (p_obj->p_color_formats_, &format))
-                {
-                  TIZ_TRACE (ap_hdl,
-                             "OMX_ErrorUnsupportedSetting "
-                             "(Color format not supported [0x%08x]...)",
-                             format);
-                  return OMX_ErrorUnsupportedSetting;
-                }
-
-              p_obj->port_format_.eColorFormat = format;
-              p_obj->port_format_.xFramerate = p_video_format->xFramerate;
-
-              TIZ_TRACE (ap_hdl,
-                         "Set color format [0x%08x] "
-                         "and framerate [0x%08x]...",
-                         format, p_video_format->xFramerate);
-            }
-          else
-            {
-              if (OMX_COLOR_FormatUnused != p_video_format->eColorFormat)
-                {
-                  return OMX_ErrorBadParameter;
-                }
-
-              if (!tiz_vector_find (p_obj->p_video_encodings_, &encoding))
-                {
-                  return OMX_ErrorUnsupportedSetting;
-                }
-              else
-                {
-                  p_obj->port_format_.eCompressionFormat = encoding;
-                  TIZ_TRACE (ap_hdl,
-                             "Set video encoding"
-                             "[0x%08x]...",
-                             encoding);
-                }
-            }
-        }
-        break;
-
-      default:
-        {
-          /* Try the parent's indexes */
-          rc = super_SetParameter (typeOf (ap_obj, "tizvideoport"), ap_obj,
-                                   ap_hdl, a_index, ap_struct);
-        }
-    };
-
-  return rc;
+  return videoport_SetParameter_common (ap_obj, ap_hdl, a_index,
+                                        ap_struct);
 }
 
 static OMX_ERRORTYPE
@@ -489,6 +511,13 @@ videoport_apply_slaving_behaviour (void * ap_obj, void * ap_mos_port,
   return rc;
 }
 
+static OMX_ERRORTYPE
+videoport_SetParameter_internal (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
+                                 OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+{
+  return videoport_SetParameter_common (ap_obj, ap_hdl, a_index, ap_struct);
+}
+
 /*
  * tizvideoport_class
  */
@@ -544,6 +573,8 @@ tiz_videoport_init (void * ap_tos, void * ap_hdl)
      tiz_port_set_portdef_format, videoport_set_portdef_format,
      /* TIZ_CLASS_COMMENT: */
      tiz_port_apply_slaving_behaviour, videoport_apply_slaving_behaviour,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_port_SetParameter_internal, videoport_SetParameter_internal,
      /* TIZ_CLASS_COMMENT: stop value*/
      0);
 
