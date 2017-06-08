@@ -20,25 +20,26 @@
 /**
  * @file   vp8dprc.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
- * 
+ *
  * @brief  Tizonia - VP8 Decoder processor class
- * 
- * 
+ *
+ *
  */
 
 #ifndef VP8DPRC_H
 #define VP8DPRC_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-  void * vp8d_prc_class_init (void * ap_tos, void * ap_hdl);
-  void * vp8d_prc_init (void * ap_tos, void * ap_hdl);
+void *
+vp8d_prc_class_init (void * ap_tos, void * ap_hdl);
+void *
+vp8d_prc_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* VP8DPRC_H */
+#endif /* VP8DPRC_H */
