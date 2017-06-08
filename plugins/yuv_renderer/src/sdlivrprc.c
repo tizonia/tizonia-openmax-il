@@ -60,6 +60,8 @@ sdlivr_prc_render_buffer (const sdlivr_prc_t * ap_prc,
 
   if (ap_prc->p_overlay)
     {
+      const OMX_VIDEO_PORTDEFINITIONTYPE * p_vpd = &(ap_prc->port_def_);
+
       /* AVPicture pict; */
       SDL_Rect rect;
       uint8_t * y;
@@ -68,14 +70,21 @@ sdlivr_prc_render_buffer (const sdlivr_prc_t * ap_prc,
       unsigned int bytes;
       int pitch0, pitch1;
 
-      /* align pitch on 16-pixel boundary. */
-      pitch0 = (ap_prc->port_def_.nFrameWidth + 15) & ~15;
+      if (p_vpd->nStride == 0)
+        {
+          /* align pitch on 16-pixel boundary. */
+          pitch0 = (p_vpd->nFrameWidth + 15) & ~15;
+        }
+      else
+        {
+          pitch0 = p_vpd->nStride;
+        }
       pitch1 = pitch0 / 2;
 
       /* hard-coded to be YUV420 plannar */
       y = p_hdr->pBuffer;
-      u = y + pitch0 * ap_prc->port_def_.nFrameHeight;
-      v = u + pitch1 * ap_prc->port_def_.nFrameHeight / 2;
+      u = y + pitch0 * p_vpd->nFrameHeight;
+      v = u + pitch1 * p_vpd->nFrameHeight / 2;
 
       SDL_LockYUVOverlay (ap_prc->p_overlay);
 
@@ -92,19 +101,19 @@ sdlivr_prc_render_buffer (const sdlivr_prc_t * ap_prc,
           u2 = ap_prc->p_overlay->pixels[2];
           v2 = ap_prc->p_overlay->pixels[1];
 
-          for (hh = 0; hh < ap_prc->port_def_.nFrameHeight; hh++)
+          for (hh = 0; hh < p_vpd->nFrameHeight; hh++)
             {
               memcpy (y2, y, ap_prc->p_overlay->pitches[0]);
               y2 += ap_prc->p_overlay->pitches[0];
               y += pitch0;
             }
-          for (hh = 0; hh < ap_prc->port_def_.nFrameHeight / 2; hh++)
+          for (hh = 0; hh < p_vpd->nFrameHeight / 2; hh++)
             {
               memcpy (u2, u, ap_prc->p_overlay->pitches[2]);
               u2 += ap_prc->p_overlay->pitches[2];
               u += pitch1;
             }
-          for (hh = 0; hh < ap_prc->port_def_.nFrameHeight / 2; hh++)
+          for (hh = 0; hh < p_vpd->nFrameHeight / 2; hh++)
             {
               memcpy (v2, v, ap_prc->p_overlay->pitches[1]);
               v2 += ap_prc->p_overlay->pitches[1];
@@ -113,13 +122,13 @@ sdlivr_prc_render_buffer (const sdlivr_prc_t * ap_prc,
         }
       else
         {
-          bytes = pitch0 * ap_prc->port_def_.nFrameHeight;
+          bytes = pitch0 * p_vpd->nFrameHeight;
           memcpy (ap_prc->p_overlay->pixels[0], y, bytes);
 
-          bytes = pitch1 * ap_prc->port_def_.nFrameHeight / 2;
+          bytes = pitch1 * p_vpd->nFrameHeight / 2;
           memcpy (ap_prc->p_overlay->pixels[2], u, bytes);
 
-          bytes = pitch1 * ap_prc->port_def_.nFrameHeight / 2;
+          bytes = pitch1 * p_vpd->nFrameHeight / 2;
           memcpy (ap_prc->p_overlay->pixels[1], v, bytes);
         }
 
@@ -127,8 +136,8 @@ sdlivr_prc_render_buffer (const sdlivr_prc_t * ap_prc,
 
       rect.x = 0;
       rect.y = 0;
-      rect.w = ap_prc->port_def_.nFrameWidth;
-      rect.h = ap_prc->port_def_.nFrameHeight;
+      rect.w = p_vpd->nFrameWidth;
+      rect.h = p_vpd->nFrameHeight;
       SDL_DisplayYUVOverlay (ap_prc->p_overlay, &rect);
     }
 
@@ -210,9 +219,9 @@ sdlivr_prc_prepare_to_transfer (void * ap_obj, OMX_U32 a_pid)
 
   p_prc->port_def_ = portdef.format.video;
 
-  TIZ_TRACE (handleOf (p_prc), "nFrameWidth = [%u] nFrameHeight = [%u] ",
-             "nStride = [%d] nSliceHeight = [%d] nBitrate = [%d] "
-             "xFramerate = [%s] eCompressionFormat = [%d] eColorFormat = [%d]",
+  TIZ_TRACE (handleOf (p_prc), "nFrameWidth = [%u] nFrameHeight = [%u] "
+             "nStride = [%d] nSliceHeight = [%u] nBitrate = [%u] "
+             "xFramerate = [%u] eCompressionFormat = [%0x] eColorFormat = [%0x]",
              p_prc->port_def_.nFrameWidth, p_prc->port_def_.nFrameHeight,
              p_prc->port_def_.nStride, p_prc->port_def_.nSliceHeight,
              p_prc->port_def_.nBitrate, p_prc->port_def_.xFramerate,
