@@ -44,12 +44,11 @@ extern "C"
   {
     /* Object */
     const tiz_prc_t _;
-    OMX_BUFFERHEADERTYPE *pinhdr_;
-    OMX_BUFFERHEADERTYPE *pouthdr_;
-    OMX_VIDEO_PORTDEFINITIONTYPE vportdef_;
+    OMX_VIDEO_PORTDEFINITIONTYPE port_def_;
     SDL_Surface *p_surface;
     SDL_Overlay *p_overlay;
     bool eos_;
+    bool port_disabled_;
   };
 
   typedef struct sdlivr_prc_class sdlivr_prc_class_t;
