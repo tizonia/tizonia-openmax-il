@@ -224,35 +224,6 @@ mp3port_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
   return rc;
 }
 
-static OMX_ERRORTYPE
-mp3port_SetParameter_internal (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
-                               OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
-{
-  tiz_mp3port_t * p_obj = (tiz_mp3port_t *) ap_obj;
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-
-  assert (p_obj);
-
-  TIZ_TRACE (ap_hdl, "PORT [%d] SetParameter [%s]...", tiz_port_index (ap_obj),
-             tiz_idx_to_str (a_index));
-
-  switch (a_index)
-    {
-      case OMX_IndexParamAudioMp3:
-        {
-          rc = mp3port_SetParameter_common (ap_obj, ap_hdl, a_index, ap_struct);
-        }
-        break;
-      default:
-        {
-          assert (0);
-        }
-        break;
-    };
-
-  return rc;
-}
-
 static bool
 mp3port_check_tunnel_compat (const void * ap_obj,
                              OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
@@ -478,6 +449,35 @@ mp3port_apply_slaving_behaviour (void * ap_obj, void * ap_mos_port,
                    tiz_idx_to_str (a_index));
       }
   }
+  return rc;
+}
+
+static OMX_ERRORTYPE
+mp3port_SetParameter_internal (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
+                               OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+{
+  tiz_mp3port_t * p_obj = (tiz_mp3port_t *) ap_obj;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+
+  assert (p_obj);
+
+  TIZ_TRACE (ap_hdl, "PORT [%d] SetParameter [%s]...", tiz_port_index (ap_obj),
+             tiz_idx_to_str (a_index));
+
+  switch (a_index)
+    {
+      case OMX_IndexParamAudioMp3:
+        {
+          rc = mp3port_SetParameter_common (ap_obj, ap_hdl, a_index, ap_struct);
+        }
+        break;
+      default:
+        {
+          assert (0);
+        }
+        break;
+    };
+
   return rc;
 }
 
