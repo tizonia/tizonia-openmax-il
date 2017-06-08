@@ -30,8 +30,7 @@
 #define SDLIVRPRC_DECLS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <stdbool.h>
@@ -39,28 +38,28 @@ extern "C"
 
 #include <tizprc_decls.h>
 
-  typedef struct sdlivr_prc sdlivr_prc_t;
-  struct sdlivr_prc
-  {
-    /* Object */
-    const tiz_prc_t _;
-    OMX_VIDEO_PORTDEFINITIONTYPE port_def_;
-    SDL_Surface *p_surface;
-    SDL_Overlay *p_overlay;
-    bool eos_;
-    bool port_disabled_;
-  };
+typedef struct sdlivr_prc sdlivr_prc_t;
+struct sdlivr_prc
+{
+  /* Object */
+  const tiz_prc_t _;
+  OMX_VIDEO_PORTDEFINITIONTYPE port_def_;
+  SDL_Surface * p_surface;
+  SDL_Overlay * p_overlay;
+  bool eos_;
+  bool port_disabled_;
+};
 
-  typedef struct sdlivr_prc_class sdlivr_prc_class_t;
-  struct sdlivr_prc_class
-  {
-    /* Class */
-    const tiz_prc_class_t _;
-    /* NOTE: Class methods might be added in the future */
-  };
+typedef struct sdlivr_prc_class sdlivr_prc_class_t;
+struct sdlivr_prc_class
+{
+  /* Class */
+  const tiz_prc_class_t _;
+  /* NOTE: Class methods might be added in the future */
+};
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* SDLIVRPRC_DECLS_H */
+#endif /* SDLIVRPRC_DECLS_H */
