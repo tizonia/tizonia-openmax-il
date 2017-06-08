@@ -533,11 +533,11 @@ tiz_mp3port_init (void * ap_tos, void * ap_hdl)
      /* TIZ_CLASS_COMMENT: */
      tiz_api_SetParameter, mp3port_SetParameter,
      /* TIZ_CLASS_COMMENT: */
-     tiz_port_SetParameter_internal, mp3port_SetParameter_internal,
-     /* TIZ_CLASS_COMMENT: */
      tiz_port_check_tunnel_compat, mp3port_check_tunnel_compat,
      /* TIZ_CLASS_COMMENT: */
      tiz_port_apply_slaving_behaviour, mp3port_apply_slaving_behaviour,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_port_SetParameter_internal, mp3port_SetParameter_internal,
      /* TIZ_CLASS_COMMENT: stop value*/
      0);
 
