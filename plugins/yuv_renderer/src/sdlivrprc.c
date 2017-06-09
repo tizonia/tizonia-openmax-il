@@ -218,14 +218,15 @@ sdlivr_prc_prepare_to_transfer (void * ap_obj, OMX_U32 a_pid)
 
   p_prc->port_def_ = portdef.format.video;
 
-  TIZ_TRACE (handleOf (p_prc), "nFrameWidth = [%u] nFrameHeight = [%u] "
-             "nStride = [%d] nSliceHeight = [%u] nBitrate = [%u] "
-             "xFramerate = [%u] eCompressionFormat = [%0x] eColorFormat = [%0x]",
-             p_prc->port_def_.nFrameWidth, p_prc->port_def_.nFrameHeight,
-             p_prc->port_def_.nStride, p_prc->port_def_.nSliceHeight,
-             p_prc->port_def_.nBitrate, p_prc->port_def_.xFramerate,
-             p_prc->port_def_.eCompressionFormat,
-             p_prc->port_def_.eColorFormat);
+  TIZ_TRACE (
+    handleOf (p_prc),
+    "nFrameWidth = [%u] nFrameHeight = [%u] "
+    "nStride = [%d] nSliceHeight = [%u] nBitrate = [%u] "
+    "xFramerate = [%u] eCompressionFormat = [%0x] eColorFormat = [%0x]",
+    p_prc->port_def_.nFrameWidth, p_prc->port_def_.nFrameHeight,
+    p_prc->port_def_.nStride, p_prc->port_def_.nSliceHeight,
+    p_prc->port_def_.nBitrate, p_prc->port_def_.xFramerate,
+    p_prc->port_def_.eCompressionFormat, p_prc->port_def_.eColorFormat);
 
   SDL_WM_SetCaption ("Tizonia YUV renderer", "YUV");
 
@@ -282,11 +283,11 @@ sdlivr_prc_buffers_ready (const void * ap_obj)
 
   assert (p_prc);
 
-  if (!p_prc->port_disabled_)
-    {
-      tiz_check_omx (tiz_krn_claim_buffer (
-        p_krn, ARATELIA_YUV_RENDERER_PORT_INDEX, 0, &p_hdr));
+  tiz_check_omx (
+    tiz_krn_claim_buffer (p_krn, ARATELIA_YUV_RENDERER_PORT_INDEX, 0, &p_hdr));
 
+  while (!p_prc->port_disabled_ && p_hdr)
+    {
       if (p_hdr)
         {
           tiz_check_omx (sdlivr_prc_render_buffer (ap_obj, p_hdr));
@@ -299,6 +300,8 @@ sdlivr_prc_buffers_ready (const void * ap_obj)
             }
           tiz_check_omx (tiz_krn_release_buffer (
             p_krn, ARATELIA_YUV_RENDERER_PORT_INDEX, p_hdr));
+          tiz_check_omx (tiz_krn_claim_buffer (
+            p_krn, ARATELIA_YUV_RENDERER_PORT_INDEX, 0, &p_hdr));
         }
     }
   return OMX_ErrorNone;
