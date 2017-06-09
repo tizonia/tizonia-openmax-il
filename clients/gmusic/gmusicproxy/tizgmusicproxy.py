@@ -612,7 +612,7 @@ class tizgmusicproxy(object):
             for track in tracks:
                 store_track = self.__gmusic.get_track_info(track['storeId'])
                 if u'id' not in store_track.keys():
-                    store_track[u'id'] = store_track['nid']
+                    store_track[u'id'] = store_track['storeId']
                 self.queue.append(store_track)
                 count += 1
             if count == 0:
@@ -893,7 +893,7 @@ class tizgmusicproxy(object):
         count = 0
         for track in tracks:
             if u'id' not in track.keys():
-                track[u'id'] = track['nid']
+                track[u'id'] = track['storeId']
             self.queue.append(track)
             count += 1
         return count
