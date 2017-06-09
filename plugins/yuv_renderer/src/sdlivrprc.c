@@ -158,7 +158,6 @@ sdlivr_prc_ctor (void * ap_obj, va_list * app)
   tiz_mem_set (&(p_prc->port_def_), 0, sizeof (OMX_VIDEO_PORTDEFINITIONTYPE));
   p_prc->p_surface = NULL;
   p_prc->p_overlay = NULL;
-  p_prc->eos_ = false;
   p_prc->port_disabled_ = false;
   return p_prc;
 }
