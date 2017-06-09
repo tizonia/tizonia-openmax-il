@@ -46,7 +46,6 @@ struct sdlivr_prc
   OMX_VIDEO_PORTDEFINITIONTYPE port_def_;
   SDL_Surface * p_surface;
   SDL_Overlay * p_overlay;
-  bool eos_;
   bool port_disabled_;
 };
 
