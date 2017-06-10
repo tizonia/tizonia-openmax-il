@@ -1119,6 +1119,9 @@ void tiz::programopts::init_gmusic_options ()
        "Google Play Music device id (not required if provided via config "
        "file).")
       /* TIZ_CLASS_COMMENT: */
+      ("gmusic-tracks", po::value (&gmusic_tracks_),
+       "Play tracks from the user's library by track name.")
+      /* TIZ_CLASS_COMMENT: */
       ("gmusic-artist", po::value (&gmusic_artist_),
        "Play tracks from the user's library by artist.")
       /* TIZ_CLASS_COMMENT: */
@@ -1163,8 +1166,8 @@ void tiz::programopts::init_gmusic_options ()
   register_consume_function (&tiz::programopts::consume_gmusic_client_options);
   all_gmusic_client_options_
       = boost::assign::list_of ("gmusic-user") ("gmusic-password") (
-            "gmusic-device-id") ("gmusic-artist") ("gmusic-album") (
-            "gmusic-playlist") ("gmusic-unlimited-station") (
+            "gmusic-device-id") ("gmusic-tracks") ("gmusic-artist") (
+            "gmusic-album") ("gmusic-playlist") ("gmusic-unlimited-station") (
             "gmusic-unlimited-album") ("gmusic-unlimited-artist") (
             "gmusic-unlimited-tracks") ("gmusic-unlimited-playlist") (
             "gmusic-unlimited-genre") ("gmusic-unlimited-activity") (
@@ -1552,8 +1555,8 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
     done = true;
 
     const int playlist_option_count
-        = vm_.count ("gmusic-artist") + vm_.count ("gmusic-album")
-          + vm_.count ("gmusic-playlist")
+        = vm_.count ("gmusic-tracks") + vm_.count ("gmusic-artist")
+          + vm_.count ("gmusic-album") + vm_.count ("gmusic-playlist")
           + vm_.count ("gmusic-unlimited-station")
           + vm_.count ("gmusic-unlimited-album")
           + vm_.count ("gmusic-unlimited-artist")
@@ -1948,9 +1951,9 @@ bool tiz::programopts::validate_gmusic_client_options () const
   bool outcome = false;
   unsigned int gmusic_opts_count
       = vm_.count ("gmusic-user") + vm_.count ("gmusic-password")
-        + vm_.count ("gmusic-device-id") + vm_.count ("gmusic-artist")
-        + vm_.count ("gmusic-album") + vm_.count ("gmusic-playlist")
-        + vm_.count ("gmusic-unlimited-station")
+        + vm_.count ("gmusic-device-id") + vm_.count ("gmusic-tracks")
+        + vm_.count ("gmusic-artist") + vm_.count ("gmusic-album")
+        + vm_.count ("gmusic-playlist") + vm_.count ("gmusic-unlimited-station")
         + vm_.count ("gmusic-unlimited-album")
         + vm_.count ("gmusic-unlimited-artist")
         + vm_.count ("gmusic-unlimited-tracks")
