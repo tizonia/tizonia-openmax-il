@@ -383,11 +383,12 @@ class tizgmusicproxy(object):
                     if arg.lower() in name.lower():
                         playlist = plist
                         playlist_name = name
-                        print_wrn("[Google Play Music] '{0}' not found. " \
-                                  "Playing '{1}' instead." \
-                                  .format(arg.encode('utf-8'), \
-                                          to_ascii(name)))
-                        break
+                        if arg.lower() != name.lower():
+                            print_wrn("[Google Play Music] '{0}' not found. " \
+                                      "Playing '{1}' instead." \
+                                      .format(arg.encode('utf-8'), \
+                                              to_ascii(name)))
+                            break
             else:
                 playlist_name = arg
                 playlist = self.playlists[arg]
