@@ -725,6 +725,32 @@ class tizgmusicproxy(object):
         except CallFailure:
             raise RuntimeError("Operation requires an Unlimited subscription.")
 
+    # This is work in progress (podcasts feature still not available in the UK)
+    def enqueue_podcast_unlimited(self, arg):
+        """Search Unlimited for a podcast series and add its tracks to the playback
+        queue.
+
+        Requires Unlimited subscription.
+
+        """
+        print_msg("[Google Play Music] [Retrieving podcasts] : '{0}'. " \
+                  .format(self.__email))
+
+        try:
+
+            self.__enqueue_podcast_unlimited(arg)
+
+            if not len(self.queue):
+                raise KeyError
+
+            logging.info("Added %d tracks from %s to queue", \
+                         len(self.queue), arg)
+
+        except KeyError:
+            raise KeyError("Podcast not found : {0}".format(arg))
+        except CallFailure:
+            raise RuntimeError("Operation requires an Unlimited subscription.")
+
     def next_url(self):
         """ Retrieve the url of the next track in the playback queue.
 
@@ -994,7 +1020,57 @@ class tizgmusicproxy(object):
                 raise KeyError
 
         except KeyError:
-            raise KeyError("Situation not found : {0}".format(arg))
+           raise KeyError("Situation not found : {0}".format(arg))
+
+    # This is work in progress (podcasts feature still not available in the UK)
+    def __enqueue_podcast_unlimited(self, arg):
+        """Search for a podcast series and enqueue all of its tracks (Unlimited)
+
+        """
+        print_msg("[Google Play Music] [Podcast search in "\
+                  "Google Play Music] : '{0}'. " \
+                  .format(arg.encode('utf-8')))
+        try:
+            podcast_hits = self.__gmusic.search(arg)['podcast_hits']
+            pprint.pprint (podcast_hits)
+
+            # If the search didn't return results, just do another search with
+            # an empty string
+            if not len(podcast_hits):
+                podcast_hits = self.__gmusic.search('')['podcast_hits']
+                print_wrn("[Google Play Music] '{0}' not found. "\
+                          "Feeling lucky?." \
+                          .format(arg.encode('utf-8')))
+
+            pprint.pprint (podcast_hits)
+            # Try to find a "best result", if one exists
+            podcast = next((hit for hit in podcast_hits \
+                              if 'best_result' in hit.keys()), None)
+
+            num_tracks = MAX_TRACKS
+
+            # If there is no best result, then get a selection of tracks from
+            # each podcast. At least we'll play something.
+            if not podcast and len(podcast_hits):
+                max_results = num_tracks / len(podcast_hits)
+                for hit in podcast_hits:
+                    podcast = hit['podcast']
+                    print_nfo("[Google Play Music] [Podcast] '{0} : {1}'." \
+                              .format((hit['podcast']['title']).encode('utf-8'),
+                                      (hit['podcast']['description']).encode('utf-8')))
+                    #self.__enqueue_station_unlimited(podcast['title'], max_results, True)
+
+            if podcast:
+                # There is at list one sitution, enqueue its tracks.
+                podcast = podcast['podcast']
+                max_results = num_tracks
+                #self.__enqueue_station_unlimited(podcast['title'], max_results, True)
+
+            if not podcast:
+                raise KeyError
+
+        except KeyError:
+            raise KeyError("Podcast not found : {0}".format(arg))
 
     def __enqueue_tracks(self, tracks):
         """ Add tracks to the playback queue
