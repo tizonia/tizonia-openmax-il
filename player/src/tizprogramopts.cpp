@@ -303,6 +303,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     gmusic_genre_ (),
     gmusic_activity_ (),
     gmusic_promoted_ (),
+    gmusic_tracks_ (),
     gmusic_feeling_lucky_station_ (),
     gmusic_playlist_container_ (),
     gmusic_playlist_type_ (OMX_AUDIO_GmusicPlaylistTypeUnknown),
@@ -715,6 +716,10 @@ tiz::programopts::gmusic_playlist_type ()
   else if (!gmusic_promoted_.empty ())
   {
     gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypePromotedTracks;
+  }
+  else if (!gmusic_tracks_.empty ())
+  {
+    gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeTracks;
   }
   else
   {
@@ -1131,9 +1136,12 @@ void tiz::programopts::init_gmusic_options ()
        "Search and play Google Play Music Unlimited tracks by artist (best "
        "match only).")
       /* TIZ_CLASS_COMMENT: */
-      ("gmusic-unlimited-tracks", po::value (&gmusic_playlist_),
+      ("gmusic-unlimited-tracks", po::value (&gmusic_tracks_),
        "Search and play Google Play Music Unlimited tracks by name (50 first "
        "matches only).")
+      /* TIZ_CLASS_COMMENT: */
+      ("gmusic-unlimited-playlist", po::value (&gmusic_playlist_),
+       "Search and play Google Play Music Unlimited playlists by name.")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-unlimited-genre", po::value (&gmusic_genre_),
        "Search and play Google Play Music Unlimited tracks by genre.")
@@ -1154,8 +1162,8 @@ void tiz::programopts::init_gmusic_options ()
             "gmusic-device-id") ("gmusic-artist") ("gmusic-album") (
             "gmusic-playlist") ("gmusic-unlimited-station") (
             "gmusic-unlimited-album") ("gmusic-unlimited-artist") (
-            "gmusic-unlimited-tracks") ("gmusic-unlimited-genre") (
-            "gmusic-unlimited-activity") (
+            "gmusic-unlimited-tracks") ("gmusic-unlimited-playlist") (
+            "gmusic-unlimited-genre") ("gmusic-unlimited-activity") (
             "gmusic-unlimited-feeling-lucky-station") (
             "gmusic-unlimited-promoted-tracks")
             .convert_to_container< std::vector< std::string > > ();
@@ -1546,6 +1554,7 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
           + vm_.count ("gmusic-unlimited-album")
           + vm_.count ("gmusic-unlimited-artist")
           + vm_.count ("gmusic-unlimited-tracks")
+          + vm_.count ("gmusic-unlimited-playlist")
           + vm_.count ("gmusic-unlimited-genre")
           + vm_.count ("gmusic-unlimited-activity")
           + vm_.count ("gmusic-unlimited-feeling-lucky-station")
@@ -1582,6 +1591,7 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
         || vm_.count ("gmusic-unlimited-album")
         || vm_.count ("gmusic-unlimited-artist")
         || vm_.count ("gmusic-unlimited-tracks")
+        || vm_.count ("gmusic-unlimited-playlist")
         || vm_.count ("gmusic-unlimited-genre")
         || vm_.count ("gmusic-unlimited-activity"))
     {
@@ -1940,6 +1950,7 @@ bool tiz::programopts::validate_gmusic_client_options () const
         + vm_.count ("gmusic-unlimited-album")
         + vm_.count ("gmusic-unlimited-artist")
         + vm_.count ("gmusic-unlimited-tracks")
+        + vm_.count ("gmusic-unlimited-playlist")
         + vm_.count ("gmusic-unlimited-genre")
         + vm_.count ("gmusic-unlimited-activity")
         + vm_.count ("gmusic-unlimited-feeling-lucky-station")
