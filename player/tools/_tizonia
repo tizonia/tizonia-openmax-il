@@ -18,16 +18,17 @@ _arguments -S -s \
   '--gmusic-user[Google Play Music user name (not required if provided via config file).]' \
   '--gmusic-password[Google Play Music users password (not required if provided via config file).]' \
   '--gmusic-device-id[Google Play Music device id (not required if provided via config file).]' \
-  '--gmusic-artist[Play tracks from the users library by artist.]' \
   '--gmusic-album[Play an album from the users library.]' \
+  '--gmusic-artist[Play tracks from the users library by artist.]' \
   '--gmusic-playlist[A playlist from the users library.]' \
-  '--gmusic-unlimited-station[Search and play Google Play Music Unlimited stations found in the users library.]' \
+  '--gmusic-unlimited-activity[Search and play Google Play Music Unlimited tracks by activity.]' \
   '--gmusic-unlimited-album[Search and play Google Play Music Unlimited tracks by album (best match only).]' \
   '--gmusic-unlimited-artist[Search and play Google Play Music Unlimited tracks by artist (best match only).]' \
-  '--gmusic-unlimited-tracks[Search and play Google Play Music Unlimited tracks by name (50 first matches only).]' \
-  '--gmusic-unlimited-genre[Search and play Google Play Music Unlimited tracks by genre.]' \
-  '--gmusic-unlimited-activity[Search and play Google Play Music Unlimited tracks by activity.]' \
   '--gmusic-unlimited-feeling-lucky-station[Play the users Google Play Music Unlimited Im Feeling Lucky station.]' \
+  '--gmusic-unlimited-genre[Search and play Google Play Music Unlimited tracks by genre.]' \
+  '--gmusic-unlimited-station[Search and play Google Play Music Unlimited stations found in the users library.]' \
+  '--gmusic-unlimited-tracks[Search and play Google Play Music Unlimited tracks by name (50 first matches only).]' \
+  '--gmusic-unlimited-playlist[Search and play Google Play Music Unlimited playlists.]' \
   '--gmusic-unlimited-promoted-tracks[Play Google Play Music Unlimited promoted tracks.]' \
   '--soundcloud-oauth-token[SoundCloud user OAuth token (not required if provided via config file).]' \
   '--soundcloud-user-stream[Play the tracks currently listed in the users stream.]' \
