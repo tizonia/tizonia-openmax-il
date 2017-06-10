@@ -203,6 +203,13 @@ int tizgmusic::play_situation (const std::string &situation)
   return rc;
 }
 
+int tizgmusic::play_podcast (const std::string &podcast)
+{
+  int rc = 0;
+  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_podcast_unlimited")(bp::object (podcast)));
+  return rc;
+}
+
 int tizgmusic::play_promoted_tracks ()
 {
   int rc = 0;

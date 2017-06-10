@@ -63,6 +63,7 @@ public:
   int play_station (const std::string &station);
   int play_genre (const std::string &genre);
   int play_situation (const std::string &situation);
+  int play_podcast (const std::string &podcast);
   int play_promoted_tracks ();
 
   void clear_queue ();
