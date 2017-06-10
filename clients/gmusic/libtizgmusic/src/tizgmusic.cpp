@@ -122,6 +122,22 @@ void tizgmusic::deinit ()
   // boost::python doesn't support Py_Finalize() yet!
 }
 
+int tizgmusic::play_tracks (const std::string &tracks, const bool a_unlimited_search)
+{
+  int rc = 0;
+  if (a_unlimited_search)
+    {
+      try_catch_wrapper (
+          py_gm_proxy_.attr ("enqueue_tracks_unlimited")(bp::object (tracks)));
+    }
+  else
+    {
+      try_catch_wrapper (
+          py_gm_proxy_.attr ("enqueue_tracks_unlimited")(bp::object (tracks)));
+    }
+  return rc;
+}
+
 int tizgmusic::play_album (const std::string &album, const bool a_unlimited_search)
 {
   int rc = 0;

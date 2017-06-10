@@ -90,6 +90,25 @@ void tiz_gmusic_set_playback_mode (tiz_gmusic_t *ap_gmusic,
                                    const tiz_gmusic_playback_mode_t mode);
 
 /**
+ * Add the tracks corresponding to the specified search term to the playback
+ * queue.
+ *
+ * After calling this method, the various tiz_gmusic_get* methods can be
+ * used to interact with the playback queue.
+ *
+ * @ingroup libtizgmusic
+ *
+ * @param ap_gmusic The gmusic handle.
+ * @param ap_tracks The tracks search term.
+ * @param a_unlimited_search If true, Google Play Unlimited trackss are
+ * included. Otherwise, only trackss from the user's library are considered.
+ *
+ * @return 0 on success
+ */
+int tiz_gmusic_play_tracks (tiz_gmusic_t *ap_gmusic, const char *ap_tracks,
+                            const bool a_unlimited_search);
+
+/**
  * Add the tracks of the specified album to the playback queue.
  *
  * After calling this method, the various tiz_gmusic_get* methods can be
