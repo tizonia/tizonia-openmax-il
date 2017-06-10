@@ -133,7 +133,7 @@ int tizgmusic::play_tracks (const std::string &tracks, const bool a_unlimited_se
   else
     {
       try_catch_wrapper (
-          py_gm_proxy_.attr ("enqueue_tracks_unlimited")(bp::object (tracks)));
+          py_gm_proxy_.attr ("enqueue_tracks")(bp::object (tracks)));
     }
   return rc;
 }
