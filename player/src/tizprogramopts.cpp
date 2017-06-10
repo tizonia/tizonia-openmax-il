@@ -645,7 +645,11 @@ const std::string &tiz::programopts::gmusic_device_id () const
 const std::vector< std::string > &tiz::programopts::gmusic_playlist_container ()
 {
   gmusic_playlist_container_.clear ();
-  if (!gmusic_artist_.empty ())
+  if (!gmusic_tracks_.empty ())
+  {
+    gmusic_playlist_container_.push_back (gmusic_tracks_);
+  }
+  else if (!gmusic_artist_.empty ())
   {
     gmusic_playlist_container_.push_back (gmusic_artist_);
   }
