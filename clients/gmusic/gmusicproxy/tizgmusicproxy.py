@@ -602,6 +602,51 @@ class tizgmusicproxy(object):
         except CallFailure:
             raise RuntimeError("Operation requires an Unlimited subscription.")
 
+    def enqueue_playlist_unlimited(self, arg):
+        """Search Unlimited for a playlist name and adds all its tracks to the
+        playback queue.
+
+        Requires Unlimited subscription.
+
+        """
+        print_msg("[Google Play Music] [Retrieving playlists] : '{0}'. " \
+                  .format(self.__email))
+
+        try:
+            playlist_tracks = list()
+
+            playlist_hits = self.__gmusic_search(arg, 'playlist')
+            if playlist_hits:
+                playlist = playlist_hits['playlist']
+                playlist_contents = self.__gmusic.get_shared_playlist_contents(playlist['shareToken'])
+            else:
+                raise KeyError
+
+            print_nfo("[Google Play Music] [Playlist] '{}'." \
+                      .format(playlist['name']).encode('utf-8'))
+
+            for item in playlist_contents:
+                print_nfo("[Google Play Music] [Playlist Track] '{} by {} (Album: {}, {})'." \
+                          .format((item['track']['title']).encode('utf-8'),
+                                  (item['track']['artist']).encode('utf-8'),
+                                  (item['track']['album']).encode('utf-8'),
+                                  (item['track']['year'])))
+                track = item['track']
+                playlist_tracks.append(track)
+
+            if not playlist_tracks:
+                raise KeyError
+
+            tracks_added = self.__enqueue_tracks(playlist_tracks)
+            logging.info("Added %d tracks from %s to queue", \
+                         tracks_added, arg)
+            self.__update_play_queue_order()
+
+        except KeyError:
+            raise KeyError("Playlist not found : {0}".format(arg))
+        except CallFailure:
+            raise RuntimeError("Operation requires an Unlimited subscription.")
+
     def enqueue_promoted_tracks_unlimited(self):
         """ Retrieve the url of the next track in the playback queue.
 
@@ -952,8 +997,11 @@ class tizgmusicproxy(object):
         """
 
         search_results = self.__gmusic.search(query, max_results)[query_type + '_hits']
-        result = next((hit for hit in search_results \
-                            if 'best_result' in hit.keys()), None)
+
+        result = ''
+        if query_type != "playlist":
+            result = next((hit for hit in search_results \
+                           if 'best_result' in hit.keys()), None)
 
         if not result and len(search_results):
             secondary_hit = None
