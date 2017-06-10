@@ -388,24 +388,30 @@ class tizgmusicproxy(object):
                                   .format(arg.encode('utf-8'), \
                                           to_ascii(name)))
                         break
-                if not playlist:
-                    # Play some random playlist from the library
-                    random.seed()
-                    playlist_name = random.choice(self.playlists.keys())
-                    playlist = self.playlists[playlist_name]
-                    print_wrn("[Google Play Music] '{0}' not found. "\
-                              "Feeling lucky?." \
-                              .format(arg.encode('utf-8')))
             else:
                 playlist_name = arg
                 playlist = self.playlists[arg]
+
+            random.seed()
+            x = 0
+            while (not playlist or not len(playlist)) and x < 3:
+                x += 1
+                # Play some random playlist from the library
+                playlist_name = random.choice(self.playlists.keys())
+                playlist = self.playlists[playlist_name]
+                print_wrn("[Google Play Music] '{0}' not found or found empty. "\
+                          "Feeling lucky?." \
+                          .format(arg.encode('utf-8')))
+
+            if not len(playlist):
+                raise KeyError
 
             self.__enqueue_tracks(playlist)
             print_wrn("[Google Play Music] Playing '{0}'." \
                       .format(to_ascii(playlist_name)))
             self.__update_play_queue_order()
         except KeyError:
-            raise KeyError("Playlist not found : {0}".format(arg))
+            raise KeyError("Playlist not found or found empty : {0}".format(arg))
 
     def enqueue_station_unlimited(self, arg):
         """Search the user's library for a station with a given name
