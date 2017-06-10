@@ -859,17 +859,22 @@ class tizgmusicproxy(object):
         try:
             situation_hits = self.__gmusic.search(arg)['situation_hits']
 
+            # If the search didn't return results, just do another search with
+            # an empty string
             if not len(situation_hits):
-                # Do another search with an empty string
                 situation_hits = self.__gmusic.search("")['situation_hits']
                 print_wrn("[Google Play Music] '{0}' not found. "\
                           "Feeling lucky?." \
                           .format(arg.encode('utf-8')))
 
+            # Try to find a "best result", if one exists
             situation = next((hit for hit in situation_hits \
                               if 'best_result' in hit.keys()), None)
 
             num_tracks = 200
+
+            # If there is no best result, then get a selection of tracks from
+            # each situation. At least we'll play some music.
             if not situation and len(situation_hits):
                 max_results = num_tracks / len(situation_hits)
                 for hit in situation_hits:
@@ -877,8 +882,12 @@ class tizgmusicproxy(object):
                     print_nfo("[Google Play Music] [Situation] '{0} : {1}'." \
                               .format((hit['situation']['title']).encode('utf-8'),
                                       (hit['situation']['description']).encode('utf-8')))
-
                     self.__enqueue_station_unlimited(situation['title'], max_results, True)
+            elif situation:
+                # There is at list one sitution, enqueue its tracks.
+                situation = situation['situation']
+                max_results = num_tracks
+                self.__enqueue_station_unlimited(situation['title'], max_results, True)
 
             if not situation:
                 raise KeyError
