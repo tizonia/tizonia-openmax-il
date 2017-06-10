@@ -634,6 +634,11 @@ enqueue_playlist_items (gmusic_prc_t * ap_prc)
                                          is_unlimited_search);
           }
           break;
+        case OMX_AUDIO_GmusicPlaylistTypePodcast:
+          {
+            rc = tiz_gmusic_play_podcast (ap_prc->p_gmusic_, p_playlist);
+          }
+          break;
         default:
           {
             assert (0);
