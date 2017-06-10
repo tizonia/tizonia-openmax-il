@@ -157,9 +157,7 @@ int tizgmusic::play_playlist (const std::string &playlist, const bool a_unlimite
   int rc = 0;
   if (a_unlimited_search)
     {
-      // NOTE: we will enqueue here "tracks" instead of a playlist (gmusicapi
-      // returns an empty playlist_hits list)
-      try_catch_wrapper (py_gm_proxy_.attr ("enqueue_tracks_unlimited")(bp::object (playlist)));
+      try_catch_wrapper (py_gm_proxy_.attr ("enqueue_playlist_unlimited")(bp::object (playlist)));
     }
   else
     {
