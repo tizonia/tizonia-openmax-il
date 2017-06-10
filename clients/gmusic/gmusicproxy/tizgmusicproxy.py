@@ -781,7 +781,7 @@ class tizgmusicproxy(object):
                                    "Unlimited subscription.")
             tracks_added = self.__enqueue_tracks(tracks)
             if tracks_added:
-                if arg != station_name:
+                if arg.lower() != station_name.lower():
                     print_wrn("[Google Play Music] '{0}' not found. " \
                               "Playing '{1}' instead." \
                               .format(arg.encode('utf-8'), name.encode('utf-8')))
