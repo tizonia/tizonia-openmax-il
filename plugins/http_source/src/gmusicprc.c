@@ -628,6 +628,11 @@ enqueue_playlist_items (gmusic_prc_t * ap_prc)
             rc = tiz_gmusic_play_promoted_tracks (ap_prc->p_gmusic_);
           }
           break;
+        case OMX_AUDIO_GmusicPlaylistTypeTracks:
+          {
+            rc = tiz_gmusic_play_promoted_tracks (ap_prc->p_gmusic_);
+          }
+          break;
         default:
           {
             assert (0);
