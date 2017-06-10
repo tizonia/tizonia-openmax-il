@@ -55,8 +55,7 @@ typedef /*@null@ */ tiz_gmusic_t *tiz_gmusic_ptr_t;
  * Various playback modes that control the playback queue.
  * @ingroup libtizgmusic
  */
-typedef enum tiz_gmusic_playback_mode
-{
+typedef enum tiz_gmusic_playback_mode {
   ETIZGmusicPlaybackModeNormal,
   ETIZGmusicPlaybackModeShuffle,
   ETIZGmusicPlaybackModeMax
@@ -211,7 +210,25 @@ int tiz_gmusic_play_genre (tiz_gmusic_t *ap_gmusic, const char *ap_genre);
  *
  * @return 0 on success
  */
-int tiz_gmusic_play_situation (tiz_gmusic_t *ap_gmusic, const char *ap_situation);
+int tiz_gmusic_play_situation (tiz_gmusic_t *ap_gmusic,
+                               const char *ap_situation);
+
+/**
+ * Add the tracks of the specified podcast to the playback queue.
+ *
+ * After calling this method, the various tiz_gmusic_get* methods can be
+ * used to interact with the playback queue.
+ *
+ * @ingroup libtizgmusic
+ *
+ * @note An Google Play Unlimited subscription is required.
+ *
+ * @param ap_gmusic The gmusic handle.
+ * @param ap_podcast The podcast
+ *
+ * @return 0 on success
+ */
+int tiz_gmusic_play_podcast (tiz_gmusic_t *ap_gmusic, const char *ap_podcast);
 
 /**
 * Add Google Play Unlimited promoted tracks to the playback queue.
