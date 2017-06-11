@@ -221,7 +221,8 @@ int tiz_gmusic_play_situation (tiz_gmusic_t *ap_gmusic,
  *
  * @ingroup libtizgmusic
  *
- * @note An Google Play Unlimited subscription is required.
+ * @note Currently only available in the US and Canada (free tier, no
+ * subscription required).
  *
  * @param ap_gmusic The gmusic handle.
  * @param ap_podcast The podcast
