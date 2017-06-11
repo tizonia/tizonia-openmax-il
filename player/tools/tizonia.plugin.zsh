@@ -21,10 +21,10 @@ spotify-playlist() {
     eval tizonia "$(tiz-grab-env-options)" --spotify-playlist=\""$@"\"
 }
 
-# Tizonia's Google Play Music artist unlimited search
-gmusic-artist-unlimited() {
+# Tizonia's Google Play Music track search
+gmusic-tracks() {
     tiz-check-empty-params "$@" || return
-    eval tizonia "$(tiz-grab-env-options)" --gmusic-unlimited-artist=\""$@"\"
+    eval tizonia "$(tiz-grab-env-options)" --gmusic-tracks=\""$@"\"
 }
 
 # Tizonia's Google Play Music artist search
@@ -33,10 +33,10 @@ gmusic-artist() {
     eval tizonia "$(tiz-grab-env-options)" --gmusic-artist=\""$@"\"
 }
 
-# Tizonia's Google Play Music playlist unlimited search
-gmusic-playlist-unlimited() {
+# Tizonia's Google Play Music album search
+gmusic-album() {
     tiz-check-empty-params "$@" || return
-    eval tizonia "$(tiz-grab-env-options)" --gmusic-unlimited-playlist=\""$@"\"
+    eval tizonia "$(tiz-grab-env-options)" --gmusic-album=\""$@"\"
 }
 
 # Tizonia's Google Play Music playlist search
@@ -45,22 +45,34 @@ gmusic-playlist() {
     eval tizonia "$(tiz-grab-env-options)" --gmusic-playlist=\""$@"\"
 }
 
+# Tizonia's Google Play Music podcast search
+gmusic-podcast() {
+    tiz-check-empty-params "$@" || return
+    eval tizonia "$(tiz-grab-env-options)" --gmusic-podcast=\""$@"\"
+}
+
+# Tizonia's Google Play Music song search
+gmusic-tracks-unlimited() {
+    tiz-check-empty-params "$@" || return
+    eval tizonia "$(tiz-grab-env-options)" --gmusic-unlimited-tracks=\""$@"\"
+}
+
+# Tizonia's Google Play Music artist unlimited search
+gmusic-artist-unlimited() {
+    tiz-check-empty-params "$@" || return
+    eval tizonia "$(tiz-grab-env-options)" --gmusic-unlimited-artist=\""$@"\"
+}
+
 # Tizonia's Google Play Music album unlimited search
 gmusic-album-unlimited() {
     tiz-check-empty-params "$@" || return
     eval tizonia "$(tiz-grab-env-options)" --gmusic-unlimited-album=\""$@"\"
 }
 
-# Tizonia's Google Play Music album search
-gmusic-album() {
+# Tizonia's Google Play Music playlist unlimited search
+gmusic-playlist-unlimited() {
     tiz-check-empty-params "$@" || return
-    eval tizonia "$(tiz-grab-env-options)" --gmusic-album=\""$@"\"
-}
-
-# Tizonia's Google Play Music song search
-gmusic-song-unlimited() {
-    tiz-check-empty-params "$@" || return
-    eval tizonia "$(tiz-grab-env-options)" --gmusic-unlimited-tracks=\""$@"\"
+    eval tizonia "$(tiz-grab-env-options)" --gmusic-unlimited-playlist=\""$@"\"
 }
 
 # Tizonia's Google Play Music genre search
@@ -164,7 +176,8 @@ alias s='spotify-playlist'
 alias spotify='spotify-playlist'
 alias artist='gmusic-artist-unlimited'
 alias album='gmusic-album-unlimited'
-alias song='gmusic-song-unlimited'
+alias song='gmusic-tracks-unlimited'
+alias track='gmusic-tracks-unlimited'
 alias genre='gmusic-genre-unlimited'
 alias station='gmusic-station-unlimited'
 alias activity='gmusic-activity-unlimited'

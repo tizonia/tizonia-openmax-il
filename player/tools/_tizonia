@@ -21,6 +21,8 @@ _arguments -S -s \
   '--gmusic-album[Play an album from the users library.]' \
   '--gmusic-artist[Play tracks from the users library by artist.]' \
   '--gmusic-playlist[A playlist from the users library.]' \
+  '--gmusic-podcast[Search and play Google Play Music podcasts.]' \
+  '--gmusic-tracks[Play tracks from the users library.]' \
   '--gmusic-unlimited-activity[Search and play Google Play Music Unlimited tracks by activity.]' \
   '--gmusic-unlimited-album[Search and play Google Play Music Unlimited tracks by album (best match only).]' \
   '--gmusic-unlimited-artist[Search and play Google Play Music Unlimited tracks by artist (best match only).]' \

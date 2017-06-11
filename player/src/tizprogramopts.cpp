@@ -223,8 +223,8 @@ namespace
     }
   }
 
-  // Workaround for 'implicit_option' behavioral change introduced in boost
-  // 1.59. See https://github.com/boostorg/program_options/issues/25
+// Workaround for 'implicit_option' behavioral change introduced in boost
+// 1.59. See https://github.com/boostorg/program_options/issues/25
 #if (BOOST_VERSION >= 105900)
   template < typename T >
   struct greedy_implicit_value_impl : public po::typed_value< T >
@@ -304,6 +304,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     gmusic_activity_ (),
     gmusic_promoted_ (),
     gmusic_tracks_ (),
+    gmusic_podcast_ (),
     gmusic_feeling_lucky_station_ (),
     gmusic_playlist_container_ (),
     gmusic_playlist_type_ (OMX_AUDIO_GmusicPlaylistTypeUnknown),
@@ -673,6 +674,10 @@ const std::vector< std::string > &tiz::programopts::gmusic_playlist_container ()
   {
     gmusic_playlist_container_.push_back (gmusic_activity_);
   }
+  else if (!gmusic_podcast_.empty ())
+  {
+    gmusic_playlist_container_.push_back (gmusic_podcast_);
+  }
   else if (!gmusic_promoted_.empty ())
   {
     // With gmusic promoted songs option, no playlist "name" is actually
@@ -716,6 +721,10 @@ tiz::programopts::gmusic_playlist_type ()
   else if (!gmusic_activity_.empty ())
   {
     gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeSituation;
+  }
+  else if (!gmusic_podcast_.empty ())
+  {
+    gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypePodcast;
   }
   else if (!gmusic_promoted_.empty ())
   {
@@ -961,9 +970,8 @@ void tiz::programopts::init_global_options ()
   global_.add_options ()
       /* TIZ_CLASS_COMMENT: This is to avoid the clang formatter messing up
          these lines*/
-      ("help,h",
-       greedy_implicit_value< std::string > (&help_option_)
-           ->implicit_value (std::string ("help")),
+      ("help,h", greedy_implicit_value< std::string > (&help_option_)
+                     ->implicit_value (std::string ("help")),
        "Print a usage message for a specific help topic (e.g. global, "
        "openmax, server, spotify, googlemusic, soundcloud, etc).")
       /* TIZ_CLASS_COMMENT: */
@@ -1131,6 +1139,9 @@ void tiz::programopts::init_gmusic_options ()
       ("gmusic-playlist", po::value (&gmusic_playlist_),
        "A playlist from the user's library.")
       /* TIZ_CLASS_COMMENT: */
+      ("gmusic-podcast", po::value (&gmusic_podcast_),
+       "Search and play Google Play Music podcasts (only available in the US and Canada).")
+      /* TIZ_CLASS_COMMENT: */
       ("gmusic-unlimited-station", po::value (&gmusic_station_),
        "Search and play Google Play Music Unlimited stations found in the "
        "user's library.")
@@ -1167,10 +1178,11 @@ void tiz::programopts::init_gmusic_options ()
   all_gmusic_client_options_
       = boost::assign::list_of ("gmusic-user") ("gmusic-password") (
             "gmusic-device-id") ("gmusic-tracks") ("gmusic-artist") (
-            "gmusic-album") ("gmusic-playlist") ("gmusic-unlimited-station") (
-            "gmusic-unlimited-album") ("gmusic-unlimited-artist") (
-            "gmusic-unlimited-tracks") ("gmusic-unlimited-playlist") (
-            "gmusic-unlimited-genre") ("gmusic-unlimited-activity") (
+            "gmusic-album") ("gmusic-playlist") ("gmusic-podcast") (
+            "gmusic-unlimited-station") ("gmusic-unlimited-album") (
+            "gmusic-unlimited-artist") ("gmusic-unlimited-tracks") (
+            "gmusic-unlimited-playlist") ("gmusic-unlimited-genre") (
+            "gmusic-unlimited-activity") (
             "gmusic-unlimited-feeling-lucky-station") (
             "gmusic-unlimited-promoted-tracks")
             .convert_to_container< std::vector< std::string > > ();
@@ -1557,6 +1569,7 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
     const int playlist_option_count
         = vm_.count ("gmusic-tracks") + vm_.count ("gmusic-artist")
           + vm_.count ("gmusic-album") + vm_.count ("gmusic-playlist")
+          + vm_.count ("gmusic-podcast")
           + vm_.count ("gmusic-unlimited-station")
           + vm_.count ("gmusic-unlimited-album")
           + vm_.count ("gmusic-unlimited-artist")
@@ -1953,7 +1966,8 @@ bool tiz::programopts::validate_gmusic_client_options () const
       = vm_.count ("gmusic-user") + vm_.count ("gmusic-password")
         + vm_.count ("gmusic-device-id") + vm_.count ("gmusic-tracks")
         + vm_.count ("gmusic-artist") + vm_.count ("gmusic-album")
-        + vm_.count ("gmusic-playlist") + vm_.count ("gmusic-unlimited-station")
+        + vm_.count ("gmusic-playlist") + vm_.count ("gmusic-podcast")
+        + vm_.count ("gmusic-unlimited-station")
         + vm_.count ("gmusic-unlimited-album")
         + vm_.count ("gmusic-unlimited-artist")
         + vm_.count ("gmusic-unlimited-tracks")
