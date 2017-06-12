@@ -69,8 +69,6 @@ struct vp8d_stream_info
   unsigned int height;
   unsigned int fps_den;
   unsigned int fps_num;
-  int stride;
-  unsigned int slice_height;
 };
 
 typedef struct vp8d_codec_buffer vp8d_codec_buffer_t;
