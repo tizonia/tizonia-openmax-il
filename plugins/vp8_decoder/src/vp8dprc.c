@@ -284,8 +284,7 @@ update_output_port_params (vp8d_prc_t * ap_prc)
   p_def = &(ap_prc->port_def_.format.video);
 
   if (p_inf->width != p_def->nFrameWidth || p_inf->height != p_def->nFrameHeight
-      || p_inf->fps_num != p_def->xFramerate || p_inf->stride != p_def->nStride
-      || p_inf->slice_height != p_def->nSliceHeight)
+      || p_inf->fps_num != p_def->xFramerate)
     {
       TIZ_DEBUG (handleOf (ap_prc),
                  "Updating video port format : nFrameWidth : old [%d] new [%d]",
@@ -297,8 +296,12 @@ update_output_port_params (vp8d_prc_t * ap_prc)
       p_def->nFrameHeight = p_inf->height;
       p_def->nFrameWidth = p_inf->width;
       p_def->xFramerate = p_inf->fps_num;
-      p_def->nStride = p_inf->stride;
-      p_def->nSliceHeight = p_inf->slice_height;
+      p_def->nStride = p_inf->width; /* NOTE: The output buffers currently only
+                                         contain image data without any padding
+                                         even if the stride > image width. See
+                                         https://msdn.microsoft.com/en-us/library/windows/desktop/aa473780(v=vs.85).aspx
+                                        */
+      p_def->nSliceHeight = p_inf->height;
 
       tiz_check_omx (tiz_krn_SetParameter_internal (
         tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
@@ -457,6 +460,10 @@ obtain_stream_info (vp8d_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * p_inhdr)
           p_inhdr->nOffset += 32;
           p_inhdr->nFilledLen -= 32;
         }
+
+      /* Update the output port settings */
+      tiz_check_omx (update_output_port_params (ap_prc));
+
     }
   else
     {
@@ -685,26 +692,22 @@ decode_frame (vp8d_prc_t * ap_prc)
       unsigned int y;
       uint8_t * buf = img->planes[VPX_PLANE_Y];
 
-      if (!ap_prc->info_.stride)
-        {
-          TIZ_DEBUG (handleOf (ap_prc),
-                     "d_w = %u "
-                     "d_h = %u "
-                     "stride[VPX_PLANE_Y] = %d "
-                     "stride[VPX_PLANE_U] = %d "
-                     "stride[VPX_PLANE_V] = %d "
-                     "img fmt = %0x "
-                     "color = %0x "
-                     "range = %0x",
-                     img->d_w, img->d_h, img->stride[VPX_PLANE_Y],
-                     img->stride[VPX_PLANE_U], img->stride[VPX_PLANE_V],
-                     img->fmt, img->cs, img->range);
-          ap_prc->info_.stride = img->stride[VPX_PLANE_Y];
-          ap_prc->info_.slice_height = img->d_h;
-
-          /* Update the output port settings */
-          tiz_check_omx (update_output_port_params (ap_prc));
+#if 0
+      {
+        TIZ_DEBUG (handleOf (ap_prc),
+                   "d_w = %u "
+                   "d_h = %u "
+                   "stride[VPX_PLANE_Y] = %d "
+                   "stride[VPX_PLANE_U] = %d "
+                   "stride[VPX_PLANE_V] = %d "
+                   "img fmt = %0x "
+                   "color = %0x "
+                   "range = %0x",
+                   img->d_w, img->d_h, img->stride[VPX_PLANE_Y],
+                   img->stride[VPX_PLANE_U], img->stride[VPX_PLANE_V],
+                   img->fmt, img->cs, img->range);
         }
+#endif
 
       for (y = 0; y < img->d_h; y++)
         {
