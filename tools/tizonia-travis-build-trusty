@@ -40,7 +40,7 @@ readonly CORES=$(grep -c ^processor /proc/cpuinfo)
 readonly CORESMINUSONE=$(( CORES - 1 ))
 readonly JOBS=$(($CORESMINUSONE<$MAXJOBS?$CORESMINUSONE:$MAXJOBS))
 
-# A list of skema test suites that should not be executed
+# A list of skema test suites that should NOT be executed (i.e are disabled)
 declare -ar SKEMA_EXEMPT_SUITES=( \
     "Mp3Streaming" \
     "VorbisDecodeBaseProfile" \
@@ -53,6 +53,11 @@ declare -ar SKEMA_EXEMPT_SUITES=( \
     "OggOpusMux" \
     "Vp8Playback" \
     "WebmVp8Playback" \
+)
+
+# A list of skema test suites that should be executed without the --quiet flag
+# (i.e so that the test log is output to stdout)
+declare -ar SKEMA_NON_QUIET_SUITES=( \
 )
 
 # Export important variables
@@ -400,6 +405,7 @@ function install_skema {
 #
 # Globals
 #   SKEMA_EXEMPT_SUITES
+#   SKEMA_NON_QUIET_SUITES
 # Arguments:
 #   None
 # Returns:
@@ -424,8 +430,15 @@ function run_tests {
             continue
         fi
 
+        exists_in_array "$s" "${SKEMA_NON_QUIET_SUITES[@]}"
+        exit_status=$?
+        quiet='--quiet'
+        if [[ "$exit_status" -eq 0 ]]; then
+            quiet=''
+        fi
+
         echo "Running [$s]"
-        ./skema run_suite "$s"
+        ./skema run_suite "$s" "$quiet"
         exit_status=$?
         if [[ "$exit_status" -ne 0 ]]; then
             err "Error in suite: $s"
