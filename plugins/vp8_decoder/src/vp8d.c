@@ -63,8 +63,8 @@ instantiate_input_port (OMX_HANDLETYPE ap_hdl)
   OMX_VIDEO_PORTDEFINITIONTYPE portdef;
   OMX_VIDEO_PARAM_VP8TYPE vp8type;
   OMX_VIDEO_CODINGTYPE encodings[] = {OMX_VIDEO_CodingVP8, OMX_VIDEO_CodingMax};
-  OMX_COLOR_FORMATTYPE formats[]
-    = {OMX_COLOR_FormatUnused, OMX_COLOR_FormatMax};
+  OMX_COLOR_FORMATTYPE formats[] = {
+    OMX_COLOR_FormatUnused, OMX_COLOR_FormatYUV420Planar, OMX_COLOR_FormatMax};
   tiz_port_options_t vp8_port_opts = {
     OMX_PortDomainVideo,
     OMX_DirInput,
