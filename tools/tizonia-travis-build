@@ -54,6 +54,7 @@ declare -ar SKEMA_EXEMPT_SUITES=( \
     "OpusPlayback" \
     "PcmPlaybackPulse" \
     "WavPlayback" \
+    "Vp8Playback" \
     "WebmVp8Playback" \
 )
 
