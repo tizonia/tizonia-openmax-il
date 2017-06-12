@@ -1037,9 +1037,14 @@ class tizgmusicproxy(object):
         try:
             podcast_hits = self.__gmusic_search(arg, 'podcast', 10, quiet=False)
 
+            if not podcast_hits:
+                print_wrn("[Google Play Music] [Podcast] 'Search returned zero results'.")
+                print_wrn("[Google Play Music] [Podcast] 'Are you in a supported region "
+                          "(currently only US and Canada) ?'")
+
             # Use the first podcast retrieved. At least we'll play something.
             podcast = dict ()
-            if len(podcast_hits):
+            if podcast_hits and len(podcast_hits):
                 podcast = podcast_hits['series']
 
             episodes_added = 0
