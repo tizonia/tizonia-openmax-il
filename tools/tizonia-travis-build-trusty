@@ -35,6 +35,11 @@ readonly SKEMA_GIT_REPO=https://github.com/tizonia/skema
 readonly SKEMA_DIR="$INSTALL_DIR"/skema
 readonly SKEMA_BIN_DIR="$SKEMA_DIR"/bin
 
+readonly MAXJOBS=12
+readonly CORES=$(grep -c ^processor /proc/cpuinfo)
+readonly CORESMINUSONE=$(( CORES - 1 ))
+readonly JOBS=$(($CORESMINUSONE<$MAXJOBS?$CORESMINUSONE:$MAXJOBS))
+
 # A list of skema test suites that should not be executed
 declare -ar SKEMA_EXEMPT_SUITES=( \
     "Mp3Streaming" \
@@ -319,7 +324,7 @@ function configure_and_build {
         --prefix="$INSTALL_DIR" \
         CFLAGS="-Wall" \
         CXXFLAGS='-Wall' \
-        && make -s -j1 V=0 install
+        && make -s -j $JOBS V=0 install
 
     return $?
 }
@@ -459,7 +464,7 @@ function main {
     echo "Changing dir to working directory: $WORKING_DIR"
     cd "$WORKING_DIR"
 
-    
+
     if [[ "$1" == "deps" ]];  then
         install_deps
     elif [[ "$1" == "pydeps" ]];  then
