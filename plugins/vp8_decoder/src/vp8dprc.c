@@ -477,10 +477,6 @@ obtain_stream_info (vp8d_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * p_inhdr)
 
       /* Update the output port settings */
       tiz_check_omx (update_output_port_params (ap_prc));
-
-      /* Effectively disable the output port, until the IL client is ready to
-         re-enable it */
-      ap_prc->out_port_disabled_ = true;
     }
   else
     {
@@ -764,16 +760,20 @@ decode_stream (vp8d_prc_t * ap_prc)
   OMX_BUFFERHEADERTYPE * p_outhdr = NULL;
   assert (ap_prc);
 
+  /* Step 1: peak at the stream and find the stream parameters */
+  if (ap_prc->first_buf_ && !ap_prc->eos_
+      && (p_inhdr = get_input_buffer (ap_prc)))
+    {
+      /* Effectively disable the output port, until the stream has been
+         identified and IL client is ready to re-enable */
+      ap_prc->out_port_disabled_ = true;
+      tiz_check_omx (obtain_stream_info (ap_prc, p_inhdr));
+      ap_prc->first_buf_ = false;
+    }
+
   while (!ap_prc->eos_ && (p_inhdr = get_input_buffer (ap_prc))
          && (p_outhdr = get_output_buffer (ap_prc)))
     {
-      /* Step 1: peak at the stream and find the stream parameters */
-      if (ap_prc->first_buf_)
-        {
-          tiz_check_omx (obtain_stream_info (ap_prc, p_inhdr));
-          ap_prc->first_buf_ = false;
-        }
-
       /* Step 2: Read a frame into our internal storage */
       if (p_inhdr->nFilledLen > 0 && !ap_prc->out_port_disabled_)
         {
@@ -830,6 +830,7 @@ release_input_header (vp8d_prc_t * ap_prc)
   assert (ap_prc);
   if (ap_prc->p_inhdr_)
     {
+      assert(!ap_prc->in_port_disabled_);
       (void) tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_prc)),
                                      ARATELIA_VP8_DECODER_INPUT_PORT_INDEX,
                                      ap_prc->p_inhdr_);
@@ -843,6 +844,7 @@ release_output_header (vp8d_prc_t * ap_prc)
   assert (ap_prc);
   if (ap_prc->p_outhdr_)
     {
+      assert(!ap_prc->out_port_disabled_);
       (void) tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_prc)),
                                      ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX,
                                      ap_prc->p_outhdr_);
@@ -992,15 +994,15 @@ vp8d_prc_port_disable (const void * ap_obj, OMX_U32 a_pid)
   assert (p_prc);
   if (OMX_ALL == a_pid || ARATELIA_VP8_DECODER_INPUT_PORT_INDEX == a_pid)
     {
-      p_prc->in_port_disabled_ = true;
       /* Release all buffers */
       release_all_headers (p_prc);
       reset_stream_parameters (p_prc);
+      p_prc->in_port_disabled_ = true;
     }
   if (OMX_ALL == a_pid || ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX == a_pid)
     {
-      p_prc->out_port_disabled_ = true;
       release_output_header (p_prc);
+      p_prc->out_port_disabled_ = true;
     }
   return OMX_ErrorNone;
 }
