@@ -81,6 +81,8 @@ sdlivr_prc_render_buffer (const sdlivr_prc_t * ap_prc,
         }
       pitch1 = pitch0 / 2;
 
+      TIZ_DEBUG(handleOf(ap_prc), "pitch0 %u pitch1 %u", pitch0, pitch1);
+
       /* hard-coded to be YUV420 plannar */
       y = p_hdr->pBuffer;
       u = y + pitch0 * p_vpd->nFrameHeight;
@@ -283,25 +285,28 @@ sdlivr_prc_buffers_ready (const void * ap_obj)
 
   assert (p_prc);
 
-  tiz_check_omx (
-    tiz_krn_claim_buffer (p_krn, ARATELIA_YUV_RENDERER_PORT_INDEX, 0, &p_hdr));
-
-  while (!p_prc->port_disabled_ && p_hdr)
+  if (!p_prc->port_disabled_)
     {
-      if (p_hdr)
+      tiz_check_omx (tiz_krn_claim_buffer (
+        p_krn, ARATELIA_YUV_RENDERER_PORT_INDEX, 0, &p_hdr));
+
+      while (!p_prc->port_disabled_ && p_hdr)
         {
-          tiz_check_omx (sdlivr_prc_render_buffer (ap_obj, p_hdr));
-          if (p_hdr->nFlags & OMX_BUFFERFLAG_EOS)
+          if (p_hdr)
             {
-              TIZ_TRACE (handleOf (ap_obj), "OMX_BUFFERFLAG_EOS in HEADER [%p]",
-                         p_hdr);
-              tiz_srv_issue_event ((OMX_PTR) ap_obj, OMX_EventBufferFlag, 0,
-                                   p_hdr->nFlags, NULL);
+              tiz_check_omx (sdlivr_prc_render_buffer (ap_obj, p_hdr));
+              if (p_hdr->nFlags & OMX_BUFFERFLAG_EOS)
+                {
+                  TIZ_TRACE (handleOf (ap_obj),
+                             "OMX_BUFFERFLAG_EOS in HEADER [%p]", p_hdr);
+                  tiz_srv_issue_event ((OMX_PTR) ap_obj, OMX_EventBufferFlag, 0,
+                                       p_hdr->nFlags, NULL);
+                }
+              tiz_check_omx (tiz_krn_release_buffer (
+                p_krn, ARATELIA_YUV_RENDERER_PORT_INDEX, p_hdr));
+              tiz_check_omx (tiz_krn_claim_buffer (
+                p_krn, ARATELIA_YUV_RENDERER_PORT_INDEX, 0, &p_hdr));
             }
-          tiz_check_omx (tiz_krn_release_buffer (
-            p_krn, ARATELIA_YUV_RENDERER_PORT_INDEX, p_hdr));
-          tiz_check_omx (tiz_krn_claim_buffer (
-            p_krn, ARATELIA_YUV_RENDERER_PORT_INDEX, 0, &p_hdr));
         }
     }
   return OMX_ErrorNone;
