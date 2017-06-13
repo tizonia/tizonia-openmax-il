@@ -351,6 +351,11 @@ get_input_buffer (vp8d_prc_t * ap_prc)
 {
   assert (ap_prc);
 
+  if (ap_prc->in_port_disabled_)
+    {
+      return NULL;
+    }
+
   if (!ap_prc->p_inhdr_)
     {
       if (OMX_ErrorNone
@@ -376,24 +381,26 @@ get_output_buffer (vp8d_prc_t * ap_prc)
 {
   assert (ap_prc);
 
-  if (!ap_prc->out_port_disabled_)
+  if (ap_prc->out_port_disabled_)
     {
-      if (!ap_prc->p_outhdr_)
+      return NULL;
+    }
+
+  if (!ap_prc->p_outhdr_)
+    {
+      if (OMX_ErrorNone
+          == tiz_krn_claim_buffer (tiz_get_krn (handleOf (ap_prc)),
+                                   ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX,
+                                   0, &ap_prc->p_outhdr_))
         {
-          if (OMX_ErrorNone
-              == tiz_krn_claim_buffer (tiz_get_krn (handleOf (ap_prc)),
-                                       ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX,
-                                       0, &ap_prc->p_outhdr_))
-            {
 #ifndef NDEBUG
-              if (ap_prc->p_outhdr_)
-                {
-                  TIZ_TRACE (handleOf (ap_prc),
-                             "Claimed output HEADER [%p]...nFilledLen [%d]",
-                             ap_prc->p_outhdr_, ap_prc->p_outhdr_->nFilledLen);
-                }
-#endif
+          if (ap_prc->p_outhdr_)
+            {
+              TIZ_TRACE (handleOf (ap_prc),
+                         "Claimed output HEADER [%p]...nFilledLen [%d]",
+                         ap_prc->p_outhdr_, ap_prc->p_outhdr_->nFilledLen);
             }
+#endif
         }
     }
   return ap_prc->p_outhdr_;
@@ -405,16 +412,20 @@ buffer_emptied (vp8d_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * ap_hdr)
   assert (ap_prc);
   assert (ap_prc->p_inhdr_ == ap_hdr);
 
-  assert (ap_hdr->nFilledLen == 0);
-  ap_hdr->nOffset = 0;
-
-  if ((ap_hdr->nFlags & OMX_BUFFERFLAG_EOS) != 0)
+  if (!ap_prc->out_port_disabled_)
     {
-      ap_prc->eos_ = true;
-    }
+      assert (ap_hdr->nFilledLen == 0);
+      ap_hdr->nOffset = 0;
 
-  (void) tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_prc)), 0, ap_hdr);
-  ap_prc->p_inhdr_ = NULL;
+      if ((ap_hdr->nFlags & OMX_BUFFERFLAG_EOS) != 0)
+        {
+          ap_prc->eos_ = true;
+        }
+
+      (void) tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_prc)), 0,
+                                     ap_hdr);
+      ap_prc->p_inhdr_ = NULL;
+    }
 }
 
 static void
@@ -424,21 +435,24 @@ buffer_filled (vp8d_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * ap_hdr)
   assert (ap_hdr);
   assert (ap_prc->p_outhdr_ == ap_hdr);
 
-  ap_hdr->nOffset = 0;
-
-  if (ap_prc->eos_)
+  if (!ap_prc->in_port_disabled_)
     {
-      /* EOS has been received and all the input data has been consumed
-       * already, so its time to propagate the EOS flag */
-      ap_prc->p_outhdr_->nFlags |= OMX_BUFFERFLAG_EOS;
-      /* Reset the flag so we are ready to receive a new stream */
-      ap_prc->eos_ = false;
-    }
+      ap_hdr->nOffset = 0;
 
-  (void) tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_prc)),
-                                 ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX,
-                                 ap_hdr);
-  ap_prc->p_outhdr_ = NULL;
+      if (ap_prc->eos_)
+        {
+          /* EOS has been received and all the input data has been consumed
+       * already, so its time to propagate the EOS flag */
+          ap_prc->p_outhdr_->nFlags |= OMX_BUFFERFLAG_EOS;
+          /* Reset the flag so we are ready to receive a new stream */
+          ap_prc->eos_ = false;
+        }
+
+      (void) tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_prc)),
+                                     ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX,
+                                     ap_hdr);
+      ap_prc->p_outhdr_ = NULL;
+    }
 }
 
 static OMX_ERRORTYPE
@@ -464,6 +478,9 @@ obtain_stream_info (vp8d_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * p_inhdr)
       /* Update the output port settings */
       tiz_check_omx (update_output_port_params (ap_prc));
 
+      /* Effectively disable the output port, until the IL client is ready to
+         re-enable it */
+      ap_prc->out_port_disabled_ = true;
     }
   else
     {
@@ -758,7 +775,7 @@ decode_stream (vp8d_prc_t * ap_prc)
         }
 
       /* Step 2: Read a frame into our internal storage */
-      if (p_inhdr->nFilledLen > 0)
+      if (p_inhdr->nFilledLen > 0 && !ap_prc->out_port_disabled_)
         {
           if (OMX_ErrorNone == read_frame (ap_prc, p_inhdr))
             {
