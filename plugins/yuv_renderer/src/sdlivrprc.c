@@ -81,8 +81,6 @@ sdlivr_prc_render_buffer (const sdlivr_prc_t * ap_prc,
         }
       pitch1 = pitch0 / 2;
 
-      TIZ_DEBUG(handleOf(ap_prc), "pitch0 %u pitch1 %u", pitch0, pitch1);
-
       /* hard-coded to be YUV420 plannar */
       y = p_hdr->pBuffer;
       u = y + pitch0 * p_vpd->nFrameHeight;
