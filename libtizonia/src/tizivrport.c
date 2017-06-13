@@ -235,18 +235,6 @@ ivrport_SetConfig (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE
-ivrport_set_portdef_format (void * ap_obj,
-                            const OMX_PARAM_PORTDEFINITIONTYPE * ap_pdef)
-{
-  tiz_port_t * p_base = ap_obj;
-  /* TODO: Finalize this function */
-  p_base->portdef_.format.video.nFrameWidth = ap_pdef->format.video.nFrameWidth;
-  p_base->portdef_.format.video.nFrameHeight
-    = ap_pdef->format.video.nFrameHeight;
-  return OMX_ErrorNone;
-}
-
 static bool
 ivrport_check_tunnel_compat (const void * ap_obj,
                              OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
@@ -325,8 +313,6 @@ tiz_ivrport_init (void * ap_tos, void * ap_hdl)
      tiz_api_GetConfig, ivrport_GetConfig,
      /* TIZ_CLASS_COMMENT: */
      tiz_api_SetConfig, ivrport_SetConfig,
-     /* TIZ_CLASS_COMMENT: */
-     tiz_port_set_portdef_format, ivrport_set_portdef_format,
      /* TIZ_CLASS_COMMENT: */
      tiz_port_check_tunnel_compat, ivrport_check_tunnel_compat,
      /* TIZ_CLASS_COMMENT: stop value*/
