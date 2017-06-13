@@ -321,7 +321,8 @@ videoport_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
 {
   const tiz_videoport_t * p_obj = ap_obj;
 
-  TIZ_TRACE (ap_hdl, "GetParameter [%s]...", tiz_idx_to_str (a_index));
+  TIZ_TRACE (ap_hdl, "GetParameter [%s] on pid [%d] ...",
+             tiz_idx_to_str (a_index), tiz_port_index (ap_obj));
   assert (ap_obj);
 
   switch (a_index)
@@ -382,7 +383,8 @@ videoport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
 {
   tiz_videoport_t * p_obj = (tiz_videoport_t *) ap_obj;
 
-  TIZ_TRACE (ap_hdl, "SetParameter [%s]...", tiz_idx_to_str (a_index));
+  TIZ_TRACE (ap_hdl, "SetParameter [%s] on pid [%d] ...",
+             tiz_idx_to_str (a_index), tiz_port_index (ap_obj));
   assert (p_obj);
 
   /* Do now allow changes to nFrameWidth or nFrameHeight if this is a slave
@@ -465,6 +467,9 @@ videoport_apply_slaving_behaviour (void * ap_obj, void * ap_mos_port,
   assert (ap_struct != NULL);
   assert (ap_changed_idxs != NULL);
 
+  TIZ_TRACE (handleOf(ap_obj), "slaving_behaviour [%s] on pid [%d] ...",
+             tiz_idx_to_str (a_index), tiz_port_index (ap_obj));
+
   if (OMX_IndexParamPortDefinition == a_index)
     {
       const OMX_PARAM_PORTDEFINITIONTYPE * p_portdef = ap_struct;
@@ -483,6 +488,12 @@ videoport_apply_slaving_behaviour (void * ap_obj, void * ap_mos_port,
       if ((p_base->portdef_.format.video.nFrameWidth != new_width)
           || (p_base->portdef_.format.video.nFrameHeight != new_height))
         {
+          TIZ_TRACE (handleOf (ap_obj),
+                     "portdef_changed = OMX_TRUE ->  width/height (w[%d] h[%d]) - (w[%d] h[%d])",
+                     p_portdef->format.video.nFrameWidth,
+                     p_portdef->format.video.nFrameHeight,
+                     p_base->portdef_.format.video.nFrameWidth,
+                     p_base->portdef_.format.video.nFrameHeight);
           p_base->portdef_.format.video.nFrameWidth = new_width;
           p_base->portdef_.format.video.nFrameHeight = new_height;
           portdef_changed = OMX_TRUE;
@@ -493,6 +504,8 @@ videoport_apply_slaving_behaviour (void * ap_obj, void * ap_mos_port,
         {
           p_base->portdef_.nBufferSize = new_buf_sz;
           portdef_changed = OMX_TRUE;
+          TIZ_TRACE (handleOf (ap_obj),
+                     "portdef_changed = OMX_TRUE ->  buf_size");
         }
 
       if (OMX_TRUE == portdef_changed)
@@ -515,6 +528,8 @@ static OMX_ERRORTYPE
 videoport_SetParameter_internal (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
                                  OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
+  TIZ_TRACE (ap_hdl, "SetParameter_internal [%s] on pid [%d] ...",
+             tiz_idx_to_str (a_index), tiz_port_index (ap_obj));
   return videoport_SetParameter_common (ap_obj, ap_hdl, a_index, ap_struct);
 }
 
