@@ -53,6 +53,74 @@
 
 #define TIZ_HDR_NOT_FOUND -1
 
+#define TIZ_LOG_PORT_DEFINITION(hdl, pd)                                      \
+  do                                                                          \
+    {                                                                         \
+      TIZ_TRACE (hdl,                                                         \
+                 "nPortIndex[%u]::"                                           \
+                 "eDir[%s]::"                                                 \
+                 "nBufferCountActual[%u]::"                                   \
+                 "nBufferCountMin[%u]::"                                      \
+                 "nBufferSize[%u]::"                                          \
+                 "bEnabled[%s]::"                                             \
+                 "bPopulated[%s]::"                                           \
+                 "eDomain[%s]::",                                             \
+                 pd.nPortIndex, tiz_dir_to_str (pd.eDir),                     \
+                 pd.nBufferCountActual, pd.nBufferCountMin, pd.nBufferSize,   \
+                 (pd.bEnabled == OMX_TRUE ? "yes" : "no"),                    \
+                 (pd.bPopulated == OMX_TRUE ? "yes" : "no"),                  \
+                 tiz_domain_to_str (pd.eDomain));                             \
+      switch (pd.eDomain)                                                     \
+        {                                                                     \
+          case OMX_PortDomainAudio:                                           \
+            {                                                                 \
+              /* TODO */                                                      \
+            }                                                                 \
+            break;                                                            \
+          case OMX_PortDomainVideo:                                           \
+            {                                                                 \
+              TIZ_TRACE (                                                     \
+                hdl,                                                          \
+                "pNativeRender[%p]::"                                         \
+                "nFrameWidth[%u]::"                                           \
+                "nFrameHeight[%u]::"                                          \
+                "nStride[%d]::"                                               \
+                "nSliceHeight[%u]::"                                          \
+                "nBitrate[%u]::"                                              \
+                "xFramerate[%u]::"                                            \
+                "bFlagErrorConcealment[%s]::"                                 \
+                "eCompressionFormat[%0x]::"                                   \
+                "eColorFormat[%0x]::"                                         \
+                "pNativeWindow[%p]::",                                        \
+                pd.format.video.pNativeRender, pd.format.video.nFrameWidth,   \
+                pd.format.video.nFrameHeight, pd.format.video.nStride,        \
+                pd.format.video.nSliceHeight, pd.format.video.nBitrate,       \
+                pd.format.video.xFramerate,                                   \
+                (pd.format.video.bFlagErrorConcealment == OMX_TRUE ? "yes"    \
+                                                                   : "no"),   \
+                pd.format.video.eCompressionFormat,                           \
+                pd.format.video.eColorFormat, pd.format.video.pNativeWindow); \
+            }                                                                 \
+            break;                                                            \
+          case OMX_PortDomainImage:                                           \
+            {                                                                 \
+              /* TODO */                                                      \
+            }                                                                 \
+            break;                                                            \
+          case OMX_PortDomainOther:                                           \
+            {                                                                 \
+              /* TODO */                                                      \
+            }                                                                 \
+            break;                                                            \
+          default:                                                            \
+            {                                                                 \
+            }                                                                 \
+            break;                                                            \
+        };                                                                    \
+    }                                                                         \
+  while (0)
+
+
 static OMX_VERSIONTYPE _spec_version
   = {{(OMX_U8) OMX_VERSION_MAJOR, (OMX_U8) OMX_VERSION_MINOR,
       (OMX_U8) OMX_VERSION_REVISION, (OMX_U8) OMX_VERSION_STEP}};
@@ -398,6 +466,7 @@ port_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
             {
               p_pdef->bBuffersContiguous = p_obj->contiguity_pref_;
             }
+          TIZ_LOG_PORT_DEFINITION (ap_hdl, (*p_pdef));
         }
         break;
 
@@ -475,6 +544,7 @@ port_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
             {
               p_obj->portdef_.bBuffersContiguous = p_pdef->bBuffersContiguous;
             }
+          TIZ_LOG_PORT_DEFINITION (ap_hdl, p_obj->portdef_);
         }
         break;
 
