@@ -816,8 +816,6 @@ reset_stream_parameters (vp8d_prc_t * ap_prc)
   free_codec_buffer (ap_prc);
   TIZ_INIT_OMX_PORT_STRUCT (ap_prc->port_def_,
                             ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX);
-  TIZ_INIT_OMX_PORT_STRUCT (ap_prc->port_format_,
-                            ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX);
   ap_prc->p_inhdr_ = 0;
   ap_prc->p_outhdr_ = 0;
   ap_prc->first_buf_ = true;
@@ -928,16 +926,10 @@ vp8d_prc_prepare_to_transfer (void * ap_obj, OMX_U32 a_pid)
 
   TIZ_INIT_OMX_PORT_STRUCT (p_prc->port_def_,
                             ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX);
-  TIZ_INIT_OMX_PORT_STRUCT (p_prc->port_format_,
-                            ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX);
 
   tiz_check_omx (
     tiz_api_GetParameter (tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
                           OMX_IndexParamPortDefinition, &(p_prc->port_def_)));
-
-  tiz_check_omx (tiz_api_GetParameter (
-    tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
-    OMX_IndexParamVideoPortFormat, &(p_prc->port_format_)));
 
   p_prc->first_buf_ = true;
   p_prc->eos_ = false;
