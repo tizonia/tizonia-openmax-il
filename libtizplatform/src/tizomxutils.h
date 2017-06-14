@@ -34,6 +34,7 @@ extern "C" {
 #endif
 
 #include <OMX_Types.h>
+#include <OMX_Component.h>
 #include <OMX_Audio.h>
 #include <OMX_Core.h>
 
@@ -68,6 +69,8 @@ tiz_evt_to_str (OMX_EVENTTYPE a_evt);
 tiz_err_to_str (OMX_ERRORTYPE a_err);
 /*@observer@ */ OMX_STRING
 tiz_dir_to_str (OMX_DIRTYPE a_dir);
+/*@observer@ */ OMX_STRING
+tiz_domain_to_str (OMX_PORTDOMAINTYPE a_pd);
 /*@observer@ */ OMX_STRING
 tiz_idx_to_str (OMX_INDEXTYPE a_idx);
 /*@observer@ */ OMX_STRING
