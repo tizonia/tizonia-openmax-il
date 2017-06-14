@@ -88,7 +88,6 @@ struct vp8d_prc
   vp8d_stream_info_t info_;
   vp8d_codec_buffer_t codec_buf_;
   OMX_PARAM_PORTDEFINITIONTYPE port_def_;
-  OMX_VIDEO_PARAM_PORTFORMATTYPE port_format_;
   OMX_BUFFERHEADERTYPE * p_inhdr_;
   OMX_BUFFERHEADERTYPE * p_outhdr_;
   vpx_codec_ctx_t vp8ctx_;
