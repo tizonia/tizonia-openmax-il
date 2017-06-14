@@ -117,6 +117,24 @@ static const tiz_dir_str_t tiz_dir_to_str_tbl[]
      {OMX_DirOutput, (const OMX_STRING) "OMX_DirOutput"},
      {OMX_DirMax, (const OMX_STRING) "OMX_DirMax"}};
 
+typedef struct tiz_domain_str tiz_domain_str_t;
+struct tiz_domain_str
+{
+  OMX_PORTDOMAINTYPE domain;
+  const OMX_STRING str;
+};
+
+static const tiz_domain_str_t tiz_domain_to_str_tbl[]
+  = {{OMX_PortDomainAudio, (const OMX_STRING) "OMX_PortDomainAudio"},
+     {OMX_PortDomainVideo, (const OMX_STRING) "OMX_PortDomainVideo"},
+     {OMX_PortDomainImage, (const OMX_STRING) "OMX_PortDomainImage"},
+     {OMX_PortDomainOther, (const OMX_STRING) "OMX_PortDomainOther"},
+     {OMX_PortDomainKhronosExtensions,
+      (const OMX_STRING) "OMX_PortDomainKhronosExtensions"},
+     {OMX_PortDomainVendorStartUnused,
+      (const OMX_STRING) "OMX_PortDomainVendorStartUnused"},
+     {OMX_PortDomainMax, (const OMX_STRING) "OMX_PortDomainMax"}};
+
 typedef struct tiz_err_str tiz_err_str_t;
 struct tiz_err_str
 {
@@ -767,6 +785,23 @@ tiz_dir_to_str (OMX_DIRTYPE a_dir)
     }
 
   return (OMX_STRING) "Unknown OpenMAX IL port direction";
+}
+
+/*@observer@*/ OMX_STRING
+tiz_domain_to_str (OMX_PORTDOMAINTYPE a_domain)
+{
+  const size_t count = sizeof (tiz_domain_to_str_tbl) / sizeof (tiz_domain_str_t);
+  size_t i = 0;
+
+  for (i = 0; i < count; ++i)
+    {
+      if (tiz_domain_to_str_tbl[i].domain == a_domain)
+        {
+          return tiz_domain_to_str_tbl[i].str;
+        }
+    }
+
+  return (OMX_STRING) "Unknown OpenMAX IL port domain";
 }
 
 /*@observer@*/ OMX_STRING
