@@ -475,6 +475,8 @@ videoport_apply_slaving_behaviour (void * ap_obj, void * ap_mos_port,
       const OMX_PARAM_PORTDEFINITIONTYPE * p_portdef = ap_struct;
       const OMX_U32 new_width = p_portdef->format.video.nFrameWidth;
       const OMX_U32 new_height = p_portdef->format.video.nFrameHeight;
+      const OMX_S32 new_stride = p_portdef->format.video.nStride;
+      const OMX_U32 new_slice_height = p_portdef->format.video.nSliceHeight;
       const OMX_U32 y_sz = new_width * new_height;
       const OMX_U32 u_sz = y_sz / 4;
       const OMX_U32 v_sz = u_sz;
@@ -486,16 +488,26 @@ videoport_apply_slaving_behaviour (void * ap_obj, void * ap_mos_port,
                  new_height, y_sz, u_sz, v_sz, new_buf_sz);
 
       if ((p_base->portdef_.format.video.nFrameWidth != new_width)
-          || (p_base->portdef_.format.video.nFrameHeight != new_height))
+          || (p_base->portdef_.format.video.nFrameHeight != new_height)
+          || (p_base->portdef_.format.video.nStride != new_stride)
+          || (p_base->portdef_.format.video.nSliceHeight != new_slice_height))
         {
           TIZ_TRACE (handleOf (ap_obj),
-                     "portdef_changed = OMX_TRUE ->  width/height (w[%d] h[%d]) - (w[%d] h[%d])",
+                     "portdef_changed = OMX_TRUE :"
+                     "width/height (w[%u] h[%u] - w[%u] h[%u])"
+                     "stride/slice height (st[%d] slh[%u] - st[%s] slg[%u])",
                      p_portdef->format.video.nFrameWidth,
                      p_portdef->format.video.nFrameHeight,
                      p_base->portdef_.format.video.nFrameWidth,
-                     p_base->portdef_.format.video.nFrameHeight);
+                     p_base->portdef_.format.video.nFrameHeight,
+                     p_portdef->format.video.nStride,
+                     p_portdef->format.video.nSliceHeight,
+                     p_base->portdef_.format.video.nStride,
+                     p_base->portdef_.format.video.nSliceHeight);
           p_base->portdef_.format.video.nFrameWidth = new_width;
           p_base->portdef_.format.video.nFrameHeight = new_height;
+          p_base->portdef_.format.video.nStride = new_stride;
+          p_base->portdef_.format.video.nSliceHeight = new_slice_height;
           portdef_changed = OMX_TRUE;
         }
 
