@@ -126,10 +126,24 @@ void tizdeezer::deinit ()
   // boost::python doesn't support Py_Finalize() yet!
 }
 
+int tizdeezer::play_tracks (const std::string &tracks)
+{
+  int rc = 0;
+  try_catch_wrapper (py_dz_proxy_.attr ("enqueue_tracks") (bp::object (tracks)));
+  return rc;
+}
+
 int tizdeezer::play_album (const std::string &album)
 {
   int rc = 0;
   try_catch_wrapper (py_dz_proxy_.attr ("enqueue_album") (bp::object (album)));
+  return rc;
+}
+
+int tizdeezer::play_artist (const std::string &artist)
+{
+  int rc = 0;
+  try_catch_wrapper (py_dz_proxy_.attr ("enqueue_artist") (bp::object (artist)));
   return rc;
 }
 
