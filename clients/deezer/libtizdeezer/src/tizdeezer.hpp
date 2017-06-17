@@ -55,7 +55,9 @@ public:
   void stop ();
   void deinit ();
 
+  int play_tracks (const std::string &tracks);
   int play_album (const std::string &album);
+  int play_artist (const std::string &artist);
 
   void clear_queue ();
   void set_playback_mode (const playback_mode mode);

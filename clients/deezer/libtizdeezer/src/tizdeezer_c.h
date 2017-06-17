@@ -86,6 +86,21 @@ void tiz_deezer_set_playback_mode (tiz_deezer_t *ap_deezer,
                                    const tiz_deezer_playback_mode_t mode);
 
 /**
+ * Add the tracks of the specified search term to the playback queue.
+ *
+ * After calling this method, the various tiz_deezer_get* methods can be
+ * used to interact with the playback queue.
+ *
+ * @ingroup libtizdeezer
+ *
+ * @param ap_deezer The deezer handle.
+ * @param ap_tracks The tracks search term.
+ *
+ * @return 0 on success
+ */
+int tiz_deezer_play_tracks (tiz_deezer_t *ap_deezer, const char *ap_tracks);
+
+/**
  * Add the tracks of the specified album to the playback queue.
  *
  * After calling this method, the various tiz_deezer_get* methods can be
@@ -99,6 +114,21 @@ void tiz_deezer_set_playback_mode (tiz_deezer_t *ap_deezer,
  * @return 0 on success
  */
 int tiz_deezer_play_album (tiz_deezer_t *ap_deezer, const char *ap_album);
+
+/**
+ * Add the tracks of the specified artist to the playback queue.
+ *
+ * After calling this method, the various tiz_deezer_get* methods can be
+ * used to interact with the playback queue.
+ *
+ * @ingroup libtizdeezer
+ *
+ * @param ap_deezer The deezer handle.
+ * @param ap_artist The artist name.
+ *
+ * @return 0 on success
+ */
+int tiz_deezer_play_artist (tiz_deezer_t *ap_deezer, const char *ap_artist);
 
 /**
  * Clear the playback queue.
@@ -148,21 +178,21 @@ size_t tiz_deezer_get_mp3_data (tiz_deezer_t *ap_deezer,
                                 unsigned char **ap_data);
 
 /**
-*Retrieve the current track's title.
-*
-*@ingroup libtizdeezer
-*
-*@param ap_deezer The deezer handle.
-*/
+ * Retrieve the current track's title.
+ *
+ * @ingroup libtizdeezer
+ *
+ * @param ap_deezer The deezer handle.
+ */
 const char *tiz_deezer_get_current_track_title (tiz_deezer_t *ap_deezer);
 
 /**
-*Retrieve the current track's artist.
-*
-*@ingroup libtizdeezer
-*
-*@param ap_deezer The deezer handle.
-*/
+ * Retrieve the current track's artist.
+ *
+ * @ingroup libtizdeezer
+ *
+ * @param ap_deezer The deezer handle.
+ */
 const char *tiz_deezer_get_current_track_artist (tiz_deezer_t *ap_deezer);
 
 /**
