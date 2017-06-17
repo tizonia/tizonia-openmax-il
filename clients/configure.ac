@@ -31,5 +31,5 @@ AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
 # Checks for library functions.
 
 AC_CONFIG_FILES([Makefile])
-AC_CONFIG_SUBDIRS([gmusic soundcloud dirble youtube])
+AC_CONFIG_SUBDIRS([gmusic soundcloud dirble youtube deezer])
 AC_OUTPUT
