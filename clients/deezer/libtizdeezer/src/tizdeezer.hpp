@@ -40,14 +40,14 @@ public:
    * Various playback modes that control the playback queue.
    */
   enum playback_mode
-    {
-      PlaybackModeNormal,
-      PlaybackModeShuffle,
-      PlaybackModeMax
-    };
+  {
+    PlaybackModeNormal,
+    PlaybackModeShuffle,
+    PlaybackModeMax
+  };
 
 public:
-  tizdeezer (const std::string &oauth_token);
+  tizdeezer (const std::string &user);
   ~tizdeezer ();
 
   int init ();
@@ -60,14 +60,25 @@ public:
   void clear_queue ();
   void set_playback_mode (const playback_mode mode);
 
-  const char * get_next_url ();
-  const char * get_prev_url ();
+  int next_track ();
+  int prev_track ();
+
+  size_t get_mp3_data (unsigned char **app_data);
+  const char * get_current_track_artist ();
+  const char * get_current_track_title ();
 
 private:
   int get_current_track ();
 
 private:
-  std::string oauth_token_;
+  std::string user_;
+  std::string current_track_;
+  std::string current_artist_;
+  std::string current_title_;
+  std::string current_album_;
+  std::string current_duration_;
+  std::string current_track_num_;
+  std::string current_track_year_;
   boost::python::object py_main_;
   boost::python::object py_global_;
   boost::python::object py_dz_proxy_;

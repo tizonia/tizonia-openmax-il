@@ -29,8 +29,8 @@
 #include <config.h>
 #endif
 
-#include <stdlib.h>
 #include <assert.h>
+#include <stdlib.h>
 
 #include "tizdeezer.hpp"
 #include "tizdeezer_c.h"
@@ -49,14 +49,13 @@ static void deezer_free_data (tiz_deezer_t *ap_deezer)
     }
 }
 
-static int deezer_alloc_data (tiz_deezer_t *ap_deezer,
-                                  const char *ap_oauth_token)
+static int deezer_alloc_data (tiz_deezer_t *ap_deezer, const char *ap_user)
 {
   int rc = 0;
   assert (ap_deezer);
   try
     {
-      ap_deezer->p_proxy_ = new tizdeezer (ap_oauth_token);
+      ap_deezer->p_proxy_ = new tizdeezer (ap_user);
     }
   catch (...)
     {
@@ -67,17 +66,17 @@ static int deezer_alloc_data (tiz_deezer_t *ap_deezer,
 }
 
 extern "C" int tiz_deezer_init (tiz_deezer_ptr_t *app_deezer,
-                                const char *ap_oauth_token)
+                                const char *ap_user)
 {
   tiz_deezer_t *p_deezer = NULL;
   int rc = 1;
 
   assert (app_deezer);
-  assert (ap_oauth_token);
+  assert (ap_user);
 
-  if ((p_deezer = (tiz_deezer_t *)calloc (1, sizeof(tiz_deezer_t))))
+  if ((p_deezer = (tiz_deezer_t *)calloc (1, sizeof (tiz_deezer_t))))
     {
-      if (!deezer_alloc_data (p_deezer, ap_oauth_token))
+      if (!deezer_alloc_data (p_deezer, ap_user))
         {
           tizdeezer *p_gm = p_deezer->p_proxy_;
           assert (p_gm);
@@ -107,7 +106,7 @@ extern "C" void tiz_deezer_set_playback_mode (
   assert (ap_deezer);
   assert (ap_deezer->p_proxy_);
   return ap_deezer->p_proxy_->set_playback_mode (
-      static_cast< tizdeezer::playback_mode >(mode));
+      static_cast< tizdeezer::playback_mode > (mode));
 }
 
 extern "C" int tiz_deezer_play_album (tiz_deezer_t *ap_deezer,
@@ -125,18 +124,42 @@ extern "C" void tiz_deezer_clear_queue (tiz_deezer_t *ap_deezer)
   ap_deezer->p_proxy_->clear_queue ();
 }
 
-extern "C" const char *tiz_deezer_get_next_url (tiz_deezer_t *ap_deezer)
+extern "C" int tiz_deezer_next_track (tiz_deezer_t *ap_deezer)
 {
   assert (ap_deezer);
   assert (ap_deezer->p_proxy_);
-  return ap_deezer->p_proxy_->get_next_url ();
+  return ap_deezer->p_proxy_->next_track ();
 }
 
-extern "C" const char *tiz_deezer_get_prev_url (tiz_deezer_t *ap_deezer)
+extern "C" int tiz_deezer_prev_track (tiz_deezer_t *ap_deezer)
 {
   assert (ap_deezer);
   assert (ap_deezer->p_proxy_);
-  return ap_deezer->p_proxy_->get_prev_url ();
+  return ap_deezer->p_proxy_->prev_track ();
+}
+
+extern "C" size_t tiz_deezer_get_mp3_data (tiz_deezer_t *ap_deezer,
+                                           unsigned char **app_data)
+{
+  assert (ap_deezer);
+  assert (ap_deezer->p_proxy_);
+  return ap_deezer->p_proxy_->get_mp3_data (app_data);
+}
+
+extern "C" const char *tiz_deezer_get_current_track_title (
+    tiz_deezer_t *ap_deezer)
+{
+  assert (ap_deezer);
+  assert (ap_deezer->p_proxy_);
+  return ap_deezer->p_proxy_->get_current_track_title ();
+}
+
+extern "C" const char *tiz_deezer_get_current_track_artist (
+    tiz_deezer_t *ap_deezer)
+{
+  assert (ap_deezer);
+  assert (ap_deezer->p_proxy_);
+  return ap_deezer->p_proxy_->get_current_track_artist ();
 }
 
 extern "C" void tiz_deezer_destroy (tiz_deezer_t *ap_deezer)
