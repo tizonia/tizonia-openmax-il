@@ -162,9 +162,31 @@ class tizdeezerproxy(object):
             logging.info("Now playing %s by %s", title, artist)
         return title, artist
 
+    def enqueue_tracks(self, arg):
+        """Search for tracks with a given name and adds them to the playback queue.
+
+        """
+        try:
+            logging.info("Tracks search %s", arg)
+            [artists, albums, tracks] = self.__api.search(arg)
+
+            for track in tracks:
+                print_nfo("[Deezer] [Track] '{0}'." \
+                          .format(to_ascii(track.name)))
+
+            if not tracks or not len(tracks):
+                raise KeyError
+
+            self.__enqueue_tracks(tracks)
+            print_wrn("[Deezer] Playing tracks '{0}'." \
+                      .format(to_ascii(arg)))
+            self.__update_play_queue_order()
+
+        except KeyError:
+            raise KeyError("Track not found : {0}".format(arg))
+
     def enqueue_album(self, arg):
-        """ Search the user's library for albums with a given name and adds
-        them to the playback queue.
+        """Search for albums with a given name and adds them to the playback queue.
 
         """
         try:
@@ -214,6 +236,53 @@ class tizdeezerproxy(object):
 
         except KeyError:
             raise KeyError("Album not found : {0}".format(arg))
+
+    def enqueue_artist(self, arg):
+        """ Search for artists with a given name and adds
+        them to the playback queue.
+
+        """
+        try:
+            logging.info("Artist search %s", arg)
+            [artists, albums, tracks] = self.__api.search(arg)
+
+            artist = None
+            tentative_artist = None
+
+            for art in artists:
+                artist_name = art.name
+                print_nfo("[Deezer] [Artist] '{0}'." \
+                          .format(to_ascii(artist_name)))
+
+                if not artist:
+                    if arg.lower() == artist_name.lower():
+                        artist = art
+                    if not tentative_artist:
+                        if arg.lower() in artist_name.lower():
+                            tentative_artist = art
+
+            if not artist and not tentative_artist:
+                raise KeyError("Artist not found : {0}".format(arg))
+
+            if not artist and tentative_artist:
+                artist = tentative_artist
+
+            artist_id = artist.uri[len('deezer:artist:'):]
+            tracks = self.__api.lookup_artist(artist_id)
+            for track in tracks:
+                print_nfo("[Deezer] [Artist track] '{0}'." \
+                          .format(to_ascii(track.name)))
+
+            if not tracks or not len(tracks):
+                raise KeyError
+
+            self.__enqueue_tracks(tracks)
+            print_wrn("[Deezer] Playing '{0}'." \
+                      .format(to_ascii(album.name)))
+            self.__update_play_queue_order()
+
+        except KeyError:
+            raise KeyError("Artist not found : {0}".format(arg))
 
     def stream_current_track(self):
         """  Return coroutine with seeking capabilities: some_stream.send(30000)
