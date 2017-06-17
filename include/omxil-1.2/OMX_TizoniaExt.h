@@ -320,7 +320,7 @@ typedef struct OMX_TIZONIA_PLAYLISTSKIPTYPE {
  */
 
 typedef enum OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE {
-    OMX_AUDIO_GmusicPlaylistTypeUnknown = 0, /**< PlaylistType type unknown (Default). */
+    OMX_AUDIO_GmusicPlaylistTypeUnknown = 0, /**< Playlist type unknown (Default). */
     OMX_AUDIO_GmusicPlaylistTypeUser, /**< User-defined playlist. */
     OMX_AUDIO_GmusicPlaylistTypeArtist, /**< Artist playlist. */
     OMX_AUDIO_GmusicPlaylistTypeAlbum, /**< Album playlist. */
@@ -359,7 +359,7 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE {
  */
 
 typedef enum OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE {
-    OMX_AUDIO_SoundCloudPlaylistTypeUnknown = 0, /**< PlaylistType type unknown (Default). */
+    OMX_AUDIO_SoundCloudPlaylistTypeUnknown = 0, /**< Playlist type unknown (Default). */
     OMX_AUDIO_SoundCloudPlaylistTypeUserStream, /**< The user's stream playlist. */
     OMX_AUDIO_SoundCloudPlaylistTypeUserLikes, /**< The user's likes playlist. */
     OMX_AUDIO_SoundCloudPlaylistTypeUserPlaylist, /**< A playlist from the user's collection. */
@@ -395,7 +395,7 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDPLAYLISTTYPE {
  */
 
 typedef enum OMX_TIZONIA_AUDIO_DIRBLEPLAYLISTTYPE {
-    OMX_AUDIO_DirblePlaylistTypeUnknown = 0, /**< PlaylistType type unknown (Default). */
+    OMX_AUDIO_DirblePlaylistTypeUnknown = 0, /**< Playlist type unknown (Default). */
     OMX_AUDIO_DirblePlaylistTypePopularStations, /**< The service's popular stations playlist. */
     OMX_AUDIO_DirblePlaylistTypeStations, /**< Station search. */
     OMX_AUDIO_DirblePlaylistTypeCategory, /**< Category search. */
@@ -424,7 +424,7 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_DIRBLEPLAYLISTTYPE {
  *
  */
 typedef enum OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE {
-    OMX_AUDIO_YoutubePlaylistTypeUnknown = 0, /**< PlaylistType type unknown (Default). */
+    OMX_AUDIO_YoutubePlaylistTypeUnknown = 0, /**< Playlist type unknown (Default). */
     OMX_AUDIO_YoutubePlaylistTypeAudioStream, /**< Audio playback from a youtube video url or video id. */
     OMX_AUDIO_YoutubePlaylistTypeAudioPlaylist, /**< Audio playback from a youtube playlist url or playlist id. */
     OMX_AUDIO_YoutubePlaylistTypeAudioMix, /**< Audio playback from a youtube mix associated to a url or video id. */
@@ -448,5 +448,44 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_YOUTUBEPLAYLISTTYPE {
     OMX_BOOL bShuffle;            /**< Default: OMX_FALSE */
     OMX_U8 cPlaylistName[OMX_MAX_STRINGNAME_SIZE];
 } OMX_TIZONIA_AUDIO_PARAM_YOUTUBEPLAYLISTTYPE;
+
+/**
+ * Deezer source component
+ * References:
+ *
+ */
+
+typedef enum OMX_TIZONIA_AUDIO_DEEZERPLAYLISTTYPE {
+    OMX_AUDIO_DeezerPlaylistTypeUnknown = 0, /**< Playlist type unknown (Default). */
+    OMX_AUDIO_DeezerPlaylistTypeTracks, /**< Regular tracks search. */
+    OMX_AUDIO_DeezerPlaylistTypeArtist, /**< Artist search. */
+    OMX_AUDIO_DeezerPlaylistTypeAlbum, /**< Album search. */
+    OMX_AUDIO_DeezerPlaylistTypeMixes, /**< Mixes search. */
+    OMX_AUDIO_DeezerPlaylistTypePlaylist, /**< Playlists search. */
+    OMX_AUDIO_DeezerPlaylistTypeTopPlaylist, /**< Playlists search. */
+    OMX_AUDIO_DeezerPlaylistTypeMoods, /**< Moods search. */
+    OMX_AUDIO_DeezerPlaylistTypePodcast, /**< Podcast search. */
+    OMX_AUDIO_DeezerPlaylistTypeUserFlow, /**< User radio station. */
+    OMX_AUDIO_DeezerPlaylistTypeKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
+    OMX_AUDIO_DeezerPlaylistTypeVendorStartUnused = 0x7F000000, /**< Reserved region for introducing Vendor Extensions */
+    OMX_AUDIO_DeezerPlaylistTypeMax = 0x7FFFFFFF
+} OMX_TIZONIA_AUDIO_DEEZERPLAYLISTTYPE;
+
+typedef struct OMX_TIZONIA_AUDIO_PARAM_DEEZERSESSIONTYPE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_U8 cUserName[OMX_MAX_STRINGNAME_SIZE];
+    OMX_U8 cUserPassword[OMX_MAX_STRINGNAME_SIZE];
+    OMX_U8 cDeviceId[OMX_MAX_STRINGNAME_SIZE];
+} OMX_TIZONIA_AUDIO_PARAM_DEEZERSESSIONTYPE;
+
+typedef struct OMX_TIZONIA_AUDIO_PARAM_DEEZERPLAYLISTTYPE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_TIZONIA_AUDIO_DEEZERPLAYLISTTYPE ePlaylistType;
+    OMX_BOOL bShuffle;            /**< Default: OMX_FALSE */
+    OMX_BOOL bUnlimitedSearch;    /**< Default: OMX_FALSE */
+    OMX_U8 cPlaylistName[OMX_MAX_STRINGNAME_SIZE];
+} OMX_TIZONIA_AUDIO_PARAM_DEEZERPLAYLISTTYPE;
 
 #endif /* OMX_TizoniaExt_h */
