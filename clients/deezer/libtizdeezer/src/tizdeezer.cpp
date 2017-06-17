@@ -29,8 +29,8 @@
 #include <config.h>
 #endif
 
-#include <iostream>
 #include <boost/lexical_cast.hpp>
+#include <iostream>
 
 #include "tizdeezer.hpp"
 
@@ -76,16 +76,23 @@ namespace
 
   void start_deezer (boost::python::object &py_global,
                      boost::python::object &py_dz_proxy,
-                     const std::string &oauth_token)
+                     const std::string &user)
   {
     bp::object pydeezerproxy = py_global["tizdeezerproxy"];
-    py_dz_proxy
-        = pydeezerproxy (oauth_token.c_str ());
+    py_dz_proxy = pydeezerproxy (user.c_str ());
   }
 }
 
-tizdeezer::tizdeezer (const std::string &oauth_token)
-  : oauth_token_ (oauth_token)
+tizdeezer::tizdeezer (const std::string &user)
+  : user_ (user),
+    current_track_ (),
+    current_artist_ (),
+    current_title_ (),
+    current_album_ (),
+    current_duration_ (),
+    current_track_num_ (),
+    current_track_year_ ()
+
 {
 }
 
@@ -103,8 +110,7 @@ int tizdeezer::init ()
 int tizdeezer::start ()
 {
   int rc = 0;
-  try_catch_wrapper (
-      start_deezer (py_global_, py_dz_proxy_, oauth_token_));
+  try_catch_wrapper (start_deezer (py_global_, py_dz_proxy_, user_));
   return rc;
 }
 
@@ -120,24 +126,23 @@ void tizdeezer::deinit ()
   // boost::python doesn't support Py_Finalize() yet!
 }
 
-int tizdeezer::play_album (const std::string &album,
-                           const bool a_unlimited_search)
+int tizdeezer::play_album (const std::string &album)
 {
   int rc = 0;
   try_catch_wrapper (py_dz_proxy_.attr ("enqueue_album") (bp::object (album)));
   return rc;
 }
 
-const char *tizdeezer::get_next_url ()
+int tizdeezer::next_track ()
 {
-  current_url_.clear ();
+  current_track_.clear ();
   try
     {
-      const char *p_next_url
-          = bp::extract< char const * >(py_dz_proxy_.attr ("next_url")());
-      if (p_next_url && !get_current_song ())
+      const char *p_next_track
+          = bp::extract< char const * > (py_dz_proxy_.attr ("next_track") ());
+      if (p_next_track && !get_current_track ())
         {
-          current_url_.assign (p_next_url);
+          current_track_.assign (p_next_track);
         }
     }
   catch (bp::error_already_set &e)
@@ -147,19 +152,19 @@ const char *tizdeezer::get_next_url ()
   catch (...)
     {
     }
-  return current_url_.empty () ? NULL : current_url_.c_str ();
+  return current_track_.empty () ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-const char *tizdeezer::get_prev_url ()
+int tizdeezer::prev_track ()
 {
-  current_url_.clear ();
+  current_track_.clear ();
   try
     {
-      const char *p_prev_url
-          = bp::extract< char const * >(py_dz_proxy_.attr ("prev_url")());
-      if (p_prev_url && !get_current_song ())
+      const char *p_prev_track
+          = bp::extract< char const * > (py_dz_proxy_.attr ("prev_track") ());
+      if (p_prev_track && !get_current_track ())
         {
-          current_url_.assign (p_prev_url);
+          current_track_.assign (p_prev_track);
         }
     }
   catch (bp::error_already_set &e)
@@ -169,36 +174,71 @@ const char *tizdeezer::get_prev_url ()
   catch (...)
     {
     }
-  return current_url_.empty () ? NULL : current_url_.c_str ();
+  return current_track_.empty () ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+size_t tizdeezer::get_mp3_data (unsigned char **app_data)
+{
+  int size = 0;
+  if (app_data)
+    {
+      char *p_data = NULL;
+      try
+        {
+          const bp::tuple &info1 = bp::extract< bp::tuple > (
+              py_dz_proxy_.attr ("stream_current_track") ());
+          const char *p_data = bp::extract< char const * > (info1[0]);
+          *app_data = (unsigned char *)p_data;
+          size = bp::extract< int > (info1[1]);
+        }
+      catch (bp::error_already_set &e)
+        {
+          PyErr_PrintEx (0);
+        }
+      catch (...)
+        {
+        }
+    }
+  return (size_t)size;
+}
+
+const char *tizdeezer::get_current_track_artist ()
+{
+  return current_artist_.empty () ? NULL : current_artist_.c_str ();
+}
+
+const char *tizdeezer::get_current_track_title ()
+{
+  return current_title_.empty () ? NULL : current_title_.c_str ();
 }
 
 void tizdeezer::clear_queue ()
 {
   int rc = 0;
-  try_catch_wrapper (py_dz_proxy_.attr ("clear_queue")());
+  try_catch_wrapper (py_dz_proxy_.attr ("clear_queue") ());
   (void)rc;
 }
 
 void tizdeezer::set_playback_mode (const playback_mode mode)
 {
   int rc = 0;
-  switch(mode)
+  switch (mode)
     {
-    case PlaybackModeNormal:
-      {
-        try_catch_wrapper (py_dz_proxy_.attr ("set_play_mode")("NORMAL"));
-      }
-      break;
-    case PlaybackModeShuffle:
-      {
-        try_catch_wrapper (py_dz_proxy_.attr ("set_play_mode")("SHUFFLE"));
-      }
-      break;
-    default:
-      {
-        assert (0);
-      }
-      break;
+      case PlaybackModeNormal:
+        {
+          try_catch_wrapper (py_dz_proxy_.attr ("set_play_mode") ("NORMAL"));
+        }
+        break;
+      case PlaybackModeShuffle:
+        {
+          try_catch_wrapper (py_dz_proxy_.attr ("set_play_mode") ("SHUFFLE"));
+        }
+        break;
+      default:
+        {
+          assert (0);
+        }
+        break;
     };
   (void)rc;
 }
@@ -206,81 +246,67 @@ void tizdeezer::set_playback_mode (const playback_mode mode)
 int tizdeezer::get_current_track ()
 {
   int rc = 1;
-  current_user_.clear ();
   current_title_.clear ();
+  current_artist_.clear ();
 
-  const bp::tuple &info1 = bp::extract< bp::tuple >(
-      py_dz_proxy_.attr ("current_track_title_and_user")());
-  const char *p_user = bp::extract< char const * >(info1[0]);
-  const char *p_title = bp::extract< char const * >(info1[1]);
+  const bp::tuple &info1 = bp::extract< bp::tuple > (
+      py_dz_proxy_.attr ("current_track_title_and_artist") ());
+  const char *p_title = bp::extract< char const * > (info1[0]);
+  const char *p_artist = bp::extract< char const * > (info1[1]);
 
-  if (p_user)
+  if (p_artist)
     {
-      current_user_.assign (p_user);
+      current_artist_.assign (p_artist);
     }
   if (p_title)
     {
       current_title_.assign (p_title);
     }
 
-  int duration
-      = bp::extract< int >(py_dz_proxy_.attr ("current_track_duration")());
+  //   int duration
+  //       = bp::extract< int >(py_dz_proxy_.attr ("current_track_duration")());
 
-  int seconds = 0;
-  current_duration_.clear ();
-  if (duration)
-    {
-      duration /= 1000;
-      seconds = duration % 60;
-      int minutes = (duration - seconds) / 60;
-      int hours = 0;
-      if (minutes >= 60)
-        {
-          int total_minutes = minutes;
-          minutes = total_minutes % 60;
-          hours = (total_minutes - minutes) / 60;
-        }
+  //   int seconds = 0;
+  //   current_duration_.clear ();
+  //   if (duration)
+  //     {
+  //       duration /= 1000;
+  //       seconds = duration % 60;
+  //       int minutes = (duration - seconds) / 60;
+  //       int hours = 0;
+  //       if (minutes >= 60)
+  //         {
+  //           int total_minutes = minutes;
+  //           minutes = total_minutes % 60;
+  //           hours = (total_minutes - minutes) / 60;
+  //         }
 
-      if (hours > 0)
-        {
-          current_duration_.append (boost::lexical_cast< std::string >(hours));
-          current_duration_.append ("h:");
-        }
+  //       if (hours > 0)
+  //         {
+  //           current_duration_.append (boost::lexical_cast< std::string
+  //           >(hours));
+  //           current_duration_.append ("h:");
+  //         }
 
-      if (minutes > 0)
-        {
-          current_duration_.append (
-              boost::lexical_cast< std::string >(minutes));
-          current_duration_.append ("m:");
-        }
-    }
+  //       if (minutes > 0)
+  //         {
+  //           current_duration_.append (
+  //               boost::lexical_cast< std::string >(minutes));
+  //           current_duration_.append ("m:");
+  //         }
+  //     }
 
-  char seconds_str[3];
-  sprintf (seconds_str, "%02i", seconds);
-  current_duration_.append (seconds_str);
-  current_duration_.append ("s");
+  //   char seconds_str[3];
+  //   sprintf (seconds_str, "%02i", seconds);
+  //   current_duration_.append (seconds_str);
+  //   current_duration_.append ("s");
 
-  const int track_year = bp::extract< int >(py_dz_proxy_.attr ("current_track_year")());
-  current_track_year_.assign (boost::lexical_cast< std::string >(track_year));
+  //   const int track_year = bp::extract< int >(py_dz_proxy_.attr
+  //   ("current_track_year")());
+  //   current_track_year_.assign (boost::lexical_cast< std::string
+  //   >(track_year));
 
-  const char *p_track_permalink = bp::extract< char const * >(
-      py_dz_proxy_.attr ("current_track_permalink")());
-  if (p_track_permalink)
-    {
-      current_track_permalink_.assign (p_track_permalink);
-    }
-
-  const char *p_track_license = bp::extract< char const * >(
-      py_dz_proxy_.attr ("current_track_license")());
-  if (p_track_license)
-    {
-      current_track_license_.assign (p_track_license);
-    }
-
-  const int track_likes = bp::extract< int >(py_dz_proxy_.attr ("current_track_likes")());
-  current_track_likes_.assign (boost::lexical_cast< std::string >(track_likes));
-
-  if (p_user || p_title)
+  if (p_artist || p_title)
     {
       rc = 0;
     }

@@ -55,8 +55,7 @@ typedef /*@null@ */ tiz_deezer_t *tiz_deezer_ptr_t;
  * Various playback modes that control the playback queue.
  * @ingroup libtizdeezer
  */
-typedef enum tiz_deezer_playback_mode
-{
+typedef enum tiz_deezer_playback_mode {
   ETIZDeezerPlaybackModeNormal,
   ETIZDeezerPlaybackModeShuffle,
   ETIZDeezerPlaybackModeMax
@@ -69,12 +68,12 @@ typedef enum tiz_deezer_playback_mode
  *
  * @param app_deezer A pointer to the deezer handle which will be
  * initialised.
- * @param ap_oauth_token A Deezer email account.
+ * @param ap_user A Deezer email account.
  *
  * @return 0 on success.
  */
 int tiz_deezer_init (/*@null@ */ tiz_deezer_ptr_t *app_deezer,
-                     const char *ap_oauth_token);
+                     const char *ap_user);
 
 /**
  * Clear the playback queue.
@@ -111,26 +110,60 @@ int tiz_deezer_play_album (tiz_deezer_t *ap_deezer, const char *ap_album);
 void tiz_deezer_clear_queue (tiz_deezer_t *ap_deezer);
 
 /**
- * Retrieve the next track url
+ * Skip to the next track in the queue.
  *
  * The the playback queue pointer moves one position forwards.
  *
  * @ingroup libtizdeezer
  *
  * @param ap_deezer The deezer handle.
+ *
+ * @return 0 on success
  */
-const char *tiz_deezer_get_next_url (tiz_deezer_t *ap_deezer);
+int tiz_deezer_next_track (tiz_deezer_t *ap_deezer);
 
 /**
- * Retrieve the previous track url.
+ * Skip to the previous track in the queue.
  *
  * The the playback queue pointer moves one position backwards.
  *
  * @ingroup libtizdeezer
  *
  * @param ap_deezer The deezer handle.
+ *
+ * @return 0 on success
  */
-const char *tiz_deezer_get_prev_url (tiz_deezer_t *ap_deezer);
+int tiz_deezer_prev_track (tiz_deezer_t *ap_deezer);
+
+/**
+ * Retrieve a buffer of MP3 data.
+ *
+ * @ingroup libtizdeezer
+ *
+ * @param ap_deezer The deezer handle.
+ *
+ * @return 0 on success
+ */
+size_t tiz_deezer_get_mp3_data (tiz_deezer_t *ap_deezer,
+                                unsigned char **ap_data);
+
+/**
+*Retrieve the current track's title.
+*
+*@ingroup libtizdeezer
+*
+*@param ap_deezer The deezer handle.
+*/
+const char *tiz_deezer_get_current_track_title (tiz_deezer_t *ap_deezer);
+
+/**
+*Retrieve the current track's artist.
+*
+*@ingroup libtizdeezer
+*
+*@param ap_deezer The deezer handle.
+*/
+const char *tiz_deezer_get_current_track_artist (tiz_deezer_t *ap_deezer);
 
 /**
  * Destroy the deezer handle.
