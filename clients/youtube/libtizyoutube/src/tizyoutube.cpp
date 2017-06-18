@@ -29,8 +29,8 @@
 #include <config.h>
 #endif
 
-#include <iostream>
 #include <boost/lexical_cast.hpp>
+#include <iostream>
 
 #include "tizyoutube.hpp"
 
@@ -63,7 +63,7 @@ namespace bp = boost::python;
 namespace
 {
   void init_youtube (boost::python::object &py_main,
-                    boost::python::object &py_global)
+                     boost::python::object &py_global)
   {
     Py_Initialize ();
 
@@ -75,11 +75,10 @@ namespace
   }
 
   void start_youtube (boost::python::object &py_global,
-                     boost::python::object &py_yt_proxy)
+                      boost::python::object &py_yt_proxy)
   {
     bp::object pyyoutubeproxy = py_global["tizyoutubeproxy"];
-    py_yt_proxy
-        = pyyoutubeproxy ();
+    py_yt_proxy = pyyoutubeproxy ();
   }
 }
 
@@ -112,8 +111,7 @@ int tizyoutube::init ()
 int tizyoutube::start ()
 {
   int rc = 0;
-  try_catch_wrapper (
-      start_youtube (py_global_, py_yt_proxy_));
+  try_catch_wrapper (start_youtube (py_global_, py_yt_proxy_));
   return rc;
 }
 
@@ -133,7 +131,7 @@ int tizyoutube::play_audio_stream (const std::string &url_or_id)
 {
   int rc = 0;
   try_catch_wrapper (
-      py_yt_proxy_.attr ("enqueue_audio_stream")(bp::object (url_or_id)));
+      py_yt_proxy_.attr ("enqueue_audio_stream") (bp::object (url_or_id)));
   return rc;
 }
 
@@ -141,7 +139,7 @@ int tizyoutube::play_audio_playlist (const std::string &url_or_id)
 {
   int rc = 0;
   try_catch_wrapper (
-      py_yt_proxy_.attr ("enqueue_audio_playlist")(bp::object (url_or_id)));
+      py_yt_proxy_.attr ("enqueue_audio_playlist") (bp::object (url_or_id)));
   return rc;
 }
 
@@ -149,7 +147,7 @@ int tizyoutube::play_audio_mix (const std::string &url_or_id)
 {
   int rc = 0;
   try_catch_wrapper (
-      py_yt_proxy_.attr ("enqueue_audio_mix")(bp::object (url_or_id)));
+      py_yt_proxy_.attr ("enqueue_audio_mix") (bp::object (url_or_id)));
   return rc;
 }
 
@@ -157,7 +155,7 @@ int tizyoutube::play_audio_search (const std::string &search)
 {
   int rc = 0;
   try_catch_wrapper (
-      py_yt_proxy_.attr ("enqueue_audio_search")(bp::object (search)));
+      py_yt_proxy_.attr ("enqueue_audio_search") (bp::object (search)));
   return rc;
 }
 
@@ -165,7 +163,7 @@ int tizyoutube::play_audio_mix_search (const std::string &search)
 {
   int rc = 0;
   try_catch_wrapper (
-      py_yt_proxy_.attr ("enqueue_audio_mix_search")(bp::object (search)));
+      py_yt_proxy_.attr ("enqueue_audio_mix_search") (bp::object (search)));
   return rc;
 }
 
@@ -176,10 +174,10 @@ const char *tizyoutube::get_next_url (const bool a_remove_current_url)
     {
       if (a_remove_current_url)
         {
-          py_yt_proxy_.attr ("remove_current_url")();
+          py_yt_proxy_.attr ("remove_current_url") ();
         }
       const char *p_next_url
-          = bp::extract< char const * >(py_yt_proxy_.attr ("next_url")());
+          = bp::extract< char const * > (py_yt_proxy_.attr ("next_url") ());
       current_url_.assign (p_next_url);
       if (!p_next_url || get_current_stream ())
         {
@@ -203,10 +201,10 @@ const char *tizyoutube::get_prev_url (const bool a_remove_current_url)
     {
       if (a_remove_current_url)
         {
-          py_yt_proxy_.attr ("remove_current_url")();
+          py_yt_proxy_.attr ("remove_current_url") ();
         }
       const char *p_prev_url
-          = bp::extract< char const * >(py_yt_proxy_.attr ("prev_url")());
+          = bp::extract< char const * > (py_yt_proxy_.attr ("prev_url") ());
       current_url_.assign (p_prev_url);
       if (!p_prev_url || get_current_stream ())
         {
@@ -226,30 +224,30 @@ const char *tizyoutube::get_prev_url (const bool a_remove_current_url)
 void tizyoutube::clear_queue ()
 {
   int rc = 0;
-  try_catch_wrapper (py_yt_proxy_.attr ("clear_queue")());
+  try_catch_wrapper (py_yt_proxy_.attr ("clear_queue") ());
   (void)rc;
 }
 
 void tizyoutube::set_playback_mode (const playback_mode mode)
 {
   int rc = 0;
-  switch(mode)
+  switch (mode)
     {
-    case PlaybackModeNormal:
-      {
-        try_catch_wrapper (py_yt_proxy_.attr ("set_play_mode")("NORMAL"));
-      }
-      break;
-    case PlaybackModeShuffle:
-      {
-        try_catch_wrapper (py_yt_proxy_.attr ("set_play_mode")("SHUFFLE"));
-      }
-      break;
-    default:
-      {
-        assert (0);
-      }
-      break;
+      case PlaybackModeNormal:
+        {
+          try_catch_wrapper (py_yt_proxy_.attr ("set_play_mode") ("NORMAL"));
+        }
+        break;
+      case PlaybackModeShuffle:
+        {
+          try_catch_wrapper (py_yt_proxy_.attr ("set_play_mode") ("SHUFFLE"));
+        }
+        break;
+      default:
+        {
+          assert (0);
+        }
+        break;
     };
   (void)rc;
 }
@@ -261,47 +259,61 @@ const char *tizyoutube::get_current_audio_stream_title ()
 
 const char *tizyoutube::get_current_audio_stream_author ()
 {
-  return current_stream_author_.empty () ? NULL : current_stream_author_.c_str ();
+  return current_stream_author_.empty () ? NULL
+                                         : current_stream_author_.c_str ();
 }
 
 const char *tizyoutube::get_current_audio_stream_file_size ()
 {
-  return current_stream_file_size_.empty () ? NULL : current_stream_file_size_.c_str ();
+  return current_stream_file_size_.empty ()
+             ? NULL
+             : current_stream_file_size_.c_str ();
 }
 
 const char *tizyoutube::get_current_audio_stream_duration ()
 {
-  return current_stream_duration_.empty () ? NULL : current_stream_duration_.c_str ();
+  return current_stream_duration_.empty () ? NULL
+                                           : current_stream_duration_.c_str ();
 }
 
 const char *tizyoutube::get_current_audio_stream_bitrate ()
 {
-  return current_stream_bitrate_.empty () ? NULL : current_stream_bitrate_.c_str ();
+  return current_stream_bitrate_.empty () ? NULL
+                                          : current_stream_bitrate_.c_str ();
 }
 
 const char *tizyoutube::get_current_audio_stream_view_count ()
 {
-  return current_stream_view_count_.empty () ? NULL : current_stream_view_count_.c_str ();
+  return current_stream_view_count_.empty ()
+             ? NULL
+             : current_stream_view_count_.c_str ();
 }
 
 const char *tizyoutube::get_current_audio_stream_description ()
 {
-  return current_stream_description_.empty () ? NULL : current_stream_description_.c_str ();
+  return current_stream_description_.empty ()
+             ? NULL
+             : current_stream_description_.c_str ();
 }
 
 const char *tizyoutube::get_current_audio_stream_file_extension ()
 {
-  return current_stream_file_extension_.empty () ? NULL : current_stream_file_extension_.c_str ();
+  return current_stream_file_extension_.empty ()
+             ? NULL
+             : current_stream_file_extension_.c_str ();
 }
 
 const char *tizyoutube::get_current_audio_stream_video_id ()
 {
-  return current_stream_video_id_.empty () ? NULL : current_stream_video_id_.c_str ();
+  return current_stream_video_id_.empty () ? NULL
+                                           : current_stream_video_id_.c_str ();
 }
 
 const char *tizyoutube::get_current_audio_stream_published ()
 {
-  return current_stream_published_.empty () ? NULL : current_stream_published_.c_str ();
+  return current_stream_published_.empty ()
+             ? NULL
+             : current_stream_published_.c_str ();
 }
 
 int tizyoutube::get_current_stream ()
@@ -318,41 +330,50 @@ int tizyoutube::get_current_stream ()
   current_stream_video_id_.clear ();
   current_stream_published_.clear ();
 
-  const char * p_title = bp::extract< char const * >(py_yt_proxy_.attr ("current_audio_stream_title")());
+  const char *p_title = bp::extract< char const * > (
+      py_yt_proxy_.attr ("current_audio_stream_title") ());
   if (p_title)
     {
-      current_stream_title_.assign(p_title);
+      current_stream_title_.assign (p_title);
     }
 
-  const char * p_author = bp::extract< char const * >(py_yt_proxy_.attr ("current_audio_stream_author")());
+  const char *p_author = bp::extract< char const * > (
+      py_yt_proxy_.attr ("current_audio_stream_author") ());
   if (p_author)
     {
-      current_stream_author_.assign(p_author);
+      current_stream_author_.assign (p_author);
     }
 
-  const int file_size = bp::extract< int >(py_yt_proxy_.attr ("current_audio_stream_file_size")());
-  current_stream_file_size_.assign (boost::lexical_cast< std::string >(file_size / (1024 * 1024)));
+  const int file_size = bp::extract< int > (
+      py_yt_proxy_.attr ("current_audio_stream_file_size") ());
+  current_stream_file_size_.assign (
+      boost::lexical_cast< std::string > (file_size / (1024 * 1024)));
   current_stream_file_size_.append (" MiB");
 
-  const char * p_duration = bp::extract< char const * >(py_yt_proxy_.attr ("current_audio_stream_duration")());
+  const char *p_duration = bp::extract< char const * > (
+      py_yt_proxy_.attr ("current_audio_stream_duration") ());
   if (p_duration)
     {
-      current_stream_duration_.assign(p_duration);
+      current_stream_duration_.assign (p_duration);
     }
 
-  const char * p_bitrate = bp::extract< char const * >(py_yt_proxy_.attr ("current_audio_stream_bitrate")());
+  const char *p_bitrate = bp::extract< char const * > (
+      py_yt_proxy_.attr ("current_audio_stream_bitrate") ());
   if (p_bitrate)
     {
-      current_stream_bitrate_.assign(p_bitrate);
+      current_stream_bitrate_.assign (p_bitrate);
     }
 
-  const int view_count = bp::extract< int >(py_yt_proxy_.attr ("current_audio_stream_view_count")());
-  current_stream_view_count_.assign (boost::lexical_cast< std::string >(view_count));
+  const int view_count = bp::extract< int > (
+      py_yt_proxy_.attr ("current_audio_stream_view_count") ());
+  current_stream_view_count_.assign (
+      boost::lexical_cast< std::string > (view_count));
 
-  const char * p_description = bp::extract< char const * >(py_yt_proxy_.attr ("current_audio_stream_description")());
+  const char *p_description = bp::extract< char const * > (
+      py_yt_proxy_.attr ("current_audio_stream_description") ());
   if (p_description)
     {
-      current_stream_description_.assign(p_description);
+      current_stream_description_.assign (p_description);
       current_stream_description_.erase (
           std::remove (current_stream_description_.begin (),
                        current_stream_description_.end (), '\n'),
@@ -363,22 +384,25 @@ int tizyoutube::get_current_stream ()
           current_stream_description_.end ());
     }
 
-  const char * p_file_extension = bp::extract< char const * >(py_yt_proxy_.attr ("current_audio_stream_file_extension")());
+  const char *p_file_extension = bp::extract< char const * > (
+      py_yt_proxy_.attr ("current_audio_stream_file_extension") ());
   if (p_file_extension)
     {
-      current_stream_file_extension_.assign(p_file_extension);
+      current_stream_file_extension_.assign (p_file_extension);
     }
 
-  const char * p_video_id = bp::extract< char const * >(py_yt_proxy_.attr ("current_audio_stream_video_id")());
+  const char *p_video_id = bp::extract< char const * > (
+      py_yt_proxy_.attr ("current_audio_stream_video_id") ());
   if (p_video_id)
     {
-      current_stream_video_id_.assign(p_video_id);
+      current_stream_video_id_.assign (p_video_id);
     }
 
-  const char * p_published = bp::extract< char const * >(py_yt_proxy_.attr ("current_audio_stream_published")());
+  const char *p_published = bp::extract< char const * > (
+      py_yt_proxy_.attr ("current_audio_stream_published") ());
   if (p_published)
     {
-      current_stream_published_.assign(p_published);
+      current_stream_published_.assign (p_published);
     }
 
   return rc;
