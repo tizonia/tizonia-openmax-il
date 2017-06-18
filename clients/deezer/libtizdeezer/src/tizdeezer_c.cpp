@@ -194,12 +194,20 @@ extern "C" const char *tiz_deezer_get_current_track_duration (
   return ap_deezer->p_proxy_->get_current_track_duration ();
 }
 
-extern "C" const char *tiz_deezer_get_current_track_file_size (
+extern "C" const char *tiz_deezer_get_current_track_file_size_mb (
     tiz_deezer_t *ap_deezer)
 {
   assert (ap_deezer);
   assert (ap_deezer->p_proxy_);
-  return ap_deezer->p_proxy_->get_current_track_file_size ();
+  return ap_deezer->p_proxy_->get_current_track_file_size_mb ();
+}
+
+extern "C" int tiz_deezer_get_current_track_file_size_bytes (
+    tiz_deezer_t *ap_deezer)
+{
+  assert (ap_deezer);
+  assert (ap_deezer->p_proxy_);
+  return ap_deezer->p_proxy_->get_current_track_file_size_bytes ();
 }
 
 extern "C" void tiz_deezer_destroy (tiz_deezer_t *ap_deezer)
