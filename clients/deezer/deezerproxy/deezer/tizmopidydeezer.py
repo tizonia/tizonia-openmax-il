@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+# Copyright (C) Konstantin Batura <https://github.com/rusty-dev>
+#
 # Original Author: Konstantin Batura <https://github.com/rusty-dev>
 #
 # Portions Copyright (C) 2017 Aratelia Limited - Juan A. Rubio
@@ -15,22 +17,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#
+# Original code: https://github.com/rusty-dev/mopidy-deezer
+#
+# List of modifications:
+# - Replaced mopidy models to avoid havin mopidy as a dependency.
+# - Stripped functions for track, artist and album image retrieval.
+# - Removed track storage.
+#
+
+
 import logging
 import random
 import re
 import string
-import requests
-import simplejson as json
-import hashlib
-import pprint
-
+from array import array
 from io import BytesIO
 from operator import xor
 from struct import pack
+
 from Crypto.Cipher import AES, Blowfish
+
 from eyed3.mp3.headers import Mp3Header, findHeader, timePerFrame
+
 from tizdeezermodels import Album, Artist, Track, Playlist
-from array import array
+
+import requests
+
+import simplejson as json
+
 from tizmopidydeezerutils import get_md5
 
 logger = logging.getLogger(__name__)
@@ -375,7 +390,6 @@ class DeezerClient(object):
     def stream(self, track_id):
         """ Return coroutine with seeking capabilities: some_stream.send(30000) """
         track_data = self.get_track(track_id)
-        pprint.pprint(track_data)
         track_cipher = self.get_track_cipher(track_data['SNG_ID'])
         track_url = self.get_track_url(track_data)
         return self._stream(track_cipher, track_url)
