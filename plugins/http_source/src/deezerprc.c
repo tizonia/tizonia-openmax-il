@@ -338,13 +338,22 @@ update_metadata (deezer_prc_t * ap_prc)
   /* Clear previous metadata items */
   tiz_krn_clear_metadata (tiz_get_krn (handleOf (ap_prc)));
 
-  /* Title */
+  /* author and title  */
   tiz_check_omx (store_metadata (
-    ap_prc, "Title", tiz_deezer_get_current_track_title (ap_prc->p_deezer_)));
+    ap_prc, tiz_deezer_get_current_track_artist (ap_prc->p_deezer_),
+    tiz_deezer_get_current_track_title (ap_prc->p_deezer_)));
 
-  /* Artist */
+  /* Album */
   tiz_check_omx (store_metadata (
-    ap_prc, "Artist", tiz_deezer_get_current_track_artist (ap_prc->p_deezer_)));
+    ap_prc, "Album", tiz_deezer_get_current_track_album (ap_prc->p_deezer_)));
+
+  /* Duration */
+  tiz_check_omx (store_metadata (
+    ap_prc, "Duration", tiz_deezer_get_current_track_duration (ap_prc->p_deezer_)));
+
+  /* File Size */
+  tiz_check_omx (store_metadata (
+    ap_prc, "File Size", tiz_deezer_get_current_track_file_size (ap_prc->p_deezer_)));
 
   /* Signal that a new set of metadata items is available */
   (void) tiz_srv_issue_event ((OMX_PTR) ap_prc, OMX_EventIndexSettingChanged,
