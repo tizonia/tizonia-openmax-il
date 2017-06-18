@@ -360,15 +360,15 @@ update_metadata (deezer_prc_t * ap_prc)
 static OMX_ERRORTYPE
 obtain_next_track (deezer_prc_t * ap_prc, int a_skip_value)
 {
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  deezer_prc_t * p_prc = ap_prc;
 
   assert (ap_prc);
   assert (ap_prc->p_deezer_);
 
-  /* Song metadata is now available, update the IL client */
-  rc = update_metadata (ap_prc);
+  on_deezer_error_ret_omx_oom (tiz_deezer_next_track (ap_prc->p_deezer_));
 
-  return rc;
+  /* Song metadata is now available, update the IL client */
+  return update_metadata (ap_prc);
 }
 
 static OMX_ERRORTYPE
@@ -401,53 +401,83 @@ release_buffer (deezer_prc_t * ap_prc)
   return OMX_ErrorNone;
 }
 
-/* static void */
-/* buffer_filled (OMX_BUFFERHEADERTYPE * ap_hdr, void * ap_arg) */
-/* { */
-/*   deezer_prc_t * p_prc = ap_arg; */
-/*   assert (p_prc); */
-/*   assert (ap_hdr); */
-/*   assert (p_prc->p_outhdr_ == ap_hdr); */
-/*   ap_hdr->nOffset = 0; */
-/*   (void) release_buffer (p_prc); */
-/* } */
+static OMX_ERRORTYPE
+deliver_buffer (deezer_prc_t * p_prc)
+{
+  assert (p_prc);
+  assert (p_prc->p_outhdr_);
 
-/* static OMX_BUFFERHEADERTYPE * */
-/* buffer_emptied (OMX_PTR ap_arg) */
-/* { */
-/*   deezer_prc_t * p_prc = ap_arg; */
-/*   OMX_BUFFERHEADERTYPE * p_hdr = NULL; */
-/*   assert (p_prc); */
+  if (p_prc->deezer_data_len_)
+    {
+      OMX_BUFFERHEADERTYPE * p_hdr = p_prc->p_outhdr_;
+      unsigned char * p_dst = p_hdr->pBuffer + p_hdr->nOffset;
+      size_t dst_capacity = p_hdr->nAllocLen - p_hdr->nFilledLen;
+      const unsigned char * p_data = p_prc->p_deezer_data_ + p_prc->deezer_data_offset_;
+      size_t deezer_len = p_prc->deezer_data_len_ - p_prc->deezer_data_offset_;
+      size_t len = MIN(dst_capacity, deezer_len);
 
-/*   if (!p_prc->port_disabled_) */
-/*     { */
-/*       if (p_prc->p_outhdr_) */
-/*         { */
-/*           p_hdr = p_prc->p_outhdr_; */
-/*         } */
-/*       else */
-/*         { */
-/*           if (OMX_ErrorNone */
-/*               == (tiz_krn_claim_buffer (tiz_get_krn (handleOf (p_prc)), */
-/*                                         ARATELIA_HTTP_SOURCE_PORT_INDEX, 0, */
-/*                                         &p_prc->p_outhdr_))) */
-/*             { */
-/*               if (p_prc->p_outhdr_) */
-/*                 { */
-/*                   TIZ_TRACE (handleOf (p_prc), */
-/*                              "Claimed HEADER [%p]...nFilledLen [%d]", */
-/*                              p_prc->p_outhdr_, p_prc->p_outhdr_->nFilledLen); */
-/*                   p_hdr = p_prc->p_outhdr_; */
-/*                 } */
-/*               else */
-/*                 { */
-/*                   TIZ_TRACE (handleOf (p_prc), "No more headers available"); */
-/*                 } */
-/*             } */
-/*         } */
-/*     } */
-/*   return p_hdr; */
-/* } */
+      assert (p_data);
+      assert (len);
+
+      memcpy(p_dst, p_data, len);
+
+      /* Update deezer data pointers */
+      p_prc->deezer_data_offset_ += len;
+      if (p_prc->deezer_data_offset_ == p_prc->deezer_data_len_)
+        {
+          p_prc->p_deezer_data_ = NULL;
+          p_prc->deezer_data_offset_ = 0;
+          p_prc->deezer_data_len_= 0;
+        }
+
+      /* Update omx buffer pointers */
+      p_hdr->nFilledLen += len;
+      p_hdr->nOffset += len;
+      if ((p_hdr->nAllocLen == p_hdr->nFilledLen) || p_prc->eos_)
+        {
+          p_hdr->nOffset = 0;
+          tiz_check_omx (release_buffer (p_prc));
+        }
+    }
+  return OMX_ErrorNone;
+}
+
+static OMX_BUFFERHEADERTYPE *
+obtain_buffer (OMX_PTR ap_arg)
+{
+  deezer_prc_t * p_prc = ap_arg;
+  OMX_BUFFERHEADERTYPE * p_hdr = NULL;
+  assert (p_prc);
+
+  if (!p_prc->port_disabled_)
+    {
+      if (p_prc->p_outhdr_)
+        {
+          p_hdr = p_prc->p_outhdr_;
+        }
+      else
+        {
+          if (OMX_ErrorNone
+              == (tiz_krn_claim_buffer (tiz_get_krn (handleOf (p_prc)),
+                                        ARATELIA_HTTP_SOURCE_PORT_INDEX, 0,
+                                        &p_prc->p_outhdr_)))
+            {
+              if (p_prc->p_outhdr_)
+                {
+                  TIZ_TRACE (handleOf (p_prc),
+                             "Claimed HEADER [%p]...nFilledLen [%d]",
+                             p_prc->p_outhdr_, p_prc->p_outhdr_->nFilledLen);
+                  p_hdr = p_prc->p_outhdr_;
+                }
+              else
+                {
+                  TIZ_TRACE (handleOf (p_prc), "No more headers available");
+                }
+            }
+        }
+    }
+  return p_hdr;
+}
 
 /* static void */
 /* header_available (OMX_PTR ap_arg, const void * ap_ptr, const size_t a_nbytes) */
@@ -609,6 +639,9 @@ deezer_prc_ctor (void * ap_obj, va_list * app)
   TIZ_INIT_OMX_STRUCT (p_prc->playlist_);
   TIZ_INIT_OMX_STRUCT (p_prc->playlist_skip_);
   p_prc->p_deezer_ = NULL;
+  p_prc->p_deezer_data_ = NULL;
+  p_prc->deezer_data_len_ = 0;
+  p_prc->deezer_data_offset_ = 0;
   p_prc->eos_ = false;
   p_prc->port_disabled_ = false;
   p_prc->uri_changed_ = false;
@@ -618,7 +651,6 @@ deezer_prc_ctor (void * ap_obj, va_list * app)
   p_prc->content_length_bytes_ = 0;
   p_prc->bytes_before_eos_ = 0;
   p_prc->auto_detect_on_ = false;
-  p_prc->bitrate_ = ARATELIA_HTTP_SOURCE_DEFAULT_BIT_RATE_KBITS;
   return p_prc;
 }
 
@@ -695,7 +727,19 @@ static OMX_ERRORTYPE
 deezer_prc_buffers_ready (const void * ap_prc)
 {
   deezer_prc_t * p_prc = (deezer_prc_t *) ap_prc;
+  OMX_BUFFERHEADERTYPE * p_hdr = NULL;
   assert (p_prc);
+
+  while ((p_hdr = obtain_buffer (p_prc)))
+    {
+      if (0 == p_prc->deezer_data_len_)
+        {
+          assert (!p_prc->p_deezer_data_);
+          p_prc->deezer_data_len_
+            = tiz_deezer_get_mp3_data (p_prc->p_deezer_, &p_prc->p_deezer_data_);
+        }
+      tiz_check_omx (deliver_buffer (p_prc));
+    }
   return OMX_ErrorNone;
 }
 
