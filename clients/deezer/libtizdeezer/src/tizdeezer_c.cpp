@@ -178,6 +178,30 @@ extern "C" const char *tiz_deezer_get_current_track_artist (
   return ap_deezer->p_proxy_->get_current_track_artist ();
 }
 
+extern "C" const char *tiz_deezer_get_current_track_album (
+    tiz_deezer_t *ap_deezer)
+{
+  assert (ap_deezer);
+  assert (ap_deezer->p_proxy_);
+  return ap_deezer->p_proxy_->get_current_track_album ();
+}
+
+extern "C" const char *tiz_deezer_get_current_track_duration (
+    tiz_deezer_t *ap_deezer)
+{
+  assert (ap_deezer);
+  assert (ap_deezer->p_proxy_);
+  return ap_deezer->p_proxy_->get_current_track_duration ();
+}
+
+extern "C" const char *tiz_deezer_get_current_track_file_size (
+    tiz_deezer_t *ap_deezer)
+{
+  assert (ap_deezer);
+  assert (ap_deezer->p_proxy_);
+  return ap_deezer->p_proxy_->get_current_track_file_size ();
+}
+
 extern "C" void tiz_deezer_destroy (tiz_deezer_t *ap_deezer)
 {
   if (ap_deezer)

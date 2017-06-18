@@ -68,6 +68,9 @@ public:
   size_t get_mp3_data (unsigned char **app_data);
   const char * get_current_track_artist ();
   const char * get_current_track_title ();
+  const char * get_current_track_album ();
+  const char * get_current_track_duration ();
+  const char * get_current_track_file_size ();
 
 private:
   int get_current_track ();
@@ -79,8 +82,7 @@ private:
   std::string current_title_;
   std::string current_album_;
   std::string current_duration_;
-  std::string current_track_num_;
-  std::string current_track_year_;
+  std::string current_file_size_;
   boost::python::object py_main_;
   boost::python::object py_global_;
   boost::python::object py_dz_proxy_;

@@ -196,6 +196,33 @@ const char *tiz_deezer_get_current_track_title (tiz_deezer_t *ap_deezer);
 const char *tiz_deezer_get_current_track_artist (tiz_deezer_t *ap_deezer);
 
 /**
+* Retrieve the current track's album.
+*
+* @ingroup libtizdeezer
+*
+* @param ap_deezer The deezer handle.
+*/
+const char *tiz_deezer_get_current_track_album (tiz_deezer_t *ap_deezer);
+
+/**
+ * Retrieve the current track's duration.
+ *
+ * @ingroup libtizdeezer
+ *
+ * @param ap_deezer The deezer handle.
+ */
+const char *tiz_deezer_get_current_track_duration (tiz_deezer_t *ap_deezer);
+
+/**
+ * Retrieve the current track's file_size.
+ *
+ * @ingroup libtizdeezer
+ *
+ * @param ap_deezer The deezer handle.
+ */
+const char *tiz_deezer_get_current_track_file_size (tiz_deezer_t *ap_deezer);
+
+/**
  * Destroy the deezer handle.
  *
  * @ingroup libtizdeezer

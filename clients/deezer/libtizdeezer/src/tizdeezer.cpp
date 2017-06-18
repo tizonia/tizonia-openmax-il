@@ -90,8 +90,7 @@ tizdeezer::tizdeezer (const std::string &user)
     current_title_ (),
     current_album_ (),
     current_duration_ (),
-    current_track_num_ (),
-    current_track_year_ ()
+    current_file_size_ ()
 
 {
 }
@@ -129,7 +128,8 @@ void tizdeezer::deinit ()
 int tizdeezer::play_tracks (const std::string &tracks)
 {
   int rc = 0;
-  try_catch_wrapper (py_dz_proxy_.attr ("enqueue_tracks") (bp::object (tracks)));
+  try_catch_wrapper (
+      py_dz_proxy_.attr ("enqueue_tracks") (bp::object (tracks)));
   return rc;
 }
 
@@ -143,7 +143,8 @@ int tizdeezer::play_album (const std::string &album)
 int tizdeezer::play_artist (const std::string &artist)
 {
   int rc = 0;
-  try_catch_wrapper (py_dz_proxy_.attr ("enqueue_artist") (bp::object (artist)));
+  try_catch_wrapper (
+      py_dz_proxy_.attr ("enqueue_artist") (bp::object (artist)));
   return rc;
 }
 
@@ -196,7 +197,6 @@ size_t tizdeezer::get_mp3_data (unsigned char **app_data)
   int size = 0;
   if (app_data)
     {
-      char *p_data = NULL;
       try
         {
           const bp::tuple &info1 = bp::extract< bp::tuple > (
@@ -224,6 +224,21 @@ const char *tizdeezer::get_current_track_artist ()
 const char *tizdeezer::get_current_track_title ()
 {
   return current_title_.empty () ? NULL : current_title_.c_str ();
+}
+
+const char *tizdeezer::get_current_track_album ()
+{
+  return current_album_.empty () ? NULL : current_album_.c_str ();
+}
+
+const char *tizdeezer::get_current_track_duration ()
+{
+  return current_duration_.empty () ? NULL : current_duration_.c_str ();
+}
+
+const char *tizdeezer::get_current_track_file_size ()
+{
+  return current_file_size_.empty () ? NULL : current_file_size_.c_str ();
 }
 
 void tizdeezer::clear_queue ()
@@ -277,48 +292,56 @@ int tizdeezer::get_current_track ()
       current_title_.assign (p_title);
     }
 
-  //   int duration
-  //       = bp::extract< int >(py_dz_proxy_.attr ("current_track_duration")());
+  const bp::tuple &info2 = bp::extract< bp::tuple > (
+      py_dz_proxy_.attr ("current_track_album_and_duration") ());
 
-  //   int seconds = 0;
-  //   current_duration_.clear ();
-  //   if (duration)
-  //     {
-  //       duration /= 1000;
-  //       seconds = duration % 60;
-  //       int minutes = (duration - seconds) / 60;
-  //       int hours = 0;
-  //       if (minutes >= 60)
-  //         {
-  //           int total_minutes = minutes;
-  //           minutes = total_minutes % 60;
-  //           hours = (total_minutes - minutes) / 60;
-  //         }
+  const char *p_album = bp::extract< char const * > (info2[0]);
+  int duration = bp::extract< int > (info2[1]);
 
-  //       if (hours > 0)
-  //         {
-  //           current_duration_.append (boost::lexical_cast< std::string
-  //           >(hours));
-  //           current_duration_.append ("h:");
-  //         }
+  if (p_album)
+    {
+      current_album_.assign (p_album);
+    }
 
-  //       if (minutes > 0)
-  //         {
-  //           current_duration_.append (
-  //               boost::lexical_cast< std::string >(minutes));
-  //           current_duration_.append ("m:");
-  //         }
-  //     }
+  int seconds = 0;
+  current_duration_.clear ();
+  if (duration)
+    {
+      duration /= 1000;
+      seconds = duration % 60;
+      int minutes = (duration - seconds) / 60;
+      int hours = 0;
+      if (minutes >= 60)
+        {
+          int total_minutes = minutes;
+          minutes = total_minutes % 60;
+          hours = (total_minutes - minutes) / 60;
+        }
 
-  //   char seconds_str[3];
-  //   sprintf (seconds_str, "%02i", seconds);
-  //   current_duration_.append (seconds_str);
-  //   current_duration_.append ("s");
+      if (hours > 0)
+        {
+          current_duration_.append (boost::lexical_cast< std::string > (hours));
+          current_duration_.append ("h:");
+        }
 
-  //   const int track_year = bp::extract< int >(py_dz_proxy_.attr
-  //   ("current_track_year")());
-  //   current_track_year_.assign (boost::lexical_cast< std::string
-  //   >(track_year));
+      if (minutes > 0)
+        {
+          current_duration_.append (
+              boost::lexical_cast< std::string > (minutes));
+          current_duration_.append ("m:");
+        }
+    }
+
+  char seconds_str[3];
+  sprintf (seconds_str, "%02i", seconds);
+  current_duration_.append (seconds_str);
+  current_duration_.append ("s");
+
+  const int file_size
+      = bp::extract< int > (py_dz_proxy_.attr ("current_track_file_size") ());
+  current_file_size_.assign (
+      boost::lexical_cast< std::string > (file_size / (1024 * 1024)));
+  current_file_size_.append (" MiB");
 
   if (p_artist || p_title)
     {
