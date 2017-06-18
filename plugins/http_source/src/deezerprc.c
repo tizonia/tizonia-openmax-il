@@ -84,92 +84,42 @@ deezer_prc_transfer_and_process (void * ap_prc, OMX_U32 a_pid);
 /*   return (unsigned char) c > 0x20; */
 /* } */
 
-/* static OMX_ERRORTYPE */
-/* obtain_coding_type (deezer_prc_t * ap_prc, char * ap_info) */
-/* { */
-/*   OMX_ERRORTYPE rc = OMX_ErrorNone; */
-/*   assert (ap_prc); */
-/*   assert (ap_info); */
-/*   if (memcmp (ap_info, "audio/webm", 10) == 0) */
-/*     { */
-/*       /\* The webm container *\/ */
-/*       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingWEBM; */
-/*     } */
-/*   else if (memcmp (ap_info, "audio/mp4", 9) == 0) */
-/*     { */
-/*       /\* This is .mp4 .m4a  *\/ */
-/*       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingMP4; */
-/*     } */
-/*   else */
-/*     { */
-/*       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingUnused; */
-/*       rc = OMX_ErrorInsufficientResources; */
-/*     } */
-/*   TIZ_TRACE (handleOf (ap_prc), "encoding type  : [%s] - [%s]", ap_info, */
-/*              tiz_audio_coding_to_str (ap_prc->audio_coding_type_)); */
-/*   return rc; */
-/* } */
+static void
+obtain_coding_type (deezer_prc_t * ap_prc)
+{
+  assert (ap_prc);
+  ap_prc->audio_coding_type_ = OMX_AUDIO_CodingMP3;
+}
 
-/* static int */
-/* convert_str_to_int (deezer_prc_t * ap_prc, const char * ap_start, */
-/*                     char ** ap_end) */
-/* { */
-/*   long val = -1; */
-/*   assert (ap_prc); */
-/*   assert (ap_start); */
-/*   assert (ap_end); */
+static void
+obtain_content_length (deezer_prc_t * ap_prc)
+{
+  assert (ap_prc);
+  ap_prc->bytes_before_eos_
+    = tiz_deezer_get_current_track_file_size_bytes (ap_prc->p_deezer_);
+}
 
-/*   errno = 0; */
-/*   val = strtol (ap_start, ap_end, 0); */
+static OMX_ERRORTYPE
+set_audio_coding_on_port (deezer_prc_t * ap_prc)
+{
+  OMX_PARAM_PORTDEFINITIONTYPE port_def;
+  assert (ap_prc);
 
-/*   if ((errno == ERANGE && (val == LONG_MAX || val == LONG_MIN)) */
-/*       || (errno != 0 && val == 0)) */
-/*     { */
-/*       TIZ_ERROR (handleOf (ap_prc), */
-/*                  "Error retrieving the number of channels : [%s]", */
-/*                  strerror (errno)); */
-/*     } */
-/*   else if (*ap_end == ap_start) */
-/*     { */
-/*       TIZ_ERROR (handleOf (ap_prc), */
-/*                  "Error retrieving the number of channels : " */
-/*                  "[No digits were found]"); */
-/*     } */
-/*   return val; */
-/* } */
+  TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_HTTP_SOURCE_PORT_INDEX);
+  tiz_check_omx (
+    tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+                          OMX_IndexParamPortDefinition, &port_def));
 
-/* static void */
-/* obtain_content_length (deezer_prc_t * ap_prc, char * ap_info) */
-/* { */
-/*   char * p_end = NULL; */
+  /* Set the new value */
+  port_def.format.audio.eEncoding = ap_prc->audio_coding_type_;
 
-/*   assert (ap_prc); */
-/*   assert (ap_info); */
-/*   ap_prc->content_length_bytes_ = convert_str_to_int (ap_prc, ap_info, &p_end); */
-/*   ap_prc->bytes_before_eos_ = ap_prc->content_length_bytes_; */
-/* } */
-
-/* static OMX_ERRORTYPE */
-/* set_audio_coding_on_port (deezer_prc_t * ap_prc) */
-/* { */
-/*   OMX_PARAM_PORTDEFINITIONTYPE port_def; */
-/*   assert (ap_prc); */
-
-/*   TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_HTTP_SOURCE_PORT_INDEX); */
-/*   tiz_check_omx ( */
-/*     tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc), */
-/*                           OMX_IndexParamPortDefinition, &port_def)); */
-
-/*   /\* Set the new value *\/ */
-/*   port_def.format.audio.eEncoding = ap_prc->audio_coding_type_; */
-
-/*   tiz_check_omx (tiz_krn_SetParameter_internal ( */
-/*     tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc), */
-/*     OMX_IndexParamPortDefinition, &port_def)); */
-/*   TIZ_DEBUG (handleOf (ap_prc), "audio_coding_type_ [%s]", */
-/*              tiz_audio_coding_to_str (ap_prc->audio_coding_type_)); */
-/*   return OMX_ErrorNone; */
-/* } */
+  tiz_check_omx (tiz_krn_SetParameter_internal (
+    tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+    OMX_IndexParamPortDefinition, &port_def));
+  TIZ_DEBUG (handleOf (ap_prc), "audio_coding_type_ [%s]",
+             tiz_audio_coding_to_str (ap_prc->audio_coding_type_));
+  return OMX_ErrorNone;
+}
 
 static OMX_ERRORTYPE
 set_auto_detect_on_port (deezer_prc_t * ap_prc)
@@ -239,96 +189,50 @@ store_metadata (deezer_prc_t * ap_prc, const char * ap_header_name,
   return rc;
 }
 
-/* static void */
-/* obtain_audio_encoding_from_headers (deezer_prc_t * ap_prc, */
-/*                                     const char * ap_header, const size_t a_size) */
-/* { */
-/*   assert (ap_prc); */
-/*   assert (ap_header); */
-/*   { */
-/*     const char * p_end = ap_header + a_size; */
-/*     const char * p_value = (const char *) memchr (ap_header, ':', a_size); */
-/*     char name[64]; */
+static OMX_ERRORTYPE
+obtain_audio_encoding (deezer_prc_t * ap_prc)
+{
+  assert (ap_prc);
+  obtain_coding_type (ap_prc);
+  obtain_content_length (ap_prc);
+  /* Now set the new coding type value on the output port */
+  return set_audio_coding_on_port (ap_prc);
+}
 
-/*     if (p_value && (size_t) (p_value - ap_header) < sizeof (name)) */
-/*       { */
-/*         memcpy (name, ap_header, p_value - ap_header); */
-/*         name[p_value - ap_header] = 0; */
+static void
+send_port_auto_detect_events (deezer_prc_t * ap_prc)
+{
+  assert (ap_prc);
+  if (ap_prc->audio_coding_type_ != OMX_AUDIO_CodingUnused
+      && ap_prc->audio_coding_type_ != OMX_AUDIO_CodingAutoDetect)
+    {
+      TIZ_DEBUG (
+        handleOf (ap_prc),
+        "Issuing OMX_EventPortFormatDetected - audio_coding_type_ [%s]",
+        tiz_audio_coding_to_str (ap_prc->audio_coding_type_));
+      tiz_srv_issue_event ((OMX_PTR) ap_prc, OMX_EventPortFormatDetected, 0, 0,
+                           NULL);
+      TIZ_DEBUG (handleOf (ap_prc), "Issuing OMX_EventPortSettingsChanged");
+      tiz_srv_issue_event ((OMX_PTR) ap_prc, OMX_EventPortSettingsChanged,
+                           ARATELIA_HTTP_SOURCE_PORT_INDEX, /* port 0 */
+                           OMX_IndexParamPortDefinition,    /* the index of the
+                                                         struct that has
+                                                         been modififed */
+                           NULL);
+    }
+  else
+    {
+      /* Oops... could not detect the stream format */
 
-/*         /\* skip the colon *\/ */
-/*         ++p_value; */
+      /* Get ready to auto-detect another stream */
+      set_auto_detect_on_port (ap_prc);
+      prepare_for_port_auto_detection (ap_prc);
 
-/*         /\* strip the value *\/ */
-/*         while (p_value < p_end && !is_valid_character (*p_value)) */
-/*           { */
-/*             ++p_value; */
-/*           } */
-
-/*         while (p_end > p_value && !is_valid_character (p_end[-1])) */
-/*           { */
-/*             --p_end; */
-/*           } */
-
-/*         { */
-/*           char * p_info = tiz_mem_calloc (1, (p_end - p_value) + 1); */
-/*           memcpy (p_info, p_value, p_end - p_value); */
-/*           p_info[(p_end - p_value)] = '\000'; */
-/*           TIZ_TRACE (handleOf (ap_prc), "header name  : [%s]", name); */
-/*           TIZ_TRACE (handleOf (ap_prc), "header value : [%s]", p_info); */
-
-/*           if (memcmp (name, "Content-Type", 12) == 0 */
-/*               || memcmp (name, "content-type", 12) == 0) */
-/*             { */
-/*               if (OMX_ErrorNone == obtain_coding_type (ap_prc, p_info)) */
-/*                 { */
-/*                   /\* Now set the new coding type value on the output port *\/ */
-/*                   (void) set_audio_coding_on_port (ap_prc); */
-/*                 } */
-/*             } */
-/*           else if (memcmp (name, "Content-Length", 14) == 0) */
-/*             { */
-/*               obtain_content_length (ap_prc, p_info); */
-/*             } */
-/*           tiz_mem_free (p_info); */
-/*         } */
-/*       } */
-/*   } */
-/* } */
-
-/* static void */
-/* send_port_auto_detect_events (deezer_prc_t * ap_prc) */
-/* { */
-/*   assert (ap_prc); */
-/*   if (ap_prc->audio_coding_type_ != OMX_AUDIO_CodingUnused */
-/*       && ap_prc->audio_coding_type_ != OMX_AUDIO_CodingAutoDetect) */
-/*     { */
-/*       TIZ_DEBUG ( */
-/*         handleOf (ap_prc), */
-/*         "Issuing OMX_EventPortFormatDetected - audio_coding_type_ [%s]", */
-/*         tiz_audio_coding_to_str (ap_prc->audio_coding_type_)); */
-/*       tiz_srv_issue_event ((OMX_PTR) ap_prc, OMX_EventPortFormatDetected, 0, 0, */
-/*                            NULL); */
-/*       TIZ_DEBUG (handleOf (ap_prc), "Issuing OMX_EventPortSettingsChanged"); */
-/*       tiz_srv_issue_event ((OMX_PTR) ap_prc, OMX_EventPortSettingsChanged, */
-/*                            ARATELIA_HTTP_SOURCE_PORT_INDEX, /\* port 0 *\/ */
-/*                            OMX_IndexParamPortDefinition,    /\* the index of the */
-/*                                                          struct that has */
-/*                                                          been modififed *\/ */
-/*                            NULL); */
-/*     } */
-/*   else */
-/*     { */
-/*       /\* Oops... could not detect the stream format *\/ */
-
-/*       /\* Get ready to auto-detect another stream *\/ */
-/*       set_auto_detect_on_port (ap_prc); */
-/*       prepare_for_port_auto_detection (ap_prc); */
-
-/*       /\* Finally, signal the client *\/ */
-/*       TIZ_DEBUG (handleOf (ap_prc), "Issuing OMX_ErrorFormatNotDetected"); */
-/*       tiz_srv_issue_err_event ((OMX_PTR) ap_prc, OMX_ErrorFormatNotDetected); */
-/*     } */
-/* } */
+      /* Finally, signal the client */
+      TIZ_DEBUG (handleOf (ap_prc), "Issuing OMX_ErrorFormatNotDetected");
+      tiz_srv_issue_err_event ((OMX_PTR) ap_prc, OMX_ErrorFormatNotDetected);
+    }
+}
 
 static OMX_ERRORTYPE
 update_metadata (deezer_prc_t * ap_prc)
@@ -348,12 +252,14 @@ update_metadata (deezer_prc_t * ap_prc)
     ap_prc, "Album", tiz_deezer_get_current_track_album (ap_prc->p_deezer_)));
 
   /* Duration */
-  tiz_check_omx (store_metadata (
-    ap_prc, "Duration", tiz_deezer_get_current_track_duration (ap_prc->p_deezer_)));
+  tiz_check_omx (
+    store_metadata (ap_prc, "Duration",
+                    tiz_deezer_get_current_track_duration (ap_prc->p_deezer_)));
 
   /* File Size */
   tiz_check_omx (store_metadata (
-    ap_prc, "File Size", tiz_deezer_get_current_track_file_size (ap_prc->p_deezer_)));
+    ap_prc, "File Size",
+    tiz_deezer_get_current_track_file_size_mb (ap_prc->p_deezer_)));
 
   /* Signal that a new set of metadata items is available */
   (void) tiz_srv_issue_event ((OMX_PTR) ap_prc, OMX_EventIndexSettingChanged,
@@ -376,7 +282,10 @@ obtain_next_track (deezer_prc_t * ap_prc, int a_skip_value)
 
   on_deezer_error_ret_omx_oom (tiz_deezer_next_track (ap_prc->p_deezer_));
 
-  /* Song metadata is now available, update the IL client */
+  /* Song metadata is now available */
+  tiz_check_omx (obtain_audio_encoding (p_prc));
+
+  /* update the IL client  */
   return update_metadata (ap_prc);
 }
 
@@ -421,14 +330,15 @@ deliver_buffer (deezer_prc_t * p_prc)
       OMX_BUFFERHEADERTYPE * p_hdr = p_prc->p_outhdr_;
       unsigned char * p_dst = p_hdr->pBuffer + p_hdr->nOffset;
       size_t dst_capacity = p_hdr->nAllocLen - p_hdr->nFilledLen;
-      const unsigned char * p_data = p_prc->p_deezer_data_ + p_prc->deezer_data_offset_;
+      const unsigned char * p_data
+        = p_prc->p_deezer_data_ + p_prc->deezer_data_offset_;
       size_t deezer_len = p_prc->deezer_data_len_ - p_prc->deezer_data_offset_;
-      size_t len = MIN(dst_capacity, deezer_len);
+      size_t len = MIN (dst_capacity, deezer_len);
 
       assert (p_data);
       assert (len);
 
-      memcpy(p_dst, p_data, len);
+      memcpy (p_dst, p_data, len);
 
       /* Update deezer data pointers */
       p_prc->deezer_data_offset_ += len;
@@ -436,7 +346,7 @@ deliver_buffer (deezer_prc_t * p_prc)
         {
           p_prc->p_deezer_data_ = NULL;
           p_prc->deezer_data_offset_ = 0;
-          p_prc->deezer_data_len_= 0;
+          p_prc->deezer_data_len_ = 0;
         }
 
       /* Update omx buffer pointers */
@@ -488,40 +398,29 @@ obtain_buffer (OMX_PTR ap_arg)
   return p_hdr;
 }
 
-/* static void */
-/* header_available (OMX_PTR ap_arg, const void * ap_ptr, const size_t a_nbytes) */
-/* { */
-/*   deezer_prc_t * p_prc = ap_arg; */
-/*   assert (p_prc); */
-/*   assert (ap_ptr); */
-/*   obtain_audio_encoding_from_headers (p_prc, ap_ptr, a_nbytes); */
-/* } */
+static bool
+data_available (deezer_prc_t * ap_prc)
+{
+  bool pause_needed = false;
+  assert (ap_prc);
 
-/* static bool */
-/* data_available (OMX_PTR ap_arg, const void * ap_ptr, const size_t a_nbytes) */
-/* { */
-/*   deezer_prc_t * p_prc = ap_arg; */
-/*   bool pause_needed = false; */
-/*   assert (p_prc); */
-/*   assert (ap_ptr); */
+  TIZ_DEBUG (handleOf (ap_prc), "ap_prc->auto_detect_on_ [%s]",
+             (ap_prc->auto_detect_on_ ? "TRUE" : "FALSE"));
 
-/*   TIZ_DEBUG (handleOf (p_prc), "p_prc->auto_detect_on_ [%s]", */
-/*              (p_prc->auto_detect_on_ ? "TRUE" : "FALSE")); */
+  if (ap_prc->auto_detect_on_)
+    {
+      ap_prc->auto_detect_on_ = false;
 
-/*   if (p_prc->auto_detect_on_ && a_nbytes > 0) */
-/*     { */
-/*       p_prc->auto_detect_on_ = false; */
+      /* This will pause the http transfer */
+      pause_needed = true;
 
-/*       /\* This will pause the http transfer *\/ */
-/*       pause_needed = true; */
-
-/*       /\* And now trigger the OMX_EventPortFormatDetected and */
-/*          OMX_EventPortSettingsChanged events or a */
-/*          OMX_ErrorFormatNotDetected event *\/ */
-/*       send_port_auto_detect_events (p_prc); */
-/*     } */
-/*   return pause_needed; */
-/* } */
+      /* And now trigger the OMX_EventPortFormatDetected and
+         OMX_EventPortSettingsChanged events or a
+         OMX_ErrorFormatNotDetected event */
+      send_port_auto_detect_events (ap_prc);
+    }
+  return pause_needed;
+}
 
 /* static bool */
 /* connection_lost (OMX_PTR ap_arg) */
@@ -657,7 +556,6 @@ deezer_prc_ctor (void * ap_obj, va_list * app)
   p_prc->audio_coding_type_ = OMX_AUDIO_CodingUnused;
   p_prc->num_channels_ = 2;
   p_prc->samplerate_ = 44100;
-  p_prc->content_length_bytes_ = 0;
   p_prc->bytes_before_eos_ = 0;
   p_prc->auto_detect_on_ = false;
   return p_prc;
@@ -744,10 +642,16 @@ deezer_prc_buffers_ready (const void * ap_prc)
       if (0 == p_prc->deezer_data_len_)
         {
           assert (!p_prc->p_deezer_data_);
-          p_prc->deezer_data_len_
-            = tiz_deezer_get_mp3_data (p_prc->p_deezer_, &p_prc->p_deezer_data_);
+          p_prc->deezer_data_len_ = tiz_deezer_get_mp3_data (
+            p_prc->p_deezer_, &p_prc->p_deezer_data_);
         }
-      tiz_check_omx (deliver_buffer (p_prc));
+      if (p_prc->deezer_data_len_)
+        {
+          if (!data_available (p_prc))
+            {
+              tiz_check_omx (deliver_buffer (p_prc));
+            }
+        }
     }
   return OMX_ErrorNone;
 }
