@@ -72,6 +72,8 @@
 #define OMX_TizoniaIndexParamAudioDirblePlaylist     OMX_IndexVendorStartUnused + 16 /**< reference: OMX_TIZONIA_AUDIO_PARAM_DIRBLEPLAYLISTTYPE */
 #define OMX_TizoniaIndexParamAudioYoutubeSession     OMX_IndexVendorStartUnused + 17 /**< reference: OMX_TIZONIA_AUDIO_PARAM_YOUTUBESESSIONTYPE */
 #define OMX_TizoniaIndexParamAudioYoutubePlaylist    OMX_IndexVendorStartUnused + 18 /**< reference: OMX_TIZONIA_AUDIO_PARAM_YOUTUBEPLAYLISTTYPE */
+#define OMX_TizoniaIndexParamAudioDeezerSession      OMX_IndexVendorStartUnused + 19 /**< reference: OMX_TIZONIA_AUDIO_PARAM_DEEZERSESSIONTYPE */
+#define OMX_TizoniaIndexParamAudioDeezerPlaylist     OMX_IndexVendorStartUnused + 20 /**< reference: OMX_TIZONIA_AUDIO_PARAM_DEEZERPLAYLISTTYPE */
 
 /**
  * OMX_AUDIO_CODINGTYPE extensions
@@ -476,7 +478,6 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_DEEZERSESSIONTYPE {
     OMX_VERSIONTYPE nVersion;
     OMX_U8 cUserName[OMX_MAX_STRINGNAME_SIZE];
     OMX_U8 cUserPassword[OMX_MAX_STRINGNAME_SIZE];
-    OMX_U8 cDeviceId[OMX_MAX_STRINGNAME_SIZE];
 } OMX_TIZONIA_AUDIO_PARAM_DEEZERSESSIONTYPE;
 
 typedef struct OMX_TIZONIA_AUDIO_PARAM_DEEZERPLAYLISTTYPE {
