@@ -133,6 +133,16 @@ AS_IF([test "x$tiz_found_youtube_headers" == "xyes"],
 	[PKG_CHECK_MODULES([TIZYOUTUBE], [libtizyoutube >= 0.1.0])],
 	[AC_MSG_NOTICE([Not using pkg-config to find TIZYOUTUBE cflags and libs])])
 
+AC_CHECK_HEADERS([tizonia/tizdeezer_c.h],
+	[tiz_found_deezer_headers=yes; break;])
+AS_IF([test "x$tiz_found_deezer_headers" != "xyes"],
+	[AC_SUBST([TIZDEEZER_CFLAGS], ['-I$(top_srcdir)/../../clients/deezer/libtizdeezer/tizonia'])
+	AC_SUBST([TIZDEEZER_LIBS], ['$(top_builddir)/../../clients/deezer/libtizdeezer/tizonia/libtizdeezer.la'])],
+	[AC_MSG_NOTICE([Not substituting TIZDEEZER cflags and libs with local paths])])
+AS_IF([test "x$tiz_found_deezer_headers" == "xyes"],
+	[PKG_CHECK_MODULES([TIZDEEZER], [libtizdeezer >= 0.1.0])],
+	[AC_MSG_NOTICE([Not using pkg-config to find TIZDEEZER cflags and libs])])
+
 # Define location of plugin directory
 AS_AC_EXPAND(PLUGINDIR, ${libdir}/tizonia0-plugins12)
 AC_DEFINE_UNQUOTED(PLUGINDIR, "$PLUGINDIR",
