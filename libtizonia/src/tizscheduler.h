@@ -74,7 +74,7 @@ extern "C" {
  * The maximum number of types that may be registered with a Tizonia component.
  * @ingroup tizscheduler
  */
-#define TIZ_COMP_MAX_TYPES 10
+#define TIZ_COMP_MAX_TYPES 256
 
 /**
  * @brief 'Configuration port' factory function prototype.
