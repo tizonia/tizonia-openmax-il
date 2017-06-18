@@ -52,6 +52,9 @@ struct deezer_prc
   OMX_TIZONIA_PLAYLISTSKIPTYPE playlist_skip_;
   OMX_PARAM_CONTENTURITYPE * p_uri_param_;
   tiz_deezer_t * p_deezer_;
+  unsigned char * p_deezer_data_;
+  size_t deezer_data_offset_;
+  size_t deezer_data_len_;
   bool eos_;
   bool port_disabled_;
   bool uri_changed_;
@@ -61,8 +64,6 @@ struct deezer_prc
   OMX_U32 content_length_bytes_;
   OMX_U32 bytes_before_eos_;
   bool auto_detect_on_;
-  int bitrate_;
-  int cache_bytes_;
 };
 
 typedef struct deezer_prc_class deezer_prc_class_t;
