@@ -46,13 +46,11 @@ namespace tiz
     public:
       deezerconfig (const tizplaylist_ptr_t &playlist, const std::string &user,
                     const std::string &pass,
-                    const OMX_TIZONIA_AUDIO_DEEZERPLAYLISTTYPE playlist_type,
-                    const bool is_unlimited_search = false)
+                    const OMX_TIZONIA_AUDIO_DEEZERPLAYLISTTYPE playlist_type)
         : config (playlist),
           user_ (user),
           pass_ (pass),
-          playlist_type_ (playlist_type),
-          is_unlimited_search_ (is_unlimited_search)
+          playlist_type_ (playlist_type)
       {
       }
 
@@ -75,16 +73,10 @@ namespace tiz
         return playlist_type_;
       }
 
-      bool is_unlimited_search () const
-      {
-        return is_unlimited_search_;
-      }
-
     protected:
       const std::string user_;
       const std::string pass_;
       const OMX_TIZONIA_AUDIO_DEEZERPLAYLISTTYPE playlist_type_;
-      bool is_unlimited_search_;
     };
   }  // namespace graph
 }  // namespace tiz

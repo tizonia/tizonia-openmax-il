@@ -509,7 +509,7 @@ enqueue_playlist_items (deezer_prc_t * ap_prc)
             assert (0);
           }
           break;
-        case OMX_AUDIO_DeezerPlaylistTypeTracks:
+        case OMX_AUDIO_DeezerPlaylistTypeTrack:
           {
             rc = tiz_deezer_play_tracks (ap_prc->p_deezer_, p_playlist);
           }

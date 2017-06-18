@@ -459,13 +459,13 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_YOUTUBEPLAYLISTTYPE {
 
 typedef enum OMX_TIZONIA_AUDIO_DEEZERPLAYLISTTYPE {
     OMX_AUDIO_DeezerPlaylistTypeUnknown = 0, /**< Playlist type unknown (Default). */
-    OMX_AUDIO_DeezerPlaylistTypeTracks, /**< Regular tracks search. */
+    OMX_AUDIO_DeezerPlaylistTypeTrack, /**< Regular tracks search. */
     OMX_AUDIO_DeezerPlaylistTypeArtist, /**< Artist search. */
     OMX_AUDIO_DeezerPlaylistTypeAlbum, /**< Album search. */
-    OMX_AUDIO_DeezerPlaylistTypeMixes, /**< Mixes search. */
+    OMX_AUDIO_DeezerPlaylistTypeMix, /**< Mixes search. */
     OMX_AUDIO_DeezerPlaylistTypePlaylist, /**< Playlists search. */
-    OMX_AUDIO_DeezerPlaylistTypeTopPlaylist, /**< Playlists search. */
-    OMX_AUDIO_DeezerPlaylistTypeMoods, /**< Moods search. */
+    OMX_AUDIO_DeezerPlaylistTypeTopPlaylists, /**< Top playlists search. */
+    OMX_AUDIO_DeezerPlaylistTypeMood, /**< Moods search. */
     OMX_AUDIO_DeezerPlaylistTypePodcast, /**< Podcast search. */
     OMX_AUDIO_DeezerPlaylistTypeUserFlow, /**< User radio station. */
     OMX_AUDIO_DeezerPlaylistTypeKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
