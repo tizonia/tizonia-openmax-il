@@ -244,17 +244,12 @@ function install_deps {
 function install_python_deps {
     cd_to_working_dir
 
-    echo "Installing pip and an the gmusicapi python module..."
+    echo "Installing pip and the gmusicapi python module..."
     wget https://bootstrap.pypa.io/get-pip.py \
         && sudo python get-pip.py \
         && pip install --user gmusicapi
 
     exit_status=$?
-
-    # echo "Now installing the latest gmusicapi from source..."
-    # git clone https://github.com/simon-weber/gmusicapi \
-    #     && cd gmusicapi \
-    #     && sudo python setup.py install
 
     if [[ "$exit_status" -ne 0 ]] ; then
         echo "Error while installing gmusicapi" >&2
