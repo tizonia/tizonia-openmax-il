@@ -39,5 +39,3 @@ libtizdeezer_la_LIBADD = \
 	@BOOST_PYTHON_LIB@ \
 	@PYTHON_LDFLAGS@ \
 	-lboost_python
-
-
