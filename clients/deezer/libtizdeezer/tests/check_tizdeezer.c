@@ -50,6 +50,7 @@ static bool deezer_credentials_present (void)
 {
   if (!strcmp (DEEZER_USERNAME, "xxx"))
     {
+      fprintf (stderr, "Unable to run test. No user name configured\n");
       return false;
     }
   return true;
