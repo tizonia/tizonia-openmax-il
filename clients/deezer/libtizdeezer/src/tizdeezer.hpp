@@ -70,7 +70,8 @@ public:
   const char * get_current_track_title ();
   const char * get_current_track_album ();
   const char * get_current_track_duration ();
-  const char * get_current_track_file_size ();
+  const char * get_current_track_file_size_mb ();
+  int get_current_track_file_size_bytes ();
 
 private:
   int get_current_track ();
@@ -82,7 +83,8 @@ private:
   std::string current_title_;
   std::string current_album_;
   std::string current_duration_;
-  std::string current_file_size_;
+  std::string current_file_size_mb_;
+  int current_file_size_bytes_;
   boost::python::object py_main_;
   boost::python::object py_global_;
   boost::python::object py_dz_proxy_;

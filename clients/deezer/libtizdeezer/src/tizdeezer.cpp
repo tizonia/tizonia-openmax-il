@@ -90,7 +90,8 @@ tizdeezer::tizdeezer (const std::string &user)
     current_title_ (),
     current_album_ (),
     current_duration_ (),
-    current_file_size_ ()
+    current_file_size_mb_ (),
+    current_file_size_bytes_(0)
 
 {
 }
@@ -236,9 +237,14 @@ const char *tizdeezer::get_current_track_duration ()
   return current_duration_.empty () ? NULL : current_duration_.c_str ();
 }
 
-const char *tizdeezer::get_current_track_file_size ()
+const char *tizdeezer::get_current_track_file_size_mb ()
 {
-  return current_file_size_.empty () ? NULL : current_file_size_.c_str ();
+  return current_file_size_mb_.empty () ? NULL : current_file_size_mb_.c_str ();
+}
+
+int tizdeezer::get_current_track_file_size_bytes ()
+{
+  return current_file_size_bytes_;
 }
 
 void tizdeezer::clear_queue ()
@@ -339,9 +345,10 @@ int tizdeezer::get_current_track ()
 
   const int file_size
       = bp::extract< int > (py_dz_proxy_.attr ("current_track_file_size") ());
-  current_file_size_.assign (
+  current_file_size_mb_.assign (
       boost::lexical_cast< std::string > (file_size / (1024 * 1024)));
-  current_file_size_.append (" MiB");
+  current_file_size_mb_.append (" MiB");
+  current_file_size_bytes_ = file_size;
 
   if (p_artist || p_title)
     {
