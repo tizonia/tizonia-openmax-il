@@ -209,102 +209,102 @@ const char *tiz_youtube_get_prev_url (tiz_youtube_t *ap_youtube,
                                       const bool a_remove_current_url);
 
 /**
-* Retrieve the current audio stream's title.
-*
-* @ingroup libtizyoutube
-*
-* @param ap_gmusic The tiz_youtube handle.
-*/
+ * Retrieve the current audio stream's title.
+ *
+ * @ingroup libtizyoutube
+ *
+ * @param ap_gmusic The tiz_youtube handle.
+ */
 const char *tiz_youtube_get_current_audio_stream_title (
     tiz_youtube_t *ap_youtube);
 
 /**
-* Retrieve the current audio stream's author.
-*
-* @ingroup libtizyoutube
-*
-* @param ap_gmusic The tiz_youtube handle.
-*/
+ * Retrieve the current audio stream's author.
+ *
+ * @ingroup libtizyoutube
+ *
+ * @param ap_gmusic The tiz_youtube handle.
+ */
 const char *tiz_youtube_get_current_audio_stream_author (
     tiz_youtube_t *ap_youtube);
 
 /**
-* Retrieve the current audio stream's file size.
-*
-* @ingroup libtizyoutube
-*
-* @param ap_gmusic The tiz_youtube handle.
-*/
+ * Retrieve the current audio stream's file size.
+ *
+ * @ingroup libtizyoutube
+ *
+ * @param ap_gmusic The tiz_youtube handle.
+ */
 const char *tiz_youtube_get_current_audio_stream_file_size (
     tiz_youtube_t *ap_youtube);
 
 /**
-* Retrieve the current audio stream's duration.
-*
-* @ingroup libtizyoutube
-*
-* @param ap_gmusic The tiz_youtube handle.
-*/
+ * Retrieve the current audio stream's duration.
+ *
+ * @ingroup libtizyoutube
+ *
+ * @param ap_gmusic The tiz_youtube handle.
+ */
 const char *tiz_youtube_get_current_audio_stream_duration (
     tiz_youtube_t *ap_youtube);
 
 /**
-* Retrieve the current audio stream's bitrate.
-*
-* @ingroup libtizyoutube
-*
-* @param ap_gmusic The tiz_youtube handle.
-*/
+ * Retrieve the current audio stream's bitrate.
+ *
+ * @ingroup libtizyoutube
+ *
+ * @param ap_gmusic The tiz_youtube handle.
+ */
 const char *tiz_youtube_get_current_audio_stream_bitrate (
     tiz_youtube_t *ap_youtube);
 
 /**
-* Retrieve the current audio stream's view count.
-*
-* @ingroup libtizyoutube
-*
-* @param ap_gmusic The tiz_youtube handle.
-*/
+ * Retrieve the current audio stream's view count.
+ *
+ * @ingroup libtizyoutube
+ *
+ * @param ap_gmusic The tiz_youtube handle.
+ */
 const char *tiz_youtube_get_current_audio_stream_view_count (
     tiz_youtube_t *ap_youtube);
 
 /**
-* Retrieve the current audio stream's description.
-*
-* @ingroup libtizyoutube
-*
-* @param ap_gmusic The tiz_youtube handle.
-*/
+ * Retrieve the current audio stream's description.
+ *
+ * @ingroup libtizyoutube
+ *
+ * @param ap_gmusic The tiz_youtube handle.
+ */
 const char *tiz_youtube_get_current_audio_stream_description (
     tiz_youtube_t *ap_youtube);
 
 /**
-* Retrieve the current audio stream's file extension.
-*
-* @ingroup libtizyoutube
-*
-* @param ap_gmusic The tiz_youtube handle.
-*/
+ * Retrieve the current audio stream's file extension.
+ *
+ * @ingroup libtizyoutube
+ *
+ * @param ap_gmusic The tiz_youtube handle.
+ */
 const char *tiz_youtube_get_current_audio_stream_file_extension (
     tiz_youtube_t *ap_youtube);
 
 /**
-* Retrieve the current streams video id.
-*
-* @ingroup libtizyoutube
-*
-* @param ap_gmusic The tiz_youtube handle.
-*/
+ * Retrieve the current streams video id.
+ *
+ * @ingroup libtizyoutube
+ *
+ * @param ap_gmusic The tiz_youtube handle.
+ */
 const char *tiz_youtube_get_current_audio_stream_video_id (
     tiz_youtube_t *ap_youtube);
 
 /**
-* Retrieve the current streams upload date and time.
-*
-* @ingroup libtizyoutube
-*
-* @param ap_gmusic The tiz_youtube handle.
-*/
+ * Retrieve the current streams upload date and time.
+ *
+ * @ingroup libtizyoutube
+ *
+ * @param ap_gmusic The tiz_youtube handle.
+ */
 const char *tiz_youtube_get_current_audio_stream_published (
     tiz_youtube_t *ap_youtube);
 

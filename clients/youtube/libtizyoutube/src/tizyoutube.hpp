@@ -40,11 +40,11 @@ public:
    * Various playback modes that control the playback queue.
    */
   enum playback_mode
-    {
-      PlaybackModeNormal,
-      PlaybackModeShuffle,
-      PlaybackModeMax
-    };
+  {
+    PlaybackModeNormal,
+    PlaybackModeShuffle,
+    PlaybackModeMax
+  };
 
 public:
   tizyoutube ();
@@ -64,19 +64,19 @@ public:
   void clear_queue ();
   void set_playback_mode (const playback_mode mode);
 
-  const char * get_next_url (const bool a_remove_current_url);
-  const char * get_prev_url (const bool a_remove_current_url);
+  const char *get_next_url (const bool a_remove_current_url);
+  const char *get_prev_url (const bool a_remove_current_url);
 
-  const char * get_current_audio_stream_title ();
-  const char * get_current_audio_stream_author ();
-  const char * get_current_audio_stream_file_size ();
-  const char * get_current_audio_stream_duration ();
-  const char * get_current_audio_stream_bitrate ();
-  const char * get_current_audio_stream_view_count ();
-  const char * get_current_audio_stream_description ();
-  const char * get_current_audio_stream_file_extension ();
-  const char * get_current_audio_stream_video_id ();
-  const char * get_current_audio_stream_published ();
+  const char *get_current_audio_stream_title ();
+  const char *get_current_audio_stream_author ();
+  const char *get_current_audio_stream_file_size ();
+  const char *get_current_audio_stream_duration ();
+  const char *get_current_audio_stream_bitrate ();
+  const char *get_current_audio_stream_view_count ();
+  const char *get_current_audio_stream_description ();
+  const char *get_current_audio_stream_file_extension ();
+  const char *get_current_audio_stream_video_id ();
+  const char *get_current_audio_stream_published ();
 
 private:
   int get_current_stream ();
