@@ -129,6 +129,7 @@ class tizdeezerproxy(object):
         self.current_play_mode = self.play_modes.NORMAL
         self.now_playing_track = None
         self.now_playing_stream = None
+        self.now_playing_track_data = None
 
     def set_play_mode(self, mode):
         """ Set the playback mode.
@@ -161,6 +162,31 @@ class tizdeezerproxy(object):
                 artist = to_ascii(track.artists[0].name)
             logging.info("Now playing %s by %s", title, artist)
         return title, artist
+
+    def current_track_album_and_duration(self):
+        """ Retrieve the current track's album and duration.
+
+        """
+        logging.info("current_track_album_and_duration")
+        album_name = ''
+        duration = 0
+        track_data = self.now_playing_track_data
+        if track_data:
+            album_name = to_ascii(track_data['ALB_TITLE'])
+            duration = to_ascii(track_data['DURATION'])
+        logging.info("album %s duration %s", album_name, duration)
+        return album_name, int(duration)
+
+    def current_track_file_size(self):
+        """ Retrieve the current track's file size.
+
+        """
+        size = 0
+        track_data = self.now_playing_track_data
+        if track_data:
+            size = to_ascii(track_data['FILESIZE_MP3_320'])
+        logging.info("file size %s", size)
+        return int(size)
 
     def enqueue_tracks(self, arg):
         """Search for tracks with a given name and adds them to the playback queue.
@@ -222,16 +248,18 @@ class tizdeezerproxy(object):
 
             album_id = album.uri[len('deezer:album:'):]
             tracks = self.__api.lookup_album(album_id)
-            for track in tracks:
-                print_nfo("[Deezer] [Album track] '{0}'." \
-                          .format(to_ascii(track.name)))
 
             if not tracks or not len(tracks):
                 raise KeyError
 
-            self.__enqueue_tracks(tracks)
-            print_wrn("[Deezer] Playing '{0}'." \
+            print_wrn("[Deezer] [Album] '{0}'." \
                       .format(to_ascii(album.name)))
+
+            for track in tracks:
+                print_nfo("[Deezer] [Album track] '{0}'." \
+                          .format(to_ascii(track.name)))
+
+            self.__enqueue_tracks(tracks)
             self.__update_play_queue_order()
 
         except KeyError:
@@ -356,7 +384,7 @@ class tizdeezerproxy(object):
                 self.play_queue_order = range(total_tracks)
             if self.current_play_mode == self.play_modes.SHUFFLE:
                 random.shuffle(self.play_queue_order)
-            print_nfo("[Google Play Music] [Tracks in queue] '{0}'." \
+            print_nfo("[Deezer] [Tracks in queue] '{0}'." \
                       .format(total_tracks))
 
     def __retrieve_track_uri(self, track):
@@ -371,12 +399,27 @@ class tizdeezerproxy(object):
             self.now_playing_track = track
             if self.now_playing_stream:
                 self.now_playing_stream.close()
-            self.now_playing_stream = self.__api.stream(track_id)
+            self.now_playing_stream = self.__stream_track(track_id)
             next(self.now_playing_stream)
             return track_url
         except AttributeError:
             logging.info("Could not retrieve the track url!")
             raise
+
+    def __stream_track(self, track_id):
+        """ Return coroutine with seeking capabilities: some_stream.send(30000)
+
+        """
+        logging.info("__stream_track")
+
+        track_data = self.__api.get_track(track_id)
+        self.now_playing_track_data = track_data
+        pprint.pprint(track_data)
+        track_cipher = self.__api.get_track_cipher(track_data['SNG_ID'])
+        track_url = self.__api.get_track_url(track_data)
+        return self.__api._stream(track_cipher, track_url)
+
+        self.__api.stream(track_id)
 
 if __name__ == "__main__":
     tizdeezerproxy()
