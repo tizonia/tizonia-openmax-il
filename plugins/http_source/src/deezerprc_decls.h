@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 /**
  * @file   deezerprc_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
@@ -57,7 +58,6 @@ struct deezer_prc
   size_t deezer_data_len_;
   bool eos_;
   bool port_disabled_;
-  bool uri_changed_;
   bool pause_needed_;
   OMX_S32 audio_coding_type_;
   OMX_U32 content_length_bytes_;

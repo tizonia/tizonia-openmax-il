@@ -280,7 +280,14 @@ obtain_next_track (deezer_prc_t * ap_prc, int a_skip_value)
   assert (ap_prc);
   assert (ap_prc->p_deezer_);
 
-  on_deezer_error_ret_omx_oom (tiz_deezer_next_track (ap_prc->p_deezer_));
+  if (a_skip_value > 0)
+    {
+      on_deezer_error_ret_omx_oom (tiz_deezer_next_track (ap_prc->p_deezer_));
+    }
+  else
+    {
+      on_deezer_error_ret_omx_oom (tiz_deezer_prev_track (ap_prc->p_deezer_));
+    }
 
   /* Song metadata is now available */
   tiz_check_omx (obtain_audio_encoding (p_prc));
@@ -296,16 +303,6 @@ release_buffer (deezer_prc_t * ap_prc)
 
   if (ap_prc->p_outhdr_)
     {
-      if (ap_prc->bytes_before_eos_ > ap_prc->p_outhdr_->nFilledLen)
-        {
-          ap_prc->bytes_before_eos_ -= ap_prc->p_outhdr_->nFilledLen;
-        }
-      else
-        {
-          ap_prc->bytes_before_eos_ = 0;
-          ap_prc->eos_ = true;
-        }
-
       if (ap_prc->eos_)
         {
           ap_prc->eos_ = false;
@@ -354,6 +351,18 @@ deliver_buffer (deezer_prc_t * p_prc)
       /* Update omx buffer pointers */
       p_hdr->nFilledLen += len;
       p_hdr->nOffset += len;
+
+      /* Verify eos */
+      if (p_prc->bytes_before_eos_ > p_prc->p_outhdr_->nFilledLen)
+        {
+          p_prc->bytes_before_eos_ -= p_prc->p_outhdr_->nFilledLen;
+        }
+      else
+        {
+          p_prc->bytes_before_eos_ = 0;
+          p_prc->eos_ = true;
+        }
+
       if ((p_hdr->nAllocLen == p_hdr->nFilledLen) || p_prc->eos_)
         {
           p_hdr->nOffset = 0;
@@ -554,7 +563,6 @@ deezer_prc_ctor (void * ap_obj, va_list * app)
   p_prc->deezer_data_offset_ = 0;
   p_prc->eos_ = false;
   p_prc->port_disabled_ = false;
-  p_prc->uri_changed_ = false;
   p_prc->pause_needed_ = false;
   p_prc->audio_coding_type_ = OMX_AUDIO_CodingUnused;
   p_prc->bytes_before_eos_ = 0;
@@ -608,6 +616,7 @@ deezer_prc_prepare_to_transfer (void * ap_prc, OMX_U32 a_pid)
   assert (ap_prc);
   p_prc->eos_ = false;
   TIZ_DEBUG (handleOf (p_prc), "prepare_to_transfer");
+  tiz_check_omx (set_auto_detect_on_port (p_prc));
   return prepare_for_port_auto_detection (p_prc);
 }
 
@@ -656,7 +665,8 @@ deezer_prc_buffers_ready (const void * ap_prc)
   assert (p_prc);
   TIZ_DEBUG (handleOf (p_prc), "buffers_ready");
 
-  while ((p_hdr = obtain_buffer (p_prc)) && !p_prc->pause_needed_)
+  while ((p_hdr = obtain_buffer (p_prc)) && !p_prc->pause_needed_
+         && !p_prc->eos_)
     {
       if (0 == p_prc->deezer_data_len_)
         {
@@ -722,11 +732,17 @@ deezer_prc_port_enable (const void * ap_prc, OMX_U32 a_pid)
       if (p_prc->pause_needed_)
         {
           p_prc->pause_needed_ = false;
-          rc = deezer_prc_buffers_ready(p_prc);
-        }
-      else
-        {
-          p_prc->uri_changed_ = false;
+/*           rc = deezer_prc_buffers_ready (p_prc); */
+          if (0 == p_prc->deezer_data_len_)
+            {
+              assert (!p_prc->p_deezer_data_);
+              p_prc->deezer_data_len_
+                = tiz_deezer_get_mp3_data (p_prc->p_deezer_, &p_prc->p_deezer_data_);
+            }
+          if (p_prc->deezer_data_len_)
+            {
+              p_prc->pause_needed_ = data_available (p_prc);
+            }
         }
     }
   return rc;
@@ -740,25 +756,23 @@ deezer_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (p_prc);
+  TIZ_DEBUG (handleOf (p_prc), "config_change");
 
   if (OMX_TizoniaIndexConfigPlaylistSkip == a_config_idx)
     {
+      /* Get ready to auto-detect another stream */
+      set_auto_detect_on_port (p_prc);
+      prepare_for_port_auto_detection (p_prc);
+
       TIZ_INIT_OMX_STRUCT (p_prc->playlist_skip_);
       tiz_check_omx (tiz_api_GetConfig (
         tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
         OMX_TizoniaIndexConfigPlaylistSkip, &p_prc->playlist_skip_));
       p_prc->playlist_skip_.nValue > 0 ? obtain_next_track (p_prc, 1)
                                        : obtain_next_track (p_prc, -1);
-      if (p_prc->port_disabled_)
-        {
-          /* Record that the URI has changed, so that when the port is
-             re-enabled, we restart the transfer */
-          p_prc->uri_changed_ = true;
-        }
 
-      /* Get ready to auto-detect another stream */
-      set_auto_detect_on_port (p_prc);
-      prepare_for_port_auto_detection (p_prc);
+      p_prc->deezer_data_len_ = 0;
+      p_prc->p_deezer_data_ = NULL;
     }
   return rc;
 }
