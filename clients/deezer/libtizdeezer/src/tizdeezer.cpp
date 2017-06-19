@@ -303,7 +303,6 @@ int tizdeezer::get_current_track ()
 
   const char *p_album = bp::extract< char const * > (info2[0]);
   int duration = bp::extract< int > (info2[1]);
-
   if (p_album)
     {
       current_album_.assign (p_album);
@@ -313,7 +312,6 @@ int tizdeezer::get_current_track ()
   current_duration_.clear ();
   if (duration)
     {
-      duration /= 1000;
       seconds = duration % 60;
       int minutes = (duration - seconds) / 60;
       int hours = 0;
