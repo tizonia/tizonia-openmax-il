@@ -154,12 +154,10 @@ class tizdeezerproxy(object):
         logging.info("current_track_title_and_artist")
         title = ''
         artist = ''
-        track = self.now_playing_track
-        if track:
-            title = to_ascii(track.name)
-            artist = ''
-            if track.artists and len(track.artists):
-                artist = to_ascii(track.artists[0].name)
+        track_data = self.now_playing_track_data
+        if track_data:
+            title = to_ascii(track_data['SNG_TITLE'])
+            artist = to_ascii(track_data['ART_NAME'])
             logging.info("Now playing %s by %s", title, artist)
         return title, artist
 
@@ -306,7 +304,7 @@ class tizdeezerproxy(object):
 
             self.__enqueue_tracks(tracks)
             print_wrn("[Deezer] Playing '{0}'." \
-                      .format(to_ascii(album.name)))
+                      .format(to_ascii(artist.name)))
             self.__update_play_queue_order()
 
         except KeyError:
@@ -346,7 +344,7 @@ class tizdeezerproxy(object):
                and (self.queue_index >= 0):
                 next_track = self.queue[self.play_queue_order[self.queue_index]]
                 uri = self.__retrieve_track_uri(next_track)
-                logging.info("next_track END")
+                logging.info("next_track uri %s END", to_ascii(uri))
                 return to_ascii(uri)
             else:
                 self.queue_index = -1
