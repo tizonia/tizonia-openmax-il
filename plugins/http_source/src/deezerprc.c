@@ -325,6 +325,8 @@ deliver_buffer (deezer_prc_t * p_prc)
   assert (p_prc);
   assert (p_prc->p_outhdr_);
 
+  TIZ_DEBUG (handleOf (p_prc), "deliver_buffer");
+
   if (p_prc->deezer_data_len_)
     {
       OMX_BUFFERHEADERTYPE * p_hdr = p_prc->p_outhdr_;
@@ -411,7 +413,7 @@ data_available (deezer_prc_t * ap_prc)
     {
       ap_prc->auto_detect_on_ = false;
 
-      /* This will pause the http transfer */
+      /* This will pause the buffer transfer */
       pause_needed = true;
 
       /* And now trigger the OMX_EventPortFormatDetected and
@@ -553,11 +555,10 @@ deezer_prc_ctor (void * ap_obj, va_list * app)
   p_prc->eos_ = false;
   p_prc->port_disabled_ = false;
   p_prc->uri_changed_ = false;
+  p_prc->pause_needed_ = false;
   p_prc->audio_coding_type_ = OMX_AUDIO_CodingUnused;
-  p_prc->num_channels_ = 2;
-  p_prc->samplerate_ = 44100;
   p_prc->bytes_before_eos_ = 0;
-  p_prc->auto_detect_on_ = false;
+  p_prc->auto_detect_on_ = true;
   return p_prc;
 }
 
@@ -576,16 +577,16 @@ static OMX_ERRORTYPE
 deezer_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
 {
   deezer_prc_t * p_prc = ap_obj;
-  OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (p_prc);
+  TIZ_DEBUG (handleOf (p_prc), "allocate_resources START");
   tiz_check_omx (retrieve_session_configuration (p_prc));
   tiz_check_omx (retrieve_playlist (p_prc));
 
   on_deezer_error_ret_omx_oom (tiz_deezer_init (
     &(p_prc->p_deezer_), (const char *) p_prc->session_.cUserName));
 
-  tiz_check_omx (enqueue_playlist_items (p_prc));
-  tiz_check_omx (obtain_next_track (p_prc, 1));
+  TIZ_DEBUG (handleOf (p_prc), "allocate_resources DONE");
 
   return rc;
 }
@@ -606,6 +607,7 @@ deezer_prc_prepare_to_transfer (void * ap_prc, OMX_U32 a_pid)
   deezer_prc_t * p_prc = ap_prc;
   assert (ap_prc);
   p_prc->eos_ = false;
+  TIZ_DEBUG (handleOf (p_prc), "prepare_to_transfer");
   return prepare_for_port_auto_detection (p_prc);
 }
 
@@ -615,6 +617,21 @@ deezer_prc_transfer_and_process (void * ap_prc, OMX_U32 a_pid)
   deezer_prc_t * p_prc = ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (p_prc);
+  TIZ_DEBUG (handleOf (p_prc), "transfer_and_process");
+  tiz_check_omx (enqueue_playlist_items (p_prc));
+  tiz_check_omx (obtain_next_track (p_prc, 1));
+
+  if (0 == p_prc->deezer_data_len_)
+    {
+      assert (!p_prc->p_deezer_data_);
+      p_prc->deezer_data_len_
+        = tiz_deezer_get_mp3_data (p_prc->p_deezer_, &p_prc->p_deezer_data_);
+    }
+  if (p_prc->deezer_data_len_)
+    {
+      p_prc->pause_needed_ = data_available (p_prc);
+    }
+
   return rc;
 }
 
@@ -623,6 +640,7 @@ deezer_prc_stop_and_return (void * ap_prc)
 {
   deezer_prc_t * p_prc = ap_prc;
   assert (p_prc);
+  TIZ_DEBUG (handleOf (p_prc), "stop_and_return");
   return release_buffer (p_prc);
 }
 
@@ -636,8 +654,9 @@ deezer_prc_buffers_ready (const void * ap_prc)
   deezer_prc_t * p_prc = (deezer_prc_t *) ap_prc;
   OMX_BUFFERHEADERTYPE * p_hdr = NULL;
   assert (p_prc);
+  TIZ_DEBUG (handleOf (p_prc), "buffers_ready");
 
-  while ((p_hdr = obtain_buffer (p_prc)))
+  while ((p_hdr = obtain_buffer (p_prc)) && !p_prc->pause_needed_)
     {
       if (0 == p_prc->deezer_data_len_)
         {
@@ -647,7 +666,8 @@ deezer_prc_buffers_ready (const void * ap_prc)
         }
       if (p_prc->deezer_data_len_)
         {
-          if (!data_available (p_prc))
+          p_prc->pause_needed_ = data_available (p_prc);
+          if (!p_prc->pause_needed_)
             {
               tiz_check_omx (deliver_buffer (p_prc));
             }
@@ -659,12 +679,14 @@ deezer_prc_buffers_ready (const void * ap_prc)
 static OMX_ERRORTYPE
 deezer_prc_pause (const void * ap_obj)
 {
+  TIZ_DEBUG (handleOf (ap_obj), "pause");
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
 deezer_prc_resume (const void * ap_obj)
 {
+  TIZ_DEBUG (handleOf (ap_obj), "resume");
   return OMX_ErrorNone;
 }
 
@@ -672,6 +694,7 @@ static OMX_ERRORTYPE
 deezer_prc_port_flush (const void * ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
 {
   deezer_prc_t * p_prc = (deezer_prc_t *) ap_obj;
+  TIZ_DEBUG (handleOf (p_prc), "flush");
   return release_buffer (p_prc);
 }
 
@@ -680,6 +703,7 @@ deezer_prc_port_disable (const void * ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
 {
   deezer_prc_t * p_prc = (deezer_prc_t *) ap_obj;
   assert (p_prc);
+  TIZ_DEBUG (handleOf (p_prc), "port_disable");
   p_prc->port_disabled_ = true;
   /* Release any buffers held  */
   return release_buffer ((deezer_prc_t *) ap_obj);
@@ -690,13 +714,15 @@ deezer_prc_port_enable (const void * ap_prc, OMX_U32 a_pid)
 {
   deezer_prc_t * p_prc = (deezer_prc_t *) ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
+  TIZ_DEBUG (handleOf (p_prc), "port_enable");
   assert (p_prc);
   if (p_prc->port_disabled_)
     {
       p_prc->port_disabled_ = false;
-      if (!p_prc->uri_changed_)
+      if (p_prc->pause_needed_)
         {
-          rc = OMX_ErrorNone;
+          p_prc->pause_needed_ = false;
+          rc = deezer_prc_buffers_ready(p_prc);
         }
       else
         {
