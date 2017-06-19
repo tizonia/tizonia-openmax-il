@@ -156,9 +156,13 @@ int tizdeezer::next_track ()
     {
       const char *p_next_track
           = bp::extract< char const * > (py_dz_proxy_.attr ("next_track") ());
-      if (p_next_track && !get_current_track ())
+      if (p_next_track)
         {
           current_track_.assign (p_next_track);
+        }
+      if (get_current_track ())
+        {
+          current_track_.clear ();
         }
     }
   catch (bp::error_already_set &e)
@@ -168,7 +172,7 @@ int tizdeezer::next_track ()
   catch (...)
     {
     }
-  return current_track_.empty () ? EXIT_SUCCESS : EXIT_FAILURE;
+  return current_track_.empty () ? EXIT_FAILURE : EXIT_SUCCESS;
 }
 
 int tizdeezer::prev_track ()
@@ -178,9 +182,13 @@ int tizdeezer::prev_track ()
     {
       const char *p_prev_track
           = bp::extract< char const * > (py_dz_proxy_.attr ("prev_track") ());
-      if (p_prev_track && !get_current_track ())
+      if (p_prev_track)
         {
           current_track_.assign (p_prev_track);
+        }
+      if (get_current_track ())
+        {
+          current_track_.clear ();
         }
     }
   catch (bp::error_already_set &e)
@@ -190,7 +198,7 @@ int tizdeezer::prev_track ()
   catch (...)
     {
     }
-  return current_track_.empty () ? EXIT_SUCCESS : EXIT_FAILURE;
+  return current_track_.empty () ? EXIT_FAILURE : EXIT_SUCCESS;
 }
 
 size_t tizdeezer::get_mp3_data (unsigned char **app_data)
@@ -280,7 +288,7 @@ void tizdeezer::set_playback_mode (const playback_mode mode)
 
 int tizdeezer::get_current_track ()
 {
-  int rc = 1;
+  int rc = EXIT_FAILURE;
   current_title_.clear ();
   current_artist_.clear ();
 
@@ -350,7 +358,7 @@ int tizdeezer::get_current_track ()
 
   if (p_artist || p_title)
     {
-      rc = 0;
+      rc = EXIT_SUCCESS;
     }
 
   return rc;
