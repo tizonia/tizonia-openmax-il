@@ -36,13 +36,13 @@ from operator import itemgetter
 from tizmopidydeezer import DeezerClient
 
 # For use during debugging
-import pprint
+# import pprint
 
 logging.captureWarnings(True)
-logging.getLogger().setLevel(logging.DEBUG)
 
 if os.environ.get('TIZONIA_DEEZERPROXY_DEBUG'):
     from traceback import print_exception
+    logging.getLogger().setLevel(logging.DEBUG)
 else:
     logging.getLogger().addHandler(logging.NullHandler())
 
@@ -361,7 +361,9 @@ class tizdeezerproxy(object):
             if (self.queue_index < len(self.queue)) \
                and (self.queue_index >= 0):
                 prev_track = self.queue[self.play_queue_order[self.queue_index]]
-                return self.__retrieve_track_uri(prev_track)
+                uri = self.__retrieve_track_uri(prev_track)
+                logging.info("prev_track uri %s END", to_ascii(uri))
+                return to_ascii(uri)
             else:
                 self.queue_index = len(self.queue)
                 return self.prev_track()
@@ -412,7 +414,6 @@ class tizdeezerproxy(object):
 
         track_data = self.__api.get_track(track_id)
         self.now_playing_track_data = track_data
-        pprint.pprint(track_data)
         track_cipher = self.__api.get_track_cipher(track_data['SNG_ID'])
         track_url = self.__api.get_track_url(track_data)
         return self.__api._stream(track_cipher, track_url)
