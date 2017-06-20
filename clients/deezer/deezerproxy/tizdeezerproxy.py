@@ -394,6 +394,62 @@ class tizdeezerproxy(object):
         except KeyError:
             raise KeyError("Mix not found : {0}".format(arg))
 
+    # This does not work yet
+    def enqueue_playlist(self, arg):
+        """ Search for playlists with a given name and adds
+        them to the playback queue.
+
+        """
+        try:
+            logging.info("Playlist search %s", arg)
+            playlists = self.__api.browse_playlists()
+            pprint.pprint(playlists)
+
+            playlist = None
+            tentative_playlist = None
+
+            for m in playlists:
+                playlist_name = m.name
+                print_nfo("[Deezer] [Playlist] '{0}'." \
+                          .format(to_ascii(playlist_name)))
+
+                if not playlist:
+                    if arg.lower() == playlist_name.lower():
+                        playlist = m
+                    if not tentative_playlist:
+                        if arg.lower() in playlist_name.lower():
+                            tentative_playlist = m
+
+            if not playlist and tentative_playlist:
+                playlist = tentative_playlist
+
+            if not playlist and not tentative_playlist:
+                print_wrn("[Deezer] '{0}' not found. "\
+                          "Feeling lucky?." \
+                          .format(to_ascii(arg)))
+                random.seed()
+                playlist = random.choice(playlists)
+
+            if not playlist:
+                raise KeyError("Playlist not found : {0}".format(arg))
+
+            playlist_id = playlist.uri[len('deezer:radio:'):]
+            tracks = self.__api.lookup_playlist(playlist_id)
+            for track in tracks:
+                print_nfo("[Deezer] [Playlist track] '{0}'." \
+                          .format(to_ascii(track.name)))
+
+            if not tracks or not len(tracks):
+                raise KeyError
+
+            self.__enqueue_tracks(tracks)
+            print_wrn("[Deezer] Playing '{0}'." \
+                      .format(to_ascii(playlist.name)))
+            self.__update_play_queue_order()
+
+        except KeyError:
+            raise KeyError("Playlist not found : {0}".format(arg))
+
     def stream_current_track(self):
         """  Return coroutine with seeking capabilities: some_stream.send(30000)
 
