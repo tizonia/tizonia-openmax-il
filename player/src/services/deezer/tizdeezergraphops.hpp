@@ -64,8 +64,7 @@ namespace tiz
       OMX_ERRORTYPE switch_tunnel (
           const int tunnel_id, const OMX_COMMANDTYPE to_disabled_or_enabled);
       OMX_ERRORTYPE set_deezer_user (
-          const OMX_HANDLETYPE handle, const std::string &user,
-          const std::string &pass);
+          const OMX_HANDLETYPE handle, const std::string &user);
       OMX_ERRORTYPE set_deezer_playlist (const OMX_HANDLETYPE handle,
                                          const std::string &playlist);
 
