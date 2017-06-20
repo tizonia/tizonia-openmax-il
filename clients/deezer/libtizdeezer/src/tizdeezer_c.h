@@ -161,6 +161,21 @@ int tiz_deezer_play_mix (tiz_deezer_t *ap_deezer, const char *ap_mix);
 int tiz_deezer_play_playlist (tiz_deezer_t *ap_deezer, const char *ap_playlist);
 
 /**
+ * Add the tracks of the specified user_flow to the playback queue.
+ *
+ * After calling this method, the various tiz_deezer_get* methods can be
+ * used to interact with the playback queue.
+ *
+ * @ingroup libtizdeezer
+ *
+ * @param ap_deezer The deezer handle.
+ * @param ap_user_flow The user_flow name.
+ *
+ * @return 0 on success
+ */
+int tiz_deezer_play_user_flow (tiz_deezer_t *ap_deezer);
+
+/**
  * Clear the playback queue.
  *
  * @ingroup libtizdeezer
