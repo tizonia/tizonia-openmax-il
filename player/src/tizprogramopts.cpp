@@ -1396,12 +1396,15 @@ void tiz::programopts::init_deezer_options ()
        "Search and play tracks from Deezer by album name.")
       /* TIZ_CLASS_COMMENT: */
       ("deezer-artist", po::value (&deezer_artist_),
-       "Search and play tracks from Deezer by artist name.");
+       "Search and play tracks from Deezer by artist name.")
+      /* TIZ_CLASS_COMMENT: */
+      ("deezer-mix", po::value (&deezer_mix_),
+       "Search and play tracks from Deezer by mix (radio station) name.");
 
   register_consume_function (&tiz::programopts::consume_deezer_client_options);
   all_deezer_client_options_
       = boost::assign::list_of ("deezer-user-id") ("deezer-tracks") (
-            "deezer-album") ("deezer-artist")
+            "deezer-album") ("deezer-artist") ("deezer-mix")
             .convert_to_container< std::vector< std::string > > ();
 }
 
@@ -1998,7 +2001,8 @@ int tiz::programopts::consume_deezer_client_options (bool &done,
 
     const int playlist_option_count = vm_.count ("deezer-tracks")
                                       + vm_.count ("deezer-album")
-                                      + vm_.count ("deezer-artist");
+                                      + vm_.count ("deezer-artist")
+                                      + vm_.count ("deezer-mix");
     if (deezer_user_.empty ())
     {
       retrieve_config_from_rc_file ("tizonia", "deezer.user_id", deezer_user_);
@@ -2245,7 +2249,8 @@ bool tiz::programopts::validate_deezer_client_options () const
   bool outcome = false;
   unsigned int deezer_opts_count
       = vm_.count ("deezer-user-id") + vm_.count ("deezer-tracks")
-        + vm_.count ("deezer-album") + vm_.count ("deezer-artist");
+        + vm_.count ("deezer-album") + vm_.count ("deezer-artist")
+        + vm_.count ("deezer-mix");
 
   std::vector< std::string > all_valid_options = all_deezer_client_options_;
   concat_option_lists (all_valid_options, all_global_options_);
