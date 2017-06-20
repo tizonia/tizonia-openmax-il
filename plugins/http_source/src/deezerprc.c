@@ -563,6 +563,11 @@ enqueue_playlist_items (deezer_prc_t * ap_prc)
             rc = tiz_deezer_play_playlist (ap_prc->p_deezer_, p_playlist);
           }
           break;
+        case OMX_AUDIO_DeezerPlaylistTypeUserFlow:
+          {
+            rc = tiz_deezer_play_user_flow (ap_prc->p_deezer_);
+          }
+          break;
         default:
           {
             assert (0);
@@ -620,7 +625,7 @@ deezer_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
   tiz_check_omx (retrieve_playlist (p_prc));
 
   on_deezer_error_ret_omx_oom (tiz_deezer_init (
-    &(p_prc->p_deezer_), (const char *) p_prc->session_.cUserName));
+    &(p_prc->p_deezer_), (const char *) p_prc->session_.cUserId));
 
   TIZ_DEBUG (handleOf (p_prc), "allocate_resources DONE");
 
