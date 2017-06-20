@@ -85,13 +85,6 @@ deezer_prc_transfer_and_process (void * ap_prc, OMX_U32 a_pid);
 /* } */
 
 static void
-obtain_coding_type (deezer_prc_t * ap_prc)
-{
-  assert (ap_prc);
-  ap_prc->audio_coding_type_ = OMX_AUDIO_CodingMP3;
-}
-
-static void
 obtain_content_length (deezer_prc_t * ap_prc)
 {
   assert (ap_prc);
@@ -104,6 +97,8 @@ set_audio_coding_on_port (deezer_prc_t * ap_prc)
 {
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
   assert (ap_prc);
+
+  ap_prc->audio_coding_type_ = OMX_AUDIO_CodingMP3;
 
   TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_HTTP_SOURCE_PORT_INDEX);
   tiz_check_omx (
@@ -189,16 +184,6 @@ store_metadata (deezer_prc_t * ap_prc, const char * ap_header_name,
   return rc;
 }
 
-static OMX_ERRORTYPE
-obtain_audio_encoding (deezer_prc_t * ap_prc)
-{
-  assert (ap_prc);
-  obtain_coding_type (ap_prc);
-  obtain_content_length (ap_prc);
-  /* Now set the new coding type value on the output port */
-  return set_audio_coding_on_port (ap_prc);
-}
-
 static void
 send_port_auto_detect_events (deezer_prc_t * ap_prc)
 {
@@ -238,6 +223,7 @@ static OMX_ERRORTYPE
 update_metadata (deezer_prc_t * ap_prc)
 {
   assert (ap_prc);
+  TIZ_DEBUG (handleOf (ap_prc), "update_metadata");
 
   /* Clear previous metadata items */
   tiz_krn_clear_metadata (tiz_get_krn (handleOf (ap_prc)));
@@ -277,6 +263,8 @@ obtain_next_track (deezer_prc_t * ap_prc, int a_skip_value)
 {
   deezer_prc_t * p_prc = ap_prc;
 
+  TIZ_DEBUG (handleOf (p_prc), "obtain_next_track");
+
   assert (ap_prc);
   assert (ap_prc->p_deezer_);
 
@@ -288,9 +276,21 @@ obtain_next_track (deezer_prc_t * ap_prc, int a_skip_value)
     {
       on_deezer_error_ret_omx_oom (tiz_deezer_prev_track (ap_prc->p_deezer_));
     }
+  return OMX_ErrorNone;
+}
 
-  /* Song metadata is now available */
-  tiz_check_omx (obtain_audio_encoding (p_prc));
+static OMX_ERRORTYPE
+deliver_port_metadata (deezer_prc_t * ap_prc)
+{
+  assert (ap_prc);
+
+  /* Song metadata is available at this point */
+
+  /* Now set the new coding type value on the output port */
+  tiz_check_omx (set_audio_coding_on_port (ap_prc));
+
+  /* Find out the nunmber of bytes we will be sending out */
+  obtain_content_length (ap_prc);
 
   /* update the IL client  */
   return update_metadata (ap_prc);
@@ -303,9 +303,9 @@ release_buffer (deezer_prc_t * ap_prc)
 
   if (ap_prc->p_outhdr_)
     {
+      TIZ_DEBUG (handleOf (ap_prc), "release_buffer nFilledLen %d", ap_prc->p_outhdr_->nFilledLen);
       if (ap_prc->eos_)
         {
-          ap_prc->eos_ = false;
           ap_prc->p_outhdr_->nFlags |= OMX_BUFFERFLAG_EOS;
         }
       tiz_check_omx (tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_prc)),
@@ -346,6 +346,8 @@ deliver_buffer (deezer_prc_t * p_prc)
           p_prc->p_deezer_data_ = NULL;
           p_prc->deezer_data_offset_ = 0;
           p_prc->deezer_data_len_ = 0;
+          TIZ_DEBUG (handleOf (p_prc), "deezer_data_len_ %d bytes_before_eos_ %d",
+                     p_prc->deezer_data_len_, p_prc->bytes_before_eos_);
         }
 
       /* Update omx buffer pointers */
@@ -359,6 +361,8 @@ deliver_buffer (deezer_prc_t * p_prc)
         }
       else
         {
+          TIZ_DEBUG (handleOf (p_prc), "EOS deezer_data_len_ %d bytes_before_eos_ %d",
+                     p_prc->deezer_data_len_, p_prc->bytes_before_eos_);
           p_prc->bytes_before_eos_ = 0;
           p_prc->eos_ = true;
         }
@@ -410,7 +414,7 @@ obtain_buffer (OMX_PTR ap_arg)
 }
 
 static bool
-data_available (deezer_prc_t * ap_prc)
+deliver_port_auto_detect_events (deezer_prc_t * ap_prc)
 {
   bool pause_needed = false;
   assert (ap_prc);
@@ -617,7 +621,9 @@ deezer_prc_prepare_to_transfer (void * ap_prc, OMX_U32 a_pid)
   p_prc->eos_ = false;
   TIZ_DEBUG (handleOf (p_prc), "prepare_to_transfer");
   tiz_check_omx (set_auto_detect_on_port (p_prc));
-  return prepare_for_port_auto_detection (p_prc);
+  tiz_check_omx (prepare_for_port_auto_detection (p_prc));
+  tiz_check_omx (enqueue_playlist_items (p_prc));
+  return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
@@ -627,18 +633,17 @@ deezer_prc_transfer_and_process (void * ap_prc, OMX_U32 a_pid)
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (p_prc);
   TIZ_DEBUG (handleOf (p_prc), "transfer_and_process");
-  tiz_check_omx (enqueue_playlist_items (p_prc));
   tiz_check_omx (obtain_next_track (p_prc, 1));
 
-  if (0 == p_prc->deezer_data_len_)
-    {
-      assert (!p_prc->p_deezer_data_);
-      p_prc->deezer_data_len_
-        = tiz_deezer_get_mp3_data (p_prc->p_deezer_, &p_prc->p_deezer_data_);
-    }
+  assert(!p_prc->deezer_data_len_);
+  assert (!p_prc->p_deezer_data_);
+  p_prc->deezer_data_len_
+    = tiz_deezer_get_mp3_data (p_prc->p_deezer_, &p_prc->p_deezer_data_);
+
   if (p_prc->deezer_data_len_)
     {
-      p_prc->pause_needed_ = data_available (p_prc);
+      tiz_check_omx (deliver_port_metadata (p_prc));
+      p_prc->pause_needed_ = deliver_port_auto_detect_events (p_prc);
     }
 
   return rc;
@@ -663,11 +668,20 @@ deezer_prc_buffers_ready (const void * ap_prc)
   deezer_prc_t * p_prc = (deezer_prc_t *) ap_prc;
   OMX_BUFFERHEADERTYPE * p_hdr = NULL;
   assert (p_prc);
-  TIZ_DEBUG (handleOf (p_prc), "buffers_ready");
+  TIZ_DEBUG (handleOf (p_prc),
+             "buffers_ready bytes_before_eos_ [%d] p_prc->pause_needed_ [%s], "
+             "p_prc->eos_ [%s]",
+             p_prc->bytes_before_eos_, (p_prc->pause_needed_ ? "YES" : "NO"),
+             (p_prc->eos_ ? "YES" : "NO"));
 
   while ((p_hdr = obtain_buffer (p_prc)) && !p_prc->pause_needed_
          && !p_prc->eos_)
     {
+      TIZ_DEBUG (handleOf (p_prc),
+                 "buffers_ready bytes_before_eos_ [%d] p_prc->pause_needed_ [%s], "
+                 "p_prc->eos_ [%s] deezer_data_len_ [%d]",
+                 p_prc->bytes_before_eos_, (p_prc->pause_needed_ ? "YES" : "NO"),
+                 (p_prc->eos_ ? "YES" : "NO"), p_prc->deezer_data_len_);
       if (0 == p_prc->deezer_data_len_)
         {
           assert (!p_prc->p_deezer_data_);
@@ -676,11 +690,21 @@ deezer_prc_buffers_ready (const void * ap_prc)
         }
       if (p_prc->deezer_data_len_)
         {
-          p_prc->pause_needed_ = data_available (p_prc);
-          if (!p_prc->pause_needed_)
-            {
-              tiz_check_omx (deliver_buffer (p_prc));
-            }
+          tiz_check_omx (deliver_buffer (p_prc));
+        }
+      else
+        {
+          TIZ_DEBUG (handleOf (p_prc),
+                     "buffers_ready bytes_before_eos_ [%d] p_prc->pause_needed_ [%s], "
+                     "p_prc->eos_ [%s] deezer_data_len_ [%d]",
+                     p_prc->bytes_before_eos_, (p_prc->pause_needed_ ? "YES" : "NO"),
+                     (p_prc->eos_ ? "YES" : "NO"), p_prc->deezer_data_len_);
+          p_prc->eos_ = true;
+          p_prc->deezer_data_len_ = 0;
+          p_prc->p_deezer_data_ = NULL;
+          p_prc->bytes_before_eos_ = 0;
+          tiz_check_omx (release_buffer (p_prc));
+          p_prc->eos_ = false;
         }
     }
   return OMX_ErrorNone;
@@ -729,20 +753,13 @@ deezer_prc_port_enable (const void * ap_prc, OMX_U32 a_pid)
   if (p_prc->port_disabled_)
     {
       p_prc->port_disabled_ = false;
-      if (p_prc->pause_needed_)
+      p_prc->eos_ = false;
+      p_prc->deezer_data_len_
+        = tiz_deezer_get_mp3_data (p_prc->p_deezer_, &p_prc->p_deezer_data_);
+      if (p_prc->deezer_data_len_)
         {
-          p_prc->pause_needed_ = false;
-/*           rc = deezer_prc_buffers_ready (p_prc); */
-          if (0 == p_prc->deezer_data_len_)
-            {
-              assert (!p_prc->p_deezer_data_);
-              p_prc->deezer_data_len_
-                = tiz_deezer_get_mp3_data (p_prc->p_deezer_, &p_prc->p_deezer_data_);
-            }
-          if (p_prc->deezer_data_len_)
-            {
-              p_prc->pause_needed_ = data_available (p_prc);
-            }
+          tiz_check_omx (deliver_port_metadata (p_prc));
+          p_prc->pause_needed_ = deliver_port_auto_detect_events (p_prc);
         }
     }
   return rc;
@@ -773,6 +790,7 @@ deezer_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
 
       p_prc->deezer_data_len_ = 0;
       p_prc->p_deezer_data_ = NULL;
+      p_prc->bytes_before_eos_ = 0;
     }
   return rc;
 }
