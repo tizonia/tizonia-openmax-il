@@ -122,6 +122,7 @@ class tizdeezerproxy(object):
     """
     def __init__(self, user_id):
         self.__api = DeezerClient(user_id)
+        self.user_id = user_id
         self.queue = list()
         self.queue_index = -1
         self.play_queue_order = list()
@@ -130,6 +131,7 @@ class tizdeezerproxy(object):
         self.now_playing_track = None
         self.now_playing_stream = None
         self.now_playing_track_data = None
+        logging.info("self.user_id %s", self.user_id)
 
     def set_play_mode(self, mode):
         """ Set the playback mode.
@@ -395,7 +397,7 @@ class tizdeezerproxy(object):
             raise KeyError("Mix not found : {0}".format(arg))
 
     # This does not work yet
-    def enqueue_playlist(self, arg):
+    def enqueue_playlists(self, arg):
         """ Search for playlists with a given name and adds
         them to the playback queue.
 
@@ -449,6 +451,27 @@ class tizdeezerproxy(object):
 
         except KeyError:
             raise KeyError("Playlist not found : {0}".format(arg))
+
+    def enqueue_user_flow(self):
+        """ Play the user's flow station.
+
+        """
+        try:
+            logging.info("User flow %s", self.user_id)
+            tracks = self.__api.browse_flow()
+
+            for track in tracks:
+                print_nfo("[Deezer] [Flow track] '{0}'." \
+                          .format(to_ascii(track.name)))
+
+            if not tracks or not len(tracks):
+                raise KeyError
+
+            self.__enqueue_tracks(tracks)
+            self.__update_play_queue_order()
+
+        except KeyError:
+            raise KeyError("Unable to play the user's flow")
 
     def stream_current_track(self):
         """  Return coroutine with seeking capabilities: some_stream.send(30000)

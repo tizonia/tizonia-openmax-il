@@ -64,7 +64,7 @@ class Track(object):
     :type length: integer or :class:`None` if there is no duration
     """
 
-    def __init__(self, uri, name, artists, album, length):
+    def __init__(self, uri, name, artists=[], album=None, length=0):
         self.uri = uri
         self.name = name
         self.artists = artists
