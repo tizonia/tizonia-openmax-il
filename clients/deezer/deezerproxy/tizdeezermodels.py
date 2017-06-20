@@ -81,6 +81,6 @@ class Playlist(object):
     :type name: string
     """
 
-    def __init__(self, uri, name, artists, album, length):
+    def __init__(self, uri, name):
         self.uri = uri
         self.name = name

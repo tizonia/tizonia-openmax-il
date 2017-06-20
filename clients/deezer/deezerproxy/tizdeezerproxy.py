@@ -310,6 +310,53 @@ class tizdeezerproxy(object):
         except KeyError:
             raise KeyError("Artist not found : {0}".format(arg))
 
+    def enqueue_mix(self, arg):
+        """ Search for mixes with a given name and adds
+        them to the playback queue.
+
+        """
+        try:
+            logging.info("Mix search %s", arg)
+            mixes = self.__api.browse_mixes()
+
+            mix = None
+            tentative_mix = None
+
+            for mix in mixes:
+                mix_name = mix.name
+                print_nfo("[Deezer] [Mix] '{0}'." \
+                          .format(to_ascii(mix_name)))
+
+                if not mix:
+                    if arg.lower() == mix_name.lower():
+                        mix = mix
+                    if not tentative_mix:
+                        if arg.lower() in mix_name.lower():
+                            tentative_mix = mix
+
+            if not mix and not tentative_mix:
+                raise KeyError("Mix not found : {0}".format(arg))
+
+            if not mix and tentative_mix:
+                mix = tentative_mix
+
+            mix_id = mix.uri[len('deezer:radio:'):]
+            tracks = self.__api.lookup_playlist(mix_id)
+            for track in tracks:
+                print_nfo("[Deezer] [Mix track] '{0}'." \
+                          .format(to_ascii(track.name)))
+
+            if not tracks or not len(tracks):
+                raise KeyError
+
+            self.__enqueue_tracks(tracks)
+            print_wrn("[Deezer] Playing '{0}'." \
+                      .format(to_ascii(mix.name)))
+            self.__update_play_queue_order()
+
+        except KeyError:
+            raise KeyError("Mix not found : {0}".format(arg))
+
     def stream_current_track(self):
         """  Return coroutine with seeking capabilities: some_stream.send(30000)
 
