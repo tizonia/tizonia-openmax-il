@@ -111,8 +111,7 @@ void graph::deezerops::do_configure_comp (const int comp_id)
 
     G_OPS_BAIL_IF_ERROR (
         set_deezer_user (
-            handles_[0], deezer_config->get_user_name (),
-            deezer_config->get_user_pass ()),
+            handles_[0], deezer_config->get_user_name ()),
         "Unable to set OMX_TizoniaIndexParamAudioDeezerSession");
 
     G_OPS_BAIL_IF_ERROR (
@@ -454,18 +453,16 @@ graph::deezerops::set_channels_and_rate_on_renderer (
 
 OMX_ERRORTYPE
 graph::deezerops::set_deezer_user (const OMX_HANDLETYPE handle,
-                                   const std::string &user,
-                                   const std::string &pass)
+                                   const std::string &user)
 {
-  // Set the Deezer user and pass
+  // Set the Deezer user id
   OMX_TIZONIA_AUDIO_PARAM_DEEZERSESSIONTYPE sessiontype;
   TIZ_INIT_OMX_STRUCT (sessiontype);
   tiz_check_omx (OMX_GetParameter (
       handle,
       static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioDeezerSession),
       &sessiontype));
-  copy_omx_string (sessiontype.cUserName, user);
-  copy_omx_string (sessiontype.cUserPassword, pass);
+  copy_omx_string (sessiontype.cUserId, user);
   return OMX_SetParameter (handle, static_cast< OMX_INDEXTYPE >(
                                        OMX_TizoniaIndexParamAudioDeezerSession),
                            &sessiontype);

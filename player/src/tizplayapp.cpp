@@ -910,8 +910,7 @@ tiz::playapp::deezer_stream ()
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   const bool shuffle = popts_.shuffle ();
-  const std::string user (popts_.gmusic_user ());
-  std::string pass (popts_.gmusic_password ());
+  const std::string user (popts_.deezer_user_id ());
   const uri_lst_t &uri_list = popts_.deezer_playlist_container ();
   const OMX_TIZONIA_AUDIO_DEEZERPLAYLISTTYPE playlist_type = popts_.deezer_playlist_type ();
 
@@ -927,7 +926,7 @@ tiz::playapp::deezer_stream ()
   playlist->set_loop_playback (true);
 
   tizgraphconfig_ptr_t config = boost::make_shared< tiz::graph::deezerconfig > (
-      playlist, user, pass, playlist_type);
+      playlist, user, playlist_type);
 
   // Instantiate the streaming client manager
   tiz::graphmgr::mgr_ptr_t p_mgr
