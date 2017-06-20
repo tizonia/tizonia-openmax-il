@@ -194,6 +194,14 @@ class tizdeezerproxy(object):
             logging.info("Tracks search %s", arg)
             [artists, albums, tracks] = self.__api.search(arg)
 
+            if not len(tracks):
+                # Ok, nothing came out of the searc. Try something else, at
+                # least there will be some noise.
+                print_wrn("[Deezer] '{0}' not found. "\
+                          "Feeling lucky?." \
+                          .format(to_ascii(arg)))
+                [artists, albums, tracks] = self.__api.search("Top")
+
             for track in tracks:
                 print_nfo("[Deezer] [Track] '{0}'." \
                           .format(to_ascii(track.name)))
@@ -202,8 +210,6 @@ class tizdeezerproxy(object):
                 raise KeyError
 
             self.__enqueue_tracks(tracks)
-            print_wrn("[Deezer] Playing tracks '{0}'." \
-                      .format(to_ascii(arg)))
             self.__update_play_queue_order()
 
         except KeyError:
@@ -216,6 +222,11 @@ class tizdeezerproxy(object):
         try:
             logging.info("Album search %s", arg)
             [artists, albums, tracks] = self.__api.search(arg)
+
+            if not len(albums):
+                # Ok, nothing came out of the searc. Try something else, at
+                # least there will be some noise.
+                [artists, albums, tracks] = self.__api.search("Top Hits")
 
             album = None
             tentative_album = None
@@ -238,11 +249,18 @@ class tizdeezerproxy(object):
                         if arg.lower() in album_name.lower():
                             tentative_album = alb
 
-            if not album and not tentative_album:
-                raise KeyError("Album not found : {0}".format(arg))
-
             if not album and tentative_album:
                 album = tentative_album
+
+            if not album and not tentative_album:
+                print_wrn("[Deezer] '{0}' not found. "\
+                          "Feeling lucky?." \
+                          .format(to_ascii(arg)))
+                random.seed()
+                album = random.choice(albums)
+
+            if not album:
+                raise KeyError("Album not found : {0}".format(arg))
 
             album_id = album.uri[len('deezer:album:'):]
             tracks = self.__api.lookup_album(album_id)
@@ -272,6 +290,11 @@ class tizdeezerproxy(object):
             logging.info("Artist search %s", arg)
             [artists, albums, tracks] = self.__api.search(arg)
 
+            if not len(artists):
+                # Ok, nothing came out of the searc. Try something else, at
+                # least there will be some noise.
+                [artists, albums, tracks] = self.__api.search("Best")
+
             artist = None
             tentative_artist = None
 
@@ -287,11 +310,18 @@ class tizdeezerproxy(object):
                         if arg.lower() in artist_name.lower():
                             tentative_artist = art
 
-            if not artist and not tentative_artist:
-                raise KeyError("Artist not found : {0}".format(arg))
-
             if not artist and tentative_artist:
                 artist = tentative_artist
+
+            if not artist and not tentative_artist:
+                print_wrn("[Deezer] '{0}' not found. "\
+                          "Feeling lucky?." \
+                          .format(to_ascii(arg)))
+                random.seed()
+                artist = random.choice(artists)
+
+            if not artist:
+                raise KeyError("Artist not found : {0}".format(arg))
 
             artist_id = artist.uri[len('deezer:artist:'):]
             tracks = self.__api.lookup_artist(artist_id)
@@ -322,26 +352,33 @@ class tizdeezerproxy(object):
             mix = None
             tentative_mix = None
 
-            for mix in mixes:
-                mix_name = mix.name
+            for m in mixes:
+                mix_name = m.name
                 print_nfo("[Deezer] [Mix] '{0}'." \
                           .format(to_ascii(mix_name)))
 
                 if not mix:
                     if arg.lower() == mix_name.lower():
-                        mix = mix
+                        mix = m
                     if not tentative_mix:
                         if arg.lower() in mix_name.lower():
-                            tentative_mix = mix
-
-            if not mix and not tentative_mix:
-                raise KeyError("Mix not found : {0}".format(arg))
+                            tentative_mix = m
 
             if not mix and tentative_mix:
                 mix = tentative_mix
 
+            if not mix and not tentative_mix:
+                print_wrn("[Deezer] '{0}' not found. "\
+                          "Feeling lucky?." \
+                          .format(to_ascii(arg)))
+                random.seed()
+                mix = random.choice(mixes)
+
+            if not mix:
+                raise KeyError("Mix not found : {0}".format(arg))
+
             mix_id = mix.uri[len('deezer:radio:'):]
-            tracks = self.__api.lookup_playlist(mix_id)
+            tracks = self.__api.lookup_radio(mix_id)
             for track in tracks:
                 print_nfo("[Deezer] [Mix track] '{0}'." \
                           .format(to_ascii(track.name)))
