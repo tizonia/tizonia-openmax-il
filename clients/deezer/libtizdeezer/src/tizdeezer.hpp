@@ -58,6 +58,7 @@ public:
   int play_tracks (const std::string &tracks);
   int play_album (const std::string &album);
   int play_artist (const std::string &artist);
+  int play_mix (const std::string &mix);
 
   void clear_queue ();
   void set_playback_mode (const playback_mode mode);

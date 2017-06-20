@@ -131,6 +131,21 @@ int tiz_deezer_play_album (tiz_deezer_t *ap_deezer, const char *ap_album);
 int tiz_deezer_play_artist (tiz_deezer_t *ap_deezer, const char *ap_artist);
 
 /**
+ * Add the tracks of the specified mix to the playback queue.
+ *
+ * After calling this method, the various tiz_deezer_get* methods can be
+ * used to interact with the playback queue.
+ *
+ * @ingroup libtizdeezer
+ *
+ * @param ap_deezer The deezer handle.
+ * @param ap_mix The mix name.
+ *
+ * @return 0 on success
+ */
+int tiz_deezer_play_mix (tiz_deezer_t *ap_deezer, const char *ap_mix);
+
+/**
  * Clear the playback queue.
  *
  * @ingroup libtizdeezer
