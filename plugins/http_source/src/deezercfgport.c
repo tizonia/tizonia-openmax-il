@@ -63,10 +63,8 @@ deezer_cfgport_ctor (void * ap_obj, va_list * app)
 
   /* Initialize the OMX_TIZONIA_AUDIO_PARAM_DEEZERSESSIONTYPE structure */
   TIZ_INIT_OMX_STRUCT (p_obj->session_);
-  snprintf ((char *) p_obj->session_.cUserName,
-            sizeof (p_obj->session_.cUserName), "tizonia");
-  snprintf ((char *) p_obj->session_.cUserPassword,
-            sizeof (p_obj->session_.cUserPassword), "pass");
+  snprintf ((char *) p_obj->session_.cUserId,
+            sizeof (p_obj->session_.cUserId), "tizonia");
 
   /* Initialize the OMX_TIZONIA_AUDIO_PARAM_DEEZERPLAYLISTTYPE structure */
   TIZ_INIT_OMX_STRUCT (p_obj->playlist_);
@@ -136,9 +134,8 @@ deezer_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
     {
       memcpy (&(p_obj->session_), ap_struct,
               sizeof (OMX_TIZONIA_AUDIO_PARAM_DEEZERSESSIONTYPE));
-      p_obj->session_.cUserName[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
-      p_obj->session_.cUserPassword[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
-      TIZ_TRACE (ap_hdl, "Deezer Api Key [%s]...", p_obj->session_.cUserName);
+      p_obj->session_.cUserId[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+      TIZ_TRACE (ap_hdl, "Deezer Api Key [%s]...", p_obj->session_.cUserId);
     }
   else if (OMX_TizoniaIndexParamAudioDeezerPlaylist == a_index)
     {
