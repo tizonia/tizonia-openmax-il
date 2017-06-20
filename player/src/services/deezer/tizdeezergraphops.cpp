@@ -85,9 +85,10 @@ void graph::deezerops::do_enable_auto_detection (const int handle_id,
       = boost::dynamic_pointer_cast< deezerconfig >(config_);
   assert (deezer_config);
   tiz::graph::ops::do_enable_auto_detection (handle_id, port_id);
-  tiz::graph::util::dump_graph_info ("Deezer",
-                                     "Connecting",
-                                     deezer_config->get_user_name ().c_str ());
+  tiz::graph::util::dump_graph_info (
+      "Deezer", "Connecting", (deezer_config->get_user_name ().empty ()
+                                   ? "Anonymous"
+                                   : deezer_config->get_user_name ().c_str ()));
 }
 
 void graph::deezerops::do_disable_comp_ports (const int comp_id, const int port_id)
@@ -442,9 +443,11 @@ graph::deezerops::set_channels_and_rate_on_renderer (
   assert (deezer_config);
 
   std::string coding_type_str ("Deezer");
-  tiz::graph::util::dump_graph_info (coding_type_str.c_str (),
-                                     "Connected",
-                                     deezer_config->get_user_name ().c_str ());
+  tiz::graph::util::dump_graph_info (
+      coding_type_str.c_str (), "Connected",
+      (deezer_config->get_user_name ().empty ()
+           ? "Anonymous"
+           : deezer_config->get_user_name ().c_str ()));
 
   return OMX_ErrorNone;
 }
