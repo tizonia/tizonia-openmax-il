@@ -110,7 +110,6 @@ int tizdeezer::init ()
 int tizdeezer::start ()
 {
   int rc = 0;
-  printf("user_ %s\n", user_.c_str());
   try_catch_wrapper (start_deezer (py_global_, py_dz_proxy_, user_));
   return rc;
 }
