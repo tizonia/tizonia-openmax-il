@@ -110,6 +110,7 @@ int tizdeezer::init ()
 int tizdeezer::start ()
 {
   int rc = 0;
+  printf("user_ %s\n", user_.c_str());
   try_catch_wrapper (start_deezer (py_global_, py_dz_proxy_, user_));
   return rc;
 }
@@ -162,6 +163,13 @@ int tizdeezer::play_playlist (const std::string &playlist)
   int rc = 0;
   try_catch_wrapper (
       py_dz_proxy_.attr ("enqueue_playlist") (bp::object (playlist)));
+  return rc;
+}
+
+int tizdeezer::play_user_flow ()
+{
+  int rc = 0;
+  try_catch_wrapper (py_dz_proxy_.attr ("enqueue_user_flow") ());
   return rc;
 }
 

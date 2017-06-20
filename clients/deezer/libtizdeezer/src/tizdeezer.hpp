@@ -60,6 +60,7 @@ public:
   int play_artist (const std::string &artist);
   int play_mix (const std::string &mix);
   int play_playlist (const std::string &playlist);
+  int play_user_flow ();
 
   void clear_queue ();
   void set_playback_mode (const playback_mode mode);
