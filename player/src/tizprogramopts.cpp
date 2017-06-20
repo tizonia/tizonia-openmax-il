@@ -336,14 +336,12 @@ tiz::programopts::programopts (int argc, char *argv[])
     youtube_playlist_container_ (),
     youtube_playlist_type_ (OMX_AUDIO_YoutubePlaylistTypeUnknown),
     deezer_user_ (),
-    deezer_pass_ (),
     deezer_track_ (),
     deezer_artist_ (),
     deezer_album_ (),
     deezer_mix_ (),
     deezer_playlist_ (),
     deezer_top_playlist_ (),
-    deezer_mood_ (),
     deezer_podcast_ (),
     deezer_user_flow_ (),
     deezer_playlist_container_ (),
@@ -976,8 +974,7 @@ tiz::programopts::youtube_playlist_type ()
   return youtube_playlist_type_;
 }
 
-const std::vector< std::string >
-    &tiz::programopts::deezer_playlist_container ()
+const std::vector< std::string > &tiz::programopts::deezer_playlist_container ()
 {
   deezer_playlist_container_.clear ();
   if (!deezer_track_.empty ())
@@ -1003,10 +1000,6 @@ const std::vector< std::string >
   else if (!deezer_top_playlist_.empty ())
   {
     deezer_playlist_container_.push_back (deezer_top_playlist_);
-  }
-  else if (!deezer_mood_.empty ())
-  {
-    deezer_playlist_container_.push_back (deezer_mood_);
   }
   else if (!deezer_podcast_.empty ())
   {
@@ -1049,10 +1042,6 @@ tiz::programopts::deezer_playlist_type ()
   else if (!deezer_top_playlist_.empty ())
   {
     deezer_playlist_type_ = OMX_AUDIO_DeezerPlaylistTypeTopPlaylists;
-  }
-  else if (!deezer_mood_.empty ())
-  {
-    deezer_playlist_type_ = OMX_AUDIO_DeezerPlaylistTypeMood;
   }
   else if (!deezer_podcast_.empty ())
   {
@@ -1253,7 +1242,8 @@ void tiz::programopts::init_gmusic_options ()
        "A playlist from the user's library.")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-podcast", po::value (&gmusic_podcast_),
-       "Search and play Google Play Music podcasts (only available in the US and Canada).")
+       "Search and play Google Play Music podcasts (only available in the US "
+       "and Canada).")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-unlimited-station", po::value (&gmusic_station_),
        "Search and play Google Play Music Unlimited stations found in the "
@@ -1395,12 +1385,8 @@ void tiz::programopts::init_deezer_options ()
 {
   deezer_.add_options ()
       /* TIZ_CLASS_COMMENT: */
-      ("deezer-user", po::value (&deezer_user_),
+      ("deezer-user-id", po::value (&deezer_user_),
        "Deezer user name (not required if provided via config "
-       "file).")
-      /* TIZ_CLASS_COMMENT: */
-      ("deezer-password", po::value (&deezer_pass_),
-       "Deezer user's password (not required if provided via config "
        "file).")
       /* TIZ_CLASS_COMMENT: */
       ("deezer-tracks", po::value (&deezer_track_),
@@ -1414,8 +1400,8 @@ void tiz::programopts::init_deezer_options ()
 
   register_consume_function (&tiz::programopts::consume_deezer_client_options);
   all_deezer_client_options_
-      = boost::assign::list_of ("deezer-user") ("deezer-password") (
-            "deezer-tracks") ("deezer-album") ("deezer-artist")
+      = boost::assign::list_of ("deezer-user-id") ("deezer-tracks") (
+            "deezer-album") ("deezer-artist")
             .convert_to_container< std::vector< std::string > > ();
 }
 
@@ -2001,7 +1987,7 @@ int tiz::programopts::consume_youtube_client_options (bool &done,
 }
 
 int tiz::programopts::consume_deezer_client_options (bool &done,
-                                                      std::string &msg)
+                                                     std::string &msg)
 {
   int rc = EXIT_FAILURE;
   done = false;
@@ -2013,6 +1999,10 @@ int tiz::programopts::consume_deezer_client_options (bool &done,
     const int playlist_option_count = vm_.count ("deezer-tracks")
                                       + vm_.count ("deezer-album")
                                       + vm_.count ("deezer-artist");
+    if (deezer_user_.empty ())
+    {
+      retrieve_config_from_rc_file ("tizonia", "deezer.user_id", deezer_user_);
+    }
 
     if (playlist_option_count > 1)
     {
@@ -2254,9 +2244,8 @@ bool tiz::programopts::validate_deezer_client_options () const
 {
   bool outcome = false;
   unsigned int deezer_opts_count
-      = vm_.count ("deezer-user") + vm_.count ("deezer-password")
-        + vm_.count ("deezer-tracks") + vm_.count ("deezer-album")
-        + vm_.count ("deezer-artist");
+      = vm_.count ("deezer-user-id") + vm_.count ("deezer-tracks")
+        + vm_.count ("deezer-album") + vm_.count ("deezer-artist");
 
   std::vector< std::string > all_valid_options = all_deezer_client_options_;
   concat_option_lists (all_valid_options, all_global_options_);
