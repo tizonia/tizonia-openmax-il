@@ -276,6 +276,15 @@ obtain_next_track (deezer_prc_t * ap_prc, int a_skip_value)
     {
       on_deezer_error_ret_omx_oom (tiz_deezer_prev_track (ap_prc->p_deezer_));
     }
+
+  /* Find out the number of bytes we will be sending out */
+  obtain_content_length (ap_prc);
+
+  assert(!p_prc->deezer_data_len_);
+  assert (!p_prc->p_deezer_data_);
+  p_prc->deezer_data_len_
+    = tiz_deezer_get_mp3_data (p_prc->p_deezer_, &p_prc->p_deezer_data_);
+
   return OMX_ErrorNone;
 }
 
@@ -289,9 +298,6 @@ deliver_port_metadata (deezer_prc_t * ap_prc)
   /* Now set the new coding type value on the output port */
   tiz_check_omx (set_audio_coding_on_port (ap_prc));
 
-  /* Find out the nunmber of bytes we will be sending out */
-  obtain_content_length (ap_prc);
-
   /* update the IL client  */
   return update_metadata (ap_prc);
 }
@@ -303,7 +309,9 @@ release_buffer (deezer_prc_t * ap_prc)
 
   if (ap_prc->p_outhdr_)
     {
-      TIZ_DEBUG (handleOf (ap_prc), "release_buffer nFilledLen %d", ap_prc->p_outhdr_->nFilledLen);
+      ap_prc->p_outhdr_->nOffset = 0;
+      TIZ_DEBUG (handleOf (ap_prc), "release_buffer nFilledLen %d",
+                 ap_prc->p_outhdr_->nFilledLen);
       if (ap_prc->eos_)
         {
           ap_prc->p_outhdr_->nFlags |= OMX_BUFFERFLAG_EOS;
@@ -368,8 +376,7 @@ deliver_buffer (deezer_prc_t * p_prc)
         }
 
       if ((p_hdr->nAllocLen == p_hdr->nFilledLen) || p_prc->eos_)
-        {
-          p_hdr->nOffset = 0;
+        {          
           tiz_check_omx (release_buffer (p_prc));
         }
     }
@@ -635,11 +642,6 @@ deezer_prc_transfer_and_process (void * ap_prc, OMX_U32 a_pid)
   TIZ_DEBUG (handleOf (p_prc), "transfer_and_process");
   tiz_check_omx (obtain_next_track (p_prc, 1));
 
-  assert(!p_prc->deezer_data_len_);
-  assert (!p_prc->p_deezer_data_);
-  p_prc->deezer_data_len_
-    = tiz_deezer_get_mp3_data (p_prc->p_deezer_, &p_prc->p_deezer_data_);
-
   if (p_prc->deezer_data_len_)
     {
       tiz_check_omx (deliver_port_metadata (p_prc));
@@ -777,6 +779,11 @@ deezer_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
 
   if (OMX_TizoniaIndexConfigPlaylistSkip == a_config_idx)
     {
+      p_prc->deezer_data_len_ = 0;
+      p_prc->p_deezer_data_ = NULL;
+      p_prc->bytes_before_eos_ = 0;
+      p_prc->eos_ = 0;
+
       /* Get ready to auto-detect another stream */
       set_auto_detect_on_port (p_prc);
       prepare_for_port_auto_detection (p_prc);
@@ -787,10 +794,6 @@ deezer_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
         OMX_TizoniaIndexConfigPlaylistSkip, &p_prc->playlist_skip_));
       p_prc->playlist_skip_.nValue > 0 ? obtain_next_track (p_prc, 1)
                                        : obtain_next_track (p_prc, -1);
-
-      p_prc->deezer_data_len_ = 0;
-      p_prc->p_deezer_data_ = NULL;
-      p_prc->bytes_before_eos_ = 0;
     }
   return rc;
 }
