@@ -259,6 +259,20 @@ update_metadata (deezer_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
+deliver_port_metadata (deezer_prc_t * ap_prc)
+{
+  assert (ap_prc);
+
+  /* Song metadata is available at this point */
+
+  /* Now set the new coding type value on the output port */
+  tiz_check_omx (set_audio_coding_on_port (ap_prc));
+
+  /* update the IL client  */
+  return update_metadata (ap_prc);
+}
+
+static OMX_ERRORTYPE
 obtain_next_track (deezer_prc_t * ap_prc, int a_skip_value)
 {
   deezer_prc_t * p_prc = ap_prc;
@@ -280,26 +294,17 @@ obtain_next_track (deezer_prc_t * ap_prc, int a_skip_value)
   /* Find out the number of bytes we will be sending out */
   obtain_content_length (ap_prc);
 
-  assert(!p_prc->deezer_data_len_);
+  assert (!p_prc->deezer_data_len_);
   assert (!p_prc->p_deezer_data_);
   p_prc->deezer_data_len_
     = tiz_deezer_get_mp3_data (p_prc->p_deezer_, &p_prc->p_deezer_data_);
 
+  if (p_prc->deezer_data_len_)
+    {
+      tiz_check_omx (deliver_port_metadata (p_prc));
+    }
+
   return OMX_ErrorNone;
-}
-
-static OMX_ERRORTYPE
-deliver_port_metadata (deezer_prc_t * ap_prc)
-{
-  assert (ap_prc);
-
-  /* Song metadata is available at this point */
-
-  /* Now set the new coding type value on the output port */
-  tiz_check_omx (set_audio_coding_on_port (ap_prc));
-
-  /* update the IL client  */
-  return update_metadata (ap_prc);
 }
 
 static OMX_ERRORTYPE
@@ -354,7 +359,8 @@ deliver_buffer (deezer_prc_t * p_prc)
           p_prc->p_deezer_data_ = NULL;
           p_prc->deezer_data_offset_ = 0;
           p_prc->deezer_data_len_ = 0;
-          TIZ_DEBUG (handleOf (p_prc), "deezer_data_len_ %d bytes_before_eos_ %d",
+          TIZ_DEBUG (handleOf (p_prc),
+                     "deezer_data_len_ %d bytes_before_eos_ %d",
                      p_prc->deezer_data_len_, p_prc->bytes_before_eos_);
         }
 
@@ -369,14 +375,15 @@ deliver_buffer (deezer_prc_t * p_prc)
         }
       else
         {
-          TIZ_DEBUG (handleOf (p_prc), "EOS deezer_data_len_ %d bytes_before_eos_ %d",
+          TIZ_DEBUG (handleOf (p_prc),
+                     "EOS deezer_data_len_ %d bytes_before_eos_ %d",
                      p_prc->deezer_data_len_, p_prc->bytes_before_eos_);
           p_prc->bytes_before_eos_ = 0;
           p_prc->eos_ = true;
         }
 
       if ((p_hdr->nAllocLen == p_hdr->nFilledLen) || p_prc->eos_)
-        {          
+        {
           tiz_check_omx (release_buffer (p_prc));
         }
     }
@@ -644,7 +651,6 @@ deezer_prc_transfer_and_process (void * ap_prc, OMX_U32 a_pid)
 
   if (p_prc->deezer_data_len_)
     {
-      tiz_check_omx (deliver_port_metadata (p_prc));
       p_prc->pause_needed_ = deliver_port_auto_detect_events (p_prc);
     }
 
@@ -679,11 +685,6 @@ deezer_prc_buffers_ready (const void * ap_prc)
   while ((p_hdr = obtain_buffer (p_prc)) && !p_prc->pause_needed_
          && !p_prc->eos_)
     {
-      TIZ_DEBUG (handleOf (p_prc),
-                 "buffers_ready bytes_before_eos_ [%d] p_prc->pause_needed_ [%s], "
-                 "p_prc->eos_ [%s] deezer_data_len_ [%d]",
-                 p_prc->bytes_before_eos_, (p_prc->pause_needed_ ? "YES" : "NO"),
-                 (p_prc->eos_ ? "YES" : "NO"), p_prc->deezer_data_len_);
       if (0 == p_prc->deezer_data_len_)
         {
           assert (!p_prc->p_deezer_data_);
@@ -696,11 +697,6 @@ deezer_prc_buffers_ready (const void * ap_prc)
         }
       else
         {
-          TIZ_DEBUG (handleOf (p_prc),
-                     "buffers_ready bytes_before_eos_ [%d] p_prc->pause_needed_ [%s], "
-                     "p_prc->eos_ [%s] deezer_data_len_ [%d]",
-                     p_prc->bytes_before_eos_, (p_prc->pause_needed_ ? "YES" : "NO"),
-                     (p_prc->eos_ ? "YES" : "NO"), p_prc->deezer_data_len_);
           p_prc->eos_ = true;
           p_prc->deezer_data_len_ = 0;
           p_prc->p_deezer_data_ = NULL;
