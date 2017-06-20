@@ -149,6 +149,14 @@ int tizdeezer::play_artist (const std::string &artist)
   return rc;
 }
 
+int tizdeezer::play_mix (const std::string &mix)
+{
+  int rc = 0;
+  try_catch_wrapper (
+      py_dz_proxy_.attr ("enqueue_mix") (bp::object (mix)));
+  return rc;
+}
+
 int tizdeezer::next_track ()
 {
   current_track_.clear ();

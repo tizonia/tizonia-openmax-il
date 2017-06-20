@@ -133,6 +133,14 @@ extern "C" int tiz_deezer_play_artist (tiz_deezer_t *ap_deezer,
   return ap_deezer->p_proxy_->play_artist (ap_artist);
 }
 
+extern "C" int tiz_deezer_play_mix (tiz_deezer_t *ap_deezer,
+                                    const char *ap_mix)
+{
+  assert (ap_deezer);
+  assert (ap_deezer->p_proxy_);
+  return ap_deezer->p_proxy_->play_mix (ap_mix);
+}
+
 extern "C" void tiz_deezer_clear_queue (tiz_deezer_t *ap_deezer)
 {
   assert (ap_deezer);
