@@ -465,7 +465,6 @@ typedef enum OMX_TIZONIA_AUDIO_DEEZERPLAYLISTTYPE {
     OMX_AUDIO_DeezerPlaylistTypeMix, /**< Mixes search. */
     OMX_AUDIO_DeezerPlaylistTypePlaylist, /**< Playlists search. */
     OMX_AUDIO_DeezerPlaylistTypeTopPlaylists, /**< Top playlists search. */
-    OMX_AUDIO_DeezerPlaylistTypeMood, /**< Moods search. */
     OMX_AUDIO_DeezerPlaylistTypePodcast, /**< Podcast search. */
     OMX_AUDIO_DeezerPlaylistTypeUserFlow, /**< User radio station. */
     OMX_AUDIO_DeezerPlaylistTypeKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
