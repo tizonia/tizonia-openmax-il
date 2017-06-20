@@ -232,14 +232,12 @@ namespace tiz
     std::vector< std::string > youtube_playlist_container_;
     OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE youtube_playlist_type_;
     std::string deezer_user_;
-    std::string deezer_pass_;
     std::string deezer_track_;
     std::string deezer_artist_;
     std::string deezer_album_;
     std::string deezer_mix_;
     std::string deezer_playlist_;
     std::string deezer_top_playlist_;
-    std::string deezer_mood_;
     std::string deezer_podcast_;
     std::string deezer_user_flow_;
     std::vector< std::string > deezer_playlist_container_;
