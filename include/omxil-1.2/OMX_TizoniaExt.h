@@ -463,7 +463,7 @@ typedef enum OMX_TIZONIA_AUDIO_DEEZERPLAYLISTTYPE {
     OMX_AUDIO_DeezerPlaylistTypeArtist, /**< Artist search. */
     OMX_AUDIO_DeezerPlaylistTypeAlbum, /**< Album search. */
     OMX_AUDIO_DeezerPlaylistTypeMix, /**< Mixes search. */
-    OMX_AUDIO_DeezerPlaylistTypePlaylist, /**< Playlists search. */
+    OMX_AUDIO_DeezerPlaylistTypePlaylist, /**< Playlist search. */
     OMX_AUDIO_DeezerPlaylistTypeTopPlaylists, /**< Top playlists search. */
     OMX_AUDIO_DeezerPlaylistTypePodcast, /**< Podcast search. */
     OMX_AUDIO_DeezerPlaylistTypeUserFlow, /**< User radio station. */
@@ -483,7 +483,6 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_DEEZERPLAYLISTTYPE {
     OMX_VERSIONTYPE nVersion;
     OMX_TIZONIA_AUDIO_DEEZERPLAYLISTTYPE ePlaylistType;
     OMX_BOOL bShuffle;            /**< Default: OMX_FALSE */
-    OMX_BOOL bUnlimitedSearch;    /**< Default: OMX_FALSE */
     OMX_U8 cPlaylistName[OMX_MAX_STRINGNAME_SIZE];
 } OMX_TIZONIA_AUDIO_PARAM_DEEZERPLAYLISTTYPE;
 
