@@ -1381,32 +1381,37 @@ void tiz::programopts::init_deezer_options ()
 {
   deezer_.add_options ()
       /* TIZ_CLASS_COMMENT: */
-      ("deezer-user-id", po::value (&deezer_user_id_),
-       "Deezer user name (not required if provided via config "
-       "file).")
-      /* TIZ_CLASS_COMMENT: */
-      ("deezer-tracks", po::value (&deezer_track_),
-       "Search and play tracks from Deezer by track name.")
-      /* TIZ_CLASS_COMMENT: */
       ("deezer-album", po::value (&deezer_album_),
        "Search and play tracks from Deezer by album name.")
       /* TIZ_CLASS_COMMENT: */
       ("deezer-artist", po::value (&deezer_artist_),
        "Search and play tracks from Deezer by artist name.")
       /* TIZ_CLASS_COMMENT: */
-      ("deezer-top-playlist", po::value (&deezer_top_playlist_),
-       "Search and play tracks from Deezer's top playlists.")
-      /* TIZ_CLASS_COMMENT: */
       ("deezer-mix", po::value (&deezer_mix_),
        "Search and play tracks from Deezer by mix (radio station) name.")
       /* TIZ_CLASS_COMMENT: */
-      ("deezer-user-flow", "Play the users 'flow' radio station.");
+      ("deezer-top-playlist", po::value (&deezer_top_playlist_),
+       "Search and play tracks from Deezer's top playlists.")
+      /* TIZ_CLASS_COMMENT: */
+      ("deezer-tracks", po::value (&deezer_track_),
+       "Search and play tracks from Deezer by track name.")
+      /* TIZ_CLASS_COMMENT: */
+      ("deezer-user-flow",
+       "Play the users 'flow' radio station (Deezer user id required).")
+      /* TIZ_CLASS_COMMENT: */
+      ("deezer-user-id", po::value (&deezer_user_id_),
+       "Deezer user name (not required if provided via config "
+       "file).")
+      /* TIZ_CLASS_COMMENT: */
+      ("deezer-user-playlist", po::value (&deezer_playlist_),
+       "Search and play tracks from the user's playlists (Deezer user id "
+       "required).");
 
   register_consume_function (&tiz::programopts::consume_deezer_client_options);
   all_deezer_client_options_
-      = boost::assign::list_of ("deezer-user-id") ("deezer-tracks") (
-            "deezer-album") ("deezer-artist") ("deezer-top-playlist") (
-            "deezer-mix") ("deezer-user-flow")
+      = boost::assign::list_of ("deezer-album") ("deezer-artist") (
+            "deezer-mix") ("deezer-top-playlist") ("deezer-tracks") (
+            "deezer-user-flow") ("deezer-user-id") ("deezer-user-playlist")
             .convert_to_container< std::vector< std::string > > ();
 }
 
@@ -2004,7 +2009,8 @@ int tiz::programopts::consume_deezer_client_options (bool &done,
     const int playlist_option_count
         = vm_.count ("deezer-tracks") + vm_.count ("deezer-album")
           + vm_.count ("deezer-artist") + vm_.count ("deezer-top-playlist")
-          + vm_.count ("deezer-mix") + vm_.count ("deezer-user-flow");
+          + vm_.count ("deezer-mix") + vm_.count ("deezer-user-playlist")
+          + vm_.count ("deezer-user-flow");
     if (deezer_user_id_.empty ())
     {
       retrieve_config_from_rc_file ("tizonia", "deezer.user_id",
@@ -2017,6 +2023,13 @@ int tiz::programopts::consume_deezer_client_options (bool &done,
       // in deezer_playlist_type() to decide which playlist type value is
       // returned.
       deezer_user_flow_.assign ("Deezer user flow");
+    }
+    if (vm_.count ("deezer-user-playlist"))
+    {
+      // This is not going to be used by the client code, but will help
+      // in deezer_playlist_type() to decide which playlist type value is
+      // returned.
+      deezer_user_flow_.assign ("Deezer user playlist");
     }
 
     if (playlist_option_count > 1)
@@ -2040,11 +2053,14 @@ int tiz::programopts::consume_deezer_client_options (bool &done,
       oss << "A playlist value must be specified.";
       msg.assign (oss.str ());
     }
-    else if (deezer_user_id_.empty () && vm_.count ("deezer-user-flow"))
+    else if (deezer_user_id_.empty ()
+             && (vm_.count ("deezer-user-flow")
+                 || vm_.count ("deezer-user-playlist")))
     {
       rc = EXIT_FAILURE;
       std::ostringstream oss;
-      oss << "A Deezer user id must be specified to play the user's flow.";
+      oss << "A Deezer user id must be specified to play a user's flow or "
+             "playlist.";
       msg.assign (oss.str ());
     }
     else
@@ -2269,7 +2285,7 @@ bool tiz::programopts::validate_deezer_client_options () const
       = vm_.count ("deezer-user-id") + vm_.count ("deezer-tracks")
         + vm_.count ("deezer-album") + vm_.count ("deezer-artist")
         + vm_.count ("deezer-top-playlist") + vm_.count ("deezer-mix")
-        + vm_.count ("deezer-user-flow");
+        + vm_.count ("deezer-user-playlist") + vm_.count ("deezer-user-flow");
 
   std::vector< std::string > all_valid_options = all_deezer_client_options_;
   concat_option_lists (all_valid_options, all_global_options_);
