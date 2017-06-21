@@ -148,6 +148,14 @@ extern "C" int tiz_deezer_play_playlist (tiz_deezer_t *ap_deezer,
   return ap_deezer->p_proxy_->play_playlist (ap_playlist);
 }
 
+extern "C" int tiz_deezer_play_top_playlist (tiz_deezer_t *ap_deezer,
+                                             const char *ap_top_playlist)
+{
+  assert (ap_deezer);
+  assert (ap_deezer->p_proxy_);
+  return ap_deezer->p_proxy_->play_top_playlist (ap_top_playlist);
+}
+
 extern "C" int tiz_deezer_play_user_flow (tiz_deezer_t *ap_deezer)
 {
   assert (ap_deezer);

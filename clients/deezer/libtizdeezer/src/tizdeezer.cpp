@@ -165,6 +165,14 @@ int tizdeezer::play_playlist (const std::string &playlist)
   return rc;
 }
 
+int tizdeezer::play_top_playlist (const std::string &top_playlist)
+{
+  int rc = 0;
+  try_catch_wrapper (
+      py_dz_proxy_.attr ("enqueue_top_playlist") (bp::object (top_playlist)));
+  return rc;
+}
+
 int tizdeezer::play_user_flow ()
 {
   int rc = 0;
