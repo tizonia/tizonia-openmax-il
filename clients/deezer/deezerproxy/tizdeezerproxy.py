@@ -36,7 +36,7 @@ from operator import itemgetter
 from tizmopidydeezer import DeezerClient
 
 # For use during debugging
-import pprint
+# import pprint
 
 logging.captureWarnings(True)
 
@@ -396,7 +396,6 @@ class tizdeezerproxy(object):
         except KeyError:
             raise KeyError("Mix not found : {0}".format(arg))
 
-    # This does not work yet
     def enqueue_playlist(self, arg):
         """ Search for playlists with a given name and adds
         them to the playback queue.
@@ -405,13 +404,18 @@ class tizdeezerproxy(object):
         try:
             logging.info("Playlist search %s", arg)
             playlists = self.__api.browse_playlists()
-            pprint.pprint(playlists)
+
+            if not len(playlists):
+                # There are no user playlists, then play one of the top
+                # playlists.
+                self.enqueue_top_playlist(arg)
 
             playlist = None
             tentative_playlist = None
+            playlist_name = ''
 
             for m in playlists:
-                playlist_name = m.name
+                playlist_name = m['TITLE']
                 print_nfo("[Deezer] [Playlist] '{0}'." \
                           .format(to_ascii(playlist_name)))
 
@@ -435,7 +439,7 @@ class tizdeezerproxy(object):
             if not playlist:
                 raise KeyError("Playlist not found : {0}".format(arg))
 
-            playlist_id = playlist.uri[len('deezer:radio:'):]
+            playlist_id = playlist['PLAYLIST_ID']
             tracks = self.__api.lookup_playlist(playlist_id)
             for track in tracks:
                 print_nfo("[Deezer] [Playlist track] '{0}'." \
@@ -446,7 +450,7 @@ class tizdeezerproxy(object):
 
             self.__enqueue_tracks(tracks)
             print_wrn("[Deezer] Playing '{0}'." \
-                      .format(to_ascii(playlist.name)))
+                      .format(to_ascii(playlist_name)))
             self.__update_play_queue_order()
 
         except KeyError:
@@ -466,7 +470,7 @@ class tizdeezerproxy(object):
 
             for p in top_playlists:
                 top_playlist_name = p.name
-                print_nfo("[Deezer] [Top_Playlist] '{0}'." \
+                print_nfo("[Deezer] [Top playlist] '{0}'." \
                           .format(to_ascii(top_playlist_name)))
 
                 if not top_playlist:
