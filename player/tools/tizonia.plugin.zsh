@@ -201,6 +201,11 @@ deezer-user-flow() {
     eval tizonia "$(tiz-grab-env-options)" --deezer-user-flow
 }
 
+deezer-user-playlist() {
+    tiz-check-empty-params "$@" || return
+    eval tizonia "$(tiz-grab-env-options)" --deezer-user-playlist=\""$@"\"
+}
+
 alias s='spotify-playlist'
 alias spotify='spotify-playlist'
 alias artist='gmusic-artist-unlimited'
