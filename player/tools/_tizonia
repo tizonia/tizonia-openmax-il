@@ -50,12 +50,14 @@ _arguments -S -s \
   '--youtube-audio-mix[Play a YouTube mix from a video url or video id.]' \
   '--youtube-audio-search[Search and play YouTube audio streams.]' \
   '--youtube-audio-mix-search[Play a YouTube mix from a search term.]' \
-  '--deezer-user-id[Optional deezer user id (may also be provided via config file).]' \
   '--deezer-album[Play an album from the users library.]' \
   '--deezer-artist[Play tracks from the users library by artist.]' \
   '--deezer-mix[Search and play Deezer mixes.]' \
-  '--deezer-top-playlist[A playlist from the users library.]' \
+  '--deezer-top-playlist[A playlist from Deezers top playlists.]' \
   '--deezer-tracks[Play tracks from the users library.]' \
+  '--deezer-user-id[Optional deezer user id (may also be provided via config file).]' \
+  '--deezer-user-flow[Play tracks from the users flow radio station (Deezer id required).]' \
+  '--deezer-user-playlist[A playlist from the users library (Deezer id required).]' \
   '--server[Stream media files using the SHOUTcast/ICEcast streaming protocol.]' \
   '(-p)--port[TCP port to be used for Icecast/SHOUTcast streaming. Default: 8010.]' \
   '--station-name[The Icecast/SHOUTcast station name. Optional.]' \
