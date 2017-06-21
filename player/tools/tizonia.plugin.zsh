@@ -172,6 +172,30 @@ youtube-mix-search() {
     eval tizonia "$(tiz-grab-env-options)" --youtube-audio-mix-search=\""$@"\"
 }
 
+deezer-tracks() {
+    tiz-check-empty-params "$@" || return
+    eval tizonia "$(tiz-grab-env-options)" --deezer-tracks=\""$@"\"
+}
+
+deezer-album() {
+    tiz-check-empty-params "$@" || return
+    eval tizonia "$(tiz-grab-env-options)" --deezer-album=\""$@"\"
+}
+
+deezer-artist() {
+    tiz-check-empty-params "$@" || return
+    eval tizonia "$(tiz-grab-env-options)" --deezer-artist=\""$@"\"
+}
+
+deezer-mix() {
+    tiz-check-empty-params "$@" || return
+    eval tizonia "$(tiz-grab-env-options)" --deezer-mix=\""$@"\"
+}
+
+deezer-user-flow() {
+    eval tizonia "$(tiz-grab-env-options)" --deezer-user-flow
+}
+
 alias s='spotify-playlist'
 alias spotify='spotify-playlist'
 alias artist='gmusic-artist-unlimited'
