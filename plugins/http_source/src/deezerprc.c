@@ -563,6 +563,11 @@ enqueue_playlist_items (deezer_prc_t * ap_prc)
             rc = tiz_deezer_play_playlist (ap_prc->p_deezer_, p_playlist);
           }
           break;
+        case OMX_AUDIO_DeezerPlaylistTypeTopPlaylists:
+          {
+            rc = tiz_deezer_play_top_playlist (ap_prc->p_deezer_, p_playlist);
+          }
+          break;
         case OMX_AUDIO_DeezerPlaylistTypeUserFlow:
           {
             rc = tiz_deezer_play_user_flow (ap_prc->p_deezer_);
