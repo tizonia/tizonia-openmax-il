@@ -36,7 +36,7 @@ from operator import itemgetter
 from tizmopidydeezer import DeezerClient
 
 # For use during debugging
-# import pprint
+import pprint
 
 logging.captureWarnings(True)
 
@@ -397,7 +397,7 @@ class tizdeezerproxy(object):
             raise KeyError("Mix not found : {0}".format(arg))
 
     # This does not work yet
-    def enqueue_playlists(self, arg):
+    def enqueue_playlist(self, arg):
         """ Search for playlists with a given name and adds
         them to the playback queue.
 
@@ -451,6 +451,60 @@ class tizdeezerproxy(object):
 
         except KeyError:
             raise KeyError("Playlist not found : {0}".format(arg))
+
+    def enqueue_top_playlist(self, arg):
+        """ Search for top_playlists with a given name and adds
+        them to the playback queue.
+
+        """
+        try:
+            logging.info("Top playlist search %s", arg)
+            top_playlists = self.__api.browse_top_playlists()
+
+            top_playlist = None
+            tentative_top_playlist = None
+
+            for p in top_playlists:
+                top_playlist_name = p.name
+                print_nfo("[Deezer] [Top_Playlist] '{0}'." \
+                          .format(to_ascii(top_playlist_name)))
+
+                if not top_playlist:
+                    if arg.lower() == top_playlist_name.lower():
+                        top_playlist = p
+                    if not tentative_top_playlist:
+                        if arg.lower() in top_playlist_name.lower():
+                            tentative_top_playlist = p
+
+            if not top_playlist and tentative_top_playlist:
+                top_playlist = tentative_top_playlist
+
+            if not top_playlist and not tentative_top_playlist:
+                print_wrn("[Deezer] '{0}' not found. "\
+                          "Feeling lucky?." \
+                          .format(to_ascii(arg)))
+                random.seed()
+                top_playlist = random.choice(top_playlists)
+
+            if not top_playlist:
+                raise KeyError("Top playlist not found : {0}".format(arg))
+
+            top_playlist_id = top_playlist.uri[len('deezer:playlist:'):]
+            tracks = self.__api.lookup_playlist(top_playlist_id)
+            for track in tracks:
+                print_nfo("[Deezer] [Top playlist track] '{0}'." \
+                          .format(to_ascii(track.name)))
+
+            if not tracks or not len(tracks):
+                raise KeyError
+
+            self.__enqueue_tracks(tracks)
+            print_wrn("[Deezer] Playing '{0}'." \
+                      .format(to_ascii(top_playlist.name)))
+            self.__update_play_queue_order()
+
+        except KeyError:
+            raise KeyError("Top playlist not found : {0}".format(arg))
 
     def enqueue_user_flow(self):
         """ Play the user's flow station.
