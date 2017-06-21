@@ -23,7 +23,7 @@
 
 * A command-line music streaming client/server for Linux.
 * With support for Spotify, Google Play Music (including Unlimited), YouTube,
-  SoundCloud and Dirble.
+  SoundCloud, Dirble and Deezer.
 * A multimedia framework based on OpenMAX IL 1.2.
 
 [![Build Status](https://travis-ci.org/tizonia/tizonia-openmax-il.png)](https://travis-ci.org/tizonia/tizonia-openmax-il)  |  [![Coverity Scan Build Status](https://scan.coverity.com/projects/594/badge.svg)](https://scan.coverity.com/projects/594)  |  [![Documentation Status](https://readthedocs.org/projects/tizonia-openmax-il/badge/?version=master)](https://readthedocs.org/projects/tizonia-openmax-il/?badge=master)
@@ -61,9 +61,9 @@ release and all the dependencies, including [gmusicapi](https://github.com/simon
 
 ## Configuration
 
-To use *Spotify*, *Google Play Music*, *SoundCloud* and *Dirble*, introduce
-your credentials in Tizonia's config file (see instructions inside the file for
-more information):
+To use *Spotify*, *Google Play Music*, *SoundCloud*, *Dirble* and *Deezer*
+(optional), introduce your credentials in Tizonia's config file (see
+instructions inside the file for more information):
 
 ```bash
 
@@ -118,6 +118,7 @@ The components of the Tizonia project are listed below:
 * Search and stream audio from YouTube.
 * Search and stream audio from SoundCloud.
 * Search and stream Internet radio stations with Dirble.
+* Search and stream audio from Deezer (subscription is not required).
 * Playback of local media files (mp3, mp2, mpa, m2a, aac, ogg/vorbis, opus,
   wav, aiff, and flac).
 * Icecast/SHOUTcast streaming LAN server (mp3).
@@ -160,6 +161,7 @@ The components of the Tizonia project are listed below:
   * YouTube audio streaming service client (based on [pafy](https://github.com/mps-youtube/pafy))
   * SoundCloud streaming service client (based on [soundcloud-python](https://github.com/soundcloud/soundcloud-python))
   * Dirble internet radio station directory (Dirble REST API + libcurl)
+  * Deezer streaming service client (based on [mopidy-deezer](https://github.com/rusty-dev/mopidy-deezer))
   * mp3 decoders (libmad and libmpg123),
   * mpeg audio (mp2) decoder (libmpg123),
   * Sampled sound formats decoder (various pcm formats, including wav, etc, based on libsndfile)
