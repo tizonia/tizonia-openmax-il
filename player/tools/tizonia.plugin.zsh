@@ -187,6 +187,11 @@ deezer-artist() {
     eval tizonia "$(tiz-grab-env-options)" --deezer-artist=\""$@"\"
 }
 
+deezer-top-playlist() {
+    tiz-check-empty-params "$@" || return
+    eval tizonia "$(tiz-grab-env-options)" --deezer-top-playlist=\""$@"\"
+}
+
 deezer-mix() {
     tiz-check-empty-params "$@" || return
     eval tizonia "$(tiz-grab-env-options)" --deezer-mix=\""$@"\"
