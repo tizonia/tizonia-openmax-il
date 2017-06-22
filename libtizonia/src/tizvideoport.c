@@ -477,6 +477,8 @@ videoport_apply_slaving_behaviour (void * ap_obj, void * ap_mos_port,
       const OMX_U32 new_height = p_portdef->format.video.nFrameHeight;
       const OMX_S32 new_stride = p_portdef->format.video.nStride;
       const OMX_U32 new_slice_height = p_portdef->format.video.nSliceHeight;
+      const OMX_U32 new_bit_rate = p_portdef->format.video.nBitrate;
+      const OMX_U32 new_frame_rate = p_portdef->format.video.xFramerate;
       const OMX_U32 y_sz = new_width * new_height;
       const OMX_U32 u_sz = y_sz / 4;
       const OMX_U32 v_sz = u_sz;
@@ -490,12 +492,15 @@ videoport_apply_slaving_behaviour (void * ap_obj, void * ap_mos_port,
       if ((p_base->portdef_.format.video.nFrameWidth != new_width)
           || (p_base->portdef_.format.video.nFrameHeight != new_height)
           || (p_base->portdef_.format.video.nStride != new_stride)
-          || (p_base->portdef_.format.video.nSliceHeight != new_slice_height))
+          || (p_base->portdef_.format.video.nSliceHeight != new_slice_height)
+          || (p_base->portdef_.format.video.nBitrate != new_bit_rate)
+          || (p_base->portdef_.format.video.xFramerate != new_frame_rate))
         {
           TIZ_TRACE (handleOf (ap_obj),
                      "portdef_changed = OMX_TRUE :"
                      "width/height (w[%u] h[%u] - w[%u] h[%u])"
-                     "stride/slice height (st[%d] slh[%u] - st[%s] slg[%u])",
+                     "stride/slice height (st[%d] slh[%u] - st[%s] slg[%u])"
+                     "bitrate/framerate (br[%d] fr[%u] - br[%s] fr[%u])",
                      p_portdef->format.video.nFrameWidth,
                      p_portdef->format.video.nFrameHeight,
                      p_base->portdef_.format.video.nFrameWidth,
@@ -503,11 +508,17 @@ videoport_apply_slaving_behaviour (void * ap_obj, void * ap_mos_port,
                      p_portdef->format.video.nStride,
                      p_portdef->format.video.nSliceHeight,
                      p_base->portdef_.format.video.nStride,
-                     p_base->portdef_.format.video.nSliceHeight);
+                     p_base->portdef_.format.video.nSliceHeight,
+                     p_portdef->format.video.nBitrate,
+                     p_portdef->format.video.xFramerate,
+                     p_base->portdef_.format.video.nBitrate,
+                     p_base->portdef_.format.video.xFramerate);
           p_base->portdef_.format.video.nFrameWidth = new_width;
           p_base->portdef_.format.video.nFrameHeight = new_height;
           p_base->portdef_.format.video.nStride = new_stride;
           p_base->portdef_.format.video.nSliceHeight = new_slice_height;
+          p_base->portdef_.format.video.nBitrate = new_bit_rate;
+          p_base->portdef_.format.video.xFramerate = new_frame_rate;
           portdef_changed = OMX_TRUE;
         }
 
