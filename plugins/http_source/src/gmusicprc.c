@@ -62,6 +62,9 @@ static OMX_ERRORTYPE
 gmusic_prc_prepare_to_transfer (void * ap_prc, OMX_U32 a_pid);
 static OMX_ERRORTYPE
 gmusic_prc_transfer_and_process (void * ap_prc, OMX_U32 a_pid);
+static OMX_ERRORTYPE
+gmusic_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
+                          OMX_INDEXTYPE a_config_idx);
 
 #define on_gmusic_error_ret_omx_oom(expr)                                    \
   do                                                                         \
@@ -528,6 +531,8 @@ connection_lost (OMX_PTR ap_arg)
   assert (p_prc);
   TIZ_PRINTF_DBG_RED ("connection_lost - bytes_before_eos_ [%d]\n",
                       p_prc->bytes_before_eos_);
+  /* With this, we force an EOS flag in the next buffer */
+  p_prc->bytes_before_eos_ = 0;
   /* Return false to indicate that there is no need to start the automatic
      reconnection procedure */
   return false;
