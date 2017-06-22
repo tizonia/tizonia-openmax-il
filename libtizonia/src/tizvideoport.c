@@ -540,9 +540,27 @@ static OMX_ERRORTYPE
 videoport_SetParameter_internal (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
                                  OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  TIZ_TRACE (ap_hdl, "SetParameter_internal [%s] on pid [%d] ...",
-             tiz_idx_to_str (a_index), tiz_port_index (ap_obj));
-  return videoport_SetParameter_common (ap_obj, ap_hdl, a_index, ap_struct);
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  assert (ap_obj);
+
+  TIZ_TRACE (ap_hdl, "PORT [%d] SetParameter [%s]...", tiz_port_index (ap_obj),
+             tiz_idx_to_str (a_index));
+  switch (a_index)
+    {
+    case OMX_IndexParamVideoPortFormat:
+      {
+        rc = videoport_SetParameter_common (ap_obj, ap_hdl, a_index, ap_struct);
+      }
+      break;
+    default:
+      {
+        /* Try the parent's indexes */
+        rc = super_SetParameter (typeOf (ap_obj, "tizvideoport"), ap_obj,
+                                 ap_hdl, a_index, ap_struct);
+      }
+      break;
+    };
+  return rc;
 }
 
 /*

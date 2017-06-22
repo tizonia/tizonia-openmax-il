@@ -195,6 +195,56 @@ deinit_ports_and_lists (void * ap_obj)
   p_obj->p_egress_ = NULL;
 }
 
+static OMX_ERRORTYPE
+apply_slaving_behaviour (const tiz_krn_t * ap_krn, OMX_HANDLETYPE ap_hdl,
+                         OMX_INDEXTYPE a_index, OMX_PTR ap_struct,
+                         OMX_PTR ap_port)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  OMX_U32 mos_pid = 0; /* master's or slave's pid */
+
+  assert (ap_krn);
+  assert (ap_port);
+  assert (!TIZ_PORT_IS_CONFIG_PORT (ap_port));
+
+  if (tiz_port_is_master_or_slave (ap_port, &mos_pid) == true)
+    {
+      OMX_PTR * pp_mos_port = NULL;
+      OMX_PTR p_mos_port = NULL;
+      tiz_vector_t * p_changed_idxs = NULL;
+
+      /* Retrieve the master or slave's port... */
+      pp_mos_port = tiz_vector_at (ap_krn->p_ports_, mos_pid);
+      assert (pp_mos_port && *pp_mos_port);
+      p_mos_port = *pp_mos_port;
+
+      tiz_check_omx (
+        tiz_vector_init (&(p_changed_idxs), sizeof (OMX_INDEXTYPE)));
+      assert (p_changed_idxs);
+      rc = tiz_port_apply_slaving_behaviour (p_mos_port, ap_port, a_index,
+                                             ap_struct, p_changed_idxs);
+
+      if (OMX_ErrorNone == rc)
+        {
+          const OMX_S32 nidxs = tiz_vector_length (p_changed_idxs);
+          int i = 0;
+
+          for (; i < nidxs; ++i)
+            {
+              OMX_INDEXTYPE * p_idx = tiz_vector_at (p_changed_idxs, i);
+              assert (p_idx != NULL);
+              /* Trigger here a port settings changed event */
+              tiz_srv_issue_event (ap_krn, OMX_EventPortSettingsChanged,
+                                   mos_pid, *p_idx, NULL);
+            }
+        }
+
+      tiz_vector_clear (p_changed_idxs);
+      tiz_vector_destroy (p_changed_idxs);
+    }
+  return rc;
+}
+
 /*
  * tiz_krn construction / destruction
  */
@@ -321,48 +371,14 @@ krn_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
   if (OMX_ErrorNone
       == (rc = tiz_krn_find_managing_port (p_obj, a_index, ap_struct, &p_port)))
     {
-      OMX_U32 mos_pid = 0; /* master's or slave's pid */
       assert (p_port);
       /* Delegate to the port */
       rc = tiz_api_SetParameter (p_port, ap_hdl, a_index, ap_struct);
 
       if (OMX_ErrorNone == rc && !TIZ_PORT_IS_CONFIG_PORT (p_port))
         {
-          if (tiz_port_is_master_or_slave (p_port, &mos_pid) == true)
-            {
-              OMX_PTR * pp_mos_port = NULL;
-              OMX_PTR p_mos_port = NULL;
-              tiz_vector_t * p_changed_idxs = NULL;
-
-              /* Retrieve the master or slave's port... */
-              pp_mos_port = tiz_vector_at (p_obj->p_ports_, mos_pid);
-              assert (pp_mos_port && *pp_mos_port);
-              p_mos_port = *pp_mos_port;
-
-              tiz_check_omx (
-                tiz_vector_init (&(p_changed_idxs), sizeof (OMX_INDEXTYPE)));
-              assert (p_changed_idxs);
-              rc = tiz_port_apply_slaving_behaviour (
-                p_mos_port, p_port, a_index, ap_struct, p_changed_idxs);
-
-              if (OMX_ErrorNone == rc)
-                {
-                  const OMX_S32 nidxs = tiz_vector_length (p_changed_idxs);
-                  int i = 0;
-
-                  for (; i < nidxs; ++i)
-                    {
-                      OMX_INDEXTYPE * p_idx = tiz_vector_at (p_changed_idxs, i);
-                      assert (p_idx != NULL);
-                      /* Trigger here a port settings changed event */
-                      tiz_srv_issue_event (p_obj, OMX_EventPortSettingsChanged,
-                                           mos_pid, *p_idx, NULL);
-                    }
-                }
-
-              tiz_vector_clear (p_changed_idxs);
-              tiz_vector_destroy (p_changed_idxs);
-            }
+          /* Apply slaving behavior if necessary */
+          rc = apply_slaving_behaviour (p_obj, ap_hdl, a_index, ap_struct, p_port);
         }
 
       return rc;
@@ -2139,6 +2155,12 @@ krn_SetParameter_internal (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
       assert (p_port);
       /* Delegate to the port */
       rc = tiz_port_SetParameter_internal (p_port, ap_hdl, a_index, ap_struct);
+
+      if (OMX_ErrorNone == rc && !TIZ_PORT_IS_CONFIG_PORT (p_port))
+        {
+          /* Apply slaving behavior if necessary */
+          rc = apply_slaving_behaviour (p_obj, ap_hdl, a_index, ap_struct, p_port);
+        }
     }
   return rc;
 }
