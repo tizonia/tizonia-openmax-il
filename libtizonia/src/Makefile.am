@@ -81,6 +81,8 @@ libtizonia_include_HEADERS = \
 	tizflacport.h \
 	tizvp8port_decls.h \
 	tizvp8port.h \
+	tizavcport_decls.h \
+	tizavcport.h \
 	tizivrport_decls.h \
 	tizivrport.h \
 	tizdemuxerport_decls.h \
