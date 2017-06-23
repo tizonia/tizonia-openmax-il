@@ -62,7 +62,6 @@ AC_PROG_MAKE_SET
 PKG_PROG_PKG_CONFIG()
 
 # Checks for libraries.
-PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
 AC_CHECK_LIB([vpx], [vpx_codec_codec_version])
 
 AC_CHECK_HEADERS([tizonia/OMX_Core.h tizonia/OMX_Component.h],
@@ -95,16 +94,6 @@ AS_IF([test "x$tiz_found_tizonia_headers" == "xyes"],
 	[PKG_CHECK_MODULES([TIZONIA], [libtizonia >= 0.1.0])],
 	[AC_MSG_NOTICE([Not using pkg-config to find TIZONIA cflags and libs])])
 
-AC_CHECK_LIB([tizcore], [OMX_Init],
-	[tiz_found_core_lib=yes; break;])
-AS_IF([test "x$tiz_found_core_lib" != "xyes"],
-	[AC_SUBST([TIZCORE_CFLAGS], ['not-used'])
-	AC_SUBST([TIZCORE_LIBS], ['$(top_builddir)/../../libtizcore/tizonia/libtizcore.la'])],
-	[AC_MSG_NOTICE([Not substituting TIZCORE cflags and libs with local paths])])
-AS_IF([test "x$tiz_found_core_lib" == "xyes"],
-	[PKG_CHECK_MODULES([TIZCORE], [libtizcore >= 0.1.0])],
-	[AC_MSG_NOTICE([Not using pkg-config to find TIZCORE cflags and libs])])
-
 # Define location of plugin directory
 AS_AC_EXPAND(PLUGINDIR, ${libdir}/tizonia0-plugins12)
 AC_DEFINE_UNQUOTED(PLUGINDIR, "$PLUGINDIR",
@@ -117,8 +106,7 @@ AC_SUBST([plugindir], ['${libdir}/tizonia0-plugins12'])
 AC_CHECK_HEADERS([fcntl.h limits.h stdlib.h string.h sys/time.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
-# This one was introduced in 2.69
-# AC_CHECK_HEADER_STDBOOL
+AC_HEADER_STDBOOL
 AC_C_INLINE
 AC_TYPE_PID_T
 AC_TYPE_SIZE_T
