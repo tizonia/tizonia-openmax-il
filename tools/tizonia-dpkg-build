@@ -134,6 +134,7 @@ readonly TIZ_PYTHON_PROJECTS=( \
     tizsoundcloudproxy \
     tizdirbleproxy \
     tizyoutubeproxy \
+    tizdeezerproxy \
 )
 
 # &> /dev/null
@@ -151,6 +152,8 @@ declare -Ar TIZ_PROJECT_DIST_CMD=( \
     [tizdirble]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizyoutubeproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
     [tizyoutube]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
+    [tizdeezerproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
+    [tizdeezer]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizplatform]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizrmd]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizrmproxy]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
@@ -194,6 +197,8 @@ declare -Ar TIZ_PROJECT_DH_MAKE_CMD=( \
     [tizdirble]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizyoutubeproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
     [tizyoutube]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
+    [tizdeezerproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
+    [tizdeezer]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizplatform]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizrmd]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizrmproxy]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
@@ -234,6 +239,8 @@ declare -Ar TIZ_PROJECT_MAIN_PKG=( \
     [tizdirble]="libtizdirble0" \
     [tizyoutubeproxy]="python-tizyoutubeproxy" \
     [tizyoutube]="libtizyoutube0" \
+    [tizdeezerproxy]="python-tizdeezerproxy" \
+    [tizdeezer]="libtizdeezer0" \
     [tizplatform]="libtizplatform0" \
     [tizrmd]="tizrmd" \
     [tizrmproxy]="libtizrmproxy0" \
