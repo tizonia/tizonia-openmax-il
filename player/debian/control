@@ -21,7 +21,8 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Tizonia command-line music player
  A command-line music player and streaming server with support
- for Spotify and Google Play Music.
+ for Spotify, Google Play Music, YouTube, SoundCloud, Dirble
+ and Deezer.
 
 Package: tizonia-player-dbg
 Section: debug
@@ -30,6 +31,7 @@ Architecture: any
 Depends: tizonia-player (= ${binary:Version}), ${misc:Depends}
 Description: Tizonia command-line music player, debug symbols
  A command-line music player and streaming server with support
- for Spotify and Google Play Music.
+ for Spotify, Google Play Music, YouTube, SoundCloud, Dirble
+ and Deezer.
  .
  This package contains the debugging symbols.
