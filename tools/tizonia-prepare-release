@@ -57,20 +57,20 @@
 source tizonia-common.inc
 
 # Constants
-readonly TIZONIA_OLD_PACKAGE_VER="0.6.0"
+readonly TIZONIA_OLD_PACKAGE_VER="0.7.0"
 readonly TIZONIA_NEW_PACKAGE_VER="$TIZONIA_RELEASE_VERSION"
 
-readonly TIZONIA_PLUGIN_OLD_SHLIB_VER="0:6:0"
-readonly TIZONIA_PLUGIN_NEW_SHLIB_VER="0:7:0"
+readonly TIZONIA_PLUGIN_OLD_SHLIB_VER="0:7:0"
+readonly TIZONIA_PLUGIN_NEW_SHLIB_VER="0:8:0"
 
-readonly TIZONIA_OLD_SHLIB_VER="0:6:0"
-readonly TIZONIA_NEW_SHLIB_VER="0:7:0"
+readonly TIZONIA_OLD_SHLIB_VER="0:7:0"
+readonly TIZONIA_NEW_SHLIB_VER="0:8:0"
 
-readonly TIZONIA_PYTHON_OLD_MODULE_VER="0.6.0"
-readonly TIZONIA_PYTHON_NEW_MODULE_VER="0.7.0"
+readonly TIZONIA_PYTHON_OLD_MODULE_VER="0.7.0"
+readonly TIZONIA_PYTHON_NEW_MODULE_VER="0.8.0"
 
 readonly TIZONIA_DEBIAN_CHANGELOG_VER="$TIZONIA_NEW_PACKAGE_VER"
-readonly TIZONIA_DEBIAN_CHANGELOG_CLOSING_BUG="293"
+readonly TIZONIA_DEBIAN_CHANGELOG_CLOSING_BUG="339"
 
 # Program dependencies
 declare -ar TIZONIA_PREPARE_RELEASE_DEPS=( \
@@ -165,7 +165,7 @@ function main {
     # 8.- Close github issue: release vx.x.x
     # 9.- Create release and tag it on GitHub.
 
-    update_changelog
+    # update_changelog
 
     # Now Delete the tag on Github, push the changes to CHANGELOG.md and re-create the tag
     # $ git tag -l
