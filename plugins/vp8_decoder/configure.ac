@@ -130,8 +130,7 @@ AC_FUNC_REALLOC
 AC_CHECK_FUNCS([strndup])
 
 AC_CONFIG_FILES([Makefile
-                 src/Makefile
-                 tests/Makefile])
+                 src/Makefile])
 
 # End the configure script.
 AC_OUTPUT
