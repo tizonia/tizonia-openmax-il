@@ -1,5 +1,52 @@
 # Change Log
 
+## [v0.8.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.8.0) (2017-06-23)
+[Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.7.0...v0.8.0)
+
+**Improvements:**
+
+- tizonia-player: oh-my-zsh plugin [\#336](https://github.com/tizonia/tizonia-openmax-il/issues/336)
+- Google Music : add a '--gmusic-podcast' option [\#334](https://github.com/tizonia/tizonia-openmax-il/issues/334)
+- Google Music : add a '--gmusic-tracks' option [\#333](https://github.com/tizonia/tizonia-openmax-il/issues/333)
+- Google Music : add a '--gmusic-unlimited-playlist' [\#332](https://github.com/tizonia/tizonia-openmax-il/issues/332)
+- webm\_demuxer: update 'nestegg' library to latest [\#323](https://github.com/tizonia/tizonia-openmax-il/issues/323)
+- webm\_demuxer: implement VP8/VP9 video demuxing in 'filter' role [\#322](https://github.com/tizonia/tizonia-openmax-il/issues/322)
+- vp8\_decoder: add support for raw streams [\#314](https://github.com/tizonia/tizonia-openmax-il/issues/314)
+- build system: debian packaging of YUV renderer component [\#313](https://github.com/tizonia/tizonia-openmax-il/issues/313)
+- build system: debian packaging of VP8 decoder component [\#312](https://github.com/tizonia/tizonia-openmax-il/issues/312)
+- tizonia-player: zsh completion file [\#306](https://github.com/tizonia/tizonia-openmax-il/issues/306)
+- clients: add a 'tizdeezerproxy' Python module  [\#300](https://github.com/tizonia/tizonia-openmax-il/issues/300)
+- clients: add a 'libtizdeezer' binding library [\#299](https://github.com/tizonia/tizonia-openmax-il/issues/299)
+- player: add '--youtube-audio-mix-search' option [\#295](https://github.com/tizonia/tizonia-openmax-il/issues/295)
+- Add support for Deezer [\#294](https://github.com/tizonia/tizonia-openmax-il/issues/294)
+
+**Fixed bugs:**
+
+- libtizonia: IL 1.2 slaving behavior needs to be applied to both ports \(input and output\) if the port settings changed is triggered internally [\#338](https://github.com/tizonia/tizonia-openmax-il/issues/338)
+- Issues with Google Music : player stalls if connection is lost \(libcurl  SSL error with errno 104\) [\#337](https://github.com/tizonia/tizonia-openmax-il/issues/337)
+- Issues with Google Music : --gmusic-unlimited-station incorrect "not found" message \(minor issue\) [\#331](https://github.com/tizonia/tizonia-openmax-il/issues/331)
+- Issues with Google Music : --gmusic-unlimited-activity sometimes does not return any results [\#330](https://github.com/tizonia/tizonia-openmax-il/issues/330)
+- yuv\_renderer: 'sdlivr\_prc\_buffers\_ready' last few buffers in the stream sometime are not processed [\#329](https://github.com/tizonia/tizonia-openmax-il/issues/329)
+- Issues with Google Music : --gmusic-playlist [\#328](https://github.com/tizonia/tizonia-openmax-il/issues/328)
+- libtizonia: tizvideoport needs to override 'SetParameter\_internal' [\#327](https://github.com/tizonia/tizonia-openmax-il/issues/327)
+- yuv\_renderer: add port enable/disable functionality [\#326](https://github.com/tizonia/tizonia-openmax-il/issues/326)
+- Issues with Google Music : --gmusic-unlimited-tracks [\#325](https://github.com/tizonia/tizonia-openmax-il/issues/325)
+- libtizonia: 'videoport' base class has no 'tiz\_port\_set\_portdef\_format' override [\#321](https://github.com/tizonia/tizonia-openmax-il/issues/321)
+- tizyoutubeproxy: allow for retries as a workaround for SSLEOFErrors while retrieving youtube stream URLs [\#315](https://github.com/tizonia/tizonia-openmax-il/issues/315)
+- libtizplatform: can't locate the global tizonia.conf configuration file \(@sysconfdir@\) when the user's config file is not present [\#311](https://github.com/tizonia/tizonia-openmax-il/issues/311)
+- tizonia.conf: Debian installation puts it under /etc/tizonia/tizonia.conf instead of /etc/tizonia [\#310](https://github.com/tizonia/tizonia-openmax-il/issues/310)
+- player: command line argument processing is broken on systems with boost 1.59 or greater [\#308](https://github.com/tizonia/tizonia-openmax-il/issues/308)
+- tools/install.sh: script does not support installation on Ubuntu-based LinuxMint OSes  [\#303](https://github.com/tizonia/tizonia-openmax-il/issues/303)
+- tools/install.sh: script does not support installation on 16.04-based Elementary OS 0.4 Loki [\#302](https://github.com/tizonia/tizonia-openmax-il/issues/302)
+
+**Closed issues:**
+
+- Can't find a supported Debian or Ubuntu-based distribution. [\#304](https://github.com/tizonia/tizonia-openmax-il/issues/304)
+
+**Merged pull requests:**
+
+- libtizonia: add AVC port [\#320](https://github.com/tizonia/tizonia-openmax-il/pull/320) ([gpalsingh](https://github.com/gpalsingh))
+
 ## [v0.7.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.7.0) (2017-03-02)
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.6.0...v0.7.0)
 
