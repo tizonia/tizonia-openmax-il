@@ -61,13 +61,18 @@ fi
 # Resynchronize APT's package index files
 sudo apt-get update
 
-# Python dependencies. Using pip, install gmusicapi, soundcloud, youtube-dl and
-# pafy
+# Python dependencies.
 sudo apt-get -y install python-pip \
-    && sudo -H pip install --upgrade gmusicapi \
-    && sudo -H pip install --upgrade soundcloud \
-    && sudo -H pip install --upgrade youtube-dl \
-    && sudo -H pip install --upgrade pafy
+    && sudo -H pip install --upgrade \
+            gmusicapi \
+            soundcloud \
+            youtube-dl \
+            pafy \
+            simplejson \
+            pycrypto \
+            eyed3 \
+            Pykka \
+            pathlib
 
 # Install 'libspotify'
 if [[ "$?" -eq 0 ]]; then
