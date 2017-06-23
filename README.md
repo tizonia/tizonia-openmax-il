@@ -47,7 +47,7 @@ combinations:
 
 This script installs the
 [latest](https://github.com/tizonia/tizonia-openmax-il/releases/latest)
-release and all the dependencies, including [gmusicapi](https://github.com/simon-weber/gmusicapi), [soundcloud](https://github.com/soundcloud/soundcloud-python), [pafy](https://github.com/mps-youtube/pafy), and [youtube-dl](https://github.com/rg3/youtube-dl).
+release and all the dependencies, including [gmusicapi](https://github.com/simon-weber/gmusicapi), [soundcloud](https://github.com/soundcloud/soundcloud-python), [pafy](https://github.com/mps-youtube/pafy), [youtube-dl](https://github.com/rg3/youtube-dl), and a number of other supporting python packages.
 
 ```bash
 
@@ -83,7 +83,7 @@ To upgrade Tizonia, run 'apt-get' as usual, but also make sure the Python depend
     $ sudo apt-get update && sudo apt-get upgrade
 
     # (Note that new versions of some of these Python packages are released frequently)
-    $ sudo -H pip install --upgrade youtube-dl pafy gmusicapi soundcloud
+    $ sudo -H pip install --upgrade youtube-dl pafy gmusicapi soundcloud simplejson pycrypto eyed3 Pykka pathlib
 
 ```
 
