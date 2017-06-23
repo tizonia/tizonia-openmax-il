@@ -1,5 +1,5 @@
-tizchromecast (0.7.0-1) unstable; urgency=low
+tizchromecast (0.8.0-1) unstable; urgency=low
 
-  * Initial release (Closes: #141)
+  * Initial release (Closes: #339)
 
- -- Juan A. Rubio <juan.rubio@aratelia.com>  Fri, 04 Dec 2015 04:19:38 +0000
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Fri, 23 Jun 2017 12:14:11 +0100

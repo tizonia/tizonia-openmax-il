@@ -1,3 +1,9 @@
+tizvorbisdec (0.8.0-1) unstable; urgency=low
+
+  * New upstream release (Closes: #339)
+
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Fri, 23 Jun 2017 12:14:14 +0100
+
 tizvorbisdec (0.7.0-1) unstable; urgency=low
 
   * New upstream release (Closes: #293)
