@@ -41,6 +41,7 @@ declare -ar TIZ_SUPPORTED_RELEASES=( \
     ubuntu-wily \
     ubuntu-xenial \
     debian-jessie \
+    debian-stretch \
     raspbian-jessie \
 )
 
