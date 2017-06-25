@@ -1,9 +1,18 @@
+# Tizonia
+
+* A command-line music streaming client/server for Linux.
+* With support for Spotify, Google Play Music (including Unlimited), YouTube,
+  SoundCloud, Dirble and Deezer.
+* A multimedia framework based on OpenMAX IL 1.2.
+
+[![Build Status](https://travis-ci.org/tizonia/tizonia-openmax-il.png)](https://travis-ci.org/tizonia/tizonia-openmax-il)  |  [![Coverity Scan Build Status](https://scan.coverity.com/projects/594/badge.svg)](https://scan.coverity.com/projects/594)  |  [![Documentation Status](https://readthedocs.org/projects/tizonia-openmax-il/badge/?version=master)](https://readthedocs.org/projects/tizonia-openmax-il/?badge=master)
+
+![alt text](https://github.com/tizonia/tizonia-openmax-il/blob/master/docs/animated-gifs/tizonia-usage-screencast.gif "Tizonia usage")
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-- [Tizonia](#tizonia)
-- [Usage](#usage)
 - [Installation](#installation)
   - [Configuration](#configuration)
   - [Upgrade](#upgrade)
@@ -15,19 +24,6 @@
 - [More information](#more-information)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-# Tizonia
-
-* A command-line music streaming client/server for Linux.
-* With support for Spotify, Google Play Music (including Unlimited), YouTube,
-  SoundCloud, Dirble and Deezer.
-* A multimedia framework based on OpenMAX IL 1.2.
-
-[![Build Status](https://travis-ci.org/tizonia/tizonia-openmax-il.png)](https://travis-ci.org/tizonia/tizonia-openmax-il)  |  [![Coverity Scan Build Status](https://scan.coverity.com/projects/594/badge.svg)](https://scan.coverity.com/projects/594)  |  [![Documentation Status](https://readthedocs.org/projects/tizonia-openmax-il/badge/?version=master)](https://readthedocs.org/projects/tizonia-openmax-il/?badge=master)
-
-# Usage
-
-![alt text](https://github.com/tizonia/tizonia-openmax-il/blob/master/docs/animated-gifs/tizonia-usage-screencast.gif "Tizonia usage")
 
 # Installation
 
@@ -54,7 +50,7 @@ release and all the dependencies, including [gmusicapi](https://github.com/simon
 
 ```
 
-> NOTE: The usual disclaimers apply: trust no-one. Have a look at the installation script before running it in your system.
+> NOTE: The usual disclaimers apply: trust no-one. Have a look at the installation script before running it on your system.
 
 ## Configuration
 
