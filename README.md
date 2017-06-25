@@ -103,7 +103,7 @@ See [CHANGELOG.md](CHANGELOG.md).
 
 - Chromecast support.
 - REPL command-line interface.
-- AUR package and Snap packages.
+- AUR and Snap packages.
 - OS X port.
 
 # License
