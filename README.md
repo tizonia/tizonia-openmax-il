@@ -30,6 +30,7 @@
 # News
 
 :heavy_check_mark: [2017-06-25] Tizonia v0.8.0 released.
+
 :heavy_check_mark: [2017-05-04] Summer of Code 2017: [Add OpenMAX state
 tracker in Mesa/Gallium that uses
 Tizonia](https://summerofcode.withgoogle.com/projects/#4737166321123328)
