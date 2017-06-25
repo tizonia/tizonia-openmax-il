@@ -35,12 +35,12 @@ Tizonia's Debian packages are available from
 [Bintray](https://bintray.com/tizonia), with the following distro/arch
 combinations:
 
-| Ubuntu Trusty (14.04) | Ubuntu Xenial (16.04) | Debian Jessie (8) | Raspbian Jessie (8) |
-|        :---:          |        :---:          |        :---:      |       :---:         |
-|     amd64, armhf      |     amd64, armhf      |    amd64, armhf   |      armhf          |
-| [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-trusty/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-trusty/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-xenial/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-xenial/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-jessie/_latestVersion)  | [ ![Download](https://api.bintray.com/packages/tizonia/raspbian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/raspbian/tizonia-jessie/_latestVersion) |
+| Ubuntu Trusty (14.04) | Ubuntu Xenial (16.04) | Debian Jessie (8) | Raspbian Jessie (8) | Debian Stretch (9) | Raspbian Stretch (9) |
+|        :---:          |        :---:          |        :---:      |       :---:         |        :---:       |        :---:         |
+|     amd64, armhf      |     amd64, armhf      |    amd64, armhf   |      armhf          |     Coming Soon    |     Coming Soon      |
+| [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-trusty/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-trusty/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-xenial/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-xenial/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-jessie/_latestVersion)  | [ ![Download](https://api.bintray.com/packages/tizonia/raspbian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/raspbian/tizonia-jessie/_latestVersion) |   |   |
 
-> NOTE: Elementary OS and Linux Mint are also supported on releases based on Ubuntu 'Trusty' or Ubuntu 'Xenial'.
+> NOTE: Elementary OS and Linux Mint are supported on releases based on Ubuntu 'Trusty' or Ubuntu 'Xenial'.
 
 This script installs the
 [latest](https://github.com/tizonia/tizonia-openmax-il/releases/latest)
@@ -58,9 +58,9 @@ release and all the dependencies, including [gmusicapi](https://github.com/simon
 
 ## Configuration
 
-To use *Spotify*, *Google Play Music*, *SoundCloud*, *Dirble* and *Deezer*
-(optional), introduce your credentials in Tizonia's config file (see
-instructions inside the file for more information):
+To use *Spotify*, *Google Play Music*, *SoundCloud*, *Dirble* and *Deezer*,
+introduce your credentials in Tizonia's config file (see instructions inside
+the file for more information):
 
 ```bash
 
