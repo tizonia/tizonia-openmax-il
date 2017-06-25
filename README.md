@@ -29,7 +29,9 @@
 
 # News
 
-:heavy_check_mark: [2017-06-25] Tizonia v0.8.0 released.
+:heavy_check_mark: [2017-06-25] Tizonia
+[v0.8.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.8.0) released
+adding support for Deezer.
 
 :heavy_check_mark: [2017-05-04] [Summer of Code 2017: Add OpenMAX state tracker
 in Mesa/Gallium that uses
