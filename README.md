@@ -9,11 +9,8 @@
   - [Upgrade](#upgrade)
     - [IMPORTANT: If you are upgrading to v0.6.0 from a previous release](#important-if-you-are-upgrading-to-v060-from-a-previous-release)
 - [The Tizonia project](#the-tizonia-project)
-  - [`tizonia`: A command-line cloud music player and audio streaming client/server.](#tizonia-a-command-line-cloud-music-player-and-audio-streaming-clientserver)
-  - [A fully-featured OpenMAX IL 1.2 multimedia framework](#a-fully-featured-openmax-il-12-multimedia-framework)
-  - [Tizonia's OpenMAX IL 1.2 plugins](#tizonias-openmax-il-12-plugins)
-  - [Skema: Tizonia's test execution framework for OpenMAX IL components.](#skema-tizonias-test-execution-framework-for-openmax-il-components)
 - [Building Tizonia](#building-tizonia)
+- [Changelog](#changelog)
 - [License](#license)
 - [More information](#more-information)
 
@@ -116,6 +113,9 @@ See [PROJECT.md](PROJECT.md) to learn more about the project.
 
 See [BUILDING.md](BUILDING.md) for instructions on how to build Tizonia from source.
 
+# Changelog
+
+See [CHANGELOG.md](CHANGELOG.md).
 
 # License
 
