@@ -3,7 +3,9 @@
 * A command-line music streaming client/server for Linux.
 * With support for Spotify, Google Play Music (including Unlimited), YouTube,
   SoundCloud, Dirble and Deezer.
-* A multimedia framework based on OpenMAX IL 1.2.
+* A multimedia framework based on [OpenMAX IL 1.2](https://www.khronos.org/news/press/khronos-group-releases-openmax-il-1.2-provisional-specification).
+
+---
 
 [![Build Status](https://travis-ci.org/tizonia/tizonia-openmax-il.png)](https://travis-ci.org/tizonia/tizonia-openmax-il)  |  [![Coverity Scan Build Status](https://scan.coverity.com/projects/594/badge.svg)](https://scan.coverity.com/projects/594)  |  [![Documentation Status](https://readthedocs.org/projects/tizonia-openmax-il/badge/?version=master)](https://readthedocs.org/projects/tizonia-openmax-il/?badge=master)
 
@@ -13,17 +15,22 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
+- [Tizonia](#tizonia)
+- [News](#news)
 - [Installation](#installation)
   - [Configuration](#configuration)
   - [Upgrade](#upgrade)
-    - [IMPORTANT: If you are upgrading to v0.6.0 from a previous release](#important-if-you-are-upgrading-to-v060-from-a-previous-release)
-- [The Tizonia project](#the-tizonia-project)
-- [Building Tizonia](#building-tizonia)
+- [Project](#project)
+- [Building](#building)
 - [Changelog](#changelog)
 - [License](#license)
 - [More information](#more-information)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+# News
+
+:heavy_check_mark: [2017-06-25] Tizonia v0.8.0 released.
 
 # Installation
 
@@ -80,38 +87,22 @@ To upgrade Tizonia, run 'apt-get' as usual, but also make sure the Python depend
 
 ```
 
-### IMPORTANT: If you are upgrading to v0.6.0 from a previous release
-
-If you are upgrading to v0.6.0, please note that plugins are now being
-installed in a different directory, ${libdir}/tizonia0-plugins12; that means,
-you will need to update your existing *tizonia.conf*, or else *tizonia* will
-not work.  Just add 'tizonia0-plugins12' to the 'component-paths' configuration
-variable in *tizonia.conf*.
-
-i.e. before 0.6.0:
-
-```
-    component-paths = /usr/lib/arm-linux-gnueabihf;
-```
-
-
-after 0.6.0:
-
-```
-    component-paths = /usr/lib/arm-linux-gnueabihf/tizonia0-plugins12;
-```
-
-# The Tizonia project
+# Project
 
 See [PROJECT.md](PROJECT.md) to learn more about the project.
 
-# Building Tizonia
+# Building
 
 See [BUILDING.md](BUILDING.md) for instructions on how to build Tizonia from source.
 
 # Changelog
 
 See [CHANGELOG.md](CHANGELOG.md).
+
+# Roadmap
+
+- Chromecast support.
+- REPL command-line interface.
 
 # License
 
