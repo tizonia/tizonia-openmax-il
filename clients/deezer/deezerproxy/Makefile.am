@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-python_PYTHON = tizdeezerproxy.py tizdeezermodels.py deezer/tizmopidydeezer.py deezer/tizmopidydeezerutils.py
+python_PYTHON = tizdeezerproxy.py tizdeezermodels.py tizmopidydeezer.py tizmopidydeezerutils.py
 
 .PHONY: lint
 lint:
