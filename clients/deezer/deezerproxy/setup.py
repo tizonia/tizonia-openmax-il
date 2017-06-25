@@ -42,7 +42,7 @@ setup(
     author               = 'Juan A. Rubio',
     author_email         = 'juan.rubio@aratelia.com',
     url                  = 'http://www.tizonia.org',
-    py_modules           = ['tizdeezerproxy', 'tizdeezermodels', 'deezer/tizmopidydeezer.py', 'deezer/tizmopidydeezerutils.py'],
+    py_modules           = ['tizdeezerproxy', 'tizdeezermodels', 'tizmopidydeezer.py', 'tizmopidydeezerutils.py'],
     scripts              = [],
     license              = "Apache License, Version 2.0",
     description          = 'Tizonia Deezer proxy',
