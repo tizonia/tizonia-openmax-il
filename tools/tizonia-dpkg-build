@@ -45,6 +45,11 @@ declare -ar TIZ_SUPPORTED_RELEASES=( \
     raspbian-jessie \
 )
 
+declare -ar TIZ_LIBSPOTIFY_DEPS=( \
+    libspotify12 \
+    libspotify-dev \
+)
+
 declare -ar TIZ_TIZONIA_DEPS=( \
     apt-transport-https \
     build-essential \
@@ -379,6 +384,13 @@ function do_tizonia_deps {
         echo deb-src http://apt.mopidy.com/ stable main contrib non-free | sudo tee -a /etc/apt/sources.list
         sudo apt-get update
         pretty_print "$GRN" "[libspotify] : added Mopidy APT archive."
+        for pkg in "${TIZ_LIBSPOTIFY_DEPS[@]}"; do
+        local result=$(dpkg-query -W -f='${Status} ${Version}\n' "$pkg" 2> /dev/null | cut -d ' ' -f3)
+        if [[ "$result" != "installed" ]]; then
+            pretty_print "$BLU" "[$pkg] : installing."
+            sudo apt-get install -qq --force-yes "$pkg" #> /dev/null
+            pretty_print "$GRN" "[$pkg] : installed."
+        fi
     fi
 
     # Install a new version of pip
