@@ -46,6 +46,7 @@ declare -ar TIZ_SUPPORTED_RELEASES=( \
 )
 
 declare -ar TIZ_TIZONIA_DEPS=( \
+    apt-transport-https \
     build-essential \
     autoconf \
     autoconf-archive \
@@ -117,7 +118,6 @@ declare -ar TIZ_TIZONIA_PYPI_DEPS=( \
 )
 
 declare -ar TIZ_DEBIAN_PKGS=( \
-    apt-transport-https \
     dpkg-dev \
     dh-make \
     debhelper \
@@ -137,6 +137,13 @@ readonly TIZ_PYTHON_PROJECTS=( \
     tizyoutubeproxy \
     tizdeezerproxy \
 )
+
+# dpkg-dev package is required to have dpkg-architecture available
+readonly dpkgdevinstalled=$(dpkg-query -W -f='${Status} ${Version}\n' dpkg-dev 2> /dev/null | cut -d ' ' -f3)
+if [[ "$dpkgdevinstalled" == "installed" ]]; then
+    pretty_print "$BLU" "[dpkg-dev] : installing. 'dpkg-architecture' is required in order to run this script."
+    sudo apt-get install -qq --force-yes "dpkg-dev" #> /dev/null
+fi
 
 # &> /dev/null
 readonly TIZ_C_CPP_PROJECT_DIST_CMD="autoreconf -ifs &> /dev/null && ./configure && make dist && cp *.tar.gz \"$DEBIAN_DIR\""
@@ -349,6 +356,18 @@ function obtain_distro_id_and_codename {
 ##################################################################
 function do_tizonia_deps {
 
+    # Install tizonia's binary dependencies
+    for pkg in "${TIZ_TIZONIA_DEPS[@]}"; do
+        local result=$(dpkg-query -W -f='${Status} ${Version}\n' "$pkg" 2> /dev/null | cut -d ' ' -f3)
+        if [[ "$result" == "installed" ]]; then
+            pretty_print "$GRN" "[$pkg] : $result."
+        else
+            pretty_print "$BLU" "[$pkg] : installing."
+            sudo apt-get install -qq --force-yes "$pkg" #> /dev/null
+            pretty_print "$GRN" "[$pkg] : installed."
+        fi
+    done
+
     # Add mopidy APT archive to sources, if not added already
     # and install libspotify using mopidy's deb packages
     grep -q 'apt.mopidy.com' /etc/apt/sources.list
@@ -361,18 +380,6 @@ function do_tizonia_deps {
         sudo apt-get update
         pretty_print "$GRN" "[libspotify] : added Mopidy APT archive."
     fi
-
-    # Install tizonia's binary dependencies
-    for pkg in "${TIZ_TIZONIA_DEPS[@]}"; do
-        local result=$(dpkg-query -W -f='${Status} ${Version}\n' "$pkg" 2> /dev/null | cut -d ' ' -f3)
-        if [[ "$result" == "installed" ]]; then
-            pretty_print "$GRN" "[$pkg] : $result."
-        else
-            pretty_print "$BLU" "[$pkg] : installing."
-            sudo apt-get install -qq --force-yes "$pkg" #> /dev/null
-            pretty_print "$GRN" "[$pkg] : installed."
-        fi
-    done
 
     # Install a new version of pip
     echo "Installing a fresher version of pip..."
