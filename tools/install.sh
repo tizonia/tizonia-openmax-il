@@ -26,6 +26,8 @@ if echo "$RELIDS" | grep raspbian; then
   DISTRO="raspbian" ; RELEASE="jessie"
 elif echo "$RELIDS" | grep jessie; then
   DISTRO="debian" ; RELEASE="jessie"
+elif echo "$RELIDS" | grep stretch; then
+  DISTRO="debian" ; RELEASE="stretch"
 elif echo "$RELIDS" | grep -E 'trusty|freya|qiana|rebecca|rafaela|rosa|sarah'; then
   # NOTE: Elementary OS 'freya' is based on trusty
   # NOTE: LinuxMint 'qiana' 'rebecca' 'rafaela' 'rosa' 'sarah' are all based on trusty
@@ -41,7 +43,7 @@ else
   exit 1
 fi
 
-# Let's make sure these packages are already installed before installing anything else.
+# Let's make sure these packages are already installed before trying to install anything else.
 sudo apt-get -y --force-yes install python-dev curl apt-transport-https libffi-dev libssl-dev
 
 # Add Mopidy's archive to APT's sources.list (required to install 'libspotify')
@@ -99,7 +101,7 @@ which tizonia > /dev/null
 if [[ "$?" -eq 0 ]]; then
     echo ; tizonia ; echo
     printf "Tizonia is now installed.\n\n"
-    printf "Please add Spotify, Google Music, Soundcloud, and Dirble credentials in : $TIZ_CONFIG_FILE\n"
+    printf "Please add Spotify, Google Music, Soundcloud, Dirble and Deezer credentials to : $TIZ_CONFIG_FILE\n"
 else
     echo "Oops. Something went wrong!"
     exit 1
