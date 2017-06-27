@@ -42,7 +42,10 @@ namespace bp = boost::python;
     {                                                            \
       try                                                        \
         {                                                        \
-          (expr);                                                \
+          if (!rc)                                               \
+            {                                                    \
+              (expr);                                            \
+            }                                                    \
         }                                                        \
       catch (bp::error_already_set & e)                          \
         {                                                        \
@@ -52,21 +55,55 @@ namespace bp = boost::python;
       catch (const std::exception &e)                            \
         {                                                        \
           std::cerr << e.what ();                                \
+          rc = 1;                                                \
         }                                                        \
       catch (...)                                                \
         {                                                        \
           std::cerr << std::string ("Unknown exception caught"); \
+          rc = 1;                                                \
         }                                                        \
     }                                                            \
   while (0)
 
 namespace
 {
+  int check_deps ()
+  {
+    int rc = 1;
+    Py_Initialize ();
+
+    try
+      {
+        // Import the Google Play Music proxy module
+        bp::object py_main = bp::import ("__main__");
+
+        // Retrieve the main module's namespace
+        bp::object py_global = py_main.attr ("__dict__");
+
+        bp::object ignored = exec (
+            "import imp\n"
+            "imp.find_module('gmusicapi')\n",
+            py_global);
+        rc = 0;
+      }
+    catch (bp::error_already_set &e)
+      {
+        PyErr_PrintEx (0);
+        std::cerr << std::string (
+            "\nPython module 'gmusicapi' could not be found."
+            "\nPlease make sure this is installed correctly.\n"
+            "(e.g. 'pip install gmusicapi').\n");
+      }
+    catch (...)
+      {
+        std::cerr << std::string ("Unknown exception caught");
+      }
+    return rc;
+  }
+
   void init_gmusic (boost::python::object &py_main,
                     boost::python::object &py_global)
   {
-    Py_Initialize ();
-
     // Import the Google Play Music proxy module
     py_main = bp::import ("tizgmusicproxy");
 
@@ -98,7 +135,10 @@ tizgmusic::~tizgmusic ()
 int tizgmusic::init ()
 {
   int rc = 0;
-  try_catch_wrapper (init_gmusic (py_main_, py_global_));
+  if (0 == (rc = check_deps ()))
+    {
+      try_catch_wrapper (init_gmusic (py_main_, py_global_));
+    }
   return rc;
 }
 
