@@ -42,7 +42,10 @@ namespace bp = boost::python;
     {                                                            \
       try                                                        \
         {                                                        \
-          (expr);                                                \
+          if (!rc)                                               \
+            {                                                    \
+              (expr);                                            \
+            }                                                    \
         }                                                        \
       catch (bp::error_already_set & e)                          \
         {                                                        \
@@ -52,21 +55,55 @@ namespace bp = boost::python;
       catch (const std::exception &e)                            \
         {                                                        \
           std::cerr << e.what ();                                \
+          rc = 1;                                                \
         }                                                        \
       catch (...)                                                \
         {                                                        \
           std::cerr << std::string ("Unknown exception caught"); \
+          rc = 1;                                                \
         }                                                        \
     }                                                            \
   while (0)
 
 namespace
 {
-  void init_soundcloud (boost::python::object &py_main,
-                    boost::python::object &py_global)
+  int check_deps ()
   {
+    int rc = 1;
     Py_Initialize ();
 
+    try
+      {
+        // Import the Google Play Music proxy module
+        bp::object py_main = bp::import ("__main__");
+
+        // Retrieve the main module's namespace
+        bp::object py_global = py_main.attr ("__dict__");
+
+        bp::object ignored = exec (
+            "import imp\n"
+            "imp.find_module('soundcloud')\n",
+            py_global);
+        rc = 0;
+      }
+    catch (bp::error_already_set &e)
+      {
+        PyErr_PrintEx (0);
+        std::cerr << std::string (
+            "\nPython module 'soundcloud' could not be found."
+            "\nPlease make sure this is installed correctly.\n"
+            "(e.g. 'pip install soundcloud').\n");
+      }
+    catch (...)
+      {
+        std::cerr << std::string ("Unknown exception caught");
+      }
+    return rc;
+  }
+
+  void init_soundcloud (boost::python::object &py_main,
+                        boost::python::object &py_global)
+  {
     // Import the SoundCloud proxy module
     py_main = bp::import ("tizsoundcloudproxy");
 
@@ -96,7 +133,10 @@ tizsoundcloud::~tizsoundcloud ()
 int tizsoundcloud::init ()
 {
   int rc = 0;
-  try_catch_wrapper (init_soundcloud (py_main_, py_global_));
+  if (0 == (rc = check_deps ()))
+    {
+      try_catch_wrapper (init_soundcloud (py_main_, py_global_));
+    }
   return rc;
 }
 
