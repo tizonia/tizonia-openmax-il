@@ -92,7 +92,7 @@ if [[ "$?" -eq 0 ]]; then
     TIZ_CONFIG_FILE="$TIZ_CONFIG_DIR/tizonia.conf"
     if [[ ! -e "$TIZ_CONFIG_FILE" ]]; then
         mkdir -p "$TIZ_CONFIG_DIR"
-        cp /etc/tizonia/tizonia.conf/tizonia.conf "$TIZ_CONFIG_FILE"
+        cp /etc/tizonia/tizonia.conf "$TIZ_CONFIG_FILE"
     fi
 fi
 
