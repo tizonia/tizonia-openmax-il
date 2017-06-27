@@ -42,7 +42,10 @@ namespace bp = boost::python;
     {                                                            \
       try                                                        \
         {                                                        \
-          (expr);                                                \
+          if (!rc)                                               \
+            {                                                    \
+              (expr);                                            \
+            }                                                    \
         }                                                        \
       catch (bp::error_already_set & e)                          \
         {                                                        \
@@ -52,21 +55,59 @@ namespace bp = boost::python;
       catch (const std::exception &e)                            \
         {                                                        \
           std::cerr << e.what ();                                \
+          rc = 1;                                                \
         }                                                        \
       catch (...)                                                \
         {                                                        \
           std::cerr << std::string ("Unknown exception caught"); \
+          rc = 1;                                                \
         }                                                        \
     }                                                            \
   while (0)
 
 namespace
 {
+  int check_deps ()
+  {
+    int rc = 1;
+    Py_Initialize ();
+
+    try
+      {
+        // Import the Google Play Music proxy module
+        bp::object py_main = bp::import ("__main__");
+
+        // Retrieve the main module's namespace
+        bp::object py_global = py_main.attr ("__dict__");
+
+        bp::object ignored = exec (
+            "import imp\n"
+            "imp.find_module('pafy')\n",
+            py_global);
+
+        bp::object ignored2 = exec (
+            "import imp\n"
+            "imp.find_module('youtube_dl')\n",
+            py_global);
+        rc = 0;
+      }
+    catch (bp::error_already_set &e)
+      {
+        PyErr_PrintEx (0);
+        std::cerr << std::string (
+            "\nPython modules 'pafy and/or 'youtube-dl' not found."
+            "\nPlease make sure these are installed correctly.\n");
+      }
+    catch (...)
+      {
+        std::cerr << std::string ("Unknown exception caught");
+      }
+    return rc;
+  }
+
   void init_youtube (boost::python::object &py_main,
                      boost::python::object &py_global)
   {
-    Py_Initialize ();
-
     // Import the YouTube proxy module
     py_main = bp::import ("tizyoutubeproxy");
 
@@ -104,7 +145,10 @@ tizyoutube::~tizyoutube ()
 int tizyoutube::init ()
 {
   int rc = 0;
-  try_catch_wrapper (init_youtube (py_main_, py_global_));
+  if (0 == (rc = check_deps ()))
+    {
+      try_catch_wrapper (init_youtube (py_main_, py_global_));
+    }
   return rc;
 }
 
