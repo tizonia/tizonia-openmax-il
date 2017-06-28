@@ -111,6 +111,8 @@ declare -ar TIZ_TIZONIA_DEPS=( \
 )
 
 declare -ar TIZ_TIZONIA_PYPI_DEPS=( \
+    alabaster \
+    breathe \
     gmusicapi \
     soundcloud \
     youtube-dl \
