@@ -35,6 +35,7 @@
 
 #include <tizplatform.h>
 
+#include <tizkernel.h>
 #include <tizscheduler.h>
 #include <tizport.h>
 
@@ -56,6 +57,44 @@
  */
 
 static OMX_VERSIONTYPE vp8_decoder_version = {{1, 0, 0, 0}};
+
+static OMX_BOOL
+egl_image_validation_hook (const OMX_HANDLETYPE ap_hdl,
+                           OMX_U32 pid, OMX_PTR ap_eglimage,
+                           void *ap_args)
+{
+  const void * p_krn = NULL;
+  const void * p_port = NULL;
+  OMX_VIDEO_PORTDEFINITIONTYPE * p_def = NULL;
+
+  /* TODO: */
+  // vp8d_prc_t * ap_prc = NULL;
+
+  assert (ap_hdl);
+  assert (ap_eglimage);
+  assert (!ap_args);
+
+  p_krn = tiz_get_krn (ap_hdl);
+  p_port = tiz_krn_get_port (p_krn, pid);
+
+  assert (p_port);
+
+  //ap_prc = ( vp8d_prc_t *) p_port;
+  p_def = NULL;//&(ap_prc->port_def_.format.video);
+
+  if (!p_def->pNativeWindow)
+    {
+      /* Get pNativeWindow here because it is most likely that the client
+       * will set it after that tiz_srv_prepare_to_transfer is called */
+      tiz_api_GetParameter (p_krn, ap_hdl, OMX_IndexParamPortDefinition,
+                            p_def);
+
+      if (!p_def->pNativeWindow)
+        return OMX_ErrorInsufficientResources;
+    }
+
+  return OMX_ErrorNotImplemented;
+}
 
 static OMX_PTR
 instantiate_input_port (OMX_HANDLETYPE ap_hdl)
@@ -167,6 +206,11 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   const tiz_role_factory_t * rf_list[] = {&role_factory};
   tiz_type_factory_t vp8dprc_type;
   const tiz_type_factory_t * tf_list[] = {&vp8dprc_type};
+  const tiz_eglimage_hook_t egl_validation_hook = {
+    ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX,
+    egl_image_validation_hook,
+    NULL
+  };
 
   strcpy ((OMX_STRING) role_factory.role, ARATELIA_VP8_DECODER_DEFAULT_ROLE);
   role_factory.pf_cport = instantiate_config_port;
@@ -188,6 +232,10 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 
   /* Register the component role */
   tiz_check_omx (tiz_comp_register_roles (ap_hdl, rf_list, 1));
+
+  /* Register egl image validation hook */
+  tiz_check_omx (tiz_comp_register_eglimage_hook
+                     (ap_hdl, &egl_validation_hook));
 
   return OMX_ErrorNone;
 }
