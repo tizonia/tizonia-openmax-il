@@ -499,8 +499,8 @@ videoport_apply_slaving_behaviour (void * ap_obj, void * ap_mos_port,
           TIZ_TRACE (handleOf (ap_obj),
                      "portdef_changed = OMX_TRUE :"
                      "width/height (w[%u] h[%u] - w[%u] h[%u])"
-                     "stride/slice height (st[%d] slh[%u] - st[%s] slg[%u])"
-                     "bitrate/framerate (br[%d] fr[%u] - br[%s] fr[%u])",
+                     "stride/slice height (st[%d] slh[%u] - st[%d] slg[%u])"
+                     "bitrate/framerate (br[%d] fr[%u] - br[%d] fr[%u])",
                      p_portdef->format.video.nFrameWidth,
                      p_portdef->format.video.nFrameHeight,
                      p_base->portdef_.format.video.nFrameWidth,
