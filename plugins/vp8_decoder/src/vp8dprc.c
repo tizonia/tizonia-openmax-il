@@ -393,14 +393,26 @@ get_output_buffer (vp8d_prc_t * ap_prc)
                                    ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX,
                                    0, &ap_prc->p_outhdr_))
         {
-#ifndef NDEBUG
           if (ap_prc->p_outhdr_)
             {
+              OMX_PTR p_eglimage = NULL;
+#ifndef NDEBUG
               TIZ_TRACE (handleOf (ap_prc),
                          "Claimed output HEADER [%p]...nFilledLen [%d]",
                          ap_prc->p_outhdr_, ap_prc->p_outhdr_->nFilledLen);
-            }
 #endif
+              /* Check pBuffer nullity to know if an eglimage have been registered. */
+              if (!ap_prc->p_outhdr_->pBuffer &&
+                  OMX_ErrorNone == tiz_krn_claim_eglimage (tiz_get_krn (handleOf (ap_prc)),
+                                                           ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX,
+                                                           ap_prc->p_outhdr_, &p_eglimage))
+                {
+                  (void) tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_prc)),
+                                                 ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX,
+                                                 ap_prc->p_outhdr_);
+                  ap_prc->p_outhdr_ = NULL;
+                }
+            }
         }
     }
   return ap_prc->p_outhdr_;
