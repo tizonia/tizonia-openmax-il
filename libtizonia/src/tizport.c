@@ -947,6 +947,15 @@ port_UseEGLImage (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
   OMX_PTR p_plat_priv = NULL;
   OMX_BUFFERHEADERTYPE * p_hdr = NULL;
 
+  if (!p_obj->eglimage_hook_.pf_egl_validator)
+    {
+      TIZ_ERROR (ap_hdl,
+                 "UseEGLImage : no egl image validator on PORT [%d], returning "
+                 "OMX_ErrorNotImplemented.",
+                 p_obj->portdef_.nPortIndex);
+      return OMX_ErrorNotImplemented;
+    }
+
   if (!ap_eglimage)
     {
       TIZ_ERROR (ap_hdl, "UseEGLImage : Bad parameter found...");
@@ -955,21 +964,18 @@ port_UseEGLImage (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
 
   assert (a_pid == p_obj->portdef_.nPortIndex);
 
-  /* Before allocating the buffer header, call the egl image validation hook,
-     if it was registered on this port */
-  if (p_obj->eglimage_hook_.pf_egl_validator)
+  /* Before allocating the buffer header, call the egl image validation hook
+     registered on this port */
+  assert (a_pid == p_obj->eglimage_hook_.pid);
+  if (OMX_TRUE
+      != p_obj->eglimage_hook_.pf_egl_validator (ap_hdl, a_pid, ap_eglimage,
+                                                 p_obj->eglimage_hook_.p_args))
     {
-      assert (a_pid == p_obj->eglimage_hook_.pid);
-      if (OMX_TRUE
-          != p_obj->eglimage_hook_.pf_egl_validator (
-               ap_hdl, a_pid, ap_eglimage, p_obj->eglimage_hook_.p_args))
-        {
-          TIZ_ERROR (ap_hdl,
-                     "[OMX_ErrorInsufficientResources] : "
-                     "EGLImage validation failed on PORT [%d]",
-                     p_obj->pid_);
-          return OMX_ErrorInsufficientResources;
-        }
+      TIZ_ERROR (ap_hdl,
+                 "[OMX_ErrorInsufficientResources] : "
+                 "EGLImage validation failed on PORT [%d]",
+                 p_obj->pid_);
+      return OMX_ErrorInsufficientResources;
     }
 
   /* Allocate the buffer header... */
