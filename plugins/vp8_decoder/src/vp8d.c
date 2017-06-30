@@ -38,6 +38,9 @@
 #include <tizkernel.h>
 #include <tizscheduler.h>
 #include <tizport.h>
+#include <tizport_decls.h>
+#include <tizvideoport.h>
+#include <tizvideoport_decls.h>
 
 #include "vp8dprc.h"
 #include "vp8d.h"
@@ -64,8 +67,11 @@ egl_image_validation_hook (const OMX_HANDLETYPE ap_hdl,
                            void *ap_args)
 {
   const void * p_krn = NULL;
-  const void * p_port = NULL;
-  OMX_VIDEO_PORTDEFINITIONTYPE * p_def = NULL;
+  const tiz_port_t * p_port = NULL;
+  const tiz_videoport_t * p_videoport = NULL;
+
+  TIZ_DEBUG (ap_hdl, "vp8 decoder EGLImage validation hook : ap_eglimage=[%p]",
+             ap_eglimage);
 
   /* TODO: */
   // vp8d_prc_t * ap_prc = NULL;
@@ -76,24 +82,22 @@ egl_image_validation_hook (const OMX_HANDLETYPE ap_hdl,
 
   p_krn = tiz_get_krn (ap_hdl);
   p_port = tiz_krn_get_port (p_krn, pid);
+  p_videoport = (tiz_videoport_t *) p_port;
 
-  assert (p_port);
+  assert (p_videoport);
 
-  //ap_prc = ( vp8d_prc_t *) p_port;
-  p_def = NULL;//&(ap_prc->port_def_.format.video);
+/*   { */
+/*     const OMX_VIDEO_PORTDEFINITIONTYPE * p_video_portdef */
+/*       = &(p_port->portdef_.format.video); */
 
-  if (!p_def->pNativeWindow)
-    {
-      /* Get pNativeWindow here because it is most likely that the client
-       * will set it after that tiz_srv_prepare_to_transfer is called */
-      tiz_api_GetParameter (p_krn, ap_hdl, OMX_IndexParamPortDefinition,
-                            p_def);
+/*     if (!p_video_portdef->pNativeWindow) */
+/*       { */
+/*         return OMX_FALSE; */
+/*       } */
+/*   } */
 
-      if (!p_def->pNativeWindow)
-        return OMX_ErrorInsufficientResources;
-    }
-
-  return OMX_ErrorNotImplemented;
+  /* This function must return true or false */
+  return OMX_TRUE;
 }
 
 static OMX_PTR
