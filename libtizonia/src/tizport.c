@@ -2023,7 +2023,7 @@ port_set_eglimage_hook (void * ap_obj, const tiz_eglimage_hook_t * ap_hook)
   assert (ap_obj);
   assert (ap_hook);
   assert (ap_hook->pid == p_obj->pid_);
-
+  assert (ap_hook->pf_egl_validator);
   p_obj->eglimage_hook_.pid = ap_hook->pid;
   p_obj->eglimage_hook_.pf_egl_validator = ap_hook->pf_egl_validator;
   p_obj->eglimage_hook_.p_args = ap_hook->p_args;
