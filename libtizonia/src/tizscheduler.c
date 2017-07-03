@@ -74,6 +74,8 @@
   while (0)
 #endif
 
+typedef void (*hook_copy_f) (void * ap_dst, void * ap_src);
+
 typedef enum tiz_sched_state tiz_sched_state_t;
 enum tiz_sched_state
 {
@@ -93,6 +95,8 @@ struct tiz_srv_group
   void * p_prc;
   tiz_role_factory_t ** p_role_list;
   OMX_U32 nroles;
+  tiz_map_t * p_alloc_hooks_map;
+  tiz_map_t * p_eglimage_hooks_map;
   OMX_COMPONENTTYPE * p_hdl;
 };
 
@@ -416,6 +420,8 @@ static OMX_ERRORTYPE
 start_scheduler (tiz_scheduler_t *);
 static void
 delete_scheduler (tiz_scheduler_t *);
+static OMX_ERRORTYPE
+restore_hooks (tiz_scheduler_t * ap_sched);
 
 typedef OMX_ERRORTYPE (*tiz_sched_msg_dispatch_f) (tiz_scheduler_t * ap_sched,
                                                    tiz_sched_state_t * ap_state,
@@ -462,6 +468,7 @@ static tiz_sched_msg_str_t tiz_sched_msg_to_str_tbl[] = {
   {ETIZSchedMsgRegisterRoles, "ETIZSchedMsgRegisterRoles"},
   {ETIZSchedMsgRegisterTypes, "ETIZSchedMsgRegisterTypes"},
   {ETIZSchedMsgRegisterPortHooks, "ETIZSchedMsgRegisterPortHooks"},
+  {ETIZSchedMsgRegisterEglImageHook, "ETIZSchedMsgRegisterEglImageHook"},
   {ETIZSchedMsgEvIo, "{ETIZSchedMsgEvIo,"},
   {ETIZSchedMsgEvTimer, "ETIZSchedMsgEvTimer"},
   {ETIZSchedMsgEvStat, "ETIZSchedMsgEvStat"},
@@ -483,6 +490,7 @@ tiz_sched_msg_to_str (const tiz_sched_msg_class_t a_msg)
         }
     }
 
+  assert (0);
   return "Unknown scheduler message";
 }
 
@@ -519,6 +527,7 @@ static OMX_BOOL tiz_sched_blocking_apis_tbl[] = {
   OMX_TRUE,     /* ETIZSchedMsgRegisterRoles */
   OMX_TRUE,     /* ETIZSchedMsgRegisterTypes */
   OMX_TRUE,     /* ETIZSchedMsgRegisterPortHooks */
+  OMX_TRUE,     /* ETIZSchedMsgRegisterEglImageHook */
   OMX_FALSE,    /* ETIZSchedMsgEvIo */
   OMX_FALSE,    /* ETIZSchedMsgEvTimer */
   OMX_FALSE,    /* ETIZSchedMsgEvStat */
@@ -560,6 +569,7 @@ store_roles (tiz_scheduler_t * ap_sched,
 
   assert (ap_sched);
   assert (ap_msg_regroles);
+  assert (!ap_sched->child.p_role_list);
 
   if (!(ap_sched->child.p_role_list = tiz_mem_calloc (
           ap_msg_regroles->nroles, sizeof (tiz_role_factory_t *))))
@@ -599,6 +609,106 @@ store_roles (tiz_scheduler_t * ap_sched,
         }
     }
 
+  return rc;
+}
+
+static OMX_S32
+hook_map_compare_func (OMX_PTR ap_key1, OMX_PTR ap_key2)
+{
+  return (*((OMX_U32 *) ap_key1) < *((OMX_U32 *) ap_key2));
+}
+
+static void
+hook_map_free_func (OMX_PTR ap_key, OMX_PTR ap_value)
+{
+  tiz_mem_free (ap_key);
+  tiz_mem_free (ap_value);
+}
+
+static void
+delete_hooks (tiz_scheduler_t * ap_sched, tiz_map_t * ap_map)
+{
+  assert (ap_sched);
+
+  if (ap_map)
+    {
+      while (!tiz_map_empty (ap_map))
+        {
+          tiz_map_erase_at (ap_map, 0);
+        }
+      tiz_map_destroy (ap_map);
+    }
+}
+
+static void
+alloc_hooks_copy (void * ap_dst, void * ap_src)
+{
+  tiz_alloc_hooks_t * p_dst = ap_dst;
+  tiz_alloc_hooks_t * p_src = ap_src;
+  assert (p_dst);
+  assert (p_src);
+  p_dst->pid = p_src->pid;
+  p_dst->pf_alloc = p_src->pf_alloc;
+  p_dst->pf_free = p_src->pf_free;
+  p_dst->p_args = p_src->p_args;
+}
+
+static void
+eglimage_hook_copy (void * ap_dst, void * ap_src)
+{
+  tiz_eglimage_hook_t * p_dst = ap_dst;
+  tiz_eglimage_hook_t * p_src = ap_src;
+  assert (p_dst);
+  assert (p_src);
+  p_dst->pid = p_src->pid;
+  p_dst->pf_egl_validator = p_src->pf_egl_validator;
+  p_dst->p_args = p_src->p_args;
+}
+
+static OMX_ERRORTYPE
+store_hooks (tiz_map_t ** app_map, OMX_U32 a_pid, const void * ap_hooks,
+             size_t a_hook_struct_size, hook_copy_f a_copy_func)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  tiz_map_t * p_map = NULL;
+
+  assert (app_map);
+  assert (ap_hooks);
+  assert (a_hook_struct_size > 0);
+
+  p_map = *app_map;
+
+  if (!p_map)
+    {
+      if (OMX_ErrorNone != tiz_map_init (&p_map, hook_map_compare_func,
+                                         hook_map_free_func, NULL))
+        {
+          return OMX_ErrorInsufficientResources;
+        }
+      assert (p_map);
+      *app_map = p_map;
+    }
+
+  {
+    if (!tiz_map_find (p_map, &a_pid))
+      {
+        OMX_U32 * p_key = (OMX_U32 *) tiz_mem_alloc (sizeof (OMX_U32));
+        void * p_hook = tiz_mem_alloc (a_hook_struct_size);
+        if (p_hook && p_key)
+          {
+            OMX_U32 index = tiz_map_size (p_map);
+            *p_key = a_pid;
+            a_copy_func (p_hook, (void *) ap_hooks);
+            rc = tiz_map_insert (p_map, p_key, p_hook, &index);
+          }
+        else
+          {
+            tiz_mem_free (p_key);
+            tiz_mem_free (p_hook);
+            p_hook = NULL;
+          }
+      }
+  }
   return rc;
 }
 
@@ -795,6 +905,12 @@ do_set_component_role (tiz_scheduler_t * ap_sched,
 
           /* Populate defaults according to the new role */
           rc = init_and_register_role (ap_sched, role_pos);
+
+          if (OMX_ErrorNone == rc)
+            {
+              /* Restore any previously registered hooks, if any */
+              rc = restore_hooks (ap_sched);
+            }
 
           /* Now, make sure the new role's processor has access to the IL
              client's callback information */
@@ -1267,6 +1383,17 @@ do_rph (tiz_scheduler_t * ap_sched, tiz_sched_state_t * ap_state,
             /* Bad port index received */
             rc = OMX_ErrorBadPortIndex;
           }
+
+        if (OMX_ErrorNone == rc)
+          {
+            /* Store a local copy in the child struct */
+            TIZ_DEBUG (ap_sched->child.p_hdl,
+                       "storing alloc hooks [%s] - p_hooks [%p]",
+                       ap_sched->cname, p_hooks);
+            rc = store_hooks (&(ap_sched->child.p_alloc_hooks_map),
+                              p_hooks->pid, p_hooks, sizeof (tiz_alloc_hooks_t),
+                              alloc_hooks_copy);
+          }
       }
   }
 
@@ -1322,6 +1449,17 @@ do_reh (tiz_scheduler_t * ap_sched, tiz_sched_state_t * ap_state,
           {
             /* Bad port index received */
             rc = OMX_ErrorBadPortIndex;
+          }
+
+        if (OMX_ErrorNone == rc)
+          {
+            /* Store a local copy in the child struct */
+            TIZ_DEBUG (ap_sched->child.p_hdl,
+                       "storing eglimage hooks [%s] - p_hooks [%p]",
+                       ap_sched->cname, p_hook);
+            rc = store_hooks (&(ap_sched->child.p_eglimage_hooks_map),
+                              p_hook->pid, p_hook, sizeof (tiz_eglimage_hook_t),
+                              eglimage_hook_copy);
           }
       }
   }
@@ -2171,6 +2309,10 @@ delete_scheduler (tiz_scheduler_t * ap_sched)
   assert (ap_sched);
   (void) tiz_thread_join (&(ap_sched->thread), &p_result);
   delete_roles (ap_sched);
+  delete_hooks (ap_sched, ap_sched->child.p_alloc_hooks_map);
+  ap_sched->child.p_alloc_hooks_map = NULL;
+  delete_hooks (ap_sched, ap_sched->child.p_eglimage_hooks_map);
+  ap_sched->child.p_eglimage_hooks_map = NULL;
   (void) tiz_mutex_destroy (&(ap_sched->mutex));
   (void) tiz_sem_destroy (&(ap_sched->sem));
   tiz_queue_destroy (ap_sched->p_queue);
@@ -2204,6 +2346,8 @@ instantiate_scheduler (OMX_HANDLETYPE ap_hdl, const char * ap_cname)
   p_sched->child.p_prc = NULL;
   p_sched->child.p_role_list = NULL;
   p_sched->child.nroles = 0;
+  p_sched->child.p_alloc_hooks_map = NULL;
+  p_sched->child.p_eglimage_hooks_map = NULL;
   p_sched->child.p_hdl = ap_hdl;
   p_sched->error = OMX_ErrorNone;
   p_sched->state = ETIZSchedStateStarting;
@@ -2394,20 +2538,94 @@ init_and_register_role (tiz_scheduler_t * ap_sched, const OMX_U32 a_role_pos)
   return rc;
 }
 
-/**
- * This function is called by the IL plugin to initialize the base component
- * infrastructure. When this function returns, the component has a 'fsm' and
- * 'kernel' objects ready to function. It is typically called from the plugin's
- * entry point                        function, e.g. 'OMX_ComponentInit'.
- *
- * @param ap_hdl The component handle received from the IL Core as a parameter
- * to 'OMX_ComponentInit'. The handle is passed to the base component so that
- * it can initialize the IL API entry points.
- *
- * @param ap_cname The component's name.
- *
- * @return An OpenMAX IL error
+static OMX_S32
+restore_alloc_hooks (OMX_PTR ap_key, OMX_PTR ap_value, OMX_PTR ap_arg)
+{
+  tiz_scheduler_t * p_sched = ap_arg;
+  tiz_alloc_hooks_t * p_hooks = NULL;
+  tiz_alloc_hooks_t * p_old_hooks = NULL;
+
+  assert (ap_arg);
+  assert (ap_value);
+
+  p_hooks = (tiz_alloc_hooks_t *) ap_value;
+
+  {
+    tiz_sched_msg_t * p_msg = NULL;
+    tiz_sched_msg_regphooks_t * p_msg_rph = NULL;
+
+    TIZ_COMP_INIT_MSG_OOM (p_sched->child.p_hdl, p_msg,
+                           ETIZSchedMsgRegisterPortHooks);
+
+    assert (p_msg);
+    p_msg_rph = &(p_msg->rph);
+    assert (p_msg_rph);
+    p_msg_rph->p_hooks = p_hooks;
+    p_msg_rph->p_old_hooks = p_old_hooks;
+    p_msg->will_block = OMX_FALSE;
+    (void) dispatch_msg (p_sched, &(p_sched->state), p_msg);
+    TIZ_DEBUG (p_sched->child.p_hdl, "p_sched->error [%s]",
+               tiz_err_to_str (p_sched->error));
+  }
+  return 0;
+}
+
+static OMX_S32
+restore_eglimage_hooks (OMX_PTR ap_key, OMX_PTR ap_value, OMX_PTR ap_arg)
+{
+  tiz_scheduler_t * p_sched = ap_arg;
+  tiz_eglimage_hook_t * p_hook = NULL;
+
+  assert (ap_arg);
+  assert (ap_value);
+
+  p_hook = (tiz_eglimage_hook_t *) ap_value;
+
+  {
+    tiz_sched_msg_t * p_msg = NULL;
+    tiz_sched_msg_regeglhook_t * p_msg_reh = NULL;
+
+    TIZ_COMP_INIT_MSG_OOM (p_sched->child.p_hdl, p_msg,
+                           ETIZSchedMsgRegisterEglImageHook);
+
+    assert (p_msg);
+    p_msg_reh = &(p_msg->reh);
+    assert (p_msg_reh);
+    p_msg_reh->p_hook = p_hook;
+    p_msg->will_block = OMX_FALSE;
+    (void) dispatch_msg (p_sched, &(p_sched->state), p_msg);
+    TIZ_DEBUG (p_sched->child.p_hdl, "pid %u p_sched->error [%s]",
+               *((OMX_U32 *) ap_key), tiz_err_to_str (p_sched->error));
+  }
+  return 0;
+}
+
+static OMX_ERRORTYPE
+restore_hooks (tiz_scheduler_t * ap_sched)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+
+  assert (ap_sched);
+
+  if (ap_sched->child.p_alloc_hooks_map)
+    {
+      tiz_map_for_each (ap_sched->child.p_alloc_hooks_map, restore_alloc_hooks,
+                        (tiz_scheduler_t *) ap_sched);
+    }
+
+  if (ap_sched->child.p_eglimage_hooks_map)
+    {
+      tiz_map_for_each (ap_sched->child.p_eglimage_hooks_map,
+                        restore_eglimage_hooks, (tiz_scheduler_t *) ap_sched);
+    }
+
+  return rc;
+}
+
+/*
+ * Public functions
  */
+
 OMX_ERRORTYPE
 tiz_comp_init (const OMX_HANDLETYPE ap_hdl, const char * ap_cname)
 {
