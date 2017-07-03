@@ -40,6 +40,11 @@
 #include <tizplatform.h>
 
 #include <tizkernel.h>
+#include <tizscheduler.h>
+#include <tizport.h>
+#include <tizport_decls.h>
+#include <tizvideoport.h>
+#include <tizvideoport_decls.h>
 
 #include "vp8d.h"
 #include "vp8dprc.h"
@@ -869,6 +874,44 @@ release_all_headers (vp8d_prc_t * ap_prc)
   release_output_header (ap_prc);
 }
 
+static OMX_BOOL
+egl_image_validation_hook (const OMX_HANDLETYPE ap_hdl,
+                           OMX_U32 pid, OMX_PTR ap_eglimage,
+                           void *ap_args)
+{
+  const void * p_krn = NULL;
+  const tiz_port_t * p_port = NULL;
+  const tiz_videoport_t * p_videoport = NULL;
+  // vp8d_prc_t * ap_prc = NULL;
+
+  TIZ_DEBUG (ap_hdl, "vp8 decoder EGLImage validation hook : ap_eglimage=[%p]",
+             ap_eglimage);
+
+  assert (ap_hdl);
+  assert (ap_eglimage);
+  assert (ap_args);
+
+  p_krn = tiz_get_krn (ap_hdl);
+  p_port = tiz_krn_get_port (p_krn, pid);
+  p_videoport = (tiz_videoport_t *) p_port;
+  // ap_prc = (vp8d_prc_t *) ap_args;
+
+  assert (p_videoport);
+
+  {
+    const OMX_VIDEO_PORTDEFINITIONTYPE * p_video_portdef
+        = &(p_port->portdef_.format.video);
+
+    if (!p_video_portdef->pNativeWindow)
+      {
+        return OMX_FALSE;
+      }
+  }
+
+  /* This function must return true or false */
+  return OMX_TRUE;
+}
+
 /*
  * vp8dprc
  */
@@ -877,9 +920,18 @@ static void *
 vp8d_prc_ctor (void * ap_obj, va_list * app)
 {
   vp8d_prc_t * p_prc = super_ctor (typeOf (ap_obj, "vp8dprc"), ap_obj, app);
+  const tiz_eglimage_hook_t egl_validation_hook = {
+    ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX,
+    egl_image_validation_hook,
+    p_prc
+  };
+
   assert (p_prc);
   p_prc->in_port_disabled_ = false;
   p_prc->out_port_disabled_ = false;
+
+  tiz_comp_register_eglimage_hook (handleOf (p_prc), &egl_validation_hook);
+
   reset_stream_parameters (p_prc);
   return p_prc;
 }
