@@ -56,6 +56,7 @@ avcport_ctor (void * ap_obj, va_list * app)
   OMX_VIDEO_PARAM_AVCTYPE * p_avctype = NULL;
   OMX_VIDEO_AVCLEVELTYPE * p_levels = NULL;
   OMX_VIDEO_PARAM_BITRATETYPE * p_pbrtype = NULL;
+  OMX_VIDEO_PARAM_QUANTIZATIONTYPE * p_pqtype = NULL;
 
   assert (app);
 
@@ -67,6 +68,7 @@ avcport_ctor (void * ap_obj, va_list * app)
   tiz_port_register_index (p_obj,
                            OMX_IndexParamVideoProfileLevelQuerySupported);
   tiz_port_register_index (p_obj, OMX_IndexParamVideoProfileLevelCurrent);
+  tiz_port_register_index (p_obj, OMX_IndexParamVideoQuantization);
 
   /* Register additional indexes used when the port is instantiated as an
    * output port during encoding */
@@ -116,6 +118,12 @@ avcport_ctor (void * ap_obj, va_list * app)
       p_obj->cbrtype_.nVersion.nVersion = p_pbrtype->nVersion.nVersion;
       p_obj->cbrtype_.nPortIndex = p_base->portdef_.nPortIndex;
       p_obj->cbrtype_.nEncodeBitrate = p_pbrtype->nTargetBitrate;
+    }
+
+  /* Init the OMX_VIDEO_PARAM_QUANTIZATIONTYPE structure, if provided */
+  if ((p_pqtype = va_arg (*app, OMX_VIDEO_PARAM_QUANTIZATIONTYPE *)))
+    {
+      p_obj->pqtype_ = *p_pqtype;
     }
 
   /* Init the OMX_CONFIG_FRAMERATETYPE structure */
@@ -208,6 +216,15 @@ avcport_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
               p_pltype->eLevel = *p_level;
               TIZ_TRACE (ap_hdl, "Level [0x%08x]...", *p_level);
             }
+        }
+        break;
+
+      case OMX_IndexParamVideoQuantization:
+        {
+          OMX_VIDEO_PARAM_QUANTIZATIONTYPE * p_pqtype
+            = (OMX_VIDEO_PARAM_QUANTIZATIONTYPE *) ap_struct;
+
+          *p_pqtype = p_obj->pqtype_;
         }
         break;
 
@@ -332,6 +349,17 @@ avcport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
          * ignore it here.  */
           TIZ_NOTICE (ap_hdl, "Ignoring read-only index [%s] ",
                       tiz_idx_to_str (a_index));
+        }
+        break;
+
+      case OMX_IndexParamVideoQuantization:
+        {
+          const OMX_VIDEO_PARAM_QUANTIZATIONTYPE * p_pqtype
+            = (OMX_VIDEO_PARAM_QUANTIZATIONTYPE *) ap_struct;
+
+          p_obj->pqtype_.nQpI = p_pqtype->nQpI;
+          p_obj->pqtype_.nQpP = p_pqtype->nQpP;
+          p_obj->pqtype_.nQpB = p_pqtype->nQpB;
         }
         break;
 
