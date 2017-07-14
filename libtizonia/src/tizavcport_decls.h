@@ -47,6 +47,7 @@ struct tiz_avcport
   OMX_VIDEO_PARAM_BITRATETYPE pbrtype_;
   OMX_VIDEO_CONFIG_BITRATETYPE cbrtype_;
   OMX_CONFIG_FRAMERATETYPE frtype_;
+  OMX_VIDEO_PARAM_QUANTIZATIONTYPE pqtype_;
 };
 
 typedef struct tiz_avcport_class tiz_avcport_class_t;
