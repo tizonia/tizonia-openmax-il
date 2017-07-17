@@ -74,6 +74,21 @@
   while (0)
 #endif
 
+#define TIZ_COMP_CHECK_LOADED_STATE(sched)                                 \
+  do                                                                       \
+    {                                                                      \
+      const tiz_fsm_state_id_t now                                         \
+        = tiz_fsm_get_substate (sched->child.p_fsm);                       \
+      if (EStateLoaded != now)                                             \
+        {                                                                  \
+          TIZ_ERROR (ap_sched->child.p_hdl,                                \
+                     "[OMX_ErrorIncorrectStateOperation] : Operation not " \
+                     "permitted in OMX_LoadedState.");                     \
+          return OMX_ErrorIncorrectStateOperation;                         \
+        }                                                                  \
+    }                                                                      \
+  while (0)
+
 typedef void (*hook_copy_f) (void * ap_dst, void * ap_src);
 
 typedef enum tiz_sched_state tiz_sched_state_t;
@@ -87,13 +102,20 @@ enum tiz_sched_state
   ETIZSchedStateRolesRegistered,
 };
 
+typedef struct tiz_role_info tiz_role_info_t;
+struct tiz_role_info
+{
+  tiz_role_factory_t * p_rf;
+  tiz_map_t * p_role_eglimage_hooks_map;
+};
+
 typedef struct tiz_srv_group tiz_srv_group_t;
 struct tiz_srv_group
 {
   void * p_fsm;
   void * p_ker;
   void * p_prc;
-  tiz_role_factory_t ** p_role_list;
+  tiz_role_info_t ** p_role_list;
   OMX_U32 nroles;
   tiz_map_t * p_alloc_hooks_map;
   tiz_map_t * p_eglimage_hooks_map;
@@ -149,6 +171,7 @@ enum tiz_sched_msg_class
   ETIZSchedMsgRegisterTypes,
   ETIZSchedMsgRegisterPortHooks,
   ETIZSchedMsgRegisterEglImageHook,
+  ETIZSchedMsgRegisterRoleEglImageHook,
   ETIZSchedMsgEvIo,
   ETIZSchedMsgEvTimer,
   ETIZSchedMsgEvStat,
@@ -292,6 +315,13 @@ struct tiz_sched_msg_regeglhook
   const tiz_eglimage_hook_t * p_hook;
 };
 
+typedef struct tiz_sched_msg_regroleeglhook tiz_sched_msg_regroleeglhook_t;
+struct tiz_sched_msg_regroleeglhook
+{
+  const OMX_U8 * p_role;
+  const tiz_eglimage_hook_t * p_hook;
+};
+
 typedef struct tiz_sched_msg_ev_io tiz_sched_msg_ev_io_t;
 struct tiz_sched_msg_ev_io
 {
@@ -346,6 +376,7 @@ struct tiz_sched_msg
     tiz_sched_msg_regtypes_t rt;
     tiz_sched_msg_regphooks_t rph;
     tiz_sched_msg_regeglhook_t reh;
+    tiz_sched_msg_regroleeglhook_t rreh;
     tiz_sched_msg_ev_io_t eio;
     tiz_sched_msg_ev_timer_t etmr;
     tiz_sched_msg_ev_stat_t estat;
@@ -402,6 +433,8 @@ do_rph (tiz_scheduler_t *, tiz_sched_state_t *, tiz_sched_msg_t *);
 static OMX_ERRORTYPE
 do_reh (tiz_scheduler_t *, tiz_sched_state_t *, tiz_sched_msg_t *);
 static OMX_ERRORTYPE
+do_rreh (tiz_scheduler_t *, tiz_sched_state_t *, tiz_sched_msg_t *);
+static OMX_ERRORTYPE
 do_eio (tiz_scheduler_t *, tiz_sched_state_t *, tiz_sched_msg_t *);
 static OMX_ERRORTYPE
 do_etmr (tiz_scheduler_t *, tiz_sched_state_t *, tiz_sched_msg_t *);
@@ -421,7 +454,9 @@ start_scheduler (tiz_scheduler_t *);
 static void
 delete_scheduler (tiz_scheduler_t *);
 static OMX_ERRORTYPE
-restore_hooks (tiz_scheduler_t * ap_sched);
+restore_hooks (tiz_scheduler_t * ap_sched, const OMX_U32 a_role_pos);
+static void
+delete_hooks (tiz_scheduler_t * ap_sched, tiz_map_t * ap_map);
 
 typedef OMX_ERRORTYPE (*tiz_sched_msg_dispatch_f) (tiz_scheduler_t * ap_sched,
                                                    tiz_sched_state_t * ap_state,
@@ -430,7 +465,7 @@ static const tiz_sched_msg_dispatch_f tiz_sched_msg_to_fnt_tbl[] = {
   do_init,    do_deinit, do_getcv, do_scmd, do_gparam, do_sparam, do_gconfig,
   do_sconfig, do_gei,    do_gs,    do_tr,   do_ub,     do_ab,     do_fb,
   do_etb,     do_ftb,    do_scbs,  do_uei,  do_cre,    do_plgevt, do_rr,
-  do_rt,      do_rph,    do_reh,   do_eio,  do_etmr,   do_estat,
+  do_rt,      do_rph,    do_reh,   do_rreh, do_eio,    do_etmr,   do_estat,
 };
 
 static OMX_BOOL
@@ -469,6 +504,8 @@ static tiz_sched_msg_str_t tiz_sched_msg_to_str_tbl[] = {
   {ETIZSchedMsgRegisterTypes, "ETIZSchedMsgRegisterTypes"},
   {ETIZSchedMsgRegisterPortHooks, "ETIZSchedMsgRegisterPortHooks"},
   {ETIZSchedMsgRegisterEglImageHook, "ETIZSchedMsgRegisterEglImageHook"},
+  {ETIZSchedMsgRegisterRoleEglImageHook,
+   "ETIZSchedMsgRegisterRoleEglImageHook"},
   {ETIZSchedMsgEvIo, "{ETIZSchedMsgEvIo,"},
   {ETIZSchedMsgEvTimer, "ETIZSchedMsgEvTimer"},
   {ETIZSchedMsgEvStat, "ETIZSchedMsgEvStat"},
@@ -528,6 +565,7 @@ static OMX_BOOL tiz_sched_blocking_apis_tbl[] = {
   OMX_TRUE,     /* ETIZSchedMsgRegisterTypes */
   OMX_TRUE,     /* ETIZSchedMsgRegisterPortHooks */
   OMX_TRUE,     /* ETIZSchedMsgRegisterEglImageHook */
+  OMX_TRUE,     /* ETIZSchedMsgRegisterRoleEglImageHook */
   OMX_FALSE,    /* ETIZSchedMsgEvIo */
   OMX_FALSE,    /* ETIZSchedMsgEvTimer */
   OMX_FALSE,    /* ETIZSchedMsgEvStat */
@@ -550,6 +588,9 @@ delete_roles (tiz_scheduler_t * ap_sched)
 
   for (i = 0; i < ap_sched->child.nroles; ++i)
     {
+      tiz_mem_free (ap_sched->child.p_role_list[i]->p_rf);
+      delete_hooks (ap_sched,
+                    ap_sched->child.p_role_list[i]->p_role_eglimage_hooks_map);
       tiz_mem_free (ap_sched->child.p_role_list[i]);
     }
 
@@ -564,6 +605,7 @@ store_roles (tiz_scheduler_t * ap_sched,
              const tiz_sched_msg_regroles_t * ap_msg_regroles)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
+  tiz_role_info_t * p_rnfo = NULL;
   tiz_role_factory_t * p_rf = NULL;
   OMX_U32 i = 0;
 
@@ -571,8 +613,8 @@ store_roles (tiz_scheduler_t * ap_sched,
   assert (ap_msg_regroles);
   assert (!ap_sched->child.p_role_list);
 
-  if (!(ap_sched->child.p_role_list = tiz_mem_calloc (
-          ap_msg_regroles->nroles, sizeof (tiz_role_factory_t *))))
+  if (!(ap_sched->child.p_role_list
+        = tiz_mem_calloc (ap_msg_regroles->nroles, sizeof (tiz_role_info_t *))))
     {
       TIZ_ERROR (ap_sched->child.p_hdl,
                  "[OMX_ErrorInsufficientResources] : list of roles - "
@@ -584,26 +626,37 @@ store_roles (tiz_scheduler_t * ap_sched,
     {
       for (i = 0; i < ap_msg_regroles->nroles && rc == OMX_ErrorNone; ++i)
         {
-          p_rf = tiz_mem_calloc (1, sizeof (tiz_role_factory_t));
-          if (p_rf)
+          p_rnfo = tiz_mem_calloc (1, sizeof (tiz_role_info_t));
+          if (p_rnfo)
             {
-              memcpy (p_rf, ap_msg_regroles->p_role_list[i],
-                      sizeof (tiz_role_factory_t));
+              p_rf = tiz_mem_calloc (1, sizeof (tiz_role_factory_t));
+              if (p_rf)
+                {
+                  memcpy (p_rf, ap_msg_regroles->p_role_list[i],
+                          sizeof (tiz_role_factory_t));
 
-              ap_sched->child.p_role_list[i] = p_rf;
-              ap_sched->child.nroles++;
+                  p_rnfo->p_rf = p_rf;
+                  ap_sched->child.p_role_list[i] = p_rnfo;
+                  ap_sched->child.nroles++;
+                }
+              else
+                {
+                  rc = OMX_ErrorInsufficientResources;
+                  tiz_mem_free (p_rnfo);
+                  p_rnfo = NULL;
+                }
             }
           else
             {
               rc = OMX_ErrorInsufficientResources;
-              TIZ_ERROR (ap_sched->child.p_hdl,
-                         "[OMX_ErrorInsufficientResources] : list of roles - "
-                         "Failed when making local copy ..");
             }
         }
 
       if (OMX_ErrorNone != rc)
         {
+          TIZ_ERROR (ap_sched->child.p_hdl,
+                     "[OMX_ErrorInsufficientResources] : list of roles - "
+                     "Failed when making local copy ..");
           /* Clean-up */
           delete_roles (ap_sched);
         }
@@ -870,10 +923,13 @@ do_set_component_role (tiz_scheduler_t * ap_sched,
 
       for (role_pos = 0; role_pos < nroles; ++role_pos)
         {
-          if (0 == strncmp (
-                     (char *) ap_role->cRole,
-                     (const char *) ap_sched->child.p_role_list[role_pos]->role,
-                     OMX_MAX_STRINGNAME_SIZE))
+          assert (ap_sched->child.p_role_list[role_pos]);
+          assert (ap_sched->child.p_role_list[role_pos]->p_rf);
+          if (0
+              == strncmp ((char *) ap_role->cRole,
+                          (const char *) ap_sched->child.p_role_list[role_pos]
+                            ->p_rf->role,
+                          OMX_MAX_STRINGNAME_SIZE))
             {
               TIZ_TRACE (ap_sched->child.p_hdl, "Found role [%s]...",
                          ap_role->cRole);
@@ -909,7 +965,7 @@ do_set_component_role (tiz_scheduler_t * ap_sched,
           if (OMX_ErrorNone == rc)
             {
               /* Restore any previously registered hooks, if any */
-              rc = restore_hooks (ap_sched);
+              rc = restore_hooks (ap_sched, role_pos);
             }
 
           /* Now, make sure the new role's processor has access to the IL
@@ -1195,10 +1251,12 @@ do_cre (tiz_scheduler_t * ap_sched, tiz_sched_state_t * ap_state,
 
   if (p_msg_getcre->index < ap_sched->child.nroles)
     {
-      strncpy (
-        (char *) p_msg_getcre->p_role,
-        (const char *) ap_sched->child.p_role_list[p_msg_getcre->index]->role,
-        OMX_MAX_STRINGNAME_SIZE);
+      assert (ap_sched->child.p_role_list[p_msg_getcre->index]);
+      assert (ap_sched->child.p_role_list[p_msg_getcre->index]->p_rf);
+      strncpy ((char *) p_msg_getcre->p_role,
+               (const char *) ap_sched->child.p_role_list[p_msg_getcre->index]
+                 ->p_rf->role,
+               OMX_MAX_STRINGNAME_SIZE);
       p_msg_getcre->p_role[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
     }
   else
@@ -1233,10 +1291,6 @@ do_rr (tiz_scheduler_t * ap_sched, tiz_sched_state_t * ap_state,
        tiz_sched_msg_t * ap_msg)
 {
   tiz_sched_msg_regroles_t * p_msg_rr = NULL;
-  const tiz_role_factory_t * p_rf = NULL;
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-  OMX_U32 i = 0;
-  OMX_U32 j = 0;
 
   assert (ap_sched);
   assert (ap_msg);
@@ -1247,37 +1301,41 @@ do_rr (tiz_scheduler_t * ap_sched, tiz_sched_state_t * ap_state,
   assert (p_msg_rr->p_role_list);
   assert (p_msg_rr->nroles > 0);
 
-  /* TODO: Validate this inputs only in debug mode */
-  for (i = 0; i < p_msg_rr->nroles && rc == OMX_ErrorNone; ++i)
-    {
-      p_rf = p_msg_rr->p_role_list[i];
-      if (!p_rf->pf_cport || !p_rf->pf_proc)
-        {
-          assert (0);
-        }
+/* Validate these inputs in debug mode */
+#ifndef NDEBUG
+  {
+    const tiz_role_factory_t * p_rf = NULL;
+    OMX_U32 i = 0;
+    OMX_U32 j = 0;
+    for (i = 0; i < p_msg_rr->nroles; ++i)
+      {
+        p_rf = p_msg_rr->p_role_list[i];
+        if (!p_rf->pf_cport || !p_rf->pf_proc)
+          {
+            assert (0);
+          }
 
-      assert (p_rf->nports > 0);
-      assert (p_rf->nports <= TIZ_COMP_MAX_PORTS);
+        assert (p_rf->nports > 0);
+        assert (p_rf->nports <= TIZ_COMP_MAX_PORTS);
 
-      for (j = 0; j < p_rf->nports && rc == OMX_ErrorNone; ++j)
-        {
-          if (!p_rf->pf_port[j])
-            {
-              assert (0);
-            }
-        }
-    }
+        for (j = 0; j < p_rf->nports; ++j)
+          {
+            if (!p_rf->pf_port[j])
+              {
+                assert (0);
+              }
+          }
+      }
+  }
+#endif
 
   /* Store a local copy of the role list in the child struct */
-  rc = store_roles (ap_sched, p_msg_rr);
+  tiz_check_omx (store_roles (ap_sched, p_msg_rr));
 
-  if (OMX_ErrorNone == rc)
-    {
-      /* Now instantiate the entities of role #0, the default role */
-      rc = init_and_register_role (ap_sched, 0);
-    }
+  /* Now instantiate the entities of role #0, the default role */
+  tiz_check_omx (init_and_register_role (ap_sched, 0));
 
-  return rc;
+  return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
@@ -1348,52 +1406,44 @@ do_rph (tiz_scheduler_t * ap_sched, tiz_sched_state_t * ap_state,
   p_hooks = p_msg_rph->p_hooks;
   assert (p_hooks);
 
+  /* Only allow in OMX_StateLoded state. Disallowed for
+   * other states, even if the port is disabled.
+   */
+  TIZ_COMP_CHECK_LOADED_STATE (ap_sched);
+
   {
-    const tiz_fsm_state_id_t now = tiz_fsm_get_substate (ap_sched->child.p_fsm);
+    OMX_U32 i = 0;
+    void * p_port = NULL;
+    OMX_U32 pid = 0;
 
-    /* Only allow role registration if in OMX_StateLoded state. Disallowed for
-     * other states, even if the port is disabled.
-     */
-    if (EStateLoaded != now)
+    do
       {
-        rc = OMX_ErrorIncorrectStateOperation;
+        pid = ((OMX_ALL != p_hooks->pid) ? p_hooks->pid : i++);
+
+        if (NULL != (p_port = tiz_krn_get_port (ap_sched->child.p_ker, pid)))
+          {
+            tiz_port_set_alloc_hooks (
+              p_port, p_hooks,
+              p_hooks->pid == OMX_ALL ? NULL : p_msg_rph->p_old_hooks);
+          }
       }
-    else
+    while (p_port != NULL && (OMX_ALL == p_hooks->pid));
+
+    if (!p_port && OMX_ALL != p_hooks->pid)
       {
-        OMX_U32 i = 0;
-        void * p_port = NULL;
-        OMX_U32 pid = 0;
+        /* Bad port index received */
+        rc = OMX_ErrorBadPortIndex;
+      }
 
-        do
-          {
-            pid = ((OMX_ALL != p_hooks->pid) ? p_hooks->pid : i++);
-
-            if (NULL
-                != (p_port = tiz_krn_get_port (ap_sched->child.p_ker, pid)))
-              {
-                tiz_port_set_alloc_hooks (
-                  p_port, p_hooks,
-                  p_hooks->pid == OMX_ALL ? NULL : p_msg_rph->p_old_hooks);
-              }
-          }
-        while (p_port != NULL && (OMX_ALL == p_hooks->pid));
-
-        if (!p_port && OMX_ALL != p_hooks->pid)
-          {
-            /* Bad port index received */
-            rc = OMX_ErrorBadPortIndex;
-          }
-
-        if (OMX_ErrorNone == rc)
-          {
-            /* Store a local copy in the child struct */
-            TIZ_DEBUG (ap_sched->child.p_hdl,
-                       "storing alloc hooks [%s] - p_hooks [%p]",
-                       ap_sched->cname, p_hooks);
-            rc = store_hooks (&(ap_sched->child.p_alloc_hooks_map),
-                              p_hooks->pid, p_hooks, sizeof (tiz_alloc_hooks_t),
-                              alloc_hooks_copy);
-          }
+    if (OMX_ErrorNone == rc)
+      {
+        /* Store a local copy in the child struct */
+        TIZ_DEBUG (ap_sched->child.p_hdl,
+                   "storing alloc hooks [%s] - p_hooks [%p]", ap_sched->cname,
+                   p_hooks);
+        rc
+          = store_hooks (&(ap_sched->child.p_alloc_hooks_map), p_hooks->pid,
+                         p_hooks, sizeof (tiz_alloc_hooks_t), alloc_hooks_copy);
       }
   }
 
@@ -1417,22 +1467,110 @@ do_reh (tiz_scheduler_t * ap_sched, tiz_sched_state_t * ap_state,
   p_hook = p_msg_reh->p_hook;
   assert (p_hook);
 
+  /* Only allow in OMX_StateLoded state. Disallowed for
+   * other states, even if the port is disabled.
+   */
+  TIZ_COMP_CHECK_LOADED_STATE (ap_sched);
+
   {
-    const tiz_fsm_state_id_t now = tiz_fsm_get_substate (ap_sched->child.p_fsm);
+    OMX_U32 i = 0;
+    void * p_port = NULL;
+    OMX_U32 pid = 0;
 
-    /* Only allow role registration if in OMX_StateLoded state. Disallowed for
-     * other states, even if the port is disabled.
-     */
-    if (EStateLoaded != now)
+    do
       {
-        rc = OMX_ErrorIncorrectStateOperation;
+        pid = ((OMX_ALL != p_hook->pid) ? p_hook->pid : i++);
+
+        if (NULL != (p_port = tiz_krn_get_port (ap_sched->child.p_ker, pid)))
+          {
+            tiz_port_set_eglimage_hook (p_port, p_hook);
+          }
       }
-    else
-      {
-        OMX_U32 i = 0;
-        void * p_port = NULL;
-        OMX_U32 pid = 0;
+    while (p_port != NULL && (OMX_ALL == p_hook->pid));
 
+    if (!p_port && OMX_ALL != p_hook->pid)
+      {
+        /* Bad port index received */
+        rc = OMX_ErrorBadPortIndex;
+      }
+
+    if (OMX_ErrorNone == rc)
+      {
+        /* Store a local copy in the child struct */
+        TIZ_DEBUG (ap_sched->child.p_hdl,
+                   "storing eglimage hooks [%s] - p_hooks [%p]",
+                   ap_sched->cname, p_hook);
+        rc = store_hooks (&(ap_sched->child.p_eglimage_hooks_map), p_hook->pid,
+                          p_hook, sizeof (tiz_eglimage_hook_t),
+                          eglimage_hook_copy);
+      }
+  }
+
+  return rc;
+}
+
+static OMX_ERRORTYPE
+do_rreh (tiz_scheduler_t * ap_sched, tiz_sched_state_t * ap_state,
+         tiz_sched_msg_t * ap_msg)
+{
+  tiz_sched_msg_regroleeglhook_t * p_msg_rreh = NULL;
+  const tiz_eglimage_hook_t * p_hook = NULL;
+  tiz_role_info_t * p_rnfo = NULL;
+  OMX_U32 role_pos = 0;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+
+  assert (ap_sched);
+  assert (ap_msg);
+  assert (ap_state && ETIZSchedStateStarted == *ap_state);
+
+  /* Verify that at least one role has been registered already. */
+  assert (ap_sched->child.p_role_list);
+  assert (ap_sched->child.nroles > 0);
+
+  /* Only allow in OMX_StateLoded state. Disallowed for
+   * other states, even if the port is disabled.
+   */
+  TIZ_COMP_CHECK_LOADED_STATE (ap_sched);
+
+  p_msg_rreh = &(ap_msg->rreh);
+  assert (p_msg_rreh);
+  p_hook = p_msg_rreh->p_hook;
+  assert (p_hook);
+
+  /* Verify that the role exists, before doing anything else. */
+  {
+    const OMX_U32 nroles = ap_sched->child.nroles;
+    for (role_pos = 0; role_pos < nroles; ++role_pos)
+      {
+        assert (ap_sched->child.p_role_list[role_pos]);
+        tiz_role_factory_t * p_rf = ap_sched->child.p_role_list[role_pos]->p_rf;
+        assert (p_rf);
+        if (0 == strncmp ((char *) p_msg_rreh->p_role,
+                          (const char *) p_rf->role, OMX_MAX_STRINGNAME_SIZE))
+          {
+            TIZ_TRACE (ap_sched->child.p_hdl, "Found role [%s]...", p_rf->role);
+            break;
+          }
+      }
+
+    if (role_pos >= nroles)
+      {
+        TIZ_ERROR (ap_sched->child.p_hdl, "Could not find role [%s].",
+                   p_msg_rreh->p_role);
+        rc = OMX_ErrorBadParameter;
+      }
+  }
+
+  tiz_check_omx (rc);
+
+  {
+    OMX_U32 i = 0;
+    void * p_port = NULL;
+    OMX_U32 pid = 0;
+
+    /* Set the hook on the port or ports if this hook refers to the current role, i.e. role #0 */
+    if (0 == role_pos)
+      {
         do
           {
             pid = ((OMX_ALL != p_hook->pid) ? p_hook->pid : i++);
@@ -1447,21 +1585,22 @@ do_reh (tiz_scheduler_t * ap_sched, tiz_sched_state_t * ap_state,
 
         if (!p_port && OMX_ALL != p_hook->pid)
           {
-            /* Bad port index received */
+            TIZ_ERROR (ap_sched->child.p_hdl, "Bad port index received [%u].",
+                       p_hook->pid);
             rc = OMX_ErrorBadPortIndex;
           }
-
-        if (OMX_ErrorNone == rc)
-          {
-            /* Store a local copy in the child struct */
-            TIZ_DEBUG (ap_sched->child.p_hdl,
-                       "storing eglimage hooks [%s] - p_hooks [%p]",
-                       ap_sched->cname, p_hook);
-            rc = store_hooks (&(ap_sched->child.p_eglimage_hooks_map),
-                              p_hook->pid, p_hook, sizeof (tiz_eglimage_hook_t),
-                              eglimage_hook_copy);
-          }
       }
+
+    tiz_check_omx (rc);
+
+    /* Store a local copy in the child struct */
+    p_rnfo = ap_sched->child.p_role_list[role_pos];
+    assert (p_rnfo);
+    TIZ_DEBUG (ap_sched->child.p_hdl,
+               "storing eglimage hooks [%s] - p_hooks [%p]", ap_sched->cname,
+               p_hook);
+    rc = store_hooks (&(p_rnfo->p_role_eglimage_hooks_map), p_hook->pid, p_hook,
+                      sizeof (tiz_eglimage_hook_t), eglimage_hook_copy);
   }
 
   return rc;
@@ -2363,24 +2502,44 @@ instantiate_scheduler (OMX_HANDLETYPE ap_hdl, const char * ap_cname)
   return p_sched;
 }
 
-static inline void
+static OMX_ERRORTYPE
 set_thread_name (tiz_scheduler_t * ap_sched)
 {
   char * p_cname = NULL;
-  char * p_next_dot = NULL;
+  char * p_first_dot = NULL;
+  char * p_second_dot = NULL;
+  char * p_third_dot = NULL;
   int thread_name_len = 0;
   char thread_name[16]; /* 16 is the max number of characters that
                            tiz_thread_setname will use */
   assert (ap_sched);
 
-  /* Let's skip the 'OMX.Company.' part */
-  p_cname = strstr (strstr (ap_sched->cname, ".") + 1, ".") + 1;
-  p_next_dot = strstr (p_cname, ".");
-  thread_name_len = MIN (p_next_dot - p_cname, 16 - 1);
+  /* Skip the 'OMX.Company.' part (first and second dots are mandatory)*/
+
+  p_first_dot = strstr (ap_sched->cname, ".");
+  assert (p_first_dot);
+  tiz_check_null_ret_oom (NULL != p_first_dot);
+
+  p_second_dot = strstr (p_first_dot + 1, ".");
+  assert (p_second_dot);
+  tiz_check_null_ret_oom (NULL != p_second_dot);
+
+  p_cname = p_second_dot + 1;
+
+  /* A third dot is common, but optional. */
+  p_third_dot = strstr (p_second_dot + 1, ".");
+  if (p_third_dot)
+    {
+      thread_name_len = MIN (p_third_dot - p_cname, 16 - 1);
+    }
+  else
+    {
+      thread_name_len = 16 - 1;
+    }
 
   strncpy (thread_name, p_cname, thread_name_len);
   thread_name[thread_name_len] = '\0';
-  (void) tiz_thread_setname (&(ap_sched->thread), thread_name);
+  return tiz_thread_setname (&(ap_sched->thread), thread_name);
 }
 
 static OMX_ERRORTYPE
@@ -2391,7 +2550,7 @@ init_servants (tiz_scheduler_t * ap_sched, tiz_sched_msg_t * ap_msg)
   assert (ap_sched);
   assert (ap_msg);
 
-  set_thread_name (ap_sched);
+  tiz_check_omx_ret_oom (set_thread_name (ap_sched));
 
   p_hdl = ap_sched->child.p_hdl;
 
@@ -2503,7 +2662,9 @@ init_and_register_role (tiz_scheduler_t * ap_sched, const OMX_U32 a_role_pos)
   assert (a_role_pos < ap_sched->child.nroles);
 
   p_hdl = ap_sched->child.p_hdl;
-  p_rf = ap_sched->child.p_role_list[a_role_pos];
+  assert (ap_sched->child.p_role_list[a_role_pos]);
+  p_rf = ap_sched->child.p_role_list[a_role_pos]->p_rf;
+  assert (p_rf);
 
   /* Instantiate the config port */
   tiz_check_null_ret_oom ((p_port = p_rf->pf_cport (p_hdl)) != NULL);
@@ -2601,7 +2762,7 @@ restore_eglimage_hooks (OMX_PTR ap_key, OMX_PTR ap_value, OMX_PTR ap_arg)
 }
 
 static OMX_ERRORTYPE
-restore_hooks (tiz_scheduler_t * ap_sched)
+restore_hooks (tiz_scheduler_t * ap_sched, const OMX_U32 a_role_pos)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
@@ -2613,10 +2774,31 @@ restore_hooks (tiz_scheduler_t * ap_sched)
                         (tiz_scheduler_t *) ap_sched);
     }
 
+  /* Restore the 'global' egl hooks, if they exist... */
   if (ap_sched->child.p_eglimage_hooks_map)
     {
       tiz_map_for_each (ap_sched->child.p_eglimage_hooks_map,
                         restore_eglimage_hooks, (tiz_scheduler_t *) ap_sched);
+    }
+  else
+    {
+      /* ... otherwise, restore per-role egl hooks, if any. */
+      if (ap_sched->child.p_role_list)
+        {
+          tiz_role_info_t * p_rnfo = NULL;
+          assert (a_role_pos < ap_sched->child.nroles);
+          p_rnfo = ap_sched->child.p_role_list[a_role_pos];
+          assert (p_rnfo);
+          if (p_rnfo->p_role_eglimage_hooks_map)
+            {
+              TIZ_DEBUG (ap_sched->child.p_hdl,
+                         "restoring per-role egl hooks [%s] - [%s]",
+                         ap_sched->cname, p_rnfo->p_rf->role);
+              tiz_map_for_each (p_rnfo->p_role_eglimage_hooks_map,
+                                restore_eglimage_hooks,
+                                (tiz_scheduler_t *) ap_sched);
+            }
+        }
     }
 
   return rc;
@@ -2762,6 +2944,27 @@ tiz_comp_register_eglimage_hook (const OMX_HANDLETYPE ap_hdl,
   p_msg_reh = &(p_msg->reh);
   assert (p_msg_reh);
   p_msg_reh->p_hook = ap_hook;
+
+  return send_msg (get_sched (ap_hdl), p_msg);
+}
+
+OMX_ERRORTYPE
+tiz_comp_register_role_eglimage_hook (const OMX_HANDLETYPE ap_hdl,
+                                      const OMX_U8 * ap_role,
+                                      const tiz_eglimage_hook_t * ap_hook)
+{
+  tiz_sched_msg_t * p_msg = NULL;
+  tiz_sched_msg_regroleeglhook_t * p_msg_rreh = NULL;
+
+  assert (ap_hook);
+
+  TIZ_COMP_INIT_MSG_OOM (ap_hdl, p_msg, ETIZSchedMsgRegisterRoleEglImageHook);
+
+  assert (p_msg);
+  p_msg_rreh = &(p_msg->rreh);
+  assert (p_msg_rreh);
+  p_msg_rreh->p_role = ap_role;
+  p_msg_rreh->p_hook = ap_hook;
 
   return send_msg (get_sched (ap_hdl), p_msg);
 }
