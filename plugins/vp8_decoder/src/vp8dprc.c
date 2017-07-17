@@ -982,7 +982,7 @@ vp8d_prc_port_flush (const void * ap_obj, OMX_U32 a_pid)
   if (OMX_ALL == a_pid || ARATELIA_VP8_DECODER_INPUT_PORT_INDEX == a_pid)
     {
       release_input_header (p_prc);
-      reset_stream_parameters (p_prc);
+      free_codec_buffer (p_prc);
     }
   if (OMX_ALL == a_pid || ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX == a_pid)
     {
