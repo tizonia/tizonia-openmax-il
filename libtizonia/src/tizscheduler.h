@@ -311,6 +311,21 @@ tiz_comp_register_eglimage_hook (const OMX_HANDLETYPE ap_hdl,
                                  const tiz_eglimage_hook_t * ap_hook);
 
 /**
+ * Registration of 'per-role' EGL image validation hooks.
+ *
+ * @ingroup tizscheduler
+ *
+ * @param ap_hdl The OpenMAX IL handle.
+ * @param ap_role A role name (a string of up to OMX_MAX_STRINGNAME_SIZE).
+ * @param ap_hook EGL image validation hook info.
+ * @return OMX_ErrorNone on success, other OMX_ERRORTYPE on error.
+ */
+OMX_ERRORTYPE
+tiz_comp_register_role_eglimage_hook (const OMX_HANDLETYPE ap_hdl,
+                                      const OMX_U8 *ap_role,
+                                      const tiz_eglimage_hook_t * ap_hook);
+
+/**
  * Queueing of 'pluggable' events.
  *
  * A 'pluggable' event is submitted to the component's event queue using this
