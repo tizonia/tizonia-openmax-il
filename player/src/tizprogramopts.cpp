@@ -516,7 +516,7 @@ void tiz::programopts::print_usage_config () const
   print_license ();
   printf ("Configuration file location:\n\n");
   printf ("   tizonia.conf     $HOME/.config/tizonia/tizonia.conf\n");
-  printf ("                    See /etc/tizonia/tizonia.conf/tizonia.conf\n");
+  printf ("                    See /etc/tizonia/tizonia.conf\n");
   printf ("                    for an example.\n");
 }
 
