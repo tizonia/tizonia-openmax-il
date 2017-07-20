@@ -39,7 +39,7 @@ tizonia-rm-db-generate.sh: tizonia-rm-db-generate.sh.in Makefile
 	chmod +x $@
 
 tizrm.db: $(sqlite_scripts) $(shell_scripts)
-	. tizonia-rm-db-generate.sh
+	sh ./tizonia-rm-db-generate.sh
 
 all-local: tizrm.db
 
