@@ -1,0 +1,88 @@
+# Maintainer: Juan A. Rubio <jarubio2001@gmail.com>
+
+_githubname=tizonia-openmax-il
+
+pkgver() {
+  cd "${_githubname}"
+  ( set -o pipefail
+    git describe --long 2>/dev/null | sed 's/\([^-]*-g\)/r\1/;s/-/./g' ||
+    printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+  )
+}
+
+pkgname=tizonia-all
+pkgver=0.8.0
+pkgrel=1
+pkgdesc="Command-line music player for Linux with Spotify, Google Play Music, YouTube, SoundCloud, Dirble and Deezer support"
+arch=('x86_64')
+url="https://www.tizonia.org"
+license=('LGPL')
+depends=(
+    # official repositories:
+    'libmad'
+    'sqlite'
+    'libutil-linux'
+    'taglib'
+    'mediainfo'
+    'sdl'
+    'lame'
+    'faad2'
+    'libcurl-gnutls'
+    'libvorbis'
+    'libvpx'
+    'mpg123'
+    'opus'
+    'opusfile'
+    'libogg'
+    'libfishsound'
+    'flac'
+    'liboggz'
+    'libsndfile'
+    'alsa-lib'
+    'libpulse'
+    'boost'
+    'dbus-c++'
+    'check'
+    'python2-pafy'
+    'python2-simplejson'
+    'python2-pycryptodomex'
+    'python2-eyed3'
+    'python2-pykka'
+    'python2-pathlib'
+    'youtube-dl'
+
+    # AUR:
+    'log4c'
+    'libspotify'
+    'python2-gmusicapi'
+    'python-soundcloud-git'
+)
+makedepends=()
+checkdepends=()
+optdepends=()
+provides=()
+conflicts=()
+replaces=()
+backup=()
+options=()
+install=
+changelog=
+#source=("${_githubname}-${pkgver}.tar.gz"::"https://github.com/tizonia/${_githubname}/archive/v${pkgver}.tar.gz")
+source=("${_githubname}-${pkgver}.tar.gz::git://github.com/tizonia/${_githubname}.git#commit=f2b640898233588095269d4db7e2083f75536877")
+noextract=()
+md5sums=('52d8e19a6d623f80926c655232ce1409')
+validpgpkeys=()
+
+build() {
+	pwd
+	ls -lart
+    	cd "${_githubname}-${pkgver}"
+	autoreconf -ifs
+    	./configure --prefix=/usr
+	make
+}
+
+package() {
+	cd "${_githubname}-${pkgver}"
+	make DESTDIR="$pkgdir/" install
+}
