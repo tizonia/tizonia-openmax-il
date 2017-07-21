@@ -34,6 +34,12 @@ depends=(
     'boost'
     'dbus-c++'
     'check'
+    'python2-pafy'
+    'python2-simplejson'
+    'python2-pycryptodomex'
+    'python2-eyed3'
+    'python2-pykka'
+    'python2-pathlib'
     'youtube-dl'
 
     # AUR:
