@@ -826,8 +826,6 @@ reset_stream_parameters (vp8d_prc_t * ap_prc)
   tiz_mem_set (&(ap_prc->info_), 0, sizeof (ap_prc->info_));
   ap_prc->info_.type = STREAM_UNKNOWN;
   free_codec_buffer (ap_prc);
-  TIZ_INIT_OMX_PORT_STRUCT (ap_prc->port_def_,
-                            ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX);
   ap_prc->p_inhdr_ = 0;
   ap_prc->p_outhdr_ = 0;
   ap_prc->first_buf_ = true;
