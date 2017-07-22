@@ -28,12 +28,12 @@ exec_prefix=@exec_prefix@
 bindir=@bindir@
 datadir=@datadir@
 
-if [[ -z "$1" ]]; then
+if [ -z "$1" ]; then
     COMMANDS=${BASEDIR}"/tizonia-rm-db-initial.sql3"
     TIZ_RM_DB_NAME=${BASEDIR}"/tizrm.db"
 fi
 
-if [[ -f "$TIZ_RM_DB_NAME" ]]; then
+if [ -f "$TIZ_RM_DB_NAME" ]; then
     rm "$TIZ_RM_DB_NAME"
     echo -e "Deleted old $TIZ_RM_DB_NAME database..."
 fi
