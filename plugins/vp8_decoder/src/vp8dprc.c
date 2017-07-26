@@ -397,8 +397,8 @@ get_output_buffer (vp8d_prc_t * ap_prc)
     {
       if (OMX_ErrorNone
           == tiz_krn_claim_buffer (tiz_get_krn (handleOf (ap_prc)),
-                                   ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX,
-                                   0, &ap_prc->p_outhdr_))
+                                   ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX, 0,
+                                   &ap_prc->p_outhdr_))
         {
           if (ap_prc->p_outhdr_)
             {
@@ -409,14 +409,15 @@ get_output_buffer (vp8d_prc_t * ap_prc)
                          ap_prc->p_outhdr_, ap_prc->p_outhdr_->nFilledLen);
 #endif
               /* Check pBuffer nullity to know if an eglimage have been registered. */
-              if (!ap_prc->p_outhdr_->pBuffer &&
-                  OMX_ErrorNone == tiz_krn_claim_eglimage (tiz_get_krn (handleOf (ap_prc)),
-                                                           ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX,
-                                                           ap_prc->p_outhdr_, &p_eglimage))
+              if (!ap_prc->p_outhdr_->pBuffer
+                  && OMX_ErrorNone == tiz_krn_claim_eglimage (
+                                        tiz_get_krn (handleOf (ap_prc)),
+                                        ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX,
+                                        ap_prc->p_outhdr_, &p_eglimage))
                 {
-                  (void) tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_prc)),
-                                                 ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX,
-                                                 ap_prc->p_outhdr_);
+                  (void) tiz_krn_release_buffer (
+                    tiz_get_krn (handleOf (ap_prc)),
+                    ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX, ap_prc->p_outhdr_);
                   ap_prc->p_outhdr_ = NULL;
                 }
             }
@@ -826,7 +827,7 @@ free_codec_buffer (vp8d_prc_t * p_prc)
   tiz_mem_set (&(p_prc->codec_buf_), 0, sizeof (p_prc->codec_buf_));
 }
 
-static void
+static OMX_ERRORTYPE
 reset_stream_parameters (vp8d_prc_t * ap_prc)
 {
   assert (ap_prc);
@@ -842,6 +843,7 @@ reset_stream_parameters (vp8d_prc_t * ap_prc)
   ap_prc->p_outhdr_ = 0;
   ap_prc->first_buf_ = true;
   ap_prc->eos_ = false;
+  return OMX_ErrorNone;
 }
 
 static void
@@ -850,7 +852,7 @@ release_input_header (vp8d_prc_t * ap_prc)
   assert (ap_prc);
   if (ap_prc->p_inhdr_)
     {
-      assert(!ap_prc->in_port_disabled_);
+      assert (!ap_prc->in_port_disabled_);
       (void) tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_prc)),
                                      ARATELIA_VP8_DECODER_INPUT_PORT_INDEX,
                                      ap_prc->p_inhdr_);
@@ -864,7 +866,7 @@ release_output_header (vp8d_prc_t * ap_prc)
   assert (ap_prc);
   if (ap_prc->p_outhdr_)
     {
-      assert(!ap_prc->out_port_disabled_);
+      assert (!ap_prc->out_port_disabled_);
       (void) tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_prc)),
                                      ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX,
                                      ap_prc->p_outhdr_);
@@ -890,7 +892,7 @@ vp8d_prc_ctor (void * ap_obj, va_list * app)
   assert (p_prc);
   p_prc->in_port_disabled_ = false;
   p_prc->out_port_disabled_ = false;
-  reset_stream_parameters (p_prc);
+  (void) reset_stream_parameters (p_prc);
   return p_prc;
 }
 
@@ -1010,7 +1012,7 @@ vp8d_prc_port_disable (const void * ap_obj, OMX_U32 a_pid)
     {
       /* Release all buffers */
       release_all_headers (p_prc);
-      reset_stream_parameters (p_prc);
+      tiz_check_omx (reset_stream_parameters (p_prc));
       p_prc->in_port_disabled_ = true;
     }
   if (OMX_ALL == a_pid || ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX == a_pid)
@@ -1030,7 +1032,7 @@ vp8d_prc_port_enable (const void * ap_obj, OMX_U32 a_pid)
     {
       if (p_prc->in_port_disabled_)
         {
-          reset_stream_parameters (p_prc);
+          tiz_check_omx (reset_stream_parameters (p_prc));
           p_prc->in_port_disabled_ = false;
         }
     }
