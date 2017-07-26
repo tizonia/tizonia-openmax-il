@@ -176,7 +176,7 @@ instantiate_video_input_port (OMX_HANDLETYPE ap_hdl, const OMX_U32 port_id)
   portdef.nStride = 0;
   portdef.nSliceHeight = 0;
   portdef.nBitrate = 0;
-  portdef.xFramerate = 15;
+  portdef.xFramerate = 15 << 16;
   portdef.bFlagErrorConcealment = OMX_FALSE;
   portdef.eCompressionFormat = OMX_VIDEO_CodingUnused;
   portdef.eColorFormat = OMX_COLOR_FormatYUV420Planar;

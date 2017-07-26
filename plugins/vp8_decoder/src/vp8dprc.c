@@ -277,14 +277,19 @@ update_output_port_params (vp8d_prc_t * ap_prc)
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   vp8d_stream_info_t * p_inf = NULL;
   OMX_VIDEO_PORTDEFINITIONTYPE * p_def = NULL;
+  OMX_U32 framerate_q16 = 0;
 
   assert (ap_prc);
 
   p_inf = &(ap_prc->info_);
   p_def = &(ap_prc->port_def_.format.video);
 
+  assert (ap_prc->info_.fps_den);
+
+  framerate_q16 = (ap_prc->info_.fps_num << 16) / ap_prc->info_.fps_den;
+
   if (p_inf->width != p_def->nFrameWidth || p_inf->height != p_def->nFrameHeight
-      || p_inf->fps_num != p_def->xFramerate)
+      || framerate_q16 != p_def->xFramerate)
     {
       TIZ_DEBUG (handleOf (ap_prc),
                  "Updating video port format : nFrameWidth : old [%d] new [%d]",
@@ -295,7 +300,7 @@ update_output_port_params (vp8d_prc_t * ap_prc)
 
       p_def->nFrameHeight = p_inf->height;
       p_def->nFrameWidth = p_inf->width;
-      p_def->xFramerate = p_inf->fps_num;
+      p_def->xFramerate = framerate_q16;
       p_def->nStride = p_inf->width; /* NOTE: The output buffers currently only
                                          contain image data without any padding
                                          even if the stride > image width. See
