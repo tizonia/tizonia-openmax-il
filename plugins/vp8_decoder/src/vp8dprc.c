@@ -201,7 +201,8 @@ peek_raw_stream (vp8d_prc_t * ap_prc, const OMX_U8 * ap_buf,
           ap_prc->info_.fourcc = ifaces[i].fourcc;
           ap_prc->info_.width = si.w;
           ap_prc->info_.height = si.h;
-          ap_prc->info_.fps_num = 30;
+          /* The framerate is unknown so set it to 0 as per spec. */
+          ap_prc->info_.fps_num = 0;
           ap_prc->info_.fps_den = 1;
           break;
         }
@@ -289,7 +290,8 @@ update_output_port_params (vp8d_prc_t * ap_prc)
   framerate_q16 = (ap_prc->info_.fps_num << 16) / ap_prc->info_.fps_den;
 
   if (p_inf->width != p_def->nFrameWidth || p_inf->height != p_def->nFrameHeight
-      || framerate_q16 != p_def->xFramerate)
+      || p_inf->width != p_def->nStride || p_inf->height != p_def->nSliceHeight
+      || (framerate_q16 != 0 && framerate_q16 != p_def->xFramerate))
     {
       TIZ_DEBUG (handleOf (ap_prc),
                  "Updating video port format : nFrameWidth : old [%d] new [%d]",
