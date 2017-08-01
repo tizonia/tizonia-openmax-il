@@ -103,19 +103,3 @@ mpris-enabled = false
 #
 # dirble.api_key = xxxxxxxxxxxxxx
 
-# Deezer configuration
-# -------------------------------------------------------------------------
-# To avoid passing this information on the command line, uncomment and
-# configure your Deezer user id here, as needed.
-#
-# This is optional as Deezer can be used without user id. But if you have a
-# Deezer subscription, uncomment to access your favourite artist, albums and
-# tracks.
-#
-# To find the user ID, log in to deezer.com and click "My Music". The user ID
-# will be shown in the address bar of the browser at the end of the URL:
-#
-# http://www.deezer.com/profile/{USER_ID}
-#
-# deezer.user_id = 12345
-
