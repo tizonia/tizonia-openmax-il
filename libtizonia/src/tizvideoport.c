@@ -443,6 +443,23 @@ videoport_set_portdef_format (void * ap_obj,
   p_base->portdef_.format.video.bFlagErrorConcealment
     = ap_pdef->format.video.bFlagErrorConcealment;
 
+  /* Also update the port's minimum buffer size, if needed,
+     but only on an uncompressed video port */
+  if (OMX_VIDEO_CodingUnused == p_obj->port_format_.eCompressionFormat)
+  {
+    const OMX_U32 new_width = ap_pdef->format.video.nFrameWidth;
+    const OMX_U32 new_height = ap_pdef->format.video.nFrameHeight;
+    const OMX_U32 y_sz = new_width * new_height;
+    const OMX_U32 u_sz = y_sz / 4;
+    const OMX_U32 v_sz = u_sz;
+    const OMX_U32 new_buf_sz = y_sz + u_sz + v_sz;
+
+    if (new_buf_sz != p_base->portdef_.nBufferSize)
+      {
+          p_base->portdef_.nBufferSize = new_buf_sz;
+      }
+  }
+
   /* Shadow copy is debatable; perhaps a deep copy would be needed. */
   p_base->portdef_.format.video.pNativeWindow
     = ap_pdef->format.video.pNativeWindow;
@@ -522,8 +539,10 @@ videoport_apply_slaving_behaviour (void * ap_obj, void * ap_mos_port,
           portdef_changed = OMX_TRUE;
         }
 
-      /* Also update the port's minimum buffer size, if needed */
-      if (new_buf_sz != p_base->portdef_.nBufferSize)
+      /* Also update the port's minimum buffer size, if needed,
+         but only on an uncompressed video port */
+      if (new_buf_sz != p_base->portdef_.nBufferSize
+          && OMX_VIDEO_CodingUnused == p_obj->port_format_.eCompressionFormat)
         {
           p_base->portdef_.nBufferSize = new_buf_sz;
           portdef_changed = OMX_TRUE;
