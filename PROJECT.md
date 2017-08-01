@@ -19,7 +19,6 @@ The components of the Tizonia project are listed below:
 * Search and stream audio from YouTube.
 * Search and stream audio from SoundCloud.
 * Search and stream Internet radio stations with Dirble.
-* Search and stream audio from Deezer (subscription is not required).
 * Playback of local media files (mp3, mp2, mpa, m2a, aac, ogg/vorbis, opus,
   wav, aiff, and flac).
 * Icecast/SHOUTcast streaming LAN server (mp3).
@@ -62,7 +61,6 @@ The components of the Tizonia project are listed below:
   * YouTube audio streaming service client (based on [pafy](https://github.com/mps-youtube/pafy))
   * SoundCloud streaming service client (based on [soundcloud-python](https://github.com/soundcloud/soundcloud-python))
   * Dirble internet radio station directory (Dirble REST API + libcurl)
-  * Deezer streaming service client (based on [mopidy-deezer](https://github.com/rusty-dev/mopidy-deezer))
   * mp3 decoders (libmad and libmpg123),
   * mpeg audio (mp2) decoder (libmpg123),
   * Sampled sound formats decoder (various pcm formats, including wav, etc, based on libsndfile)
