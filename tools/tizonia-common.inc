@@ -44,8 +44,6 @@ declare -Ar TIZ_PROJECT_DIRS=( \
     [tizdirble]="clients/dirble/libtizdirble" \
     [tizyoutubeproxy]="clients/youtube/youtubeproxy" \
     [tizyoutube]="clients/youtube/libtizyoutube" \
-    [tizdeezerproxy]="clients/deezer/deezerproxy" \
-    [tizdeezer]="clients/deezer/libtizdeezer" \
     [tizplatform]="libtizplatform" \
     [tizrmd]="rm/tizrmd" \
     [tizrmproxy]="rm/libtizrmproxy" \
@@ -87,8 +85,6 @@ readonly TIZ_PROJECTS_ORDERED=( \
     tizdirble \
     tizyoutubeproxy \
     tizyoutube \
-    tizdeezerproxy \
-    tizdeezer \
     tizplatform \
     tizrmd \
     tizrmproxy \
