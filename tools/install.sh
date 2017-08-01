@@ -69,12 +69,7 @@ sudo apt-get -y install python-pip \
             gmusicapi \
             soundcloud \
             youtube-dl \
-            pafy \
-            simplejson \
-            pycrypto \
-            eyed3 \
-            Pykka \
-            pathlib
+            pafy
 
 # Install 'libspotify'
 if [[ "$?" -eq 0 ]]; then
@@ -101,7 +96,7 @@ which tizonia > /dev/null
 if [[ "$?" -eq 0 ]]; then
     echo ; tizonia ; echo
     printf "Tizonia is now installed.\n\n"
-    printf "Please add Spotify, Google Music, Soundcloud, Dirble and Deezer credentials to : $TIZ_CONFIG_FILE\n"
+    printf "Please add Spotify, Google Music, Soundcloud, and Dirble credentials to : $TIZ_CONFIG_FILE\n"
 else
     echo "Oops. Something went wrong!"
     exit 1
