@@ -40,11 +40,7 @@ noinst_HEADERS = \
 	youtubeprc.h \
 	youtubeprc_decls.h \
 	youtubecfgport.h \
-	youtubecfgport_decls.h \
-	deezerprc.h \
-	deezerprc_decls.h \
-	deezercfgport.h \
-	deezercfgport_decls.h
+	youtubecfgport_decls.h
 
 libtizhttpsrc_la_SOURCES = \
 	httpsrc.c \
@@ -57,9 +53,7 @@ libtizhttpsrc_la_SOURCES = \
 	dirbleprc.c \
 	dirblecfgport.c \
 	youtubeprc.c \
-	youtubecfgport.c \
-	deezerprc.c \
-	deezercfgport.c
+	youtubecfgport.c
 
 libtizhttpsrc_la_CFLAGS = \
 	@TIZILHEADERS_CFLAGS@ \
@@ -68,8 +62,7 @@ libtizhttpsrc_la_CFLAGS = \
 	@TIZGMUSIC_CFLAGS@ \
 	@TIZSOUNDCLOUD_CFLAGS@ \
 	@TIZDIRBLE_CFLAGS@ \
-	@TIZYOUTUBE_CFLAGS@ \
-	@TIZDEEZER_CFLAGS@
+	@TIZYOUTUBE_CFLAGS@
 
 libtizhttpsrc_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@
 
@@ -79,5 +72,4 @@ libtizhttpsrc_la_LIBADD = \
 	@TIZGMUSIC_LIBS@ \
 	@TIZSOUNDCLOUD_LIBS@ \
 	@TIZDIRBLE_LIBS@ \
-	@TIZYOUTUBE_LIBS@ \
-	@TIZDEEZER_LIBS@
+	@TIZYOUTUBE_LIBS@
