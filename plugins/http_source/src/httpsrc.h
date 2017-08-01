@@ -42,7 +42,6 @@ extern "C" {
 #define ARATELIA_SCLOUD_SOURCE_DEFAULT_ROLE "audio_source.http.scloud"
 #define ARATELIA_DIRBLE_SOURCE_DEFAULT_ROLE "audio_source.http.dirble"
 #define ARATELIA_YOUTUBE_SOURCE_DEFAULT_ROLE "audio_source.http.youtube"
-#define ARATELIA_DEEZER_SOURCE_DEFAULT_ROLE "audio_source.http.deezer"
 #define ARATELIA_HTTP_SOURCE_COMPONENT_NAME "OMX.Aratelia.audio_source.http"
 /* With libtizonia, port indexes must start at index 0 */
 #define ARATELIA_HTTP_SOURCE_PORT_INDEX 0
