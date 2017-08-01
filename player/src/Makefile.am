@@ -90,10 +90,6 @@ noinst_HEADERS = \
 	services/youtube/tizyoutubegraphops.hpp \
 	services/youtube/tizyoutubeconfig.hpp \
 	services/youtube/tizyoutubemgr.hpp \
-	services/deezer/tizdeezergraph.hpp \
-	services/deezer/tizdeezergraphops.hpp \
-	services/deezer/tizdeezerconfig.hpp \
-	services/deezer/tizdeezermgr.hpp \
 	mpris/tizmpriscbacks.hpp \
 	mpris/tizmprisprops.hpp \
 	mpris/tizmprisif.hpp \
@@ -158,9 +154,6 @@ tizonia_SOURCES = \
 	services/youtube/tizyoutubegraphfsm.cpp \
 	services/youtube/tizyoutubegraphops.cpp \
 	services/youtube/tizyoutubemgr.cpp \
-	services/deezer/tizdeezergraph.cpp \
-	services/deezer/tizdeezergraphops.cpp \
-	services/deezer/tizdeezermgr.cpp \
 	tizplaybackevents.cpp \
 	mpris/tizmprismgr.cpp \
 	mpris/tizmprisprops.cpp \

@@ -270,7 +270,6 @@ tiz::programopts::programopts (int argc, char *argv[])
     scloud_ ("SoundCloud options"),
     dirble_ ("Dirble options"),
     youtube_ ("Youtube options"),
-    deezer_ ("Deezer options"),
     input_ ("Intput urioption"),
     positional_ (),
     help_option_ ("help"),
@@ -335,16 +334,6 @@ tiz::programopts::programopts (int argc, char *argv[])
     youtube_audio_mix_search_ (),
     youtube_playlist_container_ (),
     youtube_playlist_type_ (OMX_AUDIO_YoutubePlaylistTypeUnknown),
-    deezer_user_id_ (),
-    deezer_track_ (),
-    deezer_artist_ (),
-    deezer_album_ (),
-    deezer_mix_ (),
-    deezer_playlist_ (),
-    deezer_top_playlist_ (),
-    deezer_user_flow_ (),
-    deezer_playlist_container_ (),
-    deezer_playlist_type_ (OMX_AUDIO_DeezerPlaylistTypeUnknown),
     consume_functions_ (),
     all_global_options_ (),
     all_debug_options_ (),
@@ -356,7 +345,6 @@ tiz::programopts::programopts (int argc, char *argv[])
     all_scloud_client_options_ (),
     all_dirble_client_options_ (),
     all_youtube_client_options_ (),
-    all_deezer_client_options_ (),
     all_input_uri_options_ (),
     all_given_options_ ()
 {
@@ -370,7 +358,6 @@ tiz::programopts::programopts (int argc, char *argv[])
   init_scloud_options ();
   init_dirble_options ();
   init_youtube_options ();
-  init_deezer_options ();
   init_input_uri_option ();
 }
 
@@ -470,9 +457,6 @@ void tiz::programopts::print_usage_help () const
             << "\n";
   std::cout << "  "
             << "youtube       Youtube options."
-            << "\n";
-  std::cout << "  "
-            << "deezer        Deezer options."
             << "\n";
   std::cout << "  "
             << "keyboard      Keyboard control."
@@ -973,88 +957,6 @@ tiz::programopts::youtube_playlist_type ()
   return youtube_playlist_type_;
 }
 
-const std::string &tiz::programopts::deezer_user_id () const
-{
-  return deezer_user_id_;
-}
-
-const std::vector< std::string > &tiz::programopts::deezer_playlist_container ()
-{
-  deezer_playlist_container_.clear ();
-  if (!deezer_track_.empty ())
-  {
-    deezer_playlist_container_.push_back (deezer_track_);
-  }
-  else if (!deezer_artist_.empty ())
-  {
-    deezer_playlist_container_.push_back (deezer_artist_);
-  }
-  else if (!deezer_album_.empty ())
-  {
-    deezer_playlist_container_.push_back (deezer_album_);
-  }
-  else if (!deezer_mix_.empty ())
-  {
-    deezer_playlist_container_.push_back (deezer_mix_);
-  }
-  else if (!deezer_playlist_.empty ())
-  {
-    deezer_playlist_container_.push_back (deezer_playlist_);
-  }
-  else if (!deezer_top_playlist_.empty ())
-  {
-    deezer_playlist_container_.push_back (deezer_top_playlist_);
-  }
-  else if (!deezer_user_flow_.empty ())
-  {
-    deezer_playlist_container_.push_back (deezer_user_flow_);
-  }
-  else
-  {
-    assert (0);
-  }
-  return deezer_playlist_container_;
-}
-
-OMX_TIZONIA_AUDIO_DEEZERPLAYLISTTYPE
-tiz::programopts::deezer_playlist_type ()
-{
-  if (!deezer_track_.empty ())
-  {
-    deezer_playlist_type_ = OMX_AUDIO_DeezerPlaylistTypeTrack;
-  }
-  else if (!deezer_artist_.empty ())
-  {
-    deezer_playlist_type_ = OMX_AUDIO_DeezerPlaylistTypeArtist;
-  }
-  else if (!deezer_album_.empty ())
-  {
-    deezer_playlist_type_ = OMX_AUDIO_DeezerPlaylistTypeAlbum;
-  }
-  else if (!deezer_mix_.empty ())
-  {
-    deezer_playlist_type_ = OMX_AUDIO_DeezerPlaylistTypeMix;
-  }
-  else if (!deezer_playlist_.empty ())
-  {
-    deezer_playlist_type_ = OMX_AUDIO_DeezerPlaylistTypePlaylist;
-  }
-  else if (!deezer_top_playlist_.empty ())
-  {
-    deezer_playlist_type_ = OMX_AUDIO_DeezerPlaylistTypeTopPlaylists;
-  }
-  else if (!deezer_user_flow_.empty ())
-  {
-    deezer_playlist_type_ = OMX_AUDIO_DeezerPlaylistTypeUserFlow;
-  }
-  else
-  {
-    deezer_playlist_type_ = OMX_AUDIO_DeezerPlaylistTypeUnknown;
-  }
-
-  return deezer_playlist_type_;
-}
-
 void tiz::programopts::print_license () const
 {
   TIZ_PRINTF_GRN (
@@ -1377,44 +1279,6 @@ void tiz::programopts::init_youtube_options ()
             .convert_to_container< std::vector< std::string > > ();
 }
 
-void tiz::programopts::init_deezer_options ()
-{
-  deezer_.add_options ()
-      /* TIZ_CLASS_COMMENT: */
-      ("deezer-album", po::value (&deezer_album_),
-       "Search and play tracks from Deezer by album name.")
-      /* TIZ_CLASS_COMMENT: */
-      ("deezer-artist", po::value (&deezer_artist_),
-       "Search and play tracks from Deezer by artist name.")
-      /* TIZ_CLASS_COMMENT: */
-      ("deezer-mix", po::value (&deezer_mix_),
-       "Search and play tracks from Deezer by mix (radio station) name.")
-      /* TIZ_CLASS_COMMENT: */
-      ("deezer-top-playlist", po::value (&deezer_top_playlist_),
-       "Search and play tracks from Deezer's top playlists.")
-      /* TIZ_CLASS_COMMENT: */
-      ("deezer-tracks", po::value (&deezer_track_),
-       "Search and play tracks from Deezer by track name.")
-      /* TIZ_CLASS_COMMENT: */
-      ("deezer-user-flow",
-       "Play the users 'flow' radio station (Deezer user id required).")
-      /* TIZ_CLASS_COMMENT: */
-      ("deezer-user-id", po::value (&deezer_user_id_),
-       "Deezer user name (not required if provided via config "
-       "file).")
-      /* TIZ_CLASS_COMMENT: */
-      ("deezer-user-playlist", po::value (&deezer_playlist_),
-       "Search and play tracks from the user's playlists (Deezer user id "
-       "required).");
-
-  register_consume_function (&tiz::programopts::consume_deezer_client_options);
-  all_deezer_client_options_
-      = boost::assign::list_of ("deezer-album") ("deezer-artist") (
-            "deezer-mix") ("deezer-top-playlist") ("deezer-tracks") (
-            "deezer-user-flow") ("deezer-user-id") ("deezer-user-playlist")
-            .convert_to_container< std::vector< std::string > > ();
-}
-
 void tiz::programopts::init_input_uri_option ()
 {
   input_.add_options ()
@@ -1444,7 +1308,6 @@ unsigned int tiz::programopts::parse_command_line (int argc, char *argv[])
       .add (scloud_)
       .add (dirble_)
       .add (youtube_)
-      .add (deezer_)
       .add (input_);
   po::parsed_options parsed = po::command_line_parser (argc, argv)
                                   .options (all)
@@ -1535,10 +1398,6 @@ int tiz::programopts::consume_global_options (bool &done,
     else if (0 == help_option_.compare ("youtube"))
     {
       print_usage_feature (youtube_);
-    }
-    else if (0 == help_option_.compare ("deezer"))
-    {
-      print_usage_feature (deezer_);
     }
     else if (0 == help_option_.compare ("keyboard"))
     {
@@ -1996,83 +1855,6 @@ int tiz::programopts::consume_youtube_client_options (bool &done,
   return rc;
 }
 
-int tiz::programopts::consume_deezer_client_options (bool &done,
-                                                     std::string &msg)
-{
-  int rc = EXIT_FAILURE;
-  done = false;
-
-  if (validate_deezer_client_options ())
-  {
-    done = true;
-
-    const int playlist_option_count
-        = vm_.count ("deezer-tracks") + vm_.count ("deezer-album")
-          + vm_.count ("deezer-artist") + vm_.count ("deezer-top-playlist")
-          + vm_.count ("deezer-mix") + vm_.count ("deezer-user-playlist")
-          + vm_.count ("deezer-user-flow");
-    if (deezer_user_id_.empty ())
-    {
-      retrieve_config_from_rc_file ("tizonia", "deezer.user_id",
-                                    deezer_user_id_);
-    }
-
-    if (vm_.count ("deezer-user-flow"))
-    {
-      // This is not going to be used by the client code, but will help
-      // in deezer_playlist_type() to decide which playlist type value is
-      // returned.
-      deezer_user_flow_.assign ("Deezer user flow");
-    }
-    if (vm_.count ("deezer-user-playlist"))
-    {
-      // This is not going to be used by the client code, but will help
-      // in deezer_playlist_type() to decide which playlist type value is
-      // returned.
-      deezer_user_flow_.assign ("Deezer user playlist");
-    }
-
-    if (playlist_option_count > 1)
-    {
-      rc = EXIT_FAILURE;
-      std::ostringstream oss;
-      oss << "Only one playlist type must be specified.";
-      msg.assign (oss.str ());
-    }
-    else if (!playlist_option_count)
-    {
-      rc = EXIT_FAILURE;
-      std::ostringstream oss;
-      oss << "A playlist type must be specified.";
-      msg.assign (oss.str ());
-    }
-    else if (OMX_AUDIO_DeezerPlaylistTypeUnknown == deezer_playlist_type ())
-    {
-      rc = EXIT_FAILURE;
-      std::ostringstream oss;
-      oss << "A playlist value must be specified.";
-      msg.assign (oss.str ());
-    }
-    else if (deezer_user_id_.empty ()
-             && (vm_.count ("deezer-user-flow")
-                 || vm_.count ("deezer-user-playlist")))
-    {
-      rc = EXIT_FAILURE;
-      std::ostringstream oss;
-      oss << "A Deezer user id must be specified to play a user's flow or "
-             "playlist.";
-      msg.assign (oss.str ());
-    }
-    else
-    {
-      rc = call_handler (option_handlers_map_.find ("deezer-stream"));
-    }
-  }
-  TIZ_PRINTF_DBG_RED ("deezer ; rc = [%s]\n",
-                      rc == EXIT_SUCCESS ? "SUCCESS" : "FAILURE");
-  return rc;
-}
-
 int tiz::programopts::consume_local_decode_options (bool &done,
                                                     std::string &msg)
 {
@@ -2270,28 +2052,6 @@ bool tiz::programopts::validate_youtube_client_options () const
   concat_option_lists (all_valid_options, all_debug_options_);
 
   if (youtube_opts_count > 0
-      && is_valid_options_combination (all_valid_options, all_given_options_))
-  {
-    outcome = true;
-  }
-  TIZ_PRINTF_DBG_RED ("outcome = [%s]\n", outcome ? "SUCCESS" : "FAILURE");
-  return outcome;
-}
-
-bool tiz::programopts::validate_deezer_client_options () const
-{
-  bool outcome = false;
-  unsigned int deezer_opts_count
-      = vm_.count ("deezer-user-id") + vm_.count ("deezer-tracks")
-        + vm_.count ("deezer-album") + vm_.count ("deezer-artist")
-        + vm_.count ("deezer-top-playlist") + vm_.count ("deezer-mix")
-        + vm_.count ("deezer-user-playlist") + vm_.count ("deezer-user-flow");
-
-  std::vector< std::string > all_valid_options = all_deezer_client_options_;
-  concat_option_lists (all_valid_options, all_global_options_);
-  concat_option_lists (all_valid_options, all_debug_options_);
-
-  if (deezer_opts_count > 0
       && is_valid_options_combination (all_valid_options, all_given_options_))
   {
     outcome = true;
