@@ -2,7 +2,7 @@
 
 * A command-line music streaming client/server for Linux.
 * With support for Spotify, Google Play Music (including Unlimited), YouTube,
-  SoundCloud, Dirble and Deezer.
+  SoundCloud, and Dirble.
 * A multimedia framework based on [OpenMAX IL 1.2](https://www.khronos.org/news/press/khronos-group-releases-openmax-il-1.2-provisional-specification).
 
 ---
@@ -67,7 +67,7 @@ release and all the dependencies, including [gmusicapi](https://github.com/simon
 
 ## Configuration
 
-To use *Spotify*, *Google Play Music*, *SoundCloud*, *Dirble* and *Deezer*,
+To use *Spotify*, *Google Play Music*, *SoundCloud*, and *Dirble*,
 introduce your credentials in Tizonia's config file (see instructions inside
 the file for more information):
 
