@@ -40,13 +40,14 @@ depends=(
     'python2-eyed3'
     'python2-pykka'
     'python2-pathlib'
-    'youtube-dl'
+    'python2-crypto'
 
     # AUR:
     'log4c'
     'libspotify'
     'python2-gmusicapi'
     'python-soundcloud-git'
+    'python2-youtube-dl-git'
 )
 makedepends=()
 checkdepends=()
