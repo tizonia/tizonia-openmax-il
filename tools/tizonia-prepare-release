@@ -157,8 +157,8 @@ function main {
     # update_package_versions
     # update_plugin_shared_lib_versions
     # update_shared_lib_versions
-    update_python_version_strings
-    # update_debian_changelog_files
+    # update_python_version_strings
+    update_debian_changelog_files
 
     # Do the following manual steps at this point
     # 7.- Update README.md (as many changes as needed).

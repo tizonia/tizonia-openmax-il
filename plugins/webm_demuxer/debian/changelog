@@ -1,3 +1,9 @@
+tizwebmdmux (0.9.0-1) unstable; urgency=low
+
+  * New upstream release (Closes: #361)
+
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Fri, 04 Aug 2017 17:52:56 +0100
+
 tizwebmdmux (0.8.0-1) unstable; urgency=low
 
   * New upstream release (Closes: #339)
