@@ -10,6 +10,7 @@
 **Fixed bugs:**
 
 - release v0.9.0 [\#361](https://github.com/tizonia/tizonia-openmax-il/issues/361)
+- tizdeezerproxy: removal due to copyright issues [\#360](https://github.com/tizonia/tizonia-openmax-il/issues/360)
 - libtizonia: nBufferSize is not updated on video output port [\#358](https://github.com/tizonia/tizonia-openmax-il/issues/358)
 - vp8\_decoder: the flush handler should not discard the codec config, only the stored stream data [\#354](https://github.com/tizonia/tizonia-openmax-il/issues/354)
 - libtizonia: tizscheduler.c::set\_thread\_name crashes if there is no "third" dot in the component name [\#353](https://github.com/tizonia/tizonia-openmax-il/issues/353)
