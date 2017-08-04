@@ -29,6 +29,10 @@
 
 # News
 
+:heavy_check_mark: [2017-08-06] Tizonia
+[v0.9.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.9.0) Maintainance release
+that removes Deezer support due to copyright issues.
+
 :heavy_check_mark: [2017-06-25] Tizonia
 [v0.8.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.8.0) released
 adding support for Deezer.
