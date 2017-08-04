@@ -1,6 +1,36 @@
 # Change Log
 
-## [v0.8.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.8.0) (2017-06-23)
+## [v0.9.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.9.0) (2017-08-04)
+[Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.8.0...v0.9.0)
+
+**Improvements:**
+
+- libtizonia: OMX\_IndexParamVideoQuantization not supported [\#351](https://github.com/tizonia/tizonia-openmax-il/issues/351)
+
+**Fixed bugs:**
+
+- release v0.9.0 [\#361](https://github.com/tizonia/tizonia-openmax-il/issues/361)
+- libtizonia: nBufferSize is not updated on video output port [\#358](https://github.com/tizonia/tizonia-openmax-il/issues/358)
+- vp8\_decoder: the flush handler should not discard the codec config, only the stored stream data [\#354](https://github.com/tizonia/tizonia-openmax-il/issues/354)
+- libtizonia: tizscheduler.c::set\_thread\_name crashes if there is no "third" dot in the component name [\#353](https://github.com/tizonia/tizonia-openmax-il/issues/353)
+- libtizonia: port hooks \(both alloc and eglimage validation\) are not restored and get lost after the component's role is changed or reset [\#348](https://github.com/tizonia/tizonia-openmax-il/issues/348)
+- aac\_decoder: aacdecprc.c:transform\_buffer:436 --- \[OMX\_ErrorInsufficientResources\] : Unable to store all the data. [\#346](https://github.com/tizonia/tizonia-openmax-il/issues/346)
+- libtizonia: a port that does not support OMX\_UseEGLImage should return OMX\_ErrorNotImplemented [\#345](https://github.com/tizonia/tizonia-openmax-il/issues/345)
+
+**Closed issues:**
+
+- libtizonia: allow registration of different egl validation hooks for different component roles [\#350](https://github.com/tizonia/tizonia-openmax-il/issues/350)
+- support mesa/gallium [\#116](https://github.com/tizonia/tizonia-openmax-il/issues/116)
+
+**Merged pull requests:**
+
+- Framerate [\#359](https://github.com/tizonia/tizonia-openmax-il/pull/359) ([CapOM](https://github.com/CapOM))
+- Display proper file path for systemwide configuration in help and README [\#355](https://github.com/tizonia/tizonia-openmax-il/pull/355) ([5nafu](https://github.com/5nafu))
+- tizavcport: Add support for OMX\_IndexParamVideoQuantization [\#352](https://github.com/tizonia/tizonia-openmax-il/pull/352) ([gpalsingh](https://github.com/gpalsingh))
+- Dev [\#344](https://github.com/tizonia/tizonia-openmax-il/pull/344) ([CapOM](https://github.com/CapOM))
+- Fix path to tizonia.conf file [\#342](https://github.com/tizonia/tizonia-openmax-il/pull/342) ([dbart](https://github.com/dbart))
+
+## [v0.8.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.8.0) (2017-06-25)
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.7.0...v0.8.0)
 
 **Improvements:**
@@ -22,6 +52,7 @@
 
 **Fixed bugs:**
 
+- release v0.8.0  [\#339](https://github.com/tizonia/tizonia-openmax-il/issues/339)
 - libtizonia: IL 1.2 slaving behavior needs to be applied to both ports \(input and output\) if the port settings changed is triggered internally [\#338](https://github.com/tizonia/tizonia-openmax-il/issues/338)
 - Issues with Google Music : player stalls if connection is lost \(libcurl  SSL error with errno 104\) [\#337](https://github.com/tizonia/tizonia-openmax-il/issues/337)
 - Issues with Google Music : --gmusic-unlimited-station incorrect "not found" message \(minor issue\) [\#331](https://github.com/tizonia/tizonia-openmax-il/issues/331)
