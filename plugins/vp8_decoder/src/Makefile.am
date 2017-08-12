@@ -21,11 +21,13 @@ libtizvp8d_LTLIBRARIES = libtizvp8d.la
 
 noinst_HEADERS = \
 	vp8d.h \
+	vp8dinport.h \
 	vp8dprc.h \
 	vp8dprc_decls.h
 
 libtizvp8d_la_SOURCES = \
 	vp8d.c \
+	vp8dinport.c \
 	vp8dprc.c
 
 libtizvp8d_la_CFLAGS = \
