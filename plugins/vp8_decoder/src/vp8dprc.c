@@ -300,6 +300,10 @@ update_output_port_params (vp8d_prc_t * ap_prc)
                  "Updating video port format : nFrameHeight old [%d] new [%d]",
                  p_def->nFrameHeight, p_inf->height);
 
+      /* Effectively disable the output port, until the stream has been
+         identified and IL client is ready to re-enable */
+      ap_prc->out_port_disabled_ = true;
+
       p_def->nFrameHeight = p_inf->height;
       p_def->nFrameWidth = p_inf->width;
       p_def->xFramerate = framerate_q16;
@@ -784,9 +788,6 @@ decode_stream (vp8d_prc_t * ap_prc)
   if (ap_prc->first_buf_ && !ap_prc->eos_
       && (p_inhdr = get_input_buffer (ap_prc)))
     {
-      /* Effectively disable the output port, until the stream has been
-         identified and IL client is ready to re-enable */
-      ap_prc->out_port_disabled_ = true;
       tiz_check_omx (obtain_stream_info (ap_prc, p_inhdr));
       ap_prc->first_buf_ = false;
     }
