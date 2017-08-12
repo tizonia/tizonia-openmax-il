@@ -42,6 +42,7 @@
 #include <tizvideoport.h>
 #include <tizvideoport_decls.h>
 
+#include "vp8dinport.h"
 #include "vp8dprc.h"
 #include "vp8d.h"
 
@@ -146,7 +147,7 @@ instantiate_input_port (OMX_HANDLETYPE ap_hdl)
   vp8type.nDCTPartitions = 0; /* 1 DCP partitiion */
   vp8type.bErrorResilientMode = OMX_FALSE;
 
-  return factory_new (tiz_get_type (ap_hdl, "tizvp8port"), &vp8_port_opts,
+  return factory_new (tiz_get_type (ap_hdl, "vp8dinport"), &vp8_port_opts,
                       &portdef, &encodings, &formats, &vp8type, &levels,
                       NULL /* OMX_VIDEO_PARAM_BITRATETYPE */);
 }
@@ -208,8 +209,10 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 {
   tiz_role_factory_t role_factory;
   const tiz_role_factory_t * rf_list[] = {&role_factory};
+  tiz_type_factory_t vp8d_inport_type;
   tiz_type_factory_t vp8dprc_type;
-  const tiz_type_factory_t * tf_list[] = {&vp8dprc_type};
+  const tiz_type_factory_t * tf_list[] = {&vp8d_inport_type,
+                                          &vp8dprc_type};
   const tiz_eglimage_hook_t egl_validation_hook = {
     ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX,
     egl_image_validation_hook,
@@ -223,6 +226,11 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   role_factory.nports = 2;
   role_factory.pf_proc = instantiate_processor;
 
+  strcpy ((OMX_STRING) vp8d_inport_type.class_name, "vp8dinport_class");
+  vp8d_inport_type.pf_class_init = vp8d_inport_class_init;
+  strcpy ((OMX_STRING) vp8d_inport_type.object_name, "vp8dinport");
+  vp8d_inport_type.pf_object_init = vp8d_inport_init;
+
   strcpy ((OMX_STRING) vp8dprc_type.class_name, "vp8dprc_class");
   vp8dprc_type.pf_class_init = vp8d_prc_class_init;
   strcpy ((OMX_STRING) vp8dprc_type.object_name, "vp8dprc");
@@ -232,7 +240,7 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   tiz_check_omx (tiz_comp_init (ap_hdl, ARATELIA_VP8_DECODER_COMPONENT_NAME));
 
   /* Register the "vp8dprc" class */
-  tiz_check_omx (tiz_comp_register_types (ap_hdl, tf_list, 1));
+  tiz_check_omx (tiz_comp_register_types (ap_hdl, tf_list, 2));
 
   /* Register the component role */
   tiz_check_omx (tiz_comp_register_roles (ap_hdl, rf_list, 1));
