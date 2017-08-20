@@ -49,16 +49,8 @@ depends=(
     'python-soundcloud-git'
     'python2-youtube-dl-git'
 )
-makedepends=()
-checkdepends=()
-optdepends=()
-provides=()
+provides=('tizonia-all')
 conflicts=('tizonia-all')
-replaces=()
-backup=()
-options=()
-install=
-changelog=
 source=("${pkgname}"::"git+https://github.com/tizonia/${_githubname}.git")
 sha256sums=('SKIP')
 
@@ -74,7 +66,7 @@ pkgver() {
 build() {
 	cd "$pkgname"
 	autoreconf -ifs
-    	./configure --prefix=/usr
+	./configure --prefix=/usr
 	make
 }
 
