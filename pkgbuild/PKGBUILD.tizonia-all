@@ -58,28 +58,16 @@ depends=(
     'python-soundcloud-git'
     'python2-youtube-dl-git'
 )
-makedepends=()
-checkdepends=()
-optdepends=()
-provides=()
-conflicts=()
-replaces=()
-backup=()
-options=()
-install=
-changelog=
 #source=("${_githubname}-${pkgver}.tar.gz"::"https://github.com/tizonia/${_githubname}/archive/v${pkgver}.tar.gz")
 source=("${_githubname}-${pkgver}.tar.gz::git://github.com/tizonia/${_githubname}.git#commit=f2b640898233588095269d4db7e2083f75536877")
-noextract=()
 md5sums=('52d8e19a6d623f80926c655232ce1409')
-validpgpkeys=()
 
 build() {
 	pwd
 	ls -lart
-    	cd "${_githubname}-${pkgver}"
+	cd "${_githubname}-${pkgver}"
 	autoreconf -ifs
-    	./configure --prefix=/usr
+	./configure --prefix=/usr
 	make
 }
 
