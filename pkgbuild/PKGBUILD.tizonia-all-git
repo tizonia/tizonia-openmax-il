@@ -4,7 +4,7 @@ _githubname=tizonia-openmax-il
 pkgname=tizonia-all-git
 pkgver=0.9.0.r3.g53c2fbed
 pkgrel=1
-pkgdesc="Command-line music player for Linux with Spotify, Google Play Music, YouTube, SoundCloud, and Dirble support"
+pkgdesc="Command-line cloud music player for Linux with Spotify, Google Play Music, YouTube, SoundCloud, and Dirble support"
 arch=('x86_64')
 url="https://www.tizonia.org"
 license=('LGPL')
@@ -59,7 +59,14 @@ pkgver() {
 build() {
     cd "$pkgname"
     autoreconf -ifs
-    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
+    ./configure \
+        --prefix=/usr \
+        --sysconfdir=/etc \
+        --localstatedir=/var \
+        --silent \
+        --enable-silent-rules \
+        CFLAGS='-O2 -s -DNDEBUG' \
+        CXXFLAGS='-O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security'
     make
 }
 
