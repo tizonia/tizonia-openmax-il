@@ -11,7 +11,7 @@ pkgver() {
 }
 
 pkgname=tizonia-all
-pkgver=0.8.0
+pkgver=0.9.0
 pkgrel=1
 pkgdesc="Command-line music player for Linux with Spotify, Google Play Music, YouTube, SoundCloud, and Dirble support"
 arch=('x86_64')
@@ -44,12 +44,6 @@ depends=(
     'dbus-c++'
     'check'
     'python2-pafy'
-    'python2-simplejson'
-    'python2-pycryptodomex'
-    'python2-eyed3'
-    'python2-pykka'
-    'python2-pathlib'
-    'python2-crypto'
 
     # AUR:
     'log4c'
@@ -63,15 +57,15 @@ source=("${_githubname}-${pkgver}.tar.gz::git://github.com/tizonia/${_githubname
 md5sums=('52d8e19a6d623f80926c655232ce1409')
 
 build() {
-	pwd
-	ls -lart
-	cd "${_githubname}-${pkgver}"
-	autoreconf -ifs
-	./configure --prefix=/usr
-	make
+    pwd
+    ls -lart
+    cd "${_githubname}-${pkgver}"
+    autoreconf -ifs
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
+    make
 }
 
 package() {
-	cd "${_githubname}-${pkgver}"
-	make DESTDIR="$pkgdir/" install
+    cd "${_githubname}-${pkgver}"
+    make DESTDIR="$pkgdir/" install
 }
