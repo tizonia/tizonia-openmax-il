@@ -1,19 +1,10 @@
 # Maintainer: Juan A. Rubio <jarubio2001@gmail.com>
 
 _githubname=tizonia-openmax-il
-
-pkgver() {
-  cd "${_githubname}"
-  ( set -o pipefail
-    git describe --long 2>/dev/null | sed 's/\([^-]*-g\)/r\1/;s/-/./g' ||
-    printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
-  )
-}
-
 pkgname=tizonia-all
 pkgver=0.9.0
 pkgrel=1
-pkgdesc="Command-line music player for Linux with Spotify, Google Play Music, YouTube, SoundCloud, and Dirble support"
+pkgdesc="Command-line cloud music player for Linux with Spotify, Google Play Music, YouTube, SoundCloud, and Dirble support"
 arch=('x86_64')
 url="https://www.tizonia.org"
 license=('LGPL')
@@ -52,16 +43,20 @@ depends=(
     'python-soundcloud-git'
     'python2-youtube-dl-git'
 )
-#source=("${_githubname}-${pkgver}.tar.gz"::"https://github.com/tizonia/${_githubname}/archive/v${pkgver}.tar.gz")
-source=("${_githubname}-${pkgver}.tar.gz::git://github.com/tizonia/${_githubname}.git#commit=f2b640898233588095269d4db7e2083f75536877")
-md5sums=('52d8e19a6d623f80926c655232ce1409')
+source=("${_githubname}-${pkgver}.tar.gz"::"https://github.com/tizonia/${_githubname}/archive/v${pkgver}.tar.gz")
+md5sums=('d6775a42f04c2808b9274827bf6b5879')
 
 build() {
-    pwd
-    ls -lart
     cd "${_githubname}-${pkgver}"
     autoreconf -ifs
-    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
+    ./configure \
+        --prefix=/usr \
+        --sysconfdir=/etc \
+        --localstatedir=/var \
+        --silent \
+        --enable-silent-rules \
+        CFLAGS='-O2 -s -DNDEBUG' \
+        CXXFLAGS='-O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security'
     make
 }
 
