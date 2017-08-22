@@ -46,7 +46,16 @@ depends=(
 source=("${_githubname}-${pkgver}.tar.gz"::"https://github.com/tizonia/${_githubname}/archive/v${pkgver}.tar.gz")
 md5sums=('d6775a42f04c2808b9274827bf6b5879')
 
+prepare() {
+  mkdir "$srcdir/path"
+  # Tizonia expects Python 2
+  ln -s /usr/bin/python2 "$srcdir/path/python"
+  ln -s /usr/bin/python2-config "$srcdir/path/python-config"
+}
+
 build() {
+    export PATH="$srcdir/path:$PATH"
+    export PYTHON="/usr/bin/python2"
     cd "${_githubname}-${pkgver}"
     autoreconf -ifs
     ./configure \

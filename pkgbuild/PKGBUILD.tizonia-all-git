@@ -56,7 +56,16 @@ pkgver() {
     printf '%s.r%s.g%s' "$_version" "$_revision" "$_shorthash"
 }
 
+prepare() {
+  mkdir "$srcdir/path"
+  # Tizonia expects Python 2
+  ln -s /usr/bin/python2 "$srcdir/path/python"
+  ln -s /usr/bin/python2-config "$srcdir/path/python-config"
+}
+
 build() {
+    export PATH="$srcdir/path:$PATH"
+    export PYTHON="/usr/bin/python2"
     cd "$pkgname"
     autoreconf -ifs
     ./configure \
