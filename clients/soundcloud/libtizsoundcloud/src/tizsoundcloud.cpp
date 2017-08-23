@@ -386,7 +386,7 @@ int tizsoundcloud::get_current_track ()
         }
     }
 
-  char seconds_str[3];
+  char seconds_str[6];
   sprintf (seconds_str, "%02i", seconds);
   current_duration_.append (seconds_str);
   current_duration_.append ("s");

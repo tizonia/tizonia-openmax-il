@@ -837,7 +837,7 @@ std::string tiz::probe::stream_length () const
       length_str.append ("m:");
     }
 
-    char seconds_str[3];
+    char seconds_str[6];
     sprintf (seconds_str, "%02i", seconds);
     length_str.append (seconds_str);
     length_str.append ("s");

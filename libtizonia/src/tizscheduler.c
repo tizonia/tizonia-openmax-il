@@ -69,7 +69,7 @@
   do                                                 \
     {                                                \
       msg = init_scheduler_message (hdl, (msgtype)); \
-      tiz_check_null_ret_oom (msg != NULL);          \
+      tiz_check_null_ret_oom (msg);                  \
     }                                                \
   while (0)
 #endif
@@ -2518,11 +2518,11 @@ set_thread_name (tiz_scheduler_t * ap_sched)
 
   p_first_dot = strstr (ap_sched->cname, ".");
   assert (p_first_dot);
-  tiz_check_null_ret_oom (NULL != p_first_dot);
+  tiz_check_null_ret_oom (p_first_dot);
 
   p_second_dot = strstr (p_first_dot + 1, ".");
   assert (p_second_dot);
-  tiz_check_null_ret_oom (NULL != p_second_dot);
+  tiz_check_null_ret_oom (p_second_dot);
 
   p_cname = p_second_dot + 1;
 
@@ -2667,7 +2667,7 @@ init_and_register_role (tiz_scheduler_t * ap_sched, const OMX_U32 a_role_pos)
   assert (p_rf);
 
   /* Instantiate the config port */
-  tiz_check_null_ret_oom ((p_port = p_rf->pf_cport (p_hdl)) != NULL);
+  tiz_check_null_ret_oom ((p_port = p_rf->pf_cport (p_hdl)));
 
   /* Register it with the kernel */
   tiz_check_omx_ret_oom (tiz_krn_register_port (
@@ -2679,7 +2679,7 @@ init_and_register_role (tiz_scheduler_t * ap_sched, const OMX_U32 a_role_pos)
   for (j = 0; j < p_rf->nports && rc == OMX_ErrorNone; ++j)
     {
       /* Instantiate and register the normal ports */
-      tiz_check_null_ret_oom ((p_port = p_rf->pf_port[j](p_hdl)) != NULL);
+      tiz_check_null_ret_oom ((p_port = p_rf->pf_port[j](p_hdl)));
       tiz_check_omx_ret_oom (tiz_krn_register_port (
         ap_sched->child.p_ker, p_port, OMX_FALSE)); /* not a config port */
       rc = configure_port_preannouncements (ap_sched, p_hdl, p_port);
@@ -2688,7 +2688,7 @@ init_and_register_role (tiz_scheduler_t * ap_sched, const OMX_U32 a_role_pos)
   if (OMX_ErrorNone == rc)
     {
       /* Instantiate the processor */
-      tiz_check_null_ret_oom ((p_proc = p_rf->pf_proc (p_hdl)) != NULL);
+      tiz_check_null_ret_oom ((p_proc = p_rf->pf_proc (p_hdl)));
       assert (!ap_sched->child.p_prc);
       ap_sched->child.p_prc = p_proc;
 

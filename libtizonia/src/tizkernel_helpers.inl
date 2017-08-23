@@ -37,7 +37,7 @@
   do                                                    \
     {                                                   \
       msg = init_krn_message (obj, hdl, (msgtype));     \
-      tiz_check_null_ret_oom (msg != NULL);             \
+      tiz_check_null_ret_oom (msg);                     \
     }                                                   \
   while (0)
 #endif

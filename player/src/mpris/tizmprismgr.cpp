@@ -168,7 +168,7 @@ control::mprismgr::init ()
 
   // Create the DBus dispatcher
   p_dispatcher_ = new DBus::BusDispatcher ();
-  tiz_check_null_ret_oom (p_dispatcher_ != NULL);
+  tiz_check_null_ret_oom (p_dispatcher_);
 
   return OMX_ErrorNone;
 }

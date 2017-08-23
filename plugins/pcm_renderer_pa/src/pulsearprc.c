@@ -729,7 +729,7 @@ init_pulseaudio (pulsear_prc_t * ap_prc)
 
   /* Instantiate the pulseaudio threaded main loop */
   ap_prc->p_pa_loop_ = pa_threaded_mainloop_new ();
-  tiz_check_null_ret_oom (ap_prc->p_pa_loop_ != NULL);
+  tiz_check_null_ret_oom (ap_prc->p_pa_loop_);
 
   pa_threaded_mainloop_lock (ap_prc->p_pa_loop_);
 

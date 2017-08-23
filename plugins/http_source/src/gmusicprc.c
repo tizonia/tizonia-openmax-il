@@ -380,7 +380,7 @@ obtain_next_url (gmusic_prc_t * ap_prc, int a_skip_value)
         1, sizeof (OMX_PARAM_CONTENTURITYPE) + pathname_max + 1);
     }
 
-  tiz_check_null_ret_oom (ap_prc->p_uri_param_ != NULL);
+  tiz_check_null_ret_oom (ap_prc->p_uri_param_);
 
   ap_prc->p_uri_param_->nSize
     = sizeof (OMX_PARAM_CONTENTURITYPE) + pathname_max + 1;
@@ -390,7 +390,7 @@ obtain_next_url (gmusic_prc_t * ap_prc, int a_skip_value)
     const char * p_next_url = a_skip_value > 0
                                 ? tiz_gmusic_get_next_url (ap_prc->p_gmusic_)
                                 : tiz_gmusic_get_prev_url (ap_prc->p_gmusic_);
-    tiz_check_null_ret_oom (p_next_url != NULL);
+    tiz_check_null_ret_oom (p_next_url);
 
     {
       const OMX_U32 url_len = strnlen (p_next_url, pathname_max);

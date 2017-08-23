@@ -937,7 +937,7 @@ static OMX_ERRORTYPE ar_prc_allocate_resources (void *ap_prc,
       /* Allocate space for the list of alsa fds */
       p_prc->p_fds_
           = tiz_mem_alloc (sizeof(struct pollfd) * p_prc->descriptor_count_);
-      tiz_check_null_ret_oom (p_prc->p_fds_ != NULL);
+      tiz_check_null_ret_oom (p_prc->p_fds_);
 
       /* This is to generate volume ramps when needed */
       if (p_prc->ramp_enabled_)

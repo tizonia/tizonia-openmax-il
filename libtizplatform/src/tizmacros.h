@@ -188,7 +188,7 @@ extern "C" {
   do                                                                        \
     {                                                                       \
       if                                                                    \
-        TIZ_LIKELY ((expr))                                                 \
+        TIZ_LIKELY (expr != NULL)                                           \
         {                                                                   \
         }                                                                   \
       else                                                                  \

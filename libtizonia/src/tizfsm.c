@@ -53,7 +53,7 @@
   do                                                 \
     {                                                \
       msg = init_fsm_message (obj, hdl, (msgtype));  \
-      tiz_check_null_ret_oom (msg != NULL);          \
+      tiz_check_null_ret_oom (msg);                  \
     }                                                \
   while (0)
 #endif

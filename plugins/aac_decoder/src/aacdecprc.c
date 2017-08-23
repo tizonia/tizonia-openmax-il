@@ -580,7 +580,7 @@ static OMX_ERRORTYPE aacdec_prc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
   assert (p_prc);
   tiz_check_omx (allocate_temp_data_store (p_prc));
   /* Check that the library has been successfully inited */
-  tiz_check_null_ret_oom ((p_prc->p_aac_dec_) != NULL);
+  tiz_check_null_ret_oom (p_prc->p_aac_dec_);
   return OMX_ErrorNone;
 }
 

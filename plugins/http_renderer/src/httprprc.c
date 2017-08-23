@@ -350,7 +350,7 @@ httpr_prc_config_change (const void * ap_prc, const OMX_U32 a_pid,
           1, sizeof (OMX_TIZONIA_ICECASTMETADATATYPE)
                + OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE + 1);
 
-      tiz_check_null_ret_oom (p_metadata != NULL);
+      tiz_check_null_ret_oom (p_metadata);
 
       /* Retrieve the updated icecast metadata from the input port */
       TIZ_INIT_OMX_PORT_STRUCT (*p_metadata, ARATELIA_HTTP_RENDERER_PORT_INDEX);

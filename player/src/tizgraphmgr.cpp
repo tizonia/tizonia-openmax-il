@@ -127,7 +127,7 @@ graphmgr::mgr::init (const tizplaylist_ptr_t &playlist,
   graphmgr_capabilities_t graphmgr_caps;
   // Init this mgr's operations using the do_init template method
   tiz_check_null_ret_oom (
-      (p_ops_ = do_init (playlist, termination_cback, graphmgr_caps)) != NULL);
+      (p_ops_ = do_init (playlist, termination_cback, graphmgr_caps)));
 
   // Let's wait until this manager's thread is ready to receive requests
   tiz_check_omx_ret_oom (tiz_sem_wait (&sem_));
@@ -344,7 +344,7 @@ graphmgr::mgr::start_mpris (const graphmgr_capabilities_t &graphmgr_caps)
     mpris_ptr_
         = boost::shared_ptr< tiz::control::mprismgr >(new tiz::control::mprismgr (
             props, player_props, mpris_cbacks, playback_events_));
-    tiz_check_null_ret_oom (mpris_ptr_ != NULL);
+    tiz_check_null_ret_oom (mpris_ptr_);
 
     tiz_check_omx (mpris_ptr_->init ());
     tiz_check_omx (mpris_ptr_->start ());
