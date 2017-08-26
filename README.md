@@ -29,8 +29,10 @@
 
 # News
 
+:heavy_check_mark: [2017-08-26] [tizonia-all](https://aur.archlinux.org/packages/tizonia-all/) and [tizonia-all-git](https://aur.archlinux.org/packages/tizonia-all-git/) packages submitted to the [Arch User Repository](https://aur.archlinux.org/)
+
 :heavy_check_mark: [2017-08-06] Tizonia
-[v0.9.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.9.0) Maintainance release
+[v0.9.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.9.0) Maintenance release
 that removes Deezer support due to copyright issues.
 
 :heavy_check_mark: [2017-06-25] Tizonia
@@ -55,9 +57,9 @@ combinations:
 
 > NOTE: Elementary OS and Linux Mint are supported on releases based on Ubuntu 'Trusty' or Ubuntu 'Xenial'.
 
-This script installs the
+This script installs in a Debian-compatible system the
 [latest](https://github.com/tizonia/tizonia-openmax-il/releases/latest)
-release and all the dependencies, including [gmusicapi](https://github.com/simon-weber/gmusicapi), [soundcloud](https://github.com/soundcloud/soundcloud-python), [pafy](https://github.com/mps-youtube/pafy), [youtube-dl](https://github.com/rg3/youtube-dl), and a number of other supporting python packages.
+release and all its dependencies, including [gmusicapi](https://github.com/simon-weber/gmusicapi), [soundcloud](https://github.com/soundcloud/soundcloud-python), [pafy](https://github.com/mps-youtube/pafy), [youtube-dl](https://github.com/rg3/youtube-dl).
 
 ```bash
 
