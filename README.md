@@ -46,8 +46,9 @@ Foundation project, with Gurkirpal Singh and Julien Isorce).
 
 # Installation
 
-Tizonia's Debian packages are available from
-[Bintray](https://bintray.com/tizonia), with the following distro/arch
+## Debian packages
+
+Available from [Bintray](https://bintray.com/tizonia), with the following distro/arch
 combinations:
 
 | Ubuntu Trusty (14.04) | Ubuntu Xenial (16.04) | Debian Jessie (8) | Raspbian Jessie (8) | Debian Stretch (9) | Raspbian Stretch (9) |
@@ -70,6 +71,10 @@ release and all its dependencies, including [gmusicapi](https://github.com/simon
 ```
 
 > NOTE: The usual disclaimers apply: trust no-one. Have a look at the installation script before running it on your system.
+
+## [Arch User Repository](https://aur.archlinux.org/)
+ - [tizonia-all (0.9.0)](https://aur.archlinux.org/packages/tizonia-all/)
+ - [tizonia-all-git](https://aur.archlinux.org/packages/tizonia-all-git/)
 
 ## Configuration
 
