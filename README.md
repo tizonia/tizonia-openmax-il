@@ -72,7 +72,7 @@ release and all its dependencies, including [gmusicapi](https://github.com/simon
 
 > NOTE: The usual disclaimers apply: trust no-one. Have a look at the installation script before running it on your system.
 
-## [Arch User Repository](https://aur.archlinux.org/)
+## Arch User Repository
  - [tizonia-all (0.9.0)](https://aur.archlinux.org/packages/tizonia-all/)
  - [tizonia-all-git](https://aur.archlinux.org/packages/tizonia-all-git/)
 
@@ -120,7 +120,7 @@ See [CHANGELOG.md](CHANGELOG.md).
 
 - Chromecast support.
 - REPL command-line interface.
-- AUR and Snap packages.
+- Snap packages.
 - OS X port.
 
 # License
