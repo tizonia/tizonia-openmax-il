@@ -29,45 +29,45 @@
 #include <config.h>
 #endif
 
-#include <stdlib.h>
-#include <signal.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <termios.h>
-#include <netdb.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <arpa/inet.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/socket.h>
+#include <termios.h>
+#include <unistd.h>
 
+#include <boost/algorithm/string/join.hpp>
 #include <boost/foreach.hpp>
 #include <boost/make_shared.hpp>
-#include <boost/algorithm/string/join.hpp>
 #include <boost/version.hpp>
 
-#include <taglib/taglib.h>
 #include <MediaInfo/MediaInfo.h>
+#include <taglib/taglib.h>
 
-#include <tizplatform.h>
 #include <OMX_Core.h>
+#include <tizplatform.h>
 
-#include "tizgraphtypes.hpp"
-#include "tizgraphmgr.hpp"
-#include "tizomxutil.hpp"
 #include "decoders/tizdecgraphmgr.hpp"
+#include "httpclnt/tizhttpclntmgr.hpp"
 #include "httpserv/tizhttpservconfig.hpp"
 #include "httpserv/tizhttpservmgr.hpp"
-#include "httpclnt/tizhttpclntmgr.hpp"
-#include "services/spotify/tizspotifyconfig.hpp"
-#include "services/spotify/tizspotifymgr.hpp"
+#include "services/dirble/tizdirbleconfig.hpp"
+#include "services/dirble/tizdirblemgr.hpp"
 #include "services/googlemusic/tizgmusicconfig.hpp"
 #include "services/googlemusic/tizgmusicmgr.hpp"
 #include "services/soundcloud/tizscloudconfig.hpp"
 #include "services/soundcloud/tizscloudmgr.hpp"
-#include "services/dirble/tizdirbleconfig.hpp"
-#include "services/dirble/tizdirblemgr.hpp"
+#include "services/spotify/tizspotifyconfig.hpp"
+#include "services/spotify/tizspotifymgr.hpp"
 #include "services/youtube/tizyoutubeconfig.hpp"
 #include "services/youtube/tizyoutubemgr.hpp"
 #include "tizdaemon.hpp"
+#include "tizgraphmgr.hpp"
+#include "tizgraphtypes.hpp"
+#include "tizomxutil.hpp"
 
 #include "tizplayapp.hpp"
 
@@ -125,18 +125,18 @@ namespace
   void player_exit_failure ()
   {
     if (!gb_daemon_mode)
-      {
-        player_reset_termios ();
-      }
+    {
+      player_reset_termios ();
+    }
     exit (EXIT_FAILURE);
   }
 
   void player_exit_success ()
   {
     if (!gb_daemon_mode)
-      {
-        player_reset_termios ();
-      }
+    {
+      player_reset_termios ();
+    }
     exit (EXIT_SUCCESS);
   }
 
@@ -151,7 +151,8 @@ namespace
     raise (SIGSTOP);
   }
 
-  ETIZPlayUserInput player_wait_for_user_input (tiz::graphmgr::mgr_ptr_t mgr_ptr)
+  ETIZPlayUserInput player_wait_for_user_input (
+      tiz::graphmgr::mgr_ptr_t mgr_ptr)
   {
     while (1)
     {
@@ -264,22 +265,22 @@ namespace
 
   struct graphmgr_termination_cback
   {
-    void operator()(OMX_ERRORTYPE code, std::string msg) const
+    void operator() (OMX_ERRORTYPE code, std::string msg) const
     {
       if (OMX_ErrorNone != code)
-        {
-          TIZ_PRINTF_BLU ("\n%s exiting (%s).\n", APP_NAME, tiz_err_to_str (code));
-          TIZ_PRINTF_RED ("\n %s\n\n", msg.c_str ());
-          player_exit_failure ();
-        }
+      {
+        TIZ_PRINTF_BLU ("\n%s exiting (%s).\n", APP_NAME,
+                        tiz_err_to_str (code));
+        TIZ_PRINTF_RED ("\n %s\n\n", msg.c_str ());
+        player_exit_failure ();
+      }
       else
-        {
-          TIZ_PRINTF_BLU ("\n%s exiting (Quit).\n\n", APP_NAME);
-          player_exit_success ();
-        }
+      {
+        TIZ_PRINTF_BLU ("\n%s exiting (Quit).\n\n", APP_NAME);
+        player_exit_success ();
+      }
     }
   };
-
 }
 
 tiz::playapp::playapp (int argc, char *argv[]) : popts_ (argc, argv)
@@ -471,7 +472,7 @@ tiz::playapp::comp_of_role () const
 
   if (OMX_ErrorNoMore
       == (ret = tiz::omxutil::comps_of_role (
-              const_cast< OMX_STRING >(role.c_str ()), components)))
+              const_cast< OMX_STRING > (role.c_str ()), components)))
   {
     BOOST_FOREACH (std::string component, components)
     {
@@ -536,14 +537,14 @@ tiz::playapp::decode_local ()
   (void)daemonize_if_requested ();
 
   tizplaylist_ptr_t playlist
-      = boost::make_shared< tiz::playlist >(tiz::playlist (file_list));
+      = boost::make_shared< tiz::playlist > (tiz::playlist (file_list));
 
   assert (playlist);
   playlist->print_info ();
 
   // Instantiate the decode manager
   tiz::graphmgr::mgr_ptr_t p_mgr
-      = boost::make_shared< tiz::graphmgr::decodemgr >();
+      = boost::make_shared< tiz::graphmgr::decodemgr > ();
 
   // TODO: Check return codes
   p_mgr->init (playlist, graphmgr_termination_cback ());
@@ -599,7 +600,7 @@ tiz::playapp::serve_stream ()
 
   // Retrieve the hostname
   // TODO: Error handling
-  if (0 == gethostname (hostname, sizeof(hostname)))
+  if (0 == gethostname (hostname, sizeof (hostname)))
   {
     struct hostent *p_hostent = gethostbyname (hostname);
     struct in_addr ip_addr = *(struct in_addr *)(p_hostent->h_addr);
@@ -620,7 +621,7 @@ tiz::playapp::serve_stream ()
   }
 
   tizplaylist_ptr_t playlist
-      = boost::make_shared< tiz::playlist >(tiz::playlist (file_list));
+      = boost::make_shared< tiz::playlist > (tiz::playlist (file_list));
 
   assert (playlist);
   playlist->print_info ();
@@ -631,13 +632,13 @@ tiz::playapp::serve_stream ()
   playlist->set_loop_playback (true);
 
   tizgraphconfig_ptr_t config
-      = boost::make_shared< tiz::graph::httpservconfig >(
+      = boost::make_shared< tiz::graph::httpservconfig > (
           playlist, hostname, ip_address, port, sampling_rate_list,
           bitrate_list, station_name, station_genre, icy_metadata);
 
   // Instantiate the http streaming manager
   tiz::graphmgr::mgr_ptr_t p_mgr
-      = boost::make_shared< tiz::graphmgr::httpservmgr >(config);
+      = boost::make_shared< tiz::graphmgr::httpservmgr > (config);
 
   // TODO: Check return codes
   p_mgr->init (playlist, graphmgr_termination_cback ());
@@ -663,17 +664,17 @@ tiz::playapp::decode_stream ()
   print_banner ();
 
   tizplaylist_ptr_t playlist
-      = boost::make_shared< tiz::playlist >(tiz::playlist (uri_list));
+      = boost::make_shared< tiz::playlist > (tiz::playlist (uri_list));
 
   assert (playlist);
   playlist->set_loop_playback (true);
 
   tizgraphconfig_ptr_t config
-      = boost::make_shared< tiz::graph::config >(playlist);
+      = boost::make_shared< tiz::graph::config > (playlist);
 
   // Instantiate the streaming client manager
   tiz::graphmgr::mgr_ptr_t p_mgr
-      = boost::make_shared< tiz::graphmgr::httpclntmgr >(config);
+      = boost::make_shared< tiz::graphmgr::httpclntmgr > (config);
 
   // TODO: Check return codes
   p_mgr->init (playlist, graphmgr_termination_cback ());
@@ -702,29 +703,28 @@ tiz::playapp::spotify_stream ()
 
   // If a username was supplied without a password, prompt for one
   if (!user.empty () && pass.empty ())
-    {
-      std::string msg (user);
-      msg.append ("'s password:");
-      pass.assign (getpass(msg.c_str ()));
-      TIZ_PRINTF_RED ("\n");
-    }
+  {
+    std::string msg (user);
+    msg.append ("'s password:");
+    pass.assign (getpass (msg.c_str ()));
+    TIZ_PRINTF_RED ("\n");
+  }
 
   // daemon support
   (void)daemonize_if_requested ();
 
   tizplaylist_ptr_t playlist
-    = boost::make_shared< tiz::playlist >(tiz::playlist (uri_list, shuffle));
+      = boost::make_shared< tiz::playlist > (tiz::playlist (uri_list, shuffle));
 
   assert (playlist);
   playlist->set_loop_playback (true);
 
   tizgraphconfig_ptr_t config
-      = boost::make_shared< tiz::graph::spotifyconfig >(
-          playlist, user, pass);
+      = boost::make_shared< tiz::graph::spotifyconfig > (playlist, user, pass);
 
   // Instantiate the streaming client manager
   tiz::graphmgr::mgr_ptr_t p_mgr
-      = boost::make_shared< tiz::graphmgr::spotifymgr >(config);
+      = boost::make_shared< tiz::graphmgr::spotifymgr > (config);
 
   // TODO: Check return codes
   p_mgr->init (playlist, graphmgr_termination_cback ());
@@ -749,7 +749,8 @@ tiz::playapp::gmusic_stream ()
   std::string pass (popts_.gmusic_password ());
   std::string device_id (popts_.gmusic_device_id ());
   const uri_lst_t &uri_list = popts_.gmusic_playlist_container ();
-  const OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE playlist_type = popts_.gmusic_playlist_type ();
+  const OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE playlist_type
+      = popts_.gmusic_playlist_type ();
   const bool is_unlimited_search = popts_.gmusic_is_unlimited_search ();
 
   print_banner ();
@@ -767,17 +768,17 @@ tiz::playapp::gmusic_stream ()
   (void)daemonize_if_requested ();
 
   tizplaylist_ptr_t playlist
-      = boost::make_shared< tiz::playlist >(tiz::playlist (uri_list, shuffle));
+      = boost::make_shared< tiz::playlist > (tiz::playlist (uri_list, shuffle));
 
   assert (playlist);
   playlist->set_loop_playback (true);
 
-  tizgraphconfig_ptr_t config = boost::make_shared< tiz::graph::gmusicconfig >(
+  tizgraphconfig_ptr_t config = boost::make_shared< tiz::graph::gmusicconfig > (
       playlist, user, pass, device_id, playlist_type, is_unlimited_search);
 
   // Instantiate the streaming client manager
   tiz::graphmgr::mgr_ptr_t p_mgr
-      = boost::make_shared< tiz::graphmgr::gmusicmgr >(config);
+      = boost::make_shared< tiz::graphmgr::gmusicmgr > (config);
 
   // TODO: Check return codes
   p_mgr->init (playlist, graphmgr_termination_cback ());
@@ -800,7 +801,8 @@ tiz::playapp::scloud_stream ()
   const bool shuffle = popts_.shuffle ();
   const std::string token (popts_.scloud_oauth_token ());
   const uri_lst_t &uri_list = popts_.scloud_playlist_container ();
-  const OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE playlist_type = popts_.scloud_playlist_type ();
+  const OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE playlist_type
+      = popts_.scloud_playlist_type ();
 
   print_banner ();
 
@@ -808,17 +810,17 @@ tiz::playapp::scloud_stream ()
   (void)daemonize_if_requested ();
 
   tizplaylist_ptr_t playlist
-      = boost::make_shared< tiz::playlist >(tiz::playlist (uri_list, shuffle));
+      = boost::make_shared< tiz::playlist > (tiz::playlist (uri_list, shuffle));
 
   assert (playlist);
   playlist->set_loop_playback (true);
 
-  tizgraphconfig_ptr_t config = boost::make_shared< tiz::graph::scloudconfig >(
+  tizgraphconfig_ptr_t config = boost::make_shared< tiz::graph::scloudconfig > (
       playlist, token, playlist_type);
 
   // Instantiate the streaming client manager
   tiz::graphmgr::mgr_ptr_t p_mgr
-      = boost::make_shared< tiz::graphmgr::scloudmgr >(config);
+      = boost::make_shared< tiz::graphmgr::scloudmgr > (config);
 
   // TODO: Check return codes
   p_mgr->init (playlist, graphmgr_termination_cback ());
@@ -841,7 +843,8 @@ tiz::playapp::dirble_stream ()
   const bool shuffle = popts_.shuffle ();
   const std::string api_key (popts_.dirble_api_key ());
   const uri_lst_t &uri_list = popts_.dirble_playlist_container ();
-  const OMX_TIZONIA_AUDIO_DIRBLEPLAYLISTTYPE playlist_type = popts_.dirble_playlist_type ();
+  const OMX_TIZONIA_AUDIO_DIRBLEPLAYLISTTYPE playlist_type
+      = popts_.dirble_playlist_type ();
 
   print_banner ();
 
@@ -849,17 +852,17 @@ tiz::playapp::dirble_stream ()
   (void)daemonize_if_requested ();
 
   tizplaylist_ptr_t playlist
-      = boost::make_shared< tiz::playlist >(tiz::playlist (uri_list, shuffle));
+      = boost::make_shared< tiz::playlist > (tiz::playlist (uri_list, shuffle));
 
   assert (playlist);
   playlist->set_loop_playback (true);
 
-  tizgraphconfig_ptr_t config = boost::make_shared< tiz::graph::dirbleconfig >(
+  tizgraphconfig_ptr_t config = boost::make_shared< tiz::graph::dirbleconfig > (
       playlist, api_key, playlist_type);
 
   // Instantiate the streaming client manager
   tiz::graphmgr::mgr_ptr_t p_mgr
-      = boost::make_shared< tiz::graphmgr::dirblemgr >(config);
+      = boost::make_shared< tiz::graphmgr::dirblemgr > (config);
 
   // TODO: Check return codes
   p_mgr->init (playlist, graphmgr_termination_cback ());
@@ -881,7 +884,8 @@ tiz::playapp::youtube_stream ()
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   const bool shuffle = popts_.shuffle ();
   const uri_lst_t &uri_list = popts_.youtube_playlist_container ();
-  const OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE playlist_type = popts_.youtube_playlist_type ();
+  const OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE playlist_type
+      = popts_.youtube_playlist_type ();
 
   print_banner ();
 
@@ -889,17 +893,18 @@ tiz::playapp::youtube_stream ()
   (void)daemonize_if_requested ();
 
   tizplaylist_ptr_t playlist
-      = boost::make_shared< tiz::playlist >(tiz::playlist (uri_list, shuffle));
+      = boost::make_shared< tiz::playlist > (tiz::playlist (uri_list, shuffle));
 
   assert (playlist);
   playlist->set_loop_playback (true);
 
-  tizgraphconfig_ptr_t config = boost::make_shared< tiz::graph::youtubeconfig >(
-      playlist, playlist_type);
+  tizgraphconfig_ptr_t config
+      = boost::make_shared< tiz::graph::youtubeconfig > (playlist,
+                                                         playlist_type);
 
   // Instantiate the streaming client manager
   tiz::graphmgr::mgr_ptr_t p_mgr
-      = boost::make_shared< tiz::graphmgr::youtubemgr >(config);
+      = boost::make_shared< tiz::graphmgr::youtubemgr > (config);
 
   // TODO: Check return codes
   p_mgr->init (playlist, graphmgr_termination_cback ());
