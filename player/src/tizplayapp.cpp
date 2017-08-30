@@ -92,7 +92,7 @@ namespace
     ETIZPlayUserMax,
   };
 
-  void init_termios (int echo)
+  void player_init_termios (int echo)
   {
     tcgetattr (0, &old_term);    /* grab old terminal i/o settings */
     new_term = old_term;         /* make new settings same as old settings */
@@ -102,7 +102,7 @@ namespace
                &new_term); /* use these new terminal i/o settings now */
   }
 
-  void reset_termios (void)
+  void player_reset_termios (void)
   {
     tcsetattr (0, TCSANOW, &old_term);
   }
@@ -110,9 +110,9 @@ namespace
   char getch_ (int echo)
   {
     char ch;
-    init_termios (echo);
+    player_init_termios (echo);
     ch = (char)getchar ();
-    reset_termios ();
+    player_reset_termios ();
     return ch;
   }
 
@@ -122,22 +122,36 @@ namespace
     return getch_ (0);
   }
 
-  void tizplay_sig_term_hdlr (int sig)
+  void player_exit_failure ()
   {
     if (!gb_daemon_mode)
-    {
-      reset_termios ();
-    }
-    TIZ_PRINTF_BLU ("\n%s exiting (Ctrl-C).\n", APP_NAME);
+      {
+        player_reset_termios ();
+      }
+    exit (EXIT_FAILURE);
+  }
+
+  void player_exit_success ()
+  {
+    if (!gb_daemon_mode)
+      {
+        player_reset_termios ();
+      }
     exit (EXIT_SUCCESS);
   }
 
-  void tizplay_sig_stp_hdlr (int sig)
+  void player_sig_term_hdlr (int sig)
+  {
+    TIZ_PRINTF_BLU ("\n%s exiting (Ctrl-C).\n", APP_NAME);
+    player_exit_success ();
+  }
+
+  void player_sig_stp_hdlr (int sig)
   {
     raise (SIGSTOP);
   }
 
-  ETIZPlayUserInput wait_for_user_input (tiz::graphmgr::mgr_ptr_t mgr_ptr)
+  ETIZPlayUserInput player_wait_for_user_input (tiz::graphmgr::mgr_ptr_t mgr_ptr)
   {
     while (1)
     {
@@ -208,7 +222,7 @@ namespace
     }
   }
 
-  ETIZPlayUserInput wait_for_user_input_while_streaming (
+  ETIZPlayUserInput player_wait_for_user_input_while_streaming (
       tiz::graphmgr::mgr_ptr_t mgr_ptr)
   {
     while (1)
@@ -256,12 +270,13 @@ namespace
         {
           TIZ_PRINTF_BLU ("\n%s exiting (%s).\n", APP_NAME, tiz_err_to_str (code));
           TIZ_PRINTF_RED ("\n %s\n\n", msg.c_str ());
+          player_exit_failure ();
         }
       else
         {
           TIZ_PRINTF_BLU ("\n%s exiting (Quit).\n\n", APP_NAME);
+          player_exit_success ();
         }
-      exit (EXIT_FAILURE);
     }
   };
 
@@ -333,20 +348,20 @@ tiz::playapp::daemonize_if_requested () const
     TIZ_PRINTF_BLU ("Starting daemon.\n\n");
     if (-1 == tiz::daemon::daemonize ())
     {
-      fprintf (stderr, "Could not daemonize.\n");
-      exit (EXIT_FAILURE);
+      TIZ_PRINTF_RED ("Could not daemonize.\n");
+      player_exit_failure ();
     }
   }
 
-  signal (SIGTERM, tizplay_sig_term_hdlr);
+  signal (SIGTERM, player_sig_term_hdlr);
   signal (SIGPIPE, SIG_IGN);
-  signal (SIGINT, tizplay_sig_term_hdlr);
-  signal (SIGTERM, tizplay_sig_term_hdlr);
+  signal (SIGINT, player_sig_term_hdlr);
+  signal (SIGTERM, player_sig_term_hdlr);
 
   if (!gb_daemon_mode)
   {
-    signal (SIGTSTP, tizplay_sig_stp_hdlr);
-    signal (SIGQUIT, tizplay_sig_term_hdlr);
+    signal (SIGTSTP, player_sig_stp_hdlr);
+    signal (SIGQUIT, player_sig_term_hdlr);
   }
   return OMX_ErrorNone;
 }
@@ -513,8 +528,8 @@ tiz::playapp::decode_local ()
     if (!tizplaylist_t::assemble_play_list (
             uri, shuffle, recurse, extension_list, file_list, error_msg))
     {
-      fprintf (stderr, "%s (%s).\n", error_msg.c_str (), uri.c_str ());
-      exit (EXIT_FAILURE);
+      TIZ_PRINTF_RED ("%s (%s).\n", error_msg.c_str (), uri.c_str ());
+      player_exit_failure ();
     }
   }
 
@@ -534,7 +549,7 @@ tiz::playapp::decode_local ()
   p_mgr->init (playlist, graphmgr_termination_cback ());
   p_mgr->start ();
 
-  while (ETIZPlayUserQuit != wait_for_user_input (p_mgr))
+  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr))
   {
   }
 
@@ -575,8 +590,8 @@ tiz::playapp::serve_stream ()
     if (!tizplaylist_t::assemble_play_list (
             uri, shuffle, recurse, extension_list, file_list, error_msg))
     {
-      fprintf (stderr, "%s (%s).\n", error_msg.c_str (), uri.c_str ());
-      exit (EXIT_FAILURE);
+      TIZ_PRINTF_RED ("%s (%s).\n", error_msg.c_str (), uri.c_str ());
+      player_exit_failure ();
     }
   }
 
@@ -628,7 +643,7 @@ tiz::playapp::serve_stream ()
   p_mgr->init (playlist, graphmgr_termination_cback ());
   p_mgr->start ();
 
-  while (ETIZPlayUserQuit != wait_for_user_input_while_streaming (p_mgr))
+  while (ETIZPlayUserQuit != player_wait_for_user_input_while_streaming (p_mgr))
   {
   }
 
@@ -664,7 +679,7 @@ tiz::playapp::decode_stream ()
   p_mgr->init (playlist, graphmgr_termination_cback ());
   p_mgr->start ();
 
-  while (ETIZPlayUserQuit != wait_for_user_input_while_streaming (p_mgr))
+  while (ETIZPlayUserQuit != player_wait_for_user_input_while_streaming (p_mgr))
   {
   }
 
@@ -715,7 +730,7 @@ tiz::playapp::spotify_stream ()
   p_mgr->init (playlist, graphmgr_termination_cback ());
   p_mgr->start ();
 
-  while (ETIZPlayUserQuit != wait_for_user_input (p_mgr))
+  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr))
   {
   }
 
@@ -768,7 +783,7 @@ tiz::playapp::gmusic_stream ()
   p_mgr->init (playlist, graphmgr_termination_cback ());
   p_mgr->start ();
 
-  while (ETIZPlayUserQuit != wait_for_user_input (p_mgr))
+  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr))
   {
   }
 
@@ -809,7 +824,7 @@ tiz::playapp::scloud_stream ()
   p_mgr->init (playlist, graphmgr_termination_cback ());
   p_mgr->start ();
 
-  while (ETIZPlayUserQuit != wait_for_user_input (p_mgr))
+  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr))
   {
   }
 
@@ -850,7 +865,7 @@ tiz::playapp::dirble_stream ()
   p_mgr->init (playlist, graphmgr_termination_cback ());
   p_mgr->start ();
 
-  while (ETIZPlayUserQuit != wait_for_user_input (p_mgr))
+  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr))
   {
   }
 
@@ -890,7 +905,7 @@ tiz::playapp::youtube_stream ()
   p_mgr->init (playlist, graphmgr_termination_cback ());
   p_mgr->start ();
 
-  while (ETIZPlayUserQuit != wait_for_user_input (p_mgr))
+  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr))
   {
   }
 
