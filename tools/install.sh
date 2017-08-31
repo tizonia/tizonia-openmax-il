@@ -23,7 +23,15 @@
 (
 RELIDS=$(cat /etc/*-release)
 if echo "$RELIDS" | grep raspbian; then
-  DISTRO="raspbian" ; RELEASE="jessie"
+    DISTRO="raspbian"
+    if echo "$RELIDS" | grep stretch; then
+        RELEASE="stretch"
+    elif echo "$RELIDS" | grep jessie; then
+        RELEASE="jessie"
+    else
+        echo "Can't find a supported Raspbian distribution."
+        exit 1
+    fi
 elif echo "$RELIDS" | grep jessie; then
   DISTRO="debian" ; RELEASE="jessie"
 elif echo "$RELIDS" | grep stretch; then

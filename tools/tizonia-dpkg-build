@@ -43,6 +43,7 @@ declare -ar TIZ_SUPPORTED_RELEASES=( \
     debian-jessie \
     debian-stretch \
     raspbian-jessie \
+    raspbian-stretch \
 )
 
 declare -ar TIZ_LIBSPOTIFY_DEPS=( \
