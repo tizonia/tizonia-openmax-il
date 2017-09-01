@@ -53,8 +53,8 @@ combinations:
 
 | Ubuntu Trusty (14.04) | Ubuntu Xenial (16.04) | Debian Jessie (8) | Raspbian Jessie (8) | Debian Stretch (9) | Raspbian Stretch (9) |
 |        :---:          |        :---:          |        :---:      |       :---:         |        :---:       |        :---:         |
-|     amd64, armhf      |     amd64, armhf      |    amd64, armhf   |      armhf          |     amd64, armhf   |     Coming Soon      |
-| [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-trusty/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-trusty/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-xenial/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-xenial/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-jessie/_latestVersion)  | [ ![Download](https://api.bintray.com/packages/tizonia/raspbian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/raspbian/tizonia-jessie/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-stretch/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-stretch/_latestVersion) |   |
+|     amd64, armhf      |     amd64, armhf      |    amd64, armhf   |      armhf          |     amd64, armhf   |        armhf         |
+| [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-trusty/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-trusty/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-xenial/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-xenial/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-jessie/_latestVersion)  | [ ![Download](https://api.bintray.com/packages/tizonia/raspbian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/raspbian/tizonia-jessie/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-stretch/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-stretch/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/raspbian/tizonia-stretch/images/download.svg) ](https://bintray.com/tizonia/raspbian/tizonia-stretch/_latestVersion) |
 
 > NOTE: Elementary OS and Linux Mint are supported on releases based on Ubuntu 'Trusty' or Ubuntu 'Xenial'.
 
@@ -72,9 +72,19 @@ release and all its dependencies, including [gmusicapi](https://github.com/simon
 
 > NOTE: The usual disclaimers apply: trust no-one. Have a look at the installation script before running it on your system.
 
-## Arch User Repository
+## Arch User Repository (AUR) packages
  - [tizonia-all (0.9.0)](https://aur.archlinux.org/packages/tizonia-all/)
  - [tizonia-all-git](https://aur.archlinux.org/packages/tizonia-all-git/)
+
+```bash
+
+    $ yaourt -S tizonia-all # for the latest released version
+
+    # or
+
+    $ yaourt -S tizonia-all-git # for the bleeding edge
+
+```
 
 ## Configuration
 
