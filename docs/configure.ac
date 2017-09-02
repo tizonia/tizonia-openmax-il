@@ -40,6 +40,7 @@ fi
 # Checks for libraries.
 AX_PYTHON_MODULE(alabaster, [tizonia-doc needs alabaster])
 AX_PYTHON_MODULE(breathe, [tizonia-doc needs breathe])
+AX_PYTHON_MODULE(recommonmark, [tizonia-doc needs recommonmark])
 
 # Checks for header files.
 

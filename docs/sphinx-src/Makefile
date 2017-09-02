@@ -1,6 +1,15 @@
 # Makefile for Sphinx documentation
 #
 
+TOP_REPO_DIR := $(realpath ../..)
+ORIG_PROJECT_MD := $(TOP_REPO_DIR)/PROJECT.md
+ORIG_BUILDING_MD := $(TOP_REPO_DIR)/BUILDING.md
+
+DEVEL_DIR := $(realpath ./development)
+OVERVIEW_DIR := $(realpath ./overview)
+TARGET_PROJECT_MD := $(OVERVIEW_DIR)/PROJECT.md
+TARGET_BUILDING_MD := $(DEVEL_DIR)/BUILDING.md
+
 # You can set these variables from the command line.
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build -W
@@ -14,7 +23,13 @@ ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 # the i18n builder cannot share the environment and doctrees with the others
 I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 
-.PHONY: help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest gettext
+.PHONY: links help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest gettext
+
+$(TARGET_PROJECT_MD):
+	ln -fs $(ORIG_PROJECT_MD) $@
+
+$(TARGET_BUILDING_MD):
+	ln -fs $(ORIG_BUILDING_MD) $@
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
@@ -41,7 +56,7 @@ help:
 clean:
 	-rm -rf $(BUILDDIR)/*
 
-html:
+html: $(TARGET_PROJECT_MD) $(TARGET_BUILDING_MD)
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."

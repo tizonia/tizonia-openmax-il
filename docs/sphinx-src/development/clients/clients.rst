@@ -6,4 +6,6 @@ Streaming Clients
 
    libtizgmusic
    libtizsoundcloud
+   libtizyoutube
+   libtizdirble
 

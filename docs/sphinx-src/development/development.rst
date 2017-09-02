@@ -4,8 +4,8 @@ Development
 .. toctree::
    :maxdepth: 2
 
+   BUILDING
    architecture
-   requirements
    openmaxil/openmaxil
    plugins/plugins
    clients/clients

@@ -6,24 +6,25 @@
 Tizonia documentation
 =====================
 
-The Tizonia Project - Copyright 2017 Juan A. Rubio
+The Tizonia Project - Copyright (c) 2017 Juan A. Rubio
 
-Introduction
-============
-
-.. toctree::
-   :maxdepth: 2
-
-   intro/intro
-   intro/installation
-
-Tutorial
+Overview
 ========
 
 .. toctree::
    :maxdepth: 2
 
-   tutorial/tutorial
+   overview/intro
+   overview/PROJECT
+   overview/installation
+
+Screenshots
+===========
+
+.. toctree::
+   :maxdepth: 2
+
+   screenshots/screenshots
 
 Development
 ===========
@@ -32,7 +33,7 @@ Development
    :maxdepth: 3
    :glob:
 
-   devel/development
+   development/development
 
 Indices and tables
 ==================

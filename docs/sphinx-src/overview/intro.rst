@@ -1,11 +1,8 @@
 .. Tizonia documentation
 
 
-Introduction
-============
-
-500-foot view
--------------
+The Tizonia Project
+===================
 
 Tizonia is a free and open-source multimedia software project based on
 OpenMAX IL.
@@ -24,53 +21,56 @@ and renderers).
 
 From a user-side perspective, the Tizonia project also features a command-line
 music player and audio streaming client/server for Linux with support for
-Spotify, Google Play Music and SoundCloud on-demand audio streaming services.
+Spotify, Google Play Music, YouTube, SoundCloud, and Dirble on-demand streaming
+services.
 
 Tizonia development is hosted on `GitHub
 <https://github.com/tizonia/tizonia-openmax-il>`_ and software binary releases
 are available for Debian-based Linux distributions from `Bintray
-<https://bintray.com/tizonia>`_.
+<https://bintray.com/tizonia>`_. There are AUR (Arch User Repository) packages
+avaialable as well.
 
 
 Current features
 ----------------
 
 * Simple, no-fuss command-line music player utility.
-* Cloud audio streaming services:
+* Audio streaming from cloud services:
 
-  * *Spotify Premium, Google Play Unlimited, and SoundCloud.*
+  * *Spotify Premium, Google Play Unlimited, YouTube, SoundCloud, and Dirble.*
 
-* Support for most common high-quality audio formats from local media:
+* Audio playback from local media, with support for most common high-quality
+  audio formats:
 
   * *Formats currently supported: mp3, mp2, mpa, m2a, aac, vorbis, opus, wav,
     aiff, and flac*.
 
 * Playback of Icecast/SHOUTcast radio streams:
 
-  * mp3, aac, and opus stations (ogg to be added soon).
+  * mp3, aac, and opus stations supported.
 
-* LAN audio streaming server (Icecast/SHOUTcast):
+* Icecast/SHOUTcast LAN audio streaming server (*experimental*):
 
-  * *Currently: mp3 stations can be created from local media (flac and opus to
-    be added in the near future).*
+  * *Currently: stations can be created from local mp3 media.*
 
-* MPRIS v2 remote control interface.
+* MPRIS v2 remote control interface with support for previous, next, pause,
+  play, stop and volume commands.
 
-* Based on Tizonia's own internal multimedia framework.
+* Tizonia has its own internal multimedia framework.
 
   * A full implementation of the OpenMAX IL 1.2 provisional specification.
 
-  * No ffmpeg, libav, gstreamer or libvlc dependencies.
+  * Therefore, with no depedencies on ffmpeg, libav, gstreamer or libvlc
+    frameworks.
 
 
 Roadmap
 -------
 
+* Chromecast support.
+* Integration of additional audio streaming services (e.g. Pandora, Deezer,
+  etc.).
 * LAN streaming (Icecast/SHOUTcast) of any audio stream (including cloud
   services).
-* Integration of additional audio streaming services (e.g. Dirble, YouTube,
-  etc.).
-* Multi-room synchronised playback.
-* Zeroconf/AVAHI networking.
-* Music Player Daemon protocol support.
-* Hardware-acceleration and Video support.
+* Multi-room synchronised playback (via Chromecast).
+* Hardware-acceleration and video support.

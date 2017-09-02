@@ -2,17 +2,17 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-- [`tizonia`: A command-line cloud music player and audio streaming client/server.](#tizonia-a-command-line-cloud-music-player-and-audio-streaming-clientserver)
-- [A fully-featured OpenMAX IL 1.2 multimedia framework](#a-fully-featured-openmax-il-12-multimedia-framework)
-- [Tizonia's OpenMAX IL 1.2 plugins](#tizonias-openmax-il-12-plugins)
-- [Skema: Tizonia's test execution framework for OpenMAX IL components.](#skema-tizonias-test-execution-framework-for-openmax-il-components)
+- [Project components](#project-components)
+  - [`tizonia`: A command-line cloud music player and audio streaming client/server.](#tizonia-a-command-line-cloud-music-player-and-audio-streaming-clientserver)
+  - [A fully-featured OpenMAX IL 1.2 multimedia framework](#a-fully-featured-openmax-il-12-multimedia-framework)
+  - [Tizonia's OpenMAX IL 1.2 plugins](#tizonias-openmax-il-12-plugins)
+  - [Skema: Tizonia's test execution framework for OpenMAX IL components.](#skema-tizonias-test-execution-framework-for-openmax-il-components)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
+## The project's components ##
 
-The components of the Tizonia project are listed below:
-
-# `tizonia`: A command-line cloud music player and audio streaming client/server.
+### `tizonia`: A command-line cloud music player and audio streaming client/server.
 
 * Stream playlists from Spotify (Spotify Premium required).
 * Search and stream audio from Google Play Music (including Unlimited features).
@@ -28,7 +28,7 @@ The components of the Tizonia project are listed below:
 * Based on Tizonia's own OpenMAX IL-based multimedia framework. That means, no
   gstreamer, libav, or ffmpeg dependencies.
 
-# A fully-featured OpenMAX IL 1.2 multimedia framework
+### A fully-featured OpenMAX IL 1.2 multimedia framework
 
 1. 'libtizonia' : OpenMAX IL 1.2 component framework
   * A C library for creating OpenMAX IL 1.2 plugins (encoders, decoders,
@@ -54,7 +54,7 @@ The components of the Tizonia project are listed below:
   * 'tizrmd' : a D-Bus-based Resource Manager daemon server.
   * 'libtizrmproxy' : a C client library to interface with the RM daemon.
 
-# Tizonia's OpenMAX IL 1.2 plugins
+### Tizonia's OpenMAX IL 1.2 plugins
 
   * Spotify streaming service client ([libspotify](https://github.com/mopidy/libspotify-deb)),
   * Google Play Music streaming service client (based on [gmusicapi](https://github.com/simon-weber/gmusicapi))
@@ -79,7 +79,7 @@ The components of the Tizonia project are listed below:
   * general purpose plugins, like binary file readers and writers
   * etc...
 
-# Skema: Tizonia's test execution framework for OpenMAX IL components.
+### Skema: Tizonia's test execution framework for OpenMAX IL components.
   * Test execution framework to build and test arbitrary OpenMAX IL graphs (tunneled and
     non-tunneled) using a custom, [easy-to-write XML syntax](http://github.com/tizonia/tizonia-openmax-il/wiki/Mp3Playback101).
   * Skema's Github repo: http://github.com/tizonia/skema
