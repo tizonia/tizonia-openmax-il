@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-- [Project components](#project-components)
+- [The Project's Building Blocks](#the-projects-building-blocks)
   - [`tizonia`: A command-line cloud music player and audio streaming client/server.](#tizonia-a-command-line-cloud-music-player-and-audio-streaming-clientserver)
   - [A fully-featured OpenMAX IL 1.2 multimedia framework](#a-fully-featured-openmax-il-12-multimedia-framework)
   - [Tizonia's OpenMAX IL 1.2 plugins](#tizonias-openmax-il-12-plugins)

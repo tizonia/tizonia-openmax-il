@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-- [Building from source](#building-from-source)
+- [Building from Source](#building-from-source)
   - [Dependencies](#dependencies)
   - [Building](#building)
     - ['Debug' variant](#debug-variant)

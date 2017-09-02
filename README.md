@@ -17,11 +17,14 @@
 
 - [News](#news)
 - [Installation](#installation)
+  - [Debian packages](#debian-packages)
+  - [Arch User Repository (AUR) packages](#arch-user-repository-aur-packages)
   - [Configuration](#configuration)
   - [Upgrade](#upgrade)
 - [Project](#project)
 - [Building](#building)
 - [Changelog](#changelog)
+- [Roadmap](#roadmap)
 - [License](#license)
 - [More information](#more-information)
 
