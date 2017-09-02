@@ -22,9 +22,10 @@
   - [Configuration](#configuration)
   - [Upgrade](#upgrade)
 - [Project](#project)
-- [Building](#building)
-- [Changelog](#changelog)
 - [Roadmap](#roadmap)
+- [Building](#building)
+- [Documentation](#documentation)
+- [Changelog](#changelog)
 - [License](#license)
 - [More information](#more-information)
 
@@ -121,20 +122,28 @@ To upgrade Tizonia, run 'apt-get' as usual, but also make sure the Python depend
 
 See [PROJECT.md](PROJECT.md) to learn more about the project.
 
-# Building
-
-See [BUILDING.md](BUILDING.md) for instructions on how to build Tizonia from source.
-
-# Changelog
-
-See [CHANGELOG.md](CHANGELOG.md).
-
 # Roadmap
 
 - Chromecast support.
 - REPL command-line interface.
 - Snap packages.
 - OS X port.
+
+# Building
+
+See [BUILDING.md](BUILDING.md) for instructions on how to build Tizonia from source.
+
+# Documentation
+
+See [http://docs.tizonia.org/](docs.tizonia.org) for the most up-to-date project documentaion.
+
+The [https://github.com/tizonia/tizonia-openmax-il/wiki](Wiki) may also contain
+some useful information (although in need of an update).
+
+# Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for details on what has gone into each
+release of the project.
 
 # License
 
