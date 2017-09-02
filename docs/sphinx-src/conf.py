@@ -52,7 +52,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Tizonia'
-copyright = u'2016, Juan A. Rubio'
+copyright = u'2017, Aratelia Limited - Juan A. Rubio'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -300,6 +300,22 @@ def run_doxygen(app):
     """Run the doxygen make command in the docs/ top level folder"""
 
     try:
+        repo_path = os.path.abspath("../../")
+        cwd = os.getcwd()
+
+        links = \
+            [ \
+              [ 'PROJECT.md', 'overview/PROJECT.md' ] , \
+              [ 'BUILDING.md', 'development/BUILDING.md' ] , \
+            ]
+
+        for link in links:
+            source = os.path.join(repo_path, link[0])
+            target = os.path.join(cwd, link[1])
+            if not os.path.lexists(target):
+                sys.stdout.write("Creating symlink : %s" % target)
+                os.symlink(source, target)
+
         read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
         if read_the_docs_build:
             retcode = subprocess.call("cd ../doxygen-src && doxygen doxyfile.rtd", shell=True)

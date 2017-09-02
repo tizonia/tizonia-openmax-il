@@ -1,5 +1,5 @@
-Streaming Clients
-=================
+Streaming Client Libraries
+==========================
 
 .. toctree::
    :maxdepth: 1

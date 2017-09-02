@@ -1,7 +1,0 @@
-.. Tizonia documentation
-
-
-Architecture
-============
-
-TODO

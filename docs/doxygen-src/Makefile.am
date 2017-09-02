@@ -50,5 +50,5 @@ clean-local: clean-local-doxygen
 distclean-local: clean-local-doxygen
 .PHONY: clean-local-doxygen
 clean-local-doxygen:
-	-rm -rf html
+	-rm -rf html xml
 #endif

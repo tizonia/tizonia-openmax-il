@@ -10,7 +10,7 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-## The project's components ##
+## The Project's Building Blocks ##
 
 ### `tizonia`: A command-line cloud music player and audio streaming client/server.
 

@@ -38,7 +38,7 @@ PROJECT_NAME           = Tizonia
 # could be handy for archiving the generated documentation or if some version
 # control system is used.
 
-PROJECT_NUMBER         = 0.1.0
+PROJECT_NUMBER         = 0.9.0
 
 # Using the PROJECT_BRIEF tag one can provide an optional one line description
 # for a project that appears at the top of each page and should give viewer a
@@ -746,6 +746,8 @@ WARN_LOGFILE           =
 INPUT                  = mainpage.dox
 INPUT                 += ../../clients/gmusic
 INPUT                 += ../../clients/soundcloud
+INPUT                 += ../../clients/youtube
+INPUT                 += ../../clients/dirble
 INPUT                 += ../../libtizcore
 INPUT                 += ../../libtizonia
 INPUT                 += ../../libtizplatform
@@ -754,7 +756,6 @@ INPUT                 += ../../rm/libtizrmproxy
 INPUT                 += ../../rm/tizrmd
 INPUT                 += plugins.dox
 INPUT                 += ../../plugins
-INPUT                 += ../../player
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses

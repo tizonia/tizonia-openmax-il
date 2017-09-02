@@ -15,7 +15,7 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-## Building from source ##
+## Building from Source ##
 
 To build and install from source, follow these steps (Ubuntu 16.04 is assumed,
 but should work on other recent Debian-based distros).
