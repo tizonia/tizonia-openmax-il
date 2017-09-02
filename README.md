@@ -135,9 +135,9 @@ See [BUILDING.md](BUILDING.md) for instructions on how to build Tizonia from sou
 
 # Documentation
 
-See [http://docs.tizonia.org/](docs.tizonia.org) for the most up-to-date project documentaion.
+See [docs.tizonia.org](http://docs.tizonia.org/) for the most up-to-date project documentaion.
 
-The [https://github.com/tizonia/tizonia-openmax-il/wiki](Wiki) may also contain
+The [Wiki](https://github.com/tizonia/tizonia-openmax-il/wiki) may also contain
 some useful information (although in need of an update).
 
 # Changelog
