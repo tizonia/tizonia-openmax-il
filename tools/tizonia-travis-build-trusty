@@ -454,6 +454,29 @@ function run_tests {
     return "$exit_status"
 }
 
+function run_coverage {
+    cd_to_working_dir
+
+    # Creating code coverage report
+    local cwd=$(pwd)
+    lcov --directory . --capture --output-file coverage.info # capture coverage info
+    lcov --remove coverage.info \
+         '/usr/*' \
+         "$cwd/clients/*" \
+         "$cwd/rm/*" \
+         "$cwd/libtizplatform/src/ev/*" \
+         "$cwd/libtizplatform/src/avl/*" \
+         "$cwd/libtizplatform/src/http-parser/*" \
+         "$cwd/libtizplatform/src/utarray/*" \
+         "$cwd/libtizplatform/src/utarray/*" \
+         --output-file coverage.info
+
+    lcov --list coverage.info #debug info
+
+    # Uploading report to CodeCov
+    bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
+}
+
 ##################################################################
 # Main function
 #
@@ -503,6 +526,8 @@ function main {
         install_skema
     elif [[ "$1" == "tests" ]];  then
         run_tests
+    elif [[ "$1" == "coverage" ]];  then
+        run_coverage
     else
         CMD=$(basename "$0")
         echo "Usage: $CMD <deps|pydeps|media|build|config|skema|tests> <working_dir> <install_dir>"
