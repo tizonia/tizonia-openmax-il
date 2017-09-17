@@ -334,7 +334,7 @@ function configure_and_build {
                --prefix="$INSTALL_DIR" \
                CFLAGS='-O0 --coverage' \
                CXXFLAGS='-O0 --coverage' \
-               LDFLAGS='-lgcov'
+               LDFLAGS='-lgcov' \
         && make -s -j $JOBS V=0 install
 
     return $?
