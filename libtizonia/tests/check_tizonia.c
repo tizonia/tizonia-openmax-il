@@ -2038,7 +2038,7 @@ tiz_suite (void)
 /*   (void) test_tizonia_getparameter; */
 /*   (void) test_tizonia_roles; */
 /*   (void) test_tizonia_preannouncements_extension; */
-/*   (void) test_tizonia_move_to_exe_and_transfer_with_allocbuffer; */
+  (void) test_tizonia_move_to_exe_and_transfer_with_allocbuffer;
 /*   (void) test_tizonia_command_cancellation_loaded_to_idle_no_buffers; */
   (void) test_tizonia_command_cancellation_loaded_to_idle_with_tunneled_supplied_buffers;
 /*   (void) test_tizonia_command_cancellation_loaded_to_idle_no_buffers_port_disabled_unblocks_transition; */
@@ -2051,9 +2051,9 @@ tiz_suite (void)
   tcase_add_test (tc_tizonia, test_tizonia_getparameter);
   tcase_add_test (tc_tizonia, test_tizonia_roles);
   tcase_add_test (tc_tizonia, test_tizonia_preannouncements_extension);
-  tcase_add_test (tc_tizonia, test_tizonia_pd_set);
-  tcase_add_test (tc_tizonia,
-                  test_tizonia_move_to_exe_and_transfer_with_allocbuffer);
+  /* TEST DISABLED */
+/*   tcase_add_test (tc_tizonia, */
+/*                   test_tizonia_move_to_exe_and_transfer_with_allocbuffer); */
   tcase_add_test (tc_tizonia,
                   test_tizonia_command_cancellation_loaded_to_idle_no_buffers);
   /* TEST DISABLED */
