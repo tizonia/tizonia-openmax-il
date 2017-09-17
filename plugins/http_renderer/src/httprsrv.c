@@ -464,12 +464,12 @@ srv_start_listener_io_watcher (httpr_listener_t * ap_lstnr)
                                    ap_lstnr->p_con->p_ev_io);
 }
 
-static OMX_ERRORTYPE
+static void
 srv_stop_listener_io_watcher (httpr_listener_t * ap_lstnr)
 {
   assert (ap_lstnr);
   assert (ap_lstnr->p_con);
-  return tiz_srv_io_watcher_stop (ap_lstnr->p_server->p_parent,
+  (void) tiz_srv_io_watcher_stop (ap_lstnr->p_server->p_parent,
                                   ap_lstnr->p_con->p_ev_io);
 }
 
@@ -491,20 +491,18 @@ srv_start_listener_timer_watcher (httpr_listener_t * ap_lstnr,
   return rc;
 }
 
-static OMX_ERRORTYPE
+static void
 srv_stop_listener_timer_watcher (httpr_listener_t * ap_lstnr)
 {
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (ap_lstnr);
   if (ap_lstnr->timer_started)
     {
       assert (ap_lstnr->p_server);
       assert (ap_lstnr->p_con);
-      tiz_check_omx (tiz_srv_timer_watcher_stop (
-        ap_lstnr->p_server->p_parent, ap_lstnr->p_con->p_ev_timer));
+      (void) tiz_srv_timer_watcher_stop (ap_lstnr->p_server->p_parent,
+                                         ap_lstnr->p_con->p_ev_timer);
       ap_lstnr->timer_started = false;
     }
-  return rc;
 }
 
 static void
@@ -1272,7 +1270,7 @@ srv_write_to_listener (httpr_server_t * ap_server, httpr_listener_t * ap_lstnr,
             "Recoverable error while writing to the socket"
             "(re-starting io watcher)\n");
           (void) srv_start_listener_io_watcher (ap_lstnr);
-          (void) srv_stop_listener_timer_watcher (ap_lstnr);
+          srv_stop_listener_timer_watcher (ap_lstnr);
           rc = OMX_ErrorNotReady;
         }
     }
@@ -1388,7 +1386,7 @@ srv_write_omx_buffer (httpr_server_t * ap_server, httpr_listener_t * ap_lstnr)
                 "NEED TO STOP bytes [%d] < len [%u] p_lstnr_buf->len [%u]\n",
                 bytes, len, p_lstnr_buf->len);
               (void) srv_start_listener_io_watcher (ap_lstnr);
-              (void) srv_stop_listener_timer_watcher (ap_lstnr);
+              srv_stop_listener_timer_watcher (ap_lstnr);
               rc = OMX_ErrorNotReady;
             }
           else
@@ -1442,6 +1440,7 @@ srv_accept_connection (httpr_server_t * ap_server)
                                 port);
       goto_end_on_omx_error (rc, p_hdl, "Unable to instantiate the listener");
 
+      assert (p_lstnr);
       assert (p_lstnr->p_con);
       p_con = p_lstnr->p_con;
 
@@ -1564,7 +1563,7 @@ srv_write (httpr_server_t * ap_server)
 
       if (OMX_ErrorNoMore == rc)
         {
-          (void) srv_remove_listener (ap_server, p_lstnr);
+          srv_remove_listener (ap_server, p_lstnr);
           break;
         }
 
@@ -1780,9 +1779,9 @@ httpr_srv_stop (httpr_server_t * ap_server)
       p_lstnr = srv_get_first_listener (ap_server);
       if (p_lstnr)
         {
-          (void) srv_stop_listener_io_watcher (p_lstnr);
-          (void) srv_stop_listener_timer_watcher (p_lstnr);
-          (void) srv_remove_listener (ap_server, p_lstnr);
+          srv_stop_listener_io_watcher (p_lstnr);
+          srv_stop_listener_timer_watcher (p_lstnr);
+          srv_remove_listener (ap_server, p_lstnr);
         }
     }
   ap_server->running = false;
