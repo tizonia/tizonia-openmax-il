@@ -363,9 +363,11 @@ start_curl (tiz_urltrans_t * ap_trans)
                                         ap_trans->p_http_headers_));
 
   /* #ifdef _DEBUG */
-  curl_easy_setopt (ap_trans->p_curl_, CURLOPT_VERBOSE, 1);
-  curl_easy_setopt (ap_trans->p_curl_, CURLOPT_DEBUGDATA, ap_trans);
-  curl_easy_setopt (ap_trans->p_curl_, CURLOPT_DEBUGFUNCTION, curl_debug_cback);
+  bail_on_curl_error (curl_easy_setopt (ap_trans->p_curl_, CURLOPT_VERBOSE, 1));
+  bail_on_curl_error (
+    curl_easy_setopt (ap_trans->p_curl_, CURLOPT_DEBUGDATA, ap_trans));
+  bail_on_curl_error (curl_easy_setopt (
+    ap_trans->p_curl_, CURLOPT_DEBUGFUNCTION, curl_debug_cback));
   /* #endif */
 
   /* Set the socket callback with CURLMOPT_SOCKETFUNCTION */
