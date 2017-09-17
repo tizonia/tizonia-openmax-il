@@ -28,12 +28,20 @@ compiler:
 python:
   - "2.7_with_system_site_packages"
 before_install:
- - ./tools/tizonia-travis-build-trusty deps "$HOME"
- - ./tools/tizonia-travis-build-trusty pydeps "$HOME"
+  - ./tools/tizonia-travis-build-trusty deps "$HOME"
+  - ./tools/tizonia-travis-build-trusty pydeps "$HOME"
 before_script:
- - ./tools/tizonia-travis-build-trusty media "$HOME" "$HOME/temp"
+  - ./tools/tizonia-travis-build-trusty media "$HOME" "$HOME/temp"
 script:
- - ./tools/tizonia-travis-build-trusty build "$HOME/build/tizonia/tizonia-openmax-il"
- - ./tools/tizonia-travis-build-trusty config "$HOME/build/tizonia/tizonia-openmax-il"
- - ./tools/tizonia-travis-build-trusty skema "$HOME/build"
- - ./tools/tizonia-travis-build-trusty tests "$HOME/build"
+  - ./tools/tizonia-travis-build-trusty build "$HOME/build/tizonia/tizonia-openmax-il"
+  - ./tools/tizonia-travis-build-trusty config "$HOME/build/tizonia/tizonia-openmax-il"
+  - ./tools/tizonia-travis-build-trusty skema "$HOME/build"
+  - ./tools/tizonia-travis-build-trusty tests "$HOME/build"
+after_success:
+  # Creating report
+  - cd "$HOME/build/tizonia/tizonia-openmax-il"
+  - lcov --directory . --capture --output-file coverage.info # capture coverage info
+  - lcov --remove coverage.info '/usr/*' --output-file coverage.info # filter out system
+  - lcov --list coverage.info #debug info
+  # Uploading report to CodeCov
+  - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"

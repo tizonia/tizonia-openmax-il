@@ -209,7 +209,8 @@ function install_deps {
         wget \
         sqlite3 \
         dbus-x11 \
-        mercurial
+        mercurial \
+        lcov
 
     exit_status=$?
 
@@ -257,6 +258,14 @@ function install_python_deps {
 
     if [[ "$exit_status" -eq 0 ]] ; then
         pip install --user soundcloud
+        exit_status=$?
+        if [[ "$exit_status" -ne 0 ]] ; then
+            echo "Error while installing soundcloud" >&2
+        fi
+    fi
+
+    if [[ "$exit_status" -eq 0 ]] ; then
+        pip install --user codecov
         exit_status=$?
         if [[ "$exit_status" -ne 0 ]] ; then
             echo "Error while installing soundcloud" >&2
@@ -320,10 +329,12 @@ function configure_and_build {
     echo "Configuring, building and installing Tizonia - Install dir [$INSTALL_DIR]..."
     autoreconf -ifs \
         && ./configure \
-        --enable-silent-rules \
-        --prefix="$INSTALL_DIR" \
-        CFLAGS="-Wall" \
-        CXXFLAGS='-Wall' \
+               --silent \
+               --enable-silent-rules \
+               --prefix="$INSTALL_DIR" \
+               CFLAGS='-O0 --coverage' \
+               CXXFLAGS='-O0 --coverage' \
+               LDFLAGS='-lgcov'
         && make -s -j $JOBS V=0 install
 
     return $?
