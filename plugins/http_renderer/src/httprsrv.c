@@ -1703,9 +1703,9 @@ httpr_srv_init (httpr_server_t ** app_server, void * ap_parent,
   p_server->sample_rate = 0;
   p_server->bytes_per_frame = 144 * 128000 / 44100;
   p_server->burst_size = ICE_MEDIUM_BURST_SIZE;
-  p_server->pkts_per_sec
-    = (((double) p_server->bytes_per_frame * (double) (1000 / 26)
-        / (double) p_server->burst_size));
+  p_server->pkts_per_sec = (((double) p_server->bytes_per_frame
+                             * (double) ((double) 1000 / (double) 26)
+                             / (double) p_server->burst_size));
   p_server->wait_time = (1 / p_server->pkts_per_sec);
 
   tiz_mem_set (&(p_server->mountpoint), 0, sizeof (httpr_mount_t));
