@@ -206,23 +206,6 @@ srv_is_valid_socket (int a_sockfd)
 }
 
 static inline int
-srv_get_socket_buffer_size (const int a_sockfd)
-{
-  int optval;
-  socklen_t optlen = sizeof (int);
-  getsockopt (a_sockfd, SOL_SOCKET, SO_SNDBUF, (void *) &optval, &optlen);
-  return optval;
-}
-
-static inline int
-srv_get_socket_buffer_utilization (const int a_sockfd)
-{
-  int remaining = -1;
-  ioctl (a_sockfd, TIOCOUTQ, &remaining);
-  return remaining;
-}
-
-static inline int
 srv_get_listeners_count (const httpr_server_t * ap_server)
 {
   int rc = 0;
