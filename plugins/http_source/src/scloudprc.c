@@ -331,7 +331,7 @@ update_metadata (scloud_prc_t * ap_prc)
     const char * p_year = tiz_scloud_get_current_track_year (ap_prc->p_scloud_);
     if (p_year && strncmp (p_year, "0", 4) != 0)
       {
-        store_metadata (ap_prc, "Year", p_year);
+        tiz_check_omx (store_metadata (ap_prc, "Year", p_year));
       }
   }
 
