@@ -792,7 +792,8 @@ srv_send_http_error (httpr_server_t * ap_server, httpr_listener_t * ap_lstnr,
 
   ap_lstnr->buf.len = strnlen (ap_lstnr->buf.p_data, ICE_LISTENER_BUF_SIZE);
 
-  send (ap_lstnr->p_con->sockfd, ap_lstnr->buf.p_data, ap_lstnr->buf.len, 0);
+  /* Ignore send error */
+  (void) send (ap_lstnr->p_con->sockfd, ap_lstnr->buf.p_data, ap_lstnr->buf.len, 0);
   ap_lstnr->buf.len = 0;
 }
 
