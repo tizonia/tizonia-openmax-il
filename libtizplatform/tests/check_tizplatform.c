@@ -246,7 +246,7 @@ main (void)
   srunner_add_suite (sr, platform_soa_suite ());
   srunner_add_suite (sr, platform_http_parser_suite ());
   srunner_add_suite (sr, platform_map_suite ());
-  srunner_add_suite (sr, platform_event_suite ());
+/*   srunner_add_suite (sr, platform_event_suite ()); */
   srunner_run_all (sr, CK_VERBOSE);
   number_failed = srunner_ntests_failed (sr);
   srunner_free (sr);
