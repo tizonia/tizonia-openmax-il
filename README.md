@@ -7,7 +7,7 @@
 
 ---
 
-[![Build Status](https://travis-ci.org/tizonia/tizonia-openmax-il.png)](https://travis-ci.org/tizonia/tizonia-openmax-il)  |  [![Coverity Scan Build Status](https://scan.coverity.com/projects/594/badge.svg)](https://scan.coverity.com/projects/594)  |  [![Documentation Status](https://readthedocs.org/projects/tizonia-openmax-il/badge/?version=latest)](https://readthedocs.org/projects/tizonia-openmax-il/?badge=latest) | [![GitHub commits](https://img.shields.io/github/commits-since/tizonia/tizonia-openmax-il/0.9.0.svg)]()
+[![Build Status](https://travis-ci.org/tizonia/tizonia-openmax-il.png)](https://travis-ci.org/tizonia/tizonia-openmax-il)  |  [![Coverity Scan Build Status](https://scan.coverity.com/projects/594/badge.svg)](https://scan.coverity.com/projects/594)  |  [![Documentation Status](https://readthedocs.org/projects/tizonia-openmax-il/badge/?version=latest)](https://readthedocs.org/projects/tizonia-openmax-il/?badge=latest) | [![Codecov](https://img.shields.io/codecov/c/github/tizonia/tizonia-openmax-il.svg)]() | [![GitHub commits](https://img.shields.io/github/commits-since/tizonia/tizonia-openmax-il/v0.9.0.svg)]()
 
 ![alt text](https://github.com/tizonia/tizonia-openmax-il/blob/master/docs/animated-gifs/tizonia-usage-screencast.gif "Tizonia usage")
 
