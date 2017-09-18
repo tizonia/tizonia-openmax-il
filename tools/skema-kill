@@ -33,4 +33,6 @@ for cmd in "${SKEMA_KILL_DEPS[@]}"; do
 done
 
 kill -TERM $(ps aux | grep run_suite | grep python | awk '{ print $2 }')
-kill -KILL $(ps aux | grep run_suite | grep python | awk '{ print $2 }')
+if [[ $? -ne 0 ]]; then
+    kill -KILL $(ps aux | grep run_suite | grep python | awk '{ print $2 }')
+fi
