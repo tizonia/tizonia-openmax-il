@@ -398,7 +398,6 @@ void graph::ops::do_exe2idle_comp (const int comp_id)
   {
     G_OPS_BAIL_IF_ERROR (transition_comp (comp_id, OMX_StateIdle),
                          "Unable to transition from Exe->Idle");
-    record_expected_transitions (OMX_StateIdle);
   }
 }
 
@@ -419,7 +418,6 @@ void graph::ops::do_idle2loaded_comp (const int comp_id)
   {
     G_OPS_BAIL_IF_ERROR (transition_comp (comp_id, OMX_StateLoaded),
                          "Unable to transition from Idle->Loaded");
-    record_expected_transitions (OMX_StateLoaded);
   }
 }
 
