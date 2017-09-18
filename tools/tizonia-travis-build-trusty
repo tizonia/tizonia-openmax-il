@@ -44,11 +44,9 @@ readonly JOBS=$(($CORESMINUSONE<$MAXJOBS?$CORESMINUSONE:$MAXJOBS))
 declare -ar SKEMA_EXEMPT_SUITES=( \
     "Mp3Streaming" \
     "VorbisDecodeBaseProfile" \
-    "AacPlayback" \
     "Mp3StreamingClient" \
     "Mp3StreamingClientPortAutoDetect" \
     "OpusPlayback" \
-    "PcmPlaybackPulse" \
     "WavPlayback" \
     "OggOpusMux" \
     "Vp8Playback" \
