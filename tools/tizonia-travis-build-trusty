@@ -45,7 +45,6 @@ declare -ar SKEMA_EXEMPT_SUITES=( \
     'PcmPlaybackPulse' \ # no pulseaudio in travis
     'Mp3Streaming' \
     'Mp3StreamingClient' \
-    'Mp3StreamingClientPortAutoDetect' \
     'VorbisDecodeBaseProfile' \
     'OpusPlayback' \
     'WavPlayback' \
