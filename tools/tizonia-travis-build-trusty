@@ -60,9 +60,11 @@ declare -ar SKEMA_NON_QUIET_SUITES=( \
 
 # Export important variables
 LIB_DIR="$INSTALL_DIR"/lib
+BIN_DIR="$INSTALL_DIR"/bin
 PKG_CONFIG_DIR="$LIB_DIR"/pkgconfig
 export PKG_CONFIG_PATH="$PKG_CONFIG_DIR"
 export LD_LIBRARY_PATH="$LIB_DIR"
+export PATH="$BIN_DIR:$PATH"
 # Export $PYTHONPATH to make sure soundcloud and gmusicapi can be found
 export PYTHONPATH="$PYTHONPATH":"$HOME"/.local/lib/python2.7/site-packages
 
@@ -528,7 +530,7 @@ function main {
         run_coverage
     else
         CMD=$(basename "$0")
-        echo "Usage: $CMD <deps|pydeps|media|build|config|skema|tests> <working_dir> <install_dir>"
+        echo "Usage: $CMD <deps|pydeps|media|build|config|skema|tests|coverage> <working_dir> <install_dir>"
         exit 1
     fi
 
