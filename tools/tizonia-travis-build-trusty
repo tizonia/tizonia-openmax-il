@@ -42,15 +42,16 @@ readonly JOBS=$(($CORESMINUSONE<$MAXJOBS?$CORESMINUSONE:$MAXJOBS))
 
 # A list of skema test suites that should NOT be executed (i.e are disabled)
 declare -ar SKEMA_EXEMPT_SUITES=( \
-    "Mp3Streaming" \
-    "VorbisDecodeBaseProfile" \
-    "Mp3StreamingClient" \
-    "Mp3StreamingClientPortAutoDetect" \
-    "OpusPlayback" \
-    "WavPlayback" \
-    "OggOpusMux" \
-    "Vp8Playback" \
-    "WebmVp8Playback" \
+    'PcmPlaybackPulse' \ # no pulseaudio in travis
+    'Mp3Streaming' \
+    'Mp3StreamingClient' \
+    'Mp3StreamingClientPortAutoDetect' \
+    'VorbisDecodeBaseProfile' \
+    'OpusPlayback' \
+    'WavPlayback' \
+    'OggOpusMux' \
+    'Vp8Playback' \
+    'WebmVp8Playback' \
 )
 
 # A list of skema test suites that should be executed without the --quiet flag
