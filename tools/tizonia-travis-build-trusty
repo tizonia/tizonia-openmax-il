@@ -357,10 +357,10 @@ function run_unit {
 
     cd_to_working_dir
 
-    cd "$WORKING_DIR"/libplatform && make check
+    cd "$WORKING_DIR"/libtizplatform && make check
     exit_status=$?
     if [[ "$exit_status" -ne 0 ]]; then
-        err "Error in suite: libplatform"
+        err "Error in suite: libtizplatform"
         exit 1
     fi
 
