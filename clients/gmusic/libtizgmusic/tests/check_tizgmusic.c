@@ -30,22 +30,22 @@
 #include <config.h>
 #endif
 
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
-#include <stdio.h>
-#include <check.h>
 #include <assert.h>
+#include <check.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "tizgmusic_c.h"
 
 #define GMUSIC_TEST_TIMEOUT 2500
-#define GMUSIC_USER         "xxx"
-#define GMUSIC_PASS         "xxx"
-#define GMUSIC_DEVICE_ID    "xxx"
+#define GMUSIC_USER "xxx"
+#define GMUSIC_PASS "xxx"
+#define GMUSIC_DEVICE_ID "xxx"
 
-#define GMUSIC_ARTIST   "Joe Satriani"
-#define GMUSIC_ALBUM    "Shangri-La"
+#define GMUSIC_ARTIST "Joe Satriani"
+#define GMUSIC_ALBUM "Shangri-La"
 
 #define CMD_LEN 1000
 #define PLAYER "tizonia"
@@ -62,32 +62,33 @@ static bool gmusic_credentials_present (void)
 START_TEST (test_gmusic_play_artist)
 {
   tiz_gmusic_t *p_gmusic = NULL;
-  int rc = tiz_gmusic_init (&p_gmusic, GMUSIC_USER,
-                            GMUSIC_PASS, GMUSIC_DEVICE_ID);
+  bool unlimited_search = false;
+  int rc
+      = tiz_gmusic_init (&p_gmusic, GMUSIC_USER, GMUSIC_PASS, GMUSIC_DEVICE_ID);
   ck_assert (0 == rc);
   ck_assert (p_gmusic);
 
-  rc = tiz_gmusic_play_artist (p_gmusic, GMUSIC_ARTIST);
+  rc = tiz_gmusic_play_artist (p_gmusic, GMUSIC_ARTIST, unlimited_search);
   ck_assert (0 == rc);
 
   /* while (1) */
   {
-    char cmd[CMD_LEN];
-    const char * next_url = tiz_gmusic_get_next_url (p_gmusic);
+    /*     char cmd[CMD_LEN]; */
+    const char *next_url = tiz_gmusic_get_next_url (p_gmusic);
     ck_assert (next_url);
     fprintf (stderr, "url = %s\n", next_url);
 
-    const char * artist = tiz_gmusic_get_current_song_artist (p_gmusic);
+    const char *artist = tiz_gmusic_get_current_song_artist (p_gmusic);
     ck_assert (artist);
     fprintf (stderr, "artist = %s\n", artist);
 
-    const char * title = tiz_gmusic_get_current_song_title (p_gmusic);
+    const char *title = tiz_gmusic_get_current_song_title (p_gmusic);
     ck_assert (title);
     fprintf (stderr, "title = %s\n", title);
 
-    snprintf (cmd, CMD_LEN, "%s \"%s\"", PLAYER, next_url);
-    fprintf (stderr, "cmd = %s\n", cmd);
-    ck_assert (-1 != system (cmd));
+    /*     snprintf (cmd, CMD_LEN, "%s \"%s\"", PLAYER, next_url); */
+    /*     fprintf (stderr, "cmd = %s\n", cmd); */
+    /*     ck_assert (-1 != system (cmd)); */
   }
 
   tiz_gmusic_destroy (p_gmusic);
@@ -97,40 +98,39 @@ END_TEST
 START_TEST (test_gmusic_play_album)
 {
   tiz_gmusic_t *p_gmusic = NULL;
-  int rc = tiz_gmusic_init (&p_gmusic, GMUSIC_USER,
-                            GMUSIC_PASS, GMUSIC_DEVICE_ID);
+  bool unlimited_search = false;
+  int rc
+      = tiz_gmusic_init (&p_gmusic, GMUSIC_USER, GMUSIC_PASS, GMUSIC_DEVICE_ID);
   ck_assert (0 == rc);
   ck_assert (p_gmusic);
 
-  rc = tiz_gmusic_play_album (p_gmusic, GMUSIC_ALBUM);
+  rc = tiz_gmusic_play_album (p_gmusic, GMUSIC_ALBUM, unlimited_search);
   ck_assert (0 == rc);
 
   /* while (1) */
   {
-    char cmd[CMD_LEN];
-    const char * next_url = tiz_gmusic_get_next_url (p_gmusic);
+    /*     char cmd[CMD_LEN]; */
+    const char *next_url = tiz_gmusic_get_next_url (p_gmusic);
     ck_assert (next_url);
     fprintf (stderr, "url = %s\n", next_url);
 
-    const char * artist = tiz_gmusic_get_current_song_artist (p_gmusic);
+    const char *artist = tiz_gmusic_get_current_song_artist (p_gmusic);
     ck_assert (artist);
     fprintf (stderr, "artist = %s\n", artist);
 
-    const char * title = tiz_gmusic_get_current_song_title (p_gmusic);
+    const char *title = tiz_gmusic_get_current_song_title (p_gmusic);
     ck_assert (title);
     fprintf (stderr, "title = %s\n", title);
-
-    snprintf (cmd, CMD_LEN, "%s \"%s\"", PLAYER, next_url);
-    fprintf (stderr, "cmd = %s\n", cmd);
-    ck_assert (-1 != system (cmd));
+    /*     snprintf (cmd, CMD_LEN, "%s \"%s\"", PLAYER, next_url); */
+    /*     fprintf (stderr, "cmd = %s\n", cmd); */
+    /*     ck_assert (-1 != system (cmd)); */
   }
 
   tiz_gmusic_destroy (p_gmusic);
 }
 END_TEST
 
-Suite *
-gmusic_suite (void)
+Suite *gmusic_suite (void)
 {
   TCase *tc_gmusic;
   Suite *s = suite_create ("libtizgmusic");
