@@ -41,7 +41,7 @@
 #include "tizchromecast_c.h"
 
 #define CHROMECAST_TEST_TIMEOUT 2500
-#define CHROMECAST_DEVICE_NAME  "Chromecast-Ultra"
+#define CHROMECAST_DEVICE_NAME  "Chromecast-Audio"
 
 #define URL "http://192.168.1.130:8010"
 /* #define URL "http://192.168.1.122:8010" */
@@ -80,7 +80,7 @@ START_TEST (test_chromecast_play_media)
 
 /*   while (1) */
   {
-    char cmd[CMD_LEN];
+/*     char cmd[CMD_LEN]; */
     {
       const int result = tiz_chromecast_play (p_chromecast);
       fprintf (stderr, "play = %d\n", result);
