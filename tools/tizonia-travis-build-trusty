@@ -364,12 +364,12 @@ function run_unit {
         exit 1
     fi
 
-    cd "$WORKING_DIR"/libtizcore && make check
-    exit_status=$?
-    if [[ "$exit_status" -ne 0 ]]; then
-        err "Error in suite: libtizcore"
-        exit 1
-    fi
+#     cd "$WORKING_DIR"/libtizcore && make check
+#     exit_status=$?
+#     if [[ "$exit_status" -ne 0 ]]; then
+#         err "Error in suite: libtizcore"
+#         exit 1
+#     fi
 
     cd "$WORKING_DIR"/libtizonia && make check
     exit_status=$?
