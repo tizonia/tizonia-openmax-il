@@ -331,13 +331,54 @@ function configure_and_build {
         && ./configure \
                --silent \
                --enable-silent-rules \
+               --enable-test \
                --prefix="$INSTALL_DIR" \
                CFLAGS='-O0 --coverage' \
                CXXFLAGS='-O0 --coverage' \
                LDFLAGS='-lgcov' \
-        && make -s -j $JOBS V=0 install
+        && make -s -j$JOBS V=0 install
 
     return $?
+}
+
+##################################################################
+# Run a number of selected unit test suites.
+#
+# Globals
+#   WORKING_DIR
+# Arguments:
+#   None
+# Returns:
+#   0 on success
+##################################################################
+function run_unit {
+
+    start_dbus
+
+    cd_to_working_dir
+
+    cd "$WORKING_DIR"/libplatform && make check
+    exit_status=$?
+    if [[ "$exit_status" -ne 0 ]]; then
+        err "Error in suite: libplatform"
+        exit 1
+    fi
+
+    cd "$WORKING_DIR"/libtizcore && make check
+    exit_status=$?
+    if [[ "$exit_status" -ne 0 ]]; then
+        err "Error in suite: libtizcore"
+        exit 1
+    fi
+
+    cd "$WORKING_DIR"/libtizonia && make check
+    exit_status=$?
+    if [[ "$exit_status" -ne 0 ]]; then
+        err "Error in suite: libtizonia"
+        exit 1
+    fi
+
+    return "$exit_status"
 }
 
 ##################################################################
@@ -417,9 +458,10 @@ function install_skema {
 # Returns:
 #   0 on success
 ##################################################################
-function run_tests {
+function run_suites {
 
-    start_dbus
+    # D-Bus has been already started
+    # start_dbus
 
     cd "$SKEMA_BIN_DIR"
 
@@ -522,10 +564,12 @@ function main {
             && tar zxvf tizonia-test-media.tgz &>/dev/null
     elif [[ "$1" == "config" ]];  then
         copy_config_files
+    elif [[ "$1" == "unit" ]];  then
+        run_unit
     elif [[ "$1" == "skema" ]];  then
         install_skema
-    elif [[ "$1" == "tests" ]];  then
-        run_tests
+    elif [[ "$1" == "suites" ]];  then
+        run_suites
     elif [[ "$1" == "coverage" ]];  then
         run_coverage
     else
