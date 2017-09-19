@@ -282,6 +282,7 @@ function main {
             && ./configure \
             --silent \
             --enable-silent-rules \
+            --enable-test \
             --prefix="$TIZONIA_INSTALL_DIR" \
             CFLAGS='-O0 -ggdb -Wall' \
             CXXFLAGS='-O0 -ggdb -Wall'
