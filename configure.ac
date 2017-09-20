@@ -33,6 +33,13 @@ PKG_PROG_PKG_CONFIG([0.25])
 
 # Checks for library functions.
 
+AC_ARG_ENABLE(player,
+    AS_HELP_STRING([--enable-player],
+        [build the command-line player program (default: enabled)]),,
+    enable_player=yes)
+
+AM_CONDITIONAL(ENABLE_PLAYER, test "x$enable_player" = xyes)
+
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_SUBDIRS([include
                    clients
@@ -41,6 +48,12 @@ AC_CONFIG_SUBDIRS([include
                    libtizcore
                    libtizonia
                    plugins
-                   player
                    config])
+
+if test "$enable_player" = yes; then
+   if test -d "$srcdir/player"; then
+      AC_CONFIG_SUBDIRS([player])
+   fi
+fi
+
 AC_OUTPUT

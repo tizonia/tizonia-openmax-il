@@ -70,6 +70,18 @@ builds and installs them.
 
 ```
 
+#### Excluding the 'player' sub-project
+
+The '--no-player' option can be added at any time to disable configuration and
+build of the 'player' program.
+
+```bash
+
+   # Build and install in DEBUG mode without the command-line player program.
+   $ tools/tizonia-dev-build --no-player --debug --install
+
+```
+
 #### Single Debian package created with 'checkinstall'
 
 The following command configures all sub-projects with 'release' flags
@@ -92,14 +104,14 @@ then be removed via 'dpkg' or even moved to another machine for testing.
 
 ```
 
-#### The tradional method
+#### The traditional method
 
 Alternatively, from the top of Tizonia's repo, one can also do the familiar:
 
 ```bash
 
     $ autoreconf -ifs
-    $ ./configure
+    $ ./configure    # or ./configure --disable-player to disable the command-line player program
     $ make
     $ make install
 

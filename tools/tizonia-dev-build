@@ -34,7 +34,7 @@ source tizonia-common.inc
 function usage {
     print_banner_and_license $(basename "$0")
     echo
-    pretty_print "$GRN" "Usage : $(basename $0) [-a|--asan] [-b|--debian] [-c|--conf] [-d|--deps] [-e|--bear] [-g|--debug] [-i|--install] [-m|--make] [-p|--project <proj_name>] [-r|--release] [-s|--scan-build] [-v|--valgrind] [-w|--cwd]"
+    pretty_print "$GRN" "Usage : $(basename $0) [-a|--asan] [-b|--debian] [-c|--conf] [-d|--deps] [-e|--bear] [-g|--debug] [-i|--install] [-m|--make] [-n|no-player] [-p|--project <proj_name>] [-r|--release] [-s|--scan-build] [-v|--valgrind] [-w|--cwd]"
     pretty_print "$GRN" "       -a            : Configure for an Address Sanitizer (ASAN) type of build (requires clang)."
     pretty_print "$GRN" "       -b            : Configure for a 'Debian's checkinstall' type build (--libdir=/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH), then 'checkinstall')."
     pretty_print "$GRN" "       -c            : Configure for OpenMAX IL conformance testing."
@@ -43,6 +43,7 @@ function usage {
     pretty_print "$GRN" "       -g            : Configure for a DEBUG type of build."
     pretty_print "$GRN" "       -i            : Make and install all sub-projects."
     pretty_print "$GRN" "       -m            : Make all sub-projects."
+    pretty_print "$GRN" "       -n            : Do not build command-line player program."
     pretty_print "$GRN" "       -p            : Use the '<proj_name>' as the base folder for configuration/build (i.e. to configure/build recursively from that point)."
     pretty_print "$GRN" "       -r            : Configure for a RELEASE type of build."
     pretty_print "$GRN" "       -s            : Configure for 'scan-build' (Clang static analyzer)."
@@ -140,13 +141,14 @@ function main {
     local debug=0
     local install=0
     local make=0
+    local player=( --enable-player )
     local release=0
     local scan=0
     local valgrind=0
     local cwd=0
 
     local progname=$(basename $0)
-    CMDLINE=$(getopt -o "abcdegimp:rsvw" --long "asan,debian,conf,deps,bear,debug,install,make,project:,release,scan-build,valgrind,cwd," -n "$progname" -- "$@")
+    CMDLINE=$(getopt -o "abcdegimnp:rsvw" --long "asan,debian,conf,deps,bear,debug,install,make,no-player,project:,release,scan-build,valgrind,cwd," -n "$progname" -- "$@")
     eval set -- "$CMDLINE"
     while true; do
         case "$1" in
@@ -173,6 +175,9 @@ function main {
                 ;;
             -m|--make)
                 make=1; shift
+                ;;
+            -n|--no-player)
+                player=( --disable-player ); shift
                 ;;
             -p|--project)
                 project=1;
@@ -283,6 +288,7 @@ function main {
             --silent \
             --enable-silent-rules \
             --enable-test \
+            "${player[@]}" \
             --prefix="$TIZONIA_INSTALL_DIR" \
             CFLAGS='-O0 -ggdb -Wall' \
             CXXFLAGS='-O0 -ggdb -Wall'
@@ -294,6 +300,7 @@ function main {
             && ./configure \
             --silent \
             --enable-silent-rules \
+            "${player[@]}" \
             --prefix="$TIZONIA_INSTALL_DIR" \
             CFLAGS='-ggdb -Wall -Werror -fno-omit-frame-pointer -fsanitize=address' \
             CXXFLAGS='-ggdb -Wall -fno-omit-frame-pointer -fsanitize=address' \
@@ -306,6 +313,7 @@ function main {
             && ./configure \
             --silent \
             --enable-silent-rules \
+            "${player[@]}" \
             --prefix=/usr \
             --libdir=/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH) \
             CFLAGS='-O2 -s -DNDEBUG'  \
@@ -348,6 +356,7 @@ function main {
         && ./configure \
             --silent \
             --enable-silent-rules \
+            "${player[@]}" \
             --prefix="$TIZONIA_INSTALL_DIR" \
             CFLAGS='-O2 -s -DNDEBUG'  \
             CXXFLAGS='-O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security'
@@ -359,6 +368,7 @@ function main {
             && ./configure \
             --silent \
             --enable-silent-rules \
+            "${player[@]}" \
             --enable-blocking-etb-ftb \
             --prefix="$TIZONIA_INSTALL_DIR" \
             CFLAGS='-ggdb -Wall -Werror'
@@ -370,6 +380,7 @@ function main {
         && ./configure \
             --silent \
             --enable-silent-rules \
+            "${player[@]}" \
             --prefix="$TIZONIA_INSTALL_DIR" \
             CFLAGS='-O0 -g' \
             CXXFLAGS='-O0 -g'
@@ -379,6 +390,7 @@ function main {
         print_banner "Reconfiguring [$TIZONIA_PROJ_NAME] for [SCAN-BUILD] build - Install dir [$TIZONIA_INSTALL_DIR]..." "$YEL"
         scan-build autoreconf -ifs \
             && scan-build ./configure \
+                          "${player[@]}" \
                           --prefix="$TIZONIA_INSTALL_DIR" \
                           CFLAGS='-ggdb -Wall -Werror'
 
