@@ -40,26 +40,17 @@
 
 #include "tizchromecast_c.h"
 
-#define CHROMECAST_TEST_TIMEOUT 2500
+#define CHROMECAST_TEST_TIMEOUT 100
 #define CHROMECAST_DEVICE_NAME  "Chromecast-Audio"
 
-#define URL "http://192.168.1.130:8010"
+/* #define URL "http://192.168.1.130:8010" */
+/* #define URL "http://kissfm.es.audio1.glb.ipercast.net:8000/kissfm.es/mp3" */
+#define URL "http://streams.radiobob.de/bob-acdc/mp3-192/dirble/"
+/* #define URL "http://livestreaming.esradio.fm/stream64.mp3" */
 /* #define URL "http://192.168.1.122:8010" */
 /* #define URL "http://server6.20comunicacion.com:8102/" */
 #define CONTENT_TYPE "audio/mpeg"
 #define TITLE "Tizonia Audio Stream"
-
-#define CMD_LEN 1000
-#define PLAYER "tizonia"
-
-static bool chromecast_credentials_present (void)
-{
-  if (!strcmp (CHROMECAST_DEVICE_NAME, "xxx"))
-    {
-      return false;
-    }
-  return true;
-}
 
 void chromecast_new_media_status (void)
 {
@@ -70,35 +61,58 @@ START_TEST (test_chromecast_play_media)
 {
   tiz_chromecast_t *p_chromecast = NULL;
   int rc = tiz_chromecast_init (&p_chromecast, CHROMECAST_DEVICE_NAME, chromecast_new_media_status);
-  fprintf (stderr, "init = %d\n", rc);
+  int i = 0;
+  fprintf (stderr, "test_chromecast_play_media:init = %d\n", rc);
   ck_assert (0 == rc);
   ck_assert (p_chromecast);
 
   rc = tiz_chromecast_load (p_chromecast, URL, CONTENT_TYPE, TITLE);
-  fprintf (stderr, "load = %d\n", rc);
+  fprintf (stderr, "test_chromecast_play_media:load = %d\n", rc);
   ck_assert (0 == rc);
 
-/*   while (1) */
   {
-/*     char cmd[CMD_LEN]; */
+    sleep(15);
+
     {
-      const int result = tiz_chromecast_play (p_chromecast);
-      fprintf (stderr, "play = %d\n", result);
+      const int result = tiz_chromecast_pause (p_chromecast);
+      fprintf (stderr, "test_chromecast_play_media:pause = %d\n", result);
       ck_assert (0 == result);
     }
 
-    sleep(CHROMECAST_TEST_TIMEOUT);
+    sleep(10);
+
+    {
+      const int result = tiz_chromecast_play (p_chromecast);
+      fprintf (stderr, "test_chromecast_play_media:play = %d\n", result);
+      ck_assert (0 == result);
+    }
+
+    sleep(10);
+
+    for (i=0; i<5; ++i)
+    {
+      const int result = tiz_chromecast_volume_up (p_chromecast);
+      fprintf (stderr, "test_chromecast_play_media:volume_up = %d\n", result);
+      ck_assert (0 == result);
+      sleep(1);
+    }
+
+    for (i=0; i<5; ++i)
+    {
+      const int result = tiz_chromecast_volume_down (p_chromecast);
+      fprintf (stderr, "test_chromecast_play_media:volume_down = %d\n", result);
+      ck_assert (0 == result);
+      sleep(1);
+    }
 
     {
       const int result = tiz_chromecast_stop (p_chromecast);
-      fprintf (stderr, "stop = %d\n", result);
+      fprintf (stderr, "test_chromecast_play_media:stop = %d\n", result);
       ck_assert (0 == result);
     }
-
-/*     snprintf (cmd, CMD_LEN, "%s \"%s\"", PLAYER, next_url); */
-/*     fprintf (stderr, "cmd = %s\n", cmd); */
-/*     ck_assert (-1 != system (cmd)); */
   }
+
+  sleep(10);
 
   tiz_chromecast_destroy (p_chromecast);
 }
@@ -122,14 +136,11 @@ chromecast_suite (void)
 int main (void)
 {
   int number_failed = 1;
-  if (chromecast_credentials_present ())
-    {
-      SRunner *sr = srunner_create (chromecast_suite ());
-      srunner_set_log (sr, "-");
-      srunner_run_all (sr, CK_VERBOSE);
-      number_failed = srunner_ntests_failed (sr);
-      srunner_free (sr);
-    }
+  SRunner *sr = srunner_create (chromecast_suite ());
+  srunner_set_log (sr, "-");
+  srunner_run_all (sr, CK_VERBOSE);
+  number_failed = srunner_ntests_failed (sr);
+  srunner_free (sr);
   return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
