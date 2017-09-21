@@ -155,7 +155,28 @@ int tizchromecast::media_stop ()
 int tizchromecast::media_pause ()
 {
   int rc = 0;
-  try_catch_wrapper (py_cc_proxy_.attr ("pause") ());
+  try_catch_wrapper (py_cc_proxy_.attr ("media_pause") ());
+  return rc;
+}
+
+int tizchromecast::media_volume_up ()
+{
+  int rc = 0;
+  try_catch_wrapper (py_cc_proxy_.attr ("media_vol_up") ());
+  return rc;
+}
+
+int tizchromecast::media_volume_down ()
+{
+  int rc = 0;
+  try_catch_wrapper (py_cc_proxy_.attr ("media_vol_down") ());
+  return rc;
+}
+
+int tizchromecast::media_volume_mute ()
+{
+  int rc = 0;
+  try_catch_wrapper (py_cc_proxy_.attr ("volume_mute") ());
   return rc;
 }
 

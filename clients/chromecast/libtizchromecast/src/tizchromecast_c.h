@@ -51,7 +51,6 @@ extern "C" {
 typedef struct tiz_chromecast tiz_chromecast_t;
 typedef /*@null@ */ tiz_chromecast_t *tiz_chromecast_ptr_t;
 
-
 /**
  * This callback is invoked when .
  *
@@ -68,6 +67,7 @@ typedef void (*tiz_chromecast_new_media_status_f) (void);
  * @param app_chromecast A pointer to the chromecast handle which will be
  * initialised.
  * @param ap_name_or_ip A Chromecast device name or ip address.
+ * @param apf_media_status A callback for media status information.
  *
  * @return 0 on success.
  */
@@ -90,13 +90,12 @@ int tiz_chromecast_init (/*@null@ */ tiz_chromecast_ptr_t *app_chromecast,
  *
  * @return 0 on success
  */
-int tiz_chromecast_load (tiz_chromecast_t *ap_chromecast,
-                         const char *ap_url, const char *ap_content_type,
-                         const char *ap_title);
+int tiz_chromecast_load (tiz_chromecast_t *ap_chromecast, const char *ap_url,
+                         const char *ap_content_type, const char *ap_title);
 
 /**
- * Begin playback of the content that was loaded with the load call, playback
- * is continued from the current time position.
+ * Resume playback of media that has been previously paused. Playback is
+ * continued from the current time position.
  *
  * @ingroup libtizchromecast
  *
@@ -107,11 +106,10 @@ int tiz_chromecast_load (tiz_chromecast_t *ap_chromecast,
 int tiz_chromecast_play (tiz_chromecast_t *ap_chromecast);
 
 /**
- * Stop playback of the current content. Triggers a STATUS event notification
- * to all sender applications.
+ * Stop playback of media. Triggers a STATUS event notification to all sender
+ * applications.
  *
- * After this command the content will no longer be loaded and the
- * mediaSessionId is invalidated.
+ * After this command the content will no longer be loaded.
  *
  * @ingroup libtizchromecast
  *
@@ -131,6 +129,39 @@ int tiz_chromecast_stop (tiz_chromecast_t *ap_chromecast);
  * @return 0 on success
  */
 int tiz_chromecast_pause (tiz_chromecast_t *ap_chromecast);
+
+/**
+ * Increase playback volumen.
+ *
+ * @ingroup libtizchromecast
+ *
+ * @param ap_chromecast The Tizonia Chromecast handle.
+ *
+ * @return 0 on success
+ */
+int tiz_chromecast_volume_up (tiz_chromecast_t *ap_chromecast);
+
+/**
+ * Decrease playback volume.
+ *
+ * @ingroup libtizchromecast
+ *
+ * @param ap_chromecast The Tizonia Chromecast handle.
+ *
+ * @return 0 on success
+ */
+int tiz_chromecast_volume_down (tiz_chromecast_t *ap_chromecast);
+
+/**
+ * Mute playback.
+ *
+ * @ingroup libtizchromecast
+ *
+ * @param ap_chromecast The Tizonia Chromecast handle.
+ *
+ * @return 0 on success
+ */
+int tiz_chromecast_volume_mute (tiz_chromecast_t *ap_chromecast);
 
 /**
  * Destroy the chromecast handle.

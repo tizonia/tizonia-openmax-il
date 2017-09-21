@@ -50,9 +50,9 @@ static void chromecast_free_data (tiz_chromecast_t *ap_chromecast)
     }
 }
 
-static int chromecast_alloc_data (tiz_chromecast_t *ap_chromecast,
-                                  const char *ap_name_or_ip,
-                                  tiz_chromecast_new_media_status_f apf_media_status)
+static int chromecast_alloc_data (
+    tiz_chromecast_t *ap_chromecast, const char *ap_name_or_ip,
+    tiz_chromecast_new_media_status_f apf_media_status)
 {
   int rc = 0;
   assert (ap_chromecast);
@@ -69,9 +69,9 @@ static int chromecast_alloc_data (tiz_chromecast_t *ap_chromecast,
   return rc;
 }
 
-extern "C" int tiz_chromecast_init (tiz_chromecast_ptr_t *app_chromecast,
-                                    const char *ap_name_or_ip,
-                                    tiz_chromecast_new_media_status_f apf_media_status)
+extern "C" int tiz_chromecast_init (
+    tiz_chromecast_ptr_t *app_chromecast, const char *ap_name_or_ip,
+    tiz_chromecast_new_media_status_f apf_media_status)
 {
   tiz_chromecast_t *p_chromecast = NULL;
   int rc = 1;
@@ -82,7 +82,8 @@ extern "C" int tiz_chromecast_init (tiz_chromecast_ptr_t *app_chromecast,
   if ((p_chromecast
        = (tiz_chromecast_t *)calloc (1, sizeof (tiz_chromecast_t))))
     {
-      if (!chromecast_alloc_data (p_chromecast, ap_name_or_ip, apf_media_status))
+      if (!chromecast_alloc_data (p_chromecast, ap_name_or_ip,
+                                  apf_media_status))
         {
           tizchromecast *p_gm = p_chromecast->p_proxy_;
           assert (p_gm);
@@ -136,6 +137,27 @@ extern "C" int tiz_chromecast_pause (tiz_chromecast_t *ap_chromecast)
   assert (ap_chromecast);
   assert (ap_chromecast->p_proxy_);
   return ap_chromecast->p_proxy_->media_pause ();
+}
+
+extern "C" int tiz_chromecast_volume_up (tiz_chromecast_t *ap_chromecast)
+{
+  assert (ap_chromecast);
+  assert (ap_chromecast->p_proxy_);
+  return ap_chromecast->p_proxy_->media_volume_up ();
+}
+
+extern "C" int tiz_chromecast_volume_down (tiz_chromecast_t *ap_chromecast)
+{
+  assert (ap_chromecast);
+  assert (ap_chromecast->p_proxy_);
+  return ap_chromecast->p_proxy_->media_volume_down ();
+}
+
+extern "C" int tiz_chromecast_mute (tiz_chromecast_t *ap_chromecast)
+{
+  assert (ap_chromecast);
+  assert (ap_chromecast->p_proxy_);
+  return ap_chromecast->p_proxy_->media_volume_mute ();
 }
 
 extern "C" void tiz_chromecast_destroy (tiz_chromecast_t *ap_chromecast)
