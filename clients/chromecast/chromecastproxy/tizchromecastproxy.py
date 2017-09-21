@@ -24,10 +24,12 @@ Access a Chromecast device to initiate and manage audio streaming sessions..
 from __future__ import unicode_literals
 
 import sys
+import os
 import logging
 import collections
 import unicodedata
 from multiprocessing import Process, Queue
+from Queue import Empty
 import select
 import pychromecast
 from pychromecast.controllers.media import STREAM_TYPE_UNKNOWN
@@ -107,6 +109,13 @@ def to_ascii(msg):
     """
 
     return unicodedata.normalize('NFKD', unicode(msg)).encode('ASCII', 'ignore')
+
+def info(title):
+    print title
+    print 'module name:', __name__
+    if hasattr(os, 'getppid'):  # only available on Unix
+        logging.info("parent process: %d", os.getppid())
+    logging.info("process id: %d", os.getpid())
 
 class ChromecastCmdIf(object):
     """
@@ -234,12 +243,19 @@ class ChromecastWorker(Process):
     def run (self):
         polltime = 0.1
         while True:
-            if not self.queue.empty():
-                cmd = self.queue.get()
+            qsize = self.queue.qsize()
+            logging.info("worker : queue size %d", qsize)
+            logging.info("worker : get from queue")
+            try:
+                cmd = self.queue.get(False)
                 if cmd is None:
                     break
                 else:
+                    logging.info("worker: running cmd %s", cmd.__class__.__name__)
                     cmd.run(self)
+            except Empty:
+                logging.info("worker: queue empty")
+                pass
 
             if self.cast:
                 sk = self.cast.socket_client
@@ -269,6 +285,7 @@ class tizchromecastproxy(object):
         self.name_or_ip = name_or_ip
 
     def start(self, status_listener):
+        info('start')
         logging.info("Starting worker")
         self.worker = ChromecastWorker(self.queue, self.name_or_ip,
                                        status_listener)
@@ -281,6 +298,7 @@ class tizchromecastproxy(object):
                    thumb=DEFAULT_THUMB,
                    current_time=0, autoplay=True,
                    stream_type=STREAM_TYPE_LIVE):
+        info('load')
         logging.info("Loading a new stream")
         self.queue.put(ChromecastCmdLoad(url, content_type, title, thumb,
                                          current_time, autoplay,
@@ -288,6 +306,7 @@ class tizchromecastproxy(object):
         logging.info("proxy : queue size %d", self.queue.qsize())
 
     def media_play(self):
+        info('play')
         self.queue.put(ChromecastCmdPlay())
         logging.info("proxy : queue size %d", self.queue.qsize())
 
