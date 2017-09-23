@@ -86,6 +86,7 @@ namespace
   {
     std::cout << "in handler: " << arg << std::endl;
     printf("\n\n\n in handler \n\n\n");
+    assert(0);
   }
 }
 
@@ -173,16 +174,16 @@ int tizchromecast::media_volume_down ()
   return rc;
 }
 
-int tizchromecast::media_volume_mute ()
+int tizchromecast::media_mute ()
 {
   int rc = 0;
-  try_catch_wrapper (py_cc_proxy_.attr ("volume_mute") ());
+  try_catch_wrapper (py_cc_proxy_.attr ("media_mute") ());
   return rc;
 }
 
 void tizchromecast::new_media_status ()
 {
-  printf("Status update!\n");
+  printf("\n\n\nStatus update!\n\n\n\n");
 }
 
 // int tizchromecast::get_current_track ()

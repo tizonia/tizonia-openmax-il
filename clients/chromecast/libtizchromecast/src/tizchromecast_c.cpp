@@ -85,9 +85,9 @@ extern "C" int tiz_chromecast_init (
       if (!chromecast_alloc_data (p_chromecast, ap_name_or_ip,
                                   apf_media_status))
         {
-          tizchromecast *p_gm = p_chromecast->p_proxy_;
-          assert (p_gm);
-          if (!p_gm->init () && !p_gm->start ())
+          tizchromecast *p_cc = p_chromecast->p_proxy_;
+          assert (p_cc);
+          if (!p_cc->init () && !p_cc->start ())
             {
               // all good
               rc = 0;
@@ -157,18 +157,18 @@ extern "C" int tiz_chromecast_mute (tiz_chromecast_t *ap_chromecast)
 {
   assert (ap_chromecast);
   assert (ap_chromecast->p_proxy_);
-  return ap_chromecast->p_proxy_->media_volume_mute ();
+  return ap_chromecast->p_proxy_->media_mute ();
 }
 
 extern "C" void tiz_chromecast_destroy (tiz_chromecast_t *ap_chromecast)
 {
   if (ap_chromecast)
     {
-      tizchromecast *p_gm = ap_chromecast->p_proxy_;
-      if (p_gm)
+      tizchromecast *p_cc = ap_chromecast->p_proxy_;
+      if (p_cc)
         {
-          p_gm->stop ();
-          p_gm->deinit ();
+          p_cc->stop ();
+          p_cc->deinit ();
         }
       chromecast_free_data (ap_chromecast);
       free (ap_chromecast);

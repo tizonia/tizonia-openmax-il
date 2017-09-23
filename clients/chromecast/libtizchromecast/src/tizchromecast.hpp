@@ -77,7 +77,7 @@ public:
   int media_pause ();
   int media_volume_up ();
   int media_volume_down ();
-  int media_volume_mute ();
+  int media_mute ();
 
   void new_media_status ();
 

@@ -161,7 +161,7 @@ int tiz_chromecast_volume_down (tiz_chromecast_t *ap_chromecast);
  *
  * @return 0 on success
  */
-int tiz_chromecast_volume_mute (tiz_chromecast_t *ap_chromecast);
+int tiz_chromecast_mute (tiz_chromecast_t *ap_chromecast);
 
 /**
  * Destroy the chromecast handle.
