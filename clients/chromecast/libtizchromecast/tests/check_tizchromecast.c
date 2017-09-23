@@ -57,25 +57,25 @@ void chromecast_new_media_status (void)
   printf ("New media status!!!\n");
 }
 
-START_TEST (test_chromecast_play_media)
+START_TEST (test_chromecast)
 {
   tiz_chromecast_t *p_chromecast = NULL;
   int rc = tiz_chromecast_init (&p_chromecast, CHROMECAST_DEVICE_NAME, chromecast_new_media_status);
   int i = 0;
-  fprintf (stderr, "test_chromecast_play_media:init = %d\n", rc);
+  fprintf (stderr, "test_chromecast:init = %d\n", rc);
   ck_assert (0 == rc);
   ck_assert (p_chromecast);
 
   rc = tiz_chromecast_load (p_chromecast, URL, CONTENT_TYPE, TITLE);
-  fprintf (stderr, "test_chromecast_play_media:load = %d\n", rc);
+  fprintf (stderr, "test_chromecast:load = %d\n", rc);
   ck_assert (0 == rc);
 
   {
-    sleep(15);
+    sleep(20);
 
     {
       const int result = tiz_chromecast_pause (p_chromecast);
-      fprintf (stderr, "test_chromecast_play_media:pause = %d\n", result);
+      fprintf (stderr, "test_chromecast:pause = %d\n", result);
       ck_assert (0 == result);
     }
 
@@ -83,7 +83,7 @@ START_TEST (test_chromecast_play_media)
 
     {
       const int result = tiz_chromecast_play (p_chromecast);
-      fprintf (stderr, "test_chromecast_play_media:play = %d\n", result);
+      fprintf (stderr, "test_chromecast:play = %d\n", result);
       ck_assert (0 == result);
     }
 
@@ -92,7 +92,15 @@ START_TEST (test_chromecast_play_media)
     for (i=0; i<5; ++i)
     {
       const int result = tiz_chromecast_volume_up (p_chromecast);
-      fprintf (stderr, "test_chromecast_play_media:volume_up = %d\n", result);
+      fprintf (stderr, "test_chromecast:volume_up = %d\n", result);
+      ck_assert (0 == result);
+      sleep(1);
+    }
+
+    for (i=0; i<5; ++i)
+    {
+      const int result = tiz_chromecast_mute (p_chromecast);
+      fprintf (stderr, "test_chromecast:mute = %d\n", result);
       ck_assert (0 == result);
       sleep(1);
     }
@@ -100,14 +108,14 @@ START_TEST (test_chromecast_play_media)
     for (i=0; i<5; ++i)
     {
       const int result = tiz_chromecast_volume_down (p_chromecast);
-      fprintf (stderr, "test_chromecast_play_media:volume_down = %d\n", result);
+      fprintf (stderr, "test_chromecast:volume_down = %d\n", result);
       ck_assert (0 == result);
       sleep(1);
     }
 
     {
       const int result = tiz_chromecast_stop (p_chromecast);
-      fprintf (stderr, "test_chromecast_play_media:stop = %d\n", result);
+      fprintf (stderr, "test_chromecast:stop = %d\n", result);
       ck_assert (0 == result);
     }
   }
@@ -127,7 +135,7 @@ chromecast_suite (void)
   /* test case */
   tc_chromecast = tcase_create ("Chromecast client lib unit tests");
   tcase_set_timeout (tc_chromecast, CHROMECAST_TEST_TIMEOUT);
-  tcase_add_test (tc_chromecast, test_chromecast_play_media);
+  tcase_add_test (tc_chromecast, test_chromecast);
   suite_add_tcase (s, tc_chromecast);
 
   return s;
