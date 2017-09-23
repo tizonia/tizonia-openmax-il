@@ -110,13 +110,6 @@ def to_ascii(msg):
 
     return unicodedata.normalize('NFKD', unicode(msg)).encode('ASCII', 'ignore')
 
-def info(title):
-    print title
-    print 'module name:', __name__
-    if hasattr(os, 'getppid'):  # only available on Unix
-        logging.info("parent process: %d", os.getppid())
-    logging.info("process id: %d", os.getpid())
-
 class ChromecastCmdIf(object):
     """
     Abstract class for commands that will be processed by the ChromecastWorker
@@ -204,13 +197,14 @@ class ChromecastCmdVolDown(ChromecastCmdIf):
         vol = round(worker.cast.status.volume_level, 1)
         worker.cast.set_volume(vol - 0.1)
 
-class ChromecastCmdVolMute(ChromecastCmdIf):
+class ChromecastCmdMute(ChromecastCmdIf):
     """
 
     """
     def run (self, worker):
         logging.info("cmd vol mute")
-        worker.cast.set_volume_muted()
+        muted = 'muted'
+        worker.cast.set_volume_muted(muted)
 
 class ChromecastWorker(Process):
     """
@@ -221,31 +215,29 @@ class ChromecastWorker(Process):
         self.queue = queue
         self.name_or_ip = name_or_ip
         self.cast = None
-        self.mc = None
         self.status_listener = status_listener
 
     def start (self):
         logging.info("Creating the chromecast worker thread")
         self.cast = pychromecast.Chromecast(self.name_or_ip)
-        self.mc = self.cast.media_controller
-        self.mc.register_status_listener(self)
-        pprint.pprint(self.mc)
+        self.cast.wait(5.0)
+        self.cast.register_status_listener(self)
         super(ChromecastWorker, self).start()
 
     def stop (self):
         logging.info("Stopping the chromecast worker thread")
         self.queue.put(None)
-        self.queue.join()
+        self.queue.close()
+        self.queue.join_thread()
         if self.cast:
             self.cast.media_controller.tear_down()
             self.cast.quit_app()
+            self.cast.disconnect()
 
     def run (self):
         polltime = 0.1
         while True:
             qsize = self.queue.qsize()
-            logging.info("worker : queue size %d", qsize)
-            logging.info("worker : get from queue")
             try:
                 cmd = self.queue.get(False)
                 if cmd is None:
@@ -254,7 +246,6 @@ class ChromecastWorker(Process):
                     logging.info("worker: running cmd %s", cmd.__class__.__name__)
                     cmd.run(self)
             except Empty:
-                logging.info("worker: queue empty")
                 pass
 
             if self.cast:
@@ -262,16 +253,33 @@ class ChromecastWorker(Process):
                 can_read, _, _ = select.select([sk.get_socket()],
                                                [], [], polltime)
                 if can_read:
-                    logging.info("worker: can read")
                     sk.run_once()
 
         return
+
+    def new_cast_status(self, status):
+        """
+
+        """
+        if status:
+            logging.info("new_cast_status: 1")
+            logging.info("new_cast_status: 2")
+            logging.info("new_cast_status: 3")
+            logging.info("new_cast_status: %r" % (status,))
+            logging.info("new_cast_status: 4")
+            logging.info("new_cast_status: 5")
+            pprint.pprint(status)
+            logging.info("new_cast_status: 6")
+            self.status_listener("called from Python")
 
     def new_media_status(self, status):
         """
 
         """
-        logging.info("worker: calling client")
+        logging.info("new_media_status: current time %d", \
+                     self.current_time)
+        logging.info("new_media_status: content type %s", \
+                     content_type)
         self.status_listener("called from Python")
 
 class tizchromecastproxy(object):
@@ -285,7 +293,6 @@ class tizchromecastproxy(object):
         self.name_or_ip = name_or_ip
 
     def start(self, status_listener):
-        info('start')
         logging.info("Starting worker")
         self.worker = ChromecastWorker(self.queue, self.name_or_ip,
                                        status_listener)
@@ -298,7 +305,6 @@ class tizchromecastproxy(object):
                    thumb=DEFAULT_THUMB,
                    current_time=0, autoplay=True,
                    stream_type=STREAM_TYPE_LIVE):
-        info('load')
         logging.info("Loading a new stream")
         self.queue.put(ChromecastCmdLoad(url, content_type, title, thumb,
                                          current_time, autoplay,
@@ -306,7 +312,6 @@ class tizchromecastproxy(object):
         logging.info("proxy : queue size %d", self.queue.qsize())
 
     def media_play(self):
-        info('play')
         self.queue.put(ChromecastCmdPlay())
         logging.info("proxy : queue size %d", self.queue.qsize())
 
@@ -326,8 +331,8 @@ class tizchromecastproxy(object):
         self.queue.put(ChromecastCmdVolDown())
         logging.info("proxy : queue size %d", self.queue.qsize())
 
-    def media_vol_mute(self):
-        self.queue.put(ChromecastCmdVolMute())
+    def media_mute(self):
+        self.queue.put(ChromecastCmdMute())
         logging.info("proxy : queue size %d", self.queue.qsize())
 
 if __name__ == "__main__":
