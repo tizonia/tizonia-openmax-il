@@ -30,18 +30,18 @@
 #include <config.h>
 #endif
 
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
-#include <stdio.h>
-#include <check.h>
 #include <assert.h>
+#include <check.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "tizchromecast_c.h"
 
 #define CHROMECAST_TEST_TIMEOUT 100
-#define CHROMECAST_DEVICE_NAME  "Chromecast-Audio"
+#define CHROMECAST_DEVICE_NAME "Chromecast-Audio"
 
 /* #define URL "http://192.168.1.130:8010" */
 /* #define URL "http://kissfm.es.audio1.glb.ipercast.net:8000/kissfm.es/mp3" */
@@ -60,7 +60,8 @@ void chromecast_new_media_status (void)
 START_TEST (test_chromecast)
 {
   tiz_chromecast_t *p_chromecast = NULL;
-  int rc = tiz_chromecast_init (&p_chromecast, CHROMECAST_DEVICE_NAME, chromecast_new_media_status);
+  int rc = tiz_chromecast_init (&p_chromecast, CHROMECAST_DEVICE_NAME,
+                                chromecast_new_media_status);
   int i = 0;
   fprintf (stderr, "test_chromecast:init = %d\n", rc);
   ck_assert (0 == rc);
@@ -71,7 +72,7 @@ START_TEST (test_chromecast)
   ck_assert (0 == rc);
 
   {
-    sleep(20);
+    sleep (20);
 
     {
       const int result = tiz_chromecast_pause (p_chromecast);
@@ -79,7 +80,7 @@ START_TEST (test_chromecast)
       ck_assert (0 == result);
     }
 
-    sleep(10);
+    sleep (10);
 
     {
       const int result = tiz_chromecast_play (p_chromecast);
@@ -87,31 +88,31 @@ START_TEST (test_chromecast)
       ck_assert (0 == result);
     }
 
-    sleep(10);
+    sleep (10);
 
-    for (i=0; i<5; ++i)
-    {
-      const int result = tiz_chromecast_volume_up (p_chromecast);
-      fprintf (stderr, "test_chromecast:volume_up = %d\n", result);
-      ck_assert (0 == result);
-      sleep(1);
-    }
+    for (i = 0; i < 5; ++i)
+      {
+        const int result = tiz_chromecast_volume_up (p_chromecast);
+        fprintf (stderr, "test_chromecast:volume_up = %d\n", result);
+        ck_assert (0 == result);
+        sleep (1);
+      }
 
-    for (i=0; i<5; ++i)
-    {
-      const int result = tiz_chromecast_mute (p_chromecast);
-      fprintf (stderr, "test_chromecast:mute = %d\n", result);
-      ck_assert (0 == result);
-      sleep(1);
-    }
+    for (i = 0; i < 5; ++i)
+      {
+        const int result = tiz_chromecast_mute (p_chromecast);
+        fprintf (stderr, "test_chromecast:mute = %d\n", result);
+        ck_assert (0 == result);
+        sleep (1);
+      }
 
-    for (i=0; i<5; ++i)
-    {
-      const int result = tiz_chromecast_volume_down (p_chromecast);
-      fprintf (stderr, "test_chromecast:volume_down = %d\n", result);
-      ck_assert (0 == result);
-      sleep(1);
-    }
+    for (i = 0; i < 5; ++i)
+      {
+        const int result = tiz_chromecast_volume_down (p_chromecast);
+        fprintf (stderr, "test_chromecast:volume_down = %d\n", result);
+        ck_assert (0 == result);
+        sleep (1);
+      }
 
     {
       const int result = tiz_chromecast_stop (p_chromecast);
@@ -120,14 +121,13 @@ START_TEST (test_chromecast)
     }
   }
 
-  sleep(10);
+  sleep (10);
 
   tiz_chromecast_destroy (p_chromecast);
 }
 END_TEST
 
-Suite *
-chromecast_suite (void)
+Suite *chromecast_suite (void)
 {
   TCase *tc_chromecast;
   Suite *s = suite_create ("libtizchromecast");
