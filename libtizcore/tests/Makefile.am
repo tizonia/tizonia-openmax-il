@@ -27,6 +27,8 @@ EXTRA_DIST = \
 
 CLEANFILES = check_tizcore.h tizonia.conf
 
+AUTOMAKE_OPTIONS = serial-tests
+
 check_PROGRAMS = check_tizcore
 
 check_tizcore_SOURCES = check_tizcore.c
