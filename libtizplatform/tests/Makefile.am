@@ -17,6 +17,8 @@
 
 TESTS = check_tizplatform
 
+AUTOMAKE_OPTIONS = serial-tests
+
 BUILT_SOURCES = check_tizplatform.h
 
 CLEANFILES = $(BUILT_SOURCES)
