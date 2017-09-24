@@ -371,12 +371,12 @@ function run_unit {
         exit 1
     fi
 
-#     cd "$WORKING_DIR"/libtizonia && make check
-#     exit_status=$?
-#     if [[ "$exit_status" -ne 0 ]]; then
-#         err "Error in suite: libtizonia"
-#         exit 1
-#     fi
+    cd "$WORKING_DIR"/libtizonia && make check
+    exit_status=$?
+    if [[ "$exit_status" -ne 0 ]]; then
+        err "Error in suite: libtizonia"
+        exit 1
+    fi
 
     return "$exit_status"
 }
