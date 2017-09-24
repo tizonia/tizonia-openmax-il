@@ -17,6 +17,8 @@
 
 lib_LTLIBRARIES = libtizonia.la
 
+AUTOMAKE_OPTIONS = serial-tests
+
 libtizonia_includedir = $(includedir)/tizonia
 
 libtizonia_include_HEADERS = \
