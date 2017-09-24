@@ -17,6 +17,8 @@
 
 TESTS = check_tizchromecast
 
+AUTOMAKE_OPTIONS = serial-tests
+
 check_PROGRAMS = check_tizchromecast
 
 check_tizchromecast_SOURCES = check_tizchromecast.c
