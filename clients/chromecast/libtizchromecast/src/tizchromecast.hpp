@@ -79,7 +79,8 @@ public:
   int media_volume_down ();
   int media_mute ();
 
-  void new_media_status ();
+  void new_cast_status (const std::string &);
+  void new_media_status (const std::string &);
 
 private:
   std::string name_or_ip_;
@@ -89,7 +90,6 @@ private:
   boost::python::object py_main_;
   boost::python::object py_global_;
   boost::python::object py_cc_proxy_;
-  boost::python::object callback_handler_;
 };
 
 #endif  // TIZCHROMECAST_HPP

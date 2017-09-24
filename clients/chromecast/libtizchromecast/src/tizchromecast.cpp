@@ -62,8 +62,7 @@ namespace bp = boost::python;
 
 namespace
 {
-  void init_chromecast (boost::python::object &py_main,
-                        boost::python::object &py_global)
+  void init_chromecast (bp::object &py_main, bp::object &py_global)
   {
     Py_Initialize ();
 
@@ -74,19 +73,11 @@ namespace
     py_global = py_main.attr ("__dict__");
   }
 
-  void start_chromecast (boost::python::object &py_global,
-                         boost::python::object &py_cc_proxy,
+  void start_chromecast (const bp::object &py_global, bp::object &py_cc_proxy,
                          const std::string &name_or_ip)
   {
     bp::object pychromecastproxy = py_global["tizchromecastproxy"];
     py_cc_proxy = pychromecastproxy (name_or_ip.c_str ());
-  }
-
-  void callback_handler(std::string const& arg)
-  {
-    std::cout << "in handler: " << arg << std::endl;
-    printf("\n\n\n in handler \n\n\n");
-    assert(0);
   }
 }
 
@@ -110,10 +101,14 @@ int tizchromecast::start ()
 {
   int rc = 0;
   try_catch_wrapper (start_chromecast (py_global_, py_cc_proxy_, name_or_ip_));
-  typedef boost::function<void(std::string)> handler_fn;
-  handler_fn my_handler(boost::bind(callback_handler, _1));
-  callback_handler_ = bp::make_function(my_handler);
-  try_catch_wrapper (py_cc_proxy_.attr ("start") (bp::object (callback_handler_)));
+  typedef boost::function< void(std::string) > handler_fn;
+  handler_fn cast_status_handler (
+      boost::bind (&tizchromecast::new_cast_status, this, _1));
+  handler_fn media_status_handler (
+      boost::bind (&tizchromecast::new_media_status, this, _1));
+  try_catch_wrapper (
+      py_cc_proxy_.attr ("start") (bp::make_function (cast_status_handler),
+                                   bp::make_function (media_status_handler)));
   return rc;
 }
 
@@ -181,9 +176,14 @@ int tizchromecast::media_mute ()
   return rc;
 }
 
-void tizchromecast::new_media_status ()
+void tizchromecast::new_cast_status (const std::string &arg)
 {
-  printf("\n\n\nStatus update!\n\n\n\n");
+  std::cout << "tizchromecast::new_cast_status: " << arg << std::endl;
+}
+
+void tizchromecast::new_media_status (const std::string &arg)
+{
+  std::cout << "tizchromecast::new_media_status: " << arg << std::endl;
 }
 
 // int tizchromecast::get_current_track ()
