@@ -210,18 +210,21 @@ class ChromecastWorker(Process):
     """
 
     """
-    def __init__ (self, queue, name_or_ip, status_listener, *args, **kwargs):
+    def __init__ (self, queue, name_or_ip, cast_status_listener,
+                  media_status_listener, *args, **kwargs):
         Process.__init__(self, *args, **kwargs)
         self.queue = queue
         self.name_or_ip = name_or_ip
         self.cast = None
-        self.status_listener = status_listener
+        self.cast_status_listener = cast_status_listener
+        self.media_status_listener = media_status_listener
 
     def start (self):
         logging.info("Creating the chromecast worker thread")
         self.cast = pychromecast.Chromecast(self.name_or_ip)
         self.cast.wait(5.0)
         self.cast.register_status_listener(self)
+        self.cast.media_controller.register_status_listener(self)
         super(ChromecastWorker, self).start()
 
     def stop (self):
@@ -230,8 +233,6 @@ class ChromecastWorker(Process):
         self.queue.close()
         self.queue.join_thread()
         if self.cast:
-            self.cast.media_controller.tear_down()
-            self.cast.quit_app()
             self.cast.disconnect()
 
     def run (self):
@@ -262,25 +263,25 @@ class ChromecastWorker(Process):
 
         """
         if status:
-            logging.info("new_cast_status: 1")
-            logging.info("new_cast_status: 2")
-            logging.info("new_cast_status: 3")
             logging.info("new_cast_status: %r" % (status,))
-            logging.info("new_cast_status: 4")
-            logging.info("new_cast_status: 5")
-            pprint.pprint(status)
-            logging.info("new_cast_status: 6")
-            self.status_listener("called from Python")
+            try:
+                self.cast_status_listener(to_ascii("callback"))
+            except Exception as exception:
+                logging.info('Unable to deliver cast status callback %s', \
+                             exception)
 
     def new_media_status(self, status):
         """
 
         """
-        logging.info("new_media_status: current time %d", \
-                     self.current_time)
-        logging.info("new_media_status: content type %s", \
-                     content_type)
-        self.status_listener("called from Python")
+        if status:
+            logging.info("new_media_status: %r" % (status,))
+            try:
+                self.media_status_listener(to_ascii("callback"))
+            except Exception as exception:
+                logging.info('Unable to deliver media status callback %s', \
+                             exception)
+
 
 class tizchromecastproxy(object):
     """A class that interfaces with a Chromecast device to initiate and manage
@@ -291,11 +292,16 @@ class tizchromecastproxy(object):
         self.queue = Queue()
         self.worker = None
         self.name_or_ip = name_or_ip
+        self.cast_status_listener = None
+        self.media_status_listener = None
 
-    def start(self, status_listener):
+    def start(self, cast_status_listener, media_status_listener):
         logging.info("Starting worker")
+        self.cast_status_listener = cast_status_listener
+        self.media_status_listener = media_status_listener
         self.worker = ChromecastWorker(self.queue, self.name_or_ip,
-                                       status_listener)
+                                       self.cast_status_listener,
+                                       self.media_status_listener)
         self.worker.start()
 
     def stop(self):
