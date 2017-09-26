@@ -160,6 +160,13 @@ extern "C" int tiz_chromecast_mute (tiz_chromecast_t *ap_chromecast)
   return ap_chromecast->p_proxy_->media_mute ();
 }
 
+extern "C" int tiz_chromecast_unmute (tiz_chromecast_t *ap_chromecast)
+{
+  assert (ap_chromecast);
+  assert (ap_chromecast->p_proxy_);
+  return ap_chromecast->p_proxy_->media_unmute ();
+}
+
 extern "C" void tiz_chromecast_destroy (tiz_chromecast_t *ap_chromecast)
 {
   if (ap_chromecast)

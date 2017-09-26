@@ -164,6 +164,17 @@ int tiz_chromecast_volume_down (tiz_chromecast_t *ap_chromecast);
 int tiz_chromecast_mute (tiz_chromecast_t *ap_chromecast);
 
 /**
+ * Unmute playback.
+ *
+ * @ingroup libtizchromecast
+ *
+ * @param ap_chromecast The Tizonia Chromecast handle.
+ *
+ * @return 0 on success
+ */
+int tiz_chromecast_unmute (tiz_chromecast_t *ap_chromecast);
+
+/**
  * Destroy the chromecast handle.
  *
  * @ingroup libtizchromecast

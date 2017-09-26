@@ -78,6 +78,7 @@ public:
   int media_volume_up ();
   int media_volume_down ();
   int media_mute ();
+  int media_unmute ();
 
   void new_cast_status (const std::string &);
   void new_media_status (const std::string &);

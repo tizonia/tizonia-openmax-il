@@ -29,6 +29,9 @@
 #include <config.h>
 #endif
 
+#include <sys/types.h>
+#include <unistd.h>
+
 #include <boost/lexical_cast.hpp>
 #include <iostream>
 
@@ -176,14 +179,21 @@ int tizchromecast::media_mute ()
   return rc;
 }
 
-void tizchromecast::new_cast_status (const std::string &arg)
+int tizchromecast::media_unmute ()
 {
-  std::cout << "tizchromecast::new_cast_status: " << arg << std::endl;
+  int rc = 0;
+  try_catch_wrapper (py_cc_proxy_.attr ("media_unmute") ());
+  return rc;
 }
 
-void tizchromecast::new_media_status (const std::string &arg)
+void tizchromecast::new_cast_status (const std::string &status)
 {
-  std::cout << "tizchromecast::new_media_status: " << arg << std::endl;
+  std::cout << "tizchromecast::new_cast_status: " << status << " pid "<< getpid() << std::endl;
+}
+
+void tizchromecast::new_media_status (const std::string &status)
+{
+  std::cout << "tizchromecast::new_media_status: " << status << " pid "<< getpid() << std::endl;
 }
 
 // int tizchromecast::get_current_track ()
