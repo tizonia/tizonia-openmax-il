@@ -28,7 +28,9 @@ import os
 import logging
 import collections
 import unicodedata
-from multiprocessing import Process, Queue
+import time
+import ctypes
+from multiprocessing import Process, JoinableQueue
 from Queue import Empty
 import select
 import pychromecast
@@ -49,6 +51,9 @@ logging.captureWarnings(True)
 #logging.getLogger().addHandler(logging.NullHandler())
 logging.basicConfig(format=FORMAT)
 logging.getLogger().setLevel(logging.DEBUG)
+
+SYS_gettid = 186
+libc = ctypes.cdll.LoadLibrary('libc.so.6')
 
 class _Colors:
     """A trivial class that defines various ANSI color codes.
@@ -121,8 +126,19 @@ class ChromecastCmdIf(object):
         """
         Runs the command.
         """
+class ChromecastCmdStart(ChromecastCmdIf):
+    """
 
-class ChromecastCmdLoad(ChromecastCmdIf):
+    """
+    def run (self, worker):
+        tid = libc.syscall(SYS_gettid)
+        logging.info("cmd start [%d] : creating chromecast object", tid)
+        worker.cast = pychromecast.Chromecast(worker.name_or_ip)
+        worker.cast.wait(5.0)
+        worker.cast.register_status_listener(worker)
+        worker.cast.media_controller.register_status_listener(worker)
+
+class ChromecastCmdMediaLoad(ChromecastCmdIf):
     """
 
     """
@@ -143,8 +159,7 @@ class ChromecastCmdLoad(ChromecastCmdIf):
         mc = worker.cast.media_controller
         st = mc.status
         try:
-            pprint.pprint(st)
-            if not st.player_is_playing:
+            if st.player_is_playing:
                 mc.stop()
             mc.play_media(self.url, self.content_type, self.title,
                           self.thumb, self.current_time, self.autoplay,
@@ -155,7 +170,7 @@ class ChromecastCmdLoad(ChromecastCmdIf):
 #             mc.block_until_active()
 
 
-class ChromecastCmdPlay(ChromecastCmdIf):
+class ChromecastCmdMediaPlay(ChromecastCmdIf):
     """
 
     """
@@ -163,7 +178,7 @@ class ChromecastCmdPlay(ChromecastCmdIf):
         logging.info("cmd play")
         worker.cast.media_controller.play()
 
-class ChromecastCmdPause(ChromecastCmdIf):
+class ChromecastCmdMediaPause(ChromecastCmdIf):
     """
 
     """
@@ -171,7 +186,7 @@ class ChromecastCmdPause(ChromecastCmdIf):
         logging.info("cmd pause")
         worker.cast.media_controller.pause()
 
-class ChromecastCmdStop(ChromecastCmdIf):
+class ChromecastCmdMediaStop(ChromecastCmdIf):
     """
 
     """
@@ -179,7 +194,7 @@ class ChromecastCmdStop(ChromecastCmdIf):
         logging.info("cmd stop")
         worker.cast.media_controller.stop()
 
-class ChromecastCmdVolUp(ChromecastCmdIf):
+class ChromecastCmdMediaVolUp(ChromecastCmdIf):
     """
 
     """
@@ -188,7 +203,7 @@ class ChromecastCmdVolUp(ChromecastCmdIf):
         vol = round(worker.cast.status.volume_level, 1)
         worker.cast.set_volume(vol + 0.1)
 
-class ChromecastCmdVolDown(ChromecastCmdIf):
+class ChromecastCmdMediaVolDown(ChromecastCmdIf):
     """
 
     """
@@ -197,14 +212,21 @@ class ChromecastCmdVolDown(ChromecastCmdIf):
         vol = round(worker.cast.status.volume_level, 1)
         worker.cast.set_volume(vol - 0.1)
 
-class ChromecastCmdMute(ChromecastCmdIf):
+class ChromecastCmdMediaMute(ChromecastCmdIf):
     """
 
     """
     def run (self, worker):
         logging.info("cmd vol mute")
-        muted = 'muted'
-        worker.cast.set_volume_muted(muted)
+        worker.cast.set_volume_muted(True)
+
+class ChromecastCmdMediaUnmute(ChromecastCmdIf):
+    """
+
+    """
+    def run (self, worker):
+        logging.info("cmd vol unmute")
+        worker.cast.set_volume_muted(False)
 
 class ChromecastWorker(Process):
     """
@@ -220,7 +242,6 @@ class ChromecastWorker(Process):
         self.media_status_listener = media_status_listener
 
     def start (self):
-        logging.info("Creating the chromecast worker thread")
         self.cast = pychromecast.Chromecast(self.name_or_ip)
         self.cast.wait(5.0)
         self.cast.register_status_listener(self)
@@ -228,24 +249,32 @@ class ChromecastWorker(Process):
         super(ChromecastWorker, self).start()
 
     def stop (self):
-        logging.info("Stopping the chromecast worker thread")
+        tid = libc.syscall(SYS_gettid)
+        logging.info("worker [%d] : Stopping", tid)
         self.queue.put(None)
-        self.queue.close()
-        self.queue.join_thread()
-        if self.cast:
-            self.cast.disconnect()
+        logging.info("worker [%d] : joining queue", tid)
+        self.queue.join()
+        logging.info("worker [%d] : joined queue", tid)
 
     def run (self):
         polltime = 0.1
+        tid = libc.syscall(SYS_gettid)
         while True:
-            qsize = self.queue.qsize()
             try:
-                cmd = self.queue.get(False)
+                qsize = self.queue.qsize()
+                cmd = self.queue.get(True, 0.01)
                 if cmd is None:
+                    logging.info("worker [%d] : breaking", tid)
+                    self.queue.task_done()
                     break
                 else:
-                    logging.info("worker: running cmd %s", cmd.__class__.__name__)
+                    logging.info("worker [%d] : running cmd %s", \
+                                 tid, cmd.__class__.__name__)
                     cmd.run(self)
+                    self.queue.task_done()
+                    logging.info("worker [%d] : DONE running cmd %s", \
+                                 tid, cmd.__class__.__name__)
+
             except Empty:
                 pass
 
@@ -254,7 +283,24 @@ class ChromecastWorker(Process):
                 can_read, _, _ = select.select([sk.get_socket()],
                                                [], [], polltime)
                 if can_read:
-                    sk.run_once()
+                    try:
+                        sk.run_once()
+                    except Exception as e:
+                        logging.info("worker [%d] : run_once exception : %s", \
+                                     tid, e)
+                        pass
+
+        if self.cast:
+            try:
+                time.sleep(3)
+                logging.info("worker [%d]: disconnecting", tid)
+                self.cast.quit_app()
+                logging.info("worker [%d]: disconnected", tid)
+            except Exception as e:
+                logging.info("worker [%d]: cast disconnect exception : %s", \
+                             tid, e)
+                pass
+        logging.info("worker [%d]: TERMINATED", tid)
 
         return
 
@@ -262,10 +308,12 @@ class ChromecastWorker(Process):
         """
 
         """
+
+        # CastStatus(is_active_input=None, is_stand_by=None, volume_level=0.8999999761581421, volume_muted=False, app_id=u'CC1AD845', display_name=u'Default Media Receiver', namespaces=[u'urn:x-cast:com.google.cast.debugoverlay', u'urn:x-cast:com.google.cast.broadcast', u'urn:x-cast:com.google.cast.media'], session_id=u'2f63312e-4777-454f-acc7-8be72572c7c8', transport_id=u'2f63312e-4777-454f-acc7-8be72572c7c8', status_text=u'Now Casting: Tizonia Audio Stream')
         if status:
             logging.info("new_cast_status: %r" % (status,))
             try:
-                self.cast_status_listener(to_ascii("callback"))
+                self.cast_status_listener(to_ascii(status.status_text))
             except Exception as exception:
                 logging.info('Unable to deliver cast status callback %s', \
                              exception)
@@ -274,10 +322,13 @@ class ChromecastWorker(Process):
         """
 
         """
+
+        # <MediaStatus {'player_state': u'BUFFERING', 'volume_level': 1, 'images': [MediaImage(url=u'https://avatars0.githubusercontent.com/u/3161606?v=3&s=400', height=None, width=None)], 'media_custom_data': {}, 'duration': None, 'current_time': 0, 'playback_rate': 1, 'title': u'Tizonia Audio Stream', 'media_session_id': 4, 'volume_muted': False, 'supports_skip_forward': False, 'track': None, 'season': None, 'idle_reason': None, 'stream_type': u'LIVE', 'supports_stream_mute': True, 'supports_stream_volume': True, 'content_type': u'audio/mpeg', 'metadata_type': None, 'subtitle_tracks': {}, 'album_name': None, 'series_title': None, 'album_artist': None, 'media_metadata': {u'images': [{u'url': u'https://avatars0.githubusercontent.com/u/3161606?v=3&s=400'}], u'thumb': u'https://avatars0.githubusercontent.com/u/3161606?v=3&s=400', u'title': u'Tizonia Audio Stream'}, 'episode': None, 'artist': None, 'supported_media_commands': 15, 'supports_seek': True, 'current_subtitle_tracks': [], 'content_id': u'http://streams.radiobob.de/bob-acdc/mp3-192/dirble/', 'supports_skip_backward': False, 'supports_pause': True}>
+
         if status:
             logging.info("new_media_status: %r" % (status,))
             try:
-                self.media_status_listener(to_ascii("callback"))
+                self.media_status_listener(to_ascii(status.player_state))
             except Exception as exception:
                 logging.info('Unable to deliver media status callback %s', \
                              exception)
@@ -289,56 +340,68 @@ class tizchromecastproxy(object):
 
     """
     def __init__(self, name_or_ip):
-        self.queue = Queue()
+        self.queue = JoinableQueue()
         self.worker = None
         self.name_or_ip = name_or_ip
         self.cast_status_listener = None
         self.media_status_listener = None
 
     def start(self, cast_status_listener, media_status_listener):
-        logging.info("Starting worker")
+        tid = libc.syscall(SYS_gettid)
+        logging.info("proxy : [%d] starting worker", tid)
         self.cast_status_listener = cast_status_listener
         self.media_status_listener = media_status_listener
         self.worker = ChromecastWorker(self.queue, self.name_or_ip,
                                        self.cast_status_listener,
                                        self.media_status_listener)
+        #self.queue.put(ChromecastCmdStart())
         self.worker.start()
+        logging.info("proxy : [%d] started worker", tid)
 
     def stop(self):
+        tid = libc.syscall(SYS_gettid)
+        logging.info("proxy [%d] : stopping worker", tid)
         self.worker.stop()
+        logging.info("proxy [%d] : joining worker", tid)
+        self.worker.join()
+        logging.info("proxy [%d] : joined worker", tid)
 
     def media_load(self, url, content_type, title=None,
                    thumb=DEFAULT_THUMB,
                    current_time=0, autoplay=True,
                    stream_type=STREAM_TYPE_LIVE):
-        logging.info("Loading a new stream")
-        self.queue.put(ChromecastCmdLoad(url, content_type, title, thumb,
+        logging.info("proxy : Loading a new stream")
+        self.queue.put(ChromecastCmdMediaLoad(url, content_type, title, thumb,
                                          current_time, autoplay,
                                          stream_type))
         logging.info("proxy : queue size %d", self.queue.qsize())
 
     def media_play(self):
-        self.queue.put(ChromecastCmdPlay())
+        self.queue.put(ChromecastCmdMediaPlay())
         logging.info("proxy : queue size %d", self.queue.qsize())
 
     def media_pause(self):
-        self.queue.put(ChromecastCmdPause())
+        self.queue.put(ChromecastCmdMediaPause())
         logging.info("proxy : queue size %d", self.queue.qsize())
 
     def media_stop(self):
-        self.queue.put(ChromecastCmdStop())
+        self.queue.put(ChromecastCmdMediaStop())
         logging.info("proxy : queue size %d", self.queue.qsize())
 
     def media_vol_up(self):
-        self.queue.put(ChromecastCmdVolUp())
+        self.queue.put(ChromecastCmdMediaVolUp())
         logging.info("proxy : queue size %d", self.queue.qsize())
 
     def media_vol_down(self):
-        self.queue.put(ChromecastCmdVolDown())
+        self.queue.put(ChromecastCmdMediaVolDown())
         logging.info("proxy : queue size %d", self.queue.qsize())
 
     def media_mute(self):
-        self.queue.put(ChromecastCmdMute())
+        self.queue.put(ChromecastCmdMediaMute())
+        logging.info("proxy : queue size %d", self.queue.qsize())
+
+    def media_unmute(self):
+        self.queue.put(ChromecastCmdMediaUnmute())
         logging.info("proxy : queue size %d", self.queue.qsize())
 
 if __name__ == "__main__":
