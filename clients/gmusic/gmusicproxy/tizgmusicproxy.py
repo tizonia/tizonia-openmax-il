@@ -1092,17 +1092,18 @@ class tizgmusicproxy(object):
         """
         plists = self.__gmusic.get_all_user_playlist_contents()
         for plist in plists:
-            plist_name = plist['name']
-            logging.info("playlist name : %s", to_ascii(plist_name))
-            tracks = plist['tracks']
-            tracks.sort(key=itemgetter('creationTimestamp'))
-            self.playlists[plist_name] = list()
-            for track in tracks:
-                try:
-                    song = self.song_map[track['trackId']]
-                    self.playlists[plist_name].append(song)
-                except IndexError:
-                    pass
+            plist_name = plist.get('name')
+            tracks = plist.get('tracks')
+            if plist_name and tracks:
+                logging.info("playlist name : %s", to_ascii(plist_name))
+                tracks.sort(key=itemgetter('creationTimestamp'))
+                self.playlists[plist_name] = list()
+                for track in tracks:
+                    song_id = track.get('trackId')
+                    if song_id:
+                        song = self.song_map.get(song_id)
+                        if song:
+                            self.playlists[plist_name].append(song)
 
     def __update_playlists_unlimited(self):
         """ Retrieve shared playlists (Unlimited)
