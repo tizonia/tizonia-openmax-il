@@ -662,6 +662,8 @@ scloud_prc_ctor (void * ap_obj, va_list * app)
   scloud_prc_t * p_prc = super_ctor (typeOf (ap_obj, "scloudprc"), ap_obj, app);
   p_prc->p_outhdr_ = NULL;
   p_prc->p_uri_param_ = NULL;
+  p_prc->p_trans_ = NULL;
+  p_prc->p_scloud_ = NULL;
   p_prc->eos_ = false;
   p_prc->port_disabled_ = false;
   p_prc->uri_changed_ = false;
