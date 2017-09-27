@@ -74,6 +74,7 @@
 #define OMX_TizoniaIndexParamAudioYoutubePlaylist    OMX_IndexVendorStartUnused + 18 /**< reference: OMX_TIZONIA_AUDIO_PARAM_YOUTUBEPLAYLISTTYPE */
 #define OMX_TizoniaIndexParamAudioDeezerSession      OMX_IndexVendorStartUnused + 19 /**< reference: OMX_TIZONIA_AUDIO_PARAM_DEEZERSESSIONTYPE */
 #define OMX_TizoniaIndexParamAudioDeezerPlaylist     OMX_IndexVendorStartUnused + 20 /**< reference: OMX_TIZONIA_AUDIO_PARAM_DEEZERPLAYLISTTYPE */
+#define OMX_TizoniaIndexParamChromecastSession       OMX_IndexVendorStartUnused + 21 /**< reference: OMX_TIZONIA_PARAM_CHROMECASTSESSIONTYPE */
 
 /**
  * OMX_AUDIO_CODINGTYPE extensions
@@ -485,5 +486,15 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_DEEZERPLAYLISTTYPE {
     OMX_BOOL bShuffle;            /**< Default: OMX_FALSE */
     OMX_U8 cPlaylistName[OMX_MAX_STRINGNAME_SIZE];
 } OMX_TIZONIA_AUDIO_PARAM_DEEZERPLAYLISTTYPE;
+
+/**
+ * Chromecast renderer component
+ */
+
+typedef struct OMX_TIZONIA_PARAM_CHROMECASTSESSIONTYPE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_U8 cNameOrIpAddr[OMX_MAX_STRINGNAME_SIZE];
+} OMX_TIZONIA_PARAM_CHROMECASTSESSIONTYPE;
 
 #endif /* OMX_TizoniaExt_h */
