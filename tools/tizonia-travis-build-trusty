@@ -215,7 +215,7 @@ function install_deps {
     exit_status=$?
 
     if [[ "$exit_status" -ne 0 ]] ; then
-        echo "Error while installing gmusicapi" >&2
+        echo "Error while installing debian dependencies" >&2
     fi
 
     if [[ "$exit_status" -eq 0 ]] ; then
@@ -258,6 +258,30 @@ function install_python_deps {
 
     if [[ "$exit_status" -eq 0 ]] ; then
         pip install --user soundcloud
+        exit_status=$?
+        if [[ "$exit_status" -ne 0 ]] ; then
+            echo "Error while installing soundcloud" >&2
+        fi
+    fi
+
+    if [[ "$exit_status" -eq 0 ]] ; then
+        pip install --user youtube_dl
+        exit_status=$?
+        if [[ "$exit_status" -ne 0 ]] ; then
+            echo "Error while installing soundcloud" >&2
+        fi
+    fi
+
+    if [[ "$exit_status" -eq 0 ]] ; then
+        pip install --user pafy
+        exit_status=$?
+        if [[ "$exit_status" -ne 0 ]] ; then
+            echo "Error while installing soundcloud" >&2
+        fi
+    fi
+
+    if [[ "$exit_status" -eq 0 ]] ; then
+        pip install --user pychromecast
         exit_status=$?
         if [[ "$exit_status" -ne 0 ]] ; then
             echo "Error while installing soundcloud" >&2
