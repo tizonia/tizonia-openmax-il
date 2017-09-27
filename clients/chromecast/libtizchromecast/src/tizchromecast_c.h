@@ -52,12 +52,12 @@ typedef struct tiz_chromecast tiz_chromecast_t;
 typedef /*@null@ */ tiz_chromecast_t *tiz_chromecast_ptr_t;
 
 /**
- * This callback is invoked when .
+ * This callback is invoked when the.
  *
  * @param ap_arg The client data structure.
  *
  */
-typedef void (*tiz_chromecast_new_media_status_f) (void);
+typedef void (*tiz_chromecast_status_cback_f) (void * ap_user_data);
 
 /**
  * Initialize the chromecast handle.
@@ -73,7 +73,8 @@ typedef void (*tiz_chromecast_new_media_status_f) (void);
  */
 int tiz_chromecast_init (/*@null@ */ tiz_chromecast_ptr_t *app_chromecast,
                          const char *ap_name_or_ip,
-                         tiz_chromecast_new_media_status_f apf_media_status);
+                         tiz_chromecast_status_cback_f apf_status_cb,
+                         void * ap_user_data);
 
 /**
  * Loads a new audio stream URL into the Chromecast media player.

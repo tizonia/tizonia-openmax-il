@@ -53,7 +53,7 @@
 #define CONTENT_TYPE "audio/mpeg"
 #define TITLE "Tizonia Audio Stream"
 
-void chromecast_new_media_status (void)
+void chromecast_new_media_status (void* ap_user_data)
 {
   printf ("New media status!!!\n");
 }
@@ -63,7 +63,7 @@ START_TEST (test_chromecast)
   tiz_chromecast_t *p_chromecast = NULL;
   pid_t pid = getpid();
   int rc = tiz_chromecast_init (&p_chromecast, CHROMECAST_DEVICE_NAME,
-                                chromecast_new_media_status);
+                                chromecast_new_media_status, NULL);
   int i = 0;
   fprintf (stderr, "test_chromecast:init [%d] = %d\n", pid, rc);
   ck_assert (0 == rc);

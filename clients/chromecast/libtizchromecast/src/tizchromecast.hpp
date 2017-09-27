@@ -62,7 +62,12 @@ get_signature(boost::function<Signature>&, void* = 0)
 class tizchromecast
 {
 public:
-  tizchromecast (const std::string &name_or_ip);
+  typedef boost::function< void(void *) > status_cback_t;
+
+public:
+  tizchromecast (const std::string &name_or_ip,
+                 status_cback_t status_cb,
+                 void *ap_user_data);
   ~tizchromecast ();
 
   int init ();
@@ -91,6 +96,8 @@ private:
   boost::python::object py_main_;
   boost::python::object py_global_;
   boost::python::object py_cc_proxy_;
+  status_cback_t cback_;
+  void * p_user_data_;
 };
 
 #endif  // TIZCHROMECAST_HPP

@@ -84,8 +84,9 @@ namespace
   }
 }
 
-tizchromecast::tizchromecast (const std::string &name_or_ip)
-  : name_or_ip_ (name_or_ip)
+tizchromecast::tizchromecast (const std::string &name_or_ip,
+                              status_cback_t status_cb, void *ap_user_data)
+  : name_or_ip_ (name_or_ip), cback_ (status_cb), p_user_data_ (ap_user_data)
 {
 }
 
