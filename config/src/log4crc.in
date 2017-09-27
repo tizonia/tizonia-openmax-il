@@ -90,6 +90,8 @@
 <!--         <category name="tiz.http_renderer.prc" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.http_renderer.prc.net" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.http_renderer.check" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.chromecast_renderer" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.chromecast_renderer.prc" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.http_source" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.http_source.prc" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.opus_decoder" priority="trace" appender="tizlogfile" /> -->

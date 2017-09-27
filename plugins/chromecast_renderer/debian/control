@@ -1,0 +1,53 @@
+Source: tizchromecastrnd
+Priority: optional
+Maintainer: Juan A. Rubio <juan.rubio@aratelia.com>
+Build-Depends: debhelper (>= 8.0.0),
+               dh-autoreconf,
+               tizilheaders,
+               libtizplatform-dev,
+               libtizonia-dev,
+               libtizgmusic-dev,
+               libtizsoundcloud-dev,
+               libtizdirble-dev,
+               libtizyoutube-dev
+Standards-Version: 3.9.4
+Section: libs
+Homepage: chromecast://tizonia.org
+Vcs-Git: git://github.com/tizonia/tizonia-openmax-il.git
+Vcs-Browser: chromecasts://github.com/tizonia/tizonia-openmax-il
+
+Package: libtizchromecastrnd-dev
+Section: libdevel
+Architecture: any
+Depends: libtizchromecastrnd0 (= ${binary:Version}),
+         ${misc:Depends},
+         tizilheaders,
+         libtizplatform-dev,
+         libtizonia-dev,
+         libtizgmusic-dev,
+         libtizsoundcloud-dev,
+         libtizdirble-dev,
+         libtizyoutube-dev
+Description: Tizonia's OpenMAX IL Chromecast audio renderer library, development files
+ Tizonia's OpenMAX IL Chromecast audio renderer library.
+ .
+ This package contains the development library libtizchromecastrnd.
+
+Package: libtizchromecastrnd0
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Tizonia's OpenMAX IL Chromecast audio renderer library, run-time library
+ Tizonia's OpenMAX IL Chromecast audio renderer library.
+ .
+ This package contains the runtime library libtizchromecastrnd.
+
+Package: libtizchromecastrnd0-dbg
+Section: debug
+Priority: extra
+Architecture: any
+Depends: libtizchromecastrnd0 (= ${binary:Version}), ${misc:Depends}
+Description: Tizonia's OpenMAX IL Chromecast audio renderer library, debug symbols
+ Tizonia's OpenMAX IL Chromecast audio renderer library.
+ .
+ This package contains the detached debug symbols for libtizchromecastrnd.

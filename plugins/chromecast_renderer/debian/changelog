@@ -1,0 +1,5 @@
+tizchromecastrnd (0.9.0-1) unstable; urgency=low
+
+  * Initial release (Closes: #64)
+
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Fri, 04 Aug 2017 17:52:54 +0100

@@ -13,31 +13,10 @@
 # more details.
 #
 # You should have received a copy of the GNU Lesser General Public License
-# along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
+# along with Tizonia.  If not, see <chromecast://www.gnu.org/licenses/>.
 
+SUBDIRS = src
 
-SUBDIRS = \
-	aac_decoder \
-	chromecast_renderer \
-	file_reader \
-	file_writer \
-	flac_decoder \
-	http_renderer \
-	http_source \
-	mp3_decoder \
-	mp3_encoder \
-	mp3_metadata \
-	mpeg_audio_decoder \
-	ogg_demuxer \
-	ogg_muxer \
-	opus_decoder \
-	opusfile_decoder \
-	pcm_decoder \
-	pcm_renderer_alsa \
-	pcm_renderer_pa \
-	spotify_source \
-	vorbis_decoder \
-	vp8_decoder \
-	webm_demuxer \
-	yuv_renderer
+EXTRA_DIST = debian
 
+ACLOCAL_AMFLAGS = -I m4
