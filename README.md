@@ -114,7 +114,7 @@ To upgrade Tizonia, run 'apt-get' as usual, but also make sure the Python depend
     $ sudo apt-get update && sudo apt-get upgrade
 
     # (Note that new versions of some of these Python packages are released frequently)
-    $ sudo -H pip install --upgrade youtube-dl pafy gmusicapi soundcloud simplejson pycrypto eyed3 Pykka pathlib
+    $ sudo -H pip install --upgrade gmusicapi soundcloud youtube-dl pafy
 
 ```
 

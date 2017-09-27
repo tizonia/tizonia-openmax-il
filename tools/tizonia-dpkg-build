@@ -118,11 +118,7 @@ declare -ar TIZ_TIZONIA_PYPI_DEPS=( \
     soundcloud \
     youtube-dl \
     pafy \
-    simplejson \
-    pycrypto \
-    eyed3 \
-    Pykka \
-    pathlib \
+    pychromecast \
 )
 
 declare -ar TIZ_DEBIAN_PKGS=( \
