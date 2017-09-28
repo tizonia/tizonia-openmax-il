@@ -69,9 +69,9 @@ START_TEST (test_chromecast)
   ck_assert (0 == rc);
   ck_assert (p_chromecast);
 
-  for (i = 0; i < 15; ++i)
+  for (i = 0; i < 1; ++i)
     {
-      fprintf (stderr, "test_chromecast: sleeping (15) = %ds\n", i);
+      fprintf (stderr, "test_chromecast: sleeping (5) = %ds\n", i);
       sleep (1);
     }
 
@@ -81,9 +81,9 @@ START_TEST (test_chromecast)
   ck_assert (0 == rc);
 
   {
-    for (i = 0; i < 5; ++i)
+    for (i = 0; i < 1; ++i)
       {
-        fprintf (stderr, "test_chromecast: sleeping (5) = %ds\n", i);
+        fprintf (stderr, "test_chromecast: sleeping (10) = %ds\n", i);
         sleep (1);
       }
 
@@ -94,9 +94,9 @@ START_TEST (test_chromecast)
       ck_assert (0 == rc);
     }
 
-    for (i = 0; i < 5; ++i)
+    for (i = 0; i < 1; ++i)
       {
-        fprintf (stderr, "test_chromecast: sleeping (5) = %ds\n", i);
+        fprintf (stderr, "test_chromecast: sleeping (10) = %ds\n", i);
         sleep (1);
       }
 
@@ -107,13 +107,13 @@ START_TEST (test_chromecast)
       ck_assert (0 == rc);
     }
 
-    for (i = 0; i < 5; ++i)
+    for (i = 0; i < 1; ++i)
       {
         fprintf (stderr, "test_chromecast: sleeping (5) = %ds\n", i);
         sleep (1);
       }
 
-    for (i = 0; i < 5; ++i)
+    for (i = 0; i < 2; ++i)
       {
         fprintf (stderr, "\n\n\ntest_chromecast:volume_up [%d] = before \n", pid);
         rc = tiz_chromecast_volume_up (p_chromecast);
@@ -122,20 +122,20 @@ START_TEST (test_chromecast)
         sleep (1);
       }
 
-    for (i = 0; i < 5; ++i)
+    for (i = 0; i < 2; ++i)
       {
         fprintf (stderr, "\n\n\ntest_chromecast:mute [%d] = before \n", pid);
         rc = tiz_chromecast_mute (p_chromecast);
         fprintf (stderr, "test_chromecast:mute [%d] = %d \n", pid, rc);
         ck_assert (0 == rc);
-        sleep (2);
+        sleep (1);
         fprintf (stderr, "\n\n\ntest_chromecast:unmute [%d] = before \n", pid);
         rc = tiz_chromecast_unmute (p_chromecast);
         fprintf (stderr, "test_chromecast:unmute [%d] = %d \n", pid, rc);
-        sleep (2);
+        sleep (1);
       }
 
-    for (i = 0; i < 5; ++i)
+    for (i = 0; i < 2; ++i)
       {
         fprintf (stderr, "\n\n\ntest_chromecast:volume_down [%d] = before \n", pid);
         rc = tiz_chromecast_volume_down (p_chromecast);
@@ -152,7 +152,7 @@ START_TEST (test_chromecast)
     }
   }
 
-  for (i = 0; i < 5; ++i)
+  for (i = 0; i < 1; ++i)
     {
       fprintf (stderr, "test_chromecast: sleeping (5) = %ds\n", i);
       sleep (1);

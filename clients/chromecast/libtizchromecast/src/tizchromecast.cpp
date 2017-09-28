@@ -111,7 +111,7 @@ int tizchromecast::start ()
   handler_fn media_status_handler (
       boost::bind (&tizchromecast::new_media_status, this, _1));
   try_catch_wrapper (
-      py_cc_proxy_.attr ("start") (bp::make_function (cast_status_handler),
+      py_cc_proxy_.attr ("activate") (bp::make_function (cast_status_handler),
                                    bp::make_function (media_status_handler)));
   return rc;
 }
@@ -119,7 +119,7 @@ int tizchromecast::start ()
 void tizchromecast::stop ()
 {
   int rc = 0;
-  try_catch_wrapper (py_cc_proxy_.attr ("stop") ());
+  try_catch_wrapper (py_cc_proxy_.attr ("deactivate") ());
   (void)rc;
 }
 
