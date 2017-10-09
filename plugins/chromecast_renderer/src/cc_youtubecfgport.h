@@ -34,9 +34,9 @@ extern "C" {
 #endif
 
 void *
-youtube_cfgport_class_init (void * ap_tos, void * ap_hdl);
+cc_youtube_cfgport_class_init (void * ap_tos, void * ap_hdl);
 void *
-youtube_cfgport_init (void * ap_tos, void * ap_hdl);
+cc_youtube_cfgport_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }

@@ -38,8 +38,8 @@ extern "C" {
 
 #include <tizconfigport_decls.h>
 
-typedef struct dirble_cfgport dirble_cfgport_t;
-struct dirble_cfgport
+typedef struct cc_dirble_cfgport cc_dirble_cfgport_t;
+struct cc_dirble_cfgport
 {
   /* Object */
   const tiz_configport_t _;
@@ -47,8 +47,8 @@ struct dirble_cfgport
   OMX_TIZONIA_AUDIO_PARAM_DIRBLEPLAYLISTTYPE playlist_;
 };
 
-typedef struct dirble_cfgport_class dirble_cfgport_class_t;
-struct dirble_cfgport_class
+typedef struct cc_dirble_cfgport_class cc_dirble_cfgport_class_t;
+struct cc_dirble_cfgport_class
 {
   /* Class */
   const tiz_configport_class_t _;

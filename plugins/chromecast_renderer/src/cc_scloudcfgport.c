@@ -49,9 +49,9 @@
  */
 
 static void *
-scloud_cfgport_ctor (void * ap_obj, va_list * app)
+cc_scloud_cfgport_ctor (void * ap_obj, va_list * app)
 {
-  scloud_cfgport_t * p_obj
+  cc_scloud_cfgport_t * p_obj
     = super_ctor (typeOf (ap_obj, "cc_scloudcfgport"), ap_obj, app);
 
   assert (p_obj);
@@ -82,7 +82,7 @@ scloud_cfgport_ctor (void * ap_obj, va_list * app)
 }
 
 static void *
-scloud_cfgport_dtor (void * ap_obj)
+cc_scloud_cfgport_dtor (void * ap_obj)
 {
   return super_dtor (typeOf (ap_obj, "cc_scloudcfgport"), ap_obj);
 }
@@ -92,10 +92,10 @@ scloud_cfgport_dtor (void * ap_obj)
  */
 
 static OMX_ERRORTYPE
-scloud_cfgport_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
+cc_scloud_cfgport_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
                              OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  const scloud_cfgport_t * p_obj = ap_obj;
+  const cc_scloud_cfgport_t * p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (p_obj);
@@ -124,10 +124,10 @@ scloud_cfgport_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
 }
 
 static OMX_ERRORTYPE
-scloud_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
+cc_scloud_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
                              OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  scloud_cfgport_t * p_obj = (scloud_cfgport_t *) ap_obj;
+  cc_scloud_cfgport_t * p_obj = (cc_scloud_cfgport_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (p_obj);
@@ -164,11 +164,11 @@ scloud_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
 }
 
 /*
- * scloud_cfgport_class
+ * cc_scloud_cfgport_class
  */
 
 static void *
-scloud_cfgport_class_ctor (void * ap_obj, va_list * app)
+cc_scloud_cfgport_class_ctor (void * ap_obj, va_list * app)
 {
   /* NOTE: Class methods might be added in the future. None for now. */
   return super_ctor (typeOf (ap_obj, "cc_scloudcfgport_class"), ap_obj, app);
@@ -179,18 +179,18 @@ scloud_cfgport_class_ctor (void * ap_obj, va_list * app)
  */
 
 void *
-scloud_cfgport_class_init (void * ap_tos, void * ap_hdl)
+cc_scloud_cfgport_class_init (void * ap_tos, void * ap_hdl)
 {
   void * tizconfigport = tiz_get_type (ap_hdl, "tizconfigport");
   void * cc_scloudcfgport_class
     = factory_new (classOf (tizconfigport), "cc_scloudcfgport_class",
-                   classOf (tizconfigport), sizeof (scloud_cfgport_class_t),
-                   ap_tos, ap_hdl, ctor, scloud_cfgport_class_ctor, 0);
+                   classOf (tizconfigport), sizeof (cc_scloud_cfgport_class_t),
+                   ap_tos, ap_hdl, ctor, cc_scloud_cfgport_class_ctor, 0);
   return cc_scloudcfgport_class;
 }
 
 void *
-scloud_cfgport_init (void * ap_tos, void * ap_hdl)
+cc_scloud_cfgport_init (void * ap_tos, void * ap_hdl)
 {
   void * tizconfigport = tiz_get_type (ap_hdl, "tizconfigport");
   void * cc_scloudcfgport_class
@@ -199,17 +199,17 @@ scloud_cfgport_init (void * ap_tos, void * ap_hdl)
   void * cc_scloudcfgport = factory_new
     /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
     (cc_scloudcfgport_class, "cc_scloudcfgport", tizconfigport,
-     sizeof (scloud_cfgport_t),
+     sizeof (cc_scloud_cfgport_t),
      /* TIZ_CLASS_COMMENT: class constructor */
      ap_tos, ap_hdl,
      /* TIZ_CLASS_COMMENT: class constructor */
-     ctor, scloud_cfgport_ctor,
+     ctor, cc_scloud_cfgport_ctor,
      /* TIZ_CLASS_COMMENT: class destructor */
-     dtor, scloud_cfgport_dtor,
+     dtor, cc_scloud_cfgport_dtor,
      /* TIZ_CLASS_COMMENT: */
-     tiz_api_GetParameter, scloud_cfgport_GetParameter,
+     tiz_api_GetParameter, cc_scloud_cfgport_GetParameter,
      /* TIZ_CLASS_COMMENT: */
-     tiz_api_SetParameter, scloud_cfgport_SetParameter,
+     tiz_api_SetParameter, cc_scloud_cfgport_SetParameter,
      /* TIZ_CLASS_COMMENT: stop value*/
      0);
 

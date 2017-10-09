@@ -38,8 +38,8 @@ extern "C" {
 
 #include <tizconfigport_decls.h>
 
-typedef struct gmusic_cfgport gmusic_cfgport_t;
-struct gmusic_cfgport
+typedef struct cc_gmusic_cfgport cc_gmusic_cfgport_t;
+struct cc_gmusic_cfgport
 {
   /* Object */
   const tiz_configport_t _;
@@ -47,8 +47,8 @@ struct gmusic_cfgport
   OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE playlist_;
 };
 
-typedef struct gmusic_cfgport_class gmusic_cfgport_class_t;
-struct gmusic_cfgport_class
+typedef struct cc_gmusic_cfgport_class cc_gmusic_cfgport_class_t;
+struct cc_gmusic_cfgport_class
 {
   /* Class */
   const tiz_configport_class_t _;

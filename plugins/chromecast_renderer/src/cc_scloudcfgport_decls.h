@@ -38,8 +38,8 @@ extern "C" {
 
 #include <tizconfigport_decls.h>
 
-typedef struct scloud_cfgport scloud_cfgport_t;
-struct scloud_cfgport
+typedef struct cc_scloud_cfgport cc_scloud_cfgport_t;
+struct cc_scloud_cfgport
 {
   /* Object */
   const tiz_configport_t _;
@@ -47,8 +47,8 @@ struct scloud_cfgport
   OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDPLAYLISTTYPE playlist_;
 };
 
-typedef struct scloud_cfgport_class scloud_cfgport_class_t;
-struct scloud_cfgport_class
+typedef struct cc_scloud_cfgport_class cc_scloud_cfgport_class_t;
+struct cc_scloud_cfgport_class
 {
   /* Class */
   const tiz_configport_class_t _;

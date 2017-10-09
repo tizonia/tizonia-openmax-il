@@ -49,9 +49,9 @@
  */
 
 static void *
-dirble_cfgport_ctor (void * ap_obj, va_list * app)
+cc_dirble_cfgport_ctor (void * ap_obj, va_list * app)
 {
-  dirble_cfgport_t * p_obj
+  cc_dirble_cfgport_t * p_obj
     = super_ctor (typeOf (ap_obj, "cc_dirblecfgport"), ap_obj, app);
 
   assert (p_obj);
@@ -77,7 +77,7 @@ dirble_cfgport_ctor (void * ap_obj, va_list * app)
 }
 
 static void *
-dirble_cfgport_dtor (void * ap_obj)
+cc_dirble_cfgport_dtor (void * ap_obj)
 {
   return super_dtor (typeOf (ap_obj, "cc_dirblecfgport"), ap_obj);
 }
@@ -87,10 +87,10 @@ dirble_cfgport_dtor (void * ap_obj)
  */
 
 static OMX_ERRORTYPE
-dirble_cfgport_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
+cc_dirble_cfgport_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
                              OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  const dirble_cfgport_t * p_obj = ap_obj;
+  const cc_dirble_cfgport_t * p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (p_obj);
@@ -119,10 +119,10 @@ dirble_cfgport_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
 }
 
 static OMX_ERRORTYPE
-dirble_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
+cc_dirble_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
                              OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  dirble_cfgport_t * p_obj = (dirble_cfgport_t *) ap_obj;
+  cc_dirble_cfgport_t * p_obj = (cc_dirble_cfgport_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (p_obj);
@@ -156,11 +156,11 @@ dirble_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
 }
 
 /*
- * dirble_cfgport_class
+ * cc_dirble_cfgport_class
  */
 
 static void *
-dirble_cfgport_class_ctor (void * ap_obj, va_list * app)
+cc_dirble_cfgport_class_ctor (void * ap_obj, va_list * app)
 {
   /* NOTE: Class methods might be added in the future. None for now. */
   return super_ctor (typeOf (ap_obj, "cc_dirblecfgport_class"), ap_obj, app);
@@ -171,18 +171,18 @@ dirble_cfgport_class_ctor (void * ap_obj, va_list * app)
  */
 
 void *
-dirble_cfgport_class_init (void * ap_tos, void * ap_hdl)
+cc_dirble_cfgport_class_init (void * ap_tos, void * ap_hdl)
 {
   void * tizconfigport = tiz_get_type (ap_hdl, "tizconfigport");
   void * cc_dirblecfgport_class
     = factory_new (classOf (tizconfigport), "cc_dirblecfgport_class",
-                   classOf (tizconfigport), sizeof (dirble_cfgport_class_t),
-                   ap_tos, ap_hdl, ctor, dirble_cfgport_class_ctor, 0);
+                   classOf (tizconfigport), sizeof (cc_dirble_cfgport_class_t),
+                   ap_tos, ap_hdl, ctor, cc_dirble_cfgport_class_ctor, 0);
   return cc_dirblecfgport_class;
 }
 
 void *
-dirble_cfgport_init (void * ap_tos, void * ap_hdl)
+cc_dirble_cfgport_init (void * ap_tos, void * ap_hdl)
 {
   void * tizconfigport = tiz_get_type (ap_hdl, "tizconfigport");
   void * cc_dirblecfgport_class
@@ -191,17 +191,17 @@ dirble_cfgport_init (void * ap_tos, void * ap_hdl)
   void * cc_dirblecfgport = factory_new
     /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
     (cc_dirblecfgport_class, "cc_dirblecfgport", tizconfigport,
-     sizeof (dirble_cfgport_t),
+     sizeof (cc_dirble_cfgport_t),
      /* TIZ_CLASS_COMMENT: class constructor */
      ap_tos, ap_hdl,
      /* TIZ_CLASS_COMMENT: class constructor */
-     ctor, dirble_cfgport_ctor,
+     ctor, cc_dirble_cfgport_ctor,
      /* TIZ_CLASS_COMMENT: class destructor */
-     dtor, dirble_cfgport_dtor,
+     dtor, cc_dirble_cfgport_dtor,
      /* TIZ_CLASS_COMMENT: */
-     tiz_api_GetParameter, dirble_cfgport_GetParameter,
+     tiz_api_GetParameter, cc_dirble_cfgport_GetParameter,
      /* TIZ_CLASS_COMMENT: */
-     tiz_api_SetParameter, dirble_cfgport_SetParameter,
+     tiz_api_SetParameter, cc_dirble_cfgport_SetParameter,
      /* TIZ_CLASS_COMMENT: stop value*/
      0);
 

@@ -252,9 +252,9 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 
   strcpy ((OMX_STRING) cc_gmusiccfgport_type.class_name,
           "cc_gmusiccfgport_class");
-  cc_gmusiccfgport_type.pf_class_init = gmusic_cfgport_class_init;
+  cc_gmusiccfgport_type.pf_class_init = cc_gmusic_cfgport_class_init;
   strcpy ((OMX_STRING) cc_gmusiccfgport_type.object_name, "cc_gmusiccfgport");
-  cc_gmusiccfgport_type.pf_object_init = gmusic_cfgport_init;
+  cc_gmusiccfgport_type.pf_object_init = cc_gmusic_cfgport_init;
 
   strcpy ((OMX_STRING) cc_scloudprc_type.class_name, "cc_scloudprc_class");
   cc_scloudprc_type.pf_class_init = cc_scloud_prc_class_init;
@@ -263,9 +263,9 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 
   strcpy ((OMX_STRING) cc_scloudcfgport_type.class_name,
           "cc_scloudcfgport_class");
-  cc_scloudcfgport_type.pf_class_init = scloud_cfgport_class_init;
+  cc_scloudcfgport_type.pf_class_init = cc_scloud_cfgport_class_init;
   strcpy ((OMX_STRING) cc_scloudcfgport_type.object_name, "cc_scloudcfgport");
-  cc_scloudcfgport_type.pf_object_init = scloud_cfgport_init;
+  cc_scloudcfgport_type.pf_object_init = cc_scloud_cfgport_init;
 
   strcpy ((OMX_STRING) cc_dirbleprc_type.class_name, "cc_dirbleprc_class");
   cc_dirbleprc_type.pf_class_init = cc_dirble_prc_class_init;
@@ -274,9 +274,9 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 
   strcpy ((OMX_STRING) cc_dirblecfgport_type.class_name,
           "cc_dirblecfgport_class");
-  cc_dirblecfgport_type.pf_class_init = dirble_cfgport_class_init;
+  cc_dirblecfgport_type.pf_class_init = cc_dirble_cfgport_class_init;
   strcpy ((OMX_STRING) cc_dirblecfgport_type.object_name, "cc_dirblecfgport");
-  cc_dirblecfgport_type.pf_object_init = dirble_cfgport_init;
+  cc_dirblecfgport_type.pf_object_init = cc_dirble_cfgport_init;
 
   strcpy ((OMX_STRING) cc_youtubeprc_type.class_name, "cc_youtubeprc_class");
   cc_youtubeprc_type.pf_class_init = cc_youtube_prc_class_init;
@@ -285,9 +285,9 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 
   strcpy ((OMX_STRING) cc_youtubecfgport_type.class_name,
           "cc_youtubecfgport_class");
-  cc_youtubecfgport_type.pf_class_init = youtube_cfgport_class_init;
+  cc_youtubecfgport_type.pf_class_init = cc_youtube_cfgport_class_init;
   strcpy ((OMX_STRING) cc_youtubecfgport_type.object_name, "cc_youtubecfgport");
-  cc_youtubecfgport_type.pf_object_init = youtube_cfgport_init;
+  cc_youtubecfgport_type.pf_object_init = cc_youtube_cfgport_init;
 
   /* Initialize the component infrastructure */
   tiz_check_omx (

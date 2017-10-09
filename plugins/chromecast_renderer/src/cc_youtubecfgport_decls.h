@@ -38,8 +38,8 @@ extern "C" {
 
 #include <tizconfigport_decls.h>
 
-typedef struct youtube_cfgport youtube_cfgport_t;
-struct youtube_cfgport
+typedef struct cc_youtube_cfgport cc_youtube_cfgport_t;
+struct cc_youtube_cfgport
 {
   /* Object */
   const tiz_configport_t _;
@@ -47,8 +47,8 @@ struct youtube_cfgport
   OMX_TIZONIA_AUDIO_PARAM_YOUTUBEPLAYLISTTYPE playlist_;
 };
 
-typedef struct youtube_cfgport_class youtube_cfgport_class_t;
-struct youtube_cfgport_class
+typedef struct cc_youtube_cfgport_class cc_youtube_cfgport_class_t;
+struct cc_youtube_cfgport_class
 {
   /* Class */
   const tiz_configport_class_t _;

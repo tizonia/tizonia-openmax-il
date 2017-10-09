@@ -49,9 +49,9 @@
  */
 
 static void *
-youtube_cfgport_ctor (void * ap_obj, va_list * app)
+cc_youtube_cfgport_ctor (void * ap_obj, va_list * app)
 {
-  youtube_cfgport_t * p_obj
+  cc_youtube_cfgport_t * p_obj
     = super_ctor (typeOf (ap_obj, "cc_youtubecfgport"), ap_obj, app);
 
   assert (p_obj);
@@ -77,7 +77,7 @@ youtube_cfgport_ctor (void * ap_obj, va_list * app)
 }
 
 static void *
-youtube_cfgport_dtor (void * ap_obj)
+cc_youtube_cfgport_dtor (void * ap_obj)
 {
   return super_dtor (typeOf (ap_obj, "cc_youtubecfgport"), ap_obj);
 }
@@ -87,10 +87,10 @@ youtube_cfgport_dtor (void * ap_obj)
  */
 
 static OMX_ERRORTYPE
-youtube_cfgport_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
+cc_youtube_cfgport_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
                               OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  const youtube_cfgport_t * p_obj = ap_obj;
+  const cc_youtube_cfgport_t * p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (p_obj);
@@ -119,10 +119,10 @@ youtube_cfgport_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
 }
 
 static OMX_ERRORTYPE
-youtube_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
+cc_youtube_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
                               OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  youtube_cfgport_t * p_obj = (youtube_cfgport_t *) ap_obj;
+  cc_youtube_cfgport_t * p_obj = (cc_youtube_cfgport_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (p_obj);
@@ -156,11 +156,11 @@ youtube_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
 }
 
 /*
- * youtube_cfgport_class
+ * cc_youtube_cfgport_class
  */
 
 static void *
-youtube_cfgport_class_ctor (void * ap_obj, va_list * app)
+cc_youtube_cfgport_class_ctor (void * ap_obj, va_list * app)
 {
   /* NOTE: Class methods might be added in the future. None for now. */
   return super_ctor (typeOf (ap_obj, "cc_youtubecfgport_class"), ap_obj, app);
@@ -171,18 +171,18 @@ youtube_cfgport_class_ctor (void * ap_obj, va_list * app)
  */
 
 void *
-youtube_cfgport_class_init (void * ap_tos, void * ap_hdl)
+cc_youtube_cfgport_class_init (void * ap_tos, void * ap_hdl)
 {
   void * tizconfigport = tiz_get_type (ap_hdl, "tizconfigport");
   void * cc_youtubecfgport_class
     = factory_new (classOf (tizconfigport), "cc_youtubecfgport_class",
-                   classOf (tizconfigport), sizeof (youtube_cfgport_class_t),
-                   ap_tos, ap_hdl, ctor, youtube_cfgport_class_ctor, 0);
+                   classOf (tizconfigport), sizeof (cc_youtube_cfgport_class_t),
+                   ap_tos, ap_hdl, ctor, cc_youtube_cfgport_class_ctor, 0);
   return cc_youtubecfgport_class;
 }
 
 void *
-youtube_cfgport_init (void * ap_tos, void * ap_hdl)
+cc_youtube_cfgport_init (void * ap_tos, void * ap_hdl)
 {
   void * tizconfigport = tiz_get_type (ap_hdl, "tizconfigport");
   void * cc_youtubecfgport_class
@@ -191,17 +191,17 @@ youtube_cfgport_init (void * ap_tos, void * ap_hdl)
   void * cc_youtubecfgport = factory_new
     /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
     (cc_youtubecfgport_class, "cc_youtubecfgport", tizconfigport,
-     sizeof (youtube_cfgport_t),
+     sizeof (cc_youtube_cfgport_t),
      /* TIZ_CLASS_COMMENT: class constructor */
      ap_tos, ap_hdl,
      /* TIZ_CLASS_COMMENT: class constructor */
-     ctor, youtube_cfgport_ctor,
+     ctor, cc_youtube_cfgport_ctor,
      /* TIZ_CLASS_COMMENT: class destructor */
-     dtor, youtube_cfgport_dtor,
+     dtor, cc_youtube_cfgport_dtor,
      /* TIZ_CLASS_COMMENT: */
-     tiz_api_GetParameter, youtube_cfgport_GetParameter,
+     tiz_api_GetParameter, cc_youtube_cfgport_GetParameter,
      /* TIZ_CLASS_COMMENT: */
-     tiz_api_SetParameter, youtube_cfgport_SetParameter,
+     tiz_api_SetParameter, cc_youtube_cfgport_SetParameter,
      /* TIZ_CLASS_COMMENT: stop value*/
      0);
 

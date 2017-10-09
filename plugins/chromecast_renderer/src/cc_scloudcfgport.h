@@ -34,9 +34,9 @@ extern "C" {
 #endif
 
 void *
-scloud_cfgport_class_init (void * ap_tos, void * ap_hdl);
+cc_scloud_cfgport_class_init (void * ap_tos, void * ap_hdl);
 void *
-scloud_cfgport_init (void * ap_tos, void * ap_hdl);
+cc_scloud_cfgport_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
