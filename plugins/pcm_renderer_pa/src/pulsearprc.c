@@ -52,7 +52,7 @@
   do                                                       \
     {                                                      \
       int pa_error = 0;                                    \
-      if ((pa_error = (expr)) < 0)                         \
+      if ((pa_error = (expr)) != PA_OK)                    \
         {                                                  \
           TIZ_ERROR (handleOf (ap_prc),                    \
                      "[OMX_ErrorInsufficientResources] : " \
