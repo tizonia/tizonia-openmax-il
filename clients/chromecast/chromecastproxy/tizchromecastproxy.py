@@ -24,15 +24,8 @@ Access a Chromecast device to initiate and manage audio streaming sessions..
 from __future__ import unicode_literals
 
 import sys
-import os
 import logging
-import collections
 import unicodedata
-import time
-import ctypes
-from multiprocessing import Process, JoinableQueue
-from Queue import Empty
-import select
 import pychromecast
 from pychromecast.controllers.media import (
     STREAM_TYPE_UNKNOWN,
@@ -40,7 +33,6 @@ from pychromecast.controllers.media import (
     STREAM_TYPE_LIVE)
 from pychromecast.error import (
     PyChromecastError)
-from abc import abstractmethod, abstractproperty
 
 # For use during debugging
 import pprint
@@ -54,9 +46,6 @@ logging.captureWarnings(True)
 #logging.getLogger().addHandler(logging.NullHandler())
 logging.basicConfig(format=FORMAT)
 logging.getLogger().setLevel(logging.DEBUG)
-
-SYS_gettid = 186
-libc = ctypes.cdll.LoadLibrary('libc.so.6')
 
 class _Colors:
     """A trivial class that defines various ANSI color codes.
