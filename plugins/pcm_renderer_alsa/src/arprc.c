@@ -1140,7 +1140,14 @@ static OMX_ERRORTYPE ar_prc_pause (const void *ap_prc)
   log_alsa_pcm_state (p_prc);
   stop_io_watcher (p_prc);
   stop_eos_timer (p_prc);
-  bail_on_snd_pcm_error (snd_pcm_pause (p_prc->p_pcm_, pause));
+  if (snd_pcm_hw_params_can_pause(p_prc->p_hw_params_))
+    {
+      bail_on_snd_pcm_error (snd_pcm_pause (p_prc->p_pcm_, pause));
+    }
+  else
+    {
+      bail_on_snd_pcm_error (snd_pcm_drop(p_prc->p_pcm_));
+    }
   return rc;
 }
 
@@ -1151,7 +1158,14 @@ static OMX_ERRORTYPE ar_prc_resume (const void *ap_prc)
   assert (p_prc);
   start_eos_timer (p_prc);
   log_alsa_pcm_state (p_prc);
-  bail_on_snd_pcm_error (snd_pcm_pause (p_prc->p_pcm_, resume));
+  if (snd_pcm_hw_params_can_pause(p_prc->p_hw_params_))
+    {
+      bail_on_snd_pcm_error (snd_pcm_pause (p_prc->p_pcm_, resume));
+    }
+  else
+    {
+      bail_on_snd_pcm_error (snd_pcm_prepare (p_prc->p_pcm_));
+    }
   tiz_check_omx (start_io_watcher (p_prc));
   return OMX_ErrorNone;
 }
