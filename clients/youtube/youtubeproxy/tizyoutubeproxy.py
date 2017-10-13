@@ -179,7 +179,9 @@ def get_track_id_from_json(item):
             if node and isinstance(node, dict):
                 node = node.get(part)
         if node:
-            return node
+            # Make sure that what we are returning is a string
+            if isinstance(node, (str, unicode)):
+                return node
     return ''
 
 def get_tracks_from_json(jsons, howmany=0):
