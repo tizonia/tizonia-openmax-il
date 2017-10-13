@@ -225,7 +225,7 @@ namespace
 
 // Workaround for 'implicit_option' behavioral change introduced in boost
 // 1.59. See https://github.com/boostorg/program_options/issues/25
-#if (BOOST_VERSION >= 105900)
+#if (BOOST_VERSION >= 105900) && (BOOST_VERSION < 106500)
   template < typename T >
   struct greedy_implicit_value_impl : public po::typed_value< T >
   {
