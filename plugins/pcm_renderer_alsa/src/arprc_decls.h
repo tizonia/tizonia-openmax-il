@@ -47,12 +47,14 @@ extern "C"
   {
     /* Object */
     const tiz_prc_t _;
-    OMX_AUDIO_PARAM_PCMMODETYPE pcmmode;
+    OMX_AUDIO_PARAM_PCMMODETYPE pcmmode_;
     snd_pcm_t *p_pcm_;
     snd_pcm_hw_params_t *p_hw_params_;
     char *p_pcm_name_;
     char *p_mixer_name_;
     bool swap_byte_order_;
+    unsigned int num_channels_supported_;
+    tiz_buffer_t *p_sample_buf_;
     int descriptor_count_;
     struct pollfd *p_fds_;
     tiz_event_io_t *p_ev_io_;
