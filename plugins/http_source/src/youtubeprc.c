@@ -334,8 +334,10 @@ send_port_auto_detect_events (youtube_prc_t * ap_prc)
     {
       /* Oops... could not detect the stream format */
 
-      /* This is to make sure this url will not get processed again... */
-      ap_prc->remove_current_url_ = true;
+      /* We can make this 'true' to make sure this url will not get processed
+         again, by removing it from the playback queue. For now, let's try it
+         again in the next occasion... */
+      ap_prc->remove_current_url_ = false;
 
       /* Get ready to auto-detect another stream */
       set_auto_detect_on_port (ap_prc);
@@ -367,6 +369,11 @@ update_metadata (youtube_prc_t * ap_prc)
   tiz_check_omx (store_metadata (
     ap_prc, tiz_youtube_get_current_audio_stream_author (ap_prc->p_youtube_),
     tiz_youtube_get_current_audio_stream_title (ap_prc->p_youtube_)));
+
+  /*  */
+  tiz_check_omx (store_metadata (
+    ap_prc, "Stream #",
+    tiz_youtube_get_current_queue_progress (ap_prc->p_youtube_)));
 
   /* ID */
   tiz_check_omx (store_metadata (
@@ -600,8 +607,10 @@ connection_lost (OMX_PTR ap_arg)
     {
       /* Oops... unable to connect to the station */
 
-      /* Make sure this url will not get processed again... */
-      p_prc->remove_current_url_ = true;
+      /* We can make this 'true' to make sure this url will not get processed
+         again, by removing it from the playback queue. For now, let's try it
+         again in the next occasion... */
+      p_prc->remove_current_url_ = false;
 
       /* Get ready to auto-detect another stream */
       set_auto_detect_on_port (p_prc);
