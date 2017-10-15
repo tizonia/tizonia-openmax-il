@@ -572,6 +572,13 @@ class tizyoutubeproxy(object):
             published = to_ascii(stream['v'].published).encode("utf-8")
         return published
 
+    def current_audio_stream_queue_index_and_queue_length(self):
+        """ Retrieve index in the queue (starting from 1) of the current stream and the
+        length of the playback queue.
+
+        """
+        return self.queue_index + 1, len(self.queue)
+
     def clear_queue(self):
         """ Clears the playback queue.
 
