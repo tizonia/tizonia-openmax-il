@@ -61,8 +61,11 @@ public:
   int play_audio_search (const std::string &search);
   int play_audio_mix_search (const std::string &search);
 
-  void clear_queue ();
   void set_playback_mode (const playback_mode mode);
+  void clear_queue ();
+  const char *get_current_audio_stream_index ();
+  const char *get_current_queue_length ();
+  const char *get_current_queue_progress ();
 
   const char *get_next_url (const bool a_remove_current_url);
   const char *get_prev_url (const bool a_remove_current_url);
@@ -83,6 +86,8 @@ private:
 
 private:
   std::string current_url_;
+  std::string current_stream_index_;
+  std::string current_queue_length_;
   std::string current_stream_title_;
   std::string current_stream_author_;
   std::string current_stream_file_size_;

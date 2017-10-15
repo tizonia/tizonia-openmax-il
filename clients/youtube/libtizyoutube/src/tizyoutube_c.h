@@ -80,6 +80,43 @@ int tiz_youtube_init (/*@null@ */ tiz_youtube_ptr_t *app_youtube);
  *
  * @param ap_youtube The tiz_youtube handle.
  */
+void tiz_youtube_clear_queue (tiz_youtube_t *ap_youtube);
+
+/**
+ * Retrieve the index in the playback queue of the stream currently selected.
+ *
+ * @ingroup libtizyoutube
+ *
+ * @param ap_gmusic The tiz_youtube handle.
+ */
+const char *tiz_youtube_get_current_audio_stream_index (tiz_youtube_t *ap_youtube);
+
+/**
+ * Retrieve the current length of playback queue.
+ *
+ * @ingroup libtizyoutube
+ *
+ * @param ap_gmusic The tiz_youtube handle.
+ */
+const char *tiz_youtube_get_current_queue_length (tiz_youtube_t *ap_youtube);
+
+/**
+ * Retrieve the current queue progress (e.g. '5 of 17', where 5 is the current
+ * stream index, and 17 is the total streams in the queue).
+ *
+ * @ingroup libtizyoutube
+ *
+ * @param ap_gmusic The tiz_youtube handle.
+ */
+const char *tiz_youtube_get_current_queue_progress (tiz_youtube_t *ap_youtube);
+
+/**
+ * Set the playback mode (normal, shuffle).
+ *
+ * @ingroup libtizyoutube
+ *
+ * @param ap_youtube The tiz_youtube handle.
+ */
 void tiz_youtube_set_playback_mode (tiz_youtube_t *ap_youtube,
                                     const tiz_youtube_playback_mode_t mode);
 
@@ -164,15 +201,6 @@ int tiz_youtube_play_audio_search (tiz_youtube_t *ap_youtube,
  */
 int tiz_youtube_play_audio_mix_search (tiz_youtube_t *ap_youtube,
                                        const char *ap_search);
-
-/**
- * Clear the playback queue.
- *
- * @ingroup libtizyoutube
- *
- * @param ap_youtube The tiz_youtube handle.
- */
-void tiz_youtube_clear_queue (tiz_youtube_t *ap_youtube);
 
 /**
  * Retrieve the next stream url

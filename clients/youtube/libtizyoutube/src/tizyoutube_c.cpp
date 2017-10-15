@@ -98,6 +98,36 @@ extern "C" int tiz_youtube_init (tiz_youtube_ptr_t *app_youtube)
   return rc;
 }
 
+extern "C" void tiz_youtube_clear_queue (tiz_youtube_t *ap_youtube)
+{
+  assert (ap_youtube);
+  assert (ap_youtube->p_proxy_);
+  ap_youtube->p_proxy_->clear_queue ();
+}
+
+extern "C" const char *tiz_youtube_get_current_audio_stream_index (
+    tiz_youtube_t *ap_youtube)
+{
+  assert (ap_youtube);
+  assert (ap_youtube->p_proxy_);
+  return ap_youtube->p_proxy_->get_current_audio_stream_index ();
+}
+
+extern "C" const char *tiz_youtube_get_current_queue_length (
+    tiz_youtube_t *ap_youtube)
+{
+  assert (ap_youtube);
+  assert (ap_youtube->p_proxy_);
+  return ap_youtube->p_proxy_->get_current_queue_length ();
+}
+
+extern "C" const char *tiz_youtube_get_current_queue_progress (tiz_youtube_t *ap_youtube)
+{
+  assert (ap_youtube);
+  assert (ap_youtube->p_proxy_);
+  return ap_youtube->p_proxy_->get_current_queue_progress ();
+}
+
 extern "C" void tiz_youtube_set_playback_mode (
     tiz_youtube_t *ap_youtube, const tiz_youtube_playback_mode_t mode)
 {
@@ -145,13 +175,6 @@ extern "C" int tiz_youtube_play_audio_mix_search (tiz_youtube_t *ap_youtube,
   assert (ap_youtube);
   assert (ap_youtube->p_proxy_);
   return ap_youtube->p_proxy_->play_audio_mix_search (ap_search);
-}
-
-extern "C" void tiz_youtube_clear_queue (tiz_youtube_t *ap_youtube)
-{
-  assert (ap_youtube);
-  assert (ap_youtube->p_proxy_);
-  ap_youtube->p_proxy_->clear_queue ();
 }
 
 extern "C" const char *tiz_youtube_get_next_url (

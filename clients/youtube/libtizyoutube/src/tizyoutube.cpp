@@ -125,6 +125,8 @@ namespace
 
 tizyoutube::tizyoutube ()
   : current_url_ (),
+    current_stream_index_ (),
+    current_queue_length_ (),
     current_stream_title_ (),
     current_stream_author_ (),
     current_stream_file_size_ (),
@@ -272,6 +274,24 @@ void tizyoutube::clear_queue ()
   (void)rc;
 }
 
+const char *tizyoutube::get_current_audio_stream_index ()
+{
+  return current_stream_index_.empty () ? NULL : current_stream_index_.c_str ();
+}
+
+const char *tizyoutube::get_current_queue_length ()
+{
+  return current_queue_length_.empty () ? NULL : current_queue_length_.c_str ();
+}
+
+const char *tizyoutube::get_current_queue_progress ()
+{
+  std::string output (get_current_audio_stream_index ());
+  output.append (" of ");
+  output.append (get_current_queue_length ());
+  return output.c_str ();
+}
+
 void tizyoutube::set_playback_mode (const playback_mode mode)
 {
   int rc = 0;
@@ -363,6 +383,8 @@ const char *tizyoutube::get_current_audio_stream_published ()
 int tizyoutube::get_current_stream ()
 {
   int rc = 0;
+  current_stream_index_.clear ();
+  current_queue_length_.clear ();
   current_stream_title_.clear ();
   current_stream_author_.clear ();
   current_stream_file_size_.clear ();
@@ -373,6 +395,15 @@ int tizyoutube::get_current_stream ()
   current_stream_file_extension_.clear ();
   current_stream_video_id_.clear ();
   current_stream_published_.clear ();
+
+  const bp::tuple &queue_info = bp::extract< bp::tuple > (py_yt_proxy_.attr (
+      "current_audio_stream_queue_index_and_queue_length") ());
+  const int queue_index = bp::extract< int > (queue_info[0]);
+  const int queue_length = bp::extract< int > (queue_info[1]);
+  current_stream_index_.assign (
+      boost::lexical_cast< std::string > (queue_index));
+  current_queue_length_.assign (
+      boost::lexical_cast< std::string > (queue_length));
 
   const char *p_title = bp::extract< char const * > (
       py_yt_proxy_.attr ("current_audio_stream_title") ());
