@@ -268,7 +268,7 @@ function install_python_deps {
         pip install --user youtube_dl
         exit_status=$?
         if [[ "$exit_status" -ne 0 ]] ; then
-            echo "Error while installing soundcloud" >&2
+            echo "Error while installing youtube_dl" >&2
         fi
     fi
 
@@ -276,7 +276,7 @@ function install_python_deps {
         pip install --user pafy
         exit_status=$?
         if [[ "$exit_status" -ne 0 ]] ; then
-            echo "Error while installing soundcloud" >&2
+            echo "Error while installing pafy" >&2
         fi
     fi
 
@@ -284,7 +284,23 @@ function install_python_deps {
         pip install --user pychromecast
         exit_status=$?
         if [[ "$exit_status" -ne 0 ]] ; then
-            echo "Error while installing soundcloud" >&2
+            echo "Error while installing pychromecast" >&2
+        fi
+    fi
+
+    if [[ "$exit_status" -eq 0 ]] ; then
+        pip install --user pycountry
+        exit_status=$?
+        if [[ "$exit_status" -ne 0 ]] ; then
+            echo "Error while installing pycountry" >&2
+        fi
+    fi
+
+    if [[ "$exit_status" -eq 0 ]] ; then
+        pip install --user titlecase
+        exit_status=$?
+        if [[ "$exit_status" -ne 0 ]] ; then
+            echo "Error while installing titlecase" >&2
         fi
     fi
 

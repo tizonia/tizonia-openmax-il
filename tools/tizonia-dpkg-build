@@ -119,6 +119,8 @@ declare -ar TIZ_TIZONIA_PYPI_DEPS=( \
     youtube-dl \
     pafy \
     pychromecast \
+    pycountry \
+    titlecase \
 )
 
 declare -ar TIZ_DEBIAN_PKGS=( \
