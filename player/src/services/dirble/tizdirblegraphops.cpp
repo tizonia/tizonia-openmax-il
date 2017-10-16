@@ -74,6 +74,7 @@ graph::dirbleops::dirbleops (graph *p_graph,
     encoding_ (OMX_AUDIO_CodingAutoDetect),
     inital_graph_load_(false)
 {
+  TIZ_INIT_OMX_PORT_STRUCT (decoder_mp3type_, 0);
   TIZ_INIT_OMX_PORT_STRUCT (renderer_pcmtype_, 0);
 }
 
@@ -164,6 +165,8 @@ void graph::dirbleops::do_configure ()
 {
   if (last_op_succeeded ())
   {
+    G_OPS_BAIL_IF_ERROR (override_decoder_and_renderer_sampling_rates (),
+                         "Unable to override decoder/renderer sampling rates");
     G_OPS_BAIL_IF_ERROR (apply_pcm_codec_info_from_decoder (),
                          "Unable to set OMX_IndexParamAudioPcm");
   }
@@ -378,6 +381,22 @@ OMX_ERRORTYPE graph::dirbleops::get_encoding_type_from_dirble_source ()
 }
 
 OMX_ERRORTYPE
+graph::dirbleops::override_decoder_and_renderer_sampling_rates ()
+{
+  OMX_U32 channels = 2;
+  OMX_U32 sampling_rate = 44100;
+  std::string encoding_str;
+  tiz_check_omx (get_channels_and_rate_from_decoder (
+      channels, sampling_rate, encoding_str));
+  channels = 2;
+  sampling_rate = 44100;
+  tiz_check_omx (
+      set_channels_and_rate_on_decoder (channels, sampling_rate));
+  return set_channels_and_rate_on_renderer (channels, sampling_rate,
+                                            encoding_str);
+}
+
+OMX_ERRORTYPE
 graph::dirbleops::apply_pcm_codec_info_from_decoder ()
 {
   OMX_U32 channels = 2;
@@ -447,6 +466,38 @@ graph::dirbleops::get_channels_and_rate_from_decoder (
   TIZ_LOG (TIZ_PRIORITY_TRACE, "outcome = [%s]", tiz_err_to_str (rc));
 
   return rc;
+}
+
+OMX_ERRORTYPE
+graph::dirbleops::set_channels_and_rate_on_decoder (
+    const OMX_U32 channels, const OMX_U32 sampling_rate)
+{
+  const OMX_HANDLETYPE handle = handles_[1];  // decoder's handle
+  const OMX_U32 port_id = 0;                  // decoder's input port
+
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "channels = [%d] sampling_rate = [%d]", channels,
+           sampling_rate);
+
+  // Retrieve the mp3 settings from the decoder component
+  TIZ_INIT_OMX_PORT_STRUCT (decoder_mp3type_, port_id);
+  tiz_check_omx (
+      OMX_GetParameter (handle, OMX_IndexParamAudioMp3, &decoder_mp3type_));
+
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "channels = [%d] sampling_rate = [%d]", channels,
+           sampling_rate);
+
+  // Now assign the actual settings to the pcmtype structure
+  decoder_mp3type_.nChannels = channels;
+  decoder_mp3type_.nSampleRate = sampling_rate;
+
+  // Set the new mp3 settings
+  tiz_check_omx (
+      OMX_SetParameter (handle, OMX_IndexParamAudioMp3, &decoder_mp3type_));
+
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "channels = [%d] sampling_rate = [%d]", channels,
+           sampling_rate);
+
+  return OMX_ErrorNone;
 }
 
 OMX_ERRORTYPE
