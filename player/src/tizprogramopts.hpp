@@ -61,6 +61,7 @@ namespace tiz
     bool shuffle () const;
     bool recurse () const;
     bool daemon () const;
+    std::string chromecast () const;
     const std::string &log_dir () const;
     bool debug_info () const;
     const std::string &component_name () const;
@@ -167,6 +168,7 @@ namespace tiz
     bool recurse_;
     bool shuffle_;
     bool daemon_;
+    std::string chromecast_;
     std::string log_dir_;
     bool debug_info_;
     std::string comp_name_;

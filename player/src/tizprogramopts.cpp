@@ -276,6 +276,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     recurse_ (false),
     shuffle_ (false),
     daemon_ (false),
+    chromecast_ (),
     log_dir_ (),
     debug_info_ (false),
     comp_name_ (),
@@ -432,7 +433,7 @@ void tiz::programopts::print_usage_help () const
             << "Help topics:"
             << "\n\n";
   std::cout << "  "
-            << "global        Global options available with most features."
+            << "global        Options that are available with most features."
             << "\n";
   std::cout << "  "
             << "openmax       Various OpenMAX IL query options."
@@ -543,6 +544,11 @@ bool tiz::programopts::recurse () const
 bool tiz::programopts::daemon () const
 {
   return daemon_;
+}
+
+std::string tiz::programopts::chromecast () const
+{
+  return chromecast_;
 }
 
 const std::string &tiz::programopts::log_dir () const
@@ -986,12 +992,15 @@ void tiz::programopts::init_global_options ()
       ("daemon,d", po::bool_switch (&daemon_)->default_value (false),
        "Run in the background.")
       /* TIZ_CLASS_COMMENT: */
+      ("chromecast,C", po::value (&chromecast_),
+       "Cast to a Chromecast device (WIP, not supported yet).")
+      /* TIZ_CLASS_COMMENT: */
       ;
   register_consume_function (&tiz::programopts::consume_global_options);
   // TODO: help and version are not included. These should be moved out of
   // "global" and into its own category: "info"
   all_global_options_
-      = boost::assign::list_of ("recurse") ("shuffle") ("daemon")
+    = boost::assign::list_of ("recurse") ("shuffle") ("daemon") ("chromecast")
             .convert_to_container< std::vector< std::string > > ();
 }
 
@@ -1656,7 +1665,16 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
     }
     else
     {
-      rc = call_handler (option_handlers_map_.find ("gmusic-stream"));
+      if (chromecast_.empty())
+        {
+          rc = call_handler (option_handlers_map_.find ("gmusic-stream"));
+        }
+      else
+        {
+          rc = call_handler (option_handlers_map_.find ("gmusic-stream"));
+          // NOTE: This will be used when Chromecast support is enabled
+          // rc = call_handler (option_handlers_map_.find ("gmusic-stream-chromecast"));
+        }
     }
   }
   TIZ_PRINTF_DBG_RED ("gmusic ; rc = [%s]\n",

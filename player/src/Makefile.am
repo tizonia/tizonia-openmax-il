@@ -93,7 +93,12 @@ noinst_HEADERS = \
 	mpris/tizmpriscbacks.hpp \
 	mpris/tizmprisprops.hpp \
 	mpris/tizmprisif.hpp \
-	mpris/tizmprismgr.hpp
+	mpris/tizmprismgr.hpp \
+	services/chromecast/tizchromecastgraph.hpp \
+	services/chromecast/tizchromecastgraphfsm.hpp \
+	services/chromecast/tizchromecastgraphops.hpp \
+	services/chromecast/tizchromecastconfig.hpp \
+	services/chromecast/tizchromecastmgr.hpp
 
 
 tizonia_SOURCES = \
@@ -154,6 +159,10 @@ tizonia_SOURCES = \
 	services/youtube/tizyoutubegraphfsm.cpp \
 	services/youtube/tizyoutubegraphops.cpp \
 	services/youtube/tizyoutubemgr.cpp \
+	services/chromecast/tizchromecastgraph.cpp \
+	services/chromecast/tizchromecastgraphfsm.cpp \
+	services/chromecast/tizchromecastgraphops.cpp \
+	services/chromecast/tizchromecastmgr.cpp \
 	tizplaybackevents.cpp \
 	mpris/tizmprismgr.cpp \
 	mpris/tizmprisprops.cpp \

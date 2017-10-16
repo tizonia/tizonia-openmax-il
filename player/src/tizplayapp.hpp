@@ -63,6 +63,7 @@ namespace tiz
     OMX_ERRORTYPE scloud_stream ();
     OMX_ERRORTYPE dirble_stream ();
     OMX_ERRORTYPE youtube_stream ();
+    OMX_ERRORTYPE gmusic_stream_chromecast ();
 
     void print_banner () const;
 
