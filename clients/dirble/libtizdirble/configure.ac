@@ -65,6 +65,8 @@ AC_LANG([C++])
 PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
 AM_PATH_PYTHON([2.7])
 AX_PYTHON_DEVEL([>= '2.7'])
+# AX_PYTHON_MODULE(pycountry, [libtizdirble needs pycountry])
+# AX_PYTHON_MODULE(titlecase, [libtizdirble needs titlecase])
 AX_BOOST_BASE([1.54],, [AC_MSG_ERROR([libtizdirble needs Boost 1.54])])
 AX_BOOST_PYTHON
 
