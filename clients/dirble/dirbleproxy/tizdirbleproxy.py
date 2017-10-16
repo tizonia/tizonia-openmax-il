@@ -28,6 +28,7 @@ import logging
 import random
 import unicodedata
 import urllib
+import pkgutil
 from collections import namedtuple
 from requests import Session, exceptions
 from requests.adapters import HTTPAdapter
@@ -90,7 +91,7 @@ def exception_handler(exception_type, exception, traceback):
 
     print_err("[Dirble] (%s) : %s" % (exception_type.__name__, exception))
     del traceback # unused
-    #print_exception(exception_type, exception, traceback)
+    # print_exception(exception_type, exception, traceback)
 
 sys.excepthook = exception_handler
 
@@ -214,10 +215,26 @@ class tizdirbleproxy(object):
         """
         logging.info('enqueue_country : %s', arg)
         try:
+            country = arg
+
+            # Try to find the actual country code from the country name, but
+            # only if pycountry and titlecase are available
+            if len(arg) != 2 and len(arg) != 3:
+                pycountry_loader = pkgutil.find_loader('pycountry')
+                titlecase_loader = pkgutil.find_loader('titlecase')
+                if pycountry_loader and titlecase_loader:
+                    pycountry = pycountry_loader.load_module("pycountry")
+                    titlecase = titlecase_loader.load_module("titlecase")
+                    country = titlecase.titlecase(arg)
+                    try:
+                        country = pycountry.countries.get(name=country).alpha2
+                    except AttributeError:
+                        country = pycountry.countries.get(name=country).alpha_2
+
             count = len(self.queue)
             for p in range(0, 10):
                 self._api.params = {'token': self.key, 'page': p}
-                for d in self.api_call("countries/{0}/stations".format(arg.upper())):
+                for d in self.api_call("countries/{0}/stations".format(country.upper())):
                     self.add_to_playback_queue(d)
 
             logging.info("Added {0} stations to queue" \
