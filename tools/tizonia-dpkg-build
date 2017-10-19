@@ -621,10 +621,10 @@ function do_c_package_debs {
         local jobs='-jauto'
         [[ "$pkg" == "tizonia-player" ]] && jobs='-j1'
         if [[ "$DISTRO_ID" == "raspbian" ]]; then
-            eval "DEB_CFLAGS_APPEND=$TIZ_DPKG_BUILD_RPI_FLAGS DEB_CXXFLAGS_APPEND=$TIZ_DPKG_BUILD_RPI_FLAGS $DPKG_BUILD_PKG_CMD $jobs"
-        else
-            eval "$DPKG_BUILD_PKG_CMD $jobs"
+            export DEB_CFLAGS_APPEND="$TIZ_DPKG_BUILD_RPI_FLAGS"
+            export DEB_CXXFLAGS_APPEND="$TIZ_DPKG_BUILD_RPI_FLAGS"
         fi
+        eval "$DPKG_BUILD_PKG_CMD $jobs"
         exit_status=$?
     fi
 
