@@ -7,7 +7,7 @@
 
 ---
 
-[![Build Status](https://travis-ci.org/tizonia/tizonia-openmax-il.png)](https://travis-ci.org/tizonia/tizonia-openmax-il)  |  [![Coverity Scan Build Status](https://scan.coverity.com/projects/594/badge.svg)](https://scan.coverity.com/projects/594)  |  [![Documentation Status](https://readthedocs.org/projects/tizonia-openmax-il/badge/?version=latest)](https://readthedocs.org/projects/tizonia-openmax-il/?badge=latest) | [![Codecov](https://img.shields.io/codecov/c/github/tizonia/tizonia-openmax-il.svg)](https://codecov.io/gh/tizonia/tizonia-openmax-il) | [![GitHub commits](https://img.shields.io/github/commits-since/tizonia/tizonia-openmax-il/v0.9.0.svg)](https://github.com/tizonia/tizonia-openmax-il/compare/v0.9.0...master) | [![license](https://img.shields.io/github/license/tizonia/tizonia-openmax-il.svg)](https://github.com/tizonia/tizonia-openmax-il/blob/master/COPYING.LESSER)
+[![Build Status](https://travis-ci.org/tizonia/tizonia-openmax-il.png)](https://travis-ci.org/tizonia/tizonia-openmax-il)  |  [![Coverity Scan Build Status](https://scan.coverity.com/projects/594/badge.svg)](https://scan.coverity.com/projects/594)  |  [![Documentation Status](https://readthedocs.org/projects/tizonia-openmax-il/badge/?version=latest)](https://readthedocs.org/projects/tizonia-openmax-il/?badge=latest) | [![Codecov](https://img.shields.io/codecov/c/github/tizonia/tizonia-openmax-il.svg)](https://codecov.io/gh/tizonia/tizonia-openmax-il) | [![GitHub commits](https://img.shields.io/github/commits-since/tizonia/tizonia-openmax-il/v0.10.0.svg)](https://github.com/tizonia/tizonia-openmax-il/compare/v0.10.0...master) | [![license](https://img.shields.io/github/license/tizonia/tizonia-openmax-il.svg)](https://github.com/tizonia/tizonia-openmax-il/blob/master/COPYING.LESSER)
 
 ![alt text](https://github.com/tizonia/tizonia-openmax-il/blob/master/docs/animated-gifs/tizonia-usage-screencast.gif "Tizonia usage")
 
@@ -35,7 +35,9 @@
 
 :heavy_check_mark: [2017-08-26] [tizonia-all](https://aur.archlinux.org/packages/tizonia-all/) and [tizonia-all-git](https://aur.archlinux.org/packages/tizonia-all-git/) packages submitted to the [Arch User Repository](https://aur.archlinux.org/)
 
-:heavy_check_mark: [2017-08-06] Tizonia
+:heavy_check_mark: [2017-10-20] Tizonia
+[v0.10.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.10.0) Bug-fix release (see [CHANGELOG.md](CHANGELOG.md) for details).
+
 [v0.9.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.9.0) Maintenance release
 that removes Deezer support due to copyright issues.
 
@@ -57,7 +59,7 @@ combinations:
 
 | Ubuntu Trusty (14.04) | Ubuntu Xenial (16.04) | Debian Jessie (8) | Raspbian Jessie (8) | Debian Stretch (9) | Raspbian Stretch (9) |
 |        :---:          |        :---:          |        :---:      |       :---:         |        :---:       |        :---:         |
-|     amd64, armhf      |     amd64, armhf      |    amd64, armhf   | armhf (for rpi 2/3) |     amd64, armhf   |  armhf (for rpi 2/3) |
+|     amd64, armhf      |     amd64, armhf      |    amd64, armhf   |       armhf         |     amd64, armhf   |        armhf         |
 | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-trusty/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-trusty/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-xenial/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-xenial/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-jessie/_latestVersion)  | [ ![Download](https://api.bintray.com/packages/tizonia/raspbian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/raspbian/tizonia-jessie/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-stretch/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-stretch/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/raspbian/tizonia-stretch/images/download.svg) ](https://bintray.com/tizonia/raspbian/tizonia-stretch/_latestVersion) |
 
 > NOTE: Elementary OS and Linux Mint are supported on releases based on Ubuntu 'Trusty' or Ubuntu 'Xenial'.
@@ -77,7 +79,7 @@ release and all its dependencies, including [gmusicapi](https://github.com/simon
 > NOTE: The usual disclaimers apply: trust no-one. Have a look at the installation script before running it on your system.
 
 ## Arch User Repository (AUR) packages
- - [tizonia-all (0.9.0)](https://aur.archlinux.org/packages/tizonia-all/)
+ - [tizonia-all (0.10.0)](https://aur.archlinux.org/packages/tizonia-all/)
  - [tizonia-all-git](https://aur.archlinux.org/packages/tizonia-all-git/)
 
 ```bash
