@@ -278,8 +278,10 @@ declare -Ar TIZ_PROJECT_MAIN_PKG=( \
     [tizonia-config]="tizonia-all" \
 )
 
-readonly TIZ_DPKG_BUILD_UNSIGNED_CMD="dpkg-buildpackage -us -uc -rfakeroot"
-readonly TIZ_DPKG_BUILD_SIGNED_CMD="dpkg-buildpackage --force-sign -rfakeroot"
+readonly TIZ_DPKG_BUILD_RPI_FLAGS='-mfpu=vfp -mcpu=arm1176jzf-s -mtune=arm1176jzf-s -mfloat-abi=hard'
+readonly TIZ_DPKG_BUILD_UNSIGNED_CMD='dpkg-buildpackage -us -uc -rfakeroot'
+readonly TIZ_DPKG_BUILD_SIGNED_CMD='dpkg-buildpackage --force-sign -rfakeroot'
+
 
 ##################################################################
 # Usage details
@@ -616,7 +618,13 @@ function do_c_package_debs {
 
     if [[ "$exit_status" -eq 0 ]] ; then
         err_msg="[$pkg] : Error while running dpkg-buildpackage."
-        eval "$DPKG_BUILD_PKG_CMD"
+        local jobs='-jauto'
+        [[ "$pkg" == "tizonia-player" ]] && jobs='-j1'
+        if [[ "$DISTRO_ID" == "raspbian" ]]; then
+            eval "DEB_CFLAGS_APPEND=$TIZ_DPKG_BUILD_RPI_FLAGS DEB_CXXFLAGS_APPEND=$TIZ_DPKG_BUILD_RPI_FLAGS $DPKG_BUILD_PKG_CMD $jobs"
+        else
+            eval "$DPKG_BUILD_PKG_CMD $jobs"
+        fi
         exit_status=$?
     fi
 
