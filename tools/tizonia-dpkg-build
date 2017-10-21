@@ -278,7 +278,7 @@ declare -Ar TIZ_PROJECT_MAIN_PKG=( \
     [tizonia-config]="tizonia-all" \
 )
 
-readonly TIZ_DPKG_BUILD_RPI_FLAGS='-mfpu=vfp -mcpu=arm1176jzf-s -mtune=arm1176jzf-s -mfloat-abi=hard'
+readonly TIZ_DPKG_BUILD_RPI_FLAGS='-marm -march=armv6zk -mcpu=arm1176jzf-s -mtune=arm1176jzf-s -mfpu=vfp -mfloat-abi=hard'
 readonly TIZ_DPKG_BUILD_UNSIGNED_CMD='dpkg-buildpackage -us -uc -rfakeroot'
 readonly TIZ_DPKG_BUILD_SIGNED_CMD='dpkg-buildpackage --force-sign -rfakeroot'
 
