@@ -34,15 +34,15 @@
 # News
 
 :heavy_check_mark: [2017-10-22] Tizonia
-[v0.10.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.10.0) Bug-fix release (see [CHANGELOG.md](CHANGELOG.md) for details).
+[v0.10.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.10.0) Bug-fix release.
 
 :heavy_check_mark: [2017-08-26] [tizonia-all](https://aur.archlinux.org/packages/tizonia-all/) and [tizonia-all-git](https://aur.archlinux.org/packages/tizonia-all-git/) packages submitted to the [Arch User Repository](https://aur.archlinux.org/)
 
-[v0.9.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.9.0) Maintenance release
+[v0.9.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.9.0) Maintenance release
 that removes Deezer support due to copyright issues.
 
 :heavy_check_mark: [2017-06-25] Tizonia
-[v0.8.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.8.0) released
+[v0.8.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.8.0) released
 adding support for Deezer.
 
 :heavy_check_mark: [2017-05-04] [Summer of Code 2017: Add OpenMAX state tracker
