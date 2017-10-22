@@ -33,10 +33,10 @@
 
 # News
 
-:heavy_check_mark: [2017-08-26] [tizonia-all](https://aur.archlinux.org/packages/tizonia-all/) and [tizonia-all-git](https://aur.archlinux.org/packages/tizonia-all-git/) packages submitted to the [Arch User Repository](https://aur.archlinux.org/)
-
-:heavy_check_mark: [2017-10-20] Tizonia
+:heavy_check_mark: [2017-10-22] Tizonia
 [v0.10.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.10.0) Bug-fix release (see [CHANGELOG.md](CHANGELOG.md) for details).
+
+:heavy_check_mark: [2017-08-26] [tizonia-all](https://aur.archlinux.org/packages/tizonia-all/) and [tizonia-all-git](https://aur.archlinux.org/packages/tizonia-all-git/) packages submitted to the [Arch User Repository](https://aur.archlinux.org/)
 
 [v0.9.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.9.0) Maintenance release
 that removes Deezer support due to copyright issues.
