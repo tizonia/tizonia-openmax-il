@@ -45,7 +45,7 @@ depends=(
     'python2-pychromecast-git'
 )
 source=("${_githubname}-${pkgver}.tar.gz"::"https://github.com/tizonia/${_githubname}/archive/v${pkgver}.tar.gz")
-md5sums=('d6775a42f04c2808b9274827bf6b5879')
+md5sums=('d26f2e50f8c7bd3b8dbbc7b26a82c594')
 
 prepare() {
   mkdir -p "$srcdir/path"
