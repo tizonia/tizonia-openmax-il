@@ -84,7 +84,7 @@ release and its dependencies in a Debian-compatible system.
 
 ```bash
 
-    $ yaourt -S tizonia-all # for the latest released version
+    $ yaourt -S tizonia-all # for the latest stable release
 
     # or
 
@@ -122,7 +122,7 @@ To upgrade Tizonia, run 'apt-get' as usual, but also make sure the Python depend
 
 # Project
 
-See [PROJECT.md](PROJECT.md) to learn more about the project.
+See [PROJECT.md](PROJECT.md) to learn more about this project.
 
 # Roadmap
 
