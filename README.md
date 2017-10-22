@@ -64,9 +64,9 @@ combinations:
 
 > NOTE: Elementary OS and Linux Mint are supported on releases based on Ubuntu 'Trusty' or Ubuntu 'Xenial'.
 
-This script installs in a Debian-compatible system the
+This script installs the
 [latest](https://github.com/tizonia/tizonia-openmax-il/releases/latest)
-release and the its dependencies.
+release and its dependencies in a Debian-compatible system.
 
 ```bash
 
