@@ -77,7 +77,9 @@ sudo apt-get -y install python-pip \
             gmusicapi \
             soundcloud \
             youtube-dl \
-            pafy
+            pafy \
+            pycountry \
+            titlecase
 
 # Install 'libspotify'
 if [[ "$?" -eq 0 ]]; then
