@@ -1,5 +1,55 @@
 # Change Log
 
+## [v0.10.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.10.0) (2017-10-22)
+[Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.9.0...v0.10.0)
+
+**Improvements:**
+
+- distribution: raspbian stretch [\#370](https://github.com/tizonia/tizonia-openmax-il/issues/370)
+- build system : top-level 'configure' option to enable/disable 'player' compilation [\#249](https://github.com/tizonia/tizonia-openmax-il/issues/249)
+- CI: Migrate to Travis' new infrastructure [\#124](https://github.com/tizonia/tizonia-openmax-il/issues/124)
+- player: dirble graph's default sampling rate should be 44100 instead of 48000 [\#382](https://github.com/tizonia/tizonia-openmax-il/issues/382)
+- dirble: update country search to accept country names in addition to country ISO 3166 codes [\#381](https://github.com/tizonia/tizonia-openmax-il/issues/381)
+- youtube: add APIs to query the playback queue progress \(e.g. currently playing stream 5 or 17\) [\#380](https://github.com/tizonia/tizonia-openmax-il/issues/380)
+- arch pl0x [\#335](https://github.com/tizonia/tizonia-openmax-il/issues/335)
+
+**Fixed bugs:**
+
+- Coverity Scan \(CID 1087260\) \[/libtizplatform/src/avl/avl.c:avl\_iterate\_index\_range\] : Dereference null return value [\#205](https://github.com/tizonia/tizonia-openmax-il/issues/205)
+- Coverity Scan \(CID 1352377\) \[/plugins/http\_renderer/src/httprsrv.c:httpr\_srv\_set\_mp3\_settings\] : Result is not floating-point [\#196](https://github.com/tizonia/tizonia-openmax-il/issues/196)
+- Coverity Scan \(CID 1352358\) \[/libtizonia/src/tizuricfgport.c:uri\_cfgport\_GetParameter\] : Array compared against 0 [\#192](https://github.com/tizonia/tizonia-openmax-il/issues/192)
+- Coverity Scan \(CID 1352332\) \[/plugins/http\_renderer/src/httprsrv.c:srv\_get\_socket\_buffer\_size\] : Unchecked return value from library [\#174](https://github.com/tizonia/tizonia-openmax-il/issues/174)
+- Coverity Scan \(CID 1352331\) \[/plugins/http\_renderer/src/httprsrv.c:srv\_send\_http\_error\] : Unchecked return value from library [\#173](https://github.com/tizonia/tizonia-openmax-il/issues/173)
+- Coverity Scan \(CID 1352330\) \[/plugins/http\_renderer/src/httprsrv.c:srv\_create\_server\_socket\] : Unchecked return value from library [\#172](https://github.com/tizonia/tizonia-openmax-il/issues/172)
+- Coverity Scan \(CID 1352329\) \[/plugins/http\_source/src/httpsrctrans.c:start\_curl\] : Unchecked return value [\#171](https://github.com/tizonia/tizonia-openmax-il/issues/171)
+- Coverity Scan \(CID 1352328\) \[/plugins/http\_source/src/scloudprc.c:update\_metadata\] : Unchecked return value [\#170](https://github.com/tizonia/tizonia-openmax-il/issues/170)
+- Coverity Scan \(CID 1352340\) \[/plugins/http\_renderer/src/httprsrv.c:srv\_accept\_connection\] : Logically dead code [\#167](https://github.com/tizonia/tizonia-openmax-il/issues/167)
+- Coverity Scan \(CID 1352339\) \[/plugins/http\_renderer/src/httprsrv.c:srv\_accept\_connection\] : Logically dead code [\#166](https://github.com/tizonia/tizonia-openmax-il/issues/166)
+- youtube: URLs are permanently deleted from the playback queue in the presence of temporary communication errors [\#379](https://github.com/tizonia/tizonia-openmax-il/issues/379)
+- pcm\_renderer\_alsa: OMX\_ErrorInsufficientResources on Raspberry Pi \(one-channel playback through FiiO USB DAC\) [\#378](https://github.com/tizonia/tizonia-openmax-il/issues/378)
+- 'tizonia --youtube-audio-mix-search' fails with 'TypeError: sequence item 9: expected string or Unicode, dict found' [\#377](https://github.com/tizonia/tizonia-openmax-il/issues/377)
+- Build failure on Arch Linux [\#376](https://github.com/tizonia/tizonia-openmax-il/issues/376)
+- Current AUR build is broken on at least two levels [\#375](https://github.com/tizonia/tizonia-openmax-il/issues/375)
+- player: OMX\_ErrorInsufficientResources while pausing on Raspberry PI \(using alsa renderer\) [\#374](https://github.com/tizonia/tizonia-openmax-il/issues/374)
+- "Illegal instrunction" on "2017-07-05-raspbian-jessie-lite.img" [\#372](https://github.com/tizonia/tizonia-openmax-il/issues/372)
+- http\_renderer: 'tizonia --server' hangs after the first song [\#371](https://github.com/tizonia/tizonia-openmax-il/issues/371)
+- player: the terminal is occasionally left in an inconsistent state when the application fails [\#369](https://github.com/tizonia/tizonia-openmax-il/issues/369)
+- Various warnings while building with gcc 7.1.1 \(Manjaro Linux\) [\#367](https://github.com/tizonia/tizonia-openmax-il/issues/367)
+- docs: doc builds fail due to Breathe defect [\#343](https://github.com/tizonia/tizonia-openmax-il/issues/343)
+- Issues with Google Music : --gmusic-playlist [\#328](https://github.com/tizonia/tizonia-openmax-il/issues/328)
+- tizonia: pulsearprc.c:592: init\_pulseaudio\_stream: Assertion `ap\_prc-\>p\_pa\_context\_' failed. Aborted \(core dumped\) [\#301](https://github.com/tizonia/tizonia-openmax-il/issues/301)
+
+**Closed issues:**
+
+- tools/install.sh still does not work for ubuntu-16.04 [\#373](https://github.com/tizonia/tizonia-openmax-il/issues/373)
+- The PKGBUILD installs config files to /usr/etc instead of /etc [\#366](https://github.com/tizonia/tizonia-openmax-il/issues/366)
+- release v0.10.0 [\#383](https://github.com/tizonia/tizonia-openmax-il/issues/383)
+
+**Merged pull requests:**
+
+- PKGBUILD: Fix style inconsistencies [\#365](https://github.com/tizonia/tizonia-openmax-il/pull/365) ([sylveon](https://github.com/sylveon))
+- vp8\_decoder: add inport\_SetParameter to set nBufferSize [\#363](https://github.com/tizonia/tizonia-openmax-il/pull/363) ([CapOM](https://github.com/CapOM))
+
 ## [v0.9.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.9.0) (2017-08-04)
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.8.0...v0.9.0)
 
@@ -59,7 +109,6 @@
 - Issues with Google Music : --gmusic-unlimited-station incorrect "not found" message \(minor issue\) [\#331](https://github.com/tizonia/tizonia-openmax-il/issues/331)
 - Issues with Google Music : --gmusic-unlimited-activity sometimes does not return any results [\#330](https://github.com/tizonia/tizonia-openmax-il/issues/330)
 - yuv\_renderer: 'sdlivr\_prc\_buffers\_ready' last few buffers in the stream sometime are not processed [\#329](https://github.com/tizonia/tizonia-openmax-il/issues/329)
-- Issues with Google Music : --gmusic-playlist [\#328](https://github.com/tizonia/tizonia-openmax-il/issues/328)
 - libtizonia: tizvideoport needs to override 'SetParameter\_internal' [\#327](https://github.com/tizonia/tizonia-openmax-il/issues/327)
 - yuv\_renderer: add port enable/disable functionality [\#326](https://github.com/tizonia/tizonia-openmax-il/issues/326)
 - Issues with Google Music : --gmusic-unlimited-tracks [\#325](https://github.com/tizonia/tizonia-openmax-il/issues/325)
