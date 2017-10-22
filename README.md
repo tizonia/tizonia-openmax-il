@@ -66,7 +66,7 @@ combinations:
 
 This script installs in a Debian-compatible system the
 [latest](https://github.com/tizonia/tizonia-openmax-il/releases/latest)
-release and all its dependencies, including [gmusicapi](https://github.com/simon-weber/gmusicapi), [soundcloud](https://github.com/soundcloud/soundcloud-python), [pafy](https://github.com/mps-youtube/pafy), [youtube-dl](https://github.com/rg3/youtube-dl).
+release and the its dependencies.
 
 ```bash
 
@@ -116,7 +116,7 @@ To upgrade Tizonia, run 'apt-get' as usual, but also make sure the Python depend
     $ sudo apt-get update && sudo apt-get upgrade
 
     # (Note that new versions of some of these Python packages are released frequently)
-    $ sudo -H pip install --upgrade gmusicapi soundcloud youtube-dl pafy
+    $ sudo -H pip install --upgrade gmusicapi soundcloud youtube-dl pafy pycountry titlecase
 
 ```
 
