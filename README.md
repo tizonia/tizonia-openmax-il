@@ -17,7 +17,7 @@
 
 - [News](#news)
 - [Installation](#installation)
-  - [Debian/Ubuntu/Raspbian](#debian-ubuntu-raspbian)
+  - [Debian / Ubuntu / Raspbian](#debian--ubuntu--raspbian)
   - [Arch User Repository (AUR)](#arch-user-repository-aur)
   - [Configuration](#configuration)
   - [Upgrade](#upgrade)
