@@ -288,6 +288,8 @@ function main {
             --silent \
             --enable-silent-rules \
             --enable-test \
+            --with-bashcompletiondir="$TIZONIA_INSTALL_DIR"/share/bash-completion/completions \
+            --with-zshcompletiondir="$TIZONIA_INSTALL_DIR"/share/zsh/site-functions \
             "${player[@]}" \
             --prefix="$TIZONIA_INSTALL_DIR" \
             CFLAGS='-O0 -ggdb -Wall' \
@@ -300,6 +302,8 @@ function main {
             && ./configure \
             --silent \
             --enable-silent-rules \
+            --with-bashcompletiondir="$TIZONIA_INSTALL_DIR"/share/bash-completion/completions \
+            --with-zshcompletiondir="$TIZONIA_INSTALL_DIR"/share/zsh/site-functions \
             "${player[@]}" \
             --prefix="$TIZONIA_INSTALL_DIR" \
             CFLAGS='-ggdb -Wall -Werror -fno-omit-frame-pointer -fsanitize=address' \
@@ -313,6 +317,8 @@ function main {
             && ./configure \
             --silent \
             --enable-silent-rules \
+            --with-bashcompletiondir \
+            --with-zshcompletiondir \
             "${player[@]}" \
             --prefix=/usr \
             --libdir=/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH) \
@@ -356,6 +362,8 @@ function main {
         && ./configure \
             --silent \
             --enable-silent-rules \
+            --with-bashcompletiondir="$TIZONIA_INSTALL_DIR"/share/bash-completion/completions \
+            --with-zshcompletiondir="$TIZONIA_INSTALL_DIR"/share/zsh/site-functions \
             "${player[@]}" \
             --prefix="$TIZONIA_INSTALL_DIR" \
             CFLAGS='-O2 -s -DNDEBUG'  \
