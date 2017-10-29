@@ -41,17 +41,18 @@
 #     - as needed
 # 5.- Update Debian 'changelog' files.
 #     - as needed, following the changes made in the packages
-# 6.- Update README.md (as needed).
-# 7.- Close github issue: release v0.x.x
-# 8.- Create release and tag on GitHub.
-# 9.- Update CHANGELOG.md
+# 6.- Update Sphinx doc version strings.
+# 7.- Update README.md (as needed).
+# 8.- Close github issue: release v0.x.x
+# 9.- Create release and tag on GitHub.
+# 10.- Update CHANGELOG.md
 #     - using github-changelog-generator
-# 10.- Now Delete the tag in GitHub, push the changes to CHANGELOG.md and re-create the tag
+# 11.- Now Delete the tag in GitHub, push the changes to CHANGELOG.md and re-create the tag
     # $ git tag -l
     # $ git tag -d v0.2.0
     # $ git push origin :refs/tags/v0.2.0
-# 11.- Build debian packages and upload to Bintray.
-# 12.- Update Tizonia website.
+# 12.- Build debian packages and upload to Bintray.
+# 13.- Update Tizonia's website.
 
 # Includes
 source tizonia-common.inc
@@ -139,6 +140,16 @@ function update_debian_changelog_files {
     pretty_print "$BLU" "[DONE] : updating Debian changelog files."
 }
 
+function update_sphinx_doc_version_strings {
+    pretty_print "$MAG" "[START] : updating Sphinx doc versions."
+    cd "$TIZONIA_REPO_DIR"/docs
+    local OLD_VER="$TIZONIA_OLD_PACKAGE_VER"
+    local NEW_VER="$TIZONIA_NEW_PACKAGE_VER"
+    perl -i -p -e "s/$OLD_VER/$NEW_VER/g" \
+        $(find "$TIZONIA_REPO_DIR" -type f -name 'conf.py' -print)
+    pretty_print "$BLU" "[DONE] : updating Sphinx doc versions."
+}
+
 function update_changelog {
     cd "$TIZONIA_REPO_DIR"
     github_changelog_generator --future-release "$TIZONIA_RELEASE_VERSION" --enhancement-label "**Improvements:**" tizonia/tizonia-openmax-il
@@ -159,6 +170,7 @@ function main {
     # update_shared_lib_versions
     # update_python_version_strings
     # update_debian_changelog_files
+    # update_sphinx_doc_version_strings
 
     # Do the following manual steps at this point
     # 7.- Update README.md (as many changes as needed).
