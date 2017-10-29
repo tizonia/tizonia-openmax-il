@@ -58,6 +58,7 @@ declare -ar TIZ_TIZONIA_DEPS=( \
     autoconf-archive \
     automake \
     autotools-dev \
+    bash-completion \
     libtool \
     libmad0-dev \
     liblog4c-dev \
