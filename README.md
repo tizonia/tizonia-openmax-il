@@ -17,7 +17,7 @@
 
 - [News](#news)
 - [Installation](#installation)
-  - [Debian](#debian)
+  - [Debian/Ubuntu/Raspbian](#debian-ubuntu-raspbian)
   - [Arch User Repository (AUR)](#arch-user-repository-aur)
   - [Configuration](#configuration)
   - [Upgrade](#upgrade)
@@ -52,7 +52,7 @@ Foundation project, with Gurkirpal Singh and Julien Isorce).
 
 # Installation
 
-## Debian
+## Debian/Ubuntu/Raspbian
 
 Available from [Bintray](https://bintray.com/tizonia), with the following distro/arch
 combinations:
