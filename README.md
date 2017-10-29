@@ -17,8 +17,8 @@
 
 - [News](#news)
 - [Installation](#installation)
-  - [Debian packages](#debian-packages)
-  - [Arch User Repository (AUR) packages](#arch-user-repository-aur-packages)
+  - [Debian](#debian)
+  - [Arch User Repository (AUR)](#arch-user-repository-aur)
   - [Configuration](#configuration)
   - [Upgrade](#upgrade)
 - [Project](#project)
@@ -52,7 +52,7 @@ Foundation project, with Gurkirpal Singh and Julien Isorce).
 
 # Installation
 
-## Debian packages
+## Debian
 
 Available from [Bintray](https://bintray.com/tizonia), with the following distro/arch
 combinations:
@@ -78,7 +78,7 @@ release and its dependencies in a Debian-compatible system.
 
 > NOTE: The usual disclaimers apply: trust no-one. Have a look at the installation script before running it on your system.
 
-## Arch User Repository (AUR) packages
+## Arch User Repository (AUR)
  - [tizonia-all (0.10.0)](https://aur.archlinux.org/packages/tizonia-all/)
  - [tizonia-all-git](https://aur.archlinux.org/packages/tizonia-all-git/)
 
