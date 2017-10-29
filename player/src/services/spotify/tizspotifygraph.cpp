@@ -38,10 +38,10 @@
 
 #include <tizplatform.h>
 
-#include "tizgraphutil.hpp"
-#include "tizgraphconfig.hpp"
-#include "tizgraphcmd.hpp"
-#include "tizprobe.hpp"
+#include <tizgraphutil.hpp>
+#include <tizgraphconfig.hpp>
+#include <tizgraphcmd.hpp>
+#include <tizprobe.hpp>
 #include "tizspotifygraph.hpp"
 
 #ifdef TIZ_LOG_CATEGORY_NAME

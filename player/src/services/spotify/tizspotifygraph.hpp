@@ -29,7 +29,7 @@
 #ifndef TIZSPOTIFYGRAPH_HPP
 #define TIZSPOTIFYGRAPH_HPP
 
-#include "tizgraph.hpp"
+#include <tizgraph.hpp>
 #include "tizspotifygraphfsm.hpp"
 
 namespace tiz
