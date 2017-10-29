@@ -164,7 +164,12 @@ void graph::ops::do_enable_auto_detection (const int handle_id, const int port_i
 
 void graph::ops::do_disable_comp_ports (const int comp_id, const int port_id)
 {
-  // This is a no-op in the base class.
+  assert (comp_id >= 0 && static_cast<std::size_t>(comp_id) < handles_.size ());
+  G_OPS_BAIL_IF_ERROR (util::disable_port (handles_[comp_id], port_id),
+                       "Unable to disable components port.");
+  clear_expected_port_transitions ();
+  add_expected_port_transition (handles_[comp_id], port_id,
+                                OMX_CommandPortDisable);
 }
 
 void graph::ops::do_disable_tunnel (const int tunnel_id)
@@ -177,6 +182,16 @@ void graph::ops::do_disable_tunnel (const int tunnel_id)
     G_OPS_BAIL_IF_ERROR (switch_tunnel (tunnel_id, OMX_CommandPortDisable),
                          err_msg);
   }
+}
+
+void graph::ops::do_enable_comp_ports (const int comp_id, const int port_id)
+{
+  assert (comp_id >= 0 && static_cast<std::size_t>(comp_id) < handles_.size ());
+  G_OPS_BAIL_IF_ERROR (util::enable_port (handles_[comp_id], port_id),
+                       "Unable to enable components port.");
+  clear_expected_port_transitions ();
+  add_expected_port_transition (handles_[comp_id], port_id,
+                                OMX_CommandPortEnable);
 }
 
 void graph::ops::do_enable_tunnel (const int tunnel_id)

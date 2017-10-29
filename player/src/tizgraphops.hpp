@@ -91,6 +91,7 @@ namespace tiz
                                              const int port_id);
       virtual void do_disable_comp_ports (const int comp_id, const int port_id);
       virtual void do_disable_tunnel (const int tunnel_id);
+      virtual void do_enable_comp_ports (const int comp_id, const int port_id);
       virtual void do_enable_tunnel (const int tunnel_id);
       virtual void do_flush_tunnel (const int tunnel_id);
       virtual void do_reconfigure_tunnel (const int tunnel_id);

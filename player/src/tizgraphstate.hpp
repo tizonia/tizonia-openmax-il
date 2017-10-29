@@ -255,6 +255,14 @@ namespace tiz
       void on_exit(Event const & evt, FSM & fsm) {G_STATE_LOG();}
     };
 
+    struct awaiting_port_enabled_evt : public boost::msm::front::state<>
+    {
+      template <class Event,class FSM>
+      void on_entry(Event const & evt, FSM & fsm) {G_STATE_LOG();}
+      template <class Event,class FSM>
+      void on_exit(Event const & evt, FSM & fsm) {G_STATE_LOG();}
+    };
+
     struct awaiting_port_settings_evt : public boost::msm::front::state<>
     {
       template <class Event,class FSM>

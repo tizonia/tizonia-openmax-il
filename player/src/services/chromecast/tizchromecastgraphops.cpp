@@ -90,16 +90,6 @@ void graph::chromecastops::do_enable_auto_detection (const int handle_id,
                                      chromecast_config->get_user_name ().c_str ());
 }
 
-void graph::chromecastops::do_disable_comp_ports (const int comp_id, const int port_id)
-{
-  OMX_U32 chromecast_source_port = port_id;
-  G_OPS_BAIL_IF_ERROR (util::disable_port (handles_[comp_id], chromecast_source_port),
-                       "Unable to disable chromecast source's output port.");
-  clear_expected_port_transitions ();
-  add_expected_port_transition (handles_[comp_id], chromecast_source_port,
-                                OMX_CommandPortDisable);
-}
-
 void graph::chromecastops::do_configure_comp (const int comp_id)
 {
   if (comp_id == 0)

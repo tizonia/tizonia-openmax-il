@@ -556,6 +556,12 @@ graph::util::disable_port (const OMX_HANDLETYPE handle, const OMX_U32 port_id)
   return OMX_SendCommand (handle, OMX_CommandPortDisable, port_id, NULL);
 }
 
+OMX_ERRORTYPE
+graph::util::enable_port (const OMX_HANDLETYPE handle, const OMX_U32 port_id)
+{
+  return OMX_SendCommand (handle, OMX_CommandPortEnable, port_id, NULL);
+}
+
 // TODO: Replace magic numbers in this function
 OMX_ERRORTYPE
 graph::util::modify_tunnel (const omx_comp_handle_lst_t &hdl_list,

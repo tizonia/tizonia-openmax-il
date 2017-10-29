@@ -513,6 +513,20 @@ namespace tiz
       }
     };
 
+    template<int comp_id, int port_id>
+    struct do_enable_comp_ports
+    {
+      template <class FSM, class EVT, class SourceState, class TargetState>
+      void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
+      {
+        G_ACTION_LOG ();
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+        {
+          (*(fsm.pp_ops_))->do_enable_comp_ports (comp_id, port_id);
+        }
+      }
+    };
+
     template<int tunnel_id>
     struct do_disable_tunnel
     {

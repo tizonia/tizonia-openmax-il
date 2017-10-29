@@ -121,6 +121,8 @@ namespace tiz
 
       static OMX_ERRORTYPE disable_port (const OMX_HANDLETYPE handle,
                                          const OMX_U32 port_id);
+      static OMX_ERRORTYPE enable_port (const OMX_HANDLETYPE handle,
+                                         const OMX_U32 port_id);
 
       static OMX_ERRORTYPE modify_tunnel (const omx_comp_handle_lst_t &hdl_list,
                                           const int tunnel_id,
