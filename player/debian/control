@@ -4,6 +4,7 @@ Priority: optional
 Maintainer: Juan A. Rubio <juan.rubio@aratelia.com>
 Build-Depends: debhelper (>= 8.0.0),
                dh-autoreconf,
+               bash-completion (>= 1.1),
                tizilheaders,
                libtizplatform-dev,
                libtizrmproxy-dev,

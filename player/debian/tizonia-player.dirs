@@ -1,2 +1,3 @@
 var/log/tizonia
 var/lib/tizonia
+usr/share/bash-completion/completions
