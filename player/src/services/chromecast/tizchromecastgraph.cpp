@@ -38,6 +38,11 @@
 
 #include <tizplatform.h>
 
+#include <tizgraphutil.hpp>
+#include <tizgraphconfig.hpp>
+#include <tizgraphcmd.hpp>
+#include <tizprobe.hpp>
+
 #include "tizchromecastgraphops.hpp"
 #include "tizchromecastgraph.hpp"
 
@@ -51,17 +56,56 @@ namespace graph = tiz::graph;
 //
 // chromecast
 //
-graph::chromecast::chromecast () : tiz::graph::servicegraph ("chromecastgraph")
+graph::chromecast::chromecast ()
+  : graph::graph ("chromecastgraph"),
+    fsm_ (boost::msm::back::states_
+          << tiz::graph::ccfsm::fsm::skipping (&p_ops_),
+          &p_ops_)
 {
 }
 
 graph::ops *graph::chromecast::do_init ()
 {
   omx_comp_name_lst_t comp_list;
-  comp_list.push_back ("OMX.Aratelia.audio_source.http");
+  comp_list.push_back ("OMX.Aratelia.audio_renderer.chromecast");
 
   omx_comp_role_lst_t role_list;
-  role_list.push_back ("audio_source.http.chromecast");
+  role_list.push_back ("audio_renderer.chromecast.gmusic");
 
   return new chromecastops (this, comp_list, role_list);
+}
+
+bool graph::chromecast::dispatch_cmd (const tiz::graph::cmd *p_cmd)
+{
+  assert (p_cmd);
+
+  if (!p_cmd->kill_thread ())
+  {
+    if (p_cmd->evt ().type () == typeid(tiz::graph::load_evt))
+    {
+      // Time to start the FSM
+      TIZ_LOG (TIZ_PRIORITY_NOTICE, "Starting [%s] fsm...",
+               get_graph_name ().c_str ());
+      fsm_.start ();
+    }
+
+    p_cmd->inject< ccfsm::fsm >(fsm_, tiz::graph::ccfsm::pstate);
+
+    // Check for internal errors produced during the processing of the last
+    // event. If any, inject an "internal" error event. This is fatal and shall
+    // terminate the state machine.
+    if (OMX_ErrorNone != p_ops_->internal_error ())
+    {
+      fsm_.process_event (tiz::graph::err_evt (p_ops_->internal_error (),
+                                               p_ops_->internal_error_msg ()));
+    }
+
+    if (fsm_.terminated_)
+    {
+      TIZ_LOG (TIZ_PRIORITY_NOTICE, "[%s] fsm terminated...",
+               get_graph_name ().c_str ());
+    }
+  }
+
+  return p_cmd->kill_thread ();
 }

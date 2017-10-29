@@ -31,8 +31,8 @@
 
 #include "tizchromecastgraphfsm.hpp"
 
-char const* const tiz::graph::chromecastfsm::pstate(tiz::graph::chromecastfsm::fsm const& p)
+char const* const tiz::graph::ccfsm::pstate(tiz::graph::ccfsm::fsm const& p)
 {
-  return tiz::graph::chromecastfsm::state_names[p.current_state()[0]];
+  return tiz::graph::ccfsm::state_names[p.current_state()[0]];
 }
 

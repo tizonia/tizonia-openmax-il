@@ -29,17 +29,18 @@
 #ifndef TIZCHROMECASTGRAPH_HPP
 #define TIZCHROMECASTGRAPH_HPP
 
-#include "tizservicegraph.hpp"
-#include "tizgraphops.hpp"
+#include <tizgraph.hpp>
+#include "tizchromecastgraphfsm.hpp"
 
 namespace tiz
 {
   namespace graph
   {
     // Forward declarations
+    class cmd;
     class ops;
 
-    class chromecast : public servicegraph
+    class chromecast : public graph
     {
 
     public:
@@ -47,6 +48,10 @@ namespace tiz
 
     protected:
       ops *do_init ();
+      bool dispatch_cmd (const tiz::graph::cmd *p_cmd);
+
+    protected:
+      ccfsm::fsm fsm_;
     };
   }  // namespace graph
 }  // namespace tiz
