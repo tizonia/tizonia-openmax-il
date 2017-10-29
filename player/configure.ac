@@ -81,6 +81,33 @@ AS_IF([test "x$tiz_found_core_lib" == "xyes"],
 	[PKG_CHECK_MODULES([TIZCORE], [libtizcore >= 0.1.0])],
 	[AC_MSG_NOTICE([Not using pkg-config to find TIZCORE cflags and libs])])
 
+AC_ARG_WITH([bashcompletiondir],
+        AS_HELP_STRING([--with-bashcompletiondir=DIR], [Bash completions directory]),
+        [AS_IF([test "$withval" != ""], [
+                with_bashcompletiondir=$withval
+        ] , [
+                with_bashcompletiondir=no
+        ])],
+        [AS_IF([$($PKG_CONFIG --exists bash-completion)], [
+                with_bashcompletiondir=$($PKG_CONFIG --variable=completionsdir bash-completion)
+        ] , [
+                with_bashcompletiondir=${datadir}/bash-completion/completions
+        ])])
+AM_CONDITIONAL(ENABLE_BASH_COMPLETION, [test "$with_bashcompletiondir" != "no"])
+AX_NORMALIZE_PATH([with_bashcompletiondir])
+AC_SUBST([bashcompletiondir], [$with_bashcompletiondir])
+
+AC_ARG_WITH([zshcompletiondir],
+        AS_HELP_STRING([--with-zshcompletiondir=DIR], [Zsh completions directory]),
+        [AS_IF([test "$withval" != ""], [
+                with_zshcompletiondir=$withval
+        ] , [
+                with_zshcompletiondir=no
+        ])], [with_zshcompletiondir=${datadir}/zsh/vendor-completions])
+AM_CONDITIONAL(ENABLE_ZSH_COMPLETION, [test "$with_zshcompletiondir" != "no"])
+AX_NORMALIZE_PATH([with_zshcompletiondir])
+AC_SUBST([zshcompletiondir], [$with_zshcompletiondir])
+
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h limits.h netdb.h netinet/in.h stdlib.h string.h sys/socket.h sys/time.h termios.h unistd.h])
 

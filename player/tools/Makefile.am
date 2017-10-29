@@ -15,11 +15,28 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
+dist_bashcompletion_data = tizonia
+dist_zshcompletion_data  = _tizonia
+
+if ENABLE_BASH_COMPLETION
+dist_bashcompletion_DATA = $(dist_bashcompletion_data)
+endif
+if ENABLE_ZSH_COMPLETION
+dist_zshcompletion_DATA = $(dist_zshcompletion_data)
+endif
+
 shell_scripts = tizonia-remote
 
 bin_SCRIPTS = $(shell_scripts)
 CLEANFILES = $(bin_SCRIPTS)
 EXTRA_DIST = tizonia-remote.in
+
+bashcompletiondir=@bashcompletiondir@
+zshcompletiondir=@zshcompletiondir@
+
+DISTCHECK_CONFIGURE_FLAGS = \
+	--with-bashcompletiondir=$$dc_install_base/$(bashcompletiondir) \
+	--with-zshcompletiondir=$$dc_install_base/$(zshcompletiondir)
 
 do_subst = sed -e 's,[@]datadir[@],$(datadir),g' \
 	-e 's,[@]PACKAGE_VERSION[@],$(PACKAGE_VERSION),g' \
