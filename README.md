@@ -52,7 +52,7 @@ Foundation project, with Gurkirpal Singh and Julien Isorce).
 
 # Installation
 
-## Debian/Ubuntu/Raspbian
+## Debian / Ubuntu / Raspbian
 
 Available from [Bintray](https://bintray.com/tizonia), with the following distro/arch
 combinations:
