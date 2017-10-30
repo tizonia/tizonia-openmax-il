@@ -94,7 +94,6 @@ AC_ARG_WITH([bashcompletiondir],
                 with_bashcompletiondir=${datadir}/bash-completion/completions
         ])])
 AM_CONDITIONAL(ENABLE_BASH_COMPLETION, [test "$with_bashcompletiondir" != "no"])
-AX_NORMALIZE_PATH([with_bashcompletiondir])
 AC_SUBST([bashcompletiondir], [$with_bashcompletiondir])
 
 AC_ARG_WITH([zshcompletiondir],
@@ -105,7 +104,6 @@ AC_ARG_WITH([zshcompletiondir],
                 with_zshcompletiondir=no
         ])], [with_zshcompletiondir=${datadir}/zsh/vendor-completions])
 AM_CONDITIONAL(ENABLE_ZSH_COMPLETION, [test "$with_zshcompletiondir" != "no"])
-AX_NORMALIZE_PATH([with_zshcompletiondir])
 AC_SUBST([zshcompletiondir], [$with_zshcompletiondir])
 
 # Checks for header files.
