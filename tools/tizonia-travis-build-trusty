@@ -373,6 +373,7 @@ function configure_and_build {
                --enable-silent-rules \
                --enable-test \
                --prefix="$INSTALL_DIR" \
+               --enable-player \
                CFLAGS='-O0 --coverage' \
                CXXFLAGS='-O0 --coverage' \
                LDFLAGS='-lgcov' \
