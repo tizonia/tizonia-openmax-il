@@ -374,6 +374,8 @@ function configure_and_build {
                --enable-test \
                --prefix="$INSTALL_DIR" \
                --enable-player \
+               --without-bashcompletiondir \
+               --without-zshcompletiondir \
                CFLAGS='-O0 --coverage' \
                CXXFLAGS='-O0 --coverage' \
                LDFLAGS='-lgcov' \
