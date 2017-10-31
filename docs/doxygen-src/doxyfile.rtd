@@ -580,20 +580,20 @@ STRICT_PROTO_MATCHING  = NO
 # documentation.
 # The default value is: YES.
 
-GENERATE_TODOLIST      = YES
+GENERATE_TODOLIST      = NO
 
 # The GENERATE_TESTLIST tag can be used to enable ( YES) or disable ( NO) the
 # test list. This list is created by putting \test commands in the
 # documentation.
 # The default value is: YES.
 
-GENERATE_TESTLIST      = YES
+GENERATE_TESTLIST      = NO
 
 # The GENERATE_BUGLIST tag can be used to enable ( YES) or disable ( NO) the bug
 # list. This list is created by putting \bug commands in the documentation.
 # The default value is: YES.
 
-GENERATE_BUGLIST       = YES
+GENERATE_BUGLIST       = NO
 
 # The GENERATE_DEPRECATEDLIST tag can be used to enable ( YES) or disable ( NO)
 # the deprecated list. This list is created by putting \deprecated commands in
@@ -2312,11 +2312,11 @@ DOT_MULTI_TARGETS      = YES
 # The default value is: YES.
 # This tag requires that the tag HAVE_DOT is set to YES.
 
-GENERATE_LEGEND        = YES
+GENERATE_LEGEND        = NO
 
 # If the DOT_CLEANUP tag is set to YES doxygen will remove the intermediate dot
 # files that are used to generate the various graphs.
 # The default value is: YES.
 # This tag requires that the tag HAVE_DOT is set to YES.
 
-DOT_CLEANUP            = YES
+DOT_CLEANUP            = NO
