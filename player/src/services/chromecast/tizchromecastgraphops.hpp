@@ -44,7 +44,6 @@ namespace tiz
                  const omx_comp_role_lst_t &role_lst);
 
     public:
-      void do_enable_auto_detection (const int handle_id, const int port_id);
       void do_configure_comp (const int comp_id);
       void do_load ();
       void do_configure ();

@@ -78,18 +78,6 @@ graph::chromecastops::chromecastops (graph *p_graph,
   TIZ_INIT_OMX_PORT_STRUCT (renderer_pcmtype_, 0);
 }
 
-void graph::chromecastops::do_enable_auto_detection (const int handle_id,
-                                                 const int port_id)
-{
-  tizchromecastconfig_ptr_t chromecast_config
-      = boost::dynamic_pointer_cast< chromecastconfig >(config_);
-  assert (chromecast_config);
-  tiz::graph::ops::do_enable_auto_detection (handle_id, port_id);
-  tiz::graph::util::dump_graph_info ("Google Play Music",
-                                     "Connecting",
-                                     chromecast_config->get_user_name ().c_str ());
-}
-
 void graph::chromecastops::do_configure_comp (const int comp_id)
 {
   if (comp_id == 0)
