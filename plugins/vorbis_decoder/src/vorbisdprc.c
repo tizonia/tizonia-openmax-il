@@ -50,6 +50,22 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.vorbis_decoder.prc"
 #endif
 
+/* This macros assume the existence of an "ap_prc" local variable */
+#define bail_on_fish_error(expr, msg)                      \
+  do                                                       \
+    {                                                      \
+      int fish_error = FISH_SOUND_OK;                      \
+      if (FISH_SOUND_OK != (fish_error = (expr)))          \
+        {                                                  \
+          TIZ_ERROR (handleOf (ap_prc),                    \
+                     "[OMX_ErrorInsufficientResources] : " \
+                     "%s (fish error %d)",                 \
+                     msg, fish_error);                     \
+          goto end;                                        \
+        }                                                  \
+    }                                                      \
+  while (0)
+
 /* Forward declarations */
 static OMX_ERRORTYPE
 vorbisd_prc_deallocate_resources (void *);
@@ -214,7 +230,7 @@ store_metadata (vorbisd_prc_t * ap_prc, const char * ap_header_name,
       info_len = strnlen (ap_header_info, OMX_MAX_STRINGNAME_SIZE - 1) + 1;
       metadata_len = sizeof (OMX_CONFIG_METADATAITEMTYPE) + info_len;
 
-      if (NULL == (p_meta = (OMX_CONFIG_METADATAITEMTYPE *) tiz_mem_calloc (
+      if (!(p_meta = (OMX_CONFIG_METADATAITEMTYPE *) tiz_mem_calloc (
                      1, metadata_len)))
         {
           rc = OMX_ErrorInsufficientResources;
@@ -284,7 +300,7 @@ fishsound_decoded_callback (FishSound * ap_fsound, float * app_pcm[],
   assert (app_pcm);
   assert (ap_user_data);
 
-  TIZ_TRACE (handleOf (p_prc), "frames [%d] ", frames);
+  TIZ_PRINTF_DBG_RED ("frames [%d] \n", frames);
 
   /* Possible return values are: */
 
@@ -317,7 +333,7 @@ fishsound_decoded_callback (FishSound * ap_fsound, float * app_pcm[],
 
   p_out = tiz_filter_prc_get_header (p_prc,
                                      ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX);
-  if (NULL == p_out)
+  if (!p_out)
     {
       TIZ_TRACE (handleOf (p_prc),
                  "No more output buffers "
@@ -383,33 +399,20 @@ init_vorbis_decoder (vorbisd_prc_t * ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
   assert (ap_prc);
-  if (!ap_prc->p_fsnd_)
-    {
-      ap_prc->p_fsnd_ = fish_sound_new (FISH_SOUND_DECODE, &(ap_prc->fsinfo_));
-      tiz_check_null_ret_oom (ap_prc->p_fsnd_);
+  assert (!ap_prc->p_fsnd_);
 
-      if (0 != fish_sound_set_interleave (ap_prc->p_fsnd_, 1))
-        {
-          TIZ_ERROR (handleOf (ap_prc),
-                     "[OMX_ErrorInsufficientResources] : "
-                     "Could not set interleaved.");
-          goto end;
-        }
+  ap_prc->p_fsnd_ = fish_sound_new (FISH_SOUND_DECODE, &(ap_prc->fsinfo_));
+  tiz_check_null_ret_oom (ap_prc->p_fsnd_);
 
-      if (0 != fish_sound_set_decoded_float_ilv (
-                 ap_prc->p_fsnd_, fishsound_decoded_callback, ap_prc))
-        {
-          TIZ_ERROR (handleOf (ap_prc),
-                     "[OMX_ErrorInsufficientResources] : "
-                     "Could not set 'decoded' callback.");
-          goto end;
-        }
-    }
+  bail_on_fish_error (fish_sound_set_decoded_float_ilv (
+                        ap_prc->p_fsnd_, fishsound_decoded_callback, ap_prc),
+                      "Could not set the 'decoded' callback.");
 
   rc = OMX_ErrorNone;
 
 end:
-  if (OMX_ErrorInsufficientResources == rc)
+
+  if (OMX_ErrorInsufficientResources == rc && ap_prc->p_fsnd_)
     {
       fish_sound_delete (ap_prc->p_fsnd_);
       ap_prc->p_fsnd_ = NULL;
@@ -427,7 +430,7 @@ transform_buffer (vorbisd_prc_t * ap_prc)
   OMX_BUFFERHEADERTYPE * p_out = tiz_filter_prc_get_header (
     ap_prc, ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX);
 
-  if (NULL == p_in || NULL == p_out)
+  if (!p_in || !p_out)
     {
       TIZ_TRACE (handleOf (ap_prc), "IN HEADER [%p] OUT HEADER [%p]", p_in,
                  p_out);
@@ -460,7 +463,6 @@ transform_buffer (vorbisd_prc_t * ap_prc)
       unsigned char * p_data = p_in->pBuffer + p_in->nOffset;
       const long len = p_in->nFilledLen;
       long bytes_consumed = fish_sound_decode (ap_prc->p_fsnd_, p_data, len);
-      TIZ_PRINTF_DBG_RED ("sadasd 2\n");
       TIZ_TRACE (handleOf (ap_prc), "p_in->nFilledLen [%d] ", p_in->nFilledLen);
       TIZ_TRACE (handleOf (ap_prc), "bytes_consumed [%d] ", bytes_consumed);
 
