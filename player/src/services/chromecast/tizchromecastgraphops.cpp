@@ -74,8 +74,6 @@ graph::chromecastops::chromecastops (graph *p_graph,
   : tiz::graph::ops (p_graph, comp_lst, role_lst),
     encoding_ (OMX_AUDIO_CodingAutoDetect)
 {
-  TIZ_INIT_OMX_PORT_STRUCT (decoder_mp3type_, 0);
-  TIZ_INIT_OMX_PORT_STRUCT (renderer_pcmtype_, 0);
 }
 
 void graph::chromecastops::do_configure_comp (const int comp_id)
@@ -139,10 +137,7 @@ void graph::chromecastops::do_configure ()
 {
   if (last_op_succeeded ())
   {
-    G_OPS_BAIL_IF_ERROR (override_decoder_and_renderer_sampling_rates (),
-                         "Unable to override decoder/renderer sampling rates");
-    G_OPS_BAIL_IF_ERROR (apply_pcm_codec_info_from_decoder (),
-                         "Unable to set OMX_IndexParamAudioPcm");
+    // TODO
   }
 }
 
@@ -182,25 +177,6 @@ void graph::chromecastops::do_idle2exe ()
   }
 }
 
-void graph::chromecastops::do_reconfigure_tunnel (const int tunnel_id)
-{
-  if (last_op_succeeded ())
-  {
-    if (0 == tunnel_id)
-    {
-      do_reconfigure_first_tunnel ();
-    }
-    else if (1 == tunnel_id)
-    {
-      do_reconfigure_second_tunnel ();
-    }
-    else
-    {
-      assert (0);
-    }
-  }
-}
-
 void graph::chromecastops::do_skip ()
 {
   if (last_op_succeeded () && 0 != jump_)
@@ -222,71 +198,14 @@ void graph::chromecastops::do_retrieve_metadata ()
   {
   };
 
-  // Now extract metadata from the decoder
-  const int decoder_index = 1;
-  index = 0;
-  const bool use_first_as_heading = false;
-  while (OMX_ErrorNone
-         == dump_metadata_item (index++, decoder_index, use_first_as_heading))
-  {
-  };
-
-  OMX_GetParameter (handles_[2], OMX_IndexParamAudioPcm, &renderer_pcmtype_);
-
+  // TODO
   // Now print renderer metadata
-  TIZ_PRINTF_MAG (
-      "     %ld Ch, %g KHz, %lu:%s:%s \n", renderer_pcmtype_.nChannels,
-      ((float)renderer_pcmtype_.nSamplingRate) / 1000,
-      renderer_pcmtype_.nBitPerSample,
-      renderer_pcmtype_.eNumData == OMX_NumericalDataSigned ? "s" : "u",
-      renderer_pcmtype_.eEndian == OMX_EndianBig ? "b" : "l");
-}
-
-// TODO: Move this implementation to the base class (and remove also from
-// httpservops)
-OMX_ERRORTYPE
-graph::chromecastops::switch_tunnel (
-    const int tunnel_id, const OMX_COMMANDTYPE to_disabled_or_enabled)
-{
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-
-  assert (0 == tunnel_id || 1 == tunnel_id);
-  assert (to_disabled_or_enabled == OMX_CommandPortDisable
-          || to_disabled_or_enabled == OMX_CommandPortEnable);
-
-  if (to_disabled_or_enabled == OMX_CommandPortDisable)
-  {
-    rc = tiz::graph::util::disable_tunnel (handles_, tunnel_id);
-  }
-  else
-  {
-    rc = tiz::graph::util::enable_tunnel (handles_, tunnel_id);
-  }
-
-  if (OMX_ErrorNone == rc && 0 == tunnel_id)
-  {
-    const int chromecast_source_index = 0;
-    const int chromecast_source_output_port = 0;
-    add_expected_port_transition (handles_[chromecast_source_index],
-                                  chromecast_source_output_port,
-                                  to_disabled_or_enabled);
-    const int decoder_index = 1;
-    const int decoder_input_port = 0;
-    add_expected_port_transition (handles_[decoder_index], decoder_input_port,
-                                  to_disabled_or_enabled);
-  }
-  else if (OMX_ErrorNone == rc && 1 == tunnel_id)
-  {
-    const int decoder_index = 1;
-    const int decoder_output_port = 1;
-    add_expected_port_transition (handles_[decoder_index], decoder_output_port,
-                                  to_disabled_or_enabled);
-    const int renderer_index = 2;
-    const int renderer_input_port = 0;
-    add_expected_port_transition (handles_[renderer_index], renderer_input_port,
-                                  to_disabled_or_enabled);
-  }
-  return rc;
+//   TIZ_PRINTF_MAG (
+//       "     %ld Ch, %g KHz, %lu:%s:%s \n", renderer_pcmtype_.nChannels,
+//       ((float)renderer_pcmtype_.nSamplingRate) / 1000,
+//       renderer_pcmtype_.nBitPerSample,
+//       renderer_pcmtype_.eNumData == OMX_NumericalDataSigned ? "s" : "u",
+//       renderer_pcmtype_.eEndian == OMX_EndianBig ? "b" : "l");
 }
 
 bool graph::chromecastops::probe_stream_hook ()
@@ -302,128 +221,6 @@ OMX_ERRORTYPE graph::chromecastops::get_encoding_type_from_chromecast_source ()
   tiz_check_omx (
       OMX_GetParameter (handles_[0], OMX_IndexParamPortDefinition, &port_def));
   encoding_ = port_def.format.audio.eEncoding;
-  return OMX_ErrorNone;
-}
-
-OMX_ERRORTYPE
-graph::chromecastops::override_decoder_and_renderer_sampling_rates ()
-{
-  OMX_U32 channels = 2;
-  OMX_U32 sampling_rate = 44100;
-  tiz_check_omx (
-      set_channels_and_rate_on_decoder (channels, sampling_rate));
-  return set_channels_and_rate_on_renderer (channels, sampling_rate);
-}
-
-OMX_ERRORTYPE
-graph::chromecastops::apply_pcm_codec_info_from_decoder ()
-{
-  OMX_U32 channels = 2;
-  OMX_U32 sampling_rate = 44100;
-  std::string encoding_str;
-
-  tiz_check_omx (get_channels_and_rate_from_decoder (
-      channels, sampling_rate, encoding_str));
-  return set_channels_and_rate_on_renderer (channels, sampling_rate);
-}
-
-OMX_ERRORTYPE
-graph::chromecastops::get_channels_and_rate_from_decoder (
-    OMX_U32 &channels, OMX_U32 &sampling_rate, std::string &encoding_str) const
-{
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-  const OMX_HANDLETYPE handle = handles_[1];  // mp3 decoder's handle
-  const OMX_U32 port_id = 1;                  // mp3 decoder's output port
-
-  switch (encoding_)
-  {
-    case OMX_AUDIO_CodingMP3:
-    {
-      encoding_str = "mp3";
-      rc = tiz::graph::util::
-          get_channels_and_rate_from_audio_port_v2< OMX_AUDIO_PARAM_PCMMODETYPE >(
-              handle, port_id, OMX_IndexParamAudioPcm, channels, sampling_rate);
-    }
-    break;
-    default:
-    {
-      assert (0);
-    }
-    break;
-  };
-
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "outcome = [%s]", tiz_err_to_str (rc));
-
-  return rc;
-}
-
-OMX_ERRORTYPE
-graph::chromecastops::set_channels_and_rate_on_decoder (
-    const OMX_U32 channels, const OMX_U32 sampling_rate)
-{
-  const OMX_HANDLETYPE handle = handles_[1];  // decoder's handle
-  const OMX_U32 port_id = 0;                  // decoder's input port
-
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "channels = [%d] sampling_rate = [%d]", channels,
-           sampling_rate);
-
-  // Retrieve the mp3 settings from the decoder component
-  TIZ_INIT_OMX_PORT_STRUCT (decoder_mp3type_, port_id);
-  tiz_check_omx (
-      OMX_GetParameter (handle, OMX_IndexParamAudioMp3, &decoder_mp3type_));
-
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "channels = [%d] sampling_rate = [%d]", channels,
-           sampling_rate);
-
-  // Now assign the actual settings to the pcmtype structure
-  decoder_mp3type_.nChannels = channels;
-  decoder_mp3type_.nSampleRate = sampling_rate;
-
-  // Set the new mp3 settings
-  tiz_check_omx (
-      OMX_SetParameter (handle, OMX_IndexParamAudioMp3, &decoder_mp3type_));
-
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "channels = [%d] sampling_rate = [%d]", channels,
-           sampling_rate);
-
-  return OMX_ErrorNone;
-}
-
-OMX_ERRORTYPE
-graph::chromecastops::set_channels_and_rate_on_renderer (
-    const OMX_U32 channels, const OMX_U32 sampling_rate)
-{
-  const OMX_HANDLETYPE handle = handles_[2];  // renderer's handle
-  const OMX_U32 port_id = 0;                  // renderer's input port
-
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "channels = [%d] sampling_rate = [%d]", channels,
-           sampling_rate);
-
-  // Retrieve the pcm settings from the renderer component
-  TIZ_INIT_OMX_PORT_STRUCT (renderer_pcmtype_, port_id);
-  tiz_check_omx (
-      OMX_GetParameter (handle, OMX_IndexParamAudioPcm, &renderer_pcmtype_));
-
-  // Now assign the actual settings to the pcmtype structure
-  renderer_pcmtype_.nChannels = channels;
-  renderer_pcmtype_.nSamplingRate = sampling_rate;
-  renderer_pcmtype_.eNumData = OMX_NumericalDataSigned;
-  renderer_pcmtype_.eEndian
-      = (encoding_ == OMX_AUDIO_CodingMP3 ? OMX_EndianBig : OMX_EndianLittle);
-
-  // Set the new pcm settings
-  tiz_check_omx (
-      OMX_SetParameter (handle, OMX_IndexParamAudioPcm, &renderer_pcmtype_));
-
-  tizchromecastconfig_ptr_t chromecast_config
-    = boost::dynamic_pointer_cast< chromecastconfig >(config_);
-  assert (chromecast_config);
-
-  std::string coding_type_str ("Google Play Music");
-  tiz::graph::util::dump_graph_info (coding_type_str.c_str (),
-                                     "Connected",
-                                     chromecast_config->get_user_name ().c_str ());
-
   return OMX_ErrorNone;
 }
 
@@ -501,67 +298,4 @@ void graph::chromecastops::do_record_fatal_error (const OMX_HANDLETYPE handle,
   {
     error_msg_.append ("\n [Playlist not found]");
   }
-}
-
-void graph::chromecastops::do_reconfigure_first_tunnel ()
-{
-  // Retrieve the mp3 settings from the chromecast source component
-  OMX_AUDIO_PARAM_MP3TYPE chromecast_mp3type;
-  const OMX_U32 chromecast_port_id = 0;
-  TIZ_INIT_OMX_PORT_STRUCT (chromecast_mp3type, chromecast_port_id);
-  G_OPS_BAIL_IF_ERROR (
-      OMX_GetParameter (handles_[0], OMX_IndexParamAudioMp3, &chromecast_mp3type),
-      "Unable to retrieve the MP3 settings from the chromecast source");
-
-  // Retrieve the mp3 settings from the decoder component
-  OMX_AUDIO_PARAM_MP3TYPE decoder_mp3type;
-  const OMX_U32 decoder_port_id = 0;
-  TIZ_INIT_OMX_PORT_STRUCT (decoder_mp3type, decoder_port_id);
-  G_OPS_BAIL_IF_ERROR (
-      OMX_GetParameter (handles_[1], OMX_IndexParamAudioMp3, &decoder_mp3type),
-      "Unable to retrieve the MP3 settings from the audio decoder");
-
-  // Now assign the current settings to the decoder structure
-  decoder_mp3type.nChannels = chromecast_mp3type.nChannels;
-  decoder_mp3type.nSampleRate = chromecast_mp3type.nSampleRate;
-
-  // Set the new mp3 settings
-  G_OPS_BAIL_IF_ERROR (
-      OMX_SetParameter (handles_[1], OMX_IndexParamAudioMp3, &decoder_mp3type),
-      "Unable to set the MP3 settings on the audio decoder");
-}
-
-void graph::chromecastops::do_reconfigure_second_tunnel ()
-{
-  // Retrieve the pcm settings from the decoder component
-  OMX_AUDIO_PARAM_PCMMODETYPE decoder_pcmtype;
-  const OMX_U32 decoder_port_id = 1;
-  TIZ_INIT_OMX_PORT_STRUCT (decoder_pcmtype, decoder_port_id);
-  G_OPS_BAIL_IF_ERROR (
-      OMX_GetParameter (handles_[1], OMX_IndexParamAudioPcm, &decoder_pcmtype),
-      "Unable to retrieve the PCM settings from the Mp3 decoder");
-
-  // Retrieve the pcm settings from the renderer component
-  OMX_AUDIO_PARAM_PCMMODETYPE renderer_pcmtype;
-  const OMX_U32 renderer_port_id = 0;
-  TIZ_INIT_OMX_PORT_STRUCT (renderer_pcmtype, renderer_port_id);
-  G_OPS_BAIL_IF_ERROR (
-      OMX_GetParameter (handles_[2], OMX_IndexParamAudioPcm, &renderer_pcmtype),
-      "Unable to retrieve the PCM settings from the pcm renderer");
-
-  // Now assign the current settings to the renderer structure
-  renderer_pcmtype.nChannels = decoder_pcmtype.nChannels;
-  renderer_pcmtype.nSamplingRate = decoder_pcmtype.nSamplingRate;
-
-  // Set the new pcm settings
-  G_OPS_BAIL_IF_ERROR (
-      OMX_SetParameter (handles_[2], OMX_IndexParamAudioPcm, &renderer_pcmtype),
-      "Unable to set the PCM settings on the audio renderer");
-
-  TIZ_PRINTF_MAG (
-      "     %ld Ch, %g KHz, %lu:%s:%s\n", renderer_pcmtype.nChannels,
-      ((float)renderer_pcmtype.nSamplingRate) / 1000,
-      renderer_pcmtype.nBitPerSample,
-      renderer_pcmtype.eNumData == OMX_NumericalDataSigned ? "s" : "u",
-      renderer_pcmtype.eEndian == OMX_EndianBig ? "b" : "l");
 }

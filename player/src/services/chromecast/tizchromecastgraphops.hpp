@@ -49,7 +49,6 @@ namespace tiz
       void do_configure ();
       void do_loaded2idle ();
       void do_idle2exe ();
-      void do_reconfigure_tunnel (const int tunnel_id);
       void do_skip ();
       void do_retrieve_metadata ();
 
@@ -59,8 +58,6 @@ namespace tiz
                                   const OMX_U32 port);
 
     private:
-      OMX_ERRORTYPE switch_tunnel (
-          const int tunnel_id, const OMX_COMMANDTYPE to_disabled_or_enabled);
       OMX_ERRORTYPE set_chromecast_user_and_device_id (
           const OMX_HANDLETYPE handle, const std::string &user,
           const std::string &pass, const std::string &device_id);
@@ -71,23 +68,9 @@ namespace tiz
       // re-implemented from the base class
       bool probe_stream_hook ();
       OMX_ERRORTYPE get_encoding_type_from_chromecast_source ();
-      OMX_ERRORTYPE override_decoder_and_renderer_sampling_rates();
-      OMX_ERRORTYPE apply_pcm_codec_info_from_decoder ();
-      OMX_ERRORTYPE get_channels_and_rate_from_decoder (
-          OMX_U32 &channels, OMX_U32 &sampling_rate,
-          std::string &encoding_str) const;
-      OMX_ERRORTYPE set_channels_and_rate_on_decoder (
-          const OMX_U32 channels, const OMX_U32 sampling_rate);
-      OMX_ERRORTYPE set_channels_and_rate_on_renderer (
-          const OMX_U32 channels, const OMX_U32 sampling_rate);
-
-      void do_reconfigure_first_tunnel ();
-      void do_reconfigure_second_tunnel ();
 
     private:
       OMX_AUDIO_CODINGTYPE encoding_;
-      OMX_AUDIO_PARAM_PCMMODETYPE renderer_pcmtype_;
-      OMX_AUDIO_PARAM_MP3TYPE decoder_mp3type_;
     };
   }  // namespace graph
 }  // namespace tiz
