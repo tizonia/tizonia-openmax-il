@@ -68,8 +68,10 @@ namespace tiz
       virtual ~graph ();
 
       OMX_ERRORTYPE init ();
-      OMX_ERRORTYPE load ();
-      OMX_ERRORTYPE execute (const tizgraphconfig_ptr_t config);
+      OMX_ERRORTYPE load (const tizgraphconfig_ptr_t config
+                          = tizgraphconfig_ptr_t ());
+      OMX_ERRORTYPE execute (const tizgraphconfig_ptr_t config
+                             = tizgraphconfig_ptr_t ());
       OMX_ERRORTYPE pause ();
       OMX_ERRORTYPE seek ();
       OMX_ERRORTYPE skip (const int jump);

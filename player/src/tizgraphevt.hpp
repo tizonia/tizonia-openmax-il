@@ -28,8 +28,8 @@
 #ifndef TIZGRAPHEVT_HPP
 #define TIZGRAPHEVT_HPP
 
-#include <OMX_Core.h>
 #include <OMX_Component.h>
+#include <OMX_Core.h>
 
 #include "tizgraphtypes.hpp"
 
@@ -41,17 +41,24 @@ namespace tiz
     // Main fsm events.
     struct load_evt
     {
-    };
-
-    struct execute_evt
-    {
-      execute_evt (const tizgraphconfig_ptr_t config) : config_ (config)
+      load_evt (const tizgraphconfig_ptr_t config = tizgraphconfig_ptr_t ())
+        : config_ (config)
       {
       }
       const tizgraphconfig_ptr_t config_;
     };
 
-    // Make this state convertible from any state (this event exits a sub-machine)
+    struct execute_evt
+    {
+      execute_evt (const tizgraphconfig_ptr_t config = tizgraphconfig_ptr_t ())
+        : config_ (config)
+      {
+      }
+      const tizgraphconfig_ptr_t config_;
+    };
+
+    // Make this state convertible from any state (this event exits a
+    // sub-machine)
     struct configured_evt
     {
       configured_evt ()
@@ -83,7 +90,8 @@ namespace tiz
       int jump_;
     };
 
-    // Make this state convertible from any state (this event exits a sub-machine)
+    // Make this state convertible from any state (this event exits a
+    // sub-machine)
     struct skipped_evt
     {
       skipped_evt ()
@@ -258,7 +266,8 @@ namespace tiz
       std::string error_str_;
     };
 
-    // Make this state convertible from any state (this event exits a sub-machine)
+    // Make this state convertible from any state (this event exits a
+    // sub-machine)
     struct auto_detected_evt
     {
       auto_detected_evt ()
@@ -270,7 +279,8 @@ namespace tiz
       }
     };
 
-    // Make this state convertible from any state (this event exits a sub-machine)
+    // Make this state convertible from any state (this event exits a
+    // sub-machine)
     struct graph_updated_evt
     {
       graph_updated_evt ()
@@ -282,7 +292,8 @@ namespace tiz
       }
     };
 
-    // Make this state convertible from any state (this event exits a sub-machine)
+    // Make this state convertible from any state (this event exits a
+    // sub-machine)
     struct graph_reconfigured_evt
     {
       graph_reconfigured_evt ()
@@ -294,7 +305,8 @@ namespace tiz
       }
     };
 
-    // Make this state convertible from any state (this event exits a sub-machine)
+    // Make this state convertible from any state (this event exits a
+    // sub-machine)
     struct tunnel_reconfigured_evt
     {
       tunnel_reconfigured_evt ()

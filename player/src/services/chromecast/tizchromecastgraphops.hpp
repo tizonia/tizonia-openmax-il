@@ -45,7 +45,7 @@ namespace tiz
 
     public:
       void do_configure_comp (const int comp_id);
-      void do_load ();
+      void do_load_comp (const int comp_id);
       void do_configure ();
       void do_loaded2idle ();
       void do_idle2exe ();

@@ -96,41 +96,23 @@ void graph::chromecastops::do_configure_comp (const int comp_id)
   }
 }
 
-void graph::chromecastops::do_load ()
+void graph::chromecastops::do_load_comp (const int comp_id)
 {
   assert (!comp_lst_.empty ());
   assert (!role_lst_.empty ());
 
-  // At this point we are going to instantiate the remaining component in the
-  // graph, the audio decoder and the pcm renderer. The chromecast source is already
-  // instantiated and in
-  // Executing state.
+  tizchromecastconfig_ptr_t chromecast_config
+    = boost::dynamic_pointer_cast< chromecastconfig >(config_);
+  assert (chromecast_config);
 
-  assert (comp_lst_.size () == 1);
-  assert (handles_.size () == 1);
+  // TODO: look in the config structure to find out which role we need to
+  // instantiate
+  role_lst_.clear();
+  role_lst_.push_back ("audio_renderer.chromecast.gmusic");
 
-  G_OPS_BAIL_IF_ERROR (
-      get_encoding_type_from_chromecast_source (),
-      "Unable to retrieve the audio encoding from the chromecast source.");
-
-  omx_comp_name_lst_t comp_list;
-  omx_comp_role_lst_t role_list;
-
-  comp_list.push_back ("OMX.Aratelia.audio_decoder.mp3");
-  role_list.push_back ("audio_decoder.mp3");
-
-  comp_list.push_back (tiz::graph::util::get_default_pcm_renderer ());
-  role_list.push_back ("audio_renderer.pcm");
-
-  tiz::graph::cbackhandler &cbacks = get_cback_handler ();
-  G_OPS_BAIL_IF_ERROR (
-      util::instantiate_comp_list (comp_list, handles_, h2n_, &(cbacks),
-                                   cbacks.get_omx_cbacks ()),
-      "Unable to instantiate the component list.");
-
-  // Now add the new components to the base class lists
-  comp_lst_.insert (comp_lst_.begin (), comp_list.begin (), comp_list.end ());
-  role_lst_.insert (role_lst_.begin (), role_list.begin (), role_list.end ());
+  // At this point we are instantiating a graph with a single component.
+  assert (comp_lst_.size () == (unsigned int)comp_id + 1);
+  tiz::graph::ops::do_load ();
 }
 
 void graph::chromecastops::do_configure ()

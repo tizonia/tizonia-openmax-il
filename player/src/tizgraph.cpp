@@ -146,9 +146,9 @@ void graph::graph::deinit ()
 }
 
 OMX_ERRORTYPE
-graph::graph::load ()
+graph::graph::load (const tizgraphconfig_ptr_t config)
 {
-  return post_cmd (new tiz::graph::cmd (tiz::graph::load_evt ()));
+  return post_cmd (new tiz::graph::cmd (tiz::graph::load_evt (config)));
 }
 
 OMX_ERRORTYPE

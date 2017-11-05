@@ -144,7 +144,13 @@ void graphmgr::chromecastmgrops::do_load ()
   tizgraph_ptr_t g_ptr (get_graph (std::string ()));
   if (g_ptr)
   {
-    GMGR_OPS_BAIL_IF_ERROR (g_ptr, g_ptr->load (), "Unable to load the graph.");
+    chromecastmgr *p_ccmgr = dynamic_cast< chromecastmgr * >(p_mgr_);
+    assert (p_ccmgr);
+
+    graph_config_.reset ();
+    graph_config_ = p_ccmgr->config_;
+    assert (graph_config_);
+    GMGR_OPS_BAIL_IF_ERROR (g_ptr, g_ptr->load (graph_config_), "Unable to load the graph.");
   }
   p_managed_graph_ = g_ptr;
 }
@@ -154,15 +160,8 @@ void graphmgr::chromecastmgrops::do_execute ()
   assert (playlist_);
   assert (p_mgr_);
 
-  chromecastmgr *p_clientmgr = dynamic_cast< chromecastmgr * >(p_mgr_);
-  assert (p_clientmgr);
-
-  graph_config_.reset ();
-  graph_config_ = p_clientmgr->config_;
-  assert (graph_config_);
-
   GMGR_OPS_BAIL_IF_ERROR (p_managed_graph_,
-                          p_managed_graph_->execute (graph_config_),
+                          p_managed_graph_->execute (),
                           "Unable to execute the graph.");
 }
 

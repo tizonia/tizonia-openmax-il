@@ -203,7 +203,11 @@ namespace tiz
       struct transition_table : boost::mpl::vector<
         //       Start                          Event                       Next                      Action                        Guard
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
-        bmf::Row < tg::inited                   , tg::load_evt              , tg::loaded              , tg::do_ack_loaded           , bmf::none                    >,
+        bmf::Row < tg::inited                   , tg::load_evt              , tg::loaded              , bmf::ActionSequence_<
+                                                                                                          boost::mpl::vector<
+                                                                                                            tg::do_store_config,
+                                                                                                            tg::do_load_comp<0>,
+                                                                                                            tg::do_ack_loaded> >    , bmf::none                    >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < tg::loaded                   , tg::execute_evt           , tg::executing           , bmf::none                   , bmf::none                    >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
