@@ -31,6 +31,7 @@
 
 #include <algorithm>
 
+#include <boost/assert.hpp>
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
 
@@ -39,9 +40,10 @@
 #include <OMX_TizoniaExt.h>
 #include <tizplatform.h>
 
-#include "tizgraphutil.hpp"
-#include "tizprobe.hpp"
-#include "tizgraph.hpp"
+#include <tizgraphutil.hpp>
+#include <tizprobe.hpp>
+#include <tizgraph.hpp>
+#include <tizgmusicconfig.hpp>
 #include "tizchromecastconfig.hpp"
 #include "tizchromecastgraphops.hpp"
 
@@ -76,6 +78,37 @@ graph::chromecastops::chromecastops (graph *p_graph,
 {
 }
 
+void graph::chromecastops::do_load_comp (const int comp_id)
+{
+  assert (!comp_lst_.empty ());
+  assert (role_lst_.empty ());
+  assert (config_);
+
+  const std::type_info& ti_current = typeid(*config_);
+  const std::type_info& ti_gmusic = typeid(tizgmusicconfig_ptr_t);
+
+  if (ti_current == ti_gmusic)
+    {
+      tizgmusicconfig_ptr_t gmusic_config
+        = boost::dynamic_pointer_cast< gmusicconfig >(config_);
+      assert (gmusic_config);
+
+      // TODO: look in the config structure to find out which role we need to
+      // instantiate
+      role_lst_.push_back ("audio_renderer.chromecast.gmusic");
+    }
+  // TODO: add other config types here
+  else
+    {
+      std::string msg ("Unable to locate set a suitable component role");
+      BOOST_ASSERT_MSG (false, msg.c_str());
+      G_OPS_BAIL_IF_ERROR (OMX_ErrorComponentNotFound, msg.c_str ());
+    }
+    // At this point we are instantiating a graph with a single component.
+    assert (comp_lst_.size () == (unsigned int)comp_id + 1);
+    tiz::graph::ops::do_load ();
+}
+
 void graph::chromecastops::do_configure_comp (const int comp_id)
 {
   if (comp_id == 0)
@@ -94,25 +127,6 @@ void graph::chromecastops::do_configure_comp (const int comp_id)
         set_chromecast_playlist (handles_[0], playlist_->get_current_uri ()),
         "Unable to set OMX_TizoniaIndexParamAudioGmusicPlaylist");
   }
-}
-
-void graph::chromecastops::do_load_comp (const int comp_id)
-{
-  assert (!comp_lst_.empty ());
-  assert (!role_lst_.empty ());
-
-  tizchromecastconfig_ptr_t chromecast_config
-    = boost::dynamic_pointer_cast< chromecastconfig >(config_);
-  assert (chromecast_config);
-
-  // TODO: look in the config structure to find out which role we need to
-  // instantiate
-  role_lst_.clear();
-  role_lst_.push_back ("audio_renderer.chromecast.gmusic");
-
-  // At this point we are instantiating a graph with a single component.
-  assert (comp_lst_.size () == (unsigned int)comp_id + 1);
-  tiz::graph::ops::do_load ();
 }
 
 void graph::chromecastops::do_configure ()

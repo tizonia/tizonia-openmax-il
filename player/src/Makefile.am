@@ -175,6 +175,10 @@ tizonia_CPPFLAGS = \
 	-I$(top_srcdir)/dbus \
 	-I$(top_srcdir)/src \
 	-I$(top_srcdir)/src/services \
+	-I$(top_srcdir)/src/services/googlemusic \
+	-I$(top_srcdir)/src/services/dirble \
+	-I$(top_srcdir)/src/services/soundcloud \
+	-I$(top_srcdir)/src/services/youtube \
 	-I/usr/include/taglib \
 	@LIBMEDIAINFO_CFLAGS@ \
 	@DBUS_CFLAGS@ \

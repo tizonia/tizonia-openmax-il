@@ -44,8 +44,8 @@ namespace tiz
                  const omx_comp_role_lst_t &role_lst);
 
     public:
-      void do_configure_comp (const int comp_id);
       void do_load_comp (const int comp_id);
+      void do_configure_comp (const int comp_id);
       void do_configure ();
       void do_loaded2idle ();
       void do_idle2exe ();

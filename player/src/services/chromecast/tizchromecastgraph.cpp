@@ -69,8 +69,9 @@ graph::ops *graph::chromecast::do_init ()
   omx_comp_name_lst_t comp_list;
   comp_list.push_back ("OMX.Aratelia.audio_renderer.chromecast");
 
+  // We'll push an empty role list. The component role will be set once it's
+  // known what we need
   omx_comp_role_lst_t role_list;
-  role_list.push_back ("audio_renderer.chromecast.gmusic");
 
   return new chromecastops (this, comp_list, role_list);
 }
