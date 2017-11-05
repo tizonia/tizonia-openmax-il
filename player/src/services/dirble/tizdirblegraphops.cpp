@@ -34,16 +34,16 @@
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
 
-#include <OMX_Core.h>
 #include <OMX_Component.h>
+#include <OMX_Core.h>
 #include <OMX_TizoniaExt.h>
 #include <tizplatform.h>
 
-#include "tizgraphutil.hpp"
-#include "tizprobe.hpp"
-#include "tizgraph.hpp"
 #include "tizdirbleconfig.hpp"
 #include "tizdirblegraphops.hpp"
+#include "tizgraph.hpp"
+#include "tizgraphutil.hpp"
+#include "tizprobe.hpp"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -51,18 +51,6 @@
 #endif
 
 namespace graph = tiz::graph;
-
-namespace
-{
-  void copy_omx_string (OMX_U8 *p_dest, const std::string &omx_string)
-  {
-    const size_t len = omx_string.length ();
-    const size_t to_copy = MIN (len, OMX_MAX_STRINGNAME_SIZE - 1);
-    assert (p_dest);
-    memcpy (p_dest, omx_string.c_str (), to_copy);
-    p_dest[to_copy] = '\0';
-  }
-}
 
 //
 // dirbleops
@@ -72,7 +60,7 @@ graph::dirbleops::dirbleops (graph *p_graph,
                              const omx_comp_role_lst_t &role_lst)
   : tiz::graph::ops (p_graph, comp_lst, role_lst),
     encoding_ (OMX_AUDIO_CodingAutoDetect),
-    inital_graph_load_(false)
+    inital_graph_load_ (false)
 {
   TIZ_INIT_OMX_PORT_STRUCT (decoder_mp3type_, 0);
   TIZ_INIT_OMX_PORT_STRUCT (renderer_pcmtype_, 0);
@@ -82,16 +70,18 @@ void graph::dirbleops::do_enable_auto_detection (const int handle_id,
                                                  const int port_id)
 {
   tizdirbleconfig_ptr_t dirble_config
-      = boost::dynamic_pointer_cast< dirbleconfig >(config_);
+      = boost::dynamic_pointer_cast< dirbleconfig > (config_);
   assert (dirble_config);
   tiz::graph::ops::do_enable_auto_detection (handle_id, port_id);
 }
 
-void graph::dirbleops::do_disable_comp_ports (const int comp_id, const int port_id)
+void graph::dirbleops::do_disable_comp_ports (const int comp_id,
+                                              const int port_id)
 {
   OMX_U32 dirble_source_port = port_id;
-  G_OPS_BAIL_IF_ERROR (util::disable_port (handles_[comp_id], dirble_source_port),
-                       "Unable to disable dirble source's output port.");
+  G_OPS_BAIL_IF_ERROR (
+      util::disable_port (handles_[comp_id], dirble_source_port),
+      "Unable to disable dirble source's output port.");
   clear_expected_port_transitions ();
   add_expected_port_transition (handles_[comp_id], dirble_source_port,
                                 OMX_CommandPortDisable);
@@ -106,11 +96,14 @@ void graph::dirbleops::do_configure_comp (const int comp_id)
     assert (dirble_config);
 
     G_OPS_BAIL_IF_ERROR (
-        set_dirble_api_key (handles_[0], dirble_config->get_api_key ()),
+        tiz::graph::util::set_dirble_api_key (handles_[0],
+                                              dirble_config->get_api_key ()),
         "Unable to set OMX_TizoniaIndexParamAudioDirbleSession");
 
     G_OPS_BAIL_IF_ERROR (
-        set_dirble_playlist (handles_[0], playlist_->get_current_uri ()),
+        tiz::graph::util::set_dirble_playlist (
+            handles_[0], playlist_->get_current_uri (),
+            dirble_config->get_playlist_type (), playlist_->shuffle ()),
         "Unable to set OMX_TizoniaIndexParamAudioDirblePlaylist");
   }
 }
@@ -151,14 +144,14 @@ void graph::dirbleops::do_load ()
   role_lst_.insert (role_lst_.begin (), role_list.begin (), role_list.end ());
 
   if (inital_graph_load_)
-    {
-      inital_graph_load_ = false;
-      tizdirbleconfig_ptr_t dirble_config
-        = boost::dynamic_pointer_cast< dirbleconfig >(config_);
-      assert (dirble_config);
-      tiz::graph::util::dump_graph_info ("Dirble", "Connecting",
-                                         dirble_config->get_api_key ().c_str ());
-    }
+  {
+    inital_graph_load_ = false;
+    tizdirbleconfig_ptr_t dirble_config
+        = boost::dynamic_pointer_cast< dirbleconfig > (config_);
+    assert (dirble_config);
+    tiz::graph::util::dump_graph_info ("Dirble", "Connecting",
+                                       dirble_config->get_api_key ().c_str ());
+  }
 }
 
 void graph::dirbleops::do_configure ()
@@ -252,7 +245,8 @@ void graph::dirbleops::do_retrieve_metadata ()
   const int decoder_index = 1;
   index = 0;
   const bool use_first_as_heading = false;
-  while (OMX_ErrorNone == dump_metadata_item (index++, decoder_index, use_first_as_heading))
+  while (OMX_ErrorNone
+         == dump_metadata_item (index++, decoder_index, use_first_as_heading))
   {
   };
 
@@ -270,8 +264,8 @@ void graph::dirbleops::do_retrieve_metadata ()
 // TODO: Move this implementation to the base class (and remove also from
 // httpservops)
 OMX_ERRORTYPE
-graph::dirbleops::switch_tunnel (
-    const int tunnel_id, const OMX_COMMANDTYPE to_disabled_or_enabled)
+graph::dirbleops::switch_tunnel (const int tunnel_id,
+                                 const OMX_COMMANDTYPE to_disabled_or_enabled)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
@@ -315,8 +309,8 @@ graph::dirbleops::switch_tunnel (
 }
 
 OMX_ERRORTYPE
-graph::dirbleops::add_decoder_to_component_list (
-    omx_comp_name_lst_t &comp_list, omx_comp_role_lst_t &role_list)
+graph::dirbleops::add_decoder_to_component_list (omx_comp_name_lst_t &comp_list,
+                                                 omx_comp_role_lst_t &role_list)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   switch (encoding_)
@@ -340,26 +334,27 @@ graph::dirbleops::add_decoder_to_component_list (
     }
     break;
     default:
-      {
+    {
       if (OMX_AUDIO_CodingOPUS == encoding_)
-        {
-          comp_list.push_back ("OMX.Aratelia.audio_decoder.opusfile.opus");
-          role_list.push_back ("audio_decoder.opus");
-        }
-      else if (OMX_AUDIO_CodingFLAC == encoding_)
-        {
-          comp_list.push_back ("OMX.Aratelia.audio_decoder.flac");
-          role_list.push_back ("audio_decoder.flac");
-        }
-      else
-        {
-          TIZ_LOG (TIZ_PRIORITY_ERROR,
-                   "[OMX_ErrorFormatNotDetected] : Unhandled encoding type [%d]...",
-                   encoding_);
-          rc = OMX_ErrorFormatNotDetected;
-        }
+      {
+        comp_list.push_back ("OMX.Aratelia.audio_decoder.opusfile.opus");
+        role_list.push_back ("audio_decoder.opus");
       }
-      break;
+      else if (OMX_AUDIO_CodingFLAC == encoding_)
+      {
+        comp_list.push_back ("OMX.Aratelia.audio_decoder.flac");
+        role_list.push_back ("audio_decoder.flac");
+      }
+      else
+      {
+        TIZ_LOG (
+            TIZ_PRIORITY_ERROR,
+            "[OMX_ErrorFormatNotDetected] : Unhandled encoding type [%d]...",
+            encoding_);
+        rc = OMX_ErrorFormatNotDetected;
+      }
+    }
+    break;
   };
   return rc;
 }
@@ -386,12 +381,11 @@ graph::dirbleops::override_decoder_and_renderer_sampling_rates ()
   OMX_U32 channels = 2;
   OMX_U32 sampling_rate = 44100;
   std::string encoding_str;
-  tiz_check_omx (get_channels_and_rate_from_decoder (
-      channels, sampling_rate, encoding_str));
+  tiz_check_omx (get_channels_and_rate_from_decoder (channels, sampling_rate,
+                                                     encoding_str));
   channels = 2;
   sampling_rate = 44100;
-  tiz_check_omx (
-      set_channels_and_rate_on_decoder (channels, sampling_rate));
+  tiz_check_omx (set_channels_and_rate_on_decoder (channels, sampling_rate));
   return set_channels_and_rate_on_renderer (channels, sampling_rate,
                                             encoding_str);
 }
@@ -403,10 +397,10 @@ graph::dirbleops::apply_pcm_codec_info_from_decoder ()
   OMX_U32 sampling_rate = 44100;
   std::string encoding_str;
 
-  tiz_check_omx (get_channels_and_rate_from_decoder (
-      channels, sampling_rate, encoding_str));
+  tiz_check_omx (get_channels_and_rate_from_decoder (channels, sampling_rate,
+                                                     encoding_str));
   tiz_check_omx (set_channels_and_rate_on_renderer (channels, sampling_rate,
-                                                        encoding_str));
+                                                    encoding_str));
   return OMX_ErrorNone;
 }
 
@@ -460,7 +454,7 @@ graph::dirbleops::get_channels_and_rate_from_decoder (
   if (OMX_ErrorNone == rc)
   {
     rc = tiz::graph::util::
-        get_channels_and_rate_from_audio_port_v2< OMX_AUDIO_PARAM_PCMMODETYPE >(
+        get_channels_and_rate_from_audio_port_v2< OMX_AUDIO_PARAM_PCMMODETYPE > (
             handle, port_id, OMX_IndexParamAudioPcm, channels, sampling_rate);
   }
   TIZ_LOG (TIZ_PRIORITY_TRACE, "outcome = [%s]", tiz_err_to_str (rc));
@@ -469,8 +463,8 @@ graph::dirbleops::get_channels_and_rate_from_decoder (
 }
 
 OMX_ERRORTYPE
-graph::dirbleops::set_channels_and_rate_on_decoder (
-    const OMX_U32 channels, const OMX_U32 sampling_rate)
+graph::dirbleops::set_channels_and_rate_on_decoder (const OMX_U32 channels,
+                                                    const OMX_U32 sampling_rate)
 {
   const OMX_HANDLETYPE handle = handles_[1];  // decoder's handle
   const OMX_U32 port_id = 0;                  // decoder's input port
@@ -540,50 +534,6 @@ graph::dirbleops::set_channels_and_rate_on_renderer (
   return OMX_ErrorNone;
 }
 
-OMX_ERRORTYPE
-graph::dirbleops::set_dirble_api_key (const OMX_HANDLETYPE handle,
-                                          const std::string &api_key)
-{
-  // Set the Dirble user and pass
-  OMX_TIZONIA_AUDIO_PARAM_DIRBLESESSIONTYPE sessiontype;
-  TIZ_INIT_OMX_STRUCT (sessiontype);
-  tiz_check_omx (OMX_GetParameter (
-      handle,
-      static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioDirbleSession),
-      &sessiontype));
-  copy_omx_string (sessiontype.cApiKey, api_key);
-  return OMX_SetParameter (
-      handle,
-      static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioDirbleSession),
-      &sessiontype);
-}
-
-OMX_ERRORTYPE
-graph::dirbleops::set_dirble_playlist (const OMX_HANDLETYPE handle,
-                                       const std::string &playlist)
-{
-  // Set the Dirble playlist
-  OMX_TIZONIA_AUDIO_PARAM_DIRBLEPLAYLISTTYPE playlisttype;
-  TIZ_INIT_OMX_STRUCT (playlisttype);
-  tiz_check_omx (OMX_GetParameter (
-      handle, static_cast< OMX_INDEXTYPE >(
-                  OMX_TizoniaIndexParamAudioDirblePlaylist),
-      &playlisttype));
-  copy_omx_string (playlisttype.cPlaylistName, playlist);
-
-  tizdirbleconfig_ptr_t dirble_config
-      = boost::dynamic_pointer_cast< dirbleconfig >(config_);
-  assert (dirble_config);
-
-  playlisttype.ePlaylistType = dirble_config->get_playlist_type ();
-  playlisttype.bShuffle = playlist_->shuffle () ? OMX_TRUE : OMX_FALSE;
-
-  return OMX_SetParameter (handle,
-                           static_cast< OMX_INDEXTYPE >(
-                               OMX_TizoniaIndexParamAudioDirblePlaylist),
-                           &playlisttype);
-}
-
 bool graph::dirbleops::is_fatal_error (const OMX_ERRORTYPE error) const
 {
   bool rc = false;
@@ -647,7 +597,7 @@ void graph::dirbleops::do_reconfigure_first_tunnel ()
           "Unable to set the MP3 settings on the audio decoder");
     }
     break;
-  default:
+    default:
     {
       // TODO
     }

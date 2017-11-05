@@ -44,6 +44,9 @@
 #include <tizprobe.hpp>
 #include <tizgraph.hpp>
 #include <tizgmusicconfig.hpp>
+#include <tizscloudconfig.hpp>
+#include <tizdirbleconfig.hpp>
+#include <tizyoutubeconfig.hpp>
 #include "tizchromecastconfig.hpp"
 #include "tizchromecastgraphops.hpp"
 
@@ -54,19 +57,6 @@
 
 namespace graph = tiz::graph;
 
-namespace
-{
-  void copy_omx_string (OMX_U8 *p_dest, const std::string &omx_string,
-                        const size_t max_length = OMX_MAX_STRINGNAME_SIZE)
-  {
-    const size_t len = omx_string.length ();
-    const size_t to_copy = MIN (len, max_length - 1);
-    assert (p_dest);
-    memcpy (p_dest, omx_string.c_str (), to_copy);
-    p_dest[to_copy] = '\0';
-  }
-}
-
 //
 // chromecastops
 //
@@ -74,66 +64,58 @@ graph::chromecastops::chromecastops (graph *p_graph,
                              const omx_comp_name_lst_t &comp_lst,
                              const omx_comp_role_lst_t &role_lst)
   : tiz::graph::ops (p_graph, comp_lst, role_lst),
-    encoding_ (OMX_AUDIO_CodingAutoDetect)
+    encoding_ (OMX_AUDIO_CodingAutoDetect),
+    config_func_()
 {
 }
 
-void graph::chromecastops::do_load_comp (const int comp_id)
+void graph::chromecastops::do_load ()
 {
-  assert (!comp_lst_.empty ());
+  assert (comp_lst_.size () == 1);
   assert (role_lst_.empty ());
   assert (config_);
 
   const std::type_info& ti_current = typeid(*config_);
   const std::type_info& ti_gmusic = typeid(tizgmusicconfig_ptr_t);
+  const std::type_info& ti_scloud = typeid(tizscloudconfig_ptr_t);
+  const std::type_info& ti_dirble = typeid(tizdirbleconfig_ptr_t);
+  const std::type_info& ti_youtube = typeid(tizyoutubeconfig_ptr_t);
 
   if (ti_current == ti_gmusic)
     {
-      tizgmusicconfig_ptr_t gmusic_config
-        = boost::dynamic_pointer_cast< gmusicconfig >(config_);
-      assert (gmusic_config);
-
-      // TODO: look in the config structure to find out which role we need to
-      // instantiate
       role_lst_.push_back ("audio_renderer.chromecast.gmusic");
+      config_func_ = boost::bind(&tiz::graph::chromecastops::do_configure_gmusic, this);
     }
-  // TODO: add other config types here
+  else if (ti_current == ti_scloud)
+    {
+      role_lst_.push_back ("audio_renderer.chromecast.scloud");
+      config_func_ = boost::bind(&tiz::graph::chromecastops::do_configure_scloud, this);
+    }
+  else if (ti_current == ti_dirble)
+    {
+      role_lst_.push_back ("audio_renderer.chromecast.dirble");
+      config_func_ = boost::bind(&tiz::graph::chromecastops::do_configure_dirble, this);
+    }
+  else if (ti_current == ti_youtube)
+    {
+      role_lst_.push_back ("audio_renderer.chromecast.youtube");
+      config_func_ = boost::bind(&tiz::graph::chromecastops::do_configure_youtube, this);
+    }
   else
     {
-      std::string msg ("Unable to locate set a suitable component role");
+      std::string msg ("Unable to set a suitable component role");
       BOOST_ASSERT_MSG (false, msg.c_str());
       G_OPS_BAIL_IF_ERROR (OMX_ErrorComponentNotFound, msg.c_str ());
     }
-    // At this point we are instantiating a graph with a single component.
-    assert (comp_lst_.size () == (unsigned int)comp_id + 1);
-    tiz::graph::ops::do_load ();
-}
-
-void graph::chromecastops::do_configure_comp (const int comp_id)
-{
-  if (comp_id == 0)
-  {
-    tizchromecastconfig_ptr_t chromecast_config
-        = boost::dynamic_pointer_cast< chromecastconfig > (config_);
-    assert (chromecast_config);
-
-    G_OPS_BAIL_IF_ERROR (
-        set_chromecast_user_and_device_id (
-            handles_[0], chromecast_config->get_user_name (),
-            chromecast_config->get_user_pass (), chromecast_config->get_device_id ()),
-        "Unable to set OMX_TizoniaIndexParamAudioGmusicSession");
-
-    G_OPS_BAIL_IF_ERROR (
-        set_chromecast_playlist (handles_[0], playlist_->get_current_uri ()),
-        "Unable to set OMX_TizoniaIndexParamAudioGmusicPlaylist");
-  }
+  // At this point we are instantiating a graph with a single component.
+  tiz::graph::ops::do_load ();
 }
 
 void graph::chromecastops::do_configure ()
 {
   if (last_op_succeeded ())
   {
-    // TODO
+    config_func_();
   }
 }
 
@@ -204,70 +186,6 @@ void graph::chromecastops::do_retrieve_metadata ()
 //       renderer_pcmtype_.eEndian == OMX_EndianBig ? "b" : "l");
 }
 
-bool graph::chromecastops::probe_stream_hook ()
-{
-  return true;
-}
-
-OMX_ERRORTYPE graph::chromecastops::get_encoding_type_from_chromecast_source ()
-{
-  OMX_PARAM_PORTDEFINITIONTYPE port_def;
-  const OMX_U32 port_id = 0;
-  TIZ_INIT_OMX_PORT_STRUCT (port_def, port_id);
-  tiz_check_omx (
-      OMX_GetParameter (handles_[0], OMX_IndexParamPortDefinition, &port_def));
-  encoding_ = port_def.format.audio.eEncoding;
-  return OMX_ErrorNone;
-}
-
-OMX_ERRORTYPE
-graph::chromecastops::set_chromecast_user_and_device_id (const OMX_HANDLETYPE handle,
-                                                 const std::string &user,
-                                                 const std::string &pass,
-                                                 const std::string &device_id)
-{
-  // Set the Google Play Music user and pass
-  OMX_TIZONIA_AUDIO_PARAM_GMUSICSESSIONTYPE sessiontype;
-  TIZ_INIT_OMX_STRUCT (sessiontype);
-  tiz_check_omx (OMX_GetParameter (
-      handle,
-      static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioGmusicSession),
-      &sessiontype));
-  copy_omx_string (sessiontype.cUserName, user);
-  copy_omx_string (sessiontype.cUserPassword, pass);
-  copy_omx_string (sessiontype.cDeviceId, device_id);
-  return OMX_SetParameter (handle, static_cast< OMX_INDEXTYPE >(
-                                       OMX_TizoniaIndexParamAudioGmusicSession),
-                           &sessiontype);
-}
-
-OMX_ERRORTYPE
-graph::chromecastops::set_chromecast_playlist (const OMX_HANDLETYPE handle,
-                                       const std::string &playlist)
-{
-  // Set the Google Play Music playlist
-  OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE playlisttype;
-  TIZ_INIT_OMX_STRUCT (playlisttype);
-  tiz_check_omx (OMX_GetParameter (
-      handle,
-      static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioGmusicPlaylist),
-      &playlisttype));
-  copy_omx_string (playlisttype.cPlaylistName, playlist);
-
-  tizchromecastconfig_ptr_t chromecast_config
-    = boost::dynamic_pointer_cast< chromecastconfig >(config_);
-  assert (chromecast_config);
-
-  playlisttype.ePlaylistType = chromecast_config->get_playlist_type ();
-  playlisttype.bShuffle = playlist_->shuffle () ? OMX_TRUE : OMX_FALSE;
-  playlisttype.bUnlimitedSearch = chromecast_config->is_unlimited_search () ? OMX_TRUE : OMX_FALSE;
-
-  return OMX_SetParameter (
-      handle,
-      static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioGmusicPlaylist),
-      &playlisttype);
-}
-
 bool graph::chromecastops::is_fatal_error (const OMX_ERRORTYPE error) const
 {
   bool rc = false;
@@ -294,4 +212,88 @@ void graph::chromecastops::do_record_fatal_error (const OMX_HANDLETYPE handle,
   {
     error_msg_.append ("\n [Playlist not found]");
   }
+}
+
+void graph::chromecastops::do_configure_gmusic ()
+{
+  tizgmusicconfig_ptr_t gmusic_config
+      = boost::dynamic_pointer_cast< gmusicconfig > (config_);
+  assert (gmusic_config);
+
+  G_OPS_BAIL_IF_ERROR (
+      tiz::graph::util::set_gmusic_user_and_device_id (
+          handles_[0], gmusic_config->get_user_name (),
+          gmusic_config->get_user_pass (), gmusic_config->get_device_id ()),
+      "Unable to set OMX_TizoniaIndexParamAudioGmusicSession");
+
+  G_OPS_BAIL_IF_ERROR (
+      tiz::graph::util::set_gmusic_playlist (
+          handles_[0], playlist_->get_current_uri (),
+          gmusic_config->get_playlist_type (), playlist_->shuffle (),
+          gmusic_config->is_unlimited_search ()),
+      "Unable to set OMX_TizoniaIndexParamAudioGmusicPlaylist");
+}
+
+void graph::chromecastops::do_configure_scloud ()
+{
+  tizscloudconfig_ptr_t scloud_config
+      = boost::dynamic_pointer_cast< scloudconfig > (config_);
+  assert (scloud_config);
+
+  G_OPS_BAIL_IF_ERROR (
+      tiz::graph::util::set_scloud_oauth_token (
+          handles_[0], scloud_config->get_oauth_token ()),
+      "Unable to set OMX_TizoniaIndexParamAudioSoundCloudSession");
+
+  G_OPS_BAIL_IF_ERROR (
+      tiz::graph::util::set_scloud_playlist (
+          handles_[0], playlist_->get_current_uri (),
+          scloud_config->get_playlist_type (), playlist_->shuffle ()),
+      "Unable to set OMX_TizoniaIndexParamAudioSoundCloudPlaylist");
+}
+
+void graph::chromecastops::do_configure_dirble ()
+{
+  tizdirbleconfig_ptr_t dirble_config
+      = boost::dynamic_pointer_cast< dirbleconfig > (config_);
+  assert (dirble_config);
+
+  G_OPS_BAIL_IF_ERROR (tiz::graph::util::set_dirble_api_key (
+                           handles_[0], dirble_config->get_api_key ()),
+                       "Unable to set OMX_TizoniaIndexParamAudioDirbleSession");
+
+  G_OPS_BAIL_IF_ERROR (
+      tiz::graph::util::set_dirble_playlist (
+          handles_[0], playlist_->get_current_uri (),
+          dirble_config->get_playlist_type (), playlist_->shuffle ()),
+      "Unable to set OMX_TizoniaIndexParamAudioDirblePlaylist");
+}
+
+void graph::chromecastops::do_configure_youtube ()
+{
+  tizyoutubeconfig_ptr_t youtube_config
+      = boost::dynamic_pointer_cast< youtubeconfig > (config_);
+  assert (youtube_config);
+
+  G_OPS_BAIL_IF_ERROR (
+      tiz::graph::util::set_youtube_playlist (
+          handles_[0], playlist_->get_current_uri (),
+          youtube_config->get_playlist_type (), playlist_->shuffle ()),
+      "Unable to set OMX_TizoniaIndexParamAudioYoutubePlaylist");
+}
+
+OMX_ERRORTYPE graph::chromecastops::get_encoding_type_from_chromecast_source ()
+{
+  OMX_PARAM_PORTDEFINITIONTYPE port_def;
+  const OMX_U32 port_id = 0;
+  TIZ_INIT_OMX_PORT_STRUCT (port_def, port_id);
+  tiz_check_omx (
+      OMX_GetParameter (handles_[0], OMX_IndexParamPortDefinition, &port_def));
+  encoding_ = port_def.format.audio.eEncoding;
+  return OMX_ErrorNone;
+}
+
+bool graph::chromecastops::probe_stream_hook ()
+{
+  return true;
 }

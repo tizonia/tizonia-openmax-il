@@ -179,6 +179,36 @@ namespace tiz
           boost::function< void(OMX_TIZONIA_AUDIO_PARAM_FLACTYPE &flactype) >
               getter, bool &need_port_settings_changed_evt);
 
+      static OMX_ERRORTYPE set_gmusic_user_and_device_id (
+          const OMX_HANDLETYPE handle, const std::string &user,
+          const std::string &pass, const std::string &device_id);
+
+      static OMX_ERRORTYPE set_gmusic_playlist (
+          const OMX_HANDLETYPE handle, const std::string &playlist,
+          const OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE playlist_type,
+          const bool shuffle, const bool unlimited);
+
+      static OMX_ERRORTYPE set_scloud_oauth_token (
+          const OMX_HANDLETYPE handle, const std::string &oauth_token);
+
+      static OMX_ERRORTYPE set_scloud_playlist (
+          const OMX_HANDLETYPE handle, const std::string &playlist,
+          const OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE playlist_type,
+          const bool shuffle);
+
+      static OMX_ERRORTYPE set_dirble_api_key (const OMX_HANDLETYPE handle,
+                                               const std::string &api_key);
+
+      static OMX_ERRORTYPE set_dirble_playlist (
+          const OMX_HANDLETYPE handle, const std::string &playlist,
+          const OMX_TIZONIA_AUDIO_DIRBLEPLAYLISTTYPE playlist_type,
+          const bool shuffle);
+
+      static OMX_ERRORTYPE set_youtube_playlist (
+          const OMX_HANDLETYPE handle, const std::string &playlist,
+          const OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE playlist_type,
+          const bool shuffle);
+
       static OMX_ERRORTYPE enable_port_format_auto_detection (
           const OMX_HANDLETYPE handle, const OMX_U32 port_id,
           const OMX_PORTDOMAINTYPE domain);
@@ -192,6 +222,9 @@ namespace tiz
       static std::string get_default_pcm_renderer ();
 
       static bool is_mpris_enabled ();
+
+      static void copy_omx_string (OMX_U8 *p_dest, const std::string &omx_string,
+                                   const size_t max_length = OMX_MAX_STRINGNAME_SIZE);
     };
   }  // namespace graph
 }  // namespace tiz

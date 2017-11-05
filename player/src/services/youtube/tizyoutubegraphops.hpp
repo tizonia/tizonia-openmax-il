@@ -58,8 +58,6 @@ namespace tiz
                                   const OMX_U32 port);
 
     private:
-      OMX_ERRORTYPE set_youtube_playlist (const OMX_HANDLETYPE handle,
-                                         const std::string &playlist);
       void do_load_http_source ();
       void do_load_demuxer ();
       void do_load_decoder ();

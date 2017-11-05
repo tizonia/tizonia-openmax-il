@@ -52,18 +52,6 @@
 
 namespace graph = tiz::graph;
 
-namespace
-{
-  void copy_omx_string (OMX_U8 *p_dest, const std::string &omx_string)
-  {
-    const size_t len = omx_string.length ();
-    const size_t to_copy = MIN (len, OMX_MAX_STRINGNAME_SIZE - 1);
-    assert (p_dest);
-    memcpy (p_dest, omx_string.c_str (), to_copy);
-    p_dest[to_copy] = '\0';
-  }
-}
-
 //
 // spotifyops
 //
@@ -403,8 +391,8 @@ graph::spotifyops::set_spotify_user_and_pass (const OMX_HANDLETYPE handle,
       handle,
       static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioSpotifySession),
       &sessiontype));
-  copy_omx_string (sessiontype.cUserName, user);
-  copy_omx_string (sessiontype.cUserPassword, pass);
+  tiz::graph::util::copy_omx_string (sessiontype.cUserName, user);
+  tiz::graph::util::copy_omx_string (sessiontype.cUserPassword, pass);
   return OMX_SetParameter (
       handle,
       static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioSpotifySession),
@@ -422,7 +410,7 @@ graph::spotifyops::set_spotify_playlist (const OMX_HANDLETYPE handle,
       handle,
       static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioSpotifyPlaylist),
       &playlisttype));
-  copy_omx_string (playlisttype.cPlaylistName, playlist);
+  tiz::graph::util::copy_omx_string (playlisttype.cPlaylistName, playlist);
   playlisttype.bShuffle = playlist_->shuffle ();
   return OMX_SetParameter (
       handle,

@@ -206,7 +206,8 @@ namespace tiz
         bmf::Row < tg::inited                   , tg::load_evt              , tg::loaded              , bmf::ActionSequence_<
                                                                                                           boost::mpl::vector<
                                                                                                             tg::do_store_config,
-                                                                                                            tg::do_load_comp<0>,
+                                                                                                            tg::do_load,
+                                                                                                            tg::do_configure,
                                                                                                             tg::do_ack_loaded> >    , bmf::none                    >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < tg::loaded                   , tg::execute_evt           , tg::executing           , bmf::none                   , bmf::none                    >,

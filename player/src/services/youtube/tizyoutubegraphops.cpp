@@ -52,18 +52,6 @@
 
 namespace graph = tiz::graph;
 
-namespace
-{
-  void copy_omx_string (OMX_U8 *p_dest, const std::string &omx_string)
-  {
-    const size_t len = omx_string.length ();
-    const size_t to_copy = MIN (len, OMX_MAX_STRINGNAME_SIZE - 1);
-    assert (p_dest);
-    memcpy (p_dest, omx_string.c_str (), to_copy);
-    p_dest[to_copy] = '\0';
-  }
-}
-
 //
 // youtubeops
 //
@@ -142,14 +130,21 @@ void graph::youtubeops::do_configure_comp (const int comp_id)
   {
     if (comp_id == 0)
     {
+      tizyoutubeconfig_ptr_t youtube_config
+          = boost::dynamic_pointer_cast< youtubeconfig > (config_);
+      assert (youtube_config);
+
       G_OPS_BAIL_IF_ERROR (
-          set_youtube_playlist (handles_[0], playlist_->get_current_uri ()),
+          tiz::graph::util::set_youtube_playlist (
+              handles_[0], playlist_->get_current_uri (),
+              youtube_config->get_playlist_type (), playlist_->shuffle ()),
           "Unable to set OMX_TizoniaIndexParamAudioYoutubePlaylist");
     }
     else if (comp_id == 2)
     {
-      G_OPS_BAIL_IF_ERROR (apply_default_config_on_decoder (),
-                           "Unable to apply the decoder's initial configuration");
+      G_OPS_BAIL_IF_ERROR (
+          apply_default_config_on_decoder (),
+          "Unable to apply the decoder's initial configuration");
     }
     else if (comp_id == 3)
     {
@@ -470,8 +465,8 @@ graph::youtubeops::add_decoder_to_component_list (
 // TODO: Move this implementation to the base class (and remove also from
 // httpservops)
 OMX_ERRORTYPE
-graph::youtubeops::switch_tunnel (
-    const int tunnel_id, const OMX_COMMANDTYPE to_disabled_or_enabled)
+graph::youtubeops::switch_tunnel (const int tunnel_id,
+                                  const OMX_COMMANDTYPE to_disabled_or_enabled)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
@@ -692,32 +687,6 @@ graph::youtubeops::set_channels_and_rate_on_renderer (
                                      playlist_->get_current_uri ().c_str ());
 
   return OMX_ErrorNone;
-}
-
-OMX_ERRORTYPE
-graph::youtubeops::set_youtube_playlist (const OMX_HANDLETYPE handle,
-                                         const std::string &playlist)
-{
-  // Set the Youtube playlist
-  OMX_TIZONIA_AUDIO_PARAM_YOUTUBEPLAYLISTTYPE playlisttype;
-  TIZ_INIT_OMX_STRUCT (playlisttype);
-  tiz_check_omx (OMX_GetParameter (
-      handle,
-      static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioYoutubePlaylist),
-      &playlisttype));
-  copy_omx_string (playlisttype.cPlaylistName, playlist);
-
-  tizyoutubeconfig_ptr_t youtube_config
-      = boost::dynamic_pointer_cast< youtubeconfig > (config_);
-  assert (youtube_config);
-
-  playlisttype.ePlaylistType = youtube_config->get_playlist_type ();
-  playlisttype.bShuffle = playlist_->shuffle () ? OMX_TRUE : OMX_FALSE;
-
-  return OMX_SetParameter (
-      handle,
-      static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioYoutubePlaylist),
-      &playlisttype);
 }
 
 bool graph::youtubeops::is_fatal_error (const OMX_ERRORTYPE error) const

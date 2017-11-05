@@ -29,17 +29,17 @@
 #include <config.h>
 #endif
 
-#include <string>
 #include <boost/foreach.hpp>
+#include <string>
 
-#include <OMX_Core.h>
 #include <OMX_Component.h>
+#include <OMX_Core.h>
 #include <OMX_TizoniaExt.h>
 
 #include <tizplatform.h>
 
-#include "tizomxutil.hpp"
 #include "tizgraphutil.hpp"
+#include "tizomxutil.hpp"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -57,7 +57,7 @@ namespace  // Unnamed namespace
       : to_state_ (to_state), delay_ (useconds), error_ (OMX_ErrorNone)
     {
     }
-    void operator()(const OMX_HANDLETYPE &handle)
+    void operator() (const OMX_HANDLETYPE &handle)
     {
       if (OMX_ErrorNone == error_)
         error_ = OMX_SendCommand (handle, OMX_CommandStateSet, to_state_, NULL);
@@ -76,7 +76,7 @@ namespace  // Unnamed namespace
         transition_verified_ (true)
     {
     }
-    void operator()(const OMX_HANDLETYPE &handle)
+    void operator() (const OMX_HANDLETYPE &handle)
     {
       if (OMX_ErrorNone == error_ && transition_verified_)
       {
@@ -131,7 +131,8 @@ graph::util::verify_comp_list (const omx_comp_name_lst_t &comp_list)
 }
 
 OMX_ERRORTYPE
-graph::util::verify_role (const std::string &comp, const std::string &comp_role, int &role_position)
+graph::util::verify_role (const std::string &comp, const std::string &comp_role,
+                          int &role_position)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
   std::vector< std::string > roles;
@@ -142,8 +143,8 @@ graph::util::verify_role (const std::string &comp, const std::string &comp_role,
     role_position = 0;
     BOOST_FOREACH (std::string role, roles)
     {
-      TIZ_LOG (TIZ_PRIORITY_DEBUG, "comp [%s] role [%s]",
-               comp.c_str (), role.c_str ());
+      TIZ_LOG (TIZ_PRIORITY_DEBUG, "comp [%s] role [%s]", comp.c_str (),
+               role.c_str ());
       ++role_position;
       if (comp_role.compare (role) == 0)
       {
@@ -181,7 +182,8 @@ graph::util::verify_role_list (const omx_comp_name_lst_t &comp_list,
   for (unsigned int i = 0; i < role_lst_size; ++i)
   {
     int role_pos = 0;
-    if (OMX_ErrorNone != (error = verify_role (comp_list[i], role_list[i], role_pos)))
+    if (OMX_ErrorNone
+        != (error = verify_role (comp_list[i], role_list[i], role_pos)))
     {
       break;
     }
@@ -201,8 +203,8 @@ graph::util::instantiate_component (const std::string &comp_name,
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
   OMX_HANDLETYPE p_hdl = NULL;
-  assert (graph_position >=0);
-  assert ((unsigned int) graph_position < hdl_list.size ());
+  assert (graph_position >= 0);
+  assert ((unsigned int)graph_position < hdl_list.size ());
 
   if (OMX_ErrorNone
       == (error = OMX_GetHandle (&p_hdl, (OMX_STRING)comp_name.c_str (),
@@ -228,7 +230,8 @@ graph::util::instantiate_comp_list (const omx_comp_name_lst_t &comp_list,
 
   BOOST_FOREACH (std::string comp, comp_list)
   {
-    // Grow the handle list by one element before calling 'instantiate_component'
+    // Grow the handle list by one element before calling
+    // 'instantiate_component'
     hdl_list.push_back (OMX_HANDLETYPE (NULL));
     if (OMX_ErrorNone
         != (error = instantiate_component (comp, position++, ap_app_data,
@@ -255,10 +258,11 @@ graph::util::set_role (const OMX_HANDLETYPE handle,
   OMX_ERRORTYPE error = OMX_ErrorNone;
   OMX_PARAM_COMPONENTROLETYPE roletype;
   TIZ_INIT_OMX_STRUCT (roletype);
-  strncpy ((char *)roletype.cRole, comp_role.c_str (), OMX_MAX_STRINGNAME_SIZE - 1);
+  strncpy ((char *)roletype.cRole, comp_role.c_str (),
+           OMX_MAX_STRINGNAME_SIZE - 1);
   roletype.cRole[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
-  tiz_check_omx (OMX_SetParameter (
-      handle, OMX_IndexParamStandardComponentRole, &roletype));
+  tiz_check_omx (OMX_SetParameter (handle, OMX_IndexParamStandardComponentRole,
+                                   &roletype));
 
   return error;
 }
@@ -271,8 +275,8 @@ graph::util::set_role_list (const omx_comp_handle_lst_t &hdl_list,
   OMX_ERRORTYPE error = OMX_ErrorNone;
   const int nroles = role_list.size ();
 
-  assert  ((int)hdl_list.size () == nroles);
-  assert  ((int)role_positions.size () == nroles);
+  assert ((int)hdl_list.size () == nroles);
+  assert ((int)role_positions.size () == nroles);
 
   // Ok, now set the requested component roles...
   for (int i = 0; i < nroles; ++i)
@@ -307,14 +311,16 @@ void graph::util::destroy_list (omx_comp_handle_lst_t &hdl_list)
 void graph::util::destroy_component (omx_comp_handle_lst_t &hdl_list,
                                      const int handle_id)
 {
-  assert (handle_id >= 0 && static_cast<std::size_t>(handle_id) < hdl_list.size ());
+  assert (handle_id >= 0
+          && static_cast< std::size_t > (handle_id) < hdl_list.size ());
 
   if (hdl_list[handle_id])
-    {
-      OMX_FreeHandle (hdl_list[handle_id]);
-      hdl_list[handle_id] = NULL;
-      hdl_list.erase(hdl_list.begin() + handle_id, hdl_list.begin() + handle_id + 1);
-    }
+  {
+    OMX_FreeHandle (hdl_list[handle_id]);
+    hdl_list[handle_id] = NULL;
+    hdl_list.erase (hdl_list.begin () + handle_id,
+                    hdl_list.begin () + handle_id + 1);
+  }
 }
 
 // TODO: Replace magic numbers in this function
@@ -323,17 +329,17 @@ graph::util::setup_tunnels (const omx_comp_handle_lst_t &hdl_list,
                             const int tunnel_id /* = OMX_ALL */)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
-  const int first_hdl = (tunnel_id == (int) OMX_ALL ? 0 : tunnel_id);
+  const int first_hdl = (tunnel_id == (int)OMX_ALL ? 0 : tunnel_id);
   const int last_hdl
-      = (tunnel_id == (int) OMX_ALL ? (hdl_list.size () - 1) : (tunnel_id + 1));
+      = (tunnel_id == (int)OMX_ALL ? (hdl_list.size () - 1) : (tunnel_id + 1));
 
   if (last_hdl > 0)
+  {
+    for (int i = first_hdl; i < last_hdl && OMX_ErrorNone == error; ++i)
     {
-      for (int i = first_hdl; i < last_hdl && OMX_ErrorNone == error; ++i)
-        {
-          error = OMX_SetupTunnel (hdl_list[i], i == 0 ? 0 : 1, hdl_list[i + 1], 0);
-        }
+      error = OMX_SetupTunnel (hdl_list[i], i == 0 ? 0 : 1, hdl_list[i + 1], 0);
     }
+  }
   return error;
 }
 
@@ -345,13 +351,13 @@ graph::util::tear_down_tunnels (const omx_comp_handle_lst_t &hdl_list)
   const int hdl_lst_size = hdl_list.size ();
 
   if (hdl_lst_size > 0)
+  {
+    for (int i = 0; i < hdl_lst_size - 1 && OMX_ErrorNone == error; ++i)
     {
-      for (int i = 0; i < hdl_lst_size - 1 && OMX_ErrorNone == error; ++i)
-        {
-          error
-            = OMX_TeardownTunnel (hdl_list[i], i == 0 ? 0 : 1, hdl_list[i + 1], 0);
-        }
+      error = OMX_TeardownTunnel (hdl_list[i], i == 0 ? 0 : 1, hdl_list[i + 1],
+                                  0);
     }
+  }
   return error;
 }
 
@@ -361,29 +367,29 @@ graph::util::setup_suppliers (const omx_comp_handle_lst_t &hdl_list,
                               const int tunnel_id /* = OMX_ALL */)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
-  const int first_hdl = (tunnel_id == (int) OMX_ALL ? 0 : tunnel_id);
+  const int first_hdl = (tunnel_id == (int)OMX_ALL ? 0 : tunnel_id);
   const int last_hdl
-      = (tunnel_id == (int) OMX_ALL ? (hdl_list.size () - 1) : (tunnel_id + 1));
+      = (tunnel_id == (int)OMX_ALL ? (hdl_list.size () - 1) : (tunnel_id + 1));
 
   if (last_hdl > 0)
-    {
-      OMX_PARAM_BUFFERSUPPLIERTYPE supplier;
-      TIZ_INIT_OMX_PORT_STRUCT (supplier, 0);
-      supplier.eBufferSupplier = OMX_BufferSupplyInput;
+  {
+    OMX_PARAM_BUFFERSUPPLIERTYPE supplier;
+    TIZ_INIT_OMX_PORT_STRUCT (supplier, 0);
+    supplier.eBufferSupplier = OMX_BufferSupplyInput;
 
-      for (int i = first_hdl; i < last_hdl && OMX_ErrorNone == error; ++i)
-        {
-          supplier.nPortIndex = i == 0 ? 0 : 1;
-          error = OMX_SetParameter (hdl_list[i], OMX_IndexParamCompBufferSupplier,
-                              &supplier);
-          if (OMX_ErrorNone == error)
-            {
-              supplier.nPortIndex = 0;
-              error = OMX_SetParameter (hdl_list[i + 1],
-                                        OMX_IndexParamCompBufferSupplier, &supplier);
-            }
-        }
+    for (int i = first_hdl; i < last_hdl && OMX_ErrorNone == error; ++i)
+    {
+      supplier.nPortIndex = i == 0 ? 0 : 1;
+      error = OMX_SetParameter (hdl_list[i], OMX_IndexParamCompBufferSupplier,
+                                &supplier);
+      if (OMX_ErrorNone == error)
+      {
+        supplier.nPortIndex = 0;
+        error = OMX_SetParameter (hdl_list[i + 1],
+                                  OMX_IndexParamCompBufferSupplier, &supplier);
+      }
     }
+  }
   return error;
 }
 
@@ -394,7 +400,7 @@ graph::util::transition_one (const omx_comp_handle_lst_t &hdl_list,
   OMX_ERRORTYPE error = OMX_ErrorNone;
 
   assert (handle_id >= 0);
-  assert ((unsigned int) handle_id < hdl_list.size ());
+  assert ((unsigned int)handle_id < hdl_list.size ());
 
   struct transition_to transition_component (to);
 
@@ -417,7 +423,8 @@ graph::util::transition_all (const omx_comp_handle_lst_t &hdl_list,
   {
     // Suppliers first, hence back to front order
     error = (std::for_each (hdl_list.rbegin (), hdl_list.rend (),
-                            transition_to (to))).error_;
+                            transition_to (to)))
+                .error_;
 
     // NOTE: Leave this commented code here - for testing purposes
     // Non-suppliers first, hence front to back order
@@ -428,7 +435,8 @@ graph::util::transition_all (const omx_comp_handle_lst_t &hdl_list,
   {
     // Non-suppliers first, hence front to back order
     error = (std::for_each (hdl_list.begin (), hdl_list.end (),
-                            transition_to (to))).error_;
+                            transition_to (to)))
+                .error_;
 
     // NOTE: Leave this commented code here - for testing purposes
     // Suppliers first, hence back to front order
@@ -447,7 +455,8 @@ bool graph::util::verify_transition_all (const omx_comp_handle_lst_t &hdl_list,
                                          const OMX_STATETYPE to)
 {
   return (std::for_each (hdl_list.begin (), hdl_list.end (),
-                         transition_verify (to))).transition_verified_;
+                         transition_verify (to)))
+      .transition_verified_;
 }
 
 bool graph::util::verify_transition_one (const OMX_HANDLETYPE handle,
@@ -476,16 +485,15 @@ graph::util::apply_volume_step (const OMX_HANDLETYPE handle, const OMX_U32 pid,
   bool new_volume = false;
   OMX_AUDIO_CONFIG_VOLUMETYPE volume;
   TIZ_INIT_OMX_PORT_STRUCT (volume, pid);
-  tiz_check_omx (
-      OMX_GetConfig (handle, OMX_IndexConfigAudioVolume, &volume));
+  tiz_check_omx (OMX_GetConfig (handle, OMX_IndexConfigAudioVolume, &volume));
   vol = volume.sVolume.nValue;
   if (volume.sVolume.nValue <= (volume.sVolume.nMax - VOL_STEP) && step > 0)
   {
     volume.sVolume.nValue += VOL_STEP;
     new_volume = true;
   }
-  else if (volume.sVolume.nValue >= (volume.sVolume.nMin + VOL_STEP) && step
-                                                                        < 0)
+  else if (volume.sVolume.nValue >= (volume.sVolume.nMin + VOL_STEP)
+           && step < 0)
   {
     volume.sVolume.nValue -= VOL_STEP;
     new_volume = true;
@@ -493,8 +501,7 @@ graph::util::apply_volume_step (const OMX_HANDLETYPE handle, const OMX_U32 pid,
   if (new_volume)
   {
     vol = volume.sVolume.nValue;
-    tiz_check_omx (
-        OMX_SetConfig (handle, OMX_IndexConfigAudioVolume, &volume));
+    tiz_check_omx (OMX_SetConfig (handle, OMX_IndexConfigAudioVolume, &volume));
   }
   return rc;
 }
@@ -507,8 +514,7 @@ graph::util::apply_volume (const OMX_HANDLETYPE handle, const OMX_U32 pid,
   const OMX_S32 nValue = (vol > 1.0 ? 100 : (OMX_S32) (vol * 100));
   OMX_AUDIO_CONFIG_VOLUMETYPE volume;
   TIZ_INIT_OMX_PORT_STRUCT (volume, pid);
-  tiz_check_omx (
-      OMX_GetConfig (handle, OMX_IndexConfigAudioVolume, &volume));
+  tiz_check_omx (OMX_GetConfig (handle, OMX_IndexConfigAudioVolume, &volume));
   comp_vol = volume.sVolume.nValue;
   if (volume.sVolume.nValue != nValue)
   {
@@ -541,11 +547,11 @@ graph::util::apply_playlist_jump (const OMX_HANDLETYPE handle,
   OMX_TIZONIA_PLAYLISTSKIPTYPE skip;
   TIZ_INIT_OMX_STRUCT (skip);
   tiz_check_omx (OMX_GetConfig (
-      handle, static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexConfigPlaylistSkip),
+      handle, static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexConfigPlaylistSkip),
       &skip));
   skip.nValue = jump;
   tiz_check_omx (OMX_SetConfig (
-      handle, static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexConfigPlaylistSkip),
+      handle, static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexConfigPlaylistSkip),
       &skip));
   return rc;
 }
@@ -584,8 +590,8 @@ graph::util::modify_tunnel (const omx_comp_handle_lst_t &hdl_list,
 
   for (int i = 0; i < 2 && error == OMX_ErrorNone; ++i)
   {
-    TIZ_LOG (TIZ_PRIORITY_TRACE, "handle index [%d] - port id [%d]",
-             i, port_ids[i]);
+    TIZ_LOG (TIZ_PRIORITY_TRACE, "handle index [%d] - port id [%d]", i,
+             port_ids[i]);
     error = OMX_SendCommand (tunnel_handles[i], cmd, port_ids[i], NULL);
     TIZ_LOG (TIZ_PRIORITY_TRACE, "error [%s]", tiz_err_to_str (error));
   }
@@ -619,14 +625,14 @@ graph::util::set_content_uri (const OMX_HANDLETYPE handle,
   const int uri_len = uri.length ();
 
   if (NULL == (p_uritype = (OMX_PARAM_CONTENTURITYPE *)tiz_mem_calloc (
-                   1, sizeof(OMX_PARAM_CONTENTURITYPE) + uri_len + 1))
+                   1, sizeof (OMX_PARAM_CONTENTURITYPE) + uri_len + 1))
       || (pathname_max > 0 && uri_len > pathname_max))
   {
     rc = OMX_ErrorInsufficientResources;
   }
   else
   {
-    p_uritype->nSize = sizeof(OMX_PARAM_CONTENTURITYPE) + uri_len + 1;
+    p_uritype->nSize = sizeof (OMX_PARAM_CONTENTURITYPE) + uri_len + 1;
     p_uritype->nVersion.nVersion = OMX_VERSION;
 
     const size_t uri_offset = offsetof (OMX_PARAM_CONTENTURITYPE, contentURI);
@@ -651,8 +657,7 @@ graph::util::set_pcm_mode (
   OMX_AUDIO_PARAM_PCMMODETYPE pcmtype;
   TIZ_INIT_OMX_PORT_STRUCT (pcmtype, port_id);
   getter (pcmtype);
-  tiz_check_omx (
-      OMX_SetParameter (handle, OMX_IndexParamAudioPcm, &pcmtype));
+  tiz_check_omx (OMX_SetParameter (handle, OMX_IndexParamAudioPcm, &pcmtype));
   return OMX_ErrorNone;
 }
 
@@ -674,8 +679,7 @@ graph::util::set_mp3_type (
   TIZ_INIT_OMX_PORT_STRUCT (mp3type, port_id);
 
   getter (mp3type);
-  tiz_check_omx (
-      OMX_SetParameter (handle, OMX_IndexParamAudioMp3, &mp3type));
+  tiz_check_omx (OMX_SetParameter (handle, OMX_IndexParamAudioMp3, &mp3type));
 
   // Record whether we need to wait for a port settings change event or not
   // (i.e. the decoder output port implements the "slaving" behaviour)
@@ -704,8 +708,7 @@ graph::util::set_aac_type (
   TIZ_INIT_OMX_PORT_STRUCT (aactype, port_id);
 
   getter (aactype);
-  tiz_check_omx (
-      OMX_SetParameter (handle, OMX_IndexParamAudioAac, &aactype));
+  tiz_check_omx (OMX_SetParameter (handle, OMX_IndexParamAudioAac, &aactype));
 
   // Record whether we need to wait for a port settings change event or not
   // (i.e. the decoder output port implements the "slaving" behaviour)
@@ -727,7 +730,7 @@ graph::util::set_flac_type (
   TIZ_INIT_OMX_PORT_STRUCT (flactype_orig, port_id);
 
   tiz_check_omx (OMX_GetParameter (
-      handle, static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioFlac),
+      handle, static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioFlac),
       &flactype_orig));
 
   OMX_TIZONIA_AUDIO_PARAM_FLACTYPE flactype;
@@ -737,7 +740,7 @@ graph::util::set_flac_type (
   getter (flactype);
   flactype.nPortIndex = port_id;
   tiz_check_omx (OMX_SetParameter (
-      handle, static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioFlac),
+      handle, static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioFlac),
       &flactype));
 
   // Record whether we need to wait for a port settings change event or not
@@ -749,6 +752,156 @@ graph::util::set_flac_type (
   return OMX_ErrorNone;
 }
 
+OMX_ERRORTYPE graph::util::set_gmusic_user_and_device_id (
+    const OMX_HANDLETYPE handle, const std::string &user,
+    const std::string &pass, const std::string &device_id)
+{
+  // Set the Google Play Music user and pass
+  OMX_TIZONIA_AUDIO_PARAM_GMUSICSESSIONTYPE sessiontype;
+  TIZ_INIT_OMX_STRUCT (sessiontype);
+  tiz_check_omx (OMX_GetParameter (
+      handle,
+      static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioGmusicSession),
+      &sessiontype));
+  tiz::graph::util::copy_omx_string (sessiontype.cUserName, user);
+  tiz::graph::util::copy_omx_string (sessiontype.cUserPassword, pass);
+  tiz::graph::util::copy_omx_string (sessiontype.cDeviceId, device_id);
+  return OMX_SetParameter (handle, static_cast< OMX_INDEXTYPE > (
+                                       OMX_TizoniaIndexParamAudioGmusicSession),
+                           &sessiontype);
+}
+
+OMX_ERRORTYPE graph::util::set_gmusic_playlist (
+    const OMX_HANDLETYPE handle, const std::string &playlist,
+    const OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE playlist_type,
+    const bool shuffle, const bool unlimited)
+{
+  // Set the Google Play Music playlist
+  OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE playlisttype;
+  TIZ_INIT_OMX_STRUCT (playlisttype);
+  tiz_check_omx (OMX_GetParameter (
+      handle,
+      static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioGmusicPlaylist),
+      &playlisttype));
+  tiz::graph::util::copy_omx_string (playlisttype.cPlaylistName, playlist);
+
+  playlisttype.ePlaylistType = playlist_type;
+  playlisttype.bShuffle = shuffle ? OMX_TRUE : OMX_FALSE;
+  playlisttype.bUnlimitedSearch = unlimited ? OMX_TRUE : OMX_FALSE;
+
+  return OMX_SetParameter (
+      handle,
+      static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioGmusicPlaylist),
+      &playlisttype);
+}
+
+OMX_ERRORTYPE
+graph::util::set_scloud_oauth_token (const OMX_HANDLETYPE handle,
+                                     const std::string &oauth_token)
+{
+  // Set the SoundCloud user and pass
+  OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDSESSIONTYPE sessiontype;
+  TIZ_INIT_OMX_STRUCT (sessiontype);
+  tiz_check_omx (OMX_GetParameter (
+      handle, static_cast< OMX_INDEXTYPE > (
+                  OMX_TizoniaIndexParamAudioSoundCloudSession),
+      &sessiontype));
+  tiz::graph::util::copy_omx_string (sessiontype.cUserOauthToken, oauth_token);
+  return OMX_SetParameter (handle,
+                           static_cast< OMX_INDEXTYPE > (
+                               OMX_TizoniaIndexParamAudioSoundCloudSession),
+                           &sessiontype);
+}
+
+OMX_ERRORTYPE
+graph::util::set_scloud_playlist (
+    const OMX_HANDLETYPE handle, const std::string &playlist,
+    const OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE playlist_type,
+    const bool shuffle)
+{
+  // Set the SoundCloud playlist
+  OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDPLAYLISTTYPE playlisttype;
+  TIZ_INIT_OMX_STRUCT (playlisttype);
+  tiz_check_omx (OMX_GetParameter (
+      handle, static_cast< OMX_INDEXTYPE > (
+                  OMX_TizoniaIndexParamAudioSoundCloudPlaylist),
+      &playlisttype));
+  tiz::graph::util::copy_omx_string (playlisttype.cPlaylistName, playlist);
+
+  playlisttype.ePlaylistType = playlist_type;
+  playlisttype.bShuffle = shuffle ? OMX_TRUE : OMX_FALSE;
+
+  return OMX_SetParameter (handle,
+                           static_cast< OMX_INDEXTYPE > (
+                               OMX_TizoniaIndexParamAudioSoundCloudPlaylist),
+                           &playlisttype);
+}
+
+OMX_ERRORTYPE
+graph::util::set_dirble_api_key (const OMX_HANDLETYPE handle,
+                                 const std::string &api_key)
+{
+  // Set the Dirble user and pass
+  OMX_TIZONIA_AUDIO_PARAM_DIRBLESESSIONTYPE sessiontype;
+  TIZ_INIT_OMX_STRUCT (sessiontype);
+  tiz_check_omx (OMX_GetParameter (
+      handle,
+      static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioDirbleSession),
+      &sessiontype));
+  tiz::graph::util::copy_omx_string (sessiontype.cApiKey, api_key);
+  return OMX_SetParameter (handle, static_cast< OMX_INDEXTYPE > (
+                                       OMX_TizoniaIndexParamAudioDirbleSession),
+                           &sessiontype);
+}
+
+OMX_ERRORTYPE
+graph::util::set_dirble_playlist (
+    const OMX_HANDLETYPE handle, const std::string &playlist,
+    const OMX_TIZONIA_AUDIO_DIRBLEPLAYLISTTYPE playlist_type,
+    const bool shuffle)
+{
+  // Set the Dirble playlist
+  OMX_TIZONIA_AUDIO_PARAM_DIRBLEPLAYLISTTYPE playlisttype;
+  TIZ_INIT_OMX_STRUCT (playlisttype);
+  tiz_check_omx (OMX_GetParameter (
+      handle,
+      static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioDirblePlaylist),
+      &playlisttype));
+  tiz::graph::util::copy_omx_string (playlisttype.cPlaylistName, playlist);
+
+  playlisttype.ePlaylistType = playlist_type;
+  playlisttype.bShuffle = shuffle ? OMX_TRUE : OMX_FALSE;
+
+  return OMX_SetParameter (
+      handle,
+      static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioDirblePlaylist),
+      &playlisttype);
+}
+
+OMX_ERRORTYPE
+graph::util::set_youtube_playlist (
+    const OMX_HANDLETYPE handle, const std::string &playlist,
+    const OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE playlist_type,
+    const bool shuffle)
+{
+  // Set the Youtube playlist
+  OMX_TIZONIA_AUDIO_PARAM_YOUTUBEPLAYLISTTYPE playlisttype;
+  TIZ_INIT_OMX_STRUCT (playlisttype);
+  tiz_check_omx (OMX_GetParameter (
+      handle,
+      static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioYoutubePlaylist),
+      &playlisttype));
+  tiz::graph::util::copy_omx_string (playlisttype.cPlaylistName, playlist);
+
+  playlisttype.ePlaylistType = playlist_type;
+  playlisttype.bShuffle = shuffle ? OMX_TRUE : OMX_FALSE;
+
+  return OMX_SetParameter (
+      handle,
+      static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioYoutubePlaylist),
+      &playlisttype);
+}
+
 OMX_ERRORTYPE
 graph::util::enable_port_format_auto_detection (const OMX_HANDLETYPE handle,
                                                 const OMX_U32 port_id,
@@ -756,39 +909,37 @@ graph::util::enable_port_format_auto_detection (const OMX_HANDLETYPE handle,
 {
   OMX_PARAM_PORTDEFINITIONTYPE portdef;
   TIZ_INIT_OMX_PORT_STRUCT (portdef, port_id);
-  tiz_check_omx (OMX_GetParameter (
-      handle, OMX_IndexParamPortDefinition,
-      &portdef));
+  tiz_check_omx (
+      OMX_GetParameter (handle, OMX_IndexParamPortDefinition, &portdef));
   switch (domain)
-    {
+  {
     case OMX_PortDomainAudio:
-      {
-        assert (OMX_PortDomainAudio == portdef.eDomain);
-        portdef.format.audio.eEncoding = OMX_AUDIO_CodingAutoDetect;
-      }
-      break;
+    {
+      assert (OMX_PortDomainAudio == portdef.eDomain);
+      portdef.format.audio.eEncoding = OMX_AUDIO_CodingAutoDetect;
+    }
+    break;
     case OMX_PortDomainVideo:
-      {
-        assert (OMX_PortDomainVideo == portdef.eDomain);
-        portdef.format.video.eCompressionFormat = OMX_VIDEO_CodingAutoDetect;
-      }
-      break;
+    {
+      assert (OMX_PortDomainVideo == portdef.eDomain);
+      portdef.format.video.eCompressionFormat = OMX_VIDEO_CodingAutoDetect;
+    }
+    break;
     case OMX_PortDomainImage:
-      {
-        assert (OMX_PortDomainImage == portdef.eDomain);
-        portdef.format.image.eCompressionFormat = OMX_IMAGE_CodingAutoDetect;
-      }
-      break;
+    {
+      assert (OMX_PortDomainImage == portdef.eDomain);
+      portdef.format.image.eCompressionFormat = OMX_IMAGE_CodingAutoDetect;
+    }
+    break;
     case OMX_PortDomainOther:
-      // 'Other' domain does not have an "autodetection" encoding type
+    // 'Other' domain does not have an "autodetection" encoding type
     default:
       assert (0);
-        break;
-    };
+      break;
+  };
 
-  tiz_check_omx (OMX_SetParameter (
-      handle, OMX_IndexParamPortDefinition,
-      &portdef));
+  tiz_check_omx (
+      OMX_SetParameter (handle, OMX_IndexParamPortDefinition, &portdef));
 
   return OMX_ErrorNone;
 }
@@ -797,8 +948,8 @@ void graph::util::dump_graph_info (const char *ap_coding_type_str,
                                    const char *ap_graph_type_str,
                                    const std::string &uri)
 {
-  TIZ_PRINTF_GRN ("[%s] [%s] : '%s'.\n", ap_coding_type_str,
-           ap_graph_type_str, uri.c_str ());
+  TIZ_PRINTF_GRN ("[%s] [%s] : '%s'.\n", ap_coding_type_str, ap_graph_type_str,
+                  uri.c_str ());
 }
 
 bool graph::util::is_fatal_error (const OMX_ERRORTYPE error)
@@ -829,26 +980,40 @@ bool graph::util::is_fatal_error (const OMX_ERRORTYPE error)
 std::string graph::util::get_default_pcm_renderer ()
 {
   std::string renderer_name;
-  const char *p_renderer_name = tiz_rcfile_get_value("tizonia", "default-audio-renderer");
+  const char *p_renderer_name
+      = tiz_rcfile_get_value ("tizonia", "default-audio-renderer");
   if (p_renderer_name)
-    {
-      renderer_name.assign (p_renderer_name);
-    }
+  {
+    renderer_name.assign (p_renderer_name);
+  }
   return renderer_name;
 }
 
 bool graph::util::is_mpris_enabled ()
 {
   bool is_enabled = false;
-  const char *p_mpris_enabled = tiz_rcfile_get_value("tizonia", "mpris-enabled");
+  const char *p_mpris_enabled
+      = tiz_rcfile_get_value ("tizonia", "mpris-enabled");
   if (p_mpris_enabled)
+  {
+    std::string mpris_enabled_str;
+    mpris_enabled_str.assign (p_mpris_enabled);
+    if (mpris_enabled_str.compare ("true") == 0)
     {
-      std::string mpris_enabled_str;
-      mpris_enabled_str.assign (p_mpris_enabled);
-      if (mpris_enabled_str.compare ("true") == 0)
-        {
-          is_enabled = true;
-        }
+      is_enabled = true;
     }
+  }
   return is_enabled;
+}
+
+void graph::util::copy_omx_string (
+    OMX_U8 *p_dest, const std::string &omx_string,
+    const size_t max_length /*  = OMX_MAX_STRINGNAME_SIZE */
+    )
+{
+  const size_t len = omx_string.length ();
+  const size_t to_copy = MIN (len, max_length - 1);
+  assert (p_dest);
+  memcpy (p_dest, omx_string.c_str (), to_copy);
+  p_dest[to_copy] = '\0';
 }

@@ -29,6 +29,8 @@
 #ifndef TIZCHROMECASTGRAPHOPS_HPP
 #define TIZCHROMECASTGRAPHOPS_HPP
 
+#include <boost/function.hpp>
+
 #include "tizgraphops.hpp"
 
 namespace tiz
@@ -44,8 +46,7 @@ namespace tiz
                  const omx_comp_role_lst_t &role_lst);
 
     public:
-      void do_load_comp (const int comp_id);
-      void do_configure_comp (const int comp_id);
+      void do_load ();
       void do_configure ();
       void do_loaded2idle ();
       void do_idle2exe ();
@@ -58,19 +59,23 @@ namespace tiz
                                   const OMX_U32 port);
 
     private:
-      OMX_ERRORTYPE set_chromecast_user_and_device_id (
-          const OMX_HANDLETYPE handle, const std::string &user,
-          const std::string &pass, const std::string &device_id);
-      OMX_ERRORTYPE set_chromecast_playlist (const OMX_HANDLETYPE handle,
-                                         const std::string &playlist);
+      void do_configure_gmusic ();
+      void do_configure_scloud ();
+      void do_configure_dirble ();
+      void do_configure_youtube ();
+
+      OMX_ERRORTYPE get_encoding_type_from_chromecast_source ();
+
+    private:
+      typedef boost::function< void() > config_func_t;
 
     private:
       // re-implemented from the base class
       bool probe_stream_hook ();
-      OMX_ERRORTYPE get_encoding_type_from_chromecast_source ();
 
     private:
       OMX_AUDIO_CODINGTYPE encoding_;
+      config_func_t config_func_;
     };
   }  // namespace graph
 }  // namespace tiz

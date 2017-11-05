@@ -63,11 +63,6 @@ namespace tiz
     private:
       OMX_ERRORTYPE switch_tunnel (
           const int tunnel_id, const OMX_COMMANDTYPE to_disabled_or_enabled);
-      OMX_ERRORTYPE set_gmusic_user_and_device_id (
-          const OMX_HANDLETYPE handle, const std::string &user,
-          const std::string &pass, const std::string &device_id);
-      OMX_ERRORTYPE set_gmusic_playlist (const OMX_HANDLETYPE handle,
-                                         const std::string &playlist);
 
     private:
       // re-implemented from the base class
