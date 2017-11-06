@@ -48,8 +48,6 @@ namespace tiz
     public:
       void do_load ();
       void do_configure ();
-      void do_loaded2idle ();
-      void do_idle2exe ();
       void do_skip ();
       void do_retrieve_metadata ();
 

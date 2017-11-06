@@ -119,42 +119,6 @@ void graph::chromecastops::do_configure ()
   }
 }
 
-void graph::chromecastops::do_loaded2idle ()
-{
-  if (last_op_succeeded ())
-  {
-    // Transition the decoder and the renderer components to Idle
-    omx_comp_handle_lst_t decoder_and_renderer_handles;
-    decoder_and_renderer_handles.push_back (handles_[1]);  // the decoder
-    decoder_and_renderer_handles.push_back (handles_[2]);  // the renderer
-    G_OPS_BAIL_IF_ERROR (
-        util::transition_all (decoder_and_renderer_handles, OMX_StateIdle,
-                              OMX_StateLoaded),
-        "Unable to transition deoder and renderer from Loaded->Idle");
-    clear_expected_transitions ();
-    add_expected_transition (handles_[1], OMX_StateIdle);
-    add_expected_transition (handles_[2], OMX_StateIdle);
-  }
-}
-
-void graph::chromecastops::do_idle2exe ()
-{
-  if (last_op_succeeded ())
-  {
-    // Transition the decoder and the renderer components to Exe
-    omx_comp_handle_lst_t decoder_and_renderer_handles;
-    decoder_and_renderer_handles.push_back (handles_[1]);  // the decoder
-    decoder_and_renderer_handles.push_back (handles_[2]);  // the renderer
-    G_OPS_BAIL_IF_ERROR (
-        util::transition_all (decoder_and_renderer_handles, OMX_StateExecuting,
-                              OMX_StateIdle),
-        "Unable to transition decoder and renderer from Idle->Exe");
-    clear_expected_transitions ();
-    add_expected_transition (handles_[1], OMX_StateExecuting);
-    add_expected_transition (handles_[2], OMX_StateExecuting);
-  }
-}
-
 void graph::chromecastops::do_skip ()
 {
   if (last_op_succeeded () && 0 != jump_)
@@ -178,12 +142,12 @@ void graph::chromecastops::do_retrieve_metadata ()
 
   // TODO
   // Now print renderer metadata
-//   TIZ_PRINTF_MAG (
-//       "     %ld Ch, %g KHz, %lu:%s:%s \n", renderer_pcmtype_.nChannels,
-//       ((float)renderer_pcmtype_.nSamplingRate) / 1000,
-//       renderer_pcmtype_.nBitPerSample,
-//       renderer_pcmtype_.eNumData == OMX_NumericalDataSigned ? "s" : "u",
-//       renderer_pcmtype_.eEndian == OMX_EndianBig ? "b" : "l");
+  //   TIZ_PRINTF_MAG (
+  //       "     %ld Ch, %g KHz, %lu:%s:%s \n", renderer_pcmtype_.nChannels,
+  //       ((float)renderer_pcmtype_.nSamplingRate) / 1000,
+  //       renderer_pcmtype_.nBitPerSample,
+  //       renderer_pcmtype_.eNumData == OMX_NumericalDataSigned ? "s" : "u",
+  //       renderer_pcmtype_.eEndian == OMX_EndianBig ? "b" : "l");
 }
 
 bool graph::chromecastops::is_fatal_error (const OMX_ERRORTYPE error) const

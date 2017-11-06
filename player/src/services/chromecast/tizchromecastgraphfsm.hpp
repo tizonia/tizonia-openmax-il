@@ -210,7 +210,11 @@ namespace tiz
                                                                                                             tg::do_configure,
                                                                                                             tg::do_ack_loaded> >    , bmf::none                    >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
-        bmf::Row < tg::loaded                   , tg::execute_evt           , tg::executing           , bmf::none                   , bmf::none                    >,
+        bmf::Row < tg::loaded                   , bmf::none                 , tg::config2idle         , tg::do_loaded2idle          , bmf::none                    >,
+        //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
+        bmf::Row < tg::config2idle              , tg::omx_trans_evt         , tg::idle2exe            , tg::do_idle2exe             , tg::is_trans_complete        >,
+        //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
+        bmf::Row < tg::idle2exe                 , tg::omx_trans_evt         , tg::executing           , bmf::none                   , tg::is_trans_complete        >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < tg::executing                , tg::omx_err_evt           , tg::exe2idle            , bmf::ActionSequence_<
                                                                                                           boost::mpl::vector<
