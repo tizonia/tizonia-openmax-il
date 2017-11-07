@@ -58,9 +58,7 @@ namespace graph = tiz::graph;
 //
 graph::chromecast::chromecast ()
   : graph::graph ("chromecastgraph"),
-    fsm_ (boost::msm::back::states_
-          << tiz::graph::ccfsm::fsm::skipping (&p_ops_),
-          &p_ops_)
+    fsm_ (boost::msm::back::states_, &p_ops_)
 {
 }
 
