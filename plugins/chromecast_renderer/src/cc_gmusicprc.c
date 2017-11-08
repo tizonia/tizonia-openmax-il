@@ -51,6 +51,9 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.chromecast_renderer.prc.gmusic"
 #endif
 
+#define CONTENT_TYPE "audio/mpeg"
+#define TITLE "Tizonia Audio Stream"
+
 /* forward declarations */
 static OMX_ERRORTYPE
 cc_gmusic_prc_deallocate_resources (void *);
@@ -64,7 +67,7 @@ static OMX_ERRORTYPE
 cc_gmusic_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
                              OMX_INDEXTYPE a_config_idx);
 
-#define on_lib_error_ret_omx_oom(expr)                                    \
+#define on_gmusic_error_ret_omx_oom(expr)                                    \
   do                                                                         \
     {                                                                        \
       int gmusic_error = 0;                                                  \
@@ -73,6 +76,20 @@ cc_gmusic_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
           TIZ_ERROR (handleOf (p_prc),                                       \
                      "[OMX_ErrorInsufficientResources] : error while using " \
                      "libtizgmusic");                                        \
+          return OMX_ErrorInsufficientResources;                             \
+        }                                                                    \
+    }                                                                        \
+  while (0)
+
+#define on_cc_error_ret_omx_oom(expr)                                        \
+  do                                                                         \
+    {                                                                        \
+      int cc_error = 0;                                                      \
+      if (0 != (cc_error = (expr)))                                          \
+        {                                                                    \
+          TIZ_ERROR (handleOf (p_prc),                                       \
+                     "[OMX_ErrorInsufficientResources] : error while using " \
+                     "libtizchromecast");                                    \
           return OMX_ErrorInsufficientResources;                             \
         }                                                                    \
     }                                                                        \
@@ -143,9 +160,9 @@ update_metadata (cc_gmusic_prc_t * ap_prc)
   tiz_krn_clear_metadata (tiz_get_krn (handleOf (ap_prc)));
 
   /* Artist and song title */
-  tiz_check_omx (store_metadata (
-    ap_prc, tiz_gmusic_get_current_song_artist (ap_prc->p_gm_),
-    tiz_gmusic_get_current_song_title (ap_prc->p_gm_)));
+  tiz_check_omx (
+    store_metadata (ap_prc, tiz_gmusic_get_current_song_artist (ap_prc->p_gm_),
+                    tiz_gmusic_get_current_song_title (ap_prc->p_gm_)));
 
   /* Album */
   tiz_check_omx (store_metadata (
@@ -161,14 +178,12 @@ update_metadata (cc_gmusic_prc_t * ap_prc)
   }
 
   /* Song duration */
-  tiz_check_omx (
-    store_metadata (ap_prc, "Duration",
-                    tiz_gmusic_get_current_song_duration (ap_prc->p_gm_)));
+  tiz_check_omx (store_metadata (
+    ap_prc, "Duration", tiz_gmusic_get_current_song_duration (ap_prc->p_gm_)));
 
   /* Track number */
   tiz_check_omx (store_metadata (
-    ap_prc, "Track",
-    tiz_gmusic_get_current_song_track_number (ap_prc->p_gm_)));
+    ap_prc, "Track", tiz_gmusic_get_current_song_track_number (ap_prc->p_gm_)));
 
   /* Store total tracks if not 0 */
   {
@@ -304,7 +319,7 @@ enqueue_playlist_items (cc_gmusic_prc_t * ap_prc)
 
     tiz_gmusic_set_playback_mode (
       ap_prc->p_gm_, (shuffle == OMX_TRUE ? ETIZGmusicPlaybackModeShuffle
-                                              : ETIZGmusicPlaybackModeNormal));
+                                          : ETIZGmusicPlaybackModeNormal));
 
     switch (ap_prc->playlist_.ePlaylistType)
       {
@@ -373,7 +388,8 @@ enqueue_playlist_items (cc_gmusic_prc_t * ap_prc)
   return (rc == 0 ? OMX_ErrorNone : OMX_ErrorInsufficientResources);
 }
 
-void cc_new_media_status_cback (void * ap_user_data)
+void
+cc_new_media_status_cback (void * ap_user_data)
 {
   /* TODO */
 }
@@ -422,17 +438,19 @@ cc_gmusic_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
   tiz_check_omx (retrieve_session_configuration (p_prc));
   tiz_check_omx (retrieve_playlist (p_prc));
 
-  TIZ_TRACE (handleOf (p_prc), "cUserName  : [%s]", p_prc->gm_session_.cUserName);
+  TIZ_TRACE (handleOf (p_prc), "cUserName  : [%s]",
+             p_prc->gm_session_.cUserName);
   TIZ_TRACE (handleOf (p_prc), "cUserPassword  : [%s]",
              p_prc->gm_session_.cUserPassword);
-  TIZ_TRACE (handleOf (p_prc), "cDeviceId  : [%s]", p_prc->gm_session_.cDeviceId);
+  TIZ_TRACE (handleOf (p_prc), "cDeviceId  : [%s]",
+             p_prc->gm_session_.cDeviceId);
 
-  on_lib_error_ret_omx_oom (tiz_gmusic_init (
+  on_gmusic_error_ret_omx_oom (tiz_gmusic_init (
     &(p_prc->p_gm_), (const char *) p_prc->gm_session_.cUserName,
     (const char *) p_prc->gm_session_.cUserPassword,
     (const char *) p_prc->gm_session_.cDeviceId));
 
-  on_lib_error_ret_omx_oom (tiz_chromecast_init (
+  on_cc_error_ret_omx_oom (tiz_chromecast_init (
     &(p_prc->p_cc_), (const char *) p_prc->cc_session_.cNameOrIpAddr,
     cc_new_media_status_cback, p_prc));
 
@@ -468,9 +486,17 @@ static OMX_ERRORTYPE
 cc_gmusic_prc_transfer_and_process (void * ap_prc, OMX_U32 a_pid)
 {
   cc_gmusic_prc_t * p_prc = ap_prc;
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (p_prc);
-  return rc;
+  assert (p_prc->p_cc_);
+  assert (p_prc->p_uri_param_);
+  assert (p_prc->p_uri_param_->contentURI);
+  if (p_prc->p_cc_ && p_prc->p_uri_param_ && p_prc->p_uri_param_->contentURI)
+    {
+      on_cc_error_ret_omx_oom (tiz_chromecast_load (
+        p_prc->p_cc_, (const char *) p_prc->p_uri_param_->contentURI,
+        CONTENT_TYPE, TITLE));
+    }
+  return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
@@ -478,6 +504,8 @@ cc_gmusic_prc_stop_and_return (void * ap_prc)
 {
   cc_gmusic_prc_t * p_prc = ap_prc;
   assert (p_prc);
+  assert (p_prc->p_cc_);
+  (void) tiz_chromecast_stop (p_prc->p_cc_);
   return release_buffer (p_prc);
 }
 
@@ -503,14 +531,22 @@ cc_gmusic_prc_timer_ready (void * ap_prc, tiz_event_timer_t * ap_ev_timer,
 }
 
 static OMX_ERRORTYPE
-cc_gmusic_prc_pause (const void * ap_obj)
+cc_gmusic_prc_pause (const void * ap_prc)
 {
+  cc_gmusic_prc_t * p_prc = (cc_gmusic_prc_t *) ap_prc;
+  assert (p_prc);
+  assert (p_prc->p_cc_);
+  on_cc_error_ret_omx_oom (tiz_chromecast_pause (p_prc->p_cc_));
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
-cc_gmusic_prc_resume (const void * ap_obj)
+cc_gmusic_prc_resume (const void * ap_prc)
 {
+  cc_gmusic_prc_t * p_prc = (cc_gmusic_prc_t *) ap_prc;
+  assert (p_prc);
+  assert (p_prc->p_cc_);
+  on_cc_error_ret_omx_oom (tiz_chromecast_play (p_prc->p_cc_));
   return OMX_ErrorNone;
 }
 
