@@ -241,6 +241,11 @@ function main {
     pretty_print "$BLU" "PKG_CONFIG_PATH=$PKG_CONFIG_DIR"
     export LD_LIBRARY_PATH="$LIB_DIR"
     export PKG_CONFIG_PATH="$PKG_CONFIG_DIR"
+    which ccache &> /dev/null
+    if [[ $? -eq 0 ]]; then
+        pretty_print "$BLU" "Adding ccache symlinks to PATH (/usr/lib/ccache)"
+        export PATH=/usr/lib/ccache:$PATH
+    fi
 
     local builddir="$TIZONIA_REPO_DIR"
     if [[ "$project" == 1 ]]; then
