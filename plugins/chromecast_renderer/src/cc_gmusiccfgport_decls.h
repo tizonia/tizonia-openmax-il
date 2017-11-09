@@ -43,8 +43,9 @@ struct cc_gmusic_cfgport
 {
   /* Object */
   const tiz_configport_t _;
-  OMX_TIZONIA_AUDIO_PARAM_GMUSICSESSIONTYPE session_;
+  OMX_TIZONIA_AUDIO_PARAM_GMUSICSESSIONTYPE gm_session_;
   OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE playlist_;
+  OMX_TIZONIA_PARAM_CHROMECASTSESSIONTYPE cc_session_;
 };
 
 typedef struct cc_gmusic_cfgport_class cc_gmusic_cfgport_class_t;

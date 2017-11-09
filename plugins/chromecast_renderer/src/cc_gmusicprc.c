@@ -289,7 +289,7 @@ release_buffer (cc_gmusic_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
-retrieve_session_configuration (cc_gmusic_prc_t * ap_prc)
+retrieve_gm_session_configuration (cc_gmusic_prc_t * ap_prc)
 {
   return tiz_api_GetParameter (
     tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
@@ -302,6 +302,14 @@ retrieve_playlist (cc_gmusic_prc_t * ap_prc)
   return tiz_api_GetParameter (
     tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
     OMX_TizoniaIndexParamAudioGmusicPlaylist, &(ap_prc->playlist_));
+}
+
+static OMX_ERRORTYPE
+retrieve_cc_session_configuration (cc_gmusic_prc_t * ap_prc)
+{
+  return tiz_api_GetParameter (
+    tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+    OMX_TizoniaIndexParamChromecastSession, &(ap_prc->cc_session_));
 }
 
 static OMX_ERRORTYPE
@@ -435,8 +443,9 @@ cc_gmusic_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
   cc_gmusic_prc_t * p_prc = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
   assert (p_prc);
-  tiz_check_omx (retrieve_session_configuration (p_prc));
+  tiz_check_omx (retrieve_gm_session_configuration (p_prc));
   tiz_check_omx (retrieve_playlist (p_prc));
+  tiz_check_omx (retrieve_cc_session_configuration (p_prc));
 
   TIZ_TRACE (handleOf (p_prc), "cUserName  : [%s]",
              p_prc->gm_session_.cUserName);
@@ -444,6 +453,8 @@ cc_gmusic_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
              p_prc->gm_session_.cUserPassword);
   TIZ_TRACE (handleOf (p_prc), "cDeviceId  : [%s]",
              p_prc->gm_session_.cDeviceId);
+  TIZ_TRACE (handleOf (p_prc), "cNameOrIpAddr  : [%s]",
+             p_prc->cc_session_.cNameOrIpAddr);
 
   on_gmusic_error_ret_omx_oom (tiz_gmusic_init (
     &(p_prc->p_gm_), (const char *) p_prc->gm_session_.cUserName,
@@ -489,8 +500,9 @@ cc_gmusic_prc_transfer_and_process (void * ap_prc, OMX_U32 a_pid)
   assert (p_prc);
   assert (p_prc->p_cc_);
   assert (p_prc->p_uri_param_);
-  assert (p_prc->p_uri_param_->contentURI);
-  if (p_prc->p_cc_ && p_prc->p_uri_param_ && p_prc->p_uri_param_->contentURI)
+  assert ((const char *) p_prc->p_uri_param_->contentURI);
+  if (p_prc->p_cc_ && p_prc->p_uri_param_
+      && (const char *) p_prc->p_uri_param_->contentURI)
     {
       on_cc_error_ret_omx_oom (tiz_chromecast_load (
         p_prc->p_cc_, (const char *) p_prc->p_uri_param_->contentURI,
@@ -516,8 +528,6 @@ cc_gmusic_prc_stop_and_return (void * ap_prc)
 static OMX_ERRORTYPE
 cc_gmusic_prc_buffers_ready (const void * ap_prc)
 {
-  cc_gmusic_prc_t * p_prc = (cc_gmusic_prc_t *) ap_prc;
-  assert (p_prc);
   return OMX_ErrorNone;
 }
 

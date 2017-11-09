@@ -60,15 +60,17 @@ cc_gmusic_cfgport_ctor (void * ap_obj, va_list * app)
     tiz_port_register_index (p_obj, OMX_TizoniaIndexParamAudioGmusicSession));
   tiz_check_omx_ret_null (
     tiz_port_register_index (p_obj, OMX_TizoniaIndexParamAudioGmusicPlaylist));
+  tiz_check_omx_ret_null (
+    tiz_port_register_index (p_obj, OMX_TizoniaIndexParamChromecastSession));
 
   /* Initialize the OMX_TIZONIA_AUDIO_PARAM_GMUSICSESSIONTYPE structure */
-  TIZ_INIT_OMX_STRUCT (p_obj->session_);
-  snprintf ((char *) p_obj->session_.cUserName,
-            sizeof (p_obj->session_.cUserName), "tizonia");
-  snprintf ((char *) p_obj->session_.cUserPassword,
-            sizeof (p_obj->session_.cUserPassword), "pass");
-  snprintf ((char *) p_obj->session_.cDeviceId,
-            sizeof (p_obj->session_.cDeviceId), "deviceId");
+  TIZ_INIT_OMX_STRUCT (p_obj->gm_session_);
+  snprintf ((char *) p_obj->gm_session_.cUserName,
+            sizeof (p_obj->gm_session_.cUserName), "tizonia");
+  snprintf ((char *) p_obj->gm_session_.cUserPassword,
+            sizeof (p_obj->gm_session_.cUserPassword), "pass");
+  snprintf ((char *) p_obj->gm_session_.cDeviceId,
+            sizeof (p_obj->gm_session_.cDeviceId), "deviceId");
 
   /* Initialize the OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE structure */
   TIZ_INIT_OMX_STRUCT (p_obj->playlist_);
@@ -77,6 +79,11 @@ cc_gmusic_cfgport_ctor (void * ap_obj, va_list * app)
   p_obj->playlist_.ePlaylistType = OMX_AUDIO_GmusicPlaylistTypeUnknown;
   p_obj->playlist_.bShuffle = OMX_FALSE;
   p_obj->playlist_.bUnlimitedSearch = OMX_FALSE;
+
+  /* Initialize the OMX_TIZONIA_PARAM_CHROMECASTSESSIONTYPE structure */
+  TIZ_INIT_OMX_STRUCT (p_obj->cc_session_);
+  snprintf ((char *) p_obj->cc_session_.cNameOrIpAddr,
+            sizeof (p_obj->cc_session_.cNameOrIpAddr), "127.0.0.1");
 
   return p_obj;
 }
@@ -93,7 +100,7 @@ cc_gmusic_cfgport_dtor (void * ap_obj)
 
 static OMX_ERRORTYPE
 cc_gmusic_cfgport_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
-                             OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+                                OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const cc_gmusic_cfgport_t * p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
@@ -105,13 +112,18 @@ cc_gmusic_cfgport_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
 
   if (OMX_TizoniaIndexParamAudioGmusicSession == a_index)
     {
-      memcpy (ap_struct, &(p_obj->session_),
+      memcpy (ap_struct, &(p_obj->gm_session_),
               sizeof (OMX_TIZONIA_AUDIO_PARAM_GMUSICSESSIONTYPE));
     }
   else if (OMX_TizoniaIndexParamAudioGmusicPlaylist == a_index)
     {
       memcpy (ap_struct, &(p_obj->playlist_),
               sizeof (OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE));
+    }
+  else if (OMX_TizoniaIndexParamChromecastSession == a_index)
+    {
+      memcpy (ap_struct, &(p_obj->cc_session_),
+              sizeof (OMX_TIZONIA_PARAM_CHROMECASTSESSIONTYPE));
     }
   else
     {
@@ -125,7 +137,7 @@ cc_gmusic_cfgport_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
 
 static OMX_ERRORTYPE
 cc_gmusic_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
-                             OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+                                OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   cc_gmusic_cfgport_t * p_obj = (cc_gmusic_cfgport_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
@@ -137,12 +149,13 @@ cc_gmusic_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
 
   if (OMX_TizoniaIndexParamAudioGmusicSession == a_index)
     {
-      memcpy (&(p_obj->session_), ap_struct,
+      memcpy (&(p_obj->gm_session_), ap_struct,
               sizeof (OMX_TIZONIA_AUDIO_PARAM_GMUSICSESSIONTYPE));
-      p_obj->session_.cUserName[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
-      p_obj->session_.cUserPassword[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
-      p_obj->session_.cDeviceId[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
-      TIZ_TRACE (ap_hdl, "Gmusic User Name [%s]...", p_obj->session_.cUserName);
+      p_obj->gm_session_.cUserName[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+      p_obj->gm_session_.cUserPassword[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+      p_obj->gm_session_.cDeviceId[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+      TIZ_TRACE (ap_hdl, "Gmusic User Name [%s]...",
+                 p_obj->gm_session_.cUserName);
     }
   else if (OMX_TizoniaIndexParamAudioGmusicPlaylist == a_index)
     {
@@ -151,6 +164,14 @@ cc_gmusic_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
       p_obj->playlist_.cPlaylistName[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
       TIZ_TRACE (ap_hdl, "Gmusic playlist [%s]...",
                  p_obj->playlist_.cPlaylistName);
+    }
+  else if (OMX_TizoniaIndexParamChromecastSession == a_index)
+    {
+      memcpy (&(p_obj->gm_session_), ap_struct,
+              sizeof (OMX_TIZONIA_AUDIO_PARAM_GMUSICSESSIONTYPE));
+      p_obj->cc_session_.cNameOrIpAddr[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+      TIZ_TRACE (ap_hdl, "Chromecast name of ip [%s]...",
+                 p_obj->cc_session_.cNameOrIpAddr);
     }
   else
     {
