@@ -966,7 +966,8 @@ tiz::playapp::gmusic_stream_chromecast ()
 
   tizgraphconfig_ptr_t config
       = boost::make_shared< tiz::graph::chromecastconfig > (cc_name_or_ip,
-                                                            service_config);
+                                                            service_config,
+                                                            tiz::graph::chromecastconfig::ConfigGoogleMusic);
 
   // Instantiate the chromecast client manager
   tiz::graphmgr::mgr_ptr_t p_mgr

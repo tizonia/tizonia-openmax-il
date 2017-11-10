@@ -42,13 +42,24 @@ namespace tiz
   {
     class chromecastconfig : public config
     {
+    public:
+      enum service_config_type_t
+        {
+         ConfigGoogleMusic,
+         ConfigSoundCloud,
+         ConfigDirble,
+         ConfigYouTube,
+         ConfigUnknown
+        };
 
     public:
       chromecastconfig (const std::string &cc_name_or_ip,
-                        const tizgraphconfig_ptr_t &service_config)
+                        const tizgraphconfig_ptr_t &service_config,
+                        const service_config_type_t service_config_type)
         : config (service_config->get_playlist ()),
           name_or_ip_ (cc_name_or_ip),
-          service_config_ (service_config)
+          service_config_ (service_config),
+          service_config_type_(service_config_type)
       {
       }
 
@@ -66,9 +77,15 @@ namespace tiz
         return service_config_;
       }
 
+      service_config_type_t get_service_config_type () const
+      {
+        return service_config_type_;
+      }
+
     protected:
       const std::string name_or_ip_;
       tizgraphconfig_ptr_t service_config_;
+      service_config_type_t service_config_type_;
     };
   }  // namespace graph
 }  // namespace tiz

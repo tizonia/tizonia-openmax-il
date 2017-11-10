@@ -56,6 +56,9 @@
 #endif
 
 namespace graph = tiz::graph;
+typedef tiz::graph::chromecastconfig cc_cfg_t;
+
+#define CC_OPS_DO_LOAD_ERROR_MSG "Unable to set a suitable component role"
 
 //
 // chromecastops
@@ -80,36 +83,31 @@ void graph::chromecastops::do_load ()
   // we need.
   role_lst_.clear ();
 
-  tizchromecastconfig_ptr_t cc_config_
-      = boost::dynamic_pointer_cast< chromecastconfig > (config_);
+  cc_config_ = boost::dynamic_pointer_cast< chromecastconfig > (config_);
   assert (cc_config_);
 
-  const std::type_info& ti_current
-      = typeid (*(cc_config_->get_service_config ()));
-  const std::type_info& ti_gmusic = typeid (tizgmusicconfig_ptr_t);
-  const std::type_info& ti_scloud = typeid (tizscloudconfig_ptr_t);
-  const std::type_info& ti_dirble = typeid (tizdirbleconfig_ptr_t);
-  const std::type_info& ti_youtube = typeid (tizyoutubeconfig_ptr_t);
+  const cc_cfg_t::service_config_type_t config_type
+      = cc_config_->get_service_config_type ();
 
-  if (ti_current == ti_gmusic)
+  if (config_type == cc_cfg_t::ConfigGoogleMusic)
   {
     role_lst_.push_back ("audio_renderer.chromecast.gmusic");
     config_service_func_
         = boost::bind (&tiz::graph::chromecastops::do_configure_gmusic, this);
   }
-  else if (ti_current == ti_scloud)
+  else if (config_type == cc_cfg_t::ConfigSoundCloud)
   {
     role_lst_.push_back ("audio_renderer.chromecast.scloud");
     config_service_func_
         = boost::bind (&tiz::graph::chromecastops::do_configure_scloud, this);
   }
-  else if (ti_current == ti_dirble)
+  else if (config_type == cc_cfg_t::ConfigDirble)
   {
     role_lst_.push_back ("audio_renderer.chromecast.dirble");
     config_service_func_
         = boost::bind (&tiz::graph::chromecastops::do_configure_dirble, this);
   }
-  else if (ti_current == ti_youtube)
+  else if (config_type == cc_cfg_t::ConfigYouTube)
   {
     role_lst_.push_back ("audio_renderer.chromecast.youtube");
     config_service_func_
@@ -117,9 +115,8 @@ void graph::chromecastops::do_load ()
   }
   else
   {
-    std::string msg ("Unable to set a suitable component role");
-    BOOST_ASSERT_MSG (false, msg.c_str ());
-    G_OPS_BAIL_IF_ERROR (OMX_ErrorComponentNotFound, msg.c_str ());
+    BOOST_ASSERT_MSG (false, CC_OPS_DO_LOAD_ERROR_MSG);
+    G_OPS_BAIL_IF_ERROR (OMX_ErrorComponentNotFound, CC_OPS_DO_LOAD_ERROR_MSG);
   }
   // At this point we are instantiating a graph with a single component.
   tiz::graph::ops::do_load ();
@@ -202,7 +199,6 @@ void graph::chromecastops::do_record_fatal_error (const OMX_HANDLETYPE handle,
 void graph::chromecastops::do_configure_chromecast ()
 {
   assert (cc_config_);
-
   G_OPS_BAIL_IF_ERROR (tiz::graph::util::set_chromecast_name_or_ip (
                            handles_[0], cc_config_->get_name_or_ip ()),
                        "Unable to set OMX_TizoniaIndexParamChromecastSession");
