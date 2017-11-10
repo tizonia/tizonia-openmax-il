@@ -167,8 +167,8 @@ cc_gmusic_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
     }
   else if (OMX_TizoniaIndexParamChromecastSession == a_index)
     {
-      memcpy (&(p_obj->gm_session_), ap_struct,
-              sizeof (OMX_TIZONIA_AUDIO_PARAM_GMUSICSESSIONTYPE));
+      memcpy (&(p_obj->cc_session_), ap_struct,
+              sizeof (OMX_TIZONIA_PARAM_CHROMECASTSESSIONTYPE));
       p_obj->cc_session_.cNameOrIpAddr[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
       TIZ_TRACE (ap_hdl, "Chromecast name of ip [%s]...",
                  p_obj->cc_session_.cNameOrIpAddr);

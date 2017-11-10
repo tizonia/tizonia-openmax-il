@@ -236,10 +236,10 @@ obtain_next_url (cc_gmusic_prc_t * ap_prc, int a_skip_value)
       const OMX_U32 url_len = strnlen (p_next_url, pathname_max);
       TIZ_TRACE (handleOf (ap_prc), "URL [%s]", p_next_url);
 
-      /* Verify we are getting an chromecast scheme */
+      /* Verify we are getting an http scheme */
       if (!p_next_url || !url_len
-          || (memcmp (p_next_url, "chromecast://", 7) != 0
-              && memcmp (p_next_url, "chromecasts://", 8) != 0))
+          || (memcmp (p_next_url, "http://", 7) != 0
+              && memcmp (p_next_url, "https://", 8) != 0))
         {
           rc = OMX_ErrorContentURIError;
         }
@@ -441,7 +441,6 @@ static OMX_ERRORTYPE
 cc_gmusic_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
 {
   cc_gmusic_prc_t * p_prc = ap_obj;
-  OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
   assert (p_prc);
   tiz_check_omx (retrieve_gm_session_configuration (p_prc));
   tiz_check_omx (retrieve_playlist (p_prc));
@@ -468,7 +467,7 @@ cc_gmusic_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
   tiz_check_omx (enqueue_playlist_items (p_prc));
   tiz_check_omx (obtain_next_url (p_prc, 1));
 
-  return rc;
+  return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
