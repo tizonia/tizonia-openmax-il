@@ -35,20 +35,20 @@
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
 
-#include <OMX_Core.h>
 #include <OMX_Component.h>
+#include <OMX_Core.h>
 #include <OMX_TizoniaExt.h>
 #include <tizplatform.h>
 
-#include <tizgraphutil.hpp>
-#include <tizprobe.hpp>
-#include <tizgraph.hpp>
-#include <tizgmusicconfig.hpp>
-#include <tizscloudconfig.hpp>
-#include <tizdirbleconfig.hpp>
-#include <tizyoutubeconfig.hpp>
 #include "tizchromecastconfig.hpp"
 #include "tizchromecastgraphops.hpp"
+#include <tizdirbleconfig.hpp>
+#include <tizgmusicconfig.hpp>
+#include <tizgraph.hpp>
+#include <tizgraphutil.hpp>
+#include <tizprobe.hpp>
+#include <tizscloudconfig.hpp>
+#include <tizyoutubeconfig.hpp>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -60,53 +60,67 @@ namespace graph = tiz::graph;
 //
 // chromecastops
 //
-graph::chromecastops::chromecastops (graph *p_graph,
-                             const omx_comp_name_lst_t &comp_lst,
-                             const omx_comp_role_lst_t &role_lst)
+graph::chromecastops::chromecastops (graph* p_graph,
+                                     const omx_comp_name_lst_t& comp_lst,
+                                     const omx_comp_role_lst_t& role_lst)
   : tiz::graph::ops (p_graph, comp_lst, role_lst),
     encoding_ (OMX_AUDIO_CodingAutoDetect),
-    config_func_()
+    config_service_func_ (),
+    cc_config_ ()
 {
 }
 
 void graph::chromecastops::do_load ()
 {
   assert (comp_lst_.size () == 1);
-  assert (role_lst_.empty ());
+  assert (role_lst_.size () == 1);
   assert (config_);
 
-  const std::type_info& ti_current = typeid(*config_);
-  const std::type_info& ti_gmusic = typeid(tizgmusicconfig_ptr_t);
-  const std::type_info& ti_scloud = typeid(tizscloudconfig_ptr_t);
-  const std::type_info& ti_dirble = typeid(tizdirbleconfig_ptr_t);
-  const std::type_info& ti_youtube = typeid(tizyoutubeconfig_ptr_t);
+  // Clear the role list. We'll override it with a new role once we know what
+  // we need.
+  role_lst_.clear ();
+
+  tizchromecastconfig_ptr_t cc_config_
+      = boost::dynamic_pointer_cast< chromecastconfig > (config_);
+  assert (cc_config_);
+
+  const std::type_info& ti_current
+      = typeid (*(cc_config_->get_service_config ()));
+  const std::type_info& ti_gmusic = typeid (tizgmusicconfig_ptr_t);
+  const std::type_info& ti_scloud = typeid (tizscloudconfig_ptr_t);
+  const std::type_info& ti_dirble = typeid (tizdirbleconfig_ptr_t);
+  const std::type_info& ti_youtube = typeid (tizyoutubeconfig_ptr_t);
 
   if (ti_current == ti_gmusic)
-    {
-      role_lst_.push_back ("audio_renderer.chromecast.gmusic");
-      config_func_ = boost::bind(&tiz::graph::chromecastops::do_configure_gmusic, this);
-    }
+  {
+    role_lst_.push_back ("audio_renderer.chromecast.gmusic");
+    config_service_func_
+        = boost::bind (&tiz::graph::chromecastops::do_configure_gmusic, this);
+  }
   else if (ti_current == ti_scloud)
-    {
-      role_lst_.push_back ("audio_renderer.chromecast.scloud");
-      config_func_ = boost::bind(&tiz::graph::chromecastops::do_configure_scloud, this);
-    }
+  {
+    role_lst_.push_back ("audio_renderer.chromecast.scloud");
+    config_service_func_
+        = boost::bind (&tiz::graph::chromecastops::do_configure_scloud, this);
+  }
   else if (ti_current == ti_dirble)
-    {
-      role_lst_.push_back ("audio_renderer.chromecast.dirble");
-      config_func_ = boost::bind(&tiz::graph::chromecastops::do_configure_dirble, this);
-    }
+  {
+    role_lst_.push_back ("audio_renderer.chromecast.dirble");
+    config_service_func_
+        = boost::bind (&tiz::graph::chromecastops::do_configure_dirble, this);
+  }
   else if (ti_current == ti_youtube)
-    {
-      role_lst_.push_back ("audio_renderer.chromecast.youtube");
-      config_func_ = boost::bind(&tiz::graph::chromecastops::do_configure_youtube, this);
-    }
+  {
+    role_lst_.push_back ("audio_renderer.chromecast.youtube");
+    config_service_func_
+        = boost::bind (&tiz::graph::chromecastops::do_configure_youtube, this);
+  }
   else
-    {
-      std::string msg ("Unable to set a suitable component role");
-      BOOST_ASSERT_MSG (false, msg.c_str());
-      G_OPS_BAIL_IF_ERROR (OMX_ErrorComponentNotFound, msg.c_str ());
-    }
+  {
+    std::string msg ("Unable to set a suitable component role");
+    BOOST_ASSERT_MSG (false, msg.c_str ());
+    G_OPS_BAIL_IF_ERROR (OMX_ErrorComponentNotFound, msg.c_str ());
+  }
   // At this point we are instantiating a graph with a single component.
   tiz::graph::ops::do_load ();
 }
@@ -115,7 +129,14 @@ void graph::chromecastops::do_configure ()
 {
   if (last_op_succeeded ())
   {
-    config_func_();
+    // Set the chromecast name or ip parameter
+    do_configure_chromecast ();
+
+    if (last_op_succeeded ())
+    {
+      // Now set the service parameters
+      config_service_func_ ();
+    }
   }
 }
 
@@ -168,8 +189,8 @@ bool graph::chromecastops::is_fatal_error (const OMX_ERRORTYPE error) const
 }
 
 void graph::chromecastops::do_record_fatal_error (const OMX_HANDLETYPE handle,
-                                              const OMX_ERRORTYPE error,
-                                              const OMX_U32 port)
+                                                  const OMX_ERRORTYPE error,
+                                                  const OMX_U32 port)
 {
   tiz::graph::ops::do_record_fatal_error (handle, error, port);
   if (error == OMX_ErrorContentURIError)
@@ -178,10 +199,21 @@ void graph::chromecastops::do_record_fatal_error (const OMX_HANDLETYPE handle,
   }
 }
 
+void graph::chromecastops::do_configure_chromecast ()
+{
+  assert (cc_config_);
+
+  G_OPS_BAIL_IF_ERROR (tiz::graph::util::set_chromecast_name_or_ip (
+                           handles_[0], cc_config_->get_name_or_ip ()),
+                       "Unable to set OMX_TizoniaIndexParamChromecastSession");
+}
+
 void graph::chromecastops::do_configure_gmusic ()
 {
+  assert (cc_config_);
   tizgmusicconfig_ptr_t gmusic_config
-      = boost::dynamic_pointer_cast< gmusicconfig > (config_);
+      = boost::dynamic_pointer_cast< gmusicconfig > (
+          cc_config_->get_service_config ());
   assert (gmusic_config);
 
   G_OPS_BAIL_IF_ERROR (
@@ -200,8 +232,10 @@ void graph::chromecastops::do_configure_gmusic ()
 
 void graph::chromecastops::do_configure_scloud ()
 {
+  assert (cc_config_);
   tizscloudconfig_ptr_t scloud_config
-      = boost::dynamic_pointer_cast< scloudconfig > (config_);
+      = boost::dynamic_pointer_cast< scloudconfig > (
+          cc_config_->get_service_config ());
   assert (scloud_config);
 
   G_OPS_BAIL_IF_ERROR (
@@ -218,8 +252,10 @@ void graph::chromecastops::do_configure_scloud ()
 
 void graph::chromecastops::do_configure_dirble ()
 {
+  assert (cc_config_);
   tizdirbleconfig_ptr_t dirble_config
-      = boost::dynamic_pointer_cast< dirbleconfig > (config_);
+      = boost::dynamic_pointer_cast< dirbleconfig > (
+          cc_config_->get_service_config ());
   assert (dirble_config);
 
   G_OPS_BAIL_IF_ERROR (tiz::graph::util::set_dirble_api_key (
@@ -235,8 +271,10 @@ void graph::chromecastops::do_configure_dirble ()
 
 void graph::chromecastops::do_configure_youtube ()
 {
+  assert (cc_config_);
   tizyoutubeconfig_ptr_t youtube_config
-      = boost::dynamic_pointer_cast< youtubeconfig > (config_);
+      = boost::dynamic_pointer_cast< youtubeconfig > (
+          cc_config_->get_service_config ());
   assert (youtube_config);
 
   G_OPS_BAIL_IF_ERROR (

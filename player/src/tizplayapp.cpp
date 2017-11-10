@@ -50,26 +50,26 @@
 #include <OMX_Core.h>
 #include <tizplatform.h>
 
-#include "decoders/tizdecgraphmgr.hpp"
-#include "httpclnt/tizhttpclntmgr.hpp"
-#include "httpserv/tizhttpservconfig.hpp"
-#include "httpserv/tizhttpservmgr.hpp"
-#include "services/dirble/tizdirbleconfig.hpp"
-#include "services/dirble/tizdirblemgr.hpp"
-#include "services/googlemusic/tizgmusicconfig.hpp"
-#include "services/googlemusic/tizgmusicmgr.hpp"
-#include "services/soundcloud/tizscloudconfig.hpp"
-#include "services/soundcloud/tizscloudmgr.hpp"
-#include "services/spotify/tizspotifyconfig.hpp"
-#include "services/spotify/tizspotifymgr.hpp"
-#include "services/youtube/tizyoutubeconfig.hpp"
-#include "services/youtube/tizyoutubemgr.hpp"
-#include "services/chromecast/tizchromecastconfig.hpp"
-#include "services/chromecast/tizchromecastmgr.hpp"
 #include "tizdaemon.hpp"
 #include "tizgraphmgr.hpp"
 #include "tizgraphtypes.hpp"
 #include "tizomxutil.hpp"
+#include <decoders/tizdecgraphmgr.hpp>
+#include <httpclnt/tizhttpclntmgr.hpp>
+#include <httpserv/tizhttpservconfig.hpp>
+#include <httpserv/tizhttpservmgr.hpp>
+#include <services/chromecast/tizchromecastconfig.hpp>
+#include <services/chromecast/tizchromecastmgr.hpp>
+#include <services/dirble/tizdirbleconfig.hpp>
+#include <services/dirble/tizdirblemgr.hpp>
+#include <services/googlemusic/tizgmusicconfig.hpp>
+#include <services/googlemusic/tizgmusicmgr.hpp>
+#include <services/soundcloud/tizscloudconfig.hpp>
+#include <services/soundcloud/tizscloudmgr.hpp>
+#include <services/spotify/tizspotifyconfig.hpp>
+#include <services/spotify/tizspotifymgr.hpp>
+#include <services/youtube/tizyoutubeconfig.hpp>
+#include <services/youtube/tizyoutubemgr.hpp>
 
 #include "tizplayapp.hpp"
 
@@ -340,8 +340,9 @@ void tiz::playapp::set_option_handlers ()
   popts_.set_option_handler ("youtube-stream",
                              boost::bind (&tiz::playapp::youtube_stream, this));
   // Google music streaming on Chromecast device
-  popts_.set_option_handler ("gmusic-stream-chromecast",
-                             boost::bind (&tiz::playapp::gmusic_stream_chromecast, this));
+  popts_.set_option_handler (
+      "gmusic-stream-chromecast",
+      boost::bind (&tiz::playapp::gmusic_stream_chromecast, this));
 }
 
 OMX_ERRORTYPE
@@ -937,6 +938,7 @@ tiz::playapp::gmusic_stream_chromecast ()
   const OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE playlist_type
       = popts_.gmusic_playlist_type ();
   const bool is_unlimited_search = popts_.gmusic_is_unlimited_search ();
+  const std::string cc_name_or_ip (popts_.chromecast ());
 
   print_banner ();
 
@@ -958,10 +960,15 @@ tiz::playapp::gmusic_stream_chromecast ()
   assert (playlist);
   playlist->set_loop_playback (true);
 
-  tizgraphconfig_ptr_t config = boost::make_shared< tiz::graph::gmusicconfig > (
-      playlist, user, pass, device_id, playlist_type, is_unlimited_search);
+  tizgraphconfig_ptr_t service_config
+      = boost::make_shared< tiz::graph::gmusicconfig > (
+          playlist, user, pass, device_id, playlist_type, is_unlimited_search);
 
-  // Instantiate the streaming client manager
+  tizgraphconfig_ptr_t config
+      = boost::make_shared< tiz::graph::chromecastconfig > (cc_name_or_ip,
+                                                            service_config);
+
+  // Instantiate the chromecast client manager
   tiz::graphmgr::mgr_ptr_t p_mgr
       = boost::make_shared< tiz::graphmgr::chromecastmgr > (config);
 

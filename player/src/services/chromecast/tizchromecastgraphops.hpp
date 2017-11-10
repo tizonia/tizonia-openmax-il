@@ -31,7 +31,8 @@
 
 #include <boost/function.hpp>
 
-#include "tizgraphops.hpp"
+#include <tizgraphtypes.hpp>
+#include <tizgraphops.hpp>
 
 namespace tiz
 {
@@ -57,6 +58,7 @@ namespace tiz
                                   const OMX_U32 port);
 
     private:
+      void do_configure_chromecast ();
       void do_configure_gmusic ();
       void do_configure_scloud ();
       void do_configure_dirble ();
@@ -65,7 +67,7 @@ namespace tiz
       OMX_ERRORTYPE get_encoding_type_from_chromecast_source ();
 
     private:
-      typedef boost::function< void() > config_func_t;
+      typedef boost::function< void() > config_service_func_t;
 
     private:
       // re-implemented from the base class
@@ -73,7 +75,8 @@ namespace tiz
 
     private:
       OMX_AUDIO_CODINGTYPE encoding_;
-      config_func_t config_func_;
+      config_service_func_t config_service_func_;
+      tizchromecastconfig_ptr_t cc_config_;
     };
   }  // namespace graph
 }  // namespace tiz

@@ -66,16 +66,17 @@ namespace tiz
           omx_comp_handle_lst_t &hdl_list, omx_hdl2name_map_t &h2n_map);
 
       static OMX_ERRORTYPE instantiate_comp_list (
-          const omx_comp_name_lst_t &comp_list,
-          omx_comp_handle_lst_t &hdl_list, omx_hdl2name_map_t &h2n_map,
-          OMX_PTR ap_app_data, OMX_CALLBACKTYPE *ap_callbacks);
+          const omx_comp_name_lst_t &comp_list, omx_comp_handle_lst_t &hdl_list,
+          omx_hdl2name_map_t &h2n_map, OMX_PTR ap_app_data,
+          OMX_CALLBACKTYPE *ap_callbacks);
 
       static OMX_ERRORTYPE set_role (const OMX_HANDLETYPE handle,
                                      const std::string &comp_role);
 
-      static OMX_ERRORTYPE set_role_list (const omx_comp_handle_lst_t &hdl_list,
-                                          const omx_comp_role_lst_t &role_list,
-                                          const omx_comp_role_pos_lst_t &role_positions);
+      static OMX_ERRORTYPE set_role_list (
+          const omx_comp_handle_lst_t &hdl_list,
+          const omx_comp_role_lst_t &role_list,
+          const omx_comp_role_pos_lst_t &role_positions);
 
       static void destroy_list (omx_comp_handle_lst_t &hdl_list);
 
@@ -85,8 +86,8 @@ namespace tiz
       static OMX_ERRORTYPE setup_suppliers (
           const omx_comp_handle_lst_t &hdl_list, const int tunnel_id = OMX_ALL);
 
-      static OMX_ERRORTYPE setup_tunnels (
-          const omx_comp_handle_lst_t &hdl_list, const int tunnel_id = OMX_ALL);
+      static OMX_ERRORTYPE setup_tunnels (const omx_comp_handle_lst_t &hdl_list,
+                                          const int tunnel_id = OMX_ALL);
 
       static OMX_ERRORTYPE tear_down_tunnels (
           const omx_comp_handle_lst_t &hdl_list);
@@ -122,7 +123,7 @@ namespace tiz
       static OMX_ERRORTYPE disable_port (const OMX_HANDLETYPE handle,
                                          const OMX_U32 port_id);
       static OMX_ERRORTYPE enable_port (const OMX_HANDLETYPE handle,
-                                         const OMX_U32 port_id);
+                                        const OMX_U32 port_id);
 
       static OMX_ERRORTYPE modify_tunnel (const omx_comp_handle_lst_t &hdl_list,
                                           const int tunnel_id,
@@ -172,12 +173,17 @@ namespace tiz
       static OMX_ERRORTYPE set_aac_type (
           const OMX_HANDLETYPE handle, const OMX_U32 port_id,
           boost::function< void(OMX_AUDIO_PARAM_AACPROFILETYPE &aactype) >
-              getter, bool &need_port_settings_changed_evt);
+              getter,
+          bool &need_port_settings_changed_evt);
 
       static OMX_ERRORTYPE set_flac_type (
           const OMX_HANDLETYPE handle, const OMX_U32 port_id,
           boost::function< void(OMX_TIZONIA_AUDIO_PARAM_FLACTYPE &flactype) >
-              getter, bool &need_port_settings_changed_evt);
+              getter,
+          bool &need_port_settings_changed_evt);
+
+      static OMX_ERRORTYPE set_chromecast_name_or_ip (
+          const OMX_HANDLETYPE handle, const std::string &name_or_ip);
 
       static OMX_ERRORTYPE set_gmusic_user_and_device_id (
           const OMX_HANDLETYPE handle, const std::string &user,
@@ -223,8 +229,10 @@ namespace tiz
 
       static bool is_mpris_enabled ();
 
-      static void copy_omx_string (OMX_U8 *p_dest, const std::string &omx_string,
-                                   const size_t max_length = OMX_MAX_STRINGNAME_SIZE);
+      static void copy_omx_string (OMX_U8 *p_dest,
+                                   const std::string &omx_string,
+                                   const size_t max_length
+                                   = OMX_MAX_STRINGNAME_SIZE);
     };
   }  // namespace graph
 }  // namespace tiz

@@ -752,6 +752,22 @@ graph::util::set_flac_type (
   return OMX_ErrorNone;
 }
 
+OMX_ERRORTYPE graph::util::set_chromecast_name_or_ip (
+    const OMX_HANDLETYPE handle, const std::string &name_or_ip)
+{
+  // Set the Chromecast name or ip address
+  OMX_TIZONIA_PARAM_CHROMECASTSESSIONTYPE sessiontype;
+  TIZ_INIT_OMX_STRUCT (sessiontype);
+  tiz_check_omx (OMX_GetParameter (
+      handle,
+      static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamChromecastSession),
+      &sessiontype));
+  tiz::graph::util::copy_omx_string (sessiontype.cNameOrIpAddr, name_or_ip);
+  return OMX_SetParameter (handle, static_cast< OMX_INDEXTYPE > (
+                                       OMX_TizoniaIndexParamChromecastSession),
+                           &sessiontype);
+}
+
 OMX_ERRORTYPE graph::util::set_gmusic_user_and_device_id (
     const OMX_HANDLETYPE handle, const std::string &user,
     const std::string &pass, const std::string &device_id)

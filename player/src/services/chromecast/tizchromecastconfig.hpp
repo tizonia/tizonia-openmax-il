@@ -33,8 +33,8 @@
 
 #include <OMX_TizoniaExt.h>
 
-#include "tizgraphtypes.hpp"
 #include "tizgraphconfig.hpp"
+#include "tizgraphtypes.hpp"
 
 namespace tiz
 {
@@ -44,16 +44,11 @@ namespace tiz
     {
 
     public:
-      chromecastconfig (const tizplaylist_ptr_t &playlist, const std::string &user,
-                    const std::string &pass, const std::string &device_id,
-                    const OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE playlist_type,
-                    const bool is_unlimited_search = false)
-        : config (playlist),
-          user_ (user),
-          pass_ (pass),
-          device_id_ (device_id),
-          playlist_type_ (playlist_type),
-          is_unlimited_search_ (is_unlimited_search)
+      chromecastconfig (const std::string &cc_name_or_ip,
+                        const tizgraphconfig_ptr_t &service_config)
+        : config (service_config->get_playlist ()),
+          name_or_ip_ (cc_name_or_ip),
+          service_config_ (service_config)
       {
       }
 
@@ -61,37 +56,19 @@ namespace tiz
       {
       }
 
-      std::string get_user_name () const
+      std::string get_name_or_ip () const
       {
-        return user_;
+        return name_or_ip_;
       }
 
-      std::string get_user_pass () const
+      tizgraphconfig_ptr_t get_service_config () const
       {
-        return pass_;
-      }
-
-      std::string get_device_id () const
-      {
-        return device_id_;
-      }
-
-      OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE get_playlist_type () const
-      {
-        return playlist_type_;
-      }
-
-      bool is_unlimited_search () const
-      {
-        return is_unlimited_search_;
+        return service_config_;
       }
 
     protected:
-      const std::string user_;
-      const std::string pass_;
-      const std::string device_id_;
-      const OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE playlist_type_;
-      bool is_unlimited_search_;
+      const std::string name_or_ip_;
+      tizgraphconfig_ptr_t service_config_;
     };
   }  // namespace graph
 }  // namespace tiz
