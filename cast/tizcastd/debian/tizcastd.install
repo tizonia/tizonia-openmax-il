@@ -1,0 +1,2 @@
+usr/bin/tizcastd                                          usr/bin
+usr/share/dbus-1/services/com.aratelia.tiz.cast.service   usr/share/dbus-1/services

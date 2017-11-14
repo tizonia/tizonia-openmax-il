@@ -95,7 +95,7 @@ def exception_handler(exception_type, exception, traceback):
     """
 
     print_err("[Chromecast] (%s) : %s" % (exception_type.__name__, exception))
-    #del traceback # unused
+    # del traceback # unused
     print_exception(exception_type, exception, traceback)
 
 sys.excepthook = exception_handler
@@ -114,6 +114,7 @@ class tizchromecastproxy(object):
 
     """
     def __init__(self, name_or_ip):
+        self.name_or_ip = name_or_ip
         self.cast = pychromecast.Chromecast(name_or_ip)
         self.cast.wait()
         self.cast_status_listener = None
@@ -124,6 +125,8 @@ class tizchromecastproxy(object):
     def activate(self, cast_status_listener, media_status_listener):
         self.cast_status_listener = cast_status_listener
         self.media_status_listener = media_status_listener
+        print_nfo("[Chromecast] [{0}] [Activating]" \
+                  .format(to_ascii(self.name_or_ip)))
         self.cast.play_media(
             DEFAULT_THUMB, pychromecast.STREAM_TYPE_BUFFERED)
 
@@ -134,6 +137,8 @@ class tizchromecastproxy(object):
                    thumb=DEFAULT_THUMB,
                    current_time=0, autoplay=True,
                    stream_type=STREAM_TYPE_LIVE):
+        print_nfo("[Chromecast] [{0}] [Loading stream]" \
+                  .format(to_ascii(self.name_or_ip)))
         logging.info("proxy : Loading a new stream")
         mc = self.cast.media_controller
         st = mc.status

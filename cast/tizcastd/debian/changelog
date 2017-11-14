@@ -1,0 +1,5 @@
+tizcastd (0.10.0-1) unstable; urgency=low
+
+  * Initial release (Closes: #383)
+
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Thu, 19 Oct 2017 12:46:46 +0100

@@ -15,17 +15,29 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-# NOTE: 'docs' folders is not currently being processed by the top Makefile.
-# The Doxygen/Sphinx documentation can still be manually generated, whenever is needed.
+lib_LTLIBRARIES = libtizcastclient.la
 
-# NOTE: 'player' folder is not currently being processed by the top Makefile.
-# This is to disable tizonia's player compilation when building from top. Still
-# it can be manually configured and built.
+libtizcastclient_includedir = $(includedir)/tizonia
 
-# SUBDIRS = config include libtizplatform rm libtizcore libtizonia plugins tizonia docs
+noinst_HEADERS =
 
-if ENABLE_PLAYER
-SUBDIRS= config include clients libtizplatform cast rm libtizcore libtizonia plugins player config
-else
-SUBDIRS= config include clients libtizplatform cast rm libtizcore libtizonia plugins config
-endif
+libtizcastclient_include_HEADERS = \
+	tizcastclienttypes.h \
+	tizcastclient_c.h \
+	tizcastclient.hh
+
+libtizcastclient_la_SOURCES = \
+	tizcastclient.cc \
+	tizcastclient_c.cc
+
+libtizcastclient_la_CPPFLAGS = \
+	@TIZILHEADERS_CFLAGS@ \
+	@TIZPLATFORM_CFLAGS@ \
+	@TIZCASTD_CFLAGS@ \
+	@DBUS_CFLAGS@
+
+libtizcastclient_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@
+
+libtizcastclient_la_LIBADD = \
+	@TIZPLATFORM_LIBS@ \
+	@DBUS_LIBS@

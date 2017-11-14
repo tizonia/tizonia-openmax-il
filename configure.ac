@@ -44,6 +44,7 @@ AC_CONFIG_FILES([Makefile])
 AC_CONFIG_SUBDIRS([include
                    clients
                    libtizplatform
+                   cast
                    rm
                    libtizcore
                    libtizonia

@@ -1,0 +1,39 @@
+Source: tizcastd
+Section: sound
+Priority: optional
+Maintainer: Juan A. Rubio <juan.rubio@aratelia.com>
+Build-Depends: debhelper (>= 8.0.0),
+               dh-autoreconf,
+               tizilheaders,
+               libtizplatform-dev,
+               libdbus-1-dev,
+               libdbus-c++-dev
+Standards-Version: 3.9.4
+Homepage: http://tizonia.org
+Vcs-Git: git://github.com/tizonia/tizonia-openmax-il.git
+Vcs-Browser: https://github.com/tizonia/tizonia-openmax-il
+
+Package: tizcastd
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Tizonia's resource manager daemon
+ A server that controls the Tizonia OpenMAX IL resources.
+
+Package: tizcastd-dbg
+Section: debug
+Priority: extra
+Architecture: any
+Depends: tizcastd (= ${binary:Version}), ${misc:Depends}
+Description: Tizonia's resource manager daemon
+ A server that controls the Tizonia OpenMAX IL resources.
+ .
+ This package contains the debugging symbols.
+
+Package: tizcastd-dev
+Section: libdevel
+Architecture: any
+Depends: tizcastd (= ${binary:Version}), libtizplatform-dev, tizilheaders, check
+Description: Tizonia's platform library, development files
+ Tizonia's resource manager daemon.
+ .
+ This package contains the development headers.
