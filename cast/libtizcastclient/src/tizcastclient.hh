@@ -25,8 +25,8 @@
  *
  */
 
-#ifndef TIZCASTPROXY_HH
-#define TIZCASTPROXY_HH
+#ifndef TIZCASTCLIENT_HH
+#define TIZCASTCLIENT_HH
 
 #include <map>
 #include <string.h>
@@ -144,4 +144,4 @@ private:
   clients_map_t clients_;
 };
 
-#endif  // TIZCASTPROXY_HH
+#endif  // TIZCASTCLIENT_HH

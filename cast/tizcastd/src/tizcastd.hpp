@@ -21,7 +21,7 @@
  * @file   tizcastd.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Chromecast access daemon
+ * @brief  Chromecast daemon
  *
  *
  */
@@ -30,9 +30,9 @@
 #define TIZCASTD_HPP
 
 /**
-* @defgroup tizcastd 'tizcastd' : Tizonia's Chromecast access daemon process.
+* @defgroup tizcastd 'tizcastd' : Tizonia's Chromecast daemon process.
 *
-* This module implements a D-Bus-based daemon to access Chromecast devices.
+* This module implements a D-Bus-based daemon to interface with Chromecast devices.
 *
 * @ingroup cast
 */

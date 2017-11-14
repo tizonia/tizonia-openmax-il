@@ -26,8 +26,8 @@
  *
  */
 
-#ifndef TIZCASTPROXYTYPES_H
-#define TIZCASTPROXYTYPES_H
+#ifndef TIZCASTCLIENTTYPES_H
+#define TIZCASTCLIENTTYPES_H
 
 #ifdef __cplusplus
 extern "C"
@@ -49,4 +49,4 @@ extern "C"
 }
 #endif
 
-#endif                          // TIZCASTPROXYTYPES_H
+#endif                          // TIZCASTCLIENTTYPES_H
