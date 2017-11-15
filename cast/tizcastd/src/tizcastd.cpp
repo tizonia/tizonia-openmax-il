@@ -57,14 +57,24 @@ static const char *TIZ_CAST_DAEMON_NAME = "com.aratelia.tiz.tizcastd";
 // Object path, a.k.a. node
 static const char *TIZ_CAST_DAEMON_PATH = "/com/aratelia/tiz/tizcastd";
 
-tizcastd::tizcastd (DBus::Connection &a_connection, char const *ap_dbname)
-  : DBus::ObjectAdaptor (a_connection, TIZ_CAST_DAEMON_PATH)
+static void cc_new_media_status_cback (void * ap_user_data)
 {
+  // TODO
+}
+
+tizcastd::tizcastd (DBus::Connection &a_connection, char const *ap_dbname)
+  : DBus::ObjectAdaptor (a_connection, TIZ_CAST_DAEMON_PATH),
+    p_cc_(NULL)
+{
+  (void)tiz_chromecast_init (&(p_cc_), ap_dbname,
+                             cc_new_media_status_cback, this);
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Constructing tizcastd...");
 }
 
 tizcastd::~tizcastd ()
 {
+  tiz_chromecast_destroy (p_cc_);
+  p_cc_ = NULL;
 }
 
 int32_t tizcastd::load_url (const std::string &url, const std::string &mime_type,

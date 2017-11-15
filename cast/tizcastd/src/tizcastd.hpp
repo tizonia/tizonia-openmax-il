@@ -42,6 +42,8 @@
 
 #include <dbus-c++/dbus.h>
 
+#include <tizchromecast_c.h>
+
 #include <tizcastd-dbus.hh>
 
 class tizcastd : public com::aratelia::tiz::tizcastif_adaptor,
@@ -116,6 +118,7 @@ public:
   int32_t unmute ();
 
 private:
+  tiz_chromecast_t *p_cc_;
 };
 
 #endif  // TIZCASTD_HPP

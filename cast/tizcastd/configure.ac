@@ -69,6 +69,16 @@ AS_IF([test "x$tiz_found_platform_headers" == "xyes"],
 	[PKG_CHECK_MODULES([TIZPLATFORM], [libtizplatform >= 0.1.0])],
 	[AC_MSG_NOTICE([Not using pkg-config to find TIZPLATFORM cflags and libs])])
 
+AC_CHECK_HEADERS([tizonia/tizchromecast_c.h],
+	[tiz_found_chromecast_headers=yes; break;])
+AS_IF([test "x$tiz_found_chromecast_headers" != "xyes"],
+	[AC_SUBST([TIZCHROMECAST_CFLAGS], ['-I$(top_srcdir)/../../clients/chromecast/libtizchromecast/tizonia'])
+	AC_SUBST([TIZCHROMECAST_LIBS], ['$(top_builddir)/../../clients/chromecast/libtizchromecast/tizonia/libtizchromecast.la'])],
+	[AC_MSG_NOTICE([Not substituting TIZCHROMECAST cflags and libs with local paths])])
+AS_IF([test "x$tiz_found_chromecast_headers" == "xyes"],
+	[PKG_CHECK_MODULES([TIZCHROMECAST], [libtizchromecast >= 0.1.0])],
+	[AC_MSG_NOTICE([Not using pkg-config to find TIZCHROMECAST cflags and libs])])
+
 # Checks for header files.
 AC_CHECK_HEADERS([limits.h stdlib.h string.h unistd.h])
 AC_LANG_PUSH([C++])
