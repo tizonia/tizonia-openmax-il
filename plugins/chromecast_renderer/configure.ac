@@ -133,15 +133,25 @@ AS_IF([test "x$tiz_found_youtube_headers" == "xyes"],
 	[PKG_CHECK_MODULES([TIZYOUTUBE], [libtizyoutube >= 0.1.0])],
 	[AC_MSG_NOTICE([Not using pkg-config to find TIZYOUTUBE cflags and libs])])
 
-AC_CHECK_HEADERS([tizonia/tizchromecast_c.h],
-	[tiz_found_chromecast_headers=yes; break;])
-AS_IF([test "x$tiz_found_chromecast_headers" != "xyes"],
-	[AC_SUBST([TIZCHROMECAST_CFLAGS], ['-I$(top_srcdir)/../../clients/chromecast/libtizchromecast/tizonia'])
-	AC_SUBST([TIZCHROMECAST_LIBS], ['$(top_builddir)/../../clients/chromecast/libtizchromecast/tizonia/libtizchromecast.la'])],
-	[AC_MSG_NOTICE([Not substituting TIZCHROMECAST cflags and libs with local paths])])
-AS_IF([test "x$tiz_found_chromecast_headers" == "xyes"],
-	[PKG_CHECK_MODULES([TIZCHROMECAST], [libtizchromecast >= 0.1.0])],
-	[AC_MSG_NOTICE([Not using pkg-config to find TIZCHROMECAST cflags and libs])])
+AC_CHECK_HEADERS([tizonia/tizcastclienttypes.h],
+	[tiz_found_castclient_headers=yes; break;])
+AS_IF([test "x$tiz_found_castclient_headers" != "xyes"],
+	[AC_SUBST([TIZCASTCLIENT_CFLAGS], ['-I$(top_srcdir)/../../cast/libtizcastclient/tizonia'])
+	AC_SUBST([TIZCASTCLIENT_LIBS], ['$(top_builddir)/../../cast/libtizcastclient/tizonia/libtizcastclient.la'])],
+	[AC_MSG_NOTICE([Not substituting TIZCASTCLIENT cflags and libs with local paths])])
+AS_IF([test "x$tiz_found_castclient_headers" == "xyes"],
+	[PKG_CHECK_MODULES([TIZCASTCLIENT], [libtizcastclient >= 0.10.0])],
+	[AC_MSG_NOTICE([Not using pkg-config to find TIZCASTCLIENT cflags and libs])])
+
+AC_CHECK_HEADERS([tizonia/tizcasttypes.h],
+	[tiz_found_castd_headers=yes; break;])
+AS_IF([test "x$tiz_found_castd_headers" != "xyes"],
+	[AC_SUBST([TIZCASTD_CFLAGS], ['-I$(top_srcdir)/../../cast/tizcastd/tizonia'])
+	AC_SUBST([TIZCASTD_LIBS], ['not-used'])],
+	[AC_MSG_NOTICE([Not substituting TIZCASTD cflags and libs with local paths])])
+AS_IF([test "x$tiz_found_castd_headers" == "xyes"],
+	[PKG_CHECK_MODULES([TIZCASTD], [tizcastd >= 0.1.0])],
+	[AC_MSG_NOTICE([Not using pkg-config to find TIZCASTD cflags and libs])])
 
 # Define location of plugin directory
 AS_AC_EXPAND(PLUGINDIR, ${libdir}/tizonia0-plugins12)

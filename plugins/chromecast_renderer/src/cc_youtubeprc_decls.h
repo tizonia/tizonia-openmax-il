@@ -40,7 +40,7 @@ extern "C" {
 
 #include <tizplatform.h>
 #include <tizyoutube_c.h>
-#include <tizchromecast_c.h>
+#include <tizcastclient_c.h>
 
 typedef struct cc_youtube_prc cc_youtube_prc_t;
 struct cc_youtube_prc
@@ -54,7 +54,7 @@ struct cc_youtube_prc
   OMX_PARAM_CONTENTURITYPE * p_uri_param_;
   OMX_BUFFERHEADERTYPE * p_inhdr_;
   tiz_youtube_t * p_yt_;
-  tiz_chromecast_t * p_cc_;
+  tiz_cast_t * p_cc_;
   bool eos_;
   bool port_disabled_;
   bool uri_changed_;

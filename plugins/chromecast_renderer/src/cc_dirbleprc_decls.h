@@ -40,7 +40,7 @@ extern "C" {
 
 #include <tizplatform.h>
 #include <tizdirble_c.h>
-#include <tizchromecast_c.h>
+#include <tizcastclient_c.h>
 
 typedef struct cc_dirble_prc cc_dirble_prc_t;
 struct cc_dirble_prc
@@ -54,7 +54,7 @@ struct cc_dirble_prc
   OMX_PARAM_CONTENTURITYPE * p_uri_param_;
   OMX_BUFFERHEADERTYPE * p_inhdr_;
   tiz_dirble_t * p_db_;
-  tiz_chromecast_t * p_cc_;
+  tiz_cast_t * p_cc_;
   bool eos_;
   bool port_disabled_;
   bool uri_changed_;

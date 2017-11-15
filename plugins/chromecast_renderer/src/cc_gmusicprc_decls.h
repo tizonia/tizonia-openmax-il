@@ -38,7 +38,7 @@ extern "C" {
 
 #include <tizprc_decls.h>
 #include <tizgmusic_c.h>
-#include <tizchromecast_c.h>
+#include <tizcastclient_c.h>
 
 #include <tizplatform.h>
 
@@ -54,7 +54,8 @@ struct cc_gmusic_prc
   OMX_PARAM_CONTENTURITYPE * p_uri_param_;
   OMX_BUFFERHEADERTYPE * p_inhdr_;
   tiz_gmusic_t * p_gm_;
-  tiz_chromecast_t * p_cc_;
+  tiz_cast_t * p_cc_;
+  OMX_UUIDTYPE cc_uuid_;
   bool eos_;
   bool port_disabled_;
   bool uri_changed_;

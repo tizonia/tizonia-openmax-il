@@ -38,7 +38,7 @@ extern "C" {
 
 #include <tizprc_decls.h>
 #include <tizsoundcloud_c.h>
-#include <tizchromecast_c.h>
+#include <tizcastclient_c.h>
 
 #include "tizplatform.h"
 
@@ -54,7 +54,7 @@ struct cc_scloud_prc
   OMX_PARAM_CONTENTURITYPE * p_uri_param_;
   OMX_BUFFERHEADERTYPE * p_inhdr_;
   tiz_scloud_t * p_sc_;
-  tiz_chromecast_t * p_cc_;
+  tiz_cast_t * p_cc_;
   bool eos_;
   bool port_disabled_;
   bool uri_changed_;
