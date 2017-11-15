@@ -38,7 +38,7 @@ extern "C"
 
   /* Callback function to signal a waiting client when a resource has become
    * available */
-  typedef void (*tiz_cast_client_url_loaded_f) ();
+  typedef void (*tiz_cast_client_url_loaded_f) (void * ap_user_data);
 
   typedef struct tiz_cast_client_callbacks_t
   {

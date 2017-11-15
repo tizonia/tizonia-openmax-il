@@ -174,7 +174,7 @@ stop_client ()
 }
 
 extern "C" tiz_cast_error_t
-tiz_cast_client_init (tiz_cast_t * ap_cast, const OMX_STRING ap_name,
+tiz_cast_client_init (tiz_cast_t * ap_cast, const char * ap_name,
                       const OMX_UUIDTYPE * ap_uuid,
                       const tiz_cast_client_callbacks_t * ap_cbacks,
                       OMX_PTR ap_data)
