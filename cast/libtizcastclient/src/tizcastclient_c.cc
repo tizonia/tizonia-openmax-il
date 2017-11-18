@@ -21,7 +21,7 @@
  * @file   tizcastclient_c.cc
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Chromecast Daemon client library library (c wrapper impl)
+ * @brief  Tizonia OpenMAX IL Chromecast daemon - client library (c wrapper)
  *
  */
 
