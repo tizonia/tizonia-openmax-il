@@ -57,17 +57,16 @@ static const char *TIZ_CAST_DAEMON_NAME = "com.aratelia.tiz.tizcastd";
 // Object path, a.k.a. node
 static const char *TIZ_CAST_DAEMON_PATH = "/com/aratelia/tiz/tizcastd";
 
-static void cc_new_media_status_cback (void * ap_user_data)
+static void cc_new_media_status_cback (void *ap_user_data)
 {
   // TODO
 }
 
 tizcastd::tizcastd (DBus::Connection &a_connection, char const *ap_dbname)
-  : DBus::ObjectAdaptor (a_connection, TIZ_CAST_DAEMON_PATH),
-    p_cc_(NULL)
+  : DBus::ObjectAdaptor (a_connection, TIZ_CAST_DAEMON_PATH), p_cc_ (NULL)
 {
-  (void)tiz_chromecast_init (&(p_cc_), ap_dbname,
-                             cc_new_media_status_cback, this);
+  (void)tiz_chromecast_init (&(p_cc_), ap_dbname, cc_new_media_status_cback,
+                             this);
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Constructing tizcastd...");
 }
 
@@ -77,45 +76,95 @@ tizcastd::~tizcastd ()
   p_cc_ = NULL;
 }
 
-int32_t tizcastd::load_url (const std::string &url, const std::string &mime_type,
+int32_t tizcastd::load_url (const std::string &url,
+                            const std::string &mime_type,
                             const std::string &title)
 {
-  return TIZ_CAST_SUCCESS;
+  tiz_cast_error_t outcome = TIZ_CAST_SUCCESS;
+  if (0 != tiz_chromecast_load_url (p_cc_, url.c_str (), mime_type.c_str (),
+                                    title.c_str ()))
+    {
+      TIZ_LOG(TIZ_PRIORITY_ERROR, "While loading url : [%s]", url.c_str ());
+      outcome = TIZ_CAST_URL_LOAD_FAILURE;
+    }
+  return outcome;
 }
 
 int32_t tizcastd::play ()
 {
-  return TIZ_CAST_SUCCESS;
+  tiz_cast_error_t outcome = TIZ_CAST_SUCCESS;
+  if (0 != tiz_chromecast_play (p_cc_))
+    {
+      TIZ_LOG(TIZ_PRIORITY_ERROR, "While invoking play");
+      outcome = TIZ_CAST_CC_CMD_FAILURE;
+    }
+  return outcome;
 }
 
 int32_t tizcastd::stop ()
 {
-  return TIZ_CAST_SUCCESS;
+  tiz_cast_error_t outcome = TIZ_CAST_SUCCESS;
+  if (0 != tiz_chromecast_stop (p_cc_))
+    {
+      TIZ_LOG(TIZ_PRIORITY_ERROR, "While invoking stop");
+      outcome = TIZ_CAST_CC_CMD_FAILURE;
+    }
+  return outcome;
 }
 
 int32_t tizcastd::pause ()
 {
-  return TIZ_CAST_SUCCESS;
+  tiz_cast_error_t outcome = TIZ_CAST_SUCCESS;
+  if (0 != tiz_chromecast_pause (p_cc_))
+    {
+      TIZ_LOG(TIZ_PRIORITY_ERROR, "While invoking pause");
+      outcome = TIZ_CAST_CC_CMD_FAILURE;
+    }
+  return outcome;
 }
 
 int32_t tizcastd::volume_up ()
 {
-  return TIZ_CAST_SUCCESS;
+  tiz_cast_error_t outcome = TIZ_CAST_SUCCESS;
+  if (0 != tiz_chromecast_volume_up (p_cc_))
+    {
+      TIZ_LOG(TIZ_PRIORITY_ERROR, "While invoking volume up");
+      outcome = TIZ_CAST_CC_CMD_FAILURE;
+    }
+  return outcome;
 }
 
 int32_t tizcastd::volume_down ()
 {
-  return TIZ_CAST_SUCCESS;
+  tiz_cast_error_t outcome = TIZ_CAST_SUCCESS;
+  if (0 != tiz_chromecast_volume_down (p_cc_))
+    {
+      TIZ_LOG(TIZ_PRIORITY_ERROR, "While invoking volume down");
+      outcome = TIZ_CAST_CC_CMD_FAILURE;
+    }
+  return outcome;
 }
 
 int32_t tizcastd::mute ()
 {
-  return TIZ_CAST_SUCCESS;
+  tiz_cast_error_t outcome = TIZ_CAST_SUCCESS;
+  if (0 != tiz_chromecast_mute (p_cc_))
+    {
+      TIZ_LOG(TIZ_PRIORITY_ERROR, "While invoking mute");
+      outcome = TIZ_CAST_CC_CMD_FAILURE;
+    }
+  return outcome;
 }
 
 int32_t tizcastd::unmute ()
 {
-  return TIZ_CAST_SUCCESS;
+  tiz_cast_error_t outcome = TIZ_CAST_SUCCESS;
+  if (0 != tiz_chromecast_unmute (p_cc_))
+    {
+      TIZ_LOG(TIZ_PRIORITY_ERROR, "While invoking unmute");
+      outcome = TIZ_CAST_CC_CMD_FAILURE;
+    }
+  return outcome;
 }
 
 static void tizcastd_sig_hdlr (int sig)
