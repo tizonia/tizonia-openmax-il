@@ -15,6 +15,8 @@
 <!--         <category name="tiz.rm.proxy" priority="trace" appender="tizlogfile"/> -->
 <!--         <category name="tiz.rm.proxy_c" priority="trace" appender="tizlogfile"/> -->
 <!--         <category name="tiz.rm.proxy_c.check" priority="trace" appender="tizlogfile"/> -->
+<!--         <category name="tiz.cast.daemon" priority="trace" appender="stdout"/> -->
+<!--         <category name="tiz.cast.client" priority="trace" appender="stdout"/> -->
 <!--         <category name="tiz.platform" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.platform.mem" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.platform.thread" priority="error" appender="tizlogfile" /> -->
