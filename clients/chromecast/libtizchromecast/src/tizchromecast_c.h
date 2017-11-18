@@ -91,8 +91,9 @@ int tiz_chromecast_init (/*@null@ */ tiz_chromecast_ptr_t *app_chromecast,
  *
  * @return 0 on success
  */
-int tiz_chromecast_load (tiz_chromecast_t *ap_chromecast, const char *ap_url,
-                         const char *ap_content_type, const char *ap_title);
+int tiz_chromecast_load_url (tiz_chromecast_t *ap_chromecast,
+                             const char *ap_url, const char *ap_content_type,
+                             const char *ap_title);
 
 /**
  * Resume playback of media that has been previously paused. Playback is

@@ -107,10 +107,10 @@ extern "C" int tiz_chromecast_init (
   return rc;
 }
 
-extern "C" int tiz_chromecast_load (tiz_chromecast_t *ap_chromecast,
-                                    const char *ap_url,
-                                    const char *ap_content_type,
-                                    const char *ap_title)
+extern "C" int tiz_chromecast_load_url (tiz_chromecast_t *ap_chromecast,
+                                        const char *ap_url,
+                                        const char *ap_content_type,
+                                        const char *ap_title)
 {
   assert (ap_chromecast);
   assert (ap_chromecast->p_proxy_);
