@@ -37,7 +37,7 @@
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.cast.client"
+#define TIZ_LOG_CATEGORY_NAME "tiz.cast.client.cc_api"
 #endif
 
 tizcastclient::tizcastclient (DBus::Connection & connection, const char * path,
@@ -52,7 +52,7 @@ tizcastclient::~tizcastclient ()
 }
 
 void *
-tizcastclient::register_client (const char * ap_cname, const uint8_t uuid[],
+tizcastclient::register_client (const char * ap_name_or_ip, const uint8_t uuid[],
                                 tiz_cast_client_url_loaded_f apf_url_loaded,
                                 void * ap_data)
 {
@@ -62,21 +62,26 @@ tizcastclient::register_client (const char * ap_cname, const uint8_t uuid[],
 
   std::pair< clients_map_t::iterator, bool > rv
     = clients_.insert (std::make_pair (
-      uuid_vec, client_data (ap_cname, uuid_vec, apf_url_loaded, ap_data)));
+      uuid_vec, client_data (ap_name_or_ip, uuid_vec, apf_url_loaded, ap_data)));
 
-  tiz_uuid_str (&(uuid_vec[0]), uuid_str);
-
-  if (true == rv.second)
+  if (rv.second)
     {
-
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "'%s' : Registered with uuid [%s]...",
-               ap_cname, uuid_str);
-      return (void *) &(rv.first->first);
+      const int32_t cast_err = connect((const tiz_cast_t *)(&(rv.first->first)), ap_name_or_ip);
+      if (TIZ_CAST_SUCCESS == cast_err)
+        {
+          tiz_uuid_str (&(uuid_vec[0]), uuid_str);
+          TIZ_LOG (TIZ_PRIORITY_TRACE, "'%s' : Registered with uuid [%s]...",
+                   ap_name_or_ip, uuid_str);
+          // EARLY RETURN
+          return (void *) &(rv.first->first);
+        }
+      // Oops..didn't go well
+      TIZ_LOG (TIZ_PRIORITY_ERROR, "While connecting to Tizonia chromecast daemon",
+               uuid_str);
+      clients_.erase(rv.first);
     }
-
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "Could not register client with uuid [%s]...",
+  TIZ_LOG (TIZ_PRIORITY_ERROR, "Could not register client with uuid [%s]...",
            uuid_str);
-
   return NULL;
 }
 
@@ -92,17 +97,15 @@ tizcastclient::unregister_client (const tiz_cast_t * ap_cast)
 
   tiz_uuid_str (&((*p_uuid_vec)[0]), uuid_str);
 
-  TIZ_LOG (TIZ_PRIORITY_TRACE,
-           "Unregistering "
-           "client with uuid [%s]...",
-           uuid_str);
-
   clients_map_t::iterator it = clients_.find (*p_uuid_vec);
   if (it != clients_.end ())
     {
-      // Release all resources currently allocated with the RM and cancel all
-      // outstanding resource requests
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "Removing client with uuid [%s]...",
+      const int32_t cast_err = disconnect((const tiz_cast_t *)(&(it->first)));
+      if (TIZ_CAST_SUCCESS != cast_err)
+        {
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "While disconnecting from Tizonia's chromecat daemon");
+        }
+      TIZ_LOG (TIZ_PRIORITY_NOTICE, "Removing client with uuid [%s]...",
                uuid_str);
       // Remove client from internal map
       clients_.erase (it);
@@ -110,6 +113,56 @@ tizcastclient::unregister_client (const tiz_cast_t * ap_cast)
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Unregistered client with uuid [%s]...rc [%d]",
            uuid_str, rc);
+}
+
+int32_t
+tizcastclient::connect (const tiz_cast_t * ap_cast, const char * ap_name_or_ip)
+{
+  int32_t rc = TIZ_CAST_SUCCESS;
+  assert (ap_cast);
+  const std::vector< unsigned char > * p_uuid_vec
+    = static_cast< std::vector< unsigned char > * > (*ap_cast);
+  assert (p_uuid_vec);
+
+  if (clients_.count (*p_uuid_vec))
+    {
+      try
+        {
+          //         client_data & clnt = clients_[*p_uuid_vec];
+          rc = com::aratelia::tiz::tizcastif_proxy::connect (ap_name_or_ip);
+        }
+      catch (DBus::Error const & e)
+        {
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "DBus error [%s]...", e.what ());
+          rc = TIZ_CAST_DBUS;
+        }
+      catch (std::exception const & e)
+        {
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "Standard exception error [%s]...",
+                   e.what ());
+          rc = TIZ_CAST_UNKNOWN;
+        }
+      catch (...)
+        {
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "Uknonwn exception error...");
+          rc = TIZ_CAST_UNKNOWN;
+        }
+    }
+  else
+    {
+      rc = TIZ_CAST_MISUSE;
+      char uuid_str[128];
+      tiz_uuid_str (&((*p_uuid_vec)[0]), uuid_str);
+      TIZ_LOG (TIZ_PRIORITY_ERROR,
+               "Could not find the client with uuid [%s]...", uuid_str);
+    }
+  return rc;
+}
+
+int32_t
+tizcastclient::disconnect (const tiz_cast_t * ap_cast)
+{
+  return invokecast (&com::aratelia::tiz::tizcastif_proxy::disconnect, ap_cast);
 }
 
 int32_t

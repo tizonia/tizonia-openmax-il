@@ -21,7 +21,7 @@
  * @file   tizcastclient.hh
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Chromecast daemon - client library
+ * @brief  Tizonia OpenMAX IL Chromecast daemon - client library (c++ api)
  *
  */
 
@@ -55,6 +55,12 @@ public:
   unregister_client (const tiz_cast_t * ap_cast);
 
   // DBUS Methods
+
+  int32_t
+  connect (const tiz_cast_t * ap_cast, const char * ap_name_or_ip);
+
+  int32_t
+  disconnect (const tiz_cast_t * ap_cast);
 
   int32_t
   load_url (const tiz_cast_t * ap_cast, const char * url, const char * mime_type,

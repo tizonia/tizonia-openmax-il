@@ -37,7 +37,7 @@
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.rm.client_c"
+#define TIZ_LOG_CATEGORY_NAME "tiz.cast.client.c_api"
 #endif
 
 /* Bus name */
@@ -174,7 +174,7 @@ stop_client ()
 }
 
 extern "C" tiz_cast_error_t
-tiz_cast_client_init (tiz_cast_t * ap_cast, const char * ap_name,
+tiz_cast_client_init (tiz_cast_t * ap_cast, const char * ap_device_name_or_ip,
                       const OMX_UUIDTYPE * ap_uuid,
                       const tiz_cast_client_callbacks_t * ap_cbacks,
                       OMX_PTR ap_data)
@@ -182,7 +182,7 @@ tiz_cast_client_init (tiz_cast_t * ap_cast, const char * ap_name,
   tiz_cast_error_t rc = TIZ_CAST_SUCCESS;
   tiz_cast_int_t * p_cast = NULL;
   assert(ap_cast);
-  assert(ap_name);
+  assert(ap_device_name_or_ip);
   assert(ap_uuid);
   assert(ap_cbacks);
 
@@ -224,7 +224,7 @@ tiz_cast_client_init (tiz_cast_t * ap_cast, const char * ap_name,
 
   p_cast->ref_count++;
   if (!(*ap_cast = p_cast->p_client->register_client (
-          ap_name, *ap_uuid, ap_cbacks->pf_url_loaded, ap_data)))
+          ap_device_name_or_ip, *ap_uuid, ap_cbacks->pf_url_loaded, ap_data)))
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR, "Registering cast client");
       rc = TIZ_CAST_OOM;
