@@ -53,8 +53,24 @@ class tizcastd : public com::aratelia::tiz::tizcastif_adaptor,
 {
 
 public:
-  tizcastd (DBus::Connection &connection, char const *ap_dbname);
+  tizcastd (DBus::Connection &connection);
   ~tizcastd ();
+
+  /**
+   * @brief Connect to a Chromecast device.
+   *
+   * @param name_or_ip The name or ip address of the Chromecast device.
+   *
+   * @return A tiz_cast_error_t error code
+   */
+  int32_t connect (const std::string &name_or_ip);
+
+  /**
+   * @brief Disconnect an existing connection to a Chromecast device.
+   *
+   * @return A tiz_cast_error_t error code
+   */
+  int32_t disconnect ();
 
   /**
    * @brief Load a stream URL on a Chromecast device.
@@ -119,6 +135,7 @@ public:
 
 private:
   tiz_chromecast_t *p_cc_;
+  std::string cc_name_or_ip_;
 };
 
 #endif  // TIZCASTD_HPP

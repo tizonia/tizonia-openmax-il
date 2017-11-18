@@ -23,6 +23,15 @@
 
     <property name="Version" type="i" access="read"/>
 
+    <method name="connect">
+      <arg type="s" name="name_or_ip" direction="in"/>
+      <arg type="i" name="retcode" direction="out"/>
+    </method>
+
+    <method name="disconnect">
+      <arg type="i" name="retcode" direction="out"/>
+    </method>
+
     <method name="load_url">
       <arg type="s" name="url" direction="in"/>
       <arg type="s" name="mime_type" direction="in"/>

@@ -62,11 +62,11 @@ static void cc_new_media_status_cback (void *ap_user_data)
   // TODO
 }
 
-tizcastd::tizcastd (DBus::Connection &a_connection, char const *ap_dbname)
-  : DBus::ObjectAdaptor (a_connection, TIZ_CAST_DAEMON_PATH), p_cc_ (NULL)
+tizcastd::tizcastd (DBus::Connection &a_connection)
+  : DBus::ObjectAdaptor (a_connection, TIZ_CAST_DAEMON_PATH),
+    p_cc_ (NULL),
+    cc_name_or_ip_ ()
 {
-  (void)tiz_chromecast_init (&(p_cc_), ap_dbname, cc_new_media_status_cback,
-                             this);
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Constructing tizcastd...");
 }
 
@@ -76,10 +76,36 @@ tizcastd::~tizcastd ()
   p_cc_ = NULL;
 }
 
+int32_t tizcastd::connect (const std::string &name_or_ip)
+{
+  tiz_cast_error_t outcome = TIZ_CAST_SUCCESS;
+  if (!p_cc_)
+    {
+      if (0 != tiz_chromecast_init (&(p_cc_), name_or_ip.c_str(),
+                                    cc_new_media_status_cback,
+                                    this))
+        {
+          outcome = TIZ_CAST_MISUSE;
+        }
+    }
+  return outcome;
+}
+
+int32_t tizcastd::disconnect ()
+{
+  tiz_cast_error_t outcome = TIZ_CAST_SUCCESS;
+  if (p_cc_)
+    {
+      tiz_chromecast_destroy (p_cc_);
+    }
+  return outcome;
+}
+
 int32_t tizcastd::load_url (const std::string &url,
                             const std::string &mime_type,
                             const std::string &title)
 {
+
   tiz_cast_error_t outcome = TIZ_CAST_SUCCESS;
   if (0 != tiz_chromecast_load_url (p_cc_, url.c_str (), mime_type.c_str (),
                                     title.c_str ()))
@@ -175,7 +201,6 @@ static void tizcastd_sig_hdlr (int sig)
 
 int main ()
 {
-  std::string rmdb_path;
   signal (SIGTERM, tizcastd_sig_hdlr);
   signal (SIGINT, tizcastd_sig_hdlr);
 
@@ -188,7 +213,7 @@ int main ()
   DBus::Connection conn = DBus::Connection::SessionBus ();
   conn.request_name (TIZ_CAST_DAEMON_NAME);
 
-  tizcastd server (conn, rmdb_path.c_str ());
+  tizcastd server (conn);
 
   dispatcher.enter ();
 
