@@ -21,7 +21,7 @@
 
   <interface name="com.aratelia.tiz.tizcastif">
 
-    <property name="Version" type="i" access="read"/>
+    <property name="version" type="i" access="read"/>
 
     <method name="connect">
       <arg type="s" name="name_or_ip" direction="in"/>

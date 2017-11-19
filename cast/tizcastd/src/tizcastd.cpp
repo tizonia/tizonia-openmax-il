@@ -79,14 +79,13 @@ tizcastd::~tizcastd ()
 int32_t tizcastd::connect (const std::string &name_or_ip)
 {
   tiz_cast_error_t outcome = TIZ_CAST_SUCCESS;
-  if (!p_cc_)
+  // Make sure a previous client has been disconnected
+  disconnect ();
+  if (0 != tiz_chromecast_init (&(p_cc_), name_or_ip.c_str(),
+                                cc_new_media_status_cback,
+                                this))
     {
-      if (0 != tiz_chromecast_init (&(p_cc_), name_or_ip.c_str(),
-                                    cc_new_media_status_cback,
-                                    this))
-        {
-          outcome = TIZ_CAST_MISUSE;
-        }
+      outcome = TIZ_CAST_MISUSE;
     }
   return outcome;
 }
@@ -97,6 +96,7 @@ int32_t tizcastd::disconnect ()
   if (p_cc_)
     {
       tiz_chromecast_destroy (p_cc_);
+      p_cc_ = NULL;
     }
   return outcome;
 }
