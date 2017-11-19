@@ -463,12 +463,6 @@ cc_gmusic_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
     (const char *) p_prc->gm_session_.cUserPassword,
     (const char *) p_prc->gm_session_.cDeviceId));
 
-  bzero (&(p_prc->cc_uuid_), 128);
-
-  on_cc_error_ret_omx_oom (tiz_cast_client_init (
-    &(p_prc->p_cc_), (const char *) p_prc->cc_session_.cNameOrIpAddr,
-    &(p_prc->cc_uuid_), cc_url_loaded_cback, p_prc));
-
   tiz_check_omx (enqueue_playlist_items (p_prc));
   tiz_check_omx (obtain_next_url (p_prc, 1));
 
@@ -494,6 +488,17 @@ cc_gmusic_prc_prepare_to_transfer (void * ap_prc, OMX_U32 a_pid)
   cc_gmusic_prc_t * p_prc = ap_prc;
   assert (ap_prc);
   p_prc->eos_ = false;
+
+  /* Lazy instantiation of the cast client object */
+  if (!p_prc->p_cc_)
+    {
+      tiz_cast_client_callbacks_t cast_cbacks = {cc_url_loaded_cback};
+      bzero (&(p_prc->cc_uuid_), 128);
+      tiz_uuid_generate (&(p_prc->cc_uuid_));
+      on_cc_error_ret_omx_oom (tiz_cast_client_init (
+        &(p_prc->p_cc_), (const char *) p_prc->cc_session_.cNameOrIpAddr,
+        &(p_prc->cc_uuid_), &cast_cbacks, p_prc));
+    }
   return OMX_ErrorNone;
 }
 
@@ -508,7 +513,7 @@ cc_gmusic_prc_transfer_and_process (void * ap_prc, OMX_U32 a_pid)
   if (p_prc->p_cc_ && p_prc->p_uri_param_
       && (const char *) p_prc->p_uri_param_->contentURI)
     {
-      on_cc_error_ret_omx_oom (tiz_cast_client_load (
+      on_cc_error_ret_omx_oom (tiz_cast_client_load_url (
         p_prc->p_cc_, (const char *) p_prc->p_uri_param_->contentURI,
         CONTENT_TYPE, TITLE));
     }
