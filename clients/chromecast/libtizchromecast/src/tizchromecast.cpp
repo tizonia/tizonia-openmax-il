@@ -105,14 +105,17 @@ int tizchromecast::start ()
 {
   int rc = 0;
   try_catch_wrapper (start_chromecast (py_global_, py_cc_proxy_, name_or_ip_));
-  typedef boost::function< void(std::string) > handler_fn;
-  handler_fn cast_status_handler (
-      boost::bind (&tizchromecast::new_cast_status, this, _1));
-  handler_fn media_status_handler (
-      boost::bind (&tizchromecast::new_media_status, this, _1));
-  try_catch_wrapper (
-      py_cc_proxy_.attr ("activate") (bp::make_function (cast_status_handler),
-                                   bp::make_function (media_status_handler)));
+  if (py_cc_proxy_)
+    {
+      typedef boost::function< void(std::string) > handler_fn;
+      handler_fn cast_status_handler (
+          boost::bind (&tizchromecast::new_cast_status, this, _1));
+      handler_fn media_status_handler (
+          boost::bind (&tizchromecast::new_media_status, this, _1));
+      try_catch_wrapper (py_cc_proxy_.attr ("activate") (
+          bp::make_function (cast_status_handler),
+          bp::make_function (media_status_handler)));
+    }
   return rc;
 }
 
