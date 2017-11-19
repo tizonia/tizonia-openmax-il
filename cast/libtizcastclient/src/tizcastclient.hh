@@ -39,6 +39,9 @@ class tizcastclient : public com::aratelia::tiz::tizcastif_proxy,
                       public DBus::IntrospectableProxy,
                       public DBus::ObjectProxy
 {
+public:
+  typedef std::vector< unsigned char > cast_client_id_t;
+  typedef cast_client_id_t * cast_client_id_ptr_t;
 
 public:
   tizcastclient (DBus::Connection & connection, const char * path,
@@ -46,48 +49,48 @@ public:
 
   ~tizcastclient ();
 
-  void *
-  register_client (const char * ap_cname, const uint8_t uuid[],
-                   tiz_cast_client_url_loaded_f apf_url_loaded,
-                   void * ap_data);
-
-  void
-  unregister_client (const tiz_cast_t * ap_cast);
-
   // DBUS Methods
 
-  int32_t
-  connect (const tiz_cast_t * ap_cast, const char * ap_name_or_ip);
+  const cast_client_id_ptr_t
+  connect (const char * ap_device_name_or_ip, const uint8_t uuid[],
+           tiz_cast_client_url_loaded_f apf_url_loaded, void * ap_data);
 
   int32_t
-  disconnect (const tiz_cast_t * ap_cast);
+  disconnect (const cast_client_id_ptr_t ap_cast);
 
   int32_t
-  load_url (const tiz_cast_t * ap_cast, const char * url, const char * mime_type,
-            const char * title);
+  load_url (const cast_client_id_ptr_t ap_cast_clnt, const char * url,
+            const char * mime_type, const char * title);
 
   int32_t
-  play (const tiz_cast_t * ap_cast);
+  play (const cast_client_id_ptr_t ap_cast_clnt);
 
   int32_t
-  stop (const tiz_cast_t * ap_cast);
+  stop (const cast_client_id_ptr_t ap_cast_clnt);
 
   int32_t
-  pause (const tiz_cast_t * ap_cast);
+  pause (const cast_client_id_ptr_t ap_cast_clnt);
 
   int32_t
-  volume_up (const tiz_cast_t * ap_cast);
+  volume_up (const cast_client_id_ptr_t ap_cast_clnt);
 
   int32_t
-  volume_down (const tiz_cast_t * ap_cast);
+  volume_down (const cast_client_id_ptr_t ap_cast_clnt);
 
   int32_t
-  mute (const tiz_cast_t * ap_cast);
+  mute (const cast_client_id_ptr_t ap_cast_clnt);
 
   int32_t
-  unmute (const tiz_cast_t * ap_cast);
+  unmute (const cast_client_id_ptr_t ap_cast_clnt);
 
 private:
+  const cast_client_id_ptr_t
+  register_client (const char * ap_device_name_or_ip, const uint8_t uuid[],
+                   tiz_cast_client_url_loaded_f apf_url_loaded, void * ap_data);
+
+  void
+  unregister_client (const cast_client_id_ptr_t ap_cast_clnt);
+
   // DBUS Signals
   void
   url_loaded ();
@@ -95,13 +98,13 @@ private:
 private:
   struct client_data
   {
-    client_data () : cname_ (""), uuid_ (), pf_url_loaded_ (NULL), p_data_ (NULL)
+    client_data ()
+      : cname_ (""), uuid_ (), pf_url_loaded_ (NULL), p_data_ (NULL)
     {
     }
 
     client_data (const char * ap_cname, std::vector< unsigned char > uuid,
-                 tiz_cast_client_url_loaded_f apf_url_loaded,
-                 void * ap_data)
+                 tiz_cast_client_url_loaded_f apf_url_loaded, void * ap_data)
       : cname_ (ap_cname),
         uuid_ (uuid),
         pf_url_loaded_ (apf_url_loaded),
@@ -135,7 +138,7 @@ private:
 
 private:
   int32_t
-  invokecast (pmf_t a_pmf, const tiz_cast_t * ap_cast);
+  invokecast (pmf_t a_pmf, const cast_client_id_ptr_t ap_cast_clnt);
 
   using com::aratelia::tiz::tizcastif_proxy::load_url;
   using com::aratelia::tiz::tizcastif_proxy::play;

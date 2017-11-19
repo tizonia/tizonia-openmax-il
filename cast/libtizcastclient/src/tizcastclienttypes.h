@@ -21,7 +21,7 @@
  * @file   tizcastclienttypes.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Chromecast Daemon client library API types
+ * @brief  Tizonia Chromecast daemon - client library (API types)
  *
  *
  */
@@ -30,23 +30,25 @@
 #define TIZCASTCLIENTTYPES_H
 
 #ifdef __cplusplus
-extern "C"
+extern "C" {
+#endif /* __cplusplus */
+
+typedef struct tiz_cast tiz_cast_t;
+typedef /*@null@ */ tiz_cast_t * tiz_cast_ptr_t;
+
+/**
+ * Callback function to signal a waiting client when a resource has become
+ * available.
+ */
+typedef void (*tiz_cast_client_url_loaded_f) (void * ap_user_data);
+
+typedef struct tiz_cast_client_callbacks_t
 {
-#endif                          /* __cplusplus */
-
-  typedef void *tiz_cast_t;
-
-  /* Callback function to signal a waiting client when a resource has become
-   * available */
-  typedef void (*tiz_cast_client_url_loaded_f) (void * ap_user_data);
-
-  typedef struct tiz_cast_client_callbacks_t
-  {
-    tiz_cast_client_url_loaded_f pf_url_loaded;
-  } tiz_cast_client_callbacks_t;
+  tiz_cast_client_url_loaded_f pf_url_loaded;
+} tiz_cast_client_callbacks_t;
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          // TIZCASTCLIENTTYPES_H
+#endif  // TIZCASTCLIENTTYPES_H

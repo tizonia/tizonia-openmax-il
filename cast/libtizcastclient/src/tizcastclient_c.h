@@ -48,7 +48,8 @@ extern "C" {
 #include "tizcastclienttypes.h"
 
 tiz_cast_error_t
-tiz_cast_client_init (tiz_cast_t * ap_cast, const char * ap_device_name_or_ip,
+tiz_cast_client_init (tiz_cast_ptr_t * app_cast,
+                      const char * ap_device_name_or_ip,
                       const OMX_UUIDTYPE * ap_uuid,
                       const tiz_cast_client_callbacks_t * ap_cbacks,
                       OMX_PTR ap_data);
@@ -61,8 +62,7 @@ tiz_cast_client_version (const tiz_cast_t * ap_cast);
 
 tiz_cast_error_t
 tiz_cast_client_load_url (const tiz_cast_t * ap_cast, const char * url,
-                          const char * mime_type,
-                          const char * title);
+                          const char * mime_type, const char * title);
 
 tiz_cast_error_t
 tiz_cast_client_play (const tiz_cast_t * ap_cast);
