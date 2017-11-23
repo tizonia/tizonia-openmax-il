@@ -624,18 +624,10 @@ cc_gmusic_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
         OMX_TizoniaIndexConfigPlaylistSkip, &p_prc->playlist_skip_));
       p_prc->playlist_skip_.nValue > 0 ? obtain_next_url (p_prc, 1)
                                        : obtain_next_url (p_prc, -1);
-      /* Changing the URL has the side effect of halting the current
-         download */
-      if (p_prc->port_disabled_)
-        {
-          /* Record that the URI has changed, so that when the port is
-             re-enabled, we restart the transfer */
-          p_prc->uri_changed_ = true;
-        }
-      else
-        {
-          /* re-start the transfer */
-        }
+      /* Load the new URL */
+      on_cc_error_ret_omx_oom (tiz_cast_client_load_url (
+        p_prc->p_cc_, (const char *) p_prc->p_uri_param_->contentURI,
+        CONTENT_TYPE, TITLE));
     }
   return rc;
 }
