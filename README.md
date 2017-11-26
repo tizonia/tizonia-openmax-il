@@ -77,7 +77,10 @@ release of Tizonia along with all its dependencies.
 
 ```
 
-> NOTE: The usual disclaimers apply: trust no-one. Have a look at the installation script before running it on your system.
+> NOTE: The usual disclaimers apply: trust no-one. You should have a look at
+  the installation script before running it on your system, but basically, the
+  script makes sure your Debian-compatible system is updated with all the
+  necessary packages, before installing Tizonia from Bintray.
 
 ## Arch User Repository (AUR)
  - [tizonia-all (0.10.0)](https://aur.archlinux.org/packages/tizonia-all/)
