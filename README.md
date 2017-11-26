@@ -64,9 +64,10 @@ combinations:
 
 > NOTE: Elementary OS and Linux Mint are supported on releases based on Ubuntu 'Trusty' or Ubuntu 'Xenial'.
 
-This script installs the
+Please note that the **recommended** way to install Tizonia is by running the
+following command, that installs in a Debian-compatible system the
 [latest](https://github.com/tizonia/tizonia-openmax-il/releases/latest)
-release and its dependencies in a Debian-compatible system.
+release of Tizonia along with all its dependencies.
 
 ```bash
 
