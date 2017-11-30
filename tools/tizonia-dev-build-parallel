@@ -21,6 +21,8 @@
 # Parallel configuration, make and make install for those sub-projects that can
 # effectivly be configured/built in parallel
 #
+# NOTE: THIS IS WORK IN PROGRESS AND SHOULD NOT BE USED YET!!!!
+#
 
 declare -ar TIZONIA_DEV_BUILD_PARALLEL_DEPS=( \
     'parallel' \
@@ -35,15 +37,20 @@ function main {
         command -v "$cmd" >/dev/null 2>&1 || { echo >&2 "This program requires $cmd. Aborting."; exit 1; }
     done
 
-    # Build include, gmusic, soundcloud, and dirble packages in parallel
+    # Build include, gmusic, soundcloud, dirble, youtube, and chromecast packages in parallel
     local tmpsource=$(mktemp)
     for proj in "${TIZ_PROJECTS_ORDERED[@]}"; do
-        echo "$proj" >> "$tmpsource"
-        if [[ "${TIZ_PROJECT_DIRS[$proj]}" == *"libtizplatform"* ]]; then
-            break
+        if [[ "${TIZ_PROJECT_DIRS[$proj]}" != *"proxy"* ]]; then
+            echo "Adding $proj"
+            echo "$proj" >> "$tmpsource"
+            if [[ "${TIZ_PROJECT_DIRS[$proj]}" == *"libtizplatform"* ]]; then
+                break
+            fi
         fi
     done
-    cat $tmpsource | parallel -k "tizonia-dev-build $@ --project"
+
+    # Da business
+    cat $tmpsource | parallel --no-notice -k "tizonia-dev-build $@ --project"
 
     # Cleanup
     rm $tmpsource
@@ -53,9 +60,11 @@ function main {
         if [[ "${TIZ_PROJECT_DIRS[$proj]}" == *"plugins"* ]]; then
             break
         fi
-        local proj_dir="$TIZONIA_REPO_DIR/${TIZ_PROJECT_DIRS[$proj]}"
-        pretty_print "$GRN" "[$proj] : $proj_dir"
-        tizonia-dev-build "$@" --project="$proj"
+        if [[ ( "${TIZ_PROJECT_DIRS[$proj]}" != *"proxy"* ) || ( "${TIZ_PROJECT_DIRS[$proj]}" == "tizrmproxy" ) ]]; then
+            local proj_dir="$TIZONIA_REPO_DIR/${TIZ_PROJECT_DIRS[$proj]}"
+            pretty_print "$GRN" "[$proj] : $proj_dir"
+            tizonia-dev-build "$@" --project="$proj"
+        fi
     done
 
     # Build plugins, config and player in parallel
@@ -69,7 +78,7 @@ function main {
     done
 
     # Da business
-    cat $tmpsource | parallel -k "tizonia-dev-build $@ --project"
+    cat $tmpsource | parallel --no-notice -k "tizonia-dev-build $@ --project"
 
     # Cleanup
     rm $tmpsource
