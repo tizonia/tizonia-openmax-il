@@ -220,14 +220,15 @@ AC_MSG_RESULT([
 
   General configuration:
 
-    Blocking ETB/FTB: ........... ${blocking_etb_ftb}
-    Blocking OMX_SendCommand: ... ${blocking_sendcommand}
+    Blocking ETB/FTB: ............ ${blocking_etb_ftb}
+    Blocking OMX_SendCommand: ... .${blocking_sendcommand}
 
   Installation paths:
 
     libraries: ................... ${LIBDIR}
-    tizonia: ......................${BINDIR}
-    Header files: ................ ${INCLUDEDIR}/libtizonia, ${INCLUDEDIR}/libtizplatform
+    plugins: ..................... ${PLUGINDIR}
+    tizonia: ..................... ${BINDIR}
+    Header files: ................ ${INCLUDEDIR}/libtizonia
     Documentation: ............... ${DOCDIR}
 
   Building:

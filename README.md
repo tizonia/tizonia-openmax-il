@@ -64,9 +64,10 @@ combinations:
 
 > NOTE: Elementary OS and Linux Mint are supported on releases based on Ubuntu 'Trusty' or Ubuntu 'Xenial'.
 
-This script installs the
+Please note that the **recommended** way to install Tizonia is by running the
+following command, that installs in a Debian-compatible system the
 [latest](https://github.com/tizonia/tizonia-openmax-il/releases/latest)
-release and its dependencies in a Debian-compatible system.
+release of Tizonia along with all its dependencies.
 
 ```bash
 
@@ -76,7 +77,10 @@ release and its dependencies in a Debian-compatible system.
 
 ```
 
-> NOTE: The usual disclaimers apply: trust no-one. Have a look at the installation script before running it on your system.
+> NOTE: The usual disclaimers apply: trust no-one. You should have a look at
+  the installation script before running it on your system, but basically, the
+  script makes sure your Debian-compatible system is updated with all the
+  necessary packages, before installing Tizonia from Bintray.
 
 ## Arch User Repository (AUR)
  - [tizonia-all (0.10.0)](https://aur.archlinux.org/packages/tizonia-all/)

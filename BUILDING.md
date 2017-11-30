@@ -1,16 +1,22 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
+
 - [Building from Source](#building-from-source)
   - [Dependencies](#dependencies)
   - [Building](#building)
     - ['Debug' variant](#debug-variant)
     - ['Release' variant](#release-variant)
     - [Single Debian package created with 'checkinstall'](#single-debian-package-created-with-checkinstall)
-    - [The tradional method](#the-tradional-method)
+    - [The traditional method](#the-traditional-method)
+    - [Conditional compilation of sub-projects](#conditional-compilation-of-sub-projects)
+      - [Excluding the `player` sub-project](#excluding-the-player-sub-project)
+      - [Excluding the `plugins/spotify_source` sub-project](#excluding-the-pluginsspotify_source-sub-project)
   - [Tizonia's configuration file](#tizonias-configuration-file)
   - [Resource Manager's D-BUS service activation file (optional)](#resource-managers-d-bus-service-activation-file-optional)
   - [Known issues](#known-issues)
+  - [Speeding up (re-)compilation using ccache](#speeding-up-re-compilation-using-ccache)
+  - [Creating a JSON compilation database, for use with e.g. Emacs RTags](#creating-a-json-compilation-database-for-use-with-eg-emacs-rtags)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -21,14 +27,14 @@ but should work on other recent Debian-based distros).
 
 ### Dependencies ###
 
-To install all the development dependencies, the easiest way is to use the
-'tizonia-dev-build' tool. This script lives under the 'tools' directory and
+To install all the development dependencies, the `tizonia-dev-build` tool is
+the easiest way. This script lives under the `tools` directory and internally
 maintains an up-to-date list of all the packages that are required in a
 Debian-compatible system to build Tizonia from source.
 
-> NOTE: The following command installs Mopidy's 'libspotify-dev' package, the
-> 'gmusicapi', 'soundcloud', 'pafy' and 'youtube-dl python packages, among
-> other things.
+> NOTE: The following command installs Mopidy's 'libspotify-dev' package, and
+> the 'gmusicapi', 'soundcloud', 'pafy' and 'youtube-dl' Python PIP packages,
+> plus a few other necessary debian packages.
 
 ```bash
 
@@ -37,7 +43,7 @@ Debian-compatible system to build Tizonia from source.
     $ export TIZONIA_INSTALL_DIR=/path/to/install/dir # (e.g. /usr or /home/user/temp)
     $ export PATH=$TIZONIA_REPO_DIR/tools:$PATH
 
-    Install everything needed to build Tizonia from source (Debian derivative assumed)
+    Now install everything that is required to build Tizonia from source (Debian derivative assumed)
     $ tools/tizonia-dev-build --deps
 
 ```
@@ -50,8 +56,8 @@ the following methods.
 
 #### 'Debug' variant
 
-The following command re-configures all sub-projects with 'debug' flags, builds
-and installs them.
+The following command re-configures all sub-projects with 'debug' type of
+flags, and then proceeds to build and install them.
 
 ```bash
 
@@ -61,24 +67,12 @@ and installs them.
 
 #### 'Release' variant
 
-The following command re-configures all sub-projects with 'release' flags,
-builds and installs them.
+The following command re-configures all sub-projects with 'release' type of
+flags, builds and installs them.
 
 ```bash
 
    $ tools/tizonia-dev-build --release --install
-
-```
-
-#### Excluding the 'player' sub-project
-
-The '--no-player' option can be added at any time to disable configuration and
-build of the 'player' program.
-
-```bash
-
-   # Build and install in DEBUG mode without the command-line player program.
-   $ tools/tizonia-dev-build --no-player --debug --install
 
 ```
 
@@ -117,6 +111,45 @@ Alternatively, from the top of Tizonia's repo, one can also do the familiar:
 
 ```
 
+#### Conditional compilation of sub-projects
+
+##### Excluding the `player` sub-project
+
+Some people are only interested in building the OpenMAX IL framework, without
+the `tizonia` player application (that lives under the 'player'
+sub-directory). During configuration, it can be disabled by including the
+`--disable-player` option:
+
+```bash
+
+   # Disable compilation of the command-line player program.
+   $ ./configure --disable-player
+
+```
+
+Alternatively, the `--no-player` option may be added to `tizonia-dev-build` to
+disable configuration and build of the `tizonia` player.
+
+```bash
+
+   # Build and install in DEBUG mode without the command-line player program.
+   $ tools/tizonia-dev-build --no-player --debug --install
+
+```
+
+##### Excluding the `plugins/spotify_source` sub-project
+
+The `--without-libspotify` option may be included to disable configuration and
+build of the libspotify-based OpenMAX IL component. This option will also
+disable the support for this plugin in the `tizonia` player program.
+
+```bash
+
+   # Disable support for the spotify_source plugin.
+   $ ./configure --without-libspotify
+
+```
+
 ### Tizonia's configuration file ###
 
 Copy *tizonia.conf* into the user's config folder:
@@ -130,10 +163,12 @@ Copy *tizonia.conf* into the user's config folder:
 
 ### Resource Manager's D-BUS service activation file (optional) ###
 
-OpenMAX IL Resource Management is present but disabled by default. In case this
-is to be used (prior to that, needs to be explicitly enabled in tizonia.conf),
-copy the Resource Manager's D-BUS activation file to some place where it can be
-found by the DBUS services. E.g:
+OpenMAX IL Resource Management is present but disabled by default. This is a
+feature required on an compliant OpenMAX IL 1.2 implementation. Currently,
+there is no other use beyond enabling OpenMAX IL compliance. In case this is to
+be used during OpenMAX IL conformance testing (prior to that, it needs to be
+explicitly enabled in tizonia.conf), copy the Resource Manager's D-BUS
+activation file to some place where it can be found by the DBUS services. E.g:
 
 ```bash
 
@@ -158,7 +193,7 @@ etc) requires quite a bit of RAM.
 You may see GCC crashing like below; simply keep running `make -j1` or `make
 -j1 install` until the application is fully built (it will finish eventually,
 given the sufficient amount RAM). An alternative to that is to build in
-'release' mode.
+'release' mode (especially if you are on a 32-bit distro).
 
 ```bash
 
@@ -189,4 +224,56 @@ Please submit a full bug report,
 with preprocessed source if appropriate.
 See <file:///usr/share/doc/gcc-4.8/README.Bugs> for instructions.
 
+```
+
+### Speeding up (re-)compilation using ccache ###
+
+[ccache](https://ccache.samba.org/) is a compiler cache. It speeds up
+recompilation by caching previous compilations. With Tizonia, this is very
+useful during development, especially since the 'player' application is so hard
+to build due to the boost machinery.
+
+On a debian system, ccache can be installed using:
+
+```
+$ sudo apt-get install ccache
+```
+
+Once ccache is installed, `tizonia-dev-build` will detect its presence and
+start making use of it to (dramatically) reduce compilation time in most cases.
+
+### Creating a JSON compilation database, for use with e.g. Emacs RTags ###
+
+JSON compilation databases are used nowdays by many tools to provide
+information on how a single compilation unit is processed. This helps these
+programs to perform many useful tasks, like static analyses of various
+kinds. [RTags](https://github.com/Andersbakken/rtags) is an example of program
+that uses a JSON compilation database to index C/C++ code and keep a persistent
+file-based database, for use within Emacs to provide powerful integrations.
+
+`tizonia-dev-build` has support for `bear` (a program that creates JSON
+databases) and RTags. To use, install both programs:
+
+```
+$ sudo apt-get install bear
+
+# For RTags, visit its GitHub for up-to-date installation instructions
+# https://github.com/Andersbakken/rtags
+
+```
+
+and finally, create the compilation db with these two commands:
+
+```
+$ tizonia-dev-build --debug (or --release)
+
+# followed by
+
+$ tizonia-dev-build --bear
+```
+
+After that, to keep the database up-to-date after code changes, use:
+
+```
+$ tizonia-dev-build --make (or --install)
 ```

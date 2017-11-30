@@ -119,10 +119,21 @@ AC_FUNC_ERROR_AT_LINE
 AC_FUNC_FORK
 AC_CHECK_FUNCS([dup2 gethostbyname gethostname inet_ntoa strtol])
 
+AC_ARG_WITH(libspotify,
+    AS_HELP_STRING([--with-libspotify],
+        [build support for the libspotify-based OpenMAX IL plugin (default: yes)]),,
+    with_libspotify=yes)
+
+AM_CONDITIONAL(WITH_LIBSPOTIFY, test "x$with_libspotify" = xyes)
+
 AC_CONFIG_FILES([Makefile
                 tools/Makefile
                 dbus/Makefile
                 src/Makefile])
+
+if test "$with_libspotify" = yes; then
+      AC_DEFINE(HAVE_LIBSPOTIFY, 1, [Support for libspotify is included])
+fi
 
 # End the configure script.
 AC_OUTPUT

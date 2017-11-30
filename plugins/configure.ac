@@ -36,9 +36,6 @@ PKG_PROG_PKG_CONFIG()
 
 # Checks for libraries.
 PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
-#PKG_CHECK_MODULES([KHROMTIZ12], [libkhromxil12])
-#PKG_CHECK_MODULES([TIZ], [libtizplatform])
-#PKG_CHECK_MODULES([TIZCORE], [libtizcore])
 
 # Checks for header files.
 
@@ -46,6 +43,12 @@ PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
 
 # Checks for library functions.
 
+AC_ARG_WITH(libspotify,
+    AS_HELP_STRING([--with-libspotify],
+        [build the libspotify-based OpenMAX IL plugin (default: yes)]),,
+    with_libspotify=yes)
+
+AM_CONDITIONAL(WITH_LIBSPOTIFY, test "x$with_libspotify" = xyes)
 
 AC_CONFIG_FILES([Makefile])
 
@@ -67,11 +70,17 @@ AC_CONFIG_SUBDIRS([aac_decoder
                    pcm_decoder
                    pcm_renderer_alsa
                    pcm_renderer_pa
-                   spotify_source
+
                    vorbis_decoder
                    vp8_decoder
                    webm_demuxer
                    yuv_renderer])
+
+if test "$with_libspotify" = yes; then
+   if test -d "$srcdir/spotify_source"; then
+      AC_CONFIG_SUBDIRS([spotify_source])
+   fi
+fi
 
 # End the configure script.
 AC_OUTPUT

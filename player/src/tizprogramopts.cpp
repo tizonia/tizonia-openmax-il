@@ -444,9 +444,11 @@ void tiz::programopts::print_usage_help () const
   std::cout << "  "
             << "client        SHOUTcast/ICEcast streaming client options."
             << "\n";
+#ifdef HAVE_LIBSPOTIFY
   std::cout << "  "
             << "spotify       Spotify options."
             << "\n";
+#endif
   std::cout << "  "
             << "googlemusic   Google Play Music options."
             << "\n";
@@ -1103,6 +1105,7 @@ void tiz::programopts::init_streaming_client_options ()
 
 void tiz::programopts::init_spotify_options ()
 {
+#ifdef HAVE_LIBSPOTIFY
   spotify_.add_options ()
       /* TIZ_CLASS_COMMENT: */
       ("spotify-user", po::value (&spotify_user_),
@@ -1118,6 +1121,7 @@ void tiz::programopts::init_spotify_options ()
       = boost::assign::list_of ("spotify-user") ("spotify-password") (
             "spotify-playlist")
             .convert_to_container< std::vector< std::string > > ();
+#endif
 }
 
 void tiz::programopts::init_gmusic_options ()
@@ -1312,7 +1316,9 @@ unsigned int tiz::programopts::parse_command_line (int argc, char *argv[])
       .add (omx_)
       .add (server_)
       .add (client_)
+#ifdef HAVE_LIBSPOTIFY
       .add (spotify_)
+#endif
       .add (gmusic_)
       .add (scloud_)
       .add (dirble_)
@@ -1388,10 +1394,12 @@ int tiz::programopts::consume_global_options (bool &done,
     {
       print_usage_feature (client_);
     }
+#ifdef HAVE_LIBSPOTIFY
     else if (0 == help_option_.compare ("spotify"))
     {
       print_usage_feature (spotify_);
     }
+#endif
     else if (0 == help_option_.compare ("googlemusic"))
     {
       print_usage_feature (gmusic_);

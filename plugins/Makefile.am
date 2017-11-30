@@ -15,8 +15,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-
-SUBDIRS = \
+REQUIRED_SUBDIRS = \
 	aac_decoder \
 	chromecast_renderer \
 	file_reader \
@@ -35,9 +34,16 @@ SUBDIRS = \
 	pcm_decoder \
 	pcm_renderer_alsa \
 	pcm_renderer_pa \
-	spotify_source \
 	vorbis_decoder \
 	vp8_decoder \
 	webm_demuxer \
 	yuv_renderer
 
+LIBSPOTIFY_SUBDIR= \
+	spotify_source
+
+if WITH_LIBSPOTIFY
+SUBDIRS = ${REQUIRED_SUBDIRS} ${LIBSPOTIFY_SUBDIR}
+else
+SUBDIRS = ${REQUIRED_SUBDIRS}
+endif
