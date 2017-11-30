@@ -66,8 +66,10 @@
 #include <services/googlemusic/tizgmusicmgr.hpp>
 #include <services/soundcloud/tizscloudconfig.hpp>
 #include <services/soundcloud/tizscloudmgr.hpp>
+#ifdef HAVE_LIBSPOTIFY
 #include <services/spotify/tizspotifyconfig.hpp>
 #include <services/spotify/tizspotifymgr.hpp>
+#endif
 #include <services/youtube/tizyoutubeconfig.hpp>
 #include <services/youtube/tizyoutubemgr.hpp>
 
@@ -696,6 +698,7 @@ tiz::playapp::decode_stream ()
   return rc;
 }
 
+#ifdef HAVE_LIBSPOTIFY
 OMX_ERRORTYPE
 tiz::playapp::spotify_stream ()
 {
@@ -745,6 +748,13 @@ tiz::playapp::spotify_stream ()
 
   return rc;
 }
+#else
+OMX_ERRORTYPE
+tiz::playapp::spotify_stream ()
+{
+  return OMX_ErrorNone;
+}
+#endif
 
 OMX_ERRORTYPE
 tiz::playapp::gmusic_stream ()

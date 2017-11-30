@@ -17,6 +17,24 @@
 
 bin_PROGRAMS = tizonia
 
+if WITH_LIBSPOTIFY
+SPOTIFY_SRC= \
+	services/spotify/tizspotifygraph.cpp \
+	services/spotify/tizspotifygraphfsm.cpp \
+	services/spotify/tizspotifygraphops.cpp \
+	services/spotify/tizspotifymgr.cpp
+SPOTIFY_HDR= \
+	services/spotify/tizspotifygraph.hpp \
+	services/spotify/tizspotifygraphfsm.hpp \
+	services/spotify/tizspotifygraphops.hpp \
+	services/spotify/tizspotifyconfig.hpp \
+	services/spotify/tizspotifymgr.hpp
+else
+SPOTIFY_SRC=
+SPOTIFY_HDR=
+endif
+
+
 noinst_HEADERS = \
 	tizomxutil.hpp \
 	tizplayapp.hpp \
@@ -67,11 +85,7 @@ noinst_HEADERS = \
 	httpclnt/tizhttpclntgraphops.hpp \
 	services/tizservicegraph.hpp \
 	services/tizservicegraphfsm.hpp \
-	services/spotify/tizspotifygraph.hpp \
-	services/spotify/tizspotifygraphfsm.hpp \
-	services/spotify/tizspotifygraphops.hpp \
-	services/spotify/tizspotifyconfig.hpp \
-	services/spotify/tizspotifymgr.hpp \
+	${SPOTIFY_HDR} \
 	services/googlemusic/tizgmusicgraph.hpp \
 	services/googlemusic/tizgmusicgraphops.hpp \
 	services/googlemusic/tizgmusicconfig.hpp \
@@ -141,10 +155,7 @@ tizonia_SOURCES = \
 	httpclnt/tizhttpclntgraphops.cpp \
 	services/tizservicegraph.cpp \
 	services/tizservicegraphfsm.cpp \
-	services/spotify/tizspotifygraph.cpp \
-	services/spotify/tizspotifygraphfsm.cpp \
-	services/spotify/tizspotifygraphops.cpp \
-	services/spotify/tizspotifymgr.cpp \
+	${SPOTIFY_SRC} \
 	services/googlemusic/tizgmusicgraph.cpp \
 	services/googlemusic/tizgmusicgraphops.cpp \
 	services/googlemusic/tizgmusicmgr.cpp \

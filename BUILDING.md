@@ -7,9 +7,11 @@
   - [Building](#building)
     - ['Debug' variant](#debug-variant)
     - ['Release' variant](#release-variant)
-    - [Excluding the `player` sub-project](#excluding-the-player-sub-project)
     - [Single Debian package created with 'checkinstall'](#single-debian-package-created-with-checkinstall)
     - [The traditional method](#the-traditional-method)
+    - [Conditional compilation of sub-projects](#conditional-compilation-of-sub-projects)
+      - [Excluding the `player` sub-project](#excluding-the-player-sub-project)
+      - [Excluding the `plugins/spotify_source` sub-project](#excluding-the-pluginsspotify_source-sub-project)
   - [Tizonia's configuration file](#tizonias-configuration-file)
   - [Resource Manager's D-BUS service activation file (optional)](#resource-managers-d-bus-service-activation-file-optional)
   - [Known issues](#known-issues)
@@ -74,20 +76,6 @@ flags, builds and installs them.
 
 ```
 
-#### Excluding the `player` sub-project
-
-Some people are only interested on building the OpenMAX IL framework, without
-the player application. The `--no-player` option may be added to disable
-configuration and build of the `tizonia` player program (under the 'player'
-sub-directory).
-
-```bash
-
-   # Build and install in DEBUG mode without the command-line player program.
-   $ tools/tizonia-dev-build --no-player --debug --install
-
-```
-
 #### Single Debian package created with 'checkinstall'
 
 The following command configures all sub-projects with 'release' flags
@@ -120,6 +108,45 @@ Alternatively, from the top of Tizonia's repo, one can also do the familiar:
     $ ./configure    # or ./configure --disable-player to disable the command-line player program
     $ make
     $ make install
+
+```
+
+#### Conditional compilation of sub-projects
+
+##### Excluding the `player` sub-project
+
+Some people are only interested in building the OpenMAX IL framework, without
+the `tizonia` player application (that lives under the 'player'
+sub-directory). During configuration, it can be disabled by including the
+`--disable-player` option:
+
+```bash
+
+   # Disable compilation of the command-line player program.
+   $ ./configure --disable-player
+
+```
+
+Alternatively, the `--no-player` option may be added to `tizonia-dev-build` to
+disable configuration and build of the `tizonia` player.
+
+```bash
+
+   # Build and install in DEBUG mode without the command-line player program.
+   $ tools/tizonia-dev-build --no-player --debug --install
+
+```
+
+##### Excluding the `plugins/spotify_source` sub-project
+
+The `--without-libspotify` option may be included to disable configuration and
+build of the libspotify-based OpenMAX IL component. This option will also
+disable the support for this plugin in the `tizonia` player program.
+
+```bash
+
+   # Disable support for the spotify_source plugin.
+   $ ./configure --without-libspotify
 
 ```
 
@@ -166,7 +193,7 @@ etc) requires quite a bit of RAM.
 You may see GCC crashing like below; simply keep running `make -j1` or `make
 -j1 install` until the application is fully built (it will finish eventually,
 given the sufficient amount RAM). An alternative to that is to build in
-'release' mode.
+'release' mode (especially if you are on a 32-bit distro).
 
 ```bash
 
