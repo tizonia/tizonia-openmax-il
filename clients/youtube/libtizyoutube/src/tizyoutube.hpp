@@ -98,6 +98,7 @@ private:
   std::string current_stream_file_extension_;
   std::string current_stream_video_id_;
   std::string current_stream_published_;
+  std::string current_queue_progress_;
   boost::python::object py_main_;
   boost::python::object py_global_;
   boost::python::object py_yt_proxy_;
