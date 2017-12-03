@@ -55,6 +55,20 @@
     }                                                                         \
   } while (0)
 
+// Same as above, but this macro only records the error. It does not leave the
+// current function
+#define G_OPS_RECORD_IF_ERROR(exp, str)                                       \
+  do                                                                          \
+  {                                                                           \
+    OMX_ERRORTYPE rc_ = OMX_ErrorNone;                                        \
+    if (OMX_ErrorNone != (rc_ = (exp)))                                       \
+    {                                                                         \
+      record_error (rc_, str);                                                \
+      TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s] : %s", tiz_err_to_str (error_code_), \
+               error_msg_.c_str ());                                          \
+    }                                                                         \
+  } while (0)
+
 namespace tiz
 {
   // Forward declaration

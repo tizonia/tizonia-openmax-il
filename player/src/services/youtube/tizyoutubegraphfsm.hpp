@@ -262,6 +262,8 @@ namespace tiz
                                                                                                                         > >                       , bmf::none                      >,
           //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+--------------------------------+
           bmf::Row < tg::awaiting_port_disabled_evt , tg::omx_port_disabled_evt , tg::config2idle                 , tg::do_loaded2idle_tunnel<2>  , tg::is_port_disabling_complete >,
+          bmf::Row < tg::awaiting_port_disabled_evt , bmf::none                 , updating_graph_exit             , bmf::none                     , bmf::euml::Not_<
+                                                                                                                                                      tg::last_op_succeeded >     >,
           //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+--------------------------------+
           bmf::Row < tg::config2idle                , tg::omx_trans_evt         , tg::idle2exe                    , tg::do_idle2exe_tunnel<2>     , tg::is_trans_complete          >,
           //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+--------------------------------+
@@ -496,10 +498,15 @@ namespace tiz
         bmf::Row < updating_graph
                    ::exit_pt
                    <updating_graph_
+                    ::updating_graph_exit>      , tg::graph_updated_evt     , skipping                , tg::do_reset_internal_error , bmf::euml::Not_<
+                                                                                                                                        tg::last_op_succeeded>     >,
+        bmf::Row < updating_graph
+                   ::exit_pt
+                   <updating_graph_
                     ::updating_graph_exit>      , tg::graph_updated_evt     , tg::executing           , bmf::ActionSequence_<
                                                                                                           boost::mpl::vector<
                                                                                                             tg::do_retrieve_metadata,
-                                                                                                            tg::do_ack_execd> >                                    >,
+                                                                                                            tg::do_ack_execd> >     , tg::last_op_succeeded        >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < tg::executing                , tg::omx_err_evt           , tg::exe2idle            , bmf::ActionSequence_<
                                                                                                           boost::mpl::vector<

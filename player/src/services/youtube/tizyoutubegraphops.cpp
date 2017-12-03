@@ -339,11 +339,11 @@ void graph::youtubeops::do_load_decoder ()
 
   omx_comp_name_lst_t comp_list;
   omx_comp_role_lst_t role_list;
-  G_OPS_BAIL_IF_ERROR (add_decoder_to_component_list (comp_list, role_list),
-                       "Unknown/unhandled stream format.");
+  G_OPS_RECORD_IF_ERROR (add_decoder_to_component_list (comp_list, role_list),
+                         "Unknown/unhandled stream format.");
 
   tiz::graph::cbackhandler &cbacks = get_cback_handler ();
-  G_OPS_BAIL_IF_ERROR (
+  G_OPS_RECORD_IF_ERROR (
       util::instantiate_comp_list (comp_list, handles_, h2n_, &(cbacks),
                                    cbacks.get_omx_cbacks ()),
       "Unable to instantiate the component list.");
@@ -366,7 +366,7 @@ void graph::youtubeops::do_load_renderer ()
   role_list.push_back ("audio_renderer.pcm");
 
   tiz::graph::cbackhandler &cbacks = get_cback_handler ();
-  G_OPS_BAIL_IF_ERROR (
+  G_OPS_RECORD_IF_ERROR (
       util::instantiate_comp_list (comp_list, handles_, h2n_, &(cbacks),
                                    cbacks.get_omx_cbacks ()),
       "Unable to instantiate the component list.");
@@ -455,6 +455,14 @@ graph::youtubeops::add_decoder_to_component_list (
             "[OMX_ErrorFormatNotDetected] : Unhandled encoding type [%d]...",
             encoding_);
         rc = OMX_ErrorFormatNotDetected;
+
+        // OK, this requires an explanation. At this point, we have not been
+        // able to find a decoder for this stream, so load anything just for
+        // the sake of completing the graph and then let's recover by tearing
+        // down everything and starting from scratch (like during the
+        // 'skipping' sequence).
+        comp_list.push_back ("OMX.Aratelia.audio_decoder.mp3");
+        role_list.push_back ("audio_decoder.mp3");
       }
     }
     break;
@@ -545,7 +553,8 @@ OMX_ERRORTYPE graph::youtubeops::get_encoding_type_from_container_demuxer ()
   tiz_check_omx (
       OMX_GetParameter (handles_[1], OMX_IndexParamPortDefinition, &port_def));
   encoding_ = port_def.format.audio.eEncoding;
-  TIZ_LOG (TIZ_PRIORITY_DEBUG, "encoding_ = [%X]", encoding_);
+  TIZ_LOG (TIZ_PRIORITY_DEBUG, "encoding_ = [%s]",
+           tiz_audio_coding_to_str (encoding_));
   return OMX_ErrorNone;
 }
 
