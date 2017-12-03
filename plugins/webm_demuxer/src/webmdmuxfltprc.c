@@ -1078,11 +1078,13 @@ alloc_nestegg (webmdmuxflt_prc_t * ap_prc)
   int nestegg_rc = 0;
   assert (!ap_prc->p_ne_);
   nestegg_rc = nestegg_init (&ap_prc->p_ne_, ap_prc->ne_io_, ne_log, -1);
+  TIZ_DEBUG (handleOf (ap_prc), "nestegg_rc = %d", nestegg_rc);
 
   if (0 != nestegg_rc)
     {
       dealloc_nestegg (ap_prc);
       tiz_buffer_clear (ap_prc->p_webm_store_);
+      rc = OMX_ErrorFormatNotDetected;
     }
   else
     {
