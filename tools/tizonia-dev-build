@@ -320,21 +320,18 @@ function main {
             --prefix=$TIZONIA_INSTALL_DIR \
             --with-bashcompletiondir=$TIZONIA_INSTALL_DIR/share/bash-completion/completions \
             --with-zshcompletiondir=$TIZONIA_INSTALL_DIR/share/zsh/site-functions \
-            "${player[@]}" \
-            CFLAGS='-O2 -s -DNDEBUG'  \
-            CXXFLAGS='-O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security' \
             )
 
         print_banner "Reconfiguring [$TIZONIA_PROJ_NAME] for [RELEASE] build - Install dir [$TIZONIA_INSTALL_DIR]..." "$YEL"
         if [[ ("$quiet" == 1) ]]; then
             autoreconf -ifsv 2>&1 | grep --color=always '.*Entering directory' \
-            && ./configure \
-                   --enable-silent-rules \
-                   ${release[@]} \
-                   ${player[@]} \
-                   CFLAGS='-O2 -s -DNDEBUG'  \
-                   CXXFLAGS='-O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security' \
-                | grep --color=always '=== configuring in'
+                && ./configure \
+                       --enable-silent-rules \
+                       ${release[@]} \
+                       ${player[@]} \
+                       CFLAGS='-O2 -s -DNDEBUG'  \
+                       CXXFLAGS='-O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security' \
+                    | grep --color=always '=== configuring in'
         else
             autoreconf -ifs \
                 && ./configure ${release[@]} ${player[@]} CFLAGS='-O2 -s -DNDEBUG'  \

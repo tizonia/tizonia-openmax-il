@@ -32,7 +32,6 @@ REQUIRED_SUBDIRS = \
 	opus_decoder \
 	opusfile_decoder \
 	pcm_decoder \
-	pcm_renderer_alsa \
 	pcm_renderer_pa \
 	vorbis_decoder \
 	vp8_decoder \
@@ -42,8 +41,15 @@ REQUIRED_SUBDIRS = \
 LIBSPOTIFY_SUBDIR= \
 	spotify_source
 
-if WITH_LIBSPOTIFY
-SUBDIRS = ${REQUIRED_SUBDIRS} ${LIBSPOTIFY_SUBDIR}
-else
+ALSA_SUBDIR= \
+	pcm_renderer_alsa
+
 SUBDIRS = ${REQUIRED_SUBDIRS}
+
+if WITH_LIBSPOTIFY
+SUBDIRS += ${LIBSPOTIFY_SUBDIR}
+endif
+
+if WITH_ALSA
+SUBDIRS += ${ALSA_SUBDIR}
 endif

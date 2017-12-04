@@ -63,6 +63,11 @@ AC_ARG_WITH(libspotify,
         [build the libspotify-based OpenMAX IL plugin (default: yes)]),,
     with_libspotify=yes)
 
+AC_ARG_WITH(alsa,
+    AS_HELP_STRING([--with-alsa],
+        [build the ALSA-based OpenMAX IL plugin (default: yes)]),,
+    with_alsa=yes)
+
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_SUBDIRS([include
                    clients
@@ -93,7 +98,8 @@ AC_MSG_RESULT([
   General configuration:
 
     Tizonia player: .............. ${enable_player}
-    libspotify plugin ............ ${with_libspotify}
+    libspotify plugin: ........... ${with_libspotify}
+    ALSA plugin: ................. ${with_alsa}
     Blocking ETB/FTB: ............ ${blocking_etb_ftb}
     Blocking OMX_SendCommand: .... ${blocking_sendcommand}
 
