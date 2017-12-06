@@ -56,6 +56,8 @@
 
 static OMX_HANDLETYPE g_handle = NULL;
 
+#define NESTEGG_INT_MAX_FAILED_ATTEMPTS 20
+
 /* Forward declarations */
 static OMX_ERRORTYPE
 webmdmuxflt_prc_deallocate_resources (void *);
@@ -769,6 +771,7 @@ reset_nestegg_members (webmdmuxflt_prc_t * ap_prc)
   ap_prc->ne_chunk_ = 0;
   ap_prc->ne_read_err_ = 0;
   ap_prc->ne_last_read_len_ = 0;
+  ap_prc->ne_failed_init_count_ = 0;
 }
 
 static void
@@ -1082,9 +1085,14 @@ alloc_nestegg (webmdmuxflt_prc_t * ap_prc)
 
   if (0 != nestegg_rc)
     {
+      /* We'll assume nestegg has not initialised correctly because there is
+         not enough input data yet... we'll wait for more data to arrive, but
+         we'll also give up after the max number of failed attempts. */
       dealloc_nestegg (ap_prc);
-      tiz_buffer_clear (ap_prc->p_webm_store_);
-      rc = OMX_ErrorFormatNotDetected;
+      reset_nestegg_members (ap_prc);
+      tiz_buffer_seek (ap_prc->p_webm_store_, 0, TIZ_BUFFER_SEEK_SET);
+      rc = OMX_ErrorNotReady;
+      ap_prc->ne_failed_init_count_ += 1;
     }
   else
     {
@@ -1199,7 +1207,21 @@ webmdmuxflt_prc_buffers_ready (const void * ap_prc)
 
   if (!p_prc->ne_inited_)
     {
-      tiz_check_omx (alloc_nestegg (p_prc));
+      rc = alloc_nestegg (p_prc);
+      if (OMX_ErrorNotReady == rc)
+        {
+          if (NESTEGG_INT_MAX_FAILED_ATTEMPTS > p_prc->ne_failed_init_count_)
+            {
+              /* Need to wait for more stream data to be able to initialise the
+                 nestegg object */
+              rc = OMX_ErrorNone;
+            }
+          else
+            {
+              /* It's time to give up */
+              rc = OMX_ErrorStreamCorruptFatal;
+            }
+        }
     }
 
   if (p_prc->ne_inited_)
@@ -1208,19 +1230,19 @@ webmdmuxflt_prc_buffers_ready (const void * ap_prc)
         p_prc, ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX));
       tiz_check_omx (deliver_codec_metadata (
         p_prc, ARATELIA_WEBM_DEMUXER_FILTER_PORT_2_INDEX));
-    }
 
-  if ((p_prc->audio_metadata_delivered_
-       || tiz_filter_prc_is_port_disabled (
-            p_prc, ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX))
-      && (p_prc->video_metadata_delivered_
-          || tiz_filter_prc_is_port_disabled (
-               p_prc, ARATELIA_WEBM_DEMUXER_FILTER_PORT_2_INDEX)))
-    {
-      rc = demux_stream (p_prc);
-      if (OMX_ErrorNotReady == rc)
+      if ((p_prc->audio_metadata_delivered_
+           || tiz_filter_prc_is_port_disabled (
+                p_prc, ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX))
+          && (p_prc->video_metadata_delivered_
+              || tiz_filter_prc_is_port_disabled (
+                   p_prc, ARATELIA_WEBM_DEMUXER_FILTER_PORT_2_INDEX)))
         {
-          rc = OMX_ErrorNone;
+          rc = demux_stream (p_prc);
+          if (OMX_ErrorNotReady == rc)
+            {
+              rc = OMX_ErrorNone;
+            }
         }
     }
 
