@@ -592,8 +592,9 @@ static inline int
 copy_to_omx_buffer (OMX_BUFFERHEADERTYPE * ap_hdr, void * ap_src,
                     const int nbytes)
 {
-  int n = MIN (nbytes, ap_hdr->nAllocLen - ap_hdr->nFilledLen);
-  (void) memcpy (ap_hdr->pBuffer + ap_hdr->nOffset, ap_src, n);
+  int n = MIN (nbytes, TIZ_OMX_BUF_AVAIL(ap_hdr));
+  (void) memcpy (TIZ_OMX_BUF_PTR (ap_hdr) + TIZ_OMX_BUF_FILL_LEN (ap_hdr),
+                 ap_src, n);
   ap_hdr->nFilledLen += n;
   return n;
 }
