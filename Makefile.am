@@ -25,9 +25,9 @@
 # SUBDIRS = config include libtizplatform rm libtizcore libtizonia plugins tizonia docs
 
 if ENABLE_PLAYER
-SUBDIRS= config include clients libtizplatform rm libtizcore libtizonia plugins player config
+SUBDIRS= 3rdparty include clients libtizplatform rm libtizcore libtizonia plugins player config
 else
-SUBDIRS= config include clients libtizplatform rm libtizcore libtizonia plugins config
+SUBDIRS= 3rdparty include clients libtizplatform rm libtizcore libtizonia plugins config
 endif
 
 

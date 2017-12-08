@@ -69,7 +69,8 @@ AC_ARG_WITH(alsa,
     with_alsa=yes)
 
 AC_CONFIG_FILES([Makefile])
-AC_CONFIG_SUBDIRS([include
+AC_CONFIG_SUBDIRS([3rdparty
+                   include
                    clients
                    libtizplatform
                    rm
