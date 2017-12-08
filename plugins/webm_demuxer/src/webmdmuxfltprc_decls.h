@@ -71,6 +71,7 @@ struct webmdmuxflt_prc
   unsigned int ne_chunk_;
   int ne_read_err_;
   int ne_last_read_len_;
+  int ne_failed_init_count_;
 };
 
 typedef struct webmdmuxflt_prc_class webmdmuxflt_prc_class_t;

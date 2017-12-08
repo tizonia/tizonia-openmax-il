@@ -71,9 +71,10 @@ fi
 # Resynchronize APT's package index files
 sudo apt-get update
 
-# Python dependencies.
+# Python dependencies (NOTE: using pip2 here, to make sure the Python 2
+# versions of these packages are installed).
 sudo apt-get -y install python-pip \
-    && sudo -H pip install --upgrade \
+    && sudo -H pip2 install --upgrade \
             gmusicapi \
             soundcloud \
             youtube-dl \

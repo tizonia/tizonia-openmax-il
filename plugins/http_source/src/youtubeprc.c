@@ -504,6 +504,7 @@ release_buffer (youtube_prc_t * ap_prc)
           ap_prc->eos_ = false;
           ap_prc->p_outhdr_->nFlags |= OMX_BUFFERFLAG_EOS;
         }
+
       tiz_check_omx (tiz_krn_release_buffer (
         tiz_get_krn (handleOf (ap_prc)), ARATELIA_HTTP_SOURCE_PORT_INDEX,
         ap_prc->p_outhdr_));
@@ -519,8 +520,11 @@ buffer_filled (OMX_BUFFERHEADERTYPE * ap_hdr, void * ap_arg)
   assert (p_prc);
   assert (ap_hdr);
   assert (p_prc->p_outhdr_ == ap_hdr);
-  ap_hdr->nOffset = 0;
-  (void) release_buffer (p_prc);
+  if (ARATELIA_HTTP_SOURCE_PORT_MIN_BUF_SIZE <= ap_hdr->nFilledLen)
+    {
+      ap_hdr->nOffset = 0;
+      (void) release_buffer (p_prc);
+    }
 }
 
 static OMX_BUFFERHEADERTYPE *

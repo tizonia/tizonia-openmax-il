@@ -50,6 +50,13 @@ AC_ARG_WITH(libspotify,
 
 AM_CONDITIONAL(WITH_LIBSPOTIFY, test "x$with_libspotify" = xyes)
 
+AC_ARG_WITH(alsa,
+    AS_HELP_STRING([--with-alsa],
+        [build the ALSA-based OpenMAX IL plugin (default: yes)]),,
+    with_alsa=yes)
+
+AM_CONDITIONAL(WITH_ALSA, test "x$with_alsa" = xyes)
+
 AC_CONFIG_FILES([Makefile])
 
 AC_CONFIG_SUBDIRS([aac_decoder
@@ -68,9 +75,7 @@ AC_CONFIG_SUBDIRS([aac_decoder
                    opus_decoder
                    opusfile_decoder
                    pcm_decoder
-                   pcm_renderer_alsa
                    pcm_renderer_pa
-
                    vorbis_decoder
                    vp8_decoder
                    webm_demuxer
@@ -79,6 +84,12 @@ AC_CONFIG_SUBDIRS([aac_decoder
 if test "$with_libspotify" = yes; then
    if test -d "$srcdir/spotify_source"; then
       AC_CONFIG_SUBDIRS([spotify_source])
+   fi
+fi
+
+if test "$with_alsa" = yes; then
+   if test -d "$srcdir/pcm_renderer_alsa"; then
+      AC_CONFIG_SUBDIRS([pcm_renderer_alsa])
    fi
 fi
 

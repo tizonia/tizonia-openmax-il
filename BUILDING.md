@@ -150,6 +150,18 @@ disable the support for this plugin in the `tizonia` player program.
 
 ```
 
+##### Excluding the `plugins/pcm_renderer_alsa` sub-project
+
+The `--without-alsa` option may be included to disable configuration and
+build of the ALSA-based OpenMAX IL pcm renderer.
+
+```bash
+
+   # Disable support for the ALSA pcm renderer plugin.
+   $ ./configure --without-alsa
+
+```
+
 ### Tizonia's configuration file ###
 
 Copy *tizonia.conf* into the user's config folder:

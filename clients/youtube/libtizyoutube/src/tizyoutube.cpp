@@ -136,7 +136,8 @@ tizyoutube::tizyoutube ()
     current_stream_description_ (),
     current_stream_file_extension_ (),
     current_stream_video_id_ (),
-    current_stream_published_ ()
+    current_stream_published_ (),
+    current_queue_progress_ ()
 {
 }
 
@@ -286,10 +287,10 @@ const char *tizyoutube::get_current_queue_length ()
 
 const char *tizyoutube::get_current_queue_progress ()
 {
-  std::string output (get_current_audio_stream_index ());
-  output.append (" of ");
-  output.append (get_current_queue_length ());
-  return output.c_str ();
+  current_queue_progress_.assign (get_current_audio_stream_index ());
+  current_queue_progress_.append (" of ");
+  current_queue_progress_.append (get_current_queue_length ());
+  return current_queue_progress_.c_str ();
 }
 
 void tizyoutube::set_playback_mode (const playback_mode mode)
