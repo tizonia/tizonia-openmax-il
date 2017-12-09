@@ -88,6 +88,7 @@ declare -ar TIZ_TIZONIA_DEPS=( \
     libsndfile1-dev \
     libffi-dev \
     libssl-dev \
+    libmp4v2-dev \
     libspotify12 \
     libspotify-dev \
     python-dev \

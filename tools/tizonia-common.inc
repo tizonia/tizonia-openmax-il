@@ -58,6 +58,7 @@ declare -Ar TIZ_PROJECT_DIRS=( \
     [tizmp3dec]="plugins/mp3_decoder" \
     [tizmp3enc]="plugins/mp3_encoder" \
     [tizmp3meta]="plugins/mp3_metadata" \
+    [tizmp4dmux]="plugins/mp4_demuxer" \
     [tizmpgdec]="plugins/mpeg_audio_decoder" \
     [tizoggdmux]="plugins/ogg_demuxer" \
     [tizopusdec]="plugins/opus_decoder" \
@@ -99,6 +100,7 @@ readonly TIZ_PROJECTS_ORDERED=( \
     tizmp3dec \
     tizmp3enc \
     tizmp3meta \
+    tizmp4dmux \
     tizmpgdec \
     tizoggdmux \
     tizopusdec \
