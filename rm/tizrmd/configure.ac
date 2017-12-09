@@ -41,12 +41,16 @@ LT_INIT
 
 PKG_PROG_PKG_CONFIG()
 
+AC_SUBST([DBUSCPLUSPLUS_CFLAGS], ['-I$(top_srcdir)/../../3rdparty/dbus-cpluscplus/include/dbus-c++'])
+AC_SUBST([DBUSCPLUSPLUS_LIBS], ['$(top_builddir)/../../3rdparty/dbus-cpluscplus/src/libdbus-c++-1.la'])
+AC_SUBST([DBUSXML2CPP], ['-I$(top_srcdir)/../../3rdparty/dbus-cpluscplus/tools/dbusxx-xml2cpp'])
+
 # Checks for libraries.
-DBUS_REQUIRED_VERSION=0.60
-PKG_CHECK_MODULES(dbus, [dbus-1 >= $DBUS_REQUIRED_VERSION],,
-	AC_MSG_ERROR([You need the DBus libraries (version 0.6 or better)]
-	[http://www.freedesktop.org/wiki/Software_2fdbus]))
-PKG_CHECK_MODULES([DBUS], [dbus-c++-1 >= 0.6.0-pre1])
+dnl DBUS_REQUIRED_VERSION=0.60
+dnl PKG_CHECK_MODULES(dbus, [dbus-1 >= $DBUS_REQUIRED_VERSION],,
+dnl 	AC_MSG_ERROR([You need the DBus libraries (version 0.6 or better)]
+dnl 	[http://www.freedesktop.org/wiki/Software_2fdbus]))
+dnl PKG_CHECK_MODULES([DBUS], [dbus-c++-1 >= 0.6.0-pre1])
 AX_BOOST_BASE([1.46],, [AC_MSG_ERROR([tizrmd needs Boost 1.46])])
 AX_LIB_SQLITE3([3.7.1])
 
