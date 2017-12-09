@@ -45,7 +45,7 @@ $(service_DATA): $(service_in_files) Makefile
 	@sed -e "s|\@bindir\@|$(bindir)|" $< > $@
 
 tizrmd-dbus.hh: $(xml_files)
-	@3RDPARTY_DBUS_XML2CPP@ $^ --adaptor=$@
+	@DBUSXML2CPP@ $^ --adaptor=$@
 
 tizrmproxy-dbus.hh: $(xml_files)
 	@DBUSXML2CPP@ $^ --proxy=$@
