@@ -86,5 +86,6 @@ fi
 AC_OUTPUT(
         Makefile
         src/Makefile
+        tools/Makefile
         data/Makefile
 )
