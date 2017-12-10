@@ -33,7 +33,8 @@ libtizrmproxy_la_SOURCES = \
 libtizrmproxy_la_CPPFLAGS = \
 	@TIZILHEADERS_CFLAGS@ \
 	@TIZPLATFORM_CFLAGS@ \
-	@TIZRMD_CFLAGS@
+	@TIZRMD_CFLAGS@ \
+	@DBUSCPLUSPLUS_CFLAGS@
 
 libtizrmproxy_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@
 

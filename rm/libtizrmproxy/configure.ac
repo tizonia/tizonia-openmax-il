@@ -65,8 +65,6 @@ PKG_PROG_PKG_CONFIG()
 PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
 
 AC_SUBST([DBUSCPLUSPLUS_CFLAGS], ['-I$(top_srcdir)/../../3rdparty/dbus-cplusplus/include'])
-AC_SUBST([DBUSCPLUSPLUS_LIBS], ['$(top_builddir)/../../3rdparty/dbus-cplusplus/src/libdbus-c++-1.la'])
-AC_SUBST([DBUSXML2CPP], ['$(top_builddir)/../../3rdparty/dbus-cplusplus/tools/dbusxx-xml2cpp'])
 
 AC_CHECK_HEADERS([tizonia/OMX_Core.h tizonia/OMX_Component.h],
 	[tiz_found_omx_headers=yes; break;])
