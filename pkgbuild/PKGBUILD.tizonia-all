@@ -32,7 +32,6 @@ depends=(
     'alsa-lib'
     'libpulse'
     'boost'
-    'dbus-c++'
     'check'
     'python2-pafy'
 
