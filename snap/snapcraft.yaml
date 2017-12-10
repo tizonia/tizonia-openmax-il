@@ -54,7 +54,6 @@ parts:
       - liblog4c-dev
       - libasound2-dev
       - libdbus-1-dev
-      - libdbus-c++-dev
       - libsqlite3-dev
       - libboost-all-dev
       - uuid-dev
@@ -117,8 +116,6 @@ parts:
       - libasound2
       - libpulse0
       - libdbus-1-3
-      - libdbus-c++-1-0v5
-      - libdbus-c++-bin
       - libsqlite3-0
       - libboost-all-dev
       - uuid-runtime

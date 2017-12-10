@@ -62,7 +62,7 @@ namespace
       value.append ("/1");
       DBus::Path path (value);
       it << path;
-      TIZ_PRINTF_RED ("key [%s] val [%s]\n", key.c_str (), value.c_str ());
+      TIZ_LOG (TIZ_PRIORITY_DEBUG, "key [%s] val [%s]", key.c_str (), value.c_str ());
       dbus_meta.insert (std::make_pair (key, DBus::Variant (it)));
     }
     return dbus_meta;
@@ -82,7 +82,7 @@ control::mprisif::mprisif (DBus::Connection &connection,
     player_props_ (player_props),
     cbacks_ (cbacks)
 {
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "Constructing mprisif...");
+  TIZ_LOG (TIZ_PRIORITY_DEBUG, "Constructing mprisif...");
   UpdateProps (props_);
   UpdatePlayerProps (player_props_);
 }

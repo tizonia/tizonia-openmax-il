@@ -67,8 +67,8 @@ namespace
   {
     std::string bus_name (TIZONIA_MPRIS_BUS_NAME);
     // Append the process id to make a unique bus name
-    //     bus_name.append (".");
-    //     bus_name.append (boost::lexical_cast< std::string >(getpid ()));
+    bus_name.append (".pid-");
+    bus_name.append (boost::lexical_cast< std::string >(getpid ()));
     return bus_name;
   }
 
