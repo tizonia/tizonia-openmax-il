@@ -11,7 +11,6 @@ Build-Depends: debhelper (>= 8.0.0),
                tizrmd-dev,
                libtizcore-dev,
                libdbus-1-dev,
-               libdbus-c++-dev
 Standards-Version: 3.9.4
 Homepage: http://tizonia.org
 Vcs-Git: git://github.com/tizonia/tizonia-openmax-il.git
