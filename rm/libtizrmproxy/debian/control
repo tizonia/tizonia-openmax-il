@@ -7,7 +7,6 @@ Build-Depends: debhelper (>= 8.0.0),
                libtizplatform-dev,
                tizrmd-dev,
                libdbus-1-dev,
-               libdbus-c++-dev,
                check
 Standards-Version: 3.9.4
 Section: libs
@@ -24,7 +23,6 @@ Depends: libtizrmproxy0 (= ${binary:Version}),
          libtizplatform-dev,
          tizrmd-dev,
          libdbus-1-dev,
-         libdbus-c++-dev
 Description: Tizonia's Resource Manager proxy library, development files
  Tizonia's resource manager proxy library.
  .
