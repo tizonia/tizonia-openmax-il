@@ -22,7 +22,15 @@
 #############
 # Constants #
 #############
-readonly dbuscmd='dbus-send --print-reply --dest=org.mpris.MediaPlayer2.tizonia /com/aratelia/tiz/tizonia'
+readonly tizbusname=$(dbus-send --session           \
+                                --dest=org.freedesktop.DBus \
+                                --type=method_call          \
+                                --print-reply               \
+                                /org/freedesktop/DBus       \
+                                org.freedesktop.DBus.ListNames \
+                          | grep tizonia \
+                          | awk -F'"' '{ print $2 }')
+readonly dbuscmd="dbus-send --print-reply --dest=$tizbusname /com/aratelia/tiz/tizonia"
 readonly mediaifc='org.mpris.MediaPlayer2'
 readonly playerifc='org.mpris.MediaPlayer2.Player'
 readonly propgetifc='org.freedesktop.DBus.Properties.Get'
