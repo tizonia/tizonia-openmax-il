@@ -170,7 +170,6 @@ function install_deps {
         liblog4c-dev \
         libasound2-dev \
         libdbus-1-dev \
-        libdbus-c++-dev \
         libsqlite3-dev \
         libboost-all-dev \
         uuid-dev \
