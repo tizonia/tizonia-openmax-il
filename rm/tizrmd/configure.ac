@@ -73,14 +73,7 @@ AC_CHECK_HEADERS([limits.h stdlib.h string.h unistd.h])
 AC_LANG_PUSH([C++])
 AC_CHECK_HEADERS([boost/foreach.hpp], [],
     [AC_MSG_ERROR(You need the Boost libraries.)])
-AC_LANG_POP([C++])
-
-DBUS_REQUIRED_VERSION=0.60
-PKG_CHECK_MODULES(dbus, [dbus-1 >= $DBUS_REQUIRED_VERSION],,
-	AC_MSG_ERROR([You need the DBus libraries (version 0.6 or better)]
-	[http://www.freedesktop.org/wiki/Software_2fdbus]))
-PKG_CHECK_MODULES([DBUS], [dbus-c++-1 >= 0.6.0-pre1])
-
+AC_LANG_POP([C++])x
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_MODE_T

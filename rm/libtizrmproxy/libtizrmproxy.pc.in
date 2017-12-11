@@ -7,6 +7,5 @@ Name: libtizrmproxy
 Description: Tizonia Resource Manager proxy library
 Version: @PACKAGE_VERSION@
 Requires: tizilheaders libtizplatform tizrmd
-Requires.private: dbus-c++-1
 Libs: -L${libdir} -ltizrmproxy
 Cflags: -I${includedir} -I${includedir}/tizonia
