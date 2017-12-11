@@ -42,6 +42,7 @@ check_tizcore_CFLAGS = \
 check_tizcore_LDADD = \
 	$(top_builddir)/src/libtizcore.la \
 	@TIZPLATFORM_LIBS@ \
+	@DBUSCPLUSPLUS_LIBS@ \
 	@CHECK_LIBS@
 
 do_subst = sed -e 's,[@]abs_top_builddir[@],$(abs_top_builddir),g' \

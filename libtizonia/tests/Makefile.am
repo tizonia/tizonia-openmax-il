@@ -41,6 +41,7 @@ check_tizonia_LDADD = \
 	@TIZPLATFORM_LIBS@ \
 	@TIZCORE_LIBS@ \
 	$(top_builddir)/src/libtizonia.la \
+	@DBUSCPLUSPLUS_LIBS@ \
 	@CHECK_LIBS@
 
 do_subst = sed -e 's,[@]abs_top_builddir[@],$(abs_top_builddir),g' \

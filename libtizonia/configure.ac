@@ -64,6 +64,8 @@ PKG_PROG_PKG_CONFIG()
 # Checks for libraries.
 PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
 
+AC_SUBST([DBUSCPLUSPLUS_LIBS], ['$(top_builddir)/../3rdparty/dbus-cplusplus/src/libdbus-c++-1.la'])
+
 AC_CHECK_HEADERS([tizonia/OMX_Core.h tizonia/OMX_Component.h],
 	[tiz_found_omx_headers=yes; break;])
 AS_IF([test "x$tiz_found_omx_headers" != "xyes"],
