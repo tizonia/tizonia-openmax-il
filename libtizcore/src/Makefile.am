@@ -33,5 +33,4 @@ libtizcore_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@
 
 libtizcore_la_LIBADD = \
 	@TIZPLATFORM_LIBS@ \
-	@TIZRMPROXY_LIBS@ \
 	-ldl

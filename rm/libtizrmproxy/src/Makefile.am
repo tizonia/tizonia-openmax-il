@@ -30,6 +30,8 @@ libtizrmproxy_la_SOURCES = \
 	tizrmproxy.cc \
 	tizrmproxy_c.cc
 
+nodist_EXTRA_libtizrmproxy_la_SOURCES = dummy.cpp
+
 libtizrmproxy_la_CPPFLAGS = \
 	@TIZILHEADERS_CFLAGS@ \
 	@TIZPLATFORM_CFLAGS@ \

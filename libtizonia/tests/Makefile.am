@@ -30,6 +30,7 @@ CLEANFILES = check_tizonia.h tizonia.conf
 check_PROGRAMS = check_tizonia
 
 check_tizonia_SOURCES = check_tizonia.c
+nodist_EXTRA_check_tizonia_SOURCES = dummy.cpp
 
 check_tizonia_CFLAGS = \
 	@TIZILHEADERS_CFLAGS@ \
@@ -38,9 +39,10 @@ check_tizonia_CFLAGS = \
 	@CHECK_CFLAGS@
 
 check_tizonia_LDADD = \
+	$(top_builddir)/src/libtizonia.la \
 	@TIZPLATFORM_LIBS@ \
 	@TIZCORE_LIBS@ \
-	$(top_builddir)/src/libtizonia.la \
+	@TIZRMPROXY_LIBS@ \
 	@DBUSCPLUSPLUS_LIBS@ \
 	@CHECK_LIBS@
 

@@ -32,6 +32,7 @@ AUTOMAKE_OPTIONS = serial-tests
 check_PROGRAMS = check_tizcore
 
 check_tizcore_SOURCES = check_tizcore.c
+nodist_EXTRA_check_tizcore_SOURCES = dummy.cpp
 
 check_tizcore_CFLAGS = \
 	@TIZILHEADERS_CFLAGS@ \
@@ -42,6 +43,7 @@ check_tizcore_CFLAGS = \
 check_tizcore_LDADD = \
 	$(top_builddir)/src/libtizcore.la \
 	@TIZPLATFORM_LIBS@ \
+	@TIZRMPROXY_LIBS@ \
 	@DBUSCPLUSPLUS_LIBS@ \
 	@CHECK_LIBS@
 

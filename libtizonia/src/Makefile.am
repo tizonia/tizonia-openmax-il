@@ -159,5 +159,4 @@ libtizonia_la_CFLAGS = \
 libtizonia_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@
 
 libtizonia_la_LIBADD = \
-	@TIZPLATFORM_LIBS@ \
-	@TIZRMPROXY_LIBS@
+	@TIZPLATFORM_LIBS@

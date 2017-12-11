@@ -80,6 +80,16 @@ AS_IF([test "x$tiz_found_core_lib" == "xyes"],
 	[PKG_CHECK_MODULES([TIZCORE], [libtizcore >= 0.1.0])],
 	[AC_MSG_NOTICE([Not using pkg-config to find TIZCORE cflags and libs])])
 
+AC_CHECK_HEADERS([tizonia/tizrmproxytypes.h],
+	[tiz_found_rmproxy_headers=yes; break;])
+AS_IF([test "x$tiz_found_rmproxy_headers" != "xyes"],
+	[AC_SUBST([TIZRMPROXY_CFLAGS], ['-I$(top_srcdir)/../rm/libtizrmproxy/tizonia'])
+	AC_SUBST([TIZRMPROXY_LIBS], ['$(top_builddir)/../rm/libtizrmproxy/tizonia/libtizrmproxy.la'])],
+	[AC_MSG_NOTICE([Not substituting TIZRMPROXY cflags and libs with local paths])])
+AS_IF([test "x$tiz_found_rmproxy_headers" == "xyes"],
+	[PKG_CHECK_MODULES([TIZRMPROXY], [libtizrmproxy >= 0.1.0])],
+	[AC_MSG_NOTICE([Not using pkg-config to find TIZRMPROXY cflags and libs])])
+
 AC_ARG_WITH([bashcompletiondir],
         AS_HELP_STRING([--with-bashcompletiondir=DIR], [Bash completions directory]),
         [AS_IF([test "$withval" != ""], [
