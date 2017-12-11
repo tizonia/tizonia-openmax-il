@@ -73,7 +73,7 @@ AC_CHECK_HEADERS([limits.h stdlib.h string.h unistd.h])
 AC_LANG_PUSH([C++])
 AC_CHECK_HEADERS([boost/foreach.hpp], [],
     [AC_MSG_ERROR(You need the Boost libraries.)])
-AC_LANG_POP([C++])x
+AC_LANG_POP([C++])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_MODE_T
