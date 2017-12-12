@@ -30,15 +30,14 @@ libtizrmproxy_la_SOURCES = \
 	tizrmproxy.cc \
 	tizrmproxy_c.cc
 
-nodist_EXTRA_libtizrmproxy_la_SOURCES = dummy.cpp
-
 libtizrmproxy_la_CPPFLAGS = \
 	@TIZILHEADERS_CFLAGS@ \
 	@TIZPLATFORM_CFLAGS@ \
 	@TIZRMD_CFLAGS@ \
-	@DBUSCPLUSPLUS_CFLAGS@
+	@TIZDBUSCPLUSPLUS_CFLAGS@
 
 libtizrmproxy_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@
 
 libtizrmproxy_la_LIBADD = \
-	@TIZPLATFORM_LIBS@
+	@TIZPLATFORM_LIBS@ \
+	@TIZDBUSCPLUSPLUS_LIBS@

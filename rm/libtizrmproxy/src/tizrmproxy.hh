@@ -38,13 +38,13 @@
 
 class tizrmproxy
   : public com::aratelia::tiz::tizrmif_proxy,
-    public DBus::IntrospectableProxy,
-    public DBus::ObjectProxy
+    public Tiz::DBus::IntrospectableProxy,
+    public Tiz::DBus::ObjectProxy
 {
 
 public:
 
-  tizrmproxy(DBus::Connection &connection, const char *path, const char *name);
+  tizrmproxy(Tiz::DBus::Connection &connection, const char *path, const char *name);
 
   ~tizrmproxy();
 
