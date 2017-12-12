@@ -29,7 +29,7 @@
 #include "types.h"
 #include "interface.h"
 
-namespace DBus
+namespace Tiz { namespace DBus
 {
 
 template <typename T>
@@ -97,7 +97,7 @@ public:
   void Set(const std::string &interface, const std::string &property, const Variant &value);
 };
 
-} /* namespace DBus */
+} /* namespace DBus */ } /* namespace Tiz */
 
 #endif//__DBUSXX_PROPERTY_H
 

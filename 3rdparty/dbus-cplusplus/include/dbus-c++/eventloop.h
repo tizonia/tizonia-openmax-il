@@ -31,7 +31,7 @@
 #include "api.h"
 #include "util.h"
 
-namespace DBus
+namespace Tiz { namespace DBus
 {
 
 /*
@@ -220,6 +220,6 @@ private:
   friend class DefaultWatch;
 };
 
-} /* namespace DBus */
+} /* namespace DBus */ } /* namespace Tiz */
 
 #endif//__DBUSXX_EVENTLOOP_H

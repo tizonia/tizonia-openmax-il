@@ -38,7 +38,7 @@
 
 #include <string>
 
-namespace DBus
+namespace Tiz { namespace DBus
 {
 
 struct DXXAPILOCAL Connection::Private
@@ -72,6 +72,6 @@ struct DXXAPILOCAL Connection::Private
   static DBusHandlerResult message_filter_stub(DBusConnection *, DBusMessage *, void *);
 };
 
-} /* namespace DBus */
+} /* namespace DBus */ } /* namespace Tiz */
 
 #endif//__DBUSXX_CONNECTION_P_H

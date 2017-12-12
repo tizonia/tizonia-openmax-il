@@ -35,7 +35,7 @@
 #include "message.h"
 #include "error.h"
 
-namespace DBus
+namespace Tiz { namespace DBus
 {
 
 struct DXXAPI Path : public std::string
@@ -649,7 +649,7 @@ inline DBus::Variant::operator T() const
   return cast;
 }
 
-} /* namespace DBus */
+} /* namespace DBus */ } /* namespace Tiz */
 
 #endif//__DBUSXX_TYPES_H
 

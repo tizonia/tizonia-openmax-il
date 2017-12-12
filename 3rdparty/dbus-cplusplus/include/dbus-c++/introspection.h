@@ -28,7 +28,7 @@
 #include "api.h"
 #include "interface.h"
 
-namespace DBus
+namespace Tiz { namespace DBus
 {
 
 struct DXXAPI IntrospectedArgument
@@ -82,6 +82,6 @@ public:
   std::string Introspect();
 };
 
-} /* namespace DBus */
+} /* namespace DBus */ } /* namespace Tiz */
 
 #endif//__DBUSXX_INTROSPECTION_H

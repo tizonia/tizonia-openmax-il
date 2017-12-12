@@ -30,7 +30,7 @@
 
 #include "internalerror.h"
 
-using namespace DBus;
+using namespace Tiz::DBus;
 
 Interface::Interface(const std::string &name)
   : _name(name)

@@ -33,7 +33,7 @@
 #include "api.h"
 #include "debug.h"
 
-namespace DBus
+namespace Tiz { namespace DBus
 {
 
 /*
@@ -298,6 +298,6 @@ std::string toString(const T &thing, int w = 0, int p = 0)
   return os.str();
 }
 
-} /* namespace DBus */
+} /* namespace DBus */ } /* namespace Tiz */
 
 #endif//__DBUSXX_UTIL_H

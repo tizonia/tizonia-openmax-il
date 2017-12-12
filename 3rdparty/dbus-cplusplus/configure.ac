@@ -1,7 +1,5 @@
-# Autojunk script for libdbus-c++
-
 AC_PREREQ([2.68])
-AC_INIT([libdbus-c++], [0.9.1pwtiz], [juan.rubio@aratelia.com])
+AC_INIT([libtizdbus-c++], [0.9.1tiz], [juan.rubio@aratelia.com])
 AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
 AC_CONFIG_SRCDIR([src/error.cpp])
@@ -31,7 +29,7 @@ AC_PROG_CXX
 CXX_FOR_BUILD=${CXX_FOR_BUILD-${CXX}}
 AC_SUBST(CXX_FOR_BUILD)
 
-LT_INIT([disable-shared])
+LT_INIT
 
 PKG_PROG_PKG_CONFIG
 

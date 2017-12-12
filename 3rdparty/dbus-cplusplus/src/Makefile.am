@@ -1,5 +1,5 @@
-noinst_LTLIBRARIES = \
-	libdbus-c++-1.la
+lib_LTLIBRARIES = \
+	libtizdbus-c++-1.la
 
 libdbus_c___1_la_SOURCES = \
 	connection.cpp    \
@@ -34,9 +34,9 @@ libdbus_c___1_la_LIBADD = \
 AM_CPPFLAGS = \
 	$(dbus_CFLAGS)
 
-HEADER_DIR  = $(top_srcdir)/include/dbus-c++
+HEADER_DIR = $(top_srcdir)/include/dbus-c++
 
-noinst_HEADERS = \
+libdbus_c___1_HEADERS = \
 	$(HEADER_DIR)/api.h          \
 	$(HEADER_DIR)/connection.h          \
 	$(HEADER_DIR)/dbus.h          \
@@ -57,10 +57,8 @@ noinst_HEADERS = \
 	$(HEADER_DIR)/types.h          \
 	$(HEADER_DIR)/util.h
 
-libdbus_c___1dir=$(includedir)/dbus-c++-1/dbus-c++/
+libdbus_c___1dir=$(includedir)/tizonia/dbus-c++/
 
 EXTRA_DIST = \
 	$(libdbus_c___1_HEADERS)
-
-## File created by the gnome-build tools
 

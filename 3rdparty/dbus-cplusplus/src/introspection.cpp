@@ -33,7 +33,7 @@
 
 #include <sstream>
 
-using namespace DBus;
+using namespace Tiz::DBus;
 
 static const char *introspectable_name = "org.freedesktop.DBus.Introspectable";
 

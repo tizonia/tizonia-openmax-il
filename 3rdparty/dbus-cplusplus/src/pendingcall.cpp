@@ -33,7 +33,7 @@
 #include "pendingcall_p.h"
 #include "message_p.h"
 
-using namespace DBus;
+using namespace Tiz::DBus;
 
 PendingCall::Private::Private(DBusPendingCall *dpc)
   : call(dpc), dataslot(-1)

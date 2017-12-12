@@ -35,7 +35,7 @@
 
 #include <dbus/dbus.h>
 
-namespace DBus
+namespace Tiz { namespace DBus
 {
 
 struct DXXAPILOCAL Server::Private
@@ -53,6 +53,6 @@ struct DXXAPILOCAL Server::Private
   static void on_new_conn_cb(DBusServer *server, DBusConnection *conn, void *data);
 };
 
-} /* namespace DBus */
+} /* namespace DBus */ } /* namespace Tiz */
 
 #endif//__DBUSXX_SERVER_P_H

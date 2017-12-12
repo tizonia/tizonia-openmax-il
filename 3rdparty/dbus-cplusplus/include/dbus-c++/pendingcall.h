@@ -29,7 +29,7 @@
 #include "util.h"
 #include "message.h"
 
-namespace DBus
+namespace Tiz { namespace DBus
 {
 
 class Connection;
@@ -128,6 +128,6 @@ private:
   friend class Connection;
 };
 
-} /* namespace DBus */
+} /* namespace DBus */ } /* namespace Tiz */
 
 #endif//__DBUSXX_PENDING_CALL_H

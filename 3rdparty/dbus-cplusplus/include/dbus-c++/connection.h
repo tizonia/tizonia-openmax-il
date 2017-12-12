@@ -33,7 +33,7 @@
 #include "message.h"
 #include "pendingcall.h"
 
-namespace DBus
+namespace Tiz { namespace DBus
 {
 
 class Connection;
@@ -464,6 +464,6 @@ private:
   friend class ObjectAdaptor; // needed in order to register object paths for a connection
 };
 
-} /* namespace DBus */
+} /* namespace DBus */ } /* namespace Tiz */
 
 #endif//__DBUSXX_CONNECTION_H

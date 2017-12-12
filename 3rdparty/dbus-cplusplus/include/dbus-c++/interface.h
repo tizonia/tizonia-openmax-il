@@ -33,7 +33,8 @@
 
 #include "message.h"
 
-namespace DBus
+
+namespace Tiz { namespace DBus
 {
 
 //todo: this should belong to to properties.h
@@ -191,6 +192,6 @@ protected:
 	InterfaceProxy::_signals[ #signal ] = \
 		new ::DBus::Callback< interface, void, const ::DBus::SignalMessage &>(this, & interface :: callback);
 
-} /* namespace DBus */
+} /* namespace DBus */ } /* namespace Tiz */
 
 #endif//__DBUSXX_INTERFACE_H

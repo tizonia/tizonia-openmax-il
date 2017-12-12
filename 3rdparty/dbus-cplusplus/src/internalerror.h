@@ -33,7 +33,7 @@
 
 #include <dbus/dbus.h>
 
-namespace DBus
+namespace Tiz { namespace DBus
 {
 
 struct DXXAPI InternalError
@@ -73,6 +73,6 @@ struct DXXAPI InternalError
   }
 };
 
-} /* namespace DBus */
+} /* namespace DBus */ } /* namespace Tiz */
 
 #endif//__DBUSXX_INTERNALERROR_H

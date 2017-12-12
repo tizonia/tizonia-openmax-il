@@ -37,7 +37,7 @@
 #include "server_p.h"
 #include "connection_p.h"
 
-using namespace DBus;
+using namespace Tiz::DBus;
 
 Object::Object(Connection &conn, const Path &path, const char *service)
   : _conn(conn), _path(path), _service(service ? service : ""), _default_timeout(-1)

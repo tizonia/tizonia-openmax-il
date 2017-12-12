@@ -29,7 +29,7 @@
 #include "connection.h"
 #include "eventloop.h"
 
-namespace DBus
+namespace Tiz { namespace DBus
 {
 
 class DXXAPI Timeout
@@ -327,6 +327,6 @@ struct Threading
   }
 };
 
-} /* namespace DBus */
+} /* namespace DBus */ } /* namespace Tiz */
 
 #endif//__DBUSXX_DISPATCHER_H

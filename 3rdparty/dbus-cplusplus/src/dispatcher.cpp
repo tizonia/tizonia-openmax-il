@@ -35,7 +35,7 @@
 
 DBus::Dispatcher *DBus::default_dispatcher = NULL;
 
-using namespace DBus;
+using namespace Tiz::DBus;
 
 Timeout::Timeout(Timeout::Internal *i)
   : _int(i)

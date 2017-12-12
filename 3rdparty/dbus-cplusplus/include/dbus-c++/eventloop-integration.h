@@ -31,7 +31,7 @@
 #include "util.h"
 #include "eventloop.h"
 
-namespace DBus
+namespace Tiz { namespace DBus
 {
 
 /*
@@ -94,6 +94,6 @@ private:
   std::list <Pipe *> pipe_list;
 };
 
-} /* namespace DBus */
+} /* namespace DBus */ } /* namespace Tiz */
 
 #endif//__DBUSXX_EVENTLOOP_INTEGRATION_H

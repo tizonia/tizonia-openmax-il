@@ -34,7 +34,7 @@
 #include "message_p.h"
 #include "internalerror.h"
 
-namespace DBus {
+namespace Tiz { namespace DBus {
 
 Variant::Variant()
   : _msg(CallMessage()) // dummy message used as temporary storage for variant data

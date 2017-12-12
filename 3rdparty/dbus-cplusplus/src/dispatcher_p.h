@@ -35,7 +35,7 @@
 
 #include "internalerror.h"
 
-namespace DBus
+namespace Tiz { namespace DBus
 {
 
 struct DXXAPILOCAL Dispatcher::Private
@@ -53,6 +53,6 @@ struct DXXAPILOCAL Dispatcher::Private
   static void on_toggle_timeout(DBusTimeout *timeout, void *data);
 };
 
-} /* namespace DBus */
+} /* namespace DBus */ } /* namespace Tiz */
 
 #endif//__DBUSXX_DISPATCHER_P_H

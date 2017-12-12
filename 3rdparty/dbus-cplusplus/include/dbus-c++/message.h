@@ -31,7 +31,7 @@
 #include "api.h"
 #include "util.h"
 
-namespace DBus
+namespace Tiz { namespace DBus
 {
 
 class Message;
@@ -304,6 +304,6 @@ public:
   const char *signature() const;
 };
 
-} /* namespace DBus */
+} /* namespace DBus */ } /* namespace Tiz */
 
 #endif//__DBUSXX_MESSAGE_H

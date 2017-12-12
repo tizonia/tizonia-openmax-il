@@ -40,7 +40,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-using namespace DBus;
+using namespace Tiz::DBus;
 using namespace std;
 
 BusTimeout::BusTimeout(Timeout::Internal *ti, BusDispatcher *bd)
