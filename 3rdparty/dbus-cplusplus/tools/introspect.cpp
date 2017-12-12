@@ -27,14 +27,14 @@
 #include <iostream>
 #include "introspect.h"
 
-DBus::BusDispatcher dispatcher;
+Tiz::DBus::BusDispatcher dispatcher;
 static bool systembus;
 static char *path;
 static char *service;
 
 void niam(int sig)
 {
-  DBus::Connection conn = systembus ? DBus::Connection::SystemBus() : DBus::Connection::SessionBus();
+  Tiz::DBus::Connection conn = systembus ? Tiz::DBus::Connection::SystemBus() : Tiz::DBus::Connection::SessionBus();
 
   IntrospectedObject io(conn, path, service);
 
@@ -68,7 +68,7 @@ int main(int argc, char **argv)
       service = argc > 3 ? argv[3] : 0;
     }
 
-    DBus::default_dispatcher = &dispatcher;
+    Tiz::DBus::default_dispatcher = &dispatcher;
 
     alarm(1);
 

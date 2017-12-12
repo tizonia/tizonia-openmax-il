@@ -26,6 +26,6 @@
 
 #include "xml.h"
 
-void generate_proxy(DBus::Xml::Document &doc, const char *filename);
+void generate_proxy(Tiz::DBus::Xml::Document &doc, const char *filename);
 
 #endif//__DBUSXX_TOOLS_GENERATE_PROXY_H

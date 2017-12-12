@@ -104,4 +104,4 @@ MessageIter &operator >> (MessageIter &iter, Variant &val)
   return ++iter;
 }
 
-} /* namespace DBus */
+} /* namespace DBus */ } /* namespace Tiz */

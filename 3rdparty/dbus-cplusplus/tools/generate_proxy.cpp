@@ -30,7 +30,7 @@
 #include "generate_proxy.h"
 
 using namespace std;
-using namespace DBus;
+using namespace Tiz::DBus;
 
 extern const char *tab;
 extern const char *header;
@@ -106,12 +106,12 @@ void generate_proxy(Xml::Document &doc, const char *filename)
 
     // the code from class definiton up to opening of the constructor is generated...
     body << "class " << ifaceclass << endl
-         << ": public ::DBus::InterfaceProxy" << endl
+         << ": public ::Tiz::DBus::InterfaceProxy" << endl
          << "{" << endl
          << "public:" << endl
          << endl
          << tab << ifaceclass << "()" << endl
-         << tab << ": ::DBus::InterfaceProxy(\"" << ifacename << "\")" << endl
+         << tab << ": ::Tiz::DBus::InterfaceProxy(\"" << ifacename << "\")" << endl
          << tab << "{" << endl;
 
     // generates code to connect all the signal stubs; this is still inside the constructor
@@ -145,12 +145,12 @@ void generate_proxy(Xml::Document &doc, const char *filename)
       {
         body << tab << tab << "const " << signature_to_type(property.get("type"))
              << " " << prop_name << "() {" << endl;
-        body << tab << tab << tab << "::DBus::CallMessage call ;\n ";
+        body << tab << tab << tab << "::Tiz::DBus::CallMessage call ;\n ";
         body << tab << tab << tab
              << "call.member(\"Get\"); call.interface(\"org.freedesktop.DBus.Properties\");"
              << endl;
         body << tab << tab << tab
-             << "::DBus::MessageIter wi = call.writer(); " << endl;
+             << "::Tiz::DBus::MessageIter wi = call.writer(); " << endl;
         body << tab << tab << tab
              << "const std::string interface_name = \"" << ifacename << "\";"
              << endl;
@@ -160,11 +160,11 @@ void generate_proxy(Xml::Document &doc, const char *filename)
         body << tab << tab << tab << "wi << interface_name;" << endl;
         body << tab << tab << tab << "wi << property_name;" << endl;
         body << tab << tab << tab
-             << "::DBus::Message ret = this->invoke_method (call);" << endl;
+             << "::Tiz::DBus::Message ret = this->invoke_method (call);" << endl;
         // TODO: support invoke_method_NoReply for properties
         body << tab << tab << tab
-             << "::DBus::MessageIter ri = ret.reader ();" << endl;
-        body << tab << tab << tab << "::DBus::Variant argout; " << endl;
+             << "::Tiz::DBus::MessageIter ri = ret.reader ();" << endl;
+        body << tab << tab << tab << "::Tiz::DBus::Variant argout; " << endl;
         body << tab << tab << tab << "ri >> argout;" << endl;
         body << tab << tab << tab << "return argout;" << endl;
         body << tab << tab << "};" << endl;
@@ -173,18 +173,18 @@ void generate_proxy(Xml::Document &doc, const char *filename)
       if (property_access == "write" || property_access == "readwrite")
       {
         body << tab << tab << "void " << prop_name << "( const " << signature_to_type(property.get("type")) << " & input" << ") {" << endl;
-        body << tab << tab << tab << "::DBus::CallMessage call ;\n ";
+        body << tab << tab << tab << "::Tiz::DBus::CallMessage call ;\n ";
         body << tab << tab << tab << "call.member(\"Set\");  call.interface( \"org.freedesktop.DBus.Properties\");" << endl;
-        body << tab << tab << tab << "::DBus::MessageIter wi = call.writer(); " << endl;
-        body << tab << tab << tab << "::DBus::Variant value;" << endl;
-        body << tab << tab << tab << "::DBus::MessageIter vi = value.writer ();" << endl;
+        body << tab << tab << tab << "::Tiz::DBus::MessageIter wi = call.writer(); " << endl;
+        body << tab << tab << tab << "::Tiz::DBus::Variant value;" << endl;
+        body << tab << tab << tab << "::Tiz::DBus::MessageIter vi = value.writer ();" << endl;
         body << tab << tab << tab << "vi << input;" << endl;
         body << tab << tab << tab << "const std::string interface_name = \"" << ifacename << "\";" << endl;
         body << tab << tab << tab << "const std::string property_name  = \"" << prop_name << "\";" << endl;
         body << tab << tab << tab << "wi << interface_name;" << endl;
         body << tab << tab << tab << "wi << property_name;" << endl;
         body << tab << tab << tab << "wi << value;" << endl;
-        body << tab << tab << tab << "::DBus::Message ret = this->invoke_method (call);" << endl;
+        body << tab << tab << tab << "::Tiz::DBus::Message ret = this->invoke_method (call);" << endl;
         // TODO: support invoke_method_noreply for properties
         body << tab << tab << "};" << endl;
       }
@@ -326,11 +326,11 @@ void generate_proxy(Xml::Document &doc, const char *filename)
       body << ")" << endl;
 
       body << tab << "{" << endl
-           << tab << tab << "::DBus::CallMessage call;" << endl;
+           << tab << tab << "::Tiz::DBus::CallMessage call;" << endl;
 
       if (!args_in.empty())
       {
-        body << tab << tab << "::DBus::MessageIter wi = call.writer();" << endl
+        body << tab << tab << "::Tiz::DBus::MessageIter wi = call.writer();" << endl
              << endl;
       }
 
@@ -377,7 +377,7 @@ void generate_proxy(Xml::Document &doc, const char *filename)
           cerr << "Function: " << method.get("name") << ":" << endl;
           cerr << "Option 'org.freedesktop.DBus.Method.NoReply' not allowed for methods with 'out' variables!" << endl << "-> Option ignored!" << endl;
 
-          body << tab << tab << "::DBus::Message ret = invoke_method (call);" << endl;
+          body << tab << tab << "::Tiz::DBus::Message ret = invoke_method (call);" << endl;
         }
         else
         {
@@ -386,12 +386,12 @@ void generate_proxy(Xml::Document &doc, const char *filename)
       }
       else
       {
-        body << tab << tab << "::DBus::Message ret = invoke_method (call);" << endl;
+        body << tab << tab << "::Tiz::DBus::Message ret = invoke_method (call);" << endl;
       }
 
       if (!args_out.empty())
       {
-        body << tab << tab << "::DBus::MessageIter ri = ret.reader();" << endl
+        body << tab << tab << "::Tiz::DBus::MessageIter ri = ret.reader();" << endl
              << endl;
       }
 
@@ -541,12 +541,12 @@ void generate_proxy(Xml::Document &doc, const char *filename)
       Xml::Node &signal = **si;
       Xml::Nodes args = signal["arg"];
 
-      body << tab << "void " << stub_name(signal.get("name")) << "(const ::DBus::SignalMessage &sig)" << endl
+      body << tab << "void " << stub_name(signal.get("name")) << "(const ::Tiz::DBus::SignalMessage &sig)" << endl
            << tab << "{" << endl;
 
       if (!args.empty())
       {
-        body << tab << tab << "::DBus::MessageIter ri = sig.reader();" << endl
+        body << tab << tab << "::Tiz::DBus::MessageIter ri = sig.reader();" << endl
              << endl;
       }
 

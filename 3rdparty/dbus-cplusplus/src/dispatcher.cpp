@@ -33,7 +33,7 @@
 #include "server_p.h"
 #include "connection_p.h"
 
-DBus::Dispatcher *DBus::default_dispatcher = NULL;
+Tiz::DBus::Dispatcher *Tiz::DBus::default_dispatcher = NULL;
 
 using namespace Tiz::DBus;
 
@@ -244,7 +244,7 @@ void Dispatcher::dispatch_pending(Connection::PrivatePList &pending_queue)
   _mutex_p_copy.unlock();
 }
 
-void DBus::_init_threading()
+void Tiz::DBus::_init_threading()
 {
 #ifdef DBUS_HAS_THREADS_INIT_DEFAULT
   dbus_threads_init_default();
@@ -253,7 +253,7 @@ void DBus::_init_threading()
 #endif//DBUS_HAS_THREADS_INIT_DEFAULT
 }
 
-void DBus::_init_threading(
+void Tiz::DBus::_init_threading(
   MutexNewFn m1,
   MutexFreeFn m2,
   MutexLockFn m3,

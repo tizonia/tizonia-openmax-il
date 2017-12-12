@@ -32,12 +32,12 @@
 #include <dbus-c++/dbus.h>
 #include <string>
 
-class IntrospectedObject : public DBus::IntrospectableProxy, public DBus::ObjectProxy
+class IntrospectedObject : public Tiz::DBus::IntrospectableProxy, public Tiz::DBus::ObjectProxy
 {
 public:
 
-  IntrospectedObject(DBus::Connection &conn, const char *path, const char *service)
-    : DBus::ObjectProxy(conn, path, service)
+ IntrospectedObject(Tiz::DBus::Connection &conn, const char *path, const char *service)
+    : Tiz::DBus::ObjectProxy(conn, path, service)
   {}
 };
 

@@ -1,7 +1,7 @@
 lib_LTLIBRARIES = \
 	libtizdbus-c++-1.la
 
-libdbus_c___1_la_SOURCES = \
+libtizdbus_c___1_la_SOURCES = \
 	connection.cpp    \
 	connection_p.h    \
 	debug.cpp    \
@@ -24,11 +24,11 @@ libdbus_c___1_la_SOURCES = \
 	server_p.h    \
 	types.cpp
 
-libdbus_c___1_la_CXXFLAGS = \
+libtizdbus_c___1_la_CXXFLAGS = \
 	-I$(top_srcdir)/include \
 	-Wno-unused-parameter
 
-libdbus_c___1_la_LIBADD = \
+libtizdbus_c___1_la_LIBADD = \
 	$(dbus_LIBS)
 
 AM_CPPFLAGS = \
@@ -36,7 +36,7 @@ AM_CPPFLAGS = \
 
 HEADER_DIR = $(top_srcdir)/include/dbus-c++
 
-libdbus_c___1_HEADERS = \
+libtizdbus_c___1_HEADERS = \
 	$(HEADER_DIR)/api.h          \
 	$(HEADER_DIR)/connection.h          \
 	$(HEADER_DIR)/dbus.h          \
@@ -57,8 +57,8 @@ libdbus_c___1_HEADERS = \
 	$(HEADER_DIR)/types.h          \
 	$(HEADER_DIR)/util.h
 
-libdbus_c___1dir=$(includedir)/tizonia/dbus-c++/
+libtizdbus_c___1dir=$(includedir)/tizonia/dbus-c++/
 
 EXTRA_DIST = \
-	$(libdbus_c___1_HEADERS)
+	$(libtizdbus_c___1_HEADERS)
 

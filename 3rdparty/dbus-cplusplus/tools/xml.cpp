@@ -26,7 +26,7 @@
 
 #include <expat.h>
 
-std::istream &operator >> (std::istream &in, DBus::Xml::Document &doc)
+std::istream &operator >> (std::istream &in, Tiz::DBus::Xml::Document &doc)
 {
   std::stringbuf xmlbuf;
   in.get(xmlbuf, '\0');
@@ -35,13 +35,13 @@ std::istream &operator >> (std::istream &in, DBus::Xml::Document &doc)
   return in;
 }
 
-std::ostream &operator << (std::ostream &out, const DBus::Xml::Document &doc)
+std::ostream &operator << (std::ostream &out, const Tiz::DBus::Xml::Document &doc)
 {
   return out << doc.to_xml();
 }
 
-using namespace DBus;
-using namespace DBus::Xml;
+using namespace Tiz::DBus;
+using namespace Tiz::DBus::Xml;
 
 Error::Error(const char *error, int line, int column)
 {
