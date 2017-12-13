@@ -89,6 +89,7 @@ declare -ar TIZ_TIZONIA_DEPS=( \
     libssl-dev \
     libspotify12 \
     libspotify-dev \
+    libexpat1-dev \
     python-dev \
     python-setuptools \
     python-pip \
