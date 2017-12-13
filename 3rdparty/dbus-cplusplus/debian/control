@@ -1,0 +1,33 @@
+Source: tizdbus-c++
+Priority: optional
+Maintainer: Juan A. Rubio <juan.rubio@aratelia.com>
+Build-Depends: debhelper (>= 8.0.0),
+               dh-autoreconf,
+               libdbus-1-dev,
+               libexpat1-dev
+Standards-Version: 3.9.4
+Section: libs
+Homepage: http://tizonia.org
+Vcs-Git: git://github.com/tizonia/tizonia-openmax-il.git
+Vcs-Browser: https://github.com/tizonia/tizonia-openmax-il
+
+Package: libtizdbus-c++-dev
+Section: libdevel
+Architecture: any
+Depends: libtizdbus-c++0 (= ${binary:Version}),
+         ${misc:Depends},
+         libdbus-1-dev,
+         libexpat1-dev
+Description: Tizonia's DBus-C++ library, development files
+ Tizonia's DBus-C++ library.
+ .
+ This package contains the development library libtizdbus-c++.
+
+Package: libtizdbus-c++0
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Tizonia's DBus-C++ library, run-time library
+ Tizonia's DBus-C++ library.
+ .
+ This package contains the runtime library libtizdbus-c++.
