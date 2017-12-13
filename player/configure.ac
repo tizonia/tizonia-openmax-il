@@ -50,7 +50,7 @@ AC_CHECK_HEADERS([tizonia/dbus-c++/dbus.h],
 	[tiz_found_dbuscplusplus_headers=yes; break;])
 AS_IF([test "x$tiz_found_dbuscplusplus_headers" != "xyes"],
 	[AC_SUBST([TIZDBUSCPLUSPLUS_CFLAGS], ['-I$(top_srcdir)/../3rdparty/dbus-cplusplus/include'])
-	AC_SUBST([TIZDBUSCPLUSPLUS_LIBS], ['$(top_builddir)/../3rdparty/dbus-cplusplus/tizonia/libtizdbus-c++-1.la'])
+	AC_SUBST([TIZDBUSCPLUSPLUS_LIBS], ['$(top_builddir)/../3rdparty/dbus-cplusplus/tizonia/libtizdbus-c++.la'])
 	AC_SUBST([TIZDBUSXML2CPP], ['$(top_builddir)/../3rdparty/dbus-cplusplus/tools/tizonia-dbusxx-xml2cpp'])],
 	[AC_MSG_NOTICE([Not substituting TIZDBUSCPLUSPLUS cflags and libs with local paths])])
 AS_IF([test "x$tiz_found_dbuscplusplus_headers" == "xyes"],

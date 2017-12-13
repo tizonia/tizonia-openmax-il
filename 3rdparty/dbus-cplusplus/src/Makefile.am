@@ -1,5 +1,5 @@
 lib_LTLIBRARIES = \
-	libtizdbus-c++-1.la
+	libtizdbus-c++.la
 
 libtizdbus_c___1_la_SOURCES = \
 	connection.cpp    \

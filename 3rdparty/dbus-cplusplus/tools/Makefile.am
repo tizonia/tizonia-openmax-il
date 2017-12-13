@@ -5,7 +5,7 @@ AM_CPPFLAGS = \
 	-I$(top_builddir)/include \
 	-Wall
 
-libtizdbus_cxx_la = $(top_builddir)/src/libtizdbus-c++-1.la
+libtizdbus_cxx_la = $(top_builddir)/src/libtizdbus-c++.la
 
 noinst_PROGRAMS = tizonia-dbusxx-xml2cpp tizonia-dbusxx-introspect
 
