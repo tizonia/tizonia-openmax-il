@@ -1,6 +1,6 @@
 AM_CPPFLAGS = \
-	$(dbus_CFLAGS) \
-	$(xml_CFLAGS) \
+	@DBUS_CFLAGS@ \
+	@EXPAT_CFLAGS@ \
 	-I$(top_srcdir)/include \
 	-I$(top_builddir)/include \
 	-Wall
@@ -22,7 +22,7 @@ tizonia_dbusxx_xml2cpp_SOURCES = \
 	generator_utils.h
 
 tizonia_dbusxx_xml2cpp_LDADD = \
-	$(xml_LIBS)
+	@EXPAT_LIBS@
 
 tizonia_dbusxx_introspect_SOURCES = \
 	introspect.h \

@@ -29,10 +29,10 @@ libtizdbus_c___la_CXXFLAGS = \
 	-Wno-unused-parameter
 
 libtizdbus_c___la_LIBADD = \
-	$(dbus_LIBS)
+	@DBUS_LIBS@
 
 AM_CPPFLAGS = \
-	$(dbus_CFLAGS)
+	@DBUS_CFLAGS@
 
 HEADER_DIR = $(top_srcdir)/include/dbus-c++
 

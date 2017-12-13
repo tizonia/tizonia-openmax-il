@@ -36,12 +36,10 @@ PKG_PROG_PKG_CONFIG
 # Check for dependencies
 
 DBUS_REQUIRED_VERSION=0.60
-PKG_CHECK_MODULES(dbus, [dbus-1 >= $DBUS_REQUIRED_VERSION],,
+PKG_CHECK_MODULES(DBUS, [dbus-1 >= $DBUS_REQUIRED_VERSION],,
 	AC_MSG_ERROR([You need the DBus libraries (version 0.6 or better)]
 	[http://www.freedesktop.org/wiki/Software_2fdbus])
 )
-AC_SUBST(dbus_CFLAGS)
-AC_SUBST(dbus_LIBS)
 
 DBUS_API_STABLE_VERSION=1.0.0
 PKG_CHECK_EXISTS([dbus-1 < $DBUS_API_STABLE_VERSION],
@@ -58,20 +56,7 @@ PKG_CHECK_EXISTS([dbus-1 >= $DBUS_RECURSIVE_MUTEX_VERSION],
 	[AC_DEFINE(DBUS_HAS_RECURSIVE_MUTEX, , [DBus supports recursive mutexes (needs DBus >= 0.95)])]
 )
 
-AC_CHECK_LIB([expat], XML_ParserCreate_MM,
-	[AC_CHECK_HEADERS(expat.h, have_expat=true, have_expat=false)],
-	have_expat=false)
-
-if ! $have_expat; then
-   AC_MSG_ERROR([You need the eXpat xml parser]
-   [http://expat.sourceforge.net/])
-fi
-
-xml_CFLAGS=
-xml_LIBS=-lexpat
-
-AC_SUBST(xml_CFLAGS)
-AC_SUBST(xml_LIBS)
+PKG_CHECK_MODULES([EXPAT], [expat >= 2.1.0])
 
 ACX_PTHREAD
 if test x"$acx_pthread_ok" = xyes; then
