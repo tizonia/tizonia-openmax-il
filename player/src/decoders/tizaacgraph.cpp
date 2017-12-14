@@ -78,7 +78,7 @@ graph::ops *graph::aacdecoder::do_init ()
 graph::aacdecops::aacdecops (graph *p_graph,
                              const omx_comp_name_lst_t &comp_lst,
                              const omx_comp_role_lst_t &role_lst)
-  : tiz::graph::ops (p_graph, comp_lst, role_lst),
+  : tiz::graph::decops (p_graph, comp_lst, role_lst),
     need_port_settings_changed_evt_ (false)
 {
 }
@@ -100,11 +100,6 @@ void graph::aacdecops::do_probe ()
 bool graph::aacdecops::is_port_settings_evt_required () const
 {
   return need_port_settings_changed_evt_;
-}
-
-bool graph::aacdecops::is_disabled_evt_required () const
-{
-  return false;
 }
 
 void graph::aacdecops::do_configure ()

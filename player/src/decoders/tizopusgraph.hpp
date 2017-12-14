@@ -47,7 +47,7 @@ namespace tiz
 
     };
 
-    class opusdecops : public ops
+    class opusdecops : public decops
     {
     public:
       opusdecops (graph *p_graph, const omx_comp_name_lst_t &comp_lst,

@@ -47,7 +47,7 @@ namespace tiz
 
     };
 
-    class oggflacdecops : public ops
+    class oggflacdecops : public decops
     {
     public:
       oggflacdecops (graph *p_graph, const omx_comp_name_lst_t &comp_lst,

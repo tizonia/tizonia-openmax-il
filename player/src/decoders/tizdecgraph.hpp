@@ -32,6 +32,7 @@
 #include <boost/any.hpp>
 
 #include "tizgraph.hpp"
+#include "tizgraphops.hpp"
 
 namespace tiz
 {
@@ -39,7 +40,6 @@ namespace tiz
   {
     // Forward declarations
     class cmd;
-    class ops;
 
     class decoder : public graph
     {
@@ -53,6 +53,17 @@ namespace tiz
 
     protected:
       boost::any fsm_;
+    };
+
+    class decops : public ops
+    {
+    public:
+      decops (graph *p_graph, const omx_comp_name_lst_t &comp_lst,
+              const omx_comp_role_lst_t &role_lst);
+
+    public:
+      void do_disable_comp_ports (const int comp_id, const int port_id);
+      bool is_disabled_evt_required () const;
     };
 
   }  // namespace graph

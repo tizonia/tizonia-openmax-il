@@ -79,7 +79,7 @@ graph::ops *graph::flacdecoder::do_init ()
 graph::flacdecops::flacdecops (graph *p_graph,
                                const omx_comp_name_lst_t &comp_lst,
                                const omx_comp_role_lst_t &role_lst)
-  : tiz::graph::ops (p_graph, comp_lst, role_lst),
+  : tiz::graph::decops (p_graph, comp_lst, role_lst),
     need_port_settings_changed_evt_ (false)
 {
 }
@@ -101,11 +101,6 @@ void graph::flacdecops::do_probe ()
 bool graph::flacdecops::is_port_settings_evt_required () const
 {
   return need_port_settings_changed_evt_;
-}
-
-bool graph::flacdecops::is_disabled_evt_required () const
-{
-  return false;
 }
 
 void graph::flacdecops::do_configure ()

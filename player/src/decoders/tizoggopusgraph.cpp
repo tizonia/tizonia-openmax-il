@@ -79,7 +79,7 @@ graph::ops *graph::oggopusdecoder::do_init ()
 graph::oggopusdecops::oggopusdecops (graph *p_graph,
                                const omx_comp_name_lst_t &comp_lst,
                                const omx_comp_role_lst_t &role_lst)
-  : tiz::graph::ops (p_graph, comp_lst, role_lst),
+  : tiz::graph::decops (p_graph, comp_lst, role_lst),
     need_port_settings_changed_evt_ (false)
 {
 }
@@ -90,18 +90,11 @@ void graph::oggopusdecops::do_probe ()
       probe_stream (OMX_PortDomainAudio, OMX_AUDIO_CodingOPUS, "OggOpus", "decode",
                     &tiz::probe::dump_pcm_info),
       "Unable to probe the stream.");
-  G_OPS_BAIL_IF_ERROR (set_opus_settings (),
-                       "Unable to set OMX_TizoniaIndexParamAudioOpus");
 }
 
 bool graph::oggopusdecops::is_port_settings_evt_required () const
 {
   return need_port_settings_changed_evt_;
-}
-
-bool graph::oggopusdecops::is_disabled_evt_required () const
-{
-  return false;
 }
 
 void graph::oggopusdecops::do_configure ()
@@ -140,18 +133,6 @@ void graph::oggopusdecops::get_pcm_codec_info (OMX_AUDIO_PARAM_PCMMODETYPE &pcmt
 
   pcmtype.nBitPerSample = decoder_pcmtype.nBitPerSample;
   pcmtype.nSamplingRate = 48000; //decoder_pcmtype.nSamplingRate;
-}
-
-OMX_ERRORTYPE
-graph::oggopusdecops::set_opus_settings ()
-{
-  // Let the decoder find the settings for us
-  need_port_settings_changed_evt_ = true;
-
-  TIZ_LOG (TIZ_PRIORITY_DEBUG, "need_port_settings_changed_evt_ [%s]",
-           (need_port_settings_changed_evt_ ? "YES" : "NO"));
-
-  return OMX_ErrorNone;
 }
 
 bool
