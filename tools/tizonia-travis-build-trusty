@@ -51,6 +51,7 @@ declare -ar SKEMA_EXEMPT_SUITES=( \
     'OggOpusMux' \
     'Vp8Playback' \
     'WebmVp8Playback' \
+    'Mp3StreamingClientPortAutoDetect' \
 )
 
 # A list of skema test suites that should be executed without the --quiet flag
