@@ -88,7 +88,7 @@ instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
   pcmmode.nPortIndex = ARATELIA_MP3_ENCODER_INPUT_PORT_INDEX;
   pcmmode.nChannels = 2;
   pcmmode.eNumData = OMX_NumericalDataSigned;
-  pcmmode.eEndian = OMX_EndianBig;
+  pcmmode.eEndian = OMX_EndianLittle;
   pcmmode.bInterleaved = OMX_TRUE;
   pcmmode.nBitPerSample = 16;
   pcmmode.nSamplingRate = 48000;
