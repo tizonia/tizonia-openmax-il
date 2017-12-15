@@ -74,16 +74,6 @@ PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
 # support for pausing transfers.
 PKG_CHECK_MODULES([LIBCURL], [libcurl >= 7.18.0])
 
-AC_CHECK_HEADERS([tizonia/dbus-c++/dbus.h],
-	[tiz_found_dbuscplusplus_headers=yes; break;])
-AS_IF([test "x$tiz_found_dbuscplusplus_headers" != "xyes"],
-	[AC_SUBST([TIZDBUSCPLUSPLUS_CFLAGS], ['-I$(top_srcdir)/../3rdparty/dbus-cplusplus/include'])
-	AC_SUBST([TIZDBUSCPLUSPLUS_LIBS], ['$(top_builddir)/../3rdparty/dbus-cplusplus/tizonia/libtizdbus-c++.la'])],
-	[AC_MSG_NOTICE([Not substituting TIZDBUSCPLUSPLUS cflags and libs with local paths])])
-AS_IF([test "x$tiz_found_dbuscplusplus_headers" == "xyes"],
-	[PKG_CHECK_MODULES([TIZDBUSCPLUSPLUS], [libtizdbus-c++ >= 0.9.0])],
-	[AC_MSG_NOTICE([Not using pkg-config to find TIZDBUSCPLUSPLUS cflags and libs])])
-
 AC_CHECK_HEADERS([tizonia/OMX_Core.h tizonia/OMX_Component.h],
 	[tizrmd_found_omx_headers=yes; break;])
 AS_IF([test "x$tizrmd_found_omx_headers" != "xyes"],

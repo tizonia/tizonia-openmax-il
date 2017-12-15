@@ -8,4 +8,5 @@ Description: Tizonia's Native C++ bindings for D-Bus
 Requires: dbus-1
 Version: @PACKAGE_VERSION@
 Libs: -L${libdir} -ltizdbus-c++
+Libs.private: -ldbus-1 -lexpat -lpthread
 Cflags: -I${includedir}/tizonia/dbus-c++ -DDBUS_API_SUBJECT_TO_CHANGE
