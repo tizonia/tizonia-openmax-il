@@ -45,11 +45,11 @@ struct sndfiled_prc
 {
   /* Object */
   const tiz_filter_prc_t _;
-  SNDFILE *p_sf_;
+  SNDFILE * p_sf_;
   SF_INFO sf_info_;
   SF_VIRTUAL_IO sf_io_;
   bool decoder_inited_;
-  tiz_buffer_t *p_store_;
+  tiz_buffer_t * p_store_;
   OMX_U32 store_offset_;
 };
 
