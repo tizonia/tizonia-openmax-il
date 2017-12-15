@@ -230,8 +230,8 @@ store_metadata (vorbisd_prc_t * ap_prc, const char * ap_header_name,
       info_len = strnlen (ap_header_info, OMX_MAX_STRINGNAME_SIZE - 1) + 1;
       metadata_len = sizeof (OMX_CONFIG_METADATAITEMTYPE) + info_len;
 
-      if (!(p_meta = (OMX_CONFIG_METADATAITEMTYPE *) tiz_mem_calloc (
-                     1, metadata_len)))
+      if (!(p_meta
+            = (OMX_CONFIG_METADATAITEMTYPE *) tiz_mem_calloc (1, metadata_len)))
         {
           rc = OMX_ErrorInsufficientResources;
         }

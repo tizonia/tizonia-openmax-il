@@ -32,13 +32,13 @@
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
 
-#include <OMX_Core.h>
 #include <OMX_Component.h>
+#include <OMX_Core.h>
 #include <tizplatform.h>
 
-#include "tizgraphutil.hpp"
-#include "tizgraphconfig.hpp"
 #include "tizgraphcmd.hpp"
+#include "tizgraphconfig.hpp"
+#include "tizgraphutil.hpp"
 #include "tizprobe.hpp"
 #include "tizvorbisgraph.hpp"
 
@@ -49,8 +49,7 @@
 
 namespace graph = tiz::graph;
 
-graph::vorbisdecoder::vorbisdecoder ()
-  : tiz::graph::decoder ("vorbisdecgraph")
+graph::vorbisdecoder::vorbisdecoder () : tiz::graph::decoder ("vorbisdecgraph")
 {
 }
 
@@ -80,7 +79,8 @@ graph::vorbisdecops::vorbisdecops (graph *p_graph,
 {
 }
 
-void graph::vorbisdecops::do_disable_comp_ports (const int comp_id, const int port_id)
+void graph::vorbisdecops::do_disable_comp_ports (const int comp_id,
+                                                 const int port_id)
 {
   OMX_U32 demuxers_video_port = 1;
   G_OPS_BAIL_IF_ERROR (util::disable_port (handles_[0], demuxers_video_port),
@@ -115,10 +115,11 @@ void graph::vorbisdecops::do_configure ()
   G_OPS_BAIL_IF_ERROR (
       tiz::graph::util::set_content_uri (handles_[0], probe_ptr_->get_uri ()),
       "Unable to set OMX_IndexParamContentURI");
+
   G_OPS_BAIL_IF_ERROR (
       tiz::graph::util::set_pcm_mode (
           handles_[2], 0,
-          boost::bind (&tiz::probe::get_pcm_codec_info, probe_ptr_, _1)),
+          boost::bind (&tiz::graph::vorbisdecops::get_pcm_codec_info, this, _1)),
       "Unable to set OMX_IndexParamAudioPcm");
 }
 
@@ -130,7 +131,7 @@ graph::vorbisdecops::set_vorbis_settings ()
   TIZ_INIT_OMX_PORT_STRUCT (vorbistype_orig, 0 /* port id */);
 
   tiz_check_omx (OMX_GetParameter (handles_[1], OMX_IndexParamAudioVorbis,
-                                       &vorbistype_orig));
+                                   &vorbistype_orig));
 
   // Set the vorbis settings on decoder's port #0
   OMX_AUDIO_PARAM_VORBISTYPE vorbistype;
@@ -148,4 +149,26 @@ graph::vorbisdecops::set_vorbis_settings ()
          || (vorbistype_orig.nChannels != vorbistype.nChannels));
 
   return OMX_ErrorNone;
+}
+
+void graph::vorbisdecops::get_pcm_codec_info (
+    OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype)
+{
+  OMX_U32 dec_port_id = 1;
+  OMX_AUDIO_PARAM_PCMMODETYPE dec_pcmtype;
+  TIZ_INIT_OMX_PORT_STRUCT (dec_pcmtype, dec_port_id);
+
+  G_OPS_BAIL_IF_ERROR (
+      OMX_GetParameter (handles_[1], OMX_IndexParamAudioPcm, &dec_pcmtype),
+      "Unable to get OMX_IndexParamAudioPcm from decoder");
+
+  assert (probe_ptr_);
+  probe_ptr_->get_pcm_codec_info (pcmtype);
+
+  // Ammend the endianness, nBitPerSample, sign, and interleave config as per
+  // the decoder values
+  pcmtype.eEndian = dec_pcmtype.eEndian;
+  pcmtype.nBitPerSample = dec_pcmtype.nBitPerSample;
+  pcmtype.eNumData = dec_pcmtype.eNumData;
+  pcmtype.bInterleaved = dec_pcmtype.bInterleaved;
 }

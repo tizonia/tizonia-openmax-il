@@ -118,7 +118,7 @@ instantiate_output_port (OMX_HANDLETYPE ap_hdl)
   pcmmode.eNumData = OMX_NumericalDataSigned;
   pcmmode.eEndian = OMX_EndianLittle;
   pcmmode.bInterleaved = OMX_TRUE;
-  pcmmode.nBitPerSample = 16;
+  pcmmode.nBitPerSample = 32;   /* NOTE: this decoder is outputting 32-bit floats */
   pcmmode.nSamplingRate = 48000;
   pcmmode.ePCMMode = OMX_AUDIO_PCMModeLinear;
   pcmmode.eChannelMapping[0] = OMX_AUDIO_ChannelLF;
