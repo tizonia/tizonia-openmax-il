@@ -1,6 +1,8 @@
-tizdbus-c++ (0.10.0) unstable; urgency=low
+tizdbus-c++ (0.11.0-1) unstable; urgency=low
 
-  * New upstream release (Closes: #XXX)
+  * New upstream release (Closes: #419)
 
- -- Juan A. Rubio <juan.rubio@aratelia.com>  Thu, 19 Oct 2017 12:46:46 +0100
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Sat, 16 Dec 2017 12:15:07 +0000
+ 
+
 
