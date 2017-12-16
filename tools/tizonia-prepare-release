@@ -175,8 +175,8 @@ function main {
     done
 
     print_banner "[START] : Preparing Tizonia for release; version [$TIZONIA_RELEASE_VERSION]" "$YEL"
-    update_package_versions
-    # update_plugin_shared_lib_versions
+    # update_package_versions
+    update_plugin_shared_lib_versions
     # update_shared_lib_versions
     # update_python_version_strings
     # update_debian_changelog_files
