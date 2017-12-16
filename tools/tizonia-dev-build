@@ -380,7 +380,7 @@ function main {
         sudo checkinstall \
              --nodoc \
              --pkgname tizonia-all-testing \
-             --pkgversion 0.10.0d \
+             --pkgversion 0.11.0d \
              --maintainer='Juan\ A.\ Rubio\ \<jarubio2001@gmail.com\>'
         if [[ "$?" != 0 ]]; then
             raise_error "checkinstall failure."
