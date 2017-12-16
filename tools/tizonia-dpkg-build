@@ -156,6 +156,7 @@ readonly TIZ_C_CPP_PROJECT_DIST_PLAYER_CMD="autoreconf -ifs &> /dev/null && ./co
 readonly TIZ_PYTHON_PROJECT_DIST_CMD="python setup.py sdist && cp dist/*.tar.gz \"$DEBIAN_DIR\""
 
 declare -Ar TIZ_PROJECT_DIST_CMD=( \
+    [tizdbus-c++]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizilheaders]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizgmusicproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
     [tizgmusic]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
@@ -199,6 +200,7 @@ readonly TIZ_PROJECT_DH_MAKE_I_CMD="dh_make -i --createorig --yes"
 readonly TIZ_PROJECT_DH_MAKE_C_CMD="dh_make -c lgpl3 -l --createorig --yes"
 
 declare -Ar TIZ_PROJECT_DH_MAKE_CMD=( \
+    [tizdbus-c++]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizilheaders]="$TIZ_PROJECT_DH_MAKE_I_CMD" \
     [tizgmusicproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
     [tizgmusic]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
@@ -239,6 +241,7 @@ declare -Ar TIZ_PROJECT_DH_MAKE_CMD=( \
 )
 
 declare -Ar TIZ_PROJECT_MAIN_PKG=( \
+    [tizdbus-c++]="libtizdbus-c++0" \
     [tizilheaders]="tizilheaders" \
     [tizgmusicproxy]="python-tizgmusicproxy" \
     [tizgmusic]="libtizgmusic0" \
