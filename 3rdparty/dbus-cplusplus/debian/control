@@ -15,6 +15,7 @@ Package: libtizdbus-c++-dev
 Section: libdevel
 Architecture: any
 Depends: libtizdbus-c++0 (= ${binary:Version}),
+         libtizdbus-c++-bin (= ${binary:Version}),
          ${misc:Depends},
          libdbus-1-dev,
          libexpat1-dev
@@ -31,3 +32,15 @@ Description: Tizonia's DBus-C++ library, run-time library
  Tizonia's DBus-C++ library.
  .
  This package contains the runtime library libtizdbus-c++.
+
+Package: libtizdbus-c++-bin
+Architecture: any
+Section: utils
+Multi-Arch: foreign
+Depends: libtizdbus-c++0 (= ${binary:Version}),
+         ${misc:Depends},
+         ${shlibs:Depends}
+Description: Tizonia's DBus-C++, utilities
+ Tizonia's DBus-C++ utilities.
+ .
+ This package includes binary utilities.

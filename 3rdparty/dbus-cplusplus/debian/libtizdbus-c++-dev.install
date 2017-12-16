@@ -2,5 +2,3 @@ usr/lib/*/lib*.a
 usr/lib/*/lib*.so
 usr/include/tizonia/*
 usr/lib/*/pkgconfig/lib*.pc
-usr/bin/tizonia-dbusxx-introspect  usr/bin
-usr/bin/tizonia-dbusxx-xml2cpp     usr/bin
