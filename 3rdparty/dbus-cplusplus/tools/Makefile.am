@@ -7,7 +7,7 @@ AM_CPPFLAGS = \
 
 libtizdbus_cxx_la = $(top_builddir)/src/libtizdbus-c++.la
 
-noinst_PROGRAMS = tizonia-dbusxx-xml2cpp tizonia-dbusxx-introspect
+bin_PROGRAMS = tizonia-dbusxx-xml2cpp tizonia-dbusxx-introspect
 
 tizonia_dbusxx_xml2cpp_SOURCES = \
 	xml.h \
