@@ -71,7 +71,6 @@ declare -ar TIZ_TIZONIA_DEPS=( \
     libvpx-dev \
     libmp3lame-dev \
     libfaad-dev \
-    libev-dev \
     libtag1-dev \
     libfishsound1-dev \
     libmediainfo-dev \
