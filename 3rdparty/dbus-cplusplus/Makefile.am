@@ -5,7 +5,7 @@ ACLOCAL_AMFLAGS = -I m4
 EXTRA_DIST = debian
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = tizdbus-c++.pc
+pkgconfig_DATA = libtizdbus-c++.pc
 
 BUILT_SOURCES = tizonia
 

@@ -3,8 +3,8 @@ exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
 
-Name: @PACKAGE@
-Description: Tizonia's Native C++ bindings for D-Bus
+Name: libtizdbus-c++
+Description: Tizonia's native C++ bindings for D-Bus
 Requires: dbus-1
 Version: @PACKAGE_VERSION@
 Libs: -L${libdir} -ltizdbus-c++

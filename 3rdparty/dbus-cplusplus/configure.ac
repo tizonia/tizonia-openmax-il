@@ -68,7 +68,7 @@ fi
 
 AC_OUTPUT(
         Makefile
-        tizdbus-c++.pc
+        libtizdbus-c++.pc
         src/Makefile
         tools/Makefile
         data/Makefile
