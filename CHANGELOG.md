@@ -1,5 +1,49 @@
 # Change Log
 
+## [v0.11.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.11.0) (2017-12-17)
+[Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.10.0...v0.11.0)
+
+**Improvements:**
+
+- 3rdparty: embed pkgw/dbus-cplusplus [\#413](https://github.com/tizonia/tizonia-openmax-il/issues/413)
+- http\_source: youtubeprc - increase the amount of data emitted by the output port [\#411](https://github.com/tizonia/tizonia-openmax-il/issues/411)
+- webm\_demuxer: catch up internal nestegg with kinetiknz/nestegg master [\#405](https://github.com/tizonia/tizonia-openmax-il/issues/405)
+- build system: top-level 'configure' option to enable/disable the 'alsa' omx component [\#402](https://github.com/tizonia/tizonia-openmax-il/issues/402)
+- build system: top-level 'configure' option to enable/disable 'spotify\_source' omx component build [\#396](https://github.com/tizonia/tizonia-openmax-il/issues/396)
+- tizonia-player: bash completion file distributed in debian package [\#385](https://github.com/tizonia/tizonia-openmax-il/issues/385)
+- tizonia-player: zsh completion file distributed in debian package [\#384](https://github.com/tizonia/tizonia-openmax-il/issues/384)
+- tizonia-player: bash completion file [\#307](https://github.com/tizonia/tizonia-openmax-il/issues/307)
+
+**Fixed bugs:**
+
+- player: youtube crash with webm/vorbis stream [\#420](https://github.com/tizonia/tizonia-openmax-il/issues/420)
+- release v0.11.0 [\#419](https://github.com/tizonia/tizonia-openmax-il/issues/419)
+- player: garbage on the screen after 'tizonia' exits on error [\#418](https://github.com/tizonia/tizonia-openmax-il/issues/418)
+- player: audio playback from local files is broken for most formats [\#417](https://github.com/tizonia/tizonia-openmax-il/issues/417)
+- webm\_demuxer: dmuxfltprc - allow nestegg initialisation to fail while buffering input data [\#412](https://github.com/tizonia/tizonia-openmax-il/issues/412)
+- libtizplatform: tizurltransfer needs to work correctly when copying to an omx buffer that already contains data [\#410](https://github.com/tizonia/tizonia-openmax-il/issues/410)
+- webm\_demuxer: not enough input data results in the nestegg object not initializing correctly  [\#408](https://github.com/tizonia/tizonia-openmax-il/issues/408)
+- webm\_demuxer: allocation of the nestegg object fails silently with some streams [\#407](https://github.com/tizonia/tizonia-openmax-il/issues/407)
+- youtube: console informational element 'stream \#' appears garbled [\#406](https://github.com/tizonia/tizonia-openmax-il/issues/406)
+- install.sh: make sure pip2 is used on systems that have pip3 as its default pip installation [\#404](https://github.com/tizonia/tizonia-openmax-il/issues/404)
+- Crashes on yt livestreams [\#403](https://github.com/tizonia/tizonia-openmax-il/issues/403)
+- Ogg Vorbis decoding is slow and static-y [\#386](https://github.com/tizonia/tizonia-openmax-il/issues/386)
+
+**Closed issues:**
+
+- Building on 17.10 hangs [\#414](https://github.com/tizonia/tizonia-openmax-il/issues/414)
+- aac decoder: pcmmode.eEndian should be set to OMX\_EndianLittle instead of OMX\_EndianBig . [\#409](https://github.com/tizonia/tizonia-openmax-il/issues/409)
+- No such file or directory \(youtube\). [\#401](https://github.com/tizonia/tizonia-openmax-il/issues/401)
+- Can't install on Ubuntu 14.04 trusty [\#398](https://github.com/tizonia/tizonia-openmax-il/issues/398)
+- .config reload [\#397](https://github.com/tizonia/tizonia-openmax-il/issues/397)
+- Ubuntu 18.04 support [\#393](https://github.com/tizonia/tizonia-openmax-il/issues/393)
+- Binary for Ubuntu 17.10 [\#389](https://github.com/tizonia/tizonia-openmax-il/issues/389)
+- Can´t autoreconf -ifs [\#388](https://github.com/tizonia/tizonia-openmax-il/issues/388)
+
+**Merged pull requests:**
+
+- Updating link to soundcloud docs page [\#415](https://github.com/tizonia/tizonia-openmax-il/pull/415) ([djsiddz2](https://github.com/djsiddz2))
+
 ## [v0.10.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.10.0) (2017-10-22)
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.9.0...v0.10.0)
 
@@ -36,7 +80,6 @@
 - player: the terminal is occasionally left in an inconsistent state when the application fails [\#369](https://github.com/tizonia/tizonia-openmax-il/issues/369)
 - Various warnings while building with gcc 7.1.1 \(Manjaro Linux\) [\#367](https://github.com/tizonia/tizonia-openmax-il/issues/367)
 - docs: doc builds fail due to Breathe defect [\#343](https://github.com/tizonia/tizonia-openmax-il/issues/343)
-- Issues with Google Music : --gmusic-playlist [\#328](https://github.com/tizonia/tizonia-openmax-il/issues/328)
 - tizonia: pulsearprc.c:592: init\_pulseaudio\_stream: Assertion `ap\_prc-\>p\_pa\_context\_' failed. Aborted \(core dumped\) [\#301](https://github.com/tizonia/tizonia-openmax-il/issues/301)
 
 **Closed issues:**
