@@ -33,6 +33,9 @@
 
 # News
 
+:heavy_check_mark: [2017-12-17] Tizonia
+[v0.11.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.11.0). Bug-fix release.
+
 :heavy_check_mark: [2017-10-22] Tizonia
 [v0.10.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.10.0). Bug-fix release.
 
