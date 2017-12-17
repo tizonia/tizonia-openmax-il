@@ -44,8 +44,10 @@ PKG_PROG_PKG_CONFIG()
 AX_BOOST_BASE([1.46],, [AC_MSG_ERROR([tizrmd needs Boost 1.46])])
 AX_LIB_SQLITE3([3.7.1])
 
+AC_LANG_PUSH([C++])
 AC_CHECK_HEADERS([tizonia/dbus-c++/dbus.h],
 	[tiz_found_dbuscplusplus_headers=yes; break;])
+AC_LANG_POP([C++])
 AS_IF([test "x$tiz_found_dbuscplusplus_headers" != "xyes"],
 	[AC_SUBST([TIZDBUSCPLUSPLUS_CFLAGS], ['-I$(top_srcdir)/../../3rdparty/dbus-cplusplus/include'])
 	AC_SUBST([TIZDBUSCPLUSPLUS_LIBS], ['$(top_builddir)/../../3rdparty/dbus-cplusplus/tizonia/libtizdbus-c++.la'])
