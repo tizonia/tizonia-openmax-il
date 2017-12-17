@@ -40,6 +40,7 @@ declare -ar TIZ_SUPPORTED_RELEASES=( \
     ubuntu-vivid \
     ubuntu-wily \
     ubuntu-xenial \
+    ubuntu-bionic \
     debian-jessie \
     debian-stretch \
     raspbian-jessie \
