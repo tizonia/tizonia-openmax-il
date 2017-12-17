@@ -56,7 +56,8 @@ AS_IF([test "x$tiz_found_dbuscplusplus_headers" != "xyes"],
 	AC_SUBST([TIZDBUSXML2CPP], ['$(top_builddir)/../3rdparty/dbus-cplusplus/tools/tizonia-dbusxx-xml2cpp'])],
 	[AC_MSG_NOTICE([Not substituting TIZDBUSCPLUSPLUS cflags and libs with local paths])])
 AS_IF([test "x$tiz_found_dbuscplusplus_headers" == "xyes"],
-	[PKG_CHECK_MODULES([TIZDBUSCPLUSPLUS], [libtizdbus-c++ >= 0.9.0])],
+	[PKG_CHECK_MODULES([TIZDBUSCPLUSPLUS], [libtizdbus-c++ >= 0.11.0])
+        AC_SUBST([TIZDBUSXML2CPP], ['tizonia-dbusxx-xml2cpp'])],
 	[AC_MSG_NOTICE([Not using pkg-config to find TIZDBUSCPLUSPLUS cflags and libs])])
 
 AC_CHECK_HEADERS([tizonia/OMX_Core.h tizonia/OMX_Component.h],
