@@ -2,7 +2,7 @@
 
 _githubname=tizonia-openmax-il
 pkgname=tizonia-all-git
-pkgver=0.10.0.r96.gfd5f8faf
+pkgver=0.11.0.r2.gef9104ad
 pkgrel=1
 pkgdesc="Command-line cloud music player for Linux with Spotify, Google Play Music, YouTube, SoundCloud, and Dirble support"
 arch=('x86_64')
