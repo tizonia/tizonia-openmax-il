@@ -1,5 +1,5 @@
 <a href="https://tizonia.org/">
-    <img src="https://avatars2.githubusercontent.com/u/3161606?s=400&v=4" alt="Tizonia logo" title="The Tizonia Project" align="right" height="60" />
+    <img src="https://avatars2.githubusercontent.com/u/3161606?s=400&v=4" alt="Tizonia logo" title="The Tizonia Project" align="right" height="80" />
 </a>
 
 # Tizonia
