@@ -99,3 +99,30 @@ bool graph::decoder::dispatch_cmd (const tiz::graph::cmd *p_cmd)
 
   return p_cmd->kill_thread ();
 }
+
+//
+// decops
+//
+graph::decops::decops (graph *p_graph,
+                       const omx_comp_name_lst_t &comp_lst,
+                       const omx_comp_role_lst_t &role_lst)
+  : tiz::graph::ops (p_graph, comp_lst, role_lst)
+{
+}
+
+void graph::decops::do_disable_comp_ports (const int /* comp_id */,
+                                           const int /* port_id */)
+{
+  // NOTE: This is a no-op in most audio decoder graphs, i.e those where the
+  // file reader is used because this component has no video port. When an
+  // actual demuxer is used, then this method should be overriden to allow
+  // disabling of the demuxer's video port. See transition table for
+  // configuring in tizgraphfsm.hpp.
+}
+
+bool graph::decops::is_disabled_evt_required () const
+{
+  // It returns false because in the default case there is no video port to be
+  // disabled in the graph. See comment in do_disable_comp_ports.
+  return false;
+}

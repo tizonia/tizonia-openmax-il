@@ -6,7 +6,6 @@ Build-Depends: debhelper (>= 8.0.0),
                tizilheaders,
                liblog4c-dev,
                uuid-dev,
-               libev-dev,
                libcurl-dev,
                check
 Standards-Version: 3.9.4
@@ -22,7 +21,6 @@ Depends: libtizplatform0 (= ${binary:Version}),
          tizilheaders,
          liblog4c-dev,
          uuid-dev,
-         libev-dev,
          libcurl-dev
 Description: Tizonia's platform library, development files
  Tizonia's platform library.

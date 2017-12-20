@@ -61,12 +61,9 @@ parts:
       - libvpx-dev
       - libmp3lame-dev
       - libfaad-dev
-      - libev-dev
       - libtag1-dev
       - libfishsound1-dev
       - libmediainfo-dev
-      - libcurl3
-      - libcurl4-openssl-dev
       - libpulse-dev
       - libmpg123-dev
       - libvorbis-dev
@@ -76,9 +73,10 @@ parts:
       - libflac-dev
       - liboggz2-dev
       - libsndfile1-dev
-      - libspotify-dev
       - libffi-dev
       - libssl-dev
+      - libspotify-dev
+      - libexpat1-dev
       - python-dev
       - python-setuptools
       - python-pip
@@ -91,9 +89,7 @@ parts:
       - python-mutagen
       - python-crypto
       - python-requests
-      - curl
       - check
-      - wget
       - sqlite3
       - dbus-x11
     after:

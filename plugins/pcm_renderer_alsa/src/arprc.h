@@ -30,15 +30,16 @@
 #define ARPRC_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-  void * ar_prc_class_init (void * ap_tos, void * ap_hdl);
-  void * ar_prc_init (void * ap_tos, void * ap_hdl);
+void *
+ar_prc_class_init (void * ap_tos, void * ap_hdl);
+void *
+ar_prc_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* ARPRC_H */
+#endif /* ARPRC_H */

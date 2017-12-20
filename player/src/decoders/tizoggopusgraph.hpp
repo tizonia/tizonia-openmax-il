@@ -47,7 +47,7 @@ namespace tiz
 
     };
 
-    class oggopusdecops : public ops
+    class oggopusdecops : public decops
     {
     public:
       oggopusdecops (graph *p_graph, const omx_comp_name_lst_t &comp_lst,
@@ -56,12 +56,10 @@ namespace tiz
     public:
       void do_probe ();
       bool is_port_settings_evt_required () const;
-      bool is_disabled_evt_required () const;
       void do_configure ();
       void get_pcm_codec_info (OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype);
 
     private:
-      OMX_ERRORTYPE set_opus_settings ();
       // re-implemented from the base class
       bool probe_stream_hook ();
 

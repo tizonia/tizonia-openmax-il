@@ -40,9 +40,9 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.rm.proxy"
 #endif
 
-tizrmproxy::tizrmproxy (DBus::Connection &connection, const char *path,
+tizrmproxy::tizrmproxy (Tiz::DBus::Connection &connection, const char *path,
                         const char *name)
-  : DBus::ObjectProxy (connection, path, name), clients_ ()
+  : Tiz::DBus::ObjectProxy (connection, path, name), clients_ ()
 {
 }
 
@@ -160,7 +160,7 @@ int32_t tizrmproxy::relinquish_all (const tiz_rm_t *ap_rm)
         rc = com::aratelia::tiz::tizrmif_proxy::relinquish_all (clnt.cname_,
                                                                 *p_uuid_vec);
       }
-      catch (DBus::Error const &e)
+      catch (Tiz::DBus::Error const &e)
       {
         TIZ_LOG (TIZ_PRIORITY_ERROR, "DBus error [%s]...", e.what ());
         rc = TIZ_RM_DBUS;
@@ -281,7 +281,7 @@ int32_t tizrmproxy::invokerm (pmf_t a_pmf, const tiz_rm_t *ap_rm,
         rc = (this->*a_pmf)(rid, quantity, clnt.cname_, *p_uuid_vec,
                             clnt.grp_id_, clnt.pri_);
       }
-      catch (DBus::Error const &e)
+      catch (Tiz::DBus::Error const &e)
       {
         TIZ_LOG (TIZ_PRIORITY_ERROR, "DBus error [%s]...", e.what ());
         rc = TIZ_RM_DBUS;

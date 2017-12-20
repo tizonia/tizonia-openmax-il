@@ -192,7 +192,7 @@ tizonia_CPPFLAGS = \
 	-I$(top_srcdir)/src/services/youtube \
 	-I/usr/include/taglib \
 	@LIBMEDIAINFO_CFLAGS@ \
-	@DBUSCPLUSPLUS_CFLAGS@ \
+	@TIZDBUSCPLUSPLUS_CFLAGS@ \
 	-D__STDC_CONSTANT_MACROS
 
 tizonia_LDADD = \
@@ -202,6 +202,6 @@ tizonia_LDADD = \
 	@BOOST_THREAD_LIB@ \
 	-ltag \
 	@LIBMEDIAINFO_LIBS@ \
-	@DBUSCPLUSPLUS_LIBS@ \
+	@TIZDBUSCPLUSPLUS_LIBS@ \
 	@TIZPLATFORM_LIBS@ \
 	@TIZCORE_LIBS@

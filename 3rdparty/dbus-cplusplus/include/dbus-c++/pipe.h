@@ -31,7 +31,7 @@
 #include <cstdlib>
 #include <sys/types.h>
 
-namespace DBus
+namespace Tiz { namespace DBus
 {
 
 class DXXAPI Pipe
@@ -66,6 +66,6 @@ private:
   friend class BusDispatcher;
 };
 
-} /* namespace DBus */
+} /* namespace DBus */ } /* namespace Tiz */
 
 #endif // DBUSXX_PIPE_H

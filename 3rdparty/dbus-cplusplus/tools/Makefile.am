@@ -1,15 +1,15 @@
 AM_CPPFLAGS = \
-	$(dbus_CFLAGS) \
-	$(xml_CFLAGS) \
+	@DBUS_CFLAGS@ \
+	@EXPAT_CFLAGS@ \
 	-I$(top_srcdir)/include \
 	-I$(top_builddir)/include \
 	-Wall
 
-libdbus_cxx_la = $(top_builddir)/src/libdbus-c++-1.la
+libtizdbus_cxx_la = $(top_builddir)/src/libtizdbus-c++.la
 
-noinst_PROGRAMS = dbusxx-xml2cpp dbusxx-introspect
+bin_PROGRAMS = tizonia-dbusxx-xml2cpp tizonia-dbusxx-introspect
 
-dbusxx_xml2cpp_SOURCES = \
+tizonia_dbusxx_xml2cpp_SOURCES = \
 	xml.h \
 	xml.cpp \
 	xml2cpp.h \
@@ -21,14 +21,13 @@ dbusxx_xml2cpp_SOURCES = \
 	generator_utils.cpp \
 	generator_utils.h
 
-dbusxx_xml2cpp_LDADD = \
-	$(xml_LIBS)
+tizonia_dbusxx_xml2cpp_LDADD = \
+	@EXPAT_LIBS@
 
-dbusxx_introspect_SOURCES = \
+tizonia_dbusxx_introspect_SOURCES = \
 	introspect.h \
 	introspect.cpp
 
-dbusxx_introspect_LDADD = \
-	$(libdbus_cxx_la) \
+tizonia_dbusxx_introspect_LDADD = \
+	$(libtizdbus_cxx_la) \
 	-lpthread
-

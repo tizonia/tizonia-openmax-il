@@ -30,7 +30,7 @@
 #include "generate_adaptor.h"
 
 using namespace std;
-using namespace DBus;
+using namespace Tiz::DBus;
 
 extern const char *tab;
 extern const char *header;
@@ -106,12 +106,12 @@ void generate_adaptor(Xml::Document &doc, const char *filename)
 
     // the code from class definiton up to opening of the constructor is generated...
     body << "class " << ifaceclass << endl
-         << ": public ::DBus::InterfaceAdaptor" << endl
+         << ": public ::Tiz::DBus::InterfaceAdaptor" << endl
          << "{" << endl
          << "public:" << endl
          << endl
          << tab << ifaceclass << "()" << endl
-         << tab << ": ::DBus::InterfaceAdaptor(\"" << ifacename << "\")" << endl
+         << tab << ": ::Tiz::DBus::InterfaceAdaptor(\"" << ifacename << "\")" << endl
          << tab << "{" << endl;
 
     // generates code to bind the properties
@@ -145,7 +145,7 @@ void generate_adaptor(Xml::Document &doc, const char *filename)
     body << tab << "}" << endl
          << endl;
 
-    body << tab << "::DBus::IntrospectedInterface *introspect() const " << endl
+    body << tab << "::Tiz::DBus::IntrospectedInterface *introspect() const " << endl
          << tab << "{" << endl;
 
     // generate the introspect arguments
@@ -154,7 +154,7 @@ void generate_adaptor(Xml::Document &doc, const char *filename)
       Xml::Node &method = **mi;
       Xml::Nodes args = method["arg"];
 
-      body << tab << tab << "static ::DBus::IntrospectedArgument " << method.get("name") << "_args[] = " << endl
+      body << tab << tab << "static ::Tiz::DBus::IntrospectedArgument " << method.get("name") << "_args[] = " << endl
            << tab << tab << "{" << endl;
 
       for (Xml::Nodes::iterator ai = args.begin(); ai != args.end(); ++ai)
@@ -179,7 +179,7 @@ void generate_adaptor(Xml::Document &doc, const char *filename)
            << tab << tab << "};" << endl;
     }
 
-    body << tab << tab << "static ::DBus::IntrospectedMethod " << ifaceclass << "_methods[] = " << endl
+    body << tab << tab << "static ::Tiz::DBus::IntrospectedMethod " << ifaceclass << "_methods[] = " << endl
          << tab << tab << "{" << endl;
 
     // generate the introspect methods
@@ -193,7 +193,7 @@ void generate_adaptor(Xml::Document &doc, const char *filename)
     body << tab << tab << tab << "{ 0, 0 }" << endl
          << tab << tab << "};" << endl;
 
-    body << tab << tab << "static ::DBus::IntrospectedMethod " << ifaceclass << "_signals[] = " << endl
+    body << tab << tab << "static ::Tiz::DBus::IntrospectedMethod " << ifaceclass << "_signals[] = " << endl
          << tab << tab << "{" << endl;
 
     for (Xml::Nodes::iterator si = signals.begin(); si != signals.end(); ++si)
@@ -206,7 +206,7 @@ void generate_adaptor(Xml::Document &doc, const char *filename)
     body << tab << tab << tab << "{ 0, 0 }" << endl
          << tab << tab << "};" << endl;
 
-    body << tab << tab << "static ::DBus::IntrospectedProperty " << ifaceclass << "_properties[] = " << endl
+    body << tab << tab << "static ::Tiz::DBus::IntrospectedProperty " << ifaceclass << "_properties[] = " << endl
          << tab << tab << "{" << endl;
 
     for (Xml::Nodes::iterator pi = properties.begin(); pi != properties.end(); ++pi)
@@ -231,7 +231,7 @@ void generate_adaptor(Xml::Document &doc, const char *filename)
          << tab << tab << "};" << endl;
 
     // generate the Introspected interface
-    body << tab << tab << "static ::DBus::IntrospectedInterface " << ifaceclass << "_interface = " << endl
+    body << tab << tab << "static ::Tiz::DBus::IntrospectedInterface " << ifaceclass << "_interface = " << endl
          << tab << tab << "{" << endl
          << tab << tab << tab << "\"" << ifacename << "\"," << endl
          << tab << tab << tab << ifaceclass << "_methods," << endl
@@ -256,7 +256,7 @@ void generate_adaptor(Xml::Document &doc, const char *filename)
       string type = property.get("type");
       string type_name = signature_to_type(type);
 
-      body << tab << "::DBus::PropertyAdaptor< " << type_name << " > " << name << ";" << endl;
+      body << tab << "::Tiz::DBus::PropertyAdaptor< " << type_name << " > " << name << ";" << endl;
     }
 
     body << endl;
@@ -431,12 +431,12 @@ void generate_adaptor(Xml::Document &doc, const char *filename)
 
       body << ")" << endl
            << tab << "{" << endl
-           << tab << tab << "::DBus::SignalMessage sig(\"" << signal.get("name") << "\");" << endl;
+           << tab << tab << "::Tiz::DBus::SignalMessage sig(\"" << signal.get("name") << "\");" << endl;
 
       // generate the signal body
       if (!args.empty())
       {
-        body << tab << tab << "::DBus::MessageIter wi = sig.writer();" << endl;
+        body << tab << tab << "::Tiz::DBus::MessageIter wi = sig.writer();" << endl;
 
         unsigned int i = 0;
         for (Xml::Nodes::iterator a = args.begin(); a != args.end(); ++a, ++i)
@@ -484,11 +484,11 @@ void generate_adaptor(Xml::Document &doc, const char *filename)
       Xml::Nodes args_in = args.select("direction", "in");
       Xml::Nodes args_out = args.select("direction", "out");
 
-      body << tab << "::DBus::Message " << stub_name(method.get("name")) << "(const ::DBus::CallMessage &call)" << endl
+      body << tab << "::Tiz::DBus::Message " << stub_name(method.get("name")) << "(const ::Tiz::DBus::CallMessage &call)" << endl
            << tab << "{" << endl;
       if(!args_in.empty())
       {
-         body << tab << tab << "::DBus::MessageIter ri = call.reader();" << endl;
+         body << tab << tab << "::Tiz::DBus::MessageIter ri = call.reader();" << endl;
          body << endl;
       }
 
@@ -649,11 +649,11 @@ void generate_adaptor(Xml::Document &doc, const char *filename)
 
       body << ");" << endl;
 
-      body << tab << tab << "::DBus::ReturnMessage reply(call);" << endl;
+      body << tab << tab << "::Tiz::DBus::ReturnMessage reply(call);" << endl;
 
       if (!args_out.empty())
       {
-        body << tab << tab << "::DBus::MessageIter wi = reply.writer();" << endl;
+        body << tab << tab << "::Tiz::DBus::MessageIter wi = reply.writer();" << endl;
 
         // generate out '<<' operation
         i = 0;

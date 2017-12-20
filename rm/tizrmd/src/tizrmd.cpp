@@ -53,8 +53,8 @@ static const char *TIZ_RM_DAEMON_NAME = "com.aratelia.tiz.tizrmd";
 // Object path, a.k.a. node
 static const char *TIZ_RM_DAEMON_PATH = "/com/aratelia/tiz/tizrmd";
 
-tizrmd::tizrmd (DBus::Connection &a_connection, char const *ap_dbname)
-  : DBus::ObjectAdaptor (a_connection, TIZ_RM_DAEMON_PATH),
+tizrmd::tizrmd (Tiz::DBus::Connection &a_connection, char const *ap_dbname)
+  : Tiz::DBus::ObjectAdaptor (a_connection, TIZ_RM_DAEMON_PATH),
     rmdb_ (ap_dbname),
     waiters_ ()
 {
@@ -196,7 +196,6 @@ int32_t tizrmd::release (const uint32_t &rid, const uint32_t &quantity,
   // Find a waiter who might want this resource...
   waitlist_t::iterator it_begin = waiters_.begin ();
   waitlist_t::iterator it_end = waiters_.end ();
-  waitlist_t::iterator it_next = it_end;
   for (waitlist_t::iterator it = it_begin; it != it_end; ++it)
   {
     tizrmwaiter &waiter = *it;
@@ -431,7 +430,7 @@ int32_t tizrmd::relinquish_all (const std::string &cname,
   return ret_val;
 }
 
-DBus::BusDispatcher dispatcher;
+Tiz::DBus::BusDispatcher dispatcher;
 
 static void tizrmd_sig_hdlr (int sig)
 {
@@ -474,9 +473,9 @@ int main ()
 
   if (find_rmdb_path (rmdb_path))
   {
-    DBus::default_dispatcher = &dispatcher;
+    Tiz::DBus::default_dispatcher = &dispatcher;
 
-    DBus::Connection conn = DBus::Connection::SessionBus ();
+    Tiz::DBus::Connection conn = Tiz::DBus::Connection::SessionBus ();
     conn.request_name (TIZ_RM_DAEMON_NAME);
 
     tizrmd server (conn, rmdb_path.c_str ());

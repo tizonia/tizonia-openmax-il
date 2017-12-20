@@ -37,7 +37,7 @@
 #include <errno.h>
 #include <cassert>
 
-using namespace DBus;
+using namespace Tiz::DBus;
 using namespace std;
 
 Pipe::Pipe(void(*handler)(const void *data, void *buffer, unsigned int nbyte), const void *data) :

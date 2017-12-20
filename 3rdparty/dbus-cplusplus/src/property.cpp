@@ -30,7 +30,7 @@
 
 #include <dbus-c++/introspection.h>
 
-using namespace DBus;
+using namespace Tiz::DBus;
 
 static const char *properties_name = "org.freedesktop.DBus.Properties";
 

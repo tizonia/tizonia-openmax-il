@@ -1,0 +1,12 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: libtizdbus-c++
+Description: Tizonia's native C++ bindings for D-Bus
+Requires: dbus-1
+Version: @PACKAGE_VERSION@
+Libs: -L${libdir} -ltizdbus-c++
+Libs.private: -ldbus-1 -lexpat -lpthread
+Cflags: -I${includedir}/tizonia/dbus-c++ -DDBUS_API_SUBJECT_TO_CHANGE

@@ -39,7 +39,7 @@
 #include "message_p.h"
 #include "pendingcall_p.h"
 
-using namespace DBus;
+using namespace Tiz::DBus;
 
 Connection::Private::Private(DBusConnection *c, Server::Private *s)
   : conn(c) , dispatcher(NULL), server(s)

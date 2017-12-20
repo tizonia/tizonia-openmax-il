@@ -33,7 +33,8 @@
 
 #include "message.h"
 
-namespace DBus
+
+namespace Tiz { namespace DBus
 {
 
 //todo: this should belong to to properties.h
@@ -179,7 +180,7 @@ protected:
 
 # define register_method(interface, method, callback) \
 	InterfaceAdaptor::_methods[ #method ] = \
-		new ::DBus::Callback< interface, ::DBus::Message, const ::DBus::CallMessage &>(this, & interface :: callback);
+          new ::Tiz::DBus::Callback< interface, ::Tiz::DBus::Message, const ::Tiz::DBus::CallMessage &>(this, & interface :: callback);
 
 # define bind_property(variable, type, can_read, can_write) \
 	InterfaceAdaptor::_properties[ #variable ].read = can_read; \
@@ -189,8 +190,8 @@ protected:
 
 # define connect_signal(interface, signal, callback) \
 	InterfaceProxy::_signals[ #signal ] = \
-		new ::DBus::Callback< interface, void, const ::DBus::SignalMessage &>(this, & interface :: callback);
+		new ::Tiz::DBus::Callback< interface, void, const ::Tiz::DBus::SignalMessage &>(this, & interface :: callback);
 
-} /* namespace DBus */
+} /* namespace DBus */ } /* namespace Tiz */
 
 #endif//__DBUSXX_INTERFACE_H

@@ -34,7 +34,7 @@
 
 #include <dbus/dbus.h>
 
-namespace DBus
+namespace Tiz { namespace DBus
 {
 
 struct DXXAPILOCAL Message::Private
@@ -48,6 +48,6 @@ struct DXXAPILOCAL Message::Private
   {}
 };
 
-} /* namespace DBus */
+} /* namespace DBus */ } /* namespace Tiz */
 
 #endif//__DBUSXX_MESSAGE_P_H

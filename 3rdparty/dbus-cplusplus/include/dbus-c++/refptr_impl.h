@@ -28,7 +28,7 @@
 #include "api.h"
 #include "util.h"
 
-namespace DBus
+namespace Tiz { namespace DBus
 {
 
 template <class T>
@@ -42,6 +42,6 @@ RefPtrI<T>::~RefPtrI()
   if (__cnt.one()) delete __ptr;
 }
 
-} /* namespace DBus */
+} /* namespace DBus */ } /* namespace Tiz */
 
 #endif//__DBUSXX_REFPTR_IMPL_H

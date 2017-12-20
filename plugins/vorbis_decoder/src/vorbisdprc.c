@@ -230,8 +230,8 @@ store_metadata (vorbisd_prc_t * ap_prc, const char * ap_header_name,
       info_len = strnlen (ap_header_info, OMX_MAX_STRINGNAME_SIZE - 1) + 1;
       metadata_len = sizeof (OMX_CONFIG_METADATAITEMTYPE) + info_len;
 
-      if (!(p_meta = (OMX_CONFIG_METADATAITEMTYPE *) tiz_mem_calloc (
-                     1, metadata_len)))
+      if (!(p_meta
+            = (OMX_CONFIG_METADATAITEMTYPE *) tiz_mem_calloc (1, metadata_len)))
         {
           rc = OMX_ErrorInsufficientResources;
         }
@@ -399,14 +399,17 @@ init_vorbis_decoder (vorbisd_prc_t * ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
   assert (ap_prc);
-  assert (!ap_prc->p_fsnd_);
 
-  ap_prc->p_fsnd_ = fish_sound_new (FISH_SOUND_DECODE, &(ap_prc->fsinfo_));
-  tiz_check_null_ret_oom (ap_prc->p_fsnd_);
+  if (!ap_prc->p_fsnd_)
+    {
+      ap_prc->p_fsnd_ = fish_sound_new (FISH_SOUND_DECODE, &(ap_prc->fsinfo_));
+      tiz_check_null_ret_oom (ap_prc->p_fsnd_);
 
-  bail_on_fish_error (fish_sound_set_decoded_float_ilv (
-                        ap_prc->p_fsnd_, fishsound_decoded_callback, ap_prc),
-                      "Could not set the 'decoded' callback.");
+      bail_on_fish_error (
+        fish_sound_set_decoded_float_ilv (ap_prc->p_fsnd_,
+                                          fishsound_decoded_callback, ap_prc),
+        "Could not set the 'decoded' callback.");
+    }
 
   rc = OMX_ErrorNone;
 

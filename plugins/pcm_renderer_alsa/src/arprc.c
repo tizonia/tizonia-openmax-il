@@ -373,9 +373,10 @@ get_alsa_mixer (ar_prc_t * ap_prc)
 static bool
 using_null_alsa_device (ar_prc_t * ap_prc)
 {
-  return (0 == strncmp (get_alsa_device (ap_prc),
-                        ARATELIA_AUDIO_RENDERER_NULL_ALSA_DEVICE,
-                        OMX_MAX_STRINGNAME_SIZE));
+  return (0
+          == strncmp (get_alsa_device (ap_prc),
+                      ARATELIA_AUDIO_RENDERER_NULL_ALSA_DEVICE,
+                      OMX_MAX_STRINGNAME_SIZE));
 }
 
 static inline OMX_ERRORTYPE
@@ -822,9 +823,9 @@ arrange_samples_buffer (ar_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * ap_hdr,
           int j = 0;
           while (j < ap_prc->num_channels_supported_)
             {
-              if (a_sample_size != tiz_buffer_push (ap_prc->p_sample_buf_,
-                                                    p_hdr_buf + (a_step * i),
-                                                    a_sample_size))
+              if (a_sample_size
+                  != tiz_buffer_push (ap_prc->p_sample_buf_,
+                                      p_hdr_buf + (a_step * i), a_sample_size))
                 {
                   TIZ_ERROR (handleOf (ap_prc),
                              "Unable to copy all sample data into the buffer");

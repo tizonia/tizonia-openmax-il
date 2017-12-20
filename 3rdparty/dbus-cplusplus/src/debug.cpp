@@ -52,5 +52,5 @@ static void _debug_log_default(const char *format, ...)
 //#endif//DEBUG
 }
 
-DBus::LogFunction DBus::debug_log = _debug_log_default;
+Tiz::DBus::LogFunction Tiz::DBus::debug_log = _debug_log_default;
 

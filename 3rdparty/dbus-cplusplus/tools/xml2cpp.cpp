@@ -34,7 +34,7 @@
 #include "generate_proxy.h"
 
 using namespace std;
-using namespace DBus;
+using namespace Tiz::DBus;
 
 //typedef map<string,string> TypeCache;
 

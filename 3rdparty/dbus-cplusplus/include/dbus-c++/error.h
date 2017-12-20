@@ -30,7 +30,7 @@
 
 #include <exception>
 
-namespace DBus
+namespace Tiz { namespace DBus
 {
 
 class Message;
@@ -281,6 +281,6 @@ struct DXXAPI ErrorSELinuxSecurityContextUnknown : public Error
   {}
 };
 
-} /* namespace DBus */
+} /* namespace DBus */ } /* namespace Tiz */
 
 #endif//__DBUSXX_ERROR_H

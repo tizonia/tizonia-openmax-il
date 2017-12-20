@@ -86,7 +86,9 @@ namespace
 {
   const int TIZ_MAX_BITRATE_MODES = 2;
   bool gb_daemon_mode = false;
-  struct termios old_term, new_term;
+  bool gb_termios_inited = false;
+  struct termios old_term = (const struct termios) { 0 };
+  struct termios new_term;
 
   enum ETIZPlayUserInput
   {
@@ -104,11 +106,16 @@ namespace
     new_term.c_lflag &= echo ? ECHO : ~ECHO; /* set echo mode */
     tcsetattr (0, TCSANOW,
                &new_term); /* use these new terminal i/o settings now */
+    gb_termios_inited = true;
   }
 
   void player_reset_termios (void)
   {
-    tcsetattr (0, TCSANOW, &old_term);
+    if (gb_termios_inited)
+      {
+        gb_termios_inited = false;
+        tcsetattr (0, TCSANOW, &old_term);
+      }
   }
 
   char getch_ (int echo)

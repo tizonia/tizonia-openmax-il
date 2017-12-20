@@ -33,7 +33,7 @@
 #include "connection_p.h"
 #include "dispatcher_p.h"
 
-using namespace DBus;
+using namespace Tiz::DBus;
 
 Server::Private::Private(DBusServer *s)
   : server(s)

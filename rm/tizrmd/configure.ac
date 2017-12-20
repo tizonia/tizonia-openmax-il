@@ -16,7 +16,7 @@
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
 AC_PREREQ([2.68])
-AC_INIT([tizrmd], [0.10.0],[juan.rubio@aratelia.com])
+AC_INIT([tizrmd], [0.11.0],[juan.rubio@aratelia.com])
 AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
 AC_CONFIG_SRCDIR([config.h.in])
@@ -41,12 +41,22 @@ LT_INIT
 
 PKG_PROG_PKG_CONFIG()
 
-AC_SUBST([DBUSCPLUSPLUS_CFLAGS], ['-I$(top_srcdir)/../../3rdparty/dbus-cplusplus/include'])
-AC_SUBST([DBUSCPLUSPLUS_LIBS], ['$(top_builddir)/../../3rdparty/dbus-cplusplus/src/libdbus-c++-1.la'])
-AC_SUBST([DBUSXML2CPP], ['$(top_builddir)/../../3rdparty/dbus-cplusplus/tools/dbusxx-xml2cpp'])
-
 AX_BOOST_BASE([1.46],, [AC_MSG_ERROR([tizrmd needs Boost 1.46])])
 AX_LIB_SQLITE3([3.7.1])
+
+AC_LANG_PUSH([C++])
+AC_CHECK_HEADERS([tizonia/dbus-c++/dbus.h],
+	[tiz_found_dbuscplusplus_headers=yes; break;])
+AC_LANG_POP([C++])
+AS_IF([test "x$tiz_found_dbuscplusplus_headers" != "xyes"],
+	[AC_SUBST([TIZDBUSCPLUSPLUS_CFLAGS], ['-I$(top_srcdir)/../../3rdparty/dbus-cplusplus/include'])
+	AC_SUBST([TIZDBUSCPLUSPLUS_LIBS], ['$(top_builddir)/../../3rdparty/dbus-cplusplus/tizonia/libtizdbus-c++.la'])
+        AC_SUBST([TIZDBUSXML2CPP], ['$(top_builddir)/../../3rdparty/dbus-cplusplus/tools/tizonia-dbusxx-xml2cpp'])],
+	[AC_MSG_NOTICE([Not substituting TIZDBUSCPLUSPLUS cflags and libs with local paths])])
+AS_IF([test "x$tiz_found_dbuscplusplus_headers" == "xyes"],
+	[PKG_CHECK_MODULES([TIZDBUSCPLUSPLUS], [libtizdbus-c++ >= 0.11.0])
+        AC_SUBST([TIZDBUSXML2CPP], ['tizonia-dbusxx-xml2cpp'])],
+	[AC_MSG_NOTICE([Not using pkg-config to find TIZDBUSCPLUSPLUS cflags and libs])])
 
 AC_CHECK_HEADERS([tizonia/OMX_Core.h tizonia/OMX_Component.h],
 	[tiz_found_omx_headers=yes; break;])
@@ -74,13 +84,6 @@ AC_LANG_PUSH([C++])
 AC_CHECK_HEADERS([boost/foreach.hpp], [],
     [AC_MSG_ERROR(You need the Boost libraries.)])
 AC_LANG_POP([C++])
-
-DBUS_REQUIRED_VERSION=0.60
-PKG_CHECK_MODULES(dbus, [dbus-1 >= $DBUS_REQUIRED_VERSION],,
-	AC_MSG_ERROR([You need the DBus libraries (version 0.6 or better)]
-	[http://www.freedesktop.org/wiki/Software_2fdbus]))
-PKG_CHECK_MODULES([DBUS], [dbus-c++-1 >= 0.6.0-pre1])
-
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_MODE_T

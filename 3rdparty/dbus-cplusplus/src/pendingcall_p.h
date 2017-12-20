@@ -34,7 +34,7 @@
 
 #include <dbus/dbus.h>
 
-namespace DBus
+namespace Tiz { namespace DBus
 {
 
 struct DXXAPILOCAL PendingCall::Private
@@ -50,6 +50,6 @@ struct DXXAPILOCAL PendingCall::Private
   static void notify_stub(DBusPendingCall *dpc, void *data);
 };
 
-} /* namespace DBus */
+} /* namespace DBus */ } /* namespace Tiz */
 
 #endif//__DBUSXX_PENDING_CALL_P_H

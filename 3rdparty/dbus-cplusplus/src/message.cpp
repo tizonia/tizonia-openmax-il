@@ -33,7 +33,7 @@
 #include "internalerror.h"
 #include "message_p.h"
 
-using namespace DBus;
+using namespace Tiz::DBus;
 
 /*
 */

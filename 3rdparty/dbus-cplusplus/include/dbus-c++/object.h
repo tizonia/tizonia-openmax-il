@@ -34,7 +34,7 @@
 #include "message.h"
 #include "types.h"
 
-namespace DBus
+namespace Tiz { namespace DBus
 {
 
 class DXXAPI Object
@@ -230,6 +230,6 @@ const ObjectProxy *ObjectProxy::object() const
   return this;
 }
 
-} /* namespace DBus */
+} /* namespace DBus */ } /* namespace Tiz */
 
 #endif//__DBUSXX_OBJECT_H

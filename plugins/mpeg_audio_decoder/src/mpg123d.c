@@ -149,7 +149,7 @@ static OMX_PTR instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
   pcmmode.nPortIndex = ARATELIA_MPG123_DECODER_OUTPUT_PORT_INDEX;
   pcmmode.nChannels = 2;
   pcmmode.eNumData = OMX_NumericalDataSigned;
-  pcmmode.eEndian = OMX_EndianBig;
+  pcmmode.eEndian = OMX_EndianLittle;
   pcmmode.bInterleaved = OMX_TRUE;
   pcmmode.nBitPerSample = 16;
   pcmmode.nSamplingRate = 48000;

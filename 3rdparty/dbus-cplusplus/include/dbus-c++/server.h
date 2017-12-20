@@ -33,7 +33,7 @@
 #include "util.h"
 #include "dispatcher.h"
 
-namespace DBus
+namespace Tiz { namespace DBus
 {
 
 class Server;
@@ -70,6 +70,6 @@ private:
   RefPtrI<Private> _pvt;
 };
 
-} /* namespace DBus */
+} /* namespace DBus */ } /* namespace Tiz */
 
 #endif//__DBUSXX_SERVER_H

@@ -36,7 +36,7 @@
 #include <iostream>
 #include <sstream>
 
-namespace DBus
+namespace Tiz { namespace DBus
 {
 
 namespace Xml
@@ -136,9 +136,9 @@ private:
 
 } /* namespace Xml */
 
-} /* namespace DBus */
+} /* namespace DBus */ } /* namespace Tiz */
 
-std::istream &operator >> (std::istream &, DBus::Xml::Document &);
-std::ostream &operator << (std::ostream &, DBus::Xml::Document &);
+std::istream &operator >> (std::istream &, Tiz::DBus::Xml::Document &);
+std::ostream &operator << (std::ostream &, Tiz::DBus::Xml::Document &);
 
 #endif//__DBUSXX_XML_H

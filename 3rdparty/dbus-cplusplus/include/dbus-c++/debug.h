@@ -27,13 +27,13 @@
 
 #include "api.h"
 
-namespace DBus
+namespace Tiz { namespace DBus
 {
 
 typedef void (*LogFunction)(const char *format, ...);
 
 extern DXXAPI LogFunction debug_log;
 
-} /* namespace DBus */
+} /* namespace DBus */ } /* namespace Tiz */
 
 #endif
