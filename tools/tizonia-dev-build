@@ -103,17 +103,14 @@ function build_project {
     fi
     exit_status="${PIPESTATUS[0]}"
     if [[ "$exit_status" != 0 ]]; then
-        grep -q 'internal compiler error' "$buildlog"
-        if [[ "$?" -eq 0 ]]; then
-            if [[ -z "$install_option" ]]; then
-                print_banner "Building [$TIZONIA_PROJ_NAME] [2nd pass, 1 job]" "$GRN"
-                eval "$bearcmd" "$bearopt" make -s -j1 V=0
-            else
-                print_banner "Installing [$TIZONIA_PROJ_NAME] [2nd pass, 1 job]" "$GRN"
-                eval "$bearcmd" "$bearopt" make -s -j1 V=0 install
-            fi
-            exit_status="$?"
+        if [[ -z "$install_option" ]]; then
+            print_banner "Building [$TIZONIA_PROJ_NAME] [2nd pass, 1 job]" "$GRN"
+            eval "$bearcmd" "$bearopt" make -s -j1 V=0 | tee -a "$buildlog"
+        else
+            print_banner "Installing [$TIZONIA_PROJ_NAME] [2nd pass, 1 job]" "$GRN"
+            eval "$bearcmd" "$bearopt" make -s -j1 V=0 install | tee -a "$buildlog"
         fi
+        exit_status="$?"
     fi
     rm -f "$buildlog"
     return "$exit_status"
