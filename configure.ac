@@ -68,6 +68,11 @@ AC_ARG_WITH(alsa,
         [build the ALSA-based OpenMAX IL plugin (default: yes)]),,
     with_alsa=yes)
 
+AC_ARG_WITH(aac,
+    AS_HELP_STRING([--with-aac],
+        [build the AAC-based OpenMAX IL plugin (default: yes)]),,
+    with_aac=yes)
+
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_SUBDIRS([3rdparty
                    include
