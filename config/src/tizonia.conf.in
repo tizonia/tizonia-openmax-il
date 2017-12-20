@@ -89,7 +89,7 @@ mpris-enabled = false
 # configure your SoundCloud OAuth token here.
 #
 # To obtain your OAuth token, Tizonia needs to be granted access to your
-# SoundCloud account. Visit http://www.tizonia.org/soundcloud for the
+# SoundCloud account. Visit http://tizonia.org/docs/soundcloud/ for the
 # details.
 #
 # soundcloud.oauth_token = X-XXXXXX-XXXXXXXX-XXXXXXXXXXXXXX

@@ -47,7 +47,7 @@ namespace tiz
 
     };
 
-    class pcmdecops : public ops
+    class pcmdecops : public decops
     {
     public:
       pcmdecops (graph *p_graph, const omx_comp_name_lst_t &comp_lst,
@@ -56,7 +56,6 @@ namespace tiz
     public:
       void do_probe ();
       bool is_port_settings_evt_required () const;
-      bool is_disabled_evt_required () const;
       void do_configure ();
 
     protected:

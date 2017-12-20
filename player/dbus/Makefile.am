@@ -31,4 +31,4 @@ noinst_HEADERS = \
 xml_files = mpris_introspect.xml
 
 mpris_dbus.hpp: $(xml_files)
-	dbusxx-xml2cpp $^ --adaptor=$@
+	@TIZDBUSXML2CPP@ $^ --adaptor=$@

@@ -53,13 +53,13 @@
 #include "tizrmowner.hpp"
 
 class tizrmd : public com::aratelia::tiz::tizrmif_adaptor,
-               public DBus::IntrospectableAdaptor,
-               public DBus::ObjectAdaptor
+               public Tiz::DBus::IntrospectableAdaptor,
+               public Tiz::DBus::ObjectAdaptor
 
 {
 
 public:
-  tizrmd (DBus::Connection &connection, char const *ap_dbname);
+  tizrmd (Tiz::DBus::Connection &connection, char const *ap_dbname);
   ~tizrmd ();
 
   /**

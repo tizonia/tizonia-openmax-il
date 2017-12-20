@@ -4,10 +4,10 @@ Priority: optional
 Maintainer: Juan A. Rubio <juan.rubio@aratelia.com>
 Build-Depends: debhelper (>= 8.0.0),
                dh-autoreconf,
+               libtizdbus-c++-dev,
                tizilheaders,
                libtizplatform-dev,
-               libdbus-1-dev,
-               libdbus-c++-dev
+               libdbus-1-dev
 Standards-Version: 3.9.4
 Homepage: http://tizonia.org
 Vcs-Git: git://github.com/tizonia/tizonia-openmax-il.git
@@ -32,7 +32,11 @@ Description: Tizonia's resource manager daemon
 Package: tizrmd-dev
 Section: libdevel
 Architecture: any
-Depends: tizrmd (= ${binary:Version}), libtizplatform-dev, tizilheaders, check
+Depends: tizrmd (= ${binary:Version}),
+         tizilheaders,
+         libtizplatform-dev,
+         libtizdbus-c++-dev,
+         check
 Description: Tizonia's platform library, development files
  Tizonia's resource manager daemon.
  .

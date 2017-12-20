@@ -16,7 +16,7 @@
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
 AC_PREREQ([2.68])
-AC_INIT([tizonia-player], [0.10.0], [juan.rubio@aratelia.com])
+AC_INIT([tizonia-player], [0.11.0], [juan.rubio@aratelia.com])
 AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE([foreign color-tests silent-rules subdir-objects -Wextra -Werror])
 AC_CONFIG_SRCDIR([config.h.in])
@@ -43,13 +43,22 @@ AX_BOOST_SYSTEM
 AX_BOOST_FILESYSTEM
 AX_BOOST_THREAD
 
-DBUS_REQUIRED_VERSION=0.60
-PKG_CHECK_MODULES(dbus, [dbus-1 >= $DBUS_REQUIRED_VERSION],,
-	AC_MSG_ERROR([You need the DBus libraries (version 0.6 or better)]
-	[http://www.freedesktop.org/wiki/Software_2fdbus]))
-PKG_CHECK_MODULES([DBUS], [dbus-c++-1 >= 0.6.0-pre1])
 PKG_CHECK_MODULES([TAGLIB], [taglib >= 1.7.0])
 PKG_CHECK_MODULES([LIBMEDIAINFO], [libmediainfo >= 0.7.65])
+
+AC_LANG_PUSH([C++])
+AC_CHECK_HEADERS([tizonia/dbus-c++/dbus.h],
+	[tiz_found_dbuscplusplus_headers=yes; break;])
+AC_LANG_POP([C++])
+AS_IF([test "x$tiz_found_dbuscplusplus_headers" != "xyes"],
+	[AC_SUBST([TIZDBUSCPLUSPLUS_CFLAGS], ['-I$(top_srcdir)/../3rdparty/dbus-cplusplus/include'])
+	AC_SUBST([TIZDBUSCPLUSPLUS_LIBS], ['$(top_builddir)/../3rdparty/dbus-cplusplus/tizonia/libtizdbus-c++.la'])
+	AC_SUBST([TIZDBUSXML2CPP], ['$(top_builddir)/../3rdparty/dbus-cplusplus/tools/tizonia-dbusxx-xml2cpp'])],
+	[AC_MSG_NOTICE([Not substituting TIZDBUSCPLUSPLUS cflags and libs with local paths])])
+AS_IF([test "x$tiz_found_dbuscplusplus_headers" == "xyes"],
+	[PKG_CHECK_MODULES([TIZDBUSCPLUSPLUS], [libtizdbus-c++ >= 0.11.0])
+        AC_SUBST([TIZDBUSXML2CPP], ['tizonia-dbusxx-xml2cpp'])],
+	[AC_MSG_NOTICE([Not using pkg-config to find TIZDBUSCPLUSPLUS cflags and libs])])
 
 AC_CHECK_HEADERS([tizonia/OMX_Core.h tizonia/OMX_Component.h],
 	[tiz_found_omx_headers=yes; break;])
@@ -80,6 +89,16 @@ AS_IF([test "x$tiz_found_core_lib" != "xyes"],
 AS_IF([test "x$tiz_found_core_lib" == "xyes"],
 	[PKG_CHECK_MODULES([TIZCORE], [libtizcore >= 0.1.0])],
 	[AC_MSG_NOTICE([Not using pkg-config to find TIZCORE cflags and libs])])
+
+AC_CHECK_HEADERS([tizonia/tizrmproxytypes.h],
+	[tiz_found_rmproxy_headers=yes; break;])
+AS_IF([test "x$tiz_found_rmproxy_headers" != "xyes"],
+	[AC_SUBST([TIZRMPROXY_CFLAGS], ['-I$(top_srcdir)/../rm/libtizrmproxy/tizonia'])
+	AC_SUBST([TIZRMPROXY_LIBS], ['$(top_builddir)/../rm/libtizrmproxy/tizonia/libtizrmproxy.la'])],
+	[AC_MSG_NOTICE([Not substituting TIZRMPROXY cflags and libs with local paths])])
+AS_IF([test "x$tiz_found_rmproxy_headers" == "xyes"],
+	[PKG_CHECK_MODULES([TIZRMPROXY], [libtizrmproxy >= 0.1.0])],
+	[AC_MSG_NOTICE([Not using pkg-config to find TIZRMPROXY cflags and libs])])
 
 AC_ARG_WITH([bashcompletiondir],
         AS_HELP_STRING([--with-bashcompletiondir=DIR], [Bash completions directory]),

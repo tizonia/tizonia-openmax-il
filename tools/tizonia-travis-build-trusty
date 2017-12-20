@@ -51,6 +51,7 @@ declare -ar SKEMA_EXEMPT_SUITES=( \
     'OggOpusMux' \
     'Vp8Playback' \
     'WebmVp8Playback' \
+    'Mp3StreamingClientPortAutoDetect' \
 )
 
 # A list of skema test suites that should be executed without the --quiet flag
@@ -170,7 +171,6 @@ function install_deps {
         liblog4c-dev \
         libasound2-dev \
         libdbus-1-dev \
-        libdbus-c++-dev \
         libsqlite3-dev \
         libboost-all-dev \
         uuid-dev \

@@ -63,9 +63,9 @@ struct tizrm
   tiz_rm_error_t error;
   tiz_rm_state_t state;
   OMX_S32 ref_count;
-  DBus::DefaultTimeout *p_dbustimeout;
-  DBus::BusDispatcher *p_dispatcher;
-  DBus::Connection *p_connection;
+  Tiz::DBus::DefaultTimeout *p_dbustimeout;
+  Tiz::DBus::BusDispatcher *p_dispatcher;
+  Tiz::DBus::Connection *p_connection;
   tizrmproxy *p_proxy;
 };
 
@@ -212,17 +212,17 @@ tiz_rm_proxy_init(tiz_rm_t * ap_rm, const OMX_STRING ap_name,
       || ETIZRmStateStopped == p_rm->state)
     {
 
-      DBus::_init_threading();
+      Tiz::DBus::_init_threading();
 
-      p_rm->p_dispatcher    = new DBus::BusDispatcher();
-      DBus::default_dispatcher = p_rm->p_dispatcher;
+      p_rm->p_dispatcher    = new Tiz::DBus::BusDispatcher();
+      Tiz::DBus::default_dispatcher = p_rm->p_dispatcher;
 
       /* Increase DBus-C++ frequency */
       p_rm->p_dbustimeout =
-        new DBus::DefaultTimeout(100, false, p_rm->p_dispatcher);
+        new Tiz::DBus::DefaultTimeout(100, false, p_rm->p_dispatcher);
 
       p_rm->p_connection =
-        new DBus::Connection(DBus::Connection::SessionBus());
+        new Tiz::DBus::Connection(Tiz::DBus::Connection::SessionBus());
       p_rm->p_proxy      = new tizrmproxy(*(p_rm->p_connection),
                                           TIZ_RM_DAEMON_PATH,
                                           TIZ_RM_DAEMON_NAME);

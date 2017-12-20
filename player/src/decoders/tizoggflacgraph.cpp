@@ -79,7 +79,7 @@ graph::ops *graph::oggflacdecoder::do_init ()
 graph::oggflacdecops::oggflacdecops (graph *p_graph,
                                      const omx_comp_name_lst_t &comp_lst,
                                      const omx_comp_role_lst_t &role_lst)
-  : tiz::graph::ops (p_graph, comp_lst, role_lst),
+  : tiz::graph::decops (p_graph, comp_lst, role_lst),
     need_port_settings_changed_evt_ (false)
 {
 }

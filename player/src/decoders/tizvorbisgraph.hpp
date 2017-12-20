@@ -44,7 +44,6 @@ namespace tiz
 
     protected:
       ops *do_init ();
-
     };
 
     class vorbisdecops : public ops
@@ -62,6 +61,7 @@ namespace tiz
 
     protected:
       OMX_ERRORTYPE set_vorbis_settings ();
+      void get_pcm_codec_info (OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype);
 
     protected:
       bool need_port_settings_changed_evt_;

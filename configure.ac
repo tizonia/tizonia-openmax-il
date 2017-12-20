@@ -16,7 +16,7 @@
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
 AC_PREREQ([2.67])
-AC_INIT([tizonia], [0.10.0], [juan.rubio@aratelia.com])
+AC_INIT([tizonia], [0.11.0], [juan.rubio@aratelia.com])
 AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
 AC_CONFIG_SRCDIR([include/omxil-1.2/OMX_Core.h])
 AC_CONFIG_HEADERS([config.h])
@@ -69,7 +69,8 @@ AC_ARG_WITH(alsa,
     with_alsa=yes)
 
 AC_CONFIG_FILES([Makefile])
-AC_CONFIG_SUBDIRS([include
+AC_CONFIG_SUBDIRS([3rdparty
+                   include
                    clients
                    libtizplatform
                    cast

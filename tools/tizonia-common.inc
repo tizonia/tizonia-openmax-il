@@ -35,6 +35,7 @@ readonly CYA=6
 readonly WHI=7
 
 declare -Ar TIZ_PROJECT_DIRS=( \
+    [tizdbus-c++]="3rdparty/dbus-cplusplus" \
     [tizilheaders]="include" \
     [tizgmusicproxy]="clients/gmusic/gmusicproxy" \
     [tizgmusic]="clients/gmusic/libtizgmusic" \
@@ -76,6 +77,7 @@ declare -Ar TIZ_PROJECT_DIRS=( \
 
 readonly TIZ_PROJECTS=(${!TIZ_PROJECT_DIRS[@]})
 readonly TIZ_PROJECTS_ORDERED=( \
+    tizdbus-c++ \
     tizilheaders \
     tizgmusicproxy \
     tizgmusic \

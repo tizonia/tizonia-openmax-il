@@ -3,6 +3,7 @@
 
 
 - [Building from Source](#building-from-source)
+  - [Prerequisites](#prerequisites)
   - [Dependencies](#dependencies)
   - [Building](#building)
     - ['Debug' variant](#debug-variant)
@@ -22,13 +23,32 @@
 
 ## Building from Source ##
 
-To build and install from source, follow these steps (Ubuntu 16.04 is assumed,
-but should work on other recent Debian-based distros).
+To build and install from source, please read the following sections. Ubuntu
+16.04 is assumed, but should work on other recent Debian-based distros.
+
+### Prerequisites ###
+
+Please make sure you have enough RAM available on your system to build
+Tizonia. A good 6GB of free RAM may be needed if you are planning to build
+everything, including the 'tizonia' player program. That means, if you have 8GB
+of physical RAM, you might encounter problems if you are trying to run the
+compilation while large programs like Chrome or Firefox are running. See [Known
+issues](#known-issues) for the kind of errors that you might encounter in those
+cases. Also look at [Conditional compilation of
+sub-projects](#conditional-compilation-of-sub-projects) for instructions on how
+to disable certain parts of the software.
+
+> NOTE: Also make sure you have some time in your hands. Building Tizonia may
+  take at least 20 minutes on a fast SSD-based system. You may want to look at
+  [Speeding up (re-)compilation using
+  ccache](#speeding-up-re-compilation-using-ccache) if you are planning to
+  build the Tizonia tree multiple times.
+
 
 ### Dependencies ###
 
 To install all the development dependencies, the `tizonia-dev-build` tool is
-the easiest way. This script lives under the `tools` directory and internally
+the recommended way. This script lives under the `tools` directory and internally
 maintains an up-to-date list of all the packages that are required in a
 Debian-compatible system to build Tizonia from source.
 
@@ -83,6 +103,9 @@ appropriate for a Debian/Ubuntu system, builds the whole repo, then using
 [checkinstall](https://debian-administration.org/article/147/Installing_packages_from_source_code_with_checkinstall)
 creates a single Debian package and installs it in the system. The package can
 then be removed via 'dpkg' or even moved to another machine for testing.
+
+> NOTE: This is the best way to build Tizonia if all you want is to install it
+  on a system that for which there are no official binaries.
 
 > NOTE: This is not how the Debian packages hosted on Bintray are created. The
   packages hosted on Bintray are fully 'debianized' packages created using the

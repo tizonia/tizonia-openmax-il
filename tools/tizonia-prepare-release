@@ -58,20 +58,20 @@
 source tizonia-common.inc
 
 # Constants
-readonly TIZONIA_OLD_PACKAGE_VER="0.9.0"
+readonly TIZONIA_OLD_PACKAGE_VER="0.10.0"
 readonly TIZONIA_NEW_PACKAGE_VER="$TIZONIA_RELEASE_VERSION"
 
-readonly TIZONIA_PLUGIN_OLD_SHLIB_VER="0:9:0"
-readonly TIZONIA_PLUGIN_NEW_SHLIB_VER="0:10:0"
+readonly TIZONIA_PLUGIN_OLD_SHLIB_VER="0:10:0"
+readonly TIZONIA_PLUGIN_NEW_SHLIB_VER="0:11:0"
 
-readonly TIZONIA_OLD_SHLIB_VER="0:9:0"
-readonly TIZONIA_NEW_SHLIB_VER="0:10:0"
+readonly TIZONIA_OLD_SHLIB_VER="0:10:0"
+readonly TIZONIA_NEW_SHLIB_VER="0:11:0"
 
-readonly TIZONIA_PYTHON_OLD_MODULE_VER="0.9.0"
-readonly TIZONIA_PYTHON_NEW_MODULE_VER="0.10.0"
+readonly TIZONIA_PYTHON_OLD_MODULE_VER="0.10.0"
+readonly TIZONIA_PYTHON_NEW_MODULE_VER="0.11.0"
 
 readonly TIZONIA_DEBIAN_CHANGELOG_VER="$TIZONIA_NEW_PACKAGE_VER"
-readonly TIZONIA_DEBIAN_CHANGELOG_CLOSING_BUG="383"
+readonly TIZONIA_DEBIAN_CHANGELOG_CLOSING_BUG="419"
 
 # Program dependencies
 declare -ar TIZONIA_PREPARE_RELEASE_DEPS=( \
@@ -91,7 +91,7 @@ function update_package_versions {
     local NEW_VER="$TIZONIA_NEW_PACKAGE_VER"
     local OLD_VER_QUOTED=$(echo "$OLD_VER" | sed -r 's/\./\\./g')
     perl -i -p -e "s/(?<=AC_INIT)(.*)\s\[$OLD_VER_QUOTED\]/\1 [$NEW_VER]/g" \
-        $(find "$TIZONIA_REPO_DIR" -type f \( -path "./tools/*" -prune \) -o \( -name '*.ac' \) -print)
+        $(find -L "$TIZONIA_REPO_DIR" -type f \( -path "./tools/*" -prune \) -o \( -name '*.ac' \) -print)
     pretty_print "$BLU" "[DONE] : updating package versions."
 }
 
@@ -101,7 +101,7 @@ function update_shared_lib_versions {
     local OLD_VER="$TIZONIA_OLD_SHLIB_VER"
     local NEW_VER="$TIZONIA_NEW_SHLIB_VER"
     perl -i -p -e "s/(?<=SHARED_VERSION_INFO=\")$OLD_VER/$NEW_VER/g" \
-        $(find . -type f \( -path "./plugins/*" -prune \) -o \
+        $(find -L . -type f \( -path "./plugins/*" -prune \) -o \
         \( -path "./tools/*" -prune \) -o \
         \( -name '*.ac' \) -print)
     pretty_print "$BLU" "[DONE] : updating shared lib versions."
@@ -113,7 +113,7 @@ function update_plugin_shared_lib_versions {
     local OLD_VER="$TIZONIA_PLUGIN_OLD_SHLIB_VER"
     local NEW_VER="$TIZONIA_PLUGIN_NEW_SHLIB_VER"
     perl -i -p -e "s/(?<=SHARED_VERSION_INFO=\")$OLD_VER/$NEW_VER/g" \
-        $(find . -type f \( -path "./tools/*" -prune \) -o \( -name '*.ac' \) -print)
+        $(find -L . -type f \( -path "./tools/*" -prune \) -o \( -name '*.ac' \) -print)
     pretty_print "$BLU" "[DONE] : updating plugins shared lib versions."
 }
 
@@ -123,7 +123,7 @@ function update_python_version_strings {
     local OLD_VER="$TIZONIA_PYTHON_OLD_MODULE_VER"
     local NEW_VER="$TIZONIA_PYTHON_NEW_MODULE_VER"
     perl -i -p -e "s/$OLD_VER/$NEW_VER/g" \
-        $(find . -type f \( -path "./tools/*" -prune \) -o \( -name '_version.py' \) -print)
+        $(find -L . -type f \( -path "./tools/*" -prune \) -o \( -name '_version.py' \) -print)
     pretty_print "$BLU" "[DONE] : updating python version strings."
 }
 
@@ -146,7 +146,7 @@ function update_doxygen_doc_version_strings {
     local OLD_VER="$TIZONIA_OLD_PACKAGE_VER"
     local NEW_VER="$TIZONIA_NEW_PACKAGE_VER"
     perl -i -p -e "s/$OLD_VER/$NEW_VER/g" \
-        $(find "$TIZONIA_REPO_DIR" -type f -name 'doxyfile.rtd' -print)
+        $(find -L "$TIZONIA_REPO_DIR" -type f -name 'doxyfile.rtd' -print)
     pretty_print "$BLU" "[DONE] : updating Doxygen doc versions."
 }
 
@@ -156,7 +156,7 @@ function update_sphinx_doc_version_strings {
     local OLD_VER="$TIZONIA_OLD_PACKAGE_VER"
     local NEW_VER="$TIZONIA_NEW_PACKAGE_VER"
     perl -i -p -e "s/$OLD_VER/$NEW_VER/g" \
-        $(find "$TIZONIA_REPO_DIR" -type f -name 'conf.py' -print)
+        $(find -L "$TIZONIA_REPO_DIR" -type f -name 'conf.py' -print)
     pretty_print "$BLU" "[DONE] : updating Sphinx doc versions."
 }
 

@@ -67,8 +67,8 @@ namespace
   {
     std::string bus_name (TIZONIA_MPRIS_BUS_NAME);
     // Append the process id to make a unique bus name
-    //     bus_name.append (".");
-    //     bus_name.append (boost::lexical_cast< std::string >(getpid ()));
+    bus_name.append (".pid-");
+    bus_name.append (boost::lexical_cast< std::string >(getpid ()));
     return bus_name;
   }
 
@@ -167,7 +167,7 @@ control::mprismgr::init ()
   tiz_check_omx_ret_oom (tiz_sem_wait (&sem_));
 
   // Create the DBus dispatcher
-  p_dispatcher_ = new DBus::BusDispatcher ();
+  p_dispatcher_ = new Tiz::DBus::BusDispatcher ();
   tiz_check_null_ret_oom (p_dispatcher_);
 
   return OMX_ErrorNone;
@@ -278,11 +278,11 @@ bool control::mprismgr::dispatch_cmd (control::mprismgr *p_mgr,
     if (p_cmd->is_start ())
     {
       TIZ_LOG (TIZ_PRIORITY_TRACE, "MPRIS processing START cmd...");
-      DBus::default_dispatcher = p_mgr->p_dispatcher_;
+      Tiz::DBus::default_dispatcher = p_mgr->p_dispatcher_;
       p_mgr->p_dbus_timeout_
-          = new DBus::DefaultTimeout (100, false, p_mgr->p_dispatcher_);
+          = new Tiz::DBus::DefaultTimeout (100, false, p_mgr->p_dispatcher_);
       p_mgr->p_dbus_connection_
-          = new DBus::Connection (DBus::Connection::SessionBus ());
+          = new Tiz::DBus::Connection (Tiz::DBus::Connection::SessionBus ());
       p_mgr->p_dbus_connection_->request_name (get_unique_bus_name ().c_str ());
       mprisif mif (*(p_mgr->p_dbus_connection_), p_mgr->props_,
                    p_mgr->player_props_, p_mgr->cbacks_);

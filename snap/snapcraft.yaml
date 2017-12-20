@@ -54,7 +54,6 @@ parts:
       - liblog4c-dev
       - libasound2-dev
       - libdbus-1-dev
-      - libdbus-c++-dev
       - libsqlite3-dev
       - libboost-all-dev
       - uuid-dev
@@ -62,12 +61,9 @@ parts:
       - libvpx-dev
       - libmp3lame-dev
       - libfaad-dev
-      - libev-dev
       - libtag1-dev
       - libfishsound1-dev
       - libmediainfo-dev
-      - libcurl3
-      - libcurl4-openssl-dev
       - libpulse-dev
       - libmpg123-dev
       - libvorbis-dev
@@ -77,9 +73,10 @@ parts:
       - libflac-dev
       - liboggz2-dev
       - libsndfile1-dev
-      - libspotify-dev
       - libffi-dev
       - libssl-dev
+      - libspotify-dev
+      - libexpat1-dev
       - python-dev
       - python-setuptools
       - python-pip
@@ -92,9 +89,7 @@ parts:
       - python-mutagen
       - python-crypto
       - python-requests
-      - curl
       - check
-      - wget
       - sqlite3
       - dbus-x11
     after:
@@ -117,8 +112,6 @@ parts:
       - libasound2
       - libpulse0
       - libdbus-1-3
-      - libdbus-c++-1-0v5
-      - libdbus-c++-bin
       - libsqlite3-0
       - libboost-all-dev
       - uuid-runtime

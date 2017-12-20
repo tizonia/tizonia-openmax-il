@@ -45,12 +45,15 @@
 #include "tizmprisprops.hpp"
 #include "tizmpriscbacks.hpp"
 
+namespace Tiz
+{
 namespace DBus
 {
   class BusDispatcher;
   class DefaultTimeout;
   class Connection;
   class Pipe;
+}
 }
 
 namespace tiz
@@ -165,10 +168,10 @@ namespace tiz
       mpris_mediaplayer2_props_t props_;
       mpris_mediaplayer2_player_props_t player_props_;
       const mpris_callbacks_t cbacks_;
-      DBus::BusDispatcher *p_dispatcher_;
-      DBus::Pipe *p_player_props_pipe_; // Not owned
-      DBus::DefaultTimeout *p_dbus_timeout_;
-      DBus::Connection *p_dbus_connection_;
+      Tiz::DBus::BusDispatcher *p_dispatcher_;
+      Tiz::DBus::Pipe *p_player_props_pipe_; // Not owned
+      Tiz::DBus::DefaultTimeout *p_dbus_timeout_;
+      Tiz::DBus::Connection *p_dbus_connection_;
 
     private:
       OMX_ERRORTYPE init_cmd_queue ();

@@ -47,23 +47,23 @@ namespace control = tiz::control;
 namespace
 {
 
-  std::map< std::string, ::DBus::Variant > toDbusMetadata (
+  std::map< std::string, ::Tiz::DBus::Variant > toDbusMetadata (
       const std::map< std::string, std::string > &meta)
   {
-    std::map< std::string, DBus::Variant > dbus_meta;
+    std::map< std::string, Tiz::DBus::Variant > dbus_meta;
     typedef std::map< std::string, std::string >::value_type dbus_meta_t;
     BOOST_FOREACH (dbus_meta_t val, meta)
     {
-      DBus::Variant va;
-      DBus::MessageIter it = va.writer ();
+      Tiz::DBus::Variant va;
+      Tiz::DBus::MessageIter it = va.writer ();
       std::string key ("mpris:");
       key.append (val.first);
       std::string value (control::mprisif::TIZONIA_MPRIS_OBJECT_PATH);
       value.append ("/1");
-      DBus::Path path (value);
+      Tiz::DBus::Path path (value);
       it << path;
-      TIZ_PRINTF_RED ("key [%s] val [%s]\n", key.c_str (), value.c_str ());
-      dbus_meta.insert (std::make_pair (key, DBus::Variant (it)));
+      TIZ_LOG (TIZ_PRIORITY_DEBUG, "key [%s] val [%s]", key.c_str (), value.c_str ());
+      dbus_meta.insert (std::make_pair (key, Tiz::DBus::Variant (it)));
     }
     return dbus_meta;
   }
@@ -73,23 +73,23 @@ namespace
 const char *control::mprisif::TIZONIA_MPRIS_OBJECT_PATH
     = "/com/aratelia/tiz/tizonia";
 
-control::mprisif::mprisif (DBus::Connection &connection,
+control::mprisif::mprisif (Tiz::DBus::Connection &connection,
                            mpris_mediaplayer2_props_t props,
                            mpris_mediaplayer2_player_props_t player_props,
                            mpris_callbacks_t cbacks)
-  : DBus::ObjectAdaptor (connection, TIZONIA_MPRIS_OBJECT_PATH),
+  : Tiz::DBus::ObjectAdaptor (connection, TIZONIA_MPRIS_OBJECT_PATH),
     props_ (props),
     player_props_ (player_props),
     cbacks_ (cbacks)
 {
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "Constructing mprisif...");
+  TIZ_LOG (TIZ_PRIORITY_DEBUG, "Constructing mprisif...");
   UpdateProps (props_);
   UpdatePlayerProps (player_props_);
 }
 
-void control::mprisif::on_set_property (DBus::InterfaceAdaptor &interface,
+void control::mprisif::on_set_property (Tiz::DBus::InterfaceAdaptor &interface,
                                         const std::string &property,
-                                        const DBus::Variant &value)
+                                        const Tiz::DBus::Variant &value)
 {
   if (property == "Volume")
   {
@@ -155,7 +155,7 @@ void control::mprisif::Seek (const int64_t &Offset)
   // No-op for now
 }
 
-void control::mprisif::SetPosition (const ::DBus::Path &TrackId,
+void control::mprisif::SetPosition (const ::Tiz::DBus::Path &TrackId,
                                     const int64_t &Position)
 {
   // No-op for now

@@ -46,6 +46,8 @@ elif echo "$RELIDS" | grep -E 'xenial|loki|sarah|serena'; then
   # NOTE: Elementary OS 'loki' is based on xenial
   # Linux Mint 'sarah' and 'serena' are based on xenial
   DISTRO="ubuntu" ; RELEASE="xenial"
+elif echo "$RELIDS" | grep -E 'bionic'; then
+  DISTRO="ubuntu" ; RELEASE="bionic"
 else
   echo "Can't find a supported Debian or Ubuntu-based distribution."
   exit 1
