@@ -1,5 +1,5 @@
 name: tizonia
-version: 0.10.0
+version: 0.11.0
 summary: Tizonia command-line cloud music player.
 description: |
   Command-line cloud music player for Linux with support for Spotify,
