@@ -49,7 +49,7 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.cast.daemon"
 #endif
 
-DBus::BusDispatcher dispatcher;
+Tiz::DBus::BusDispatcher dispatcher;
 
 // Bus name
 static const char *TIZ_CAST_DAEMON_NAME = "com.aratelia.tiz.tizcastd";
@@ -62,8 +62,8 @@ static void cc_new_media_status_cback (void *ap_user_data)
   // TODO
 }
 
-tizcastd::tizcastd (DBus::Connection &a_connection)
-  : DBus::ObjectAdaptor (a_connection, TIZ_CAST_DAEMON_PATH),
+tizcastd::tizcastd (Tiz::DBus::Connection &a_connection)
+  : Tiz::DBus::ObjectAdaptor (a_connection, TIZ_CAST_DAEMON_PATH),
     p_cc_ (NULL),
     cc_name_or_ip_ ()
 {
@@ -208,9 +208,9 @@ int main ()
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Tizonia Chromecast daemon starting...");
 
-  DBus::default_dispatcher = &dispatcher;
+  Tiz::DBus::default_dispatcher = &dispatcher;
 
-  DBus::Connection conn = DBus::Connection::SessionBus ();
+  Tiz::DBus::Connection conn = Tiz::DBus::Connection::SessionBus ();
   conn.request_name (TIZ_CAST_DAEMON_NAME);
 
   tizcastd server (conn);

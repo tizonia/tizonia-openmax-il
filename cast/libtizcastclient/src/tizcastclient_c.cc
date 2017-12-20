@@ -62,9 +62,9 @@ struct tiz_cast_global
   tiz_cast_error_t error;
   tiz_cast_state_t state;
   OMX_S32 ref_count;
-  DBus::DefaultTimeout * p_dbustimeout;
-  DBus::BusDispatcher * p_dispatcher;
-  DBus::Connection * p_connection;
+  Tiz::DBus::DefaultTimeout * p_dbustimeout;
+  Tiz::DBus::BusDispatcher * p_dispatcher;
+  Tiz::DBus::Connection * p_connection;
   tizcastclient * p_client;
 };
 
@@ -206,17 +206,17 @@ tiz_cast_client_init (tiz_cast_ptr_t * app_cast,
       || ETIZCastStateStopped == p_global->state)
     {
 
-      DBus::_init_threading ();
+      Tiz::DBus::_init_threading ();
 
-      p_global->p_dispatcher = new DBus::BusDispatcher ();
-      DBus::default_dispatcher = p_global->p_dispatcher;
+      p_global->p_dispatcher = new Tiz::DBus::BusDispatcher ();
+      Tiz::DBus::default_dispatcher = p_global->p_dispatcher;
 
       /* Increase DBus-C++ frequency */
       p_global->p_dbustimeout
-        = new DBus::DefaultTimeout (100, false, p_global->p_dispatcher);
+        = new Tiz::DBus::DefaultTimeout (100, false, p_global->p_dispatcher);
 
       p_global->p_connection
-        = new DBus::Connection (DBus::Connection::SessionBus ());
+        = new Tiz::DBus::Connection (Tiz::DBus::Connection::SessionBus ());
       p_global->p_client = new tizcastclient (
         *(p_global->p_connection), TIZ_CAST_DAEMON_PATH, TIZ_CAST_DAEMON_NAME);
 

@@ -63,11 +63,18 @@ PKG_PROG_PKG_CONFIG()
 
 # Checks for libraries.
 PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
-DBUS_REQUIRED_VERSION=0.60
-PKG_CHECK_MODULES(dbus, [dbus-1 >= $DBUS_REQUIRED_VERSION],,
-	AC_MSG_ERROR([You need the DBus libraries (version 0.6 or better)]
-	[http://www.freedesktop.org/wiki/Software_2fdbus]))
-PKG_CHECK_MODULES([DBUS], [dbus-c++-1 >= 0.6.0-pre1])
+
+AC_LANG_PUSH([C++])
+AC_CHECK_HEADERS([tizonia/dbus-c++/dbus.h],
+	[tiz_found_dbuscplusplus_headers=yes; break;])
+AC_LANG_POP([C++])
+AS_IF([test "x$tiz_found_dbuscplusplus_headers" != "xyes"],
+	[AC_SUBST([TIZDBUSCPLUSPLUS_CFLAGS], ['-I$(top_srcdir)/../../3rdparty/dbus-cplusplus/include'])
+	AC_SUBST([TIZDBUSCPLUSPLUS_LIBS], ['$(top_builddir)/../../3rdparty/dbus-cplusplus/tizonia/libtizdbus-c++.la'])],
+	[AC_MSG_NOTICE([Not substituting TIZDBUSCPLUSPLUS cflags and libs with local paths])])
+AS_IF([test "x$tiz_found_dbuscplusplus_headers" == "xyes"],
+	[PKG_CHECK_MODULES([TIZDBUSCPLUSPLUS], [libtizdbus-c++ >= 0.11.0])],
+	[AC_MSG_NOTICE([Not using pkg-config to find TIZDBUSCPLUSPLUS cflags and libs])])
 
 AC_CHECK_HEADERS([tizonia/OMX_Core.h tizonia/OMX_Component.h],
 	[tiz_found_omx_headers=yes; break;])

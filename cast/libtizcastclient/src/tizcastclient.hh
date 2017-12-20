@@ -36,15 +36,15 @@
 #include "tizcastclienttypes.h"
 
 class tizcastclient : public com::aratelia::tiz::tizcastif_proxy,
-                      public DBus::IntrospectableProxy,
-                      public DBus::ObjectProxy
+                      public Tiz::DBus::IntrospectableProxy,
+                      public Tiz::DBus::ObjectProxy
 {
 public:
   typedef std::vector< unsigned char > cast_client_id_t;
   typedef cast_client_id_t * cast_client_id_ptr_t;
 
 public:
-  tizcastclient (DBus::Connection & connection, const char * path,
+  tizcastclient (Tiz::DBus::Connection & connection, const char * path,
                  const char * name);
 
   ~tizcastclient ();

@@ -40,9 +40,9 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.cast.client.cc_api"
 #endif
 
-tizcastclient::tizcastclient (DBus::Connection & connection, const char * path,
+tizcastclient::tizcastclient (Tiz::DBus::Connection & connection, const char * path,
                               const char * name)
-  : DBus::ObjectProxy (connection, path, name), clients_ ()
+  : Tiz::DBus::ObjectProxy (connection, path, name), clients_ ()
 {
 }
 
@@ -68,7 +68,7 @@ tizcastclient::connect (const char * ap_device_name_or_ip, const uint8_t uuid[],
           rc = com::aratelia::tiz::tizcastif_proxy::connect (
             ap_device_name_or_ip);
         }
-      catch (DBus::Error const & e)
+      catch (Tiz::DBus::Error const & e)
         {
           TIZ_LOG (TIZ_PRIORITY_ERROR, "DBus error [%s]...", e.what ());
           rc = TIZ_CAST_DBUS;
@@ -125,7 +125,7 @@ tizcastclient::load_url (const cast_client_id_ptr_t ap_cast_clnt,
           rc = com::aratelia::tiz::tizcastif_proxy::load_url (url, mime_type,
                                                               title);
         }
-      catch (DBus::Error const & e)
+      catch (Tiz::DBus::Error const & e)
         {
           TIZ_LOG (TIZ_PRIORITY_ERROR, "DBus error [%s]...", e.what ());
           rc = TIZ_CAST_DBUS;
@@ -284,7 +284,7 @@ tizcastclient::invokecast (pmf_t a_pmf, const cast_client_id_ptr_t ap_cast_clnt)
           // client_data & clnt = clients_[*ap_cast_clnt];
           rc = (this->*a_pmf) ();
         }
-      catch (DBus::Error const & e)
+      catch (Tiz::DBus::Error const & e)
         {
           TIZ_LOG (TIZ_PRIORITY_ERROR, "DBus error [%s]...", e.what ());
           rc = TIZ_CAST_DBUS;

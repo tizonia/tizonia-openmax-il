@@ -47,13 +47,13 @@
 #include <tizcastd-dbus.hh>
 
 class tizcastd : public com::aratelia::tiz::tizcastif_adaptor,
-                 public DBus::IntrospectableAdaptor,
-                 public DBus::ObjectAdaptor
+                 public Tiz::DBus::IntrospectableAdaptor,
+                 public Tiz::DBus::ObjectAdaptor
 
 {
 
 public:
-  tizcastd (DBus::Connection &connection);
+  tizcastd (Tiz::DBus::Connection &connection);
   ~tizcastd ();
 
   /**
