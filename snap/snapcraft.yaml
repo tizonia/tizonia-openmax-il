@@ -9,7 +9,7 @@ confinement: strict
 
 apps:
   tizonia:
-    command: usr/local/bin/tizonia
+    command: bin/tizonia
     plugs:
       - home
       - network
@@ -35,8 +35,10 @@ parts:
         - -include
     stage:
       - $no-include
+      - -var/
     prime:
       - $no-include
+      - -var/
 
   tizonia:
     plugin: autotools
@@ -44,11 +46,14 @@ parts:
     # source-tag: 0.7.0
     prepare: |
       # Add Mopidy's archive to APT's sources.list
-      curl 'http://apt.mopidy.com/mopidy.gpg' | sudo apt-key add -
-      echo "deb http://apt.mopidy.com/ stable main contrib non-free" | sudo tee -a /etc/apt/sources.list
-      apt-get update && apt-get -y install libspotify-dev
+      grep -q "apt.mopidy.com" /etc/apt/sources.list
+      if [ "$?" -eq 1 ]; then
+          curl 'http://apt.mopidy.com/mopidy.gpg' | sudo apt-key add -
+          echo "deb http://apt.mopidy.com/ stable main contrib non-free" | sudo tee -a /etc/apt/sources.list
+      fi
+      sudo apt-get update && sudo apt-get -y install libspotify-dev
     build: |
-      autoreconf -ifsv 2>&1 | grep --color=always '.*Entering directory' && ./configure --enable-silent-rules CFLAGS='-O2 -s -DNDEBUG' CXXFLAGS='-O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security' | grep --color=always '=== configuring in' && make -j1 V=0
+      autoreconf -ifsv 2>&1 | grep --color=always '.*Entering directory' && ./configure --prefix=$SNAPCRAFT_PART_INSTALL --without-bashcompletiondir --without-zshcompletiondir --enable-silent-rules CFLAGS='-O2 -s -DNDEBUG' CXXFLAGS='-O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security' | grep --color=always '=== configuring in' && make -j1 V=0
     install: |
       make install
     build-packages:
@@ -113,8 +118,10 @@ parts:
         - -include
     stage:
       - $no-include
+      - -var/
     prime:
       - $no-include
+      - -var/
 
   env:
     plugin: nil
@@ -188,8 +195,10 @@ parts:
     stage:
       - $no-include
       - $no-usr-lib-python2-dot-7
+      - -var/
     prime:
       - $no-include
       - $no-usr-lib-python2-dot-7
+      - -var/
     after:
       - tizonia
