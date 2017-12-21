@@ -48,9 +48,7 @@ parts:
       echo "deb http://apt.mopidy.com/ stable main contrib non-free" | sudo tee -a /etc/apt/sources.list
       apt-get update && apt-get -y install libspotify-dev
     build: |
-      autoreconf -ifsv 2>&1 | grep --color=always '.*Entering directory'
-      ./configure --prefix=$SNAPCRAFT_PART_INSTALL/usr --enable-silent-rules CFLAGS='-O2 -s -DNDEBUG' CXXFLAGS='-O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security' | grep --color=always '=== configuring in'
-      make -j1
+      autoreconf -ifsv 2>&1 | grep --color=always '.*Entering directory' && ./configure --enable-silent-rules CFLAGS='-O2 -s -DNDEBUG' CXXFLAGS='-O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security' | grep --color=always '=== configuring in' && make -j1 V=0
     install: |
       make install
     build-packages:
@@ -65,7 +63,11 @@ parts:
       - libasound2-dev
       - libdbus-1-dev
       - libsqlite3-dev
-      - libboost-all-dev
+      - libboost-system1.58-dev
+      - libboost-python1.58-dev
+      - libboost-filesystem1.58-dev
+      - libboost-thread1.58-dev
+      - libboost-program-options1.58-dev
       - uuid-dev
       - libsdl1.2-dev
       - libvpx-dev
@@ -74,6 +76,7 @@ parts:
       - libtag1-dev
       - libfishsound1-dev
       - libmediainfo-dev
+      - libcurl4-gnutls-dev
       - libpulse-dev
       - libmpg123-dev
       - libvorbis-dev
@@ -122,7 +125,11 @@ parts:
       - libpulse0
       - libdbus-1-3
       - libsqlite3-0
-      - libboost-all-dev
+      - libboost-system1.58.0
+      - libboost-python1.58.0
+      - libboost-filesystem1.58.0
+      - libboost-thread1.58.0
+      - libboost-program-options1.58.0
       - uuid-runtime
       - libsdl1.2debian
       - libvpx3
