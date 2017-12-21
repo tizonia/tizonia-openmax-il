@@ -9,7 +9,7 @@ confinement: strict
 
 apps:
   tizonia:
-    command: ./bin/tizonia
+    command: usr/local/bin/tizonia
     plugs:
       - home
       - network
