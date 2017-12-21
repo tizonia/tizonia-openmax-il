@@ -42,7 +42,17 @@ parts:
     plugin: autotools
     source: https://github.com/tizonia/tizonia-openmax-il.git
     # source-tag: 0.7.0
-    configflags: [--silent, --enable-silent-rules]
+    prepare: |
+      # Add Mopidy's archive to APT's sources.list
+      curl 'http://apt.mopidy.com/mopidy.gpg' | sudo apt-key add -
+      echo "deb http://apt.mopidy.com/ stable main contrib non-free" | sudo tee -a /etc/apt/sources.list
+      apt-get update && apt-get -y install libspotify-dev
+    build: |
+      autoreconf -ifsv 2>&1 | grep --color=always '.*Entering directory'
+      ./configure --prefix=$SNAPCRAFT_PART_INSTALL/usr --enable-silent-rules CFLAGS='-O2 -s -DNDEBUG' CXXFLAGS='-O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security' | grep --color=always '=== configuring in'
+      make -j1
+    install: |
+      make install
     build-packages:
       - build-essential
       - autoconf
@@ -75,7 +85,6 @@ parts:
       - libsndfile1-dev
       - libffi-dev
       - libssl-dev
-      - libspotify-dev
       - libexpat1-dev
       - python-dev
       - python-setuptools
