@@ -41,6 +41,7 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include <wordexp.h>
 
 #include <tizplatform.h>
 #include "tizplatform_internal.h"
@@ -379,6 +380,52 @@ extractkeyval (FILE * ap_file, char * ap_str, keyval_t ** app_last_kv,
   return ret;
 }
 
+static char *
+shell_expand_value (char * p_value)
+{
+  char *p_expanded = p_value;
+  if (p_value)
+    {
+      wordexp_t p;
+      wordexp (p_value, &p, 0);
+      if (p.we_wordc > 0)
+        {
+          char ** w;
+          w = p.we_wordv;
+          p_expanded = strndup (w[0], PATH_MAX);
+        }
+      else
+        {
+          p_expanded = strndup (p_value, PATH_MAX);
+        }
+      wordfree (&p);
+    }
+  return p_expanded;
+}
+
+static char *
+shell_expand_value_in_place (char * p_value, value_t * p_value_list)
+{
+  char * p_expanded = p_value;
+  assert (p_value_list);
+  if (p_value && p_value_list)
+    {
+      wordexp_t p;
+      wordexp (p_value, &p, 0);
+      if (p.we_wordc > 0)
+        {
+          char ** w;
+          w = p.we_wordv;
+          p_expanded = strndup (w[0], PATH_MAX);
+          /* Replace the existing value */
+          tiz_mem_free (p_value_list->p_value);
+          p_value_list->p_value = p_expanded;
+       }
+      wordfree (&p);
+    }
+  return p_expanded;
+}
+
 static int
 analyze_pattern (FILE * ap_file, char * ap_str, keyval_t ** app_last_kv,
                  tiz_rcfile_t * ap_tiz_rcfile)
@@ -681,7 +728,7 @@ tiz_rcfile_get_value (const char * ap_section, const char * ap_key)
   keyval_t * p_kv = NULL;
   tiz_rcfile_t * p_rc = tiz_rcfile_get_handle ();
 
-  if (NULL == p_rc)
+  if (!p_rc)
     {
       return NULL;
     }
@@ -696,7 +743,8 @@ tiz_rcfile_get_value (const char * ap_section, const char * ap_key)
   p_kv = find_node (p_rc, ap_key);
   if (p_kv && p_kv->p_value_list)
     {
-      return p_kv->p_value_list->p_value;
+      return shell_expand_value_in_place (p_kv->p_value_list->p_value,
+                                          p_kv->p_value_list);
     }
 
   return NULL;
@@ -711,7 +759,7 @@ tiz_rcfile_get_value_list (const char * ap_section, const char * ap_key,
   value_t * p_next_value = NULL;
   tiz_rcfile_t * p_rc = tiz_rcfile_get_handle ();
 
-  if (NULL == p_rc)
+  if (!p_rc)
     {
       return NULL;
     }
@@ -738,7 +786,7 @@ tiz_rcfile_get_value_list (const char * ap_section, const char * ap_key,
         {
           if (p_next_value)
             {
-              pp_ret[i] = strndup (p_next_value->p_value, PATH_MAX);
+              pp_ret[i] = shell_expand_value(p_next_value->p_value);
               p_next_value = p_next_value->p_next;
             }
         }
