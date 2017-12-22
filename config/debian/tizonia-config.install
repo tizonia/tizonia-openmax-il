@@ -1,2 +1,2 @@
-etc/tizonia/tizonia.conf etc/tizonia
-etc/tizonia/log4crc      etc/tizonia
+etc/xdg/tizonia/tizonia.conf etc/xdg/tizonia
+etc/xdg/tizonia/log4crc      etc/xdg/tizonia
