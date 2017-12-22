@@ -199,6 +199,7 @@ function usage {
     pretty_print "$GRN" "       -m            : Build all debian packages (builds the packages, assumes a bootstrapped environment)."
     pretty_print "$GRN" "       -p            : Publish all debian packages to Bintray (requires Tizonia's Bintray API_KEY and Juan's GPG passphrase)."
     pretty_print "$GRN" "       -r            : Create the chroot folder, and download and install the rootfs in it."
+    pretty_print "$GRN" "       -s            : Create a snap package inside the chroot."
     pretty_print "$GRN" "       -t            : Refresh the tizonia repo inside the chroot (pulls latest changes into the chroot's repo)."
     pretty_print "$GRN" "       -u            : Uninstall (purge) all currently installed Tizonia packages in the chroot."
     echo
@@ -412,14 +413,6 @@ function bootstrap_environment {
     $cmd_sudo cp -R tizonia-build/tizonia $TIZONIA_ROOTFS_DIR/root/work/tizonia
     pretty_print "$BLU" "Done Tizonia repo."
 
-#     print_banner "[$DISTRO-$RELEASE-$ARCH] Copying gmusicapi repository" "$GRN"
-#     if [[ ! -e "tizonia-build/gmusicapi" ]]; then
-#         git clone https://github.com/simon-weber/gmusicapi tizonia-build/gmusicapi
-#     fi
-#     cd tizonia-build/gmusicapi && pwd && git pull && cd -
-#     $cmd_sudo cp -R tizonia-build/gmusicapi $TIZONIA_ROOTFS_DIR/root/temp/gmusicapi
-#     pretty_print "$BLU" "Done gmusicapi repo."
-
     print_banner "[$DISTRO-$RELEASE-$ARCH] Updating build folder permissions" "$GRN"
     $cmd_sudo chmod o+rx $TIZONIA_ROOTFS_DIR/root $TIZONIA_ROOTFS_DIR/root/temp $TIZONIA_ROOTFS_DIR/root/work
     pretty_print "$BLU" "Done folder permissions."
@@ -489,6 +482,23 @@ function publish_packages {
     return "$exit_status"
 }
 
+function make_snap {
+    local exit_status=0
+
+    verify_chroot_existence
+
+    print_banner "[$DISTRO-$RELEASE-$ARCH] Building Tizonia snap package" "$GRN"
+
+    # Make sure snapcraft is installed
+    run_chroot /bin/bash -v -c 'source /root/.profile; apt-get install snapcraft'
+
+    run_chroot /bin/bash -v -c 'source /root/.profile; cd /root/work/tizonia/snap; snapcraft snap'
+
+    pretty_print "$BLU" "Done building snap package."
+
+    return "$exit_status"
+}
+
 function uninstall_packages {
     local exit_status=0
 
@@ -543,11 +553,12 @@ function main {
     local make=0
     local publish=0
     local rootfs=0
+    local snap=0
     local update=0
     local uninstall=0
 
     local progname=$(basename $0)
-    CMDLINE=$(getopt -o "bcdmprtu" --long "bootstrap,chroot,deps,make,publish,rootfs,update,uninstall" -n "$progname" -- "$@")
+    CMDLINE=$(getopt -o "bcdmprstu" --long "bootstrap,chroot,deps,make,publish,rootfs,snap,update,uninstall" -n "$progname" -- "$@")
     eval set -- "$CMDLINE"
     while true; do
         case "$1" in
@@ -569,6 +580,9 @@ function main {
             -r|--rootfs)
                 rootfs=1; shift
                 ;;
+            -s|--snap)
+                snap=1; shift
+                ;;
             -t|--update)
                 update=1; shift
                 ;;
@@ -582,7 +596,7 @@ function main {
         esac
     done
 
-    local total=$(( $bootstrap + $enterchroot + $deps + $make + $publish + $rootfs + $update + $uninstall ))
+    local total=$(( $bootstrap + $enterchroot + $deps + $make + $publish + $rootfs + $snap + $update + $uninstall ))
     if [[ "$total" != 1 ]]; then
         usage
         exit "$E_BADARGS"
@@ -671,6 +685,14 @@ function main {
     if [[ "$rootfs" == 1 ]]; then
         local err_msg="Unable to download chroot"
         install_chroot
+        exit_status=$?
+        log_on_error "$exit_status" "$err_msg"
+        exit "$exit_status"
+    fi
+
+    if [[ "$snap" == 1 ]]; then
+        local err_msg="Unable to build the snap package"
+        make_snap
         exit_status=$?
         log_on_error "$exit_status" "$err_msg"
         exit "$exit_status"
