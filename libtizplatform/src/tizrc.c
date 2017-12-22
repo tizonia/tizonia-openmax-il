@@ -63,7 +63,7 @@ static char pat[PAT_SIZE];
 typedef struct file_info file_info_t;
 struct file_info
 {
-  char name[256];
+  char name[PATH_MAX + NAME_MAX];
   time_t ctime;
   int exists;
 };
@@ -490,35 +490,130 @@ stat_ctime (const char * path, time_t * time)
   return statret;
 }
 
+static int
+try_open_file (char * p_file_name)
+{
+  int retcode = -1;
+  assert (p_file_name);
+  if (p_file_name)
+    {
+      FILE * p_file = NULL;
+      if ((p_file = fopen (p_file_name, "r")) != 0)
+        {
+          fclose (p_file);
+          retcode = 0;
+        }
+    }
+  return retcode;
+}
+
+/* $XDG_CONFIG_DIRS
+   defines the preference-ordered set of base directories
+   to search for configuration files in addition to the $XDG_CONFIG_HOME
+   base directory. The directories in $XDG_CONFIG_DIRS should be seperated
+   with a colon ':'. */
+/* If $XDG_CONFIG_DIRS is either not set or empty, a value equal to
+   /etc/xdg/tizonia/tizonia.conf should be used. */
+/* In addition, if /etc/xdg/tizonia/tizonia.conf does not exist, a value equal
+   to /etc/tizonia/tizonia.conf will be used */
+static void
+obtain_xdg_config_dir (void)
+{
+  int found = -1;
+  char rcfile[PATH_MAX + NAME_MAX];
+  char * p_env_str = NULL;
+
+  if ((p_env_str = getenv ("XDG_CONFIG_DIRS")))
+    {
+      char * pch = NULL;
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "XDG_CONFIG_DIRS [%s] ...", p_env_str);
+      pch = strtok (p_env_str, ":");
+      while (pch != NULL && found != 0)
+        {
+          TIZ_LOG (TIZ_PRIORITY_TRACE, "XDG_CONFIG_DIR - [%s] ...", pch);
+          snprintf (rcfile, PATH_MAX + NAME_MAX - 1, "%s/tizonia/tizonia.conf",
+                    pch);
+          found = try_open_file (rcfile);
+          pch = strtok (NULL, ":");
+        }
+    }
+
+  /* Try /etc/xdg */
+  if (found)
+    {
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "Trying /etc/xdg");
+      snprintf (rcfile, PATH_MAX + NAME_MAX - 1,
+                "/etc/xdg/tizonia/tizonia.conf");
+      found = try_open_file (rcfile);
+    }
+
+  /* Finally use the old /etc directory if no other config file was found */
+  if (found)
+    {
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "Trying /etc");
+      snprintf (rcfile, PATH_MAX + NAME_MAX - 1, "/etc/tizonia/tizonia.conf");
+    }
+
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Using config location %s", rcfile);
+  snprintf (g_rcfiles[0].name, PATH_MAX + NAME_MAX - 1, "%s", rcfile);
+}
+
+/* XDG_CONFIG_HOME
+   defines the base directory relative to which user specific
+   configuration files should be stored. If $XDG_CONFIG_HOME is either not
+   set or empty, a default equal to $HOME/.config should be used. */
+static void
+obtain_xdg_config_home (void)
+{
+  char * p_env_str = NULL;
+
+  if ((p_env_str = getenv ("XDG_CONFIG_HOME")))
+    {
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "XDG_CONFIG_HOME [%s]", p_env_str);
+      snprintf (g_rcfiles[1].name, PATH_MAX + NAME_MAX - 1,
+                "%s/tizonia/tizonia.conf", p_env_str);
+    }
+  else
+    {
+      if ((p_env_str = getenv ("HOME")))
+        {
+          TIZ_LOG (TIZ_PRIORITY_TRACE, "HOME [%s]", p_env_str);
+          snprintf (g_rcfiles[1].name, PATH_MAX + NAME_MAX - 1,
+                    "%s/.config/tizonia/tizonia.conf", p_env_str);
+        }
+    }
+}
+
+static void
+obtain_tizonia_rc_file_config (void)
+{
+  char * p_env_str = NULL;
+  if ((p_env_str = getenv ("TIZONIA_RC_FILE")))
+    {
+      snprintf (g_rcfiles[2].name, PATH_MAX + NAME_MAX - 1, "%s", p_env_str);
+    }
+}
+
 OMX_ERRORTYPE
 tiz_rcfile_init (tiz_rcfile_t ** pp_rc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   int i;
   tiz_rcfile_t * p_rc = NULL;
-  char * p_env_str = NULL;
 
   assert (pp_rc);
 
+  /* Retrieve the config file from $XDG_CONFIG_DIRS (g_rcfiles[0]) */
+  obtain_xdg_config_dir ();
+
+  /* Retrieve the config file from $XDG_CONFIG_HOME or $HOME (g_rcfiles[1]) */
+  obtain_xdg_config_home ();
+
+  /* Retrieve the config file from $TIZONIA_RC_FILE (g_rcfiles[2]) */
+  obtain_tizonia_rc_file_config ();
+
   /* Load rc files */
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Looking for [%d] rc files...", g_num_rcfiles);
-  assert (3 == g_num_rcfiles);
-
-  snprintf (g_rcfiles[0].name, sizeof (g_rcfiles[0].name) - 1,
-            "%s/tizonia/tizonia.conf", SYSCONFDIR);
-
-  if ((p_env_str = getenv ("HOME")))
-    {
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "HOME [%s] ...", p_env_str);
-      snprintf (g_rcfiles[1].name, sizeof (g_rcfiles[1].name) - 1,
-                "%s/.config/tizonia/tizonia.conf", p_env_str);
-    }
-
-  if ((p_env_str = getenv ("TIZONIA_RC_FILE")))
-    {
-      snprintf (g_rcfiles[2].name, sizeof (g_rcfiles[2].name) - 1, "%s",
-                p_env_str);
-    }
 
   if (!(p_rc = (tiz_rcfile_t *) tiz_mem_calloc (1, sizeof (tiz_rcfile_t))))
     {
@@ -532,6 +627,7 @@ tiz_rcfile_init (tiz_rcfile_t ** pp_rc)
     {
       TIZ_LOG (TIZ_PRIORITY_TRACE, "Checking for rc file [%d] at [%s]", i,
                g_rcfiles[i].name);
+
       /* Check file existence and user's read access */
       if (0 != access (g_rcfiles[i].name, R_OK))
         {
