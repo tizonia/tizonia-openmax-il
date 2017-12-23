@@ -116,6 +116,7 @@ parts:
       - check
       - sqlite3
       - dbus-x11
+      - curl
     after:
       - pypideps
     organize:
