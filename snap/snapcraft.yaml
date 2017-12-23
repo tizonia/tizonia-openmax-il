@@ -9,7 +9,7 @@ confinement: strict
 
 apps:
   tizonia:
-    command: bin/tizonia
+    command: bin/tizonia-snap-wrapper.sh
     plugs:
       - home
       - network
@@ -56,6 +56,8 @@ parts:
       autoreconf -ifsv 2>&1 | grep --color=always '.*Entering directory' && ./configure --prefix=$SNAPCRAFT_PART_INSTALL --without-bashcompletiondir --without-zshcompletiondir --enable-silent-rules CFLAGS='-O2 -s -DNDEBUG' CXXFLAGS='-O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security' | grep --color=always '=== configuring in' && make -j1 V=0
     install: |
       make install
+      perl -i -p -e 's|^component-paths.*|component-paths = \$TIZONIA_PLUGINS_DIR|' $SNAPCRAFT_PART_INSTALL/etc/xdg/tizonia/tizonia.conf
+      perl -i -p -e 's|^rmdb.*|rmdb = \$TIZONIA_PLUGINS_DIR/share/tizrmd/tizrm.db|' $SNAPCRAFT_PART_INSTALL/etc/xdg/tizonia/tizonia.conf
     build-packages:
       - build-essential
       - autoconf
@@ -202,3 +204,8 @@ parts:
       - -var/
     after:
       - tizonia
+  wrapper:
+    plugin: dump
+    source: .
+    organize:
+      wrapper/tizonia-snap-wrapper.sh: bin/tizonia-snap-wrapper.sh
