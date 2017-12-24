@@ -126,17 +126,18 @@ AM_CONDITIONAL(ENABLE_ZSH_COMPLETION, [test "$with_zshcompletiondir" != "no"])
 AC_SUBST([zshcompletiondir], [$with_zshcompletiondir])
 
 # Checks for header files.
-AC_CHECK_HEADERS([arpa/inet.h fcntl.h limits.h netdb.h netinet/in.h stdlib.h string.h sys/socket.h sys/time.h termios.h unistd.h])
+AC_CHECK_HEADERS([arpa/inet.h fcntl.h limits.h netdb.h netinet/in.h stdint.h stdlib.h string.h sys/socket.h sys/time.h termios.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 # This one was introduced in 2.69
 # AC_CHECK_HEADER_STDBOOL
+AC_TYPE_INT64_T
 AC_TYPE_SIZE_T
 
 # Checks for library functions.
 AC_FUNC_ERROR_AT_LINE
 AC_FUNC_FORK
-AC_CHECK_FUNCS([dup2 gethostbyname gethostname inet_ntoa strtol])
+AC_CHECK_FUNCS([dup2 gethostname getpass strerror])
 
 AC_ARG_WITH(libspotify,
     AS_HELP_STRING([--with-libspotify],

@@ -29,15 +29,20 @@
 #include <config.h>
 #endif
 
-#include <arpa/inet.h>
-#include <netdb.h>
+#include <sys/types.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
+#include <net/if.h>
+#include <ifaddrs.h>
+#include <errno.h>
+#include <netdb.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <termios.h>
 #include <unistd.h>
+#include <limits.h>
 
 #include <boost/algorithm/string/join.hpp>
 #include <boost/foreach.hpp>
@@ -160,6 +165,78 @@ namespace
   void player_sig_stp_hdlr (int sig)
   {
     raise (SIGSTOP);
+  }
+
+  bool get_host_name_and_ip (std::string &host_name,
+                               std::string &ip_address,
+                               std::string &error_msg)
+  {
+    bool outcome = true;  // we'll assume everything will be OK, or else,
+                          // early-return in case it is not.
+    char host_name_buf[HOST_NAME_MAX + 1] = "";
+    struct ifaddrs *myaddrs = NULL;
+    struct ifaddrs *ifa = NULL;
+    void *in_addr;
+    char ip_addr_buf[INET_ADDRSTRLEN + 1];
+
+    if (gethostname (host_name_buf, sizeof (host_name_buf)) != 0)
+    {
+      error_msg.assign (strerror (errno));
+      // Early return
+      return false;
+    }
+
+    if (getifaddrs (&myaddrs) != 0)
+    {
+      error_msg.assign (strerror (errno));
+      // Early return
+      return false;
+    }
+
+    for (ifa = myaddrs; ifa != NULL; ifa = ifa->ifa_next)
+    {
+      if (ifa->ifa_addr == NULL)
+      {
+        continue;
+      }
+      if (!(ifa->ifa_flags & IFF_UP))
+      {
+        continue;
+      }
+
+      switch (ifa->ifa_addr->sa_family)
+      {
+        case AF_INET:
+        {
+          struct sockaddr_in *s4 = (struct sockaddr_in *)ifa->ifa_addr;
+          in_addr = &s4->sin_addr;
+          break;
+        }
+
+        case AF_INET6:
+        default:
+        {
+          continue;
+        }
+      }
+
+      if (!inet_ntop (ifa->ifa_addr->sa_family, in_addr, ip_addr_buf,
+                      sizeof (ip_addr_buf)))
+      {
+        error_msg.assign ("inet_ntop failed");
+        return false;
+      }
+
+      // No need to iterate more
+      break;
+    }
+
+    freeifaddrs (myaddrs);
+
+    host_name.assign (host_name_buf);
+    ip_address.assign (ip_addr_buf);
+
+    return outcome;
   }
 
   ETIZPlayUserInput player_wait_for_user_input (
@@ -594,7 +671,7 @@ tiz::playapp::serve_stream ()
   print_banner ();
 
   uri_lst_t file_list;
-  char hostname[120] = "";
+  std::string hostname;
   std::string ip_address;
   std::string error_msg;
   file_extension_lst_t extension_list;
@@ -613,15 +690,16 @@ tiz::playapp::serve_stream ()
 
   (void)daemonize_if_requested ();
 
-  // Retrieve the hostname
-  // TODO: Error handling
-  if (0 == gethostname (hostname, sizeof (hostname)))
-  {
-    struct hostent *p_hostent = gethostbyname (hostname);
-    struct in_addr ip_addr = *(struct in_addr *)(p_hostent->h_addr);
-    ip_address = inet_ntoa (ip_addr);
-    fprintf (stdout, "[%s]: Server streaming on http://%s:%ld\n",
-             station_name.c_str (), hostname, port);
+  // Retrieve the hostname and ip address
+  if (!get_host_name_and_ip(hostname, ip_address, error_msg))
+    {
+      TIZ_PRINTF_RED ("%s.\n", error_msg.c_str ());
+      player_exit_failure ();
+    }
+
+    fprintf (stdout,
+             "[%s]: Server streaming on http://%s:%ld\n",
+             station_name.c_str (), hostname.c_str (), port);
 
     fprintf (stdout, "[%s]: Streaming media with sampling rates [%s].\n",
              station_name.c_str (),
@@ -632,8 +710,7 @@ tiz::playapp::serve_stream ()
       fprintf (stdout, "[%s]: Streaming media with bitrate modes [%s].\n",
                station_name.c_str (), bitrates.c_str ());
     }
-    fprintf (stdout, "\n");
-  }
+  fprintf (stdout, "\n");
 
   tizplaylist_ptr_t playlist
       = boost::make_shared< tiz::playlist > (tiz::playlist (file_list));

@@ -16,7 +16,6 @@
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
 REQUIRED_SUBDIRS = \
-	aac_decoder \
 	chromecast_renderer \
 	file_reader \
 	file_writer \
@@ -45,6 +44,9 @@ LIBSPOTIFY_SUBDIR= \
 ALSA_SUBDIR= \
 	pcm_renderer_alsa
 
+AAC_SUBDIR= \
+	aac_decoder
+
 SUBDIRS = ${REQUIRED_SUBDIRS}
 
 if WITH_LIBSPOTIFY
@@ -53,4 +55,8 @@ endif
 
 if WITH_ALSA
 SUBDIRS += ${ALSA_SUBDIR}
+endif
+
+if WITH_AAC
+SUBDIRS += ${AAC_SUBDIR}
 endif

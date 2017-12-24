@@ -18,7 +18,7 @@
 tizonia_config = tizonia.conf
 log4c_config = log4crc
 
-tizoniaconfdir = $(sysconfdir)/tizonia
+tizoniaconfdir = $(sysconfdir)/xdg/tizonia
 tizoniaconf_DATA = $(tizonia_config) $(log4c_config)
 
 EXTRA_DIST = $(tizonia_config) $(sqlite_databases) tizonia.conf.in log4crc.in

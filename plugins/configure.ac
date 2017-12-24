@@ -57,10 +57,16 @@ AC_ARG_WITH(alsa,
 
 AM_CONDITIONAL(WITH_ALSA, test "x$with_alsa" = xyes)
 
+AC_ARG_WITH(aac,
+    AS_HELP_STRING([--with-aac],
+        [build the AAC-based OpenMAX IL plugin (default: yes)]),,
+    with_aac=yes)
+
+AM_CONDITIONAL(WITH_AAC, test "x$with_aac" = xyes)
+
 AC_CONFIG_FILES([Makefile])
 
-AC_CONFIG_SUBDIRS([aac_decoder
-                   chromecast_renderer
+AC_CONFIG_SUBDIRS([chromecast_renderer
                    file_reader
                    file_writer
                    flac_decoder
@@ -91,6 +97,12 @@ fi
 if test "$with_alsa" = yes; then
    if test -d "$srcdir/pcm_renderer_alsa"; then
       AC_CONFIG_SUBDIRS([pcm_renderer_alsa])
+   fi
+fi
+
+if test "$with_aac" = yes; then
+   if test -d "$srcdir/aac_decoder"; then
+      AC_CONFIG_SUBDIRS([aac_decoder])
    fi
 fi
 

@@ -1,2 +1,2 @@
 var/log/tizonia
-etc/tizonia
+etc/xdg/tizonia
