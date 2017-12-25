@@ -689,6 +689,38 @@ do_flush (mp4dmuxflt_prc_t * ap_prc, OMX_U32 a_pid)
   return tiz_filter_prc_release_header (ap_prc, a_pid);
 }
 
+void *
+mp4_open (const char * name, MP4FileMode mode)
+{
+  return NULL;
+}
+
+int
+mp4_seek (void * handle, int64_t pos)
+{
+  return 0;
+}
+
+int
+mp4_read (void * handle, void * buffer, int64_t size, int64_t * nin,
+          int64_t maxChunkSize)
+{
+  return 0;
+}
+
+int
+mp4_write (void * handle, const void * buffer, int64_t size, int64_t * nout,
+           int64_t maxChunkSize)
+{
+  return 0;
+}
+
+int
+mp4_close (void * handle)
+{
+  return 0;
+}
+
 /*
  * mp4dmuxfltprc
  */
@@ -699,6 +731,7 @@ mp4dmuxflt_prc_ctor (void * ap_prc, va_list * app)
   mp4dmuxflt_prc_t * p_prc
     = super_ctor (typeOf (ap_prc, "mp4dmuxfltprc"), ap_prc, app);
   assert (p_prc);
+  p_prc->mp4_handle_ = MP4_INVALID_FILE_HANDLE;
   p_prc->p_mp4_store_ = NULL;
   p_prc->p_aud_store_ = NULL;
   p_prc->p_vid_store_ = NULL;
@@ -724,11 +757,26 @@ mp4dmuxflt_prc_dtor (void * ap_obj)
 static OMX_ERRORTYPE
 mp4dmuxflt_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
 {
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
   mp4dmuxflt_prc_t * p_prc = ap_prc;
+
   assert (p_prc);
   tiz_check_omx (alloc_input_store (p_prc));
   tiz_check_omx (alloc_output_stores (p_prc));
-  return OMX_ErrorNone;
+
+  if (MP4_IS_VALID_FILE_HANDLE(p_prc->mp4_handle_))
+  {
+    const MP4FileProvider provider
+      = {mp4_open, mp4_seek, mp4_read, mp4_write, mp4_close};
+    p_prc->mp4_handle_ = MP4ReadProvider ("filename", &provider);
+    if (MP4_IS_VALID_FILE_HANDLE(p_prc->mp4_handle_))
+      {
+        TIZ_ERROR(handleOf(ap_prc), "Error on MP4ReadProvider");
+        rc = OMX_ErrorInsufficientResources;
+      }
+  }
+
+  return rc;
 }
 
 static OMX_ERRORTYPE
@@ -739,6 +787,11 @@ mp4dmuxflt_prc_deallocate_resources (void * ap_prc)
   dealloc_output_stores (p_prc);
   dealloc_input_store (p_prc);
   dealloc_nestegg (p_prc);
+  if (MP4_IS_VALID_FILE_HANDLE(p_prc->mp4_handle_))
+    {
+      MP4Close (p_prc->mp4_handle_, 0);
+      p_prc->mp4_handle_ = MP4_INVALID_FILE_HANDLE;
+    }
   return OMX_ErrorNone;
 }
 

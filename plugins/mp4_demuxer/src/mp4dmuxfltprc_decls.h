@@ -34,6 +34,8 @@ extern "C" {
 
 #include <stdbool.h>
 
+#include <mp4v2/mp4v2.h>
+
 #include <OMX_Core.h>
 
 #include <tizplatform.h>
@@ -47,6 +49,7 @@ struct mp4dmuxflt_prc
 {
   /* Object */
   const tiz_filter_prc_t _;
+  MP4FileHandle mp4_handle_;
   tiz_buffer_t * p_mp4_store_;
   tiz_buffer_t * p_aud_store_;
   tiz_buffer_t * p_vid_store_;

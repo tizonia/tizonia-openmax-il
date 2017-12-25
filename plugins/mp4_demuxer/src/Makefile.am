@@ -34,10 +34,12 @@ libtizmp4demux_la_SOURCES = \
 libtizmp4demux_la_CFLAGS = \
 	@TIZILHEADERS_CFLAGS@ \
 	@TIZPLATFORM_CFLAGS@ \
-	@TIZONIA_CFLAGS@
+	@TIZONIA_CFLAGS@ \
+	-I/usr/include
 
 libtizmp4demux_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@
 
 libtizmp4demux_la_LIBADD = \
 	@TIZPLATFORM_LIBS@ \
-	@TIZONIA_LIBS@
+	@TIZONIA_LIBS@ \
+	-lmp4v2
