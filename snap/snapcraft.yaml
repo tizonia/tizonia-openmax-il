@@ -213,8 +213,11 @@ parts:
       - -var/
     after:
       - tizonia
+
   wrapper:
     plugin: dump
-    source: .
+    source: snap/wrapper
     organize:
-      wrapper/tizonia-snap-wrapper.sh: bin/tizonia-snap-wrapper.sh
+      tizonia-snap-wrapper.sh: bin/tizonia-snap-wrapper.sh
+    after:
+      - env
