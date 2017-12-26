@@ -34,14 +34,16 @@ parts:
       - pycountry
       - titlecase
     filesets:
-      no-include:
-        - -include
+      no-need-stuff:
+        - -include/
+        - -var/
+        - -share/
+        - -usr/share
+        - -snap/
     stage:
-      - $no-include
-      - -var/
+      - $no-need-stuff
     prime:
-      - $no-include
-      - -var/
+      - $no-need-stuff
 
   tizonia:
     plugin: autotools
@@ -125,14 +127,14 @@ parts:
     organize:
       ../installlib/python2.7/dist-packages: lib/python2.7/site-packages
     filesets:
-      no-include:
-        - -include
+      no-need-stuff:
+        - -include/
+        - -var/
+        - -snap/
     stage:
-      - $no-include
-      - -var/
+      - $no-need-stuff
     prime:
-      - $no-include
-      - -var/
+      - $no-need-stuff
 
   env:
     plugin: nil
@@ -171,8 +173,10 @@ parts:
       - sqlite3
       - dbus-x11
     filesets:
-      no-include:
-        - -include
+      no-need-stuff:
+        - -include/
+        - -var/
+        - -snap/
       no-usr-lib-python2-dot-7:
         - -usr/bin/2to3-2.7
         - -usr/bin/pydoc2.7
@@ -204,13 +208,11 @@ parts:
         - -usr/share/python/dh_python2
         - -usr/share/python/pyversions.py
     stage:
-      - $no-include
+      - $no-need-stuff
       - $no-usr-lib-python2-dot-7
-      - -var/
     prime:
-      - $no-include
+      - $no-need-stuff
       - $no-usr-lib-python2-dot-7
-      - -var/
     after:
       - tizonia
 
