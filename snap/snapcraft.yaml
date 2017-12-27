@@ -67,7 +67,7 @@ parts:
       # fi
       apt-get update && apt-get -y install libspotify-dev
     build: |
-      autoreconf -ifsv 2>&1 | grep --color=always '.*Entering directory' && ./configure --prefix=$SNAPCRAFT_PART_INSTALL --without-bashcompletiondir --without-zshcompletiondir --enable-silent-rules CFLAGS='-O2 -s -DNDEBUG' CXXFLAGS='-O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security' | grep --color=always '=== configuring in' && make -j1 V=0
+      autoreconf -ifsv 2>&1 | grep --color=always '.*Entering directory' && ./configure --prefix=$SNAPCRAFT_PART_INSTALL --without-bashcompletiondir --without-zshcompletiondir --enable-silent-rules CFLAGS='-O2 -s -DNDEBUG' CXXFLAGS='-O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security' && make -j1 V=0
     install: |
       make install
       perl -i -p -e 's|^component-paths.*|component-paths = \$TIZONIA_PLUGINS_DIR|' $SNAPCRAFT_PART_INSTALL/etc/xdg/tizonia/tizonia.conf
@@ -159,7 +159,6 @@ parts:
       - libvpx3
       - libmp3lame0
       - libfaad2
-      - libev4
       - libtag1v5
       - libfishsound1
       - libmediainfo0v5
