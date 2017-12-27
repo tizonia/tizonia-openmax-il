@@ -58,10 +58,10 @@ parts:
       # Add Mopidy's archive to APT's sources.list
       # grep -q "apt.mopidy.com" /etc/apt/sources.list
       # if [ "$?" -eq 1 ]; then
-      curl 'http://apt.mopidy.com/mopidy.gpg' | sudo apt-key add -
-      echo "deb http://apt.mopidy.com/ stable main contrib non-free" | sudo tee -a /etc/apt/sources.list
+      curl 'http://apt.mopidy.com/mopidy.gpg' | apt-key add -
+      echo "deb http://apt.mopidy.com/ stable main contrib non-free" | tee -a /etc/apt/sources.list
       # fi
-      sudo apt-get update && sudo apt-get -y install libspotify-dev
+      apt-get update && apt-get -y install libspotify-dev
     build: |
       autoreconf -ifsv 2>&1 | grep --color=always '.*Entering directory' && ./configure --prefix=$SNAPCRAFT_PART_INSTALL --without-bashcompletiondir --without-zshcompletiondir --enable-silent-rules CFLAGS='-O2 -s -DNDEBUG' CXXFLAGS='-O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security' | grep --color=always '=== configuring in' && make -j1 V=0
     install: |
