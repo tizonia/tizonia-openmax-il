@@ -18,6 +18,7 @@ apps:
       - process-control
       - alsa
       - removable-media
+      - x11
     slots:
       - mpris
 
