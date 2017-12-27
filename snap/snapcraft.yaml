@@ -26,6 +26,10 @@ parts:
   pypideps:
     plugin: python
     python-version: python2
+    build-packages:
+      - python-dev
+      - libxml2-dev
+      - libxslt1-dev
     python-packages:
       - soundcloud
       - gmusicapi
