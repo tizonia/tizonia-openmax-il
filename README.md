@@ -39,7 +39,7 @@
 
 # News
 
-:heavy_check_mark: [2017-12-28] Tizonia
+:heavy_check_mark: [2017-12-28]
 [Snap Package](#snap-package) and [Docker Image](#docker-image) available.
 
 :heavy_check_mark: [2017-12-17] Tizonia
@@ -150,8 +150,8 @@ To upgrade Tizonia, run 'apt-get' as usual, but also make sure the Python depend
 # Roadmap
 
 - Chromecast support.
+- YouTube live streams support.
 - REPL command-line interface.
-- Snap packages.
 - OS X port.
 
 # Project
