@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Encoding=UTF-8
+Name=Tizonia YouTube's Top 100 most Streamed Songs
+Comment=Cloud music player with support for Spotify, Google Play Music, SoundCloud, YouTube and Dirble.
+Exec=@bindir@/tizonia --youtube-audio-mix-search "Top 100 Most Streamed Songs"
+Icon=tizonia
+Terminal=true
+Categories=AudioVideo;Player;
+Keywords=Player;Audio;Server;Broadcast;
