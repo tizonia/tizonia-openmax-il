@@ -28,29 +28,38 @@ endif
 shell_scripts = tizonia-remote
 
 bin_SCRIPTS = $(shell_scripts)
-CLEANFILES = $(bin_SCRIPTS)
-EXTRA_DIST = tizonia-remote.in
+EXTRA_DIST = tizonia-remote.in tizonia.desktop.in
+desktop_DATA = tizonia.desktop
+dist_icons256_DATA = icons/256x256/tizonia.png
+CLEANFILES = $(bin_SCRIPTS) $(desktop_DATA)
 
 bashcompletiondir=@bashcompletiondir@
 zshcompletiondir=@zshcompletiondir@
+desktopdir = $(datadir)/applications
+iconsdatadir = $(datadir)/icons/hicolor
+icons256dir = $(iconsdatadir)/256x256/apps
 
 DISTCHECK_CONFIGURE_FLAGS = \
 	--with-bashcompletiondir=$$dc_install_base/$(bashcompletiondir) \
 	--with-zshcompletiondir=$$dc_install_base/$(zshcompletiondir)
 
 do_subst = sed -e 's,[@]datadir[@],$(datadir),g' \
+	-e 's,[@]bindir[@],$(bindir),g' \
 	-e 's,[@]PACKAGE_VERSION[@],$(PACKAGE_VERSION),g' \
 	-e 's,[@]VERSION[@],$(VERSION),g'
+
+tizonia.desktop: tizonia.desktop.in  Makefile
+	$(do_subst) < $(srcdir)/tizonia.desktop.in > tizonia.desktop
 
 tizonia-remote: tizonia-remote.in Makefile
 	$(do_subst) < $(srcdir)/tizonia-remote.in > tizonia-remote
 	chmod +x tizonia-remote
 
-all-local: tizonia-remote
+all-local: tizonia-remote tizonia.desktop
 
 clean-local: clean-local-tools
 distclean-local: clean-local-tools
 .PHONY: clean-local-tools
 clean-local-tools:
-	-rm -f tizonia-remote
+	-rm -f tizonia-remote tizonia.desktop
 
