@@ -49,7 +49,10 @@ struct mp4dmuxflt_prc
 {
   /* Object */
   const tiz_filter_prc_t _;
-  MP4FileHandle mp4_handle_;
+  MP4FileHandle mp4v2_hdl_;
+  bool mp4v2_inited_;
+  uint64_t mp4v2_duration_;
+  int mp4v2_failed_init_count_;
   tiz_buffer_t * p_mp4_store_;
   tiz_buffer_t * p_aud_store_;
   tiz_buffer_t * p_vid_store_;

@@ -23,8 +23,6 @@
  *
  * @brief  Tizonia - MP4 demuxer filter processor
  *
- * TODO: Support for video demuxing (VP8/VP9 demuxing no handled yet).
- * TODO: Finalise support for audio demuxer (VORBIS not handled yet, only OPUS demuxing).
  * TODO: Seek support.
  *
  */
@@ -32,8 +30,6 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#include <alloca.h>
 
 #include <assert.h>
 #include <string.h>
@@ -56,13 +52,17 @@
 
 static OMX_HANDLETYPE g_handle = NULL;
 
-#define NESTEGG_INT_MAX_FAILED_ATTEMPTS 20
+#define MP4V2_INT_MAX_FAILED_ATTEMPTS 20
 
 /* Forward declarations */
 static OMX_ERRORTYPE
 mp4dmuxflt_prc_deallocate_resources (void *);
 static OMX_ERRORTYPE
 store_data (mp4dmuxflt_prc_t * ap_prc);
+static void
+reset_mp4v2_members (mp4dmuxflt_prc_t * ap_prc);
+static OMX_ERRORTYPE
+send_port_auto_detect_events (mp4dmuxflt_prc_t * ap_prc);
 
 #define on_nestegg_error_ret_omx_oom(expr)                            \
   do                                                                  \
@@ -84,6 +84,38 @@ get_mp4_hdr (mp4dmuxflt_prc_t * ap_prc)
   assert (ap_prc);
   return tiz_filter_prc_get_header (ap_prc,
                                     ARATELIA_MP4_DEMUXER_FILTER_PORT_0_INDEX);
+}
+
+static void *
+mp4_open (const char * name, MP4FileMode mode)
+{
+  return NULL;
+}
+
+static int
+mp4_seek (void * handle, int64_t pos)
+{
+  return 0;
+}
+
+static int
+mp4_read (void * handle, void * buffer, int64_t size, int64_t * nin,
+          int64_t maxChunkSize)
+{
+  return 0;
+}
+
+static int
+mp4_write (void * handle, const void * buffer, int64_t size, int64_t * nout,
+           int64_t maxChunkSize)
+{
+  return 0;
+}
+
+static int
+mp4_close (void * handle)
+{
+  return 0;
 }
 
 /* #ifndef NDEBUG */
@@ -497,12 +529,59 @@ alloc_output_stores (mp4dmuxflt_prc_t * ap_prc)
 }
 
 static inline void
-dealloc_nestegg (
+dealloc_mp4v2 (
   /*@special@ */ mp4dmuxflt_prc_t * ap_prc)
 /*@releases ap_prc->p_ne_@ */
 /*@ensures isnull ap_prc->p_ne_@ */
 {
   assert (ap_prc);
+  if (MP4_IS_VALID_FILE_HANDLE(ap_prc->mp4v2_hdl_))
+    {
+      MP4Close (ap_prc->mp4v2_hdl_, 0);
+      ap_prc->mp4v2_hdl_ = MP4_INVALID_FILE_HANDLE;
+    }
+}
+
+static OMX_ERRORTYPE
+alloc_mp4v2 (mp4dmuxflt_prc_t * ap_prc)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  assert (ap_prc);
+  if (!MP4_IS_VALID_FILE_HANDLE (ap_prc->mp4v2_hdl_))
+    {
+      const MP4FileProvider provider
+        = {mp4_open, mp4_seek, mp4_read, mp4_write, mp4_close};
+      ap_prc->mp4v2_hdl_ = MP4ReadProvider ("filename", &provider);
+      if (!MP4_IS_VALID_FILE_HANDLE (ap_prc->mp4v2_hdl_))
+        {
+          /* We'll assume mp4v2 has not initialised correctly because there is
+             not enough input data yet... we'll wait for more data to arrive, but
+             we'll also give up after the max number of failed attempts. */
+          dealloc_mp4v2 (ap_prc);
+          reset_mp4v2_members (ap_prc);
+          tiz_buffer_seek (ap_prc->p_mp4_store_, 0, TIZ_BUFFER_SEEK_SET);
+          ap_prc->mp4v2_failed_init_count_ += 1;
+          rc = OMX_ErrorNotReady;
+          TIZ_ERROR (handleOf (ap_prc),
+                     "[OMX_ErrorNotReady] on MP4ReadProvider");
+        }
+      else
+        {
+          rc = send_port_auto_detect_events (ap_prc);
+          ap_prc->mp4v2_inited_ = true;
+        }
+      TIZ_DEBUG (handleOf (ap_prc), "mp4v2 inited = %s",
+                 (ap_prc->mp4v2_inited_ ? "TRUE" : "FALSE"));
+    }
+  return rc;
+}
+
+static void
+reset_mp4v2_members (mp4dmuxflt_prc_t * ap_prc)
+{
+  assert (ap_prc);
+  assert (!MP4_IS_VALID_FILE_HANDLE(ap_prc->mp4v2_hdl_));
+  ap_prc->mp4v2_duration_ = 0;
 }
 
 static void
@@ -517,7 +596,9 @@ reset_stream_parameters (mp4dmuxflt_prc_t * ap_prc)
   ap_prc->video_auto_detect_on_ = false;
   ap_prc->video_coding_type_ = OMX_VIDEO_CodingUnused;
 
-  dealloc_nestegg (ap_prc);
+  dealloc_mp4v2 (ap_prc);
+  reset_mp4v2_members (ap_prc);
+  ap_prc->mp4v2_failed_init_count_ = 0;
 
   tiz_buffer_clear (ap_prc->p_mp4_store_);
   tiz_buffer_clear (ap_prc->p_aud_store_);
@@ -626,15 +707,15 @@ dealloc_output_stores (
 /*   return rc; */
 /* } */
 
-/* static OMX_ERRORTYPE */
-/* obtain_track_info (mp4dmuxflt_prc_t * ap_prc) */
-/* { */
-/*   OMX_ERRORTYPE rc = OMX_ErrorNone; */
+static OMX_ERRORTYPE
+obtain_track_info (mp4dmuxflt_prc_t * ap_prc)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-/*   assert (ap_prc); */
+  assert (ap_prc);
 
-/*   return rc; */
-/* } */
+  return rc;
+}
 
 /* static void */
 /* send_auto_detect_event (mp4dmuxflt_prc_t * ap_prc, OMX_S32 * ap_coding_type, */
@@ -667,15 +748,29 @@ dealloc_output_stores (
 /*     } */
 /* } */
 
-/* static OMX_ERRORTYPE */
-/* send_port_auto_detect_events (mp4dmuxflt_prc_t * ap_prc) */
-/* { */
-/*   OMX_ERRORTYPE rc = obtain_track_info (ap_prc); */
-/*   if (OMX_ErrorNone == rc) */
-/*     { */
-/*     } */
-/*   return rc; */
-/* } */
+static OMX_ERRORTYPE
+send_port_auto_detect_events (mp4dmuxflt_prc_t * ap_prc)
+{
+  OMX_ERRORTYPE rc = obtain_track_info (ap_prc);
+  if (OMX_ErrorNone == rc)
+    {
+/*       if (NESTEGG_TRACK_UNKNOWN != ap_prc->ne_audio_track_) */
+/*         { */
+/*           send_auto_detect_event (ap_prc, &(ap_prc->audio_coding_type_), */
+/*                                   OMX_AUDIO_CodingUnused, */
+/*                                   OMX_AUDIO_CodingAutoDetect, */
+/*                                   ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX); */
+/*         } */
+/*       if (NESTEGG_TRACK_UNKNOWN != ap_prc->ne_video_track_) */
+/*         { */
+/*           send_auto_detect_event (ap_prc, &(ap_prc->video_coding_type_), */
+/*                                   OMX_VIDEO_CodingUnused, */
+/*                                   OMX_VIDEO_CodingAutoDetect, */
+/*                                   ARATELIA_WEBM_DEMUXER_FILTER_PORT_2_INDEX); */
+/*         } */
+    }
+  return rc;
+}
 
 static inline OMX_ERRORTYPE
 do_flush (mp4dmuxflt_prc_t * ap_prc, OMX_U32 a_pid)
@@ -689,38 +784,6 @@ do_flush (mp4dmuxflt_prc_t * ap_prc, OMX_U32 a_pid)
   return tiz_filter_prc_release_header (ap_prc, a_pid);
 }
 
-void *
-mp4_open (const char * name, MP4FileMode mode)
-{
-  return NULL;
-}
-
-int
-mp4_seek (void * handle, int64_t pos)
-{
-  return 0;
-}
-
-int
-mp4_read (void * handle, void * buffer, int64_t size, int64_t * nin,
-          int64_t maxChunkSize)
-{
-  return 0;
-}
-
-int
-mp4_write (void * handle, const void * buffer, int64_t size, int64_t * nout,
-           int64_t maxChunkSize)
-{
-  return 0;
-}
-
-int
-mp4_close (void * handle)
-{
-  return 0;
-}
-
 /*
  * mp4dmuxfltprc
  */
@@ -731,7 +794,9 @@ mp4dmuxflt_prc_ctor (void * ap_prc, va_list * app)
   mp4dmuxflt_prc_t * p_prc
     = super_ctor (typeOf (ap_prc, "mp4dmuxfltprc"), ap_prc, app);
   assert (p_prc);
-  p_prc->mp4_handle_ = MP4_INVALID_FILE_HANDLE;
+  p_prc->mp4v2_hdl_ = MP4_INVALID_FILE_HANDLE;
+  p_prc->mp4v2_inited_ = false;
+  p_prc->mp4v2_duration_ = 0;
   p_prc->p_mp4_store_ = NULL;
   p_prc->p_aud_store_ = NULL;
   p_prc->p_vid_store_ = NULL;
@@ -759,23 +824,9 @@ mp4dmuxflt_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   mp4dmuxflt_prc_t * p_prc = ap_prc;
-
   assert (p_prc);
   tiz_check_omx (alloc_input_store (p_prc));
   tiz_check_omx (alloc_output_stores (p_prc));
-
-  if (MP4_IS_VALID_FILE_HANDLE(p_prc->mp4_handle_))
-  {
-    const MP4FileProvider provider
-      = {mp4_open, mp4_seek, mp4_read, mp4_write, mp4_close};
-    p_prc->mp4_handle_ = MP4ReadProvider ("filename", &provider);
-    if (MP4_IS_VALID_FILE_HANDLE(p_prc->mp4_handle_))
-      {
-        TIZ_ERROR(handleOf(ap_prc), "Error on MP4ReadProvider");
-        rc = OMX_ErrorInsufficientResources;
-      }
-  }
-
   return rc;
 }
 
@@ -786,12 +837,7 @@ mp4dmuxflt_prc_deallocate_resources (void * ap_prc)
   assert (p_prc);
   dealloc_output_stores (p_prc);
   dealloc_input_store (p_prc);
-  dealloc_nestegg (p_prc);
-  if (MP4_IS_VALID_FILE_HANDLE(p_prc->mp4_handle_))
-    {
-      MP4Close (p_prc->mp4_handle_, 0);
-      p_prc->mp4_handle_ = MP4_INVALID_FILE_HANDLE;
-    }
+  dealloc_mp4v2 (p_prc);
   return OMX_ErrorNone;
 }
 
@@ -830,6 +876,25 @@ mp4dmuxflt_prc_buffers_ready (const void * ap_prc)
   assert (p_prc);
 
   tiz_check_omx (store_data (p_prc));
+
+  if (!p_prc->mp4v2_inited_)
+    {
+      rc = alloc_mp4v2 (p_prc);
+      if (OMX_ErrorNotReady == rc)
+        {
+          if (MP4V2_INT_MAX_FAILED_ATTEMPTS > p_prc->mp4v2_failed_init_count_)
+            {
+              /* Need to wait for more stream data to be able to initialise the
+                 mp4v2 object */
+              rc = OMX_ErrorNone;
+            }
+          else
+            {
+              /* It's time to give up */
+              rc = OMX_ErrorStreamCorruptFatal;
+            }
+        }
+    }
 
   return rc;
 }
