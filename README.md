@@ -1,5 +1,5 @@
 <a href="https://tizonia.org/">
-    <img src="https://avatars2.githubusercontent.com/u/3161606?s=400&v=4" alt="Tizonia logo" title="The Tizonia Project" align="right" height="80" />
+    <img src="https://avatars2.githubusercontent.com/u/3161606?s=400&v=4" alt="Tizonia logo" title="The Tizonia Project" align="right" height="100" />
 </a>
 
 # Tizonia
@@ -23,10 +23,12 @@
 - [Installation](#installation)
   - [Debian / Ubuntu / Raspbian](#debian--ubuntu--raspbian)
   - [Arch User Repository (AUR)](#arch-user-repository-aur)
+  - [Snap Package](#snap-package)
+  - [Docker Image](#docker-image)
   - [Configuration](#configuration)
   - [Upgrade](#upgrade)
-- [Project](#project)
 - [Roadmap](#roadmap)
+- [Project](#project)
 - [Building](#building)
 - [Documentation](#documentation)
 - [Changelog](#changelog)
@@ -37,6 +39,9 @@
 
 # News
 
+:heavy_check_mark: [2017-12-28]
+[Snap Package](#snap-package) and [Docker Image](#docker-image) available.
+
 :heavy_check_mark: [2017-12-17] Tizonia
 [v0.11.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.11.0). Bug-fix release.
 
@@ -44,13 +49,6 @@
 [v0.10.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.10.0). Bug-fix release.
 
 :heavy_check_mark: [2017-08-26] [tizonia-all](https://aur.archlinux.org/packages/tizonia-all/) and [tizonia-all-git](https://aur.archlinux.org/packages/tizonia-all-git/) packages submitted to the [Arch User Repository](https://aur.archlinux.org/)
-
-:heavy_check_mark: [2017-08-04] Tizonia [v0.9.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.9.0). Maintenance release
-that removes Deezer support due to copyright issues.
-
-:heavy_check_mark: [2017-06-25] Tizonia
-[v0.8.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.8.0) released
-adding support for Deezer.
 
 :heavy_check_mark: [2017-05-04] [Summer of Code 2017: Add OpenMAX state tracker
 in Mesa/Gallium that uses
@@ -71,10 +69,10 @@ combinations:
 
 > NOTE: Elementary OS and Linux Mint are supported on releases based on Ubuntu 'Trusty' or Ubuntu 'Xenial'.
 
-Please note that the **recommended** way to install Tizonia is by running the
-following command, that installs in a Debian-compatible system the
-[latest](https://github.com/tizonia/tizonia-openmax-il/releases/latest)
-release of Tizonia along with all its dependencies.
+Please note that the **recommended** way to install Tizonia in a
+Debian-compatible system is running the following command, that installs the
+[latest](https://github.com/tizonia/tizonia-openmax-il/releases/latest) release
+along with all its dependencies.
 
 ```bash
 
@@ -85,9 +83,7 @@ release of Tizonia along with all its dependencies.
 ```
 
 > NOTE: The usual disclaimers apply: trust no-one. You should have a look at
-  the installation script before running it on your system, but basically, the
-  script makes sure your Debian-compatible system is updated with all the
-  necessary packages, before installing Tizonia from Bintray.
+> the installation script before running it on your system!.
 
 ## Arch User Repository (AUR)
  - [tizonia-all (0.11.0)](https://aur.archlinux.org/packages/tizonia-all/)
@@ -96,18 +92,38 @@ release of Tizonia along with all its dependencies.
 ```bash
 
     $ yaourt -S tizonia-all # for the latest stable release
-
     # or
-
     $ yaourt -S tizonia-all-git # for the bleeding edge
 
 ```
 
+## Snap Package
+
+A Tizonia 'snap' package is currently available in the 'candidate' channel. To
+install, make sure you have
+[snapd](https://docs.snapcraft.io/core/install?_ga=2.41936226.1106178805.1514500852-128158267.1514500852)
+installed on your system. Once 'snapd' is available on your system, use this
+command to install Tizonia:
+
+```bash
+
+$ sudo snap install --candidate --devmode tizonia
+
+```
+
+> NOTE: '--devmode' disables snap confinement. A Tizonia snap that works with
+> 'strict' confinement will be available very soon.
+
+## Docker Image
+
+Tizonia can also be run from a Docker container. A Docker image is available from the Docker hub:
+ - [docker-tizonia](https://hub.docker.com/r/tizonia/docker-tizonia/)
+
 ## Configuration
 
-To use *Spotify*, *Google Play Music*, *SoundCloud*, and *Dirble*,
-introduce your credentials in Tizonia's config file (see instructions inside
-the file for more information):
+To use *Spotify*, *Google Play Music*, *SoundCloud*, and *Dirble*, introduce
+your credentials in Tizonia's config file (see instructions inside the file for
+more information):
 
 ```bash
 
@@ -131,16 +147,16 @@ To upgrade Tizonia, run 'apt-get' as usual, but also make sure the Python depend
 
 ```
 
-# Project
-
-See [PROJECT.md](PROJECT.md) to learn more about this project.
-
 # Roadmap
 
 - Chromecast support.
+- YouTube live streams support.
 - REPL command-line interface.
-- Snap packages.
 - OS X port.
+
+# Project
+
+See [PROJECT.md](PROJECT.md) to learn more about this project.
 
 # Building
 
