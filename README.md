@@ -107,12 +107,9 @@ command to install Tizonia:
 
 ```bash
 
-$ sudo snap install --candidate --devmode tizonia
+$ sudo snap install --candidate tizonia
 
 ```
-
-> NOTE: '--devmode' disables snap confinement. A Tizonia snap that works with
-> 'strict' confinement will be available very soon.
 
 ## Docker Image
 
