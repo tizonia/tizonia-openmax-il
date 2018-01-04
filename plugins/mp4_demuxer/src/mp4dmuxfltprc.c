@@ -305,15 +305,29 @@ deliver_codec_metadata (mp4dmuxflt_prc_t * ap_prc, const OMX_U32 a_pid)
 /*   return OMX_ErrorNone; */
 /* } */
 
-/* static void */
-/* print_track_info (mp4dmuxflt_prc_t * ap_prc, unsigned int ntracks, */
-/*                   unsigned int track_idx, int track_type, int codec_id) */
-/* { */
-/*   assert (ap_prc); */
-/*   TIZ_DEBUG (handleOf (ap_prc), */
-/*              "ntracks: %u track: %u type: %d codec: %d", ntracks, */
-/*              track_idx, track_type, codec_id); */
-/* } */
+static void
+print_track_info (mp4dmuxflt_prc_t * ap_prc, MP4TrackId tid)
+{
+  assert (ap_prc);
+  assert (ap_prc->mp4v2_hdl_ != MP4_INVALID_FILE_HANDLE);
+  if (MP4_INVALID_TRACK_ID != tid)
+    {
+      MP4FileHandle mp4hdl = ap_prc->mp4v2_hdl_;
+      const char * p_type = MP4GetTrackType (mp4hdl, tid);
+      uint32_t nsamples = MP4GetTrackNumberOfSamples (mp4hdl, tid);
+      uint32_t timescale = MP4GetTrackTimeScale (mp4hdl, tid);
+      const char * p_md_name = MP4GetTrackMediaDataName (mp4hdl, tid);
+      MP4Duration duration = MP4GetTrackDuration (mp4hdl, tid);
+      char * p_nfo = MP4Info (mp4hdl, tid);
+      TIZ_DEBUG (handleOf (ap_prc),
+                 "track %d, type %s, samples %d, timescale %d media name %s "
+                 "duration %lld\n",
+                 tid, (p_type ? p_type : ""), nsamples, timescale,
+                 (p_md_name ? p_md_name : ""), duration);
+      TIZ_DEBUG (handleOf (ap_prc), "track info: ", (p_nfo ? p_nfo : ""));
+      tiz_mem_free (p_nfo);
+    }
+}
 
 static OMX_ERRORTYPE
 prepare_port_auto_detection (mp4dmuxflt_prc_t * ap_prc)
@@ -322,8 +336,7 @@ prepare_port_auto_detection (mp4dmuxflt_prc_t * ap_prc)
   assert (ap_prc);
 
   /* Prepare audio port */
-  TIZ_INIT_OMX_PORT_STRUCT (port_def,
-                            ARATELIA_MP4_DEMUXER_FILTER_PORT_1_INDEX);
+  TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_MP4_DEMUXER_FILTER_PORT_1_INDEX);
   tiz_check_omx (
     tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                           OMX_IndexParamPortDefinition, &port_def));
@@ -332,8 +345,7 @@ prepare_port_auto_detection (mp4dmuxflt_prc_t * ap_prc)
     = (OMX_AUDIO_CodingAutoDetect == ap_prc->audio_coding_type_) ? true : false;
 
   /* Prepare video port */
-  TIZ_INIT_OMX_PORT_STRUCT (port_def,
-                            ARATELIA_MP4_DEMUXER_FILTER_PORT_2_INDEX);
+  TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_MP4_DEMUXER_FILTER_PORT_2_INDEX);
   tiz_check_omx (
     tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                           OMX_IndexParamPortDefinition, &port_def));
@@ -476,8 +488,7 @@ alloc_input_store (mp4dmuxflt_prc_t * ap_prc)
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
   assert (ap_prc);
 
-  TIZ_INIT_OMX_PORT_STRUCT (port_def,
-                            ARATELIA_MP4_DEMUXER_FILTER_PORT_0_INDEX);
+  TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_MP4_DEMUXER_FILTER_PORT_0_INDEX);
   tiz_check_omx (
     tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                           OMX_IndexParamPortDefinition, &port_def));
@@ -535,7 +546,7 @@ dealloc_mp4v2 (
 /*@ensures isnull ap_prc->p_ne_@ */
 {
   assert (ap_prc);
-  if (MP4_IS_VALID_FILE_HANDLE(ap_prc->mp4v2_hdl_))
+  if (MP4_IS_VALID_FILE_HANDLE (ap_prc->mp4v2_hdl_))
     {
       MP4Close (ap_prc->mp4v2_hdl_, 0);
       ap_prc->mp4v2_hdl_ = MP4_INVALID_FILE_HANDLE;
@@ -580,7 +591,7 @@ static void
 reset_mp4v2_members (mp4dmuxflt_prc_t * ap_prc)
 {
   assert (ap_prc);
-  assert (!MP4_IS_VALID_FILE_HANDLE(ap_prc->mp4v2_hdl_));
+  assert (!MP4_IS_VALID_FILE_HANDLE (ap_prc->mp4v2_hdl_));
   ap_prc->mp4v2_duration_ = 0;
 }
 
@@ -711,9 +722,21 @@ static OMX_ERRORTYPE
 obtain_track_info (mp4dmuxflt_prc_t * ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
+  MP4TrackId track_id = MP4_INVALID_TRACK_ID;
+  uint32_t i = 0;
+  uint32_t numTracks = 0;
 
   assert (ap_prc);
+  assert (ap_prc->mp4v2_hdl_ != MP4_INVALID_FILE_HANDLE);
 
+  /* Obtain num tracks */
+  numTracks = MP4GetNumberOfTracks (ap_prc->mp4v2_hdl_, NULL, 0);
+
+  for (i = 0; i < numTracks; ++i)
+    {
+      track_id = MP4FindTrackId (ap_prc->mp4v2_hdl_, i, NULL, 0);
+      print_track_info (ap_prc, track_id);
+    }
   return rc;
 }
 
@@ -754,20 +777,20 @@ send_port_auto_detect_events (mp4dmuxflt_prc_t * ap_prc)
   OMX_ERRORTYPE rc = obtain_track_info (ap_prc);
   if (OMX_ErrorNone == rc)
     {
-/*       if (NESTEGG_TRACK_UNKNOWN != ap_prc->ne_audio_track_) */
-/*         { */
-/*           send_auto_detect_event (ap_prc, &(ap_prc->audio_coding_type_), */
-/*                                   OMX_AUDIO_CodingUnused, */
-/*                                   OMX_AUDIO_CodingAutoDetect, */
-/*                                   ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX); */
-/*         } */
-/*       if (NESTEGG_TRACK_UNKNOWN != ap_prc->ne_video_track_) */
-/*         { */
-/*           send_auto_detect_event (ap_prc, &(ap_prc->video_coding_type_), */
-/*                                   OMX_VIDEO_CodingUnused, */
-/*                                   OMX_VIDEO_CodingAutoDetect, */
-/*                                   ARATELIA_WEBM_DEMUXER_FILTER_PORT_2_INDEX); */
-/*         } */
+      /*       if (NESTEGG_TRACK_UNKNOWN != ap_prc->ne_audio_track_) */
+      /*         { */
+      /*           send_auto_detect_event (ap_prc, &(ap_prc->audio_coding_type_), */
+      /*                                   OMX_AUDIO_CodingUnused, */
+      /*                                   OMX_AUDIO_CodingAutoDetect, */
+      /*                                   ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX); */
+      /*         } */
+      /*       if (NESTEGG_TRACK_UNKNOWN != ap_prc->ne_video_track_) */
+      /*         { */
+      /*           send_auto_detect_event (ap_prc, &(ap_prc->video_coding_type_), */
+      /*                                   OMX_VIDEO_CodingUnused, */
+      /*                                   OMX_VIDEO_CodingAutoDetect, */
+      /*                                   ARATELIA_WEBM_DEMUXER_FILTER_PORT_2_INDEX); */
+      /*         } */
     }
   return rc;
 }
