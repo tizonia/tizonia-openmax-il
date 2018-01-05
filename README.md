@@ -103,16 +103,14 @@ A 'snap' package is now available to download from the 'Global' snap store
 ('stable' channel). For more details visit:
 
 - Tizonia's landing page on [Snapcraft.io](https://snapcraft.io/tizonia)
-
 or
-
 - Tizonia on [uApp Explorer](https://uappexplorer.com/snap/ubuntu/tizonia)
 
-To install, first visit
-[snapd](https://docs.snapcraft.io/core/install?_ga=2.41936226.1106178805.1514500852-128158267.1514500852)
+To install, first visit [Install
+Snapd](https://docs.snapcraft.io/core/install?_ga=2.41936226.1106178805.1514500852-128158267.1514500852)
 to make sure that your Linux distro is supported. Follow the instructions there
-and intall the 'snapd' service on your system, and finally use this command to
-install Tizonia:
+to get the 'snapd' service running on your system, and finally use this command
+to install Tizonia:
 
 ```bash
 
@@ -122,7 +120,7 @@ $ sudo snap install tizonia
 
 Tizonia's snapcraft.yaml file is hosted on this repository:
 
-- [docker-tizonia](https://github.com/tizonia/tizonia-snap/)
+- [tizonia-snap](https://github.com/tizonia/tizonia-snap/)
 
 ## Docker Image
 
