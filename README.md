@@ -99,22 +99,36 @@ along with all its dependencies.
 
 ## Snap Package
 
-A Tizonia 'snap' package is currently available in the 'candidate' channel. To
-install, make sure you have
+A 'snap' package is now available to download from the 'Global' snap store
+('stable' channel). For more details visit:
+
+- Tizonia's landing page on [Snapcraft.io](https://snapcraft.io/tizonia)
+
+or
+
+- Tizonia on [uApp Explorer](https://uappexplorer.com/snap/ubuntu/tizonia)
+
+To install, first visit
 [snapd](https://docs.snapcraft.io/core/install?_ga=2.41936226.1106178805.1514500852-128158267.1514500852)
-installed on your system. Once 'snapd' is available on your system, use this
-command to install Tizonia:
+to make sure that your Linux distro is supported. Follow the instructions there
+and intall the 'snapd' service on your system, and finally use this command to
+install Tizonia:
 
 ```bash
 
-$ sudo snap install --candidate tizonia
+$ sudo snap install tizonia
 
 ```
+
+Tizonia's snapcraft.yaml file is hosted on this repository:
+
+- [docker-tizonia](https://github.com/tizonia/tizonia-snap/)
 
 ## Docker Image
 
 Tizonia can also be run from a Docker container. A Docker image is available from the Docker hub:
- - [docker-tizonia](https://hub.docker.com/r/tizonia/docker-tizonia/)
+
+- [docker-tizonia](https://hub.docker.com/r/tizonia/docker-tizonia/)
 
 ## Configuration
 
@@ -128,6 +142,13 @@ more information):
     $ cp /etc/tizonia/tizonia.conf $HOME/.config/tizonia/tizonia.conf
 
     ( now edit $HOME/.config/tizonia/tizonia.conf )
+
+    ( NOTE: If you have installed the 'snap' package, use the following commands instead. )
+
+    $ mkdir -p $HOME/snap/tizonia/current/.config/tizonia
+    $ cp /var/lib/snapd/snap/tizonia/current/etc/xdg/tizonia/tizonia.conf $HOME/snap/tizonia/current/.config/tizonia
+
+    ( now edit $HOME/snap/tizonia/current/.config/tizonia )
 
 ```
 
