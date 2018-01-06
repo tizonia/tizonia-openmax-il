@@ -305,27 +305,62 @@ deliver_codec_metadata (mp4dmuxflt_prc_t * ap_prc, const OMX_U32 a_pid)
 /*   return OMX_ErrorNone; */
 /* } */
 
+static mp4_track_type_t
+get_track_type (mp4dmuxflt_prc_t * ap_prc, const MP4FileHandle a_mp4hdl,
+                const MP4TrackId tid)
+{
+  char * p_track_type = NULL;
+  assert (ap_prc);
+  assert (a_mp4hdl != MP4_INVALID_FILE_HANDLE);
+  assert (MP4_INVALID_TRACK_ID != tid);
+
+  {
+    p_track_type = (char *) MP4GetTrackType (a_mp4hdl, tid);
+    if (p_track_type)
+      {
+        if (!strcmp (p_track_type, MP4_AUDIO_TRACK_TYPE))
+          {
+            ap_prc->track_type_ = mp4_track_audio;
+          }
+        else if (!strcmp (p_track_type, MP4_VIDEO_TRACK_TYPE))
+          {
+            ap_prc->track_type_ = mp4_track_video;
+          }
+        else if (!strcmp (p_track_type, MP4_HINT_TRACK_TYPE))
+          {
+            ap_prc->track_type_ = mp4_track_hint;
+          }
+        else if (strcmp (p_track_type, MP4_CNTL_TRACK_TYPE) == 0)
+          {
+            ap_prc->track_type_ = mp4_track_cntl;
+          }
+        else if (!strcmp (p_track_type, MP4_OD_TRACK_TYPE))
+          {
+            ap_prc->track_type_ = mp4_track_od;
+          }
+        else if (!strcmp (p_track_type, MP4_SCENE_TRACK_TYPE))
+          {
+            ap_prc->track_type_ = mp4_track_scene;
+          }
+        else
+          {
+            ap_prc->track_type_ = mp4_track_unknown;
+          }
+      }
+  }
+  return ap_prc->track_type_;
+}
+
 static void
-print_track_info (mp4dmuxflt_prc_t * ap_prc, MP4TrackId tid)
+print_track_info (mp4dmuxflt_prc_t * ap_prc, const MP4TrackId tid)
 {
   assert (ap_prc);
   assert (ap_prc->mp4v2_hdl_ != MP4_INVALID_FILE_HANDLE);
   if (MP4_INVALID_TRACK_ID != tid)
     {
-      MP4FileHandle mp4hdl = ap_prc->mp4v2_hdl_;
-      const char * p_type = MP4GetTrackType (mp4hdl, tid);
-      uint32_t nsamples = MP4GetTrackNumberOfSamples (mp4hdl, tid);
-      uint32_t timescale = MP4GetTrackTimeScale (mp4hdl, tid);
-      const char * p_md_name = MP4GetTrackMediaDataName (mp4hdl, tid);
-      MP4Duration duration = MP4GetTrackDuration (mp4hdl, tid);
-      char * p_nfo = MP4Info (mp4hdl, tid);
-      TIZ_DEBUG (handleOf (ap_prc),
-                 "track %d, type %s, samples %d, timescale %d media name %s "
-                 "duration %lld\n",
-                 tid, (p_type ? p_type : ""), nsamples, timescale,
-                 (p_md_name ? p_md_name : ""), duration);
-      TIZ_DEBUG (handleOf (ap_prc), "track info: ", (p_nfo ? p_nfo : ""));
-      tiz_mem_free (p_nfo);
+      char * p_track_nfo = MP4Info (ap_prc->mp4v2_hdl_, tid);
+      TIZ_DEBUG (handleOf (ap_prc), "track info: ", (p_track_nfo ? p_track_nfo : ""));
+      tiz_mem_free (p_track_nfo);
     }
 }
 
@@ -592,7 +627,11 @@ reset_mp4v2_members (mp4dmuxflt_prc_t * ap_prc)
 {
   assert (ap_prc);
   assert (!MP4_IS_VALID_FILE_HANDLE (ap_prc->mp4v2_hdl_));
+  ap_prc->mp4v2_inited_ = false;
   ap_prc->mp4v2_duration_ = 0;
+  ap_prc->track_type_ = mp4_track_unknown;
+  ap_prc->audio_type_ = mp4_audio_unknown;
+  ap_prc->video_type_ = mp4_video_unknown;
 }
 
 static void
@@ -648,75 +687,75 @@ dealloc_output_stores (
   ap_prc->p_vid_header_lengths_ = NULL;
 }
 
-/* static OMX_ERRORTYPE */
-/* set_audio_coding_on_port (mp4dmuxflt_prc_t * ap_prc) */
-/* { */
-/*   OMX_PARAM_PORTDEFINITIONTYPE port_def; */
-/*   assert (ap_prc); */
+static OMX_ERRORTYPE
+set_audio_coding_on_port (mp4dmuxflt_prc_t * ap_prc)
+{
+  OMX_PARAM_PORTDEFINITIONTYPE port_def;
+  assert (ap_prc);
 
-/*   TIZ_INIT_OMX_PORT_STRUCT (port_def, */
-/*                             ARATELIA_MP4_DEMUXER_FILTER_PORT_1_INDEX); */
-/*   tiz_check_omx ( */
-/*     tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc), */
-/*                           OMX_IndexParamPortDefinition, &port_def)); */
+  TIZ_INIT_OMX_PORT_STRUCT (port_def,
+                            ARATELIA_MP4_DEMUXER_FILTER_PORT_1_INDEX);
+  tiz_check_omx (
+    tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+                          OMX_IndexParamPortDefinition, &port_def));
 
-/*   /\* Set the new value *\/ */
-/*   port_def.format.audio.eEncoding = ap_prc->audio_coding_type_; */
+  /* Set the new value */
+  port_def.format.audio.eEncoding = ap_prc->audio_coding_type_;
 
-/*   tiz_check_omx (tiz_krn_SetParameter_internal ( */
-/*     tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc), */
-/*     OMX_IndexParamPortDefinition, &port_def)); */
+  tiz_check_omx (tiz_krn_SetParameter_internal (
+    tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+    OMX_IndexParamPortDefinition, &port_def));
 
-/*   return OMX_ErrorNone; */
-/* } */
+  return OMX_ErrorNone;
+}
 
-/* static OMX_ERRORTYPE */
-/* set_video_coding_on_port (mp4dmuxflt_prc_t * ap_prc) */
-/* { */
-/*   OMX_PARAM_PORTDEFINITIONTYPE port_def; */
-/*   assert (ap_prc); */
+static OMX_ERRORTYPE
+set_video_coding_on_port (mp4dmuxflt_prc_t * ap_prc)
+{
+  OMX_PARAM_PORTDEFINITIONTYPE port_def;
+  assert (ap_prc);
 
-/*   TIZ_INIT_OMX_PORT_STRUCT (port_def, */
-/*                             ARATELIA_MP4_DEMUXER_FILTER_PORT_2_INDEX); */
-/*   tiz_check_omx ( */
-/*     tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc), */
-/*                           OMX_IndexParamPortDefinition, &port_def)); */
+  TIZ_INIT_OMX_PORT_STRUCT (port_def,
+                            ARATELIA_MP4_DEMUXER_FILTER_PORT_2_INDEX);
+  tiz_check_omx (
+    tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+                          OMX_IndexParamPortDefinition, &port_def));
 
-/*   /\* Set the new value *\/ */
-/*   port_def.format.video.eCompressionFormat = ap_prc->video_coding_type_; */
+  /* Set the new value */
+  port_def.format.video.eCompressionFormat = ap_prc->video_coding_type_;
 
-/*   tiz_check_omx (tiz_krn_SetParameter_internal ( */
-/*     tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc), */
-/*     OMX_IndexParamPortDefinition, &port_def)); */
+  tiz_check_omx (tiz_krn_SetParameter_internal (
+    tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+    OMX_IndexParamPortDefinition, &port_def));
 
-/*   return OMX_ErrorNone; */
-/* } */
+  return OMX_ErrorNone;
+}
 
-/* static OMX_ERRORTYPE */
-/* read_audio_codec_metadata (mp4dmuxflt_prc_t * ap_prc, */
-/*                            const unsigned int a_track_idx, const int a_codec_id, */
-/*                            const int a_track_type) */
-/* { */
-/*   OMX_ERRORTYPE rc = OMX_ErrorNone; */
-/*   assert (ap_prc); */
+static OMX_ERRORTYPE
+read_audio_codec_metadata (mp4dmuxflt_prc_t * ap_prc,
+                           const MP4TrackId a_track_id,
+                           const int a_track_type)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  assert (ap_prc);
 
-/*   /\* Do nothing if track type is not audio *\/ */
-/*   tiz_check_omx (set_audio_coding_on_port (ap_prc)); */
-/*   return rc; */
-/* } */
+  /* Do nothing if track type is not audio */
+  tiz_check_omx (set_audio_coding_on_port (ap_prc));
+  return rc;
+}
 
-/* static OMX_ERRORTYPE */
-/* read_video_codec_metadata (mp4dmuxflt_prc_t * ap_prc, */
-/*                            const unsigned int a_track_idx, const int a_codec_id, */
-/*                            const int a_track_type) */
-/* { */
-/*   OMX_ERRORTYPE rc = OMX_ErrorNone; */
-/*   assert (ap_prc); */
+static OMX_ERRORTYPE
+read_video_codec_metadata (mp4dmuxflt_prc_t * ap_prc,
+                           const unsigned int a_track_id,
+                           const int a_track_type)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  assert (ap_prc);
 
-/*   /\* Do nothing if track type is not video *\/ */
-/*   tiz_check_omx (set_video_coding_on_port (ap_prc)); */
-/*   return rc; */
-/* } */
+  /* Do nothing if track type is not video */
+  tiz_check_omx (set_video_coding_on_port (ap_prc));
+  return rc;
+}
 
 static OMX_ERRORTYPE
 obtain_track_info (mp4dmuxflt_prc_t * ap_prc)
@@ -724,52 +763,61 @@ obtain_track_info (mp4dmuxflt_prc_t * ap_prc)
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   MP4TrackId track_id = MP4_INVALID_TRACK_ID;
   uint32_t i = 0;
-  uint32_t numTracks = 0;
+  uint32_t ntracks = 0;
 
   assert (ap_prc);
   assert (ap_prc->mp4v2_hdl_ != MP4_INVALID_FILE_HANDLE);
 
-  /* Obtain num tracks */
-  numTracks = MP4GetNumberOfTracks (ap_prc->mp4v2_hdl_, NULL, 0);
+  /* Obtain the number of tracks */
+  ntracks = MP4GetNumberOfTracks (ap_prc->mp4v2_hdl_, NULL, 0);
 
-  for (i = 0; i < numTracks; ++i)
+  for (i = 0; i < ntracks; ++i)
     {
+      mp4_track_type_t track_type = mp4_track_unknown;
+
       track_id = MP4FindTrackId (ap_prc->mp4v2_hdl_, i, NULL, 0);
+      track_type = get_track_type (ap_prc, ap_prc->mp4v2_hdl_, track_id);
+
       print_track_info (ap_prc, track_id);
+
+      tiz_check_omx (
+        read_audio_codec_metadata (ap_prc, track_id, track_type));
+      tiz_check_omx (
+        read_video_codec_metadata (ap_prc, track_id, track_type));
     }
   return rc;
 }
 
-/* static void */
-/* send_auto_detect_event (mp4dmuxflt_prc_t * ap_prc, OMX_S32 * ap_coding_type, */
-/*                         const OMX_S32 a_coding_type1, */
-/*                         const OMX_S32 a_coding_type2, const OMX_U32 a_pid) */
-/* { */
-/*   assert (ap_prc); */
-/*   assert (ap_coding_type); */
-/*   if (*ap_coding_type != a_coding_type1 && *ap_coding_type != a_coding_type2) */
-/*     { */
-/*       TIZ_DEBUG ( */
-/*         handleOf (ap_prc), */
-/*         "Issuing OMX_EventPortFormatDetected - audio_coding_type_ [%X]", */
-/*         *ap_coding_type); */
+static void
+send_auto_detect_event (mp4dmuxflt_prc_t * ap_prc, OMX_S32 * ap_coding_type,
+                        const OMX_S32 a_coding_type1,
+                        const OMX_S32 a_coding_type2, const OMX_U32 a_pid)
+{
+  assert (ap_prc);
+  assert (ap_coding_type);
+  if (*ap_coding_type != a_coding_type1 && *ap_coding_type != a_coding_type2)
+    {
+      TIZ_DEBUG (
+        handleOf (ap_prc),
+        "Issuing OMX_EventPortFormatDetected - audio_coding_type_ [%X]",
+        *ap_coding_type);
 
-/*       /\* TODO: update the output port with the corresponding audio or video settings detected *\/ */
-/*       tiz_srv_issue_event ((OMX_PTR) ap_prc, OMX_EventPortFormatDetected, 0, 0, */
-/*                            NULL); */
-/*       tiz_srv_issue_event ((OMX_PTR) ap_prc, OMX_EventPortSettingsChanged, */
-/*                            a_pid, */
-/*                            OMX_IndexParamPortDefinition, /\* the index of the */
-/*                                                       struct that has */
-/*                                                       been modififed *\/ */
-/*                            NULL); */
-/*     } */
-/*   else */
-/*     { */
-/*       /\* Oops... could not detect the stream format *\/ */
-/*       tiz_srv_issue_err_event ((OMX_PTR) ap_prc, OMX_ErrorFormatNotDetected); */
-/*     } */
-/* } */
+      /* TODO: update the output port with the corresponding audio or video settings detected */
+      tiz_srv_issue_event ((OMX_PTR) ap_prc, OMX_EventPortFormatDetected, 0, 0,
+                           NULL);
+      tiz_srv_issue_event ((OMX_PTR) ap_prc, OMX_EventPortSettingsChanged,
+                           a_pid,
+                           OMX_IndexParamPortDefinition, /* the index of the
+                                                      struct that has
+                                                      been modififed */
+                           NULL);
+    }
+  else
+    {
+      /* Oops... could not detect the stream format */
+      tiz_srv_issue_err_event ((OMX_PTR) ap_prc, OMX_ErrorFormatNotDetected);
+    }
+}
 
 static OMX_ERRORTYPE
 send_port_auto_detect_events (mp4dmuxflt_prc_t * ap_prc)
@@ -777,20 +825,20 @@ send_port_auto_detect_events (mp4dmuxflt_prc_t * ap_prc)
   OMX_ERRORTYPE rc = obtain_track_info (ap_prc);
   if (OMX_ErrorNone == rc)
     {
-      /*       if (NESTEGG_TRACK_UNKNOWN != ap_prc->ne_audio_track_) */
-      /*         { */
-      /*           send_auto_detect_event (ap_prc, &(ap_prc->audio_coding_type_), */
-      /*                                   OMX_AUDIO_CodingUnused, */
-      /*                                   OMX_AUDIO_CodingAutoDetect, */
-      /*                                   ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX); */
-      /*         } */
-      /*       if (NESTEGG_TRACK_UNKNOWN != ap_prc->ne_video_track_) */
-      /*         { */
-      /*           send_auto_detect_event (ap_prc, &(ap_prc->video_coding_type_), */
-      /*                                   OMX_VIDEO_CodingUnused, */
-      /*                                   OMX_VIDEO_CodingAutoDetect, */
-      /*                                   ARATELIA_WEBM_DEMUXER_FILTER_PORT_2_INDEX); */
-      /*         } */
+      if (mp4_audio_unknown != ap_prc->audio_type_)
+        {
+          send_auto_detect_event (ap_prc, &(ap_prc->audio_coding_type_),
+                                  OMX_AUDIO_CodingUnused,
+                                  OMX_AUDIO_CodingAutoDetect,
+                                  ARATELIA_MP4_DEMUXER_FILTER_PORT_1_INDEX);
+        }
+      if (mp4_video_unknown != ap_prc->video_type_)
+        {
+          send_auto_detect_event (ap_prc, &(ap_prc->video_coding_type_),
+                                  OMX_VIDEO_CodingUnused,
+                                  OMX_VIDEO_CodingAutoDetect,
+                                  ARATELIA_MP4_DEMUXER_FILTER_PORT_2_INDEX);
+        }
     }
   return rc;
 }

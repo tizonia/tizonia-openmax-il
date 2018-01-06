@@ -43,6 +43,34 @@ extern "C" {
 #include <tizfilterprc.h>
 #include <tizfilterprc_decls.h>
 
+typedef enum mp4_track_type mp4_track_type_t;
+enum mp4_track_type
+{
+  mp4_track_audio,
+  mp4_track_video,
+  mp4_track_hint,
+  mp4_track_cntl,
+  mp4_track_od,
+  mp4_track_scene,
+  mp4_track_unknown
+};
+
+typedef enum mp4_audio_type mp4_audio_type_t;
+enum mp4_audio_type
+{
+  mp4_audio_mp3,
+  mp4_audio_aac,
+  mp4_audio_unknown
+};
+
+typedef enum mp4_video_type mp4_video_type_t;
+enum mp4_video_type
+{
+  mp4_video_mpeg1,
+  mp4_video_mpeg2,
+  mp4_video_mpeg4,
+  mp4_video_unknown
+};
 
 typedef struct mp4dmuxflt_prc mp4dmuxflt_prc_t;
 struct mp4dmuxflt_prc
@@ -52,6 +80,9 @@ struct mp4dmuxflt_prc
   MP4FileHandle mp4v2_hdl_;
   bool mp4v2_inited_;
   uint64_t mp4v2_duration_;
+  mp4_track_type_t track_type_;
+  mp4_audio_type_t audio_type_;
+  mp4_video_type_t video_type_;
   int mp4v2_failed_init_count_;
   tiz_buffer_t * p_mp4_store_;
   tiz_buffer_t * p_aud_store_;
