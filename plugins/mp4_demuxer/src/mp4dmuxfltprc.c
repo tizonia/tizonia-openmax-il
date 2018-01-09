@@ -248,12 +248,13 @@ deliver_codec_metadata (mp4dmuxflt_prc_t * ap_prc, const OMX_U32 a_pid)
           && (p_hdr = tiz_filter_prc_get_header (ap_prc, a_pid)))
         {
           size_t headerlen = 0;
+          size_t nbytes_to_copy = 0;
           size_t * p_headerlen = tiz_vector_at (p_header_lengths, (OMX_S32) 0);
           assert (p_headerlen);
           headerlen = *p_headerlen;
 
           /* Copy the data into the omx buffer */
-          size_t nbytes_to_copy = MIN (TIZ_OMX_BUF_AVAIL (p_hdr), headerlen);
+          nbytes_to_copy = MIN (TIZ_OMX_BUF_AVAIL (p_hdr), headerlen);
           memcpy (TIZ_OMX_BUF_PTR (p_hdr) + p_hdr->nFilledLen,
                   tiz_buffer_get (p_out_store), nbytes_to_copy);
           tiz_buffer_advance (p_out_store, nbytes_to_copy);
@@ -351,6 +352,7 @@ get_track_type (mp4dmuxflt_prc_t * ap_prc, const MP4FileHandle a_mp4hdl,
   return ap_prc->track_type_;
 }
 
+#ifndef NDEBUG
 static void
 print_track_info (mp4dmuxflt_prc_t * ap_prc, const MP4TrackId tid)
 {
@@ -363,6 +365,7 @@ print_track_info (mp4dmuxflt_prc_t * ap_prc, const MP4TrackId tid)
       tiz_mem_free (p_track_nfo);
     }
 }
+#endif
 
 static OMX_ERRORTYPE
 prepare_port_auto_detection (mp4dmuxflt_prc_t * ap_prc)
@@ -739,8 +742,46 @@ read_audio_codec_metadata (mp4dmuxflt_prc_t * ap_prc,
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (ap_prc);
 
-  /* Do nothing if track type is not audio */
-  tiz_check_omx (set_audio_coding_on_port (ap_prc));
+  if (mp4_track_audio == a_track_type)
+    {
+      mp4_audio_type_t audio_type = mp4_audio_unknown;
+      uint32_t time_scale = 0;
+      MP4Duration track_duration = 0;
+      double ms_duration = .0;
+      uint32_t avg_bitrate = 0;
+      char * p_track_nfo = mp4_get_audio_info (
+        ap_prc->mp4v2_hdl_, a_track_id, &audio_type, &time_scale,
+        &track_duration, &ms_duration, &avg_bitrate);
+      tiz_mem_free(p_track_nfo);
+      p_track_nfo = NULL;
+
+      switch(audio_type)
+        {
+        case mp4_audio_mp3:
+          {
+            ap_prc->audio_coding_type_ = OMX_AUDIO_CodingMP3;
+          }
+          break;
+        case mp4_audio_aac:
+        case mp4_audio_aac_from_mov:
+          {
+            ap_prc->audio_coding_type_ = OMX_AUDIO_CodingAAC;
+          }
+          break;
+        case mp4_audio_amr:
+        case mp4_audio_amrwb:
+          {
+            ap_prc->audio_coding_type_ = OMX_AUDIO_CodingAMR;
+          }
+          break;
+        default:
+          ap_prc->audio_coding_type_ = OMX_AUDIO_CodingUnused;
+          break;
+        };
+
+      /* Do nothing if track type is not audio */
+      tiz_check_omx (set_audio_coding_on_port (ap_prc));
+    }
   return rc;
 }
 
@@ -778,7 +819,9 @@ obtain_track_info (mp4dmuxflt_prc_t * ap_prc)
       track_id = MP4FindTrackId (ap_prc->mp4v2_hdl_, i, NULL, 0);
       track_type = get_track_type (ap_prc, ap_prc->mp4v2_hdl_, track_id);
 
+#ifndef NDEBUG
       print_track_info (ap_prc, track_id);
+#endif
 
       tiz_check_omx (
         read_audio_codec_metadata (ap_prc, track_id, track_type));

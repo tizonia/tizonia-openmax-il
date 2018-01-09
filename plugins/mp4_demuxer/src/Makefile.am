@@ -20,6 +20,7 @@ libtizmp4demuxdir = $(plugindir)
 libtizmp4demux_LTLIBRARIES = libtizmp4demux.la
 
 noinst_HEADERS = \
+	mp4info.h \
 	mp4dmux.h \
 	mp4dmuxsrcprc.h \
 	mp4dmuxsrcprc_decls.h \
@@ -27,6 +28,7 @@ noinst_HEADERS = \
 	mp4dmuxfltprc_decls.h
 
 libtizmp4demux_la_SOURCES = \
+	mp4info.c \
 	mp4dmux.c \
 	mp4dmuxsrcprc.c \
 	mp4dmuxfltprc.c
