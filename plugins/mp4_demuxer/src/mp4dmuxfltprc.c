@@ -33,6 +33,8 @@
 
 #include <assert.h>
 #include <string.h>
+#include <stdarg.h>
+#include <alloca.h>
 
 #include <OMX_TizoniaExt.h>
 
@@ -86,77 +88,87 @@ get_mp4_hdr (mp4dmuxflt_prc_t * ap_prc)
                                     ARATELIA_MP4_DEMUXER_FILTER_PORT_0_INDEX);
 }
 
-static void *
-mp4_open (const char * name, MP4FileMode mode)
+static void
+mp4_log_cback (MP4LogLevel loglevel, const char * fmt, va_list ap)
 {
-  return NULL;
+  #define MAX_ALLOCA_BUF 1024
+  char * buffer = alloca (MAX_ALLOCA_BUF);
+  vsnprintf (buffer, MAX_ALLOCA_BUF, fmt, ap);
+
+  /* typedef enum {
+     MP4_LOG_NONE = 0,
+     MP4_LOG_ERROR = 1,
+     MP4_LOG_WARNING = 2,
+     MP4_LOG_INFO = 3,
+     MP4_LOG_VERBOSE1 = 4,
+     MP4_LOG_VERBOSE2 = 5,
+     MP4_LOG_VERBOSE3 = 6,
+     MP4_LOG_VERBOSE4 = 7
+     }  MP4LogLevel;
+  */
+
+  switch(loglevel)
+    {
+    case MP4_LOG_ERROR:
+      {
+        TIZ_ERROR(g_handle, "%s", buffer);
+      }
+      break;
+    case MP4_LOG_INFO:
+      {
+        TIZ_NOTICE(g_handle, "%s", buffer);
+      }
+      break;
+    case MP4_LOG_WARNING:
+      {
+        TIZ_DEBUG(g_handle, "%s", buffer);
+      }
+      break;
+    default:
+      {
+        TIZ_TRACE(g_handle, "%s", buffer);
+      }
+      break;
+    };
+}
+
+static void *
+mp4_open_cback (const char * name, MP4FileMode mode)
+{
+  TIZ_TRACE(g_handle, "file name [%s]", name);
+  return g_handle;
 }
 
 static int
-mp4_seek (void * handle, int64_t pos)
+mp4_seek_cback (void * handle, int64_t pos)
 {
+  TIZ_TRACE(g_handle, "pos [%lld]", pos);
   return 0;
 }
 
 static int
-mp4_read (void * handle, void * buffer, int64_t size, int64_t * nin,
+mp4_read_cback (void * handle, void * buffer, int64_t size, int64_t * nin,
           int64_t maxChunkSize)
 {
+  TIZ_TRACE(g_handle, "buffer [%p] size [%lld] nim [%lld] maxChunkSize [%lld]",
+            buffer, size, nin, maxChunkSize);
   return 0;
 }
 
 static int
-mp4_write (void * handle, const void * buffer, int64_t size, int64_t * nout,
+mp4_write_cback (void * handle, const void * buffer, int64_t size, int64_t * nout,
            int64_t maxChunkSize)
 {
+  TIZ_TRACE(g_handle, "");
   return 0;
 }
 
 static int
-mp4_close (void * handle)
+mp4_close_cback (void * handle)
 {
+  TIZ_TRACE(g_handle, "");
   return 0;
 }
-
-/* #ifndef NDEBUG */
-/* static void */
-/* print_audio_codec_metadata (mp4dmuxflt_prc_t * ap_prc, */
-/*                             const unsigned int a_header_idx, */
-/*                             const unsigned int a_nheaders, */
-/*                             unsigned char * ap_codec_data, */
-/*                             size_t codec_data_length) */
-/* { */
-/*   size_t k = 0; */
-/*   assert (ap_prc); */
-/*   assert (ap_codec_data); */
-/*   TIZ_DEBUG (handleOf (ap_prc), " Audio header [%u] headers [%u] (%p, %u)", */
-/*              a_header_idx, a_nheaders, ap_codec_data, */
-/*              (unsigned int) codec_data_length); */
-/*   for (k = 0; k < codec_data_length; ++k) */
-/*     { */
-/*       TIZ_DEBUG (handleOf (ap_prc), "   [%c]", ap_codec_data[k]); */
-/*     } */
-/* } */
-
-/* static void */
-/* print_video_codec_metadata (mp4dmuxflt_prc_t * ap_prc, */
-/*                             const unsigned int a_header_idx, */
-/*                             const unsigned int a_nheaders, */
-/*                             unsigned char * ap_codec_data, */
-/*                             size_t codec_data_length) */
-/* { */
-/*   size_t k = 0; */
-/*   assert (ap_prc); */
-/*   assert (ap_codec_data); */
-/*   TIZ_DEBUG (handleOf (ap_prc), " Video header [%u] headers [%u] (%p, %u)", */
-/*              a_header_idx, a_nheaders, ap_codec_data, */
-/*              (unsigned int) codec_data_length); */
-/*   for (k = 0; k < codec_data_length; ++k) */
-/*     { */
-/*       TIZ_DEBUG (handleOf (ap_prc), "   [%c]", ap_codec_data[k]); */
-/*     } */
-/* } */
-/* #endif */
 
 static void
 propagate_eos_if_required (mp4dmuxflt_prc_t * ap_prc,
@@ -399,6 +411,7 @@ store_data (mp4dmuxflt_prc_t * ap_prc)
 {
   bool rc = OMX_ErrorNone;
   assert (ap_prc);
+  TIZ_TRACE(handleOf(ap_prc), "");
 
   OMX_BUFFERHEADERTYPE * p_in = get_mp4_hdr (ap_prc);
 
@@ -596,11 +609,14 @@ alloc_mp4v2 (mp4dmuxflt_prc_t * ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (ap_prc);
+  TIZ_TRACE(handleOf(ap_prc), "");
   if (!MP4_IS_VALID_FILE_HANDLE (ap_prc->mp4v2_hdl_))
     {
       const MP4FileProvider provider
-        = {mp4_open, mp4_seek, mp4_read, mp4_write, mp4_close};
-      ap_prc->mp4v2_hdl_ = MP4ReadProvider ("filename", &provider);
+        = {mp4_open_cback, mp4_seek_cback, mp4_read_cback, mp4_write_cback,
+           mp4_close_cback};
+      ap_prc->mp4v2_hdl_ = MP4ReadProvider ("Tizonia", &provider);
+      TIZ_TRACE(handleOf(ap_prc), "MP4ReadProvider");
       if (!MP4_IS_VALID_FILE_HANDLE (ap_prc->mp4v2_hdl_))
         {
           /* We'll assume mp4v2 has not initialised correctly because there is
@@ -917,6 +933,7 @@ mp4dmuxflt_prc_ctor (void * ap_prc, va_list * app)
   p_prc->p_aud_header_lengths_ = NULL;
   p_prc->p_vid_header_lengths_ = NULL;
   reset_stream_parameters (p_prc);
+  MP4SetLogCallback(mp4_log_cback);
   g_handle = handleOf (ap_prc);
   return p_prc;
 }
@@ -988,6 +1005,8 @@ mp4dmuxflt_prc_buffers_ready (const void * ap_prc)
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (p_prc);
+
+  TIZ_TRACE(handleOf(ap_prc), "buffer ready");
 
   tiz_check_omx (store_data (p_prc));
 
