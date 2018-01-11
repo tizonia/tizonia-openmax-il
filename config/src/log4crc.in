@@ -121,6 +121,9 @@
 <!--         <category name="tiz.ogg_muxer" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.ogg_muxer.sink.prc" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.ogg_muxer.filter.prc" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.mp4_demuxer" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.mp4_demuxer.source.prc" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.mp4_demuxer.filter.prc" priority="trace" appender="tizlogfile" /> -->
 
 <!--         <category name="tiz.play" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.play.omxutil" priority="trace" appender="tizlogfile" /> -->
