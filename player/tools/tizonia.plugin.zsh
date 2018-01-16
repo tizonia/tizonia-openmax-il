@@ -4,6 +4,7 @@ tiz-grab-env-options () {
     local opts=''
     [[ "$SHUFFLE" == 'on' ]] && opts='--shuffle';
     [[ "$DAEMON" == 'on' ]] && opts="$opts --daemon";
+    [[ "$ALTLOGDIR" == 'on' ]] && opts="$opts --log-directory=/tmp";
     echo "$opts"
 }
 
