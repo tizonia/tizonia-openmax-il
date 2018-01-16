@@ -236,16 +236,20 @@ function main {
     print_banner_and_license $(basename "$0")
 
     LIB_DIR="$TIZONIA_INSTALL_DIR"/lib
+    INCLUDE_DIR="$TIZONIA_INSTALL_DIR"/include
     PKG_CONFIG_DIR="$LIB_DIR"/pkgconfig
 
-    print_banner "Exporting environment variables" "$GRN"
+    print_banner "Exporting influential environment variables" "$GRN"
     pretty_print "$BLU" "LD_LIBRARY_PATH=$LIB_DIR"
+    pretty_print "$BLU" "LDFLAGS=-L$LIB_DIR"
     pretty_print "$BLU" "PKG_CONFIG_PATH=$PKG_CONFIG_DIR"
     export LD_LIBRARY_PATH="$LIB_DIR"
+    export LDFLAGS="-L$LIB_DIR"
     export PKG_CONFIG_PATH="$PKG_CONFIG_DIR"
     which ccache &> /dev/null
     if [[ $? -eq 0 ]]; then
         pretty_print "$BLU" "Adding ccache symlinks to PATH (/usr/lib/ccache)"
+        pretty_print "$BLU" 'PATH=/usr/lib/ccache:$PATH'
         export PATH=/usr/lib/ccache:$PATH
     fi
 
@@ -303,12 +307,12 @@ function main {
                        --enable-silent-rules \
                        ${debug[@]} \
                        ${player[@]} \
-                       CFLAGS='-O0 -ggdb -Wall' \
-                       CXXFLAGS='-O0 -ggdb -Wall' \
+                       CFLAGS="-O0 -ggdb -Wall -I$INCLUDE_DIR" \
+                       CXXFLAGS='-O0 -ggdb -Wall -I$INCLUDE_DIR' \
                     | grep --color=always '=== configuring in'
         else
             autoreconf -ifs \
-                && ./configure ${debug[@]} ${player[@]} CFLAGS='-O0 -ggdb -Wall' CXXFLAGS='-O0 -ggdb -Wall'
+                && ./configure ${debug[@]} ${player[@]} CFLAGS='-O0 -ggdb -Wall -I$INCLUDE_DIR' CXXFLAGS='-O0 -ggdb -Wall -I$INCLUDE_DIR'
         fi
 
     elif [[ ("$release" == 1) ]];  then
@@ -326,13 +330,13 @@ function main {
                        --enable-silent-rules \
                        ${release[@]} \
                        ${player[@]} \
-                       CFLAGS='-O2 -s -DNDEBUG'  \
-                       CXXFLAGS='-O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security' \
+                       CFLAGS='-O2 -s -DNDEBUG -I$INCLUDE_DIR'  \
+                       CXXFLAGS='-O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security -I$INCLUDE_DIR' \
                     | grep --color=always '=== configuring in'
         else
             autoreconf -ifs \
-                && ./configure ${release[@]} ${player[@]} CFLAGS='-O2 -s -DNDEBUG'  \
-                               CXXFLAGS='-O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security'
+                && ./configure ${release[@]} ${player[@]} CFLAGS='-O2 -s -DNDEBUG -I$INCLUDE_DIR'  \
+                               CXXFLAGS='-O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security -I$INCLUDE_DIR'
         fi
 
     elif [[ ("$asan" == 1) ]]; then
@@ -346,8 +350,8 @@ function main {
             --with-zshcompletiondir="$TIZONIA_INSTALL_DIR"/share/zsh/site-functions \
             "${player[@]}" \
             --prefix="$TIZONIA_INSTALL_DIR" \
-            CFLAGS='-ggdb -Wall -Werror -fno-omit-frame-pointer -fsanitize=address' \
-            CXXFLAGS='-ggdb -Wall -fno-omit-frame-pointer -fsanitize=address' \
+            CFLAGS='-ggdb -Wall -Werror -fno-omit-frame-pointer -fsanitize=address -I$INCLUDE_DIR' \
+            CXXFLAGS='-ggdb -Wall -fno-omit-frame-pointer -fsanitize=address -I$INCLUDE_DIR' \
             LDFLAGS='-fsanitize=address'
 
     elif [[ ("$debian" == 1) ]]; then
@@ -362,8 +366,8 @@ function main {
             "${player[@]}" \
             --prefix=/usr \
             --libdir=/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH) \
-            CFLAGS='-O2 -s -DNDEBUG'  \
-            CXXFLAGS='-O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security'
+            CFLAGS='-O2 -s -DNDEBUG -I$INCLUDE_DIR'  \
+            CXXFLAGS='-O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security -I$INCLUDE_DIR'
 
         if [[ "$?" != 0 ]]; then
             raise_error "Configuration failure."
@@ -404,7 +408,7 @@ function main {
             "${player[@]}" \
             --enable-blocking-etb-ftb \
             --prefix="$TIZONIA_INSTALL_DIR" \
-            CFLAGS='-ggdb -Wall -Werror'
+            CFLAGS='-ggdb -Wall -Werror -I$INCLUDE_DIR'
 
     elif [[ ("$valgrind" == 1)  ]];  then
 
@@ -415,8 +419,8 @@ function main {
             --enable-silent-rules \
             "${player[@]}" \
             --prefix="$TIZONIA_INSTALL_DIR" \
-            CFLAGS='-O0 -g' \
-            CXXFLAGS='-O0 -g'
+            CFLAGS='-O0 -g -I$INCLUDE_DIR' \
+            CXXFLAGS='-O0 -g -I$INCLUDE_DIR'
 
     elif [[ ("$scan" == 1) ]]; then
 
@@ -425,7 +429,7 @@ function main {
             && scan-build ./configure \
                           "${player[@]}" \
                           --prefix="$TIZONIA_INSTALL_DIR" \
-                          CFLAGS='-ggdb -Wall -Werror'
+                          CFLAGS='-ggdb -Wall -Werror -I$INCLUDE_DIR'
 
     fi
 
@@ -438,7 +442,7 @@ function main {
         scan-build make
     elif [[ ("$valgrind" == 1) && ( ("$make" == 1) || ("$install" == 1) ) ]]; then
         print_banner "Building for [VALGRIND] build" "$GRN"
-        make CFLAGS='-O0 -g' CXXFLAGS='-O0 -g'
+        make CFLAGS='-O0 -g -I$INCLUDE_DIR' CXXFLAGS='-O0 -g -I$INCLUDE_DIR'
     elif [[ ("$make" == 1) ]]; then
         build_project
     fi
