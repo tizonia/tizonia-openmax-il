@@ -50,10 +50,10 @@
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.play.castmgr"
+#define TIZ_LOG_CATEGORY_NAME "tiz.cast.mgr"
 #endif
 
-#define TIZ_CASTMGR_QUEUE_MAX_ITEMS 30
+#define TIZ_CAST_MGR_QUEUE_MAX_ITEMS 30
 
 namespace castmgr = tiz::castmgr;
 namespace control = tiz::control;
@@ -302,7 +302,7 @@ castmgr::mgr::init_cmd_queue ()
   tiz_check_omx_ret_oom (tiz_mutex_init (&mutex_));
   tiz_check_omx_ret_oom (tiz_sem_init (&sem_, 0));
   tiz_check_omx_ret_oom (
-      tiz_queue_init (&p_queue_, TIZ_CASTMGR_QUEUE_MAX_ITEMS));
+      tiz_queue_init (&p_queue_, TIZ_CAST_MGR_QUEUE_MAX_ITEMS));
   return OMX_ErrorNone;
 }
 
