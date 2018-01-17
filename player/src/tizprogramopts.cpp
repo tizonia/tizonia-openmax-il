@@ -501,10 +501,15 @@ void tiz::programopts::print_usage_config () const
 {
   print_version ();
   print_license ();
-  printf ("Configuration file location:\n\n");
-  printf ("   tizonia.conf     $HOME/.config/tizonia/tizonia.conf\n");
-  printf ("                    See /etc/tizonia/tizonia.conf\n");
-  printf ("                    for an example.\n");
+  printf ("Configuration file: 'tizonia.conf'\n\n");
+  printf ("Tizonia finds its config file in one of these locations (in this order):\n");
+  printf ("1.                  A file pointed by the $TIZONIA_RC_FILE environment variable.\n");
+  printf ("2.                  $HOME/.config/tizonia/tizonia.conf\n");
+  printf ("3.                  A directory in $XDG_CONFIG_DIRS + /tizonia/tizonia.conf\n");
+  printf ("4.                  /etc/tizonia/tizonia.conf\n\n");
+  printf ("An example configuration file can be found in /etc/xdg/tizonia/tizonia.conf.\n");
+  printf ("Copy this file to $HOME/.config/tizonia/tizonia.conf and introduce there\n");
+  printf ("the credentials for the various services.\n");
 }
 
 void tiz::programopts::print_usage_examples () const
