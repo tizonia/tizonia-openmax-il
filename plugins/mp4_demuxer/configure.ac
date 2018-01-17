@@ -62,7 +62,8 @@ AC_PROG_MAKE_SET
 PKG_PROG_PKG_CONFIG()
 
 # Checks for libraries.
-AC_CHECK_LIB([mp4v2], [MP4ReadProvider])
+AC_CHECK_LIB([mp4v2], [MP4ReadProvider] [], [
+  AC_MSG_ERROR([Unable to find the MP4ReadProvider() function. Need to install libmp4v2-dev?])])
 
 AC_CHECK_HEADERS([tizonia/OMX_Core.h tizonia/OMX_Component.h],
 	[tiz_found_omx_headers=yes; break;])

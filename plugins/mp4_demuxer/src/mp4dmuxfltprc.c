@@ -52,8 +52,9 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.mp4_demuxer.filter.prc"
 #endif
 
-static OMX_HANDLETYPE g_handle = NULL;
+static mp4dmuxflt_prc_t * gp_prc = NULL;
 
+#define FILE_SIZE 7747480
 #define MP4V2_INT_MAX_FAILED_ATTEMPTS 20
 
 /* Forward declarations */
@@ -111,22 +112,22 @@ mp4_log_cback (MP4LogLevel loglevel, const char * fmt, va_list ap)
     {
     case MP4_LOG_ERROR:
       {
-        TIZ_ERROR(g_handle, "%s", buffer);
+        TIZ_ERROR(handleOf(gp_prc), "%s", buffer);
       }
       break;
     case MP4_LOG_INFO:
       {
-        TIZ_NOTICE(g_handle, "%s", buffer);
+        TIZ_NOTICE(handleOf(gp_prc), "%s", buffer);
       }
       break;
     case MP4_LOG_WARNING:
       {
-        TIZ_DEBUG(g_handle, "%s", buffer);
+        TIZ_DEBUG(handleOf(gp_prc), "%s", buffer);
       }
       break;
     default:
       {
-        TIZ_TRACE(g_handle, "%s", buffer);
+        TIZ_TRACE(handleOf(gp_prc), "%s", buffer);
       }
       break;
     };
@@ -135,39 +136,85 @@ mp4_log_cback (MP4LogLevel loglevel, const char * fmt, va_list ap)
 static void *
 mp4_open_cback (const char * name, MP4FileMode mode)
 {
-  TIZ_TRACE(g_handle, "file name [%s]", name);
-  return g_handle;
+  TIZ_TRACE(handleOf(gp_prc), "file name [%s]", name);
+  return gp_prc;
 }
 
 static int
-mp4_seek_cback (void * handle, int64_t pos)
+mp4_seek_cback (void * ap_handle, int64_t pos)
 {
-  TIZ_TRACE(g_handle, "pos [%lld]", pos);
+  mp4dmuxflt_prc_t * p_prc = ap_handle;
+  assert (gp_prc == ap_handle);
+  assert (p_prc);
+  TIZ_TRACE(handleOf(gp_prc), "pos [%lld]", pos);
+  (void)tiz_buffer_seek (p_prc->p_mp4_store_, pos, TIZ_BUFFER_SEEK_SET);
   return 0;
 }
 
 static int
-mp4_read_cback (void * handle, void * buffer, int64_t size, int64_t * nin,
-          int64_t maxChunkSize)
+mp4_read_cback (void * ap_handle, void * ap_buffer, int64_t a_size,
+                int64_t * ap_nin, int64_t a_maxChunkSize)
 {
-  TIZ_TRACE(g_handle, "buffer [%p] size [%lld] nim [%lld] maxChunkSize [%lld]",
-            buffer, size, nin, maxChunkSize);
-  return 0;
+  mp4dmuxflt_prc_t * p_prc = ap_handle;
+  int retval = -1;
+
+  assert (gp_prc == ap_handle);
+  assert (p_prc);
+  assert (ap_buffer);
+  assert (ap_nin);
+
+  *ap_nin = 0;
+
+  if (tiz_filter_prc_is_eos (p_prc)
+      && tiz_buffer_available (p_prc->p_mp4_store_) == 0)
+    {
+      TIZ_DEBUG (handleOf (p_prc), "out of compressed data");
+      return 1;
+    }
+
+  (void) store_data (p_prc);
+
+  if (ap_buffer && a_size > 0)
+    {
+      if (tiz_buffer_available (p_prc->p_mp4_store_) >= a_size)
+        {
+          memcpy (ap_buffer, tiz_buffer_get (p_prc->p_mp4_store_), a_size);
+          tiz_buffer_advance (p_prc->p_mp4_store_, a_size);
+          *ap_nin = a_size;
+          retval = 0;
+        }
+      else
+        {
+          TIZ_DEBUG (handleOf (p_prc), "out of compressed data");
+          retval = 1;
+        }
+    }
+
+  TIZ_DEBUG (handleOf (p_prc), "a_size [%lld] nin [%lld]", a_size, *ap_nin);
+
+  return retval;
 }
 
 static int
 mp4_write_cback (void * handle, const void * buffer, int64_t size, int64_t * nout,
            int64_t maxChunkSize)
 {
-  TIZ_TRACE(g_handle, "");
+  TIZ_TRACE(handleOf(gp_prc), "");
   return 0;
 }
 
 static int
 mp4_close_cback (void * handle)
 {
-  TIZ_TRACE(g_handle, "");
+  TIZ_TRACE(handleOf(gp_prc), "");
   return 0;
+}
+
+static int64_t
+mp4_get_size (void * handle)
+{
+  TIZ_TRACE(handleOf(gp_prc), "FILE_SIZE");
+  return FILE_SIZE;
 }
 
 static void
@@ -614,7 +661,7 @@ alloc_mp4v2 (mp4dmuxflt_prc_t * ap_prc)
     {
       const MP4FileProvider provider
         = {mp4_open_cback, mp4_seek_cback, mp4_read_cback, mp4_write_cback,
-           mp4_close_cback};
+           mp4_close_cback, mp4_get_size};
       ap_prc->mp4v2_hdl_ = MP4ReadProvider ("Tizonia", &provider);
       TIZ_TRACE(handleOf(ap_prc), "MP4ReadProvider");
       if (!MP4_IS_VALID_FILE_HANDLE (ap_prc->mp4v2_hdl_))
@@ -934,7 +981,7 @@ mp4dmuxflt_prc_ctor (void * ap_prc, va_list * app)
   p_prc->p_vid_header_lengths_ = NULL;
   reset_stream_parameters (p_prc);
   MP4SetLogCallback(mp4_log_cback);
-  g_handle = handleOf (ap_prc);
+  gp_prc = ap_prc;
   return p_prc;
 }
 
@@ -942,7 +989,7 @@ static void *
 mp4dmuxflt_prc_dtor (void * ap_obj)
 {
   (void) mp4dmuxflt_prc_deallocate_resources (ap_obj);
-  g_handle = NULL;
+  gp_prc = NULL;
   return super_dtor (typeOf (ap_obj, "mp4dmuxfltprc"), ap_obj);
 }
 
@@ -1010,7 +1057,7 @@ mp4dmuxflt_prc_buffers_ready (const void * ap_prc)
 
   tiz_check_omx (store_data (p_prc));
 
-  if (!p_prc->mp4v2_inited_)
+  if (!p_prc->mp4v2_inited_ && tiz_buffer_available (p_prc->p_mp4_store_) >= FILE_SIZE)
     {
       rc = alloc_mp4v2 (p_prc);
       if (OMX_ErrorNotReady == rc)
