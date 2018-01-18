@@ -21,7 +21,7 @@
  * @file   tizcastmgr.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  OpenMAX IL cast manager
+ * @brief  Tizonia cast manager thread
  *
  *
  */
@@ -49,10 +49,9 @@ namespace tiz
      *  @class mgr
      *  @brief The cast manager class.
      *
-     *  A cast manager instantiates OpenMAX IL casts according to the media
-     *types
-     *  of the elements found in a play list. The cast manager runs in its own
-     *  thread and will manage the lifetime of the casts that it creates.
+     *  A cast manager instantiates a thread, an event loop and an associated
+     *  command queue, to communicate with Chromecast devices and cast audio to
+     *  them.
      */
     class mgr
     {
