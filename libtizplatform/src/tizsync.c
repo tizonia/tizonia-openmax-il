@@ -364,6 +364,7 @@ OMX_ERRORTYPE
 tiz_cond_timedwait (tiz_cond_t * app_cond, tiz_mutex_t * app_mutex,
                     OMX_U32 a_millis)
 {
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
   pthread_cond_t * p_cond;
   pthread_mutex_t * p_mutex;
   int error = 0;
@@ -387,11 +388,20 @@ tiz_cond_timedwait (tiz_cond_t * app_cond, tiz_mutex_t * app_mutex,
   if (PTHREAD_SUCCESS
       != (error = pthread_cond_timedwait (p_cond, p_mutex, &timeout)))
     {
-      TIZ_LOG (TIZ_PRIORITY_ERROR, "OMX_ErrorUndefined : %s", strerror (error));
-      return OMX_ErrorUndefined;
+      if (ETIMEDOUT == error)
+        {
+          TIZ_LOG (TIZ_PRIORITY_NOTICE, "The wait time specified has passed");
+          rc = OMX_ErrorTimeout;
+        }
+      else
+        {
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "OMX_ErrorUndefined : %s",
+                   strerror (error));
+          rc = OMX_ErrorUndefined;
+        }
     }
 
-  return OMX_ErrorNone;
+  return rc;
 }
 
 OMX_ERRORTYPE

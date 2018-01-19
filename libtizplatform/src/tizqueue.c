@@ -283,6 +283,44 @@ tiz_queue_receive (tiz_queue_t * p_q, OMX_PTR * app_data)
   return rc;
 }
 
+OMX_ERRORTYPE
+tiz_queue_timed_receive (tiz_queue_t * p_q, OMX_PTR * app_data,
+                         OMX_U32 a_millis)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+
+  assert (p_q);
+  assert (app_data);
+
+  tiz_check_omx_ret_oom (tiz_mutex_lock (&(p_q->mutex)));
+
+  assert (!(p_q->length < 0));
+
+  while (p_q->length == 0)
+    {
+      rc = tiz_cond_timedwait (&(p_q->cond_empty), &(p_q->mutex), a_millis);
+      if (OMX_ErrorTimeout == rc)
+        {
+          break;
+        }
+    }
+
+  if (OMX_ErrorNone == rc || (OMX_ErrorTimeout == rc && p_q->length > 0))
+    {
+      assert (p_q->p_first);
+      assert (p_q->p_first->p_data);
+      *app_data = p_q->p_first->p_data;
+      p_q->p_first->p_data = 0;
+      p_q->p_first = p_q->p_first->p_next;
+      p_q->length--;
+    }
+
+  tiz_check_omx_ret_oom (tiz_mutex_unlock (&(p_q->mutex)));
+  tiz_check_omx_ret_oom (tiz_cond_broadcast (&(p_q->cond_full)));
+
+  return rc;
+}
+
 OMX_S32
 tiz_queue_capacity (tiz_queue_t * p_q)
 {

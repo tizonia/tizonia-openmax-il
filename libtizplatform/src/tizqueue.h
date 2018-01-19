@@ -96,6 +96,17 @@ OMX_ERRORTYPE
 tiz_queue_receive (tiz_queue_t * ap_q, OMX_PTR * app_data);
 
 /**
+ * Retrieve an item from the head of the queue. If the queue is empty, it waits
+ * for up to a_millis milliseconds or until an item becomes available.
+ *
+ * @ingroup tizqueue
+ *
+ */
+OMX_ERRORTYPE
+tiz_queue_timed_receive (tiz_queue_t * ap_q, OMX_PTR * app_data,
+                         OMX_U32 a_millis);
+
+/**
  * Retrieve the maximum number of items that can be stored in the queue.
  *
  * @ingroup tizqueue
