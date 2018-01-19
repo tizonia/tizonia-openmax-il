@@ -260,3 +260,8 @@ rm/tizrmd/dbus/tizrmproxy-dbus.hh
 rm/tizrmd/src/Makefile
 rm/tizrmd/src/tizrmd
 rm/tizrmd/tizonia
+
+3rdparty/dbus-cplusplus/tizonia
+3rdparty/dbus-cplusplus/tools/tizonia-dbusxx-introspect
+3rdparty/dbus-cplusplus/tools/tizonia-dbusxx-xml2cpp
+player/tools/tizonia.desktop
