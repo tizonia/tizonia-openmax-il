@@ -78,29 +78,20 @@ void castmgr::cmd::inject (fsm& machine) const
   }
 
   INJECT_EVENT (start_evt)
-  else INJECT_EVENT (next_evt)
-    else INJECT_EVENT (prev_evt)
-      else INJECT_EVENT (fwd_evt)
-        else INJECT_EVENT (rwd_evt)
-          else INJECT_EVENT (vol_up_evt)
-            else INJECT_EVENT (vol_down_evt)
-              else INJECT_EVENT (vol_evt)
-                else INJECT_EVENT (mute_evt)
-                  else INJECT_EVENT (pause_evt)
-                    else INJECT_EVENT (stop_evt)
-                      else INJECT_EVENT (quit_evt)
-                        else INJECT_EVENT (cast_eop_evt)
-                          else INJECT_EVENT (err_evt)
-                            else INJECT_EVENT (cast_loaded_evt)
-                              else INJECT_EVENT (cast_execd_evt)
-                                else INJECT_EVENT (cast_stopped_evt)
-                                  else INJECT_EVENT (cast_paused_evt)
-                                    else INJECT_EVENT (cast_unpaused_evt)
-                                      else INJECT_EVENT (cast_metadata_evt)
-                                        else INJECT_EVENT (cast_volume_evt)
-                                          else INJECT_EVENT (cast_unlded_evt)
-                                            else
-                                              {
-                                                assert (0);
-                                              }
+  else INJECT_EVENT (quit_evt)
+    else INJECT_EVENT (connect_evt)
+      else INJECT_EVENT (disconnect_evt)
+        else INJECT_EVENT (load_url_evt)
+          else INJECT_EVENT (play_evt)
+            else INJECT_EVENT (stop_evt)
+              else INJECT_EVENT (pause_evt)
+                else INJECT_EVENT (volume_up_evt)
+                  else INJECT_EVENT (volume_down_evt)
+                    else INJECT_EVENT (mute_evt)
+                      else INJECT_EVENT (unmute_evt)
+                        else INJECT_EVENT (err_evt)
+                          else
+                            {
+                              assert (0);
+                            }
 }

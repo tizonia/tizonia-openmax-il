@@ -21,7 +21,7 @@
  * @file   tizcastmgr.cpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  OpenMAX IL cast manager base class impl
+ * @brief  Cast manager impl
  *
  */
 
@@ -56,7 +56,6 @@
 #define TIZ_CAST_MGR_QUEUE_MAX_ITEMS 30
 
 namespace castmgr = tiz::castmgr;
-namespace control = tiz::control;
 namespace cast = tiz::cast;
 
 void *castmgr::thread_func (void *p_arg)
@@ -64,6 +63,7 @@ void *castmgr::thread_func (void *p_arg)
   mgr *p_mgr = static_cast< mgr * > (p_arg);
   void *p_data = NULL;
   bool done = false;
+  OMX_U32 poll_time = 0.2;  // ms
 
   assert (p_mgr);
 
@@ -72,12 +72,14 @@ void *castmgr::thread_func (void *p_arg)
 
   while (!done)
   {
-    tiz_check_omx_ret_null (tiz_queue_receive (p_mgr->p_queue_, &p_data));
+    tiz_check_omx_ret_null (
+        tiz_queue_timed_receive (p_mgr->p_queue_, &p_data, poll_time));
 
-    assert (p_data);
-
-    cmd *p_cmd = static_cast< cmd * > (p_data);
-    done = mgr::dispatch_cmd (p_mgr, p_cmd);
+    if (p_data)
+    {
+      cmd *p_cmd = static_cast< cmd * > (p_data);
+      done = mgr::dispatch_cmd (p_mgr, p_cmd);
+    }
 
     delete p_cmd;
   }
@@ -101,8 +103,7 @@ castmgr::mgr::~mgr ()
 }
 
 OMX_ERRORTYPE
-castmgr::mgr::init (const tizplaylist_ptr_t &playlist,
-                    const termination_callback_t &termination_cback)
+castmgr::mgr::init ()
 {
   // Init command queue infrastructure
   tiz_check_omx_ret_oom (init_cmd_queue ());
@@ -112,10 +113,8 @@ castmgr::mgr::init (const tizplaylist_ptr_t &playlist,
   tiz_check_omx_ret_oom (tiz_thread_create (&thread_, 0, 0, thread_func, this));
   tiz_check_omx_ret_oom (tiz_mutex_unlock (&mutex_));
 
-  castmgr_capabilities_t castmgr_caps;
   // Init this mgr's operations using the do_init template method
-  tiz_check_null_ret_oom (
-      (p_ops_ = do_init (playlist, termination_cback, castmgr_caps)));
+  tiz_check_null_ret_oom ((p_ops_ = do_init ()));
 
   // Let's wait until this manager's thread is ready to receive requests
   tiz_check_omx_ret_oom (tiz_sem_wait (&sem_));
@@ -123,7 +122,8 @@ castmgr::mgr::init (const tizplaylist_ptr_t &playlist,
   return OMX_ErrorNone;
 }
 
-void castmgr::mgr::deinit ()
+void
+castmgr::mgr::deinit ()
 {
   TIZ_LOG (TIZ_PRIORITY_NOTICE, "Waiting until stopped...");
   static_cast< void > (tiz_sem_wait (&sem_));
@@ -141,63 +141,33 @@ castmgr::mgr::start ()
 }
 
 OMX_ERRORTYPE
-castmgr::mgr::next ()
+castmgr::mgr::quit ()
 {
-  return post_cmd (new castmgr::cmd (castmgr::next_evt ()));
+  return post_cmd (new castmgr::cmd (castmgr::quit_evt ()));
 }
 
 OMX_ERRORTYPE
-castmgr::mgr::prev ()
+castmgr::mgr::connect ()
 {
-  return post_cmd (new castmgr::cmd (castmgr::prev_evt ()));
+  return post_cmd (new castmgr::cmd (castmgr::connect_evt ()));
 }
 
 OMX_ERRORTYPE
-castmgr::mgr::fwd ()
+castmgr::mgr::disconnect ()
 {
-  return post_cmd (new castmgr::cmd (castmgr::fwd_evt ()));
+  return post_cmd (new castmgr::cmd (castmgr::disconnect_evt ()));
 }
 
 OMX_ERRORTYPE
-castmgr::mgr::rwd ()
+castmgr::mgr::load_url ()
 {
-  return post_cmd (new castmgr::cmd (castmgr::rwd_evt ()));
+  return post_cmd (new castmgr::cmd (castmgr::load_url_evt ()));
 }
 
 OMX_ERRORTYPE
-castmgr::mgr::volume_step (const int step)
+castmgr::mgr::play ()
 {
-  if (step == 0)
-  {
-    return OMX_ErrorNone;
-  }
-
-  if (step > 0)
-  {
-    return post_cmd (new castmgr::cmd (castmgr::vol_up_evt ()));
-  }
-  else
-  {
-    return post_cmd (new castmgr::cmd (castmgr::vol_down_evt ()));
-  }
-}
-
-OMX_ERRORTYPE
-castmgr::mgr::volume (const double volume)
-{
-  return post_cmd (new castmgr::cmd (castmgr::vol_evt (volume)));
-}
-
-OMX_ERRORTYPE
-castmgr::mgr::mute ()
-{
-  return post_cmd (new castmgr::cmd (castmgr::mute_evt ()));
-}
-
-OMX_ERRORTYPE
-castmgr::mgr::pause ()
-{
-  return post_cmd (new castmgr::cmd (castmgr::pause_evt ()));
+  return post_cmd (new castmgr::cmd (castmgr::play_evt ()));
 }
 
 OMX_ERRORTYPE
@@ -207,93 +177,33 @@ castmgr::mgr::stop ()
 }
 
 OMX_ERRORTYPE
-castmgr::mgr::quit ()
+castmgr::mgr::pause ()
 {
-  return post_cmd (new castmgr::cmd (castmgr::quit_evt ()));
+  return post_cmd (new castmgr::cmd (castmgr::pause_evt ()));
 }
 
 OMX_ERRORTYPE
-castmgr::mgr::cast_loaded ()
+castmgr::mgr::volume_up ()
 {
-  return post_cmd (new castmgr::cmd (castmgr::cast_loaded_evt ()));
+  return post_cmd (new castmgr::cmd (castmgr::volume_up_evt ()));
 }
 
 OMX_ERRORTYPE
-castmgr::mgr::cast_execd ()
+castmgr::mgr::volume_down ()
 {
-  return post_cmd (new castmgr::cmd (castmgr::cast_execd_evt ()));
+  return post_cmd (new castmgr::cmd (castmgr::volume_down_evt ()));
 }
 
 OMX_ERRORTYPE
-castmgr::mgr::cast_stopped ()
+castmgr::mgr::mute ()
 {
-  return post_cmd (new castmgr::cmd (castmgr::cast_stopped_evt ()));
+  return post_cmd (new castmgr::cmd (castmgr::mute_evt ()));
 }
 
 OMX_ERRORTYPE
-castmgr::mgr::cast_paused ()
+castmgr::mgr::unmute ()
 {
-  return post_cmd (new castmgr::cmd (castmgr::cast_paused_evt ()));
-}
-
-OMX_ERRORTYPE
-castmgr::mgr::cast_unpaused ()
-{
-  return post_cmd (new castmgr::cmd (castmgr::cast_unpaused_evt ()));
-}
-
-OMX_ERRORTYPE
-castmgr::mgr::cast_metadata (const track_metadata_map_t &metadata)
-{
-  return post_cmd (new castmgr::cmd (castmgr::cast_metadata_evt (metadata)));
-}
-
-OMX_ERRORTYPE
-castmgr::mgr::cast_volume (const int volume)
-{
-  return post_cmd (new castmgr::cmd (castmgr::cast_volume_evt (volume)));
-}
-
-OMX_ERRORTYPE
-castmgr::mgr::cast_unloaded ()
-{
-  return post_cmd (new castmgr::cmd (castmgr::cast_unlded_evt ()));
-}
-
-OMX_ERRORTYPE
-castmgr::mgr::cast_end_of_play ()
-{
-  return post_cmd (new castmgr::cmd (castmgr::cast_eop_evt ()));
-}
-
-OMX_ERRORTYPE
-castmgr::mgr::cast_error (const OMX_ERRORTYPE error, const std::string &msg)
-{
-  bool is_internal_error = false;
-  return post_cmd (
-      new castmgr::cmd (castmgr::err_evt (error, msg, is_internal_error)));
-}
-
-OMX_ERRORTYPE
-castmgr::mgr::do_update_control_ifcs (const control::playback_status_t status,
-                                      const std::string &current_song)
-{
-  playback_events_.playback_ (status);
-  return OMX_ErrorNone;
-}
-
-OMX_ERRORTYPE
-castmgr::mgr::do_update_metadata (const track_metadata_map_t &metadata)
-{
-  playback_events_.metadata_ (metadata);
-  return OMX_ErrorNone;
-}
-
-OMX_ERRORTYPE
-castmgr::mgr::do_update_volume (const int volume)
-{
-  playback_events_.volume_ (volume > 0 ? (double)volume / 100 : 0);
-  return OMX_ErrorNone;
+  return post_cmd (new castmgr::cmd (castmgr::unmute_evt ()));
 }
 
 OMX_ERRORTYPE
@@ -326,7 +236,8 @@ castmgr::mgr::post_cmd (castmgr::cmd *p_cmd)
   return OMX_ErrorNone;
 }
 
-bool castmgr::mgr::dispatch_cmd (castmgr::mgr *p_mgr, const castmgr::cmd *p_cmd)
+bool
+castmgr::mgr::dispatch_cmd (castmgr::mgr *p_mgr, const castmgr::cmd *p_cmd)
 {
   assert (p_mgr);
   assert (p_mgr->p_ops_);

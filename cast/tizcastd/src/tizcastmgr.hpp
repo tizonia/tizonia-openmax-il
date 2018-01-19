@@ -35,6 +35,8 @@
 #include <tizplatform.h>
 #include <OMX_Core.h>
 
+#include "tizcastmgrfsm.hpp"
+
 namespace tiz
 {
   namespace castmgr
@@ -43,7 +45,6 @@ namespace tiz
     // Forward declarations
     void *thread_func (void *p_arg);
     class cmd;
-    class castmgr_capabilities;
 
     /**
      *  @class mgr
@@ -57,10 +58,6 @@ namespace tiz
     {
 
       friend void *thread_func (void *);
-
-    public:
-      typedef boost::function< void(const OMX_ERRORTYPE error_code, const std::string error_msg) >
-          termination_callback_t;
 
     public:
       mgr ();
@@ -77,8 +74,7 @@ namespace tiz
        * @return OMX_ErrorNone if initialisation was
        * successful. OMX_ErrorInsuficientResources otherwise.
        */
-      OMX_ERRORTYPE init (const tizplaylist_ptr_t &playlist,
-                          const termination_callback_t &termination_cback);
+      OMX_ERRORTYPE init ();
 
       /**
        * Destroy the manager thread and release all resources.
@@ -103,6 +99,36 @@ namespace tiz
       OMX_ERRORTYPE start ();
 
       /**
+       * Exit the manager thread.
+       *
+       * @pre init() has been called on this manager.
+       *
+       * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
+       * success.
+       */
+      OMX_ERRORTYPE quit ();
+
+      /**
+       * Start processing the play list from the beginning.
+       *
+       * @pre init() has been called on this manager.
+
+       * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
+       * success.
+       */
+      OMX_ERRORTYPE connect ();
+
+      /**
+       * Halt processing of the playlist.
+       *
+       * @pre init() has been called on this manager.
+       *
+       * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
+       * success.
+       */
+      OMX_ERRORTYPE disconnect ();
+
+      /**
        * Process the next item in the playlist.
        *
        * @pre init() has been called on this manager.
@@ -110,7 +136,7 @@ namespace tiz
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
        */
-      OMX_ERRORTYPE next ();
+      OMX_ERRORTYPE load_url ();
 
       /**
        * Process the previous item in the playlist.
@@ -120,7 +146,7 @@ namespace tiz
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
        */
-      OMX_ERRORTYPE prev ();
+      OMX_ERRORTYPE play ();
 
       /**
        * NOT IMPLEMENTED YET
@@ -130,7 +156,7 @@ namespace tiz
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
        */
-      OMX_ERRORTYPE fwd ();
+      OMX_ERRORTYPE stop ();
 
       /**
        * NOT IMPLEMENTED YET
@@ -140,7 +166,7 @@ namespace tiz
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
        */
-      OMX_ERRORTYPE rwd ();
+      OMX_ERRORTYPE pause ();
 
       /**
        * Increments or decrements the volume by steps.
@@ -150,7 +176,7 @@ namespace tiz
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
        */
-      OMX_ERRORTYPE volume_step (const int step);
+      OMX_ERRORTYPE volume_up ();
 
       /**
        * Changes the volume to the specified value. 1.0 is maximum volume and 0.0 means mute.
@@ -160,7 +186,7 @@ namespace tiz
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
        */
-      OMX_ERRORTYPE volume (const double volume);
+      OMX_ERRORTYPE volume_down ();
 
       /**
        * Mute/unmute toggle.
@@ -180,47 +206,14 @@ namespace tiz
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
        */
-      OMX_ERRORTYPE pause ();
-
-      /**
-       * Halt processing of the playlist.
-       *
-       * @pre init() has been called on this manager.
-       *
-       * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
-       * success.
-       */
-      OMX_ERRORTYPE stop ();
-
-      /**
-       * Exit the manager thread.
-       *
-       * @pre init() has been called on this manager.
-       *
-       * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
-       * success.
-       */
-      OMX_ERRORTYPE quit ();
+      OMX_ERRORTYPE unmute ();
 
     protected:
-      virtual ops *do_init (const tizplaylist_ptr_t &playlist,
-                            const termination_callback_t &termination_cback,
-                            castmgr_capabilities &castmgr_caps) = 0;
+      virtual ops *do_init () = 0;
 
     protected:
-      OMX_ERRORTYPE cast_loaded ();
-      OMX_ERRORTYPE cast_execd ();
-      OMX_ERRORTYPE cast_stopped ();
-      OMX_ERRORTYPE cast_paused ();
-      OMX_ERRORTYPE cast_unpaused ();
-      OMX_ERRORTYPE cast_metadata (const track_metadata_map_t &metadata);
-      OMX_ERRORTYPE cast_volume (const int volume);
-      OMX_ERRORTYPE cast_unloaded ();
-      OMX_ERRORTYPE cast_end_of_play ();
-      OMX_ERRORTYPE cast_error (const OMX_ERRORTYPE error,
-                                 const std::string &msg);
-
-      OMX_ERRORTYPE do_update_volume (const int volume);
+      ops *p_ops_;
+      fsm fsm_;
 
     private:
       OMX_ERRORTYPE init_cmd_queue ();
