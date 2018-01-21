@@ -45,8 +45,6 @@
 
 #include <tizplatform.h>
 
-#include "tizcasttypes.hpp"
-#include "tizplaybackstatus.hpp"
 #include "tizcastmgrops.hpp"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
@@ -62,17 +60,13 @@
   while(0)
 
 namespace bmf = boost::msm::front;
-namespace tc = tiz::control;
 
 namespace tiz
 {
   namespace castmgr
   {
     static char const* const state_names[] = { "inited",
-                                               "starting",
                                                "running",
-                                               "restarting",
-                                               "stopping",
                                                "stopped",
                                                "quitting",
                                                "quitted"};
@@ -113,12 +107,8 @@ namespace tiz
       /* Forward declarations */
       struct running;
       struct stopped;
+      struct quitting;
       struct quitted;
-      struct loading_cast;
-      struct executing_cast;
-      struct stopping_cast;
-      struct unloading_cast;
-      struct do_execute_cast;
       struct do_report_fatal_error;
 
       // data members
@@ -141,257 +131,10 @@ namespace tiz
         void on_exit(Event const&,FSM& ) { GMGR_FSM_LOG (); }
       };
 
-      /* 'starting' is a submachine */
-      struct starting_ : public boost::msm::front::state_machine_def<starting_>
-      {
-        // no need for exception handling
-        typedef int no_exception_thrown;
-
-        // data members
-        ops ** pp_ops_;
-
-        starting_()
-          :
-          pp_ops_(NULL)
-        {}
-        starting_(ops **pp_ops)
-          :
-          pp_ops_(pp_ops)
-        {
-          assert (pp_ops);
-        }
-
-        // submachine states
-        struct loading_cast : public boost::msm::front::state<>
-        {
-          template <class Event,class FSM>
-          void on_entry(Event const&, FSM& fsm) {GMGR_FSM_LOG ();}
-        };
-
-        struct starting_exit : public boost::msm::front::exit_pseudo_state<cast_execd_evt>
-        {
-          template <class Event,class FSM>
-          void on_entry(Event const&,FSM& ) {GMGR_FSM_LOG ();}
-        };
-
-        // the initial state. Must be defined
-        typedef loading_cast initial_state;
-
-        // transition actions
-
-        // guard conditions
-
-        // Transition table for starting
-        struct transition_table : boost::mpl::vector<
-          //       Start               Event               Next                Action             Guard
-          //    +--+-------------------+-------------------+-------------------+------------------+-----+
-          bmf::Row < loading_cast     , cast_loaded_evt  , executing_cast   , do_execute_cast       >,
-          bmf::Row < loading_cast     , cast_execd_evt   , starting_exit                              >,
-          bmf::Row < executing_cast   , cast_execd_evt   , starting_exit                              >
-          //    +--+-------------------+-------------------+-------------------+------------------+-----+
-          > {};
-
-        // Replaces the default no-transition response.
-        template <class FSM,class Event>
-        void no_transition(Event const& e, FSM&,int state)
-        {
-          TIZ_LOG (TIZ_PRIORITY_ERROR, "no transition from state %d on event %s",
-                   state, typeid(e).name());
-        }
-
-      };
-      // typedef boost::msm::back::state_machine<starting_, boost::msm::back::mpl_cast_fsm_check> starting;
-      typedef boost::msm::back::state_machine<starting_> starting;
-
-      /* restarting is a submachine */
-      struct restarting_ : public boost::msm::front::state_machine_def<restarting_>
-      {
-        // no need for exception handling
-        typedef int no_exception_thrown;
-
-        // data members
-        ops ** pp_ops_;
-
-        restarting_()
-          :
-          pp_ops_(NULL)
-        {}
-
-        restarting_(ops **pp_ops)
-          :
-          pp_ops_(pp_ops)
-        {
-          assert (pp_ops);
-        }
-
-        struct restarting_exit : public boost::msm::front::exit_pseudo_state<cast_unlded_evt>
-        {
-          typedef boost::mpl::vector<next_evt, prev_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, vol_evt, mute_evt, pause_evt, stop_evt, quit_evt> deferred_events;
-          template <class Event,class FSM>
-          void on_entry(Event const&,FSM& ) {GMGR_FSM_LOG ();}
-        };
-
-        // the initial state. Must be defined
-        typedef unloading_cast initial_state;
-
-        // transition actions
-
-        // guard conditions
-
-        // Transition table for restarting
-        struct transition_table : boost::mpl::vector<
-          //        Start            Event                Next               Action                   Guard
-          //    +---+----------------+--------------------+------------------+------------------------+--------+
-          bmf::Row < unloading_cast , cast_unlded_evt   , restarting_exit                                    >
-          //    +---+----------------+--------------------+------------------+------------------------+--------+
-          > {};
-
-        // Replaces the default no-transition response.
-        template <class FSM,class Event>
-        void no_transition(Event const& e, FSM&,int state)
-        {
-          TIZ_LOG (TIZ_PRIORITY_ERROR, "no transition from state %d on event %s",
-                   state, typeid(e).name());
-        }
-      };
-      // typedef boost::msm::back::state_machine<restarting_, boost::msm::back::mpl_cast_fsm_check> restarting;
-      typedef boost::msm::back::state_machine<restarting_> restarting;
-
-      /* stopping is a submachine */
-      struct stopping_ : public boost::msm::front::state_machine_def<stopping_>
-      {
-        // no need for exception handling
-        typedef int no_exception_thrown;
-
-        // data members
-        ops ** pp_ops_;
-
-        stopping_ ()
-          :
-          pp_ops_(NULL)
-        {}
-
-        stopping_ (ops **pp_ops)
-          :
-          pp_ops_(pp_ops)
-        {
-          assert (pp_ops);
-        }
-
-        // The list of FSM states
-        struct stopping_exit : public boost::msm::front::exit_pseudo_state<cast_stopped_evt>
-        {
-          template <class Event,class FSM>
-          void on_entry(Event const&,FSM& ) {GMGR_FSM_LOG ();}
-        };
-
-        // the initial state. Must be defined
-        typedef stopping_cast initial_state;
-
-        // transition actions
-
-        // guard conditions
-
-        // Transition table for stopping
-        struct transition_table : boost::mpl::vector<
-          //       Start             Event                Next             Action                   Guard
-          //    +--+-----------------+--------------------+----------------+------------------------+--------+
-          bmf::Row < stopping_cast , cast_stopped_evt   , stopping_exit                                    >
-          //    +--+-----------------+--------------------+----------------+------------------------+--------+
-          > {};
-
-        // Replaces the default no-transition response.
-        template <class FSM,class Event>
-        void no_transition(Event const& e, FSM&,int state)
-        {
-          TIZ_LOG (TIZ_PRIORITY_ERROR, "no transition from state %d on event %s",
-                   state, typeid(e).name());
-        }
-      };
-      // typedef boost::msm::back::state_machine<stopping_, boost::msm::back::mpl_cast_fsm_check> stopping;
-      typedef boost::msm::back::state_machine<stopping_> stopping;
-
-      /* quitting is a submachine */
-      struct quitting_ : public boost::msm::front::state_machine_def<quitting_>
-      {
-        // no need for exception handling
-        typedef int no_exception_thrown;
-
-        // data members
-        ops ** pp_ops_;
-
-        quitting_ ()
-          :
-          pp_ops_(NULL)
-        {}
-
-        quitting_ (ops **pp_ops)
-          :
-          pp_ops_(pp_ops)
-        {
-          assert (pp_ops);
-        }
-
-        // The list of FSM states
-        struct quitting_exit : public boost::msm::front::exit_pseudo_state<cast_unlded_evt>
-        {
-          template <class Event,class FSM>
-          void on_entry(Event const&,FSM& ) {GMGR_FSM_LOG ();}
-        };
-
-        // the initial state. Must be defined
-        typedef unloading_cast initial_state;
-
-        // transition actions
-
-        // guard conditions
-
-        // Transition table for quitting
-        struct transition_table : boost::mpl::vector<
-          //       Start             Event                Next             Action                   Guard
-          //    +--+-----------------+--------------------+----------------+------------------------+--------+
-          bmf::Row < unloading_cast , cast_unlded_evt   , quitting_exit                                    >
-          //    +--+-----------------+--------------------+----------------+------------------------+--------+
-          > {};
-
-        // Replaces the default no-transition response.
-        template <class FSM,class Event>
-        void no_transition(Event const& e, FSM&,int state)
-        {
-          TIZ_LOG (TIZ_PRIORITY_ERROR, "no transition from state %d on event %s",
-                   state, typeid(e).name());
-        }
-      };
-      // typedef boost::msm::back::state_machine<quitting_, boost::msm::back::mpl_cast_fsm_check> quitting;
-      typedef boost::msm::back::state_machine<quitting_> quitting;
-
-      struct executing_cast : public boost::msm::front::state<>
-      {
-        typedef boost::mpl::vector<next_evt, prev_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, vol_evt, mute_evt, pause_evt, stop_evt, quit_evt> deferred_events;
-        template <class Event,class FSM>
-        void on_entry(Event const&,FSM& ) {GMGR_FSM_LOG ();}
-      };
-
       struct running : public boost::msm::front::state<>
       {
         template <class Event,class FSM>
-        void on_entry(Event const&, FSM& fsm)
-        {
-          GMGR_FSM_LOG ();
-          if (fsm.pp_ops_ && *(fsm.pp_ops_))
-          {
-            (*(fsm.pp_ops_))->do_update_control_ifcs (tiz::control::Playing);
-          }
-        }
-        template <class Event,class FSM>
-        void on_exit(Event const&,FSM& ) {GMGR_FSM_LOG ();}
-      };
-
-
-      struct stopping_cast : public boost::msm::front::state<>
-      {
-        template <class Event,class FSM>
-        void on_entry(Event const&,FSM& fsm) {GMGR_FSM_LOG ();}
+        void on_entry(Event const&, FSM& fsm) {GMGR_FSM_LOG ();}
         template <class Event,class FSM>
         void on_exit(Event const&,FSM& ) {GMGR_FSM_LOG ();}
       };
@@ -399,23 +142,17 @@ namespace tiz
       struct stopped : public boost::msm::front::state<>
       {
         template <class Event,class FSM>
-        void on_entry(Event const&,FSM& fsm)
-        {
-          GMGR_FSM_LOG ();
-          if (fsm.pp_ops_ && *(fsm.pp_ops_))
-          {
-            (*(fsm.pp_ops_))->do_update_control_ifcs (tiz::control::Stopped);
-          }
-        }
+        void on_entry(Event const&,FSM& fsm) {GMGR_FSM_LOG ();}
         template <class Event,class FSM>
         void on_exit(Event const&,FSM& ) {GMGR_FSM_LOG ();}
       };
 
-      struct unloading_cast : public boost::msm::front::state<>
+      struct quitting: public boost::msm::front::state<>
       {
-        typedef boost::mpl::vector<next_evt, prev_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, vol_evt, mute_evt, pause_evt> deferred_events;
         template <class Event,class FSM>
-        void on_entry(Event const&, FSM& fsm) {GMGR_FSM_LOG ();}
+        void on_entry(Event const&,FSM& fsm) {GMGR_FSM_LOG ();}
+        template <class Event,class FSM>
+        void on_exit(Event const&,FSM& ) {GMGR_FSM_LOG ();}
       };
 
       // terminate state
@@ -435,7 +172,7 @@ namespace tiz
       typedef inited initial_state;
 
       // transition actions
-      struct do_load
+      struct do_load_url
       {
         template <class FSM,class EVT,class SourceState,class TargetState>
         void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
@@ -443,12 +180,12 @@ namespace tiz
           GMGR_FSM_LOG ();
           if (fsm.pp_ops_ && *(fsm.pp_ops_))
             {
-              (*(fsm.pp_ops_))->do_load ();
+              (*(fsm.pp_ops_))->do_load_url ();
             }
         }
       };
 
-      struct do_execute_cast
+      struct do_play
       {
         template <class FSM,class EVT,class SourceState,class TargetState>
         void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
@@ -456,12 +193,12 @@ namespace tiz
           GMGR_FSM_LOG ();
           if (fsm.pp_ops_ && *(fsm.pp_ops_))
             {
-              (*(fsm.pp_ops_))->do_execute ();
+              (*(fsm.pp_ops_))->do_play ();
             }
         }
       };
 
-      struct do_next
+      struct do_stop
       {
         template <class FSM,class EVT,class SourceState,class TargetState>
         void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
@@ -469,98 +206,7 @@ namespace tiz
           GMGR_FSM_LOG ();
           if (fsm.pp_ops_ && *(fsm.pp_ops_))
             {
-              (*(fsm.pp_ops_))->do_next ();
-            }
-        }
-      };
-
-      struct do_prev
-      {
-        template <class FSM,class EVT,class SourceState,class TargetState>
-        void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
-        {
-          GMGR_FSM_LOG ();
-          if (fsm.pp_ops_ && *(fsm.pp_ops_))
-            {
-              (*(fsm.pp_ops_))->do_prev ();
-            }
-        }
-      };
-
-      struct do_fwd
-      {
-        template <class FSM,class EVT,class SourceState,class TargetState>
-        void operator()(EVT const&, FSM& fsm, SourceState& , TargetState& )
-        {
-          GMGR_FSM_LOG ();
-          if (fsm.pp_ops_ && *(fsm.pp_ops_))
-            {
-              (*(fsm.pp_ops_))->do_fwd ();
-            }
-        }
-      };
-
-      struct do_rwd
-      {
-        template <class FSM,class EVT,class SourceState,class TargetState>
-        void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
-        {
-          GMGR_FSM_LOG ();
-          if (fsm.pp_ops_ && *(fsm.pp_ops_))
-            {
-              (*(fsm.pp_ops_))->do_rwd ();
-            }
-        }
-      };
-
-      struct do_vol_up
-      {
-        template <class FSM,class EVT,class SourceState,class TargetState>
-        void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
-        {
-          GMGR_FSM_LOG ();
-          if (fsm.pp_ops_ && *(fsm.pp_ops_))
-            {
-              (*(fsm.pp_ops_))->do_vol_up ();
-            }
-        }
-      };
-
-      struct do_vol_down
-      {
-        template <class FSM,class EVT,class SourceState,class TargetState>
-        void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
-        {
-          GMGR_FSM_LOG ();
-          if (fsm.pp_ops_ && *(fsm.pp_ops_))
-            {
-              (*(fsm.pp_ops_))->do_vol_down ();
-            }
-        }
-      };
-
-      struct do_vol
-      {
-        template <class FSM,class EVT,class SourceState,class TargetState>
-        void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
-        {
-          GMGR_FSM_LOG ();
-          if (fsm.pp_ops_ && *(fsm.pp_ops_))
-            {
-              (*(fsm.pp_ops_))->do_vol (evt.vol_);
-            }
-        }
-      };
-
-      struct do_mute
-      {
-        template <class FSM,class EVT,class SourceState,class TargetState>
-        void operator()(EVT const& ,FSM& fsm, SourceState& , TargetState&)
-        {
-          GMGR_FSM_LOG ();
-          if (fsm.pp_ops_ && *(fsm.pp_ops_))
-            {
-              (*(fsm.pp_ops_))->do_mute ();
+              (*(fsm.pp_ops_))->do_stop ();
             }
         }
       };
@@ -578,7 +224,7 @@ namespace tiz
         }
       };
 
-      struct do_stop
+      struct do_volume_up
       {
         template <class FSM,class EVT,class SourceState,class TargetState>
         void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
@@ -586,7 +232,46 @@ namespace tiz
           GMGR_FSM_LOG ();
           if (fsm.pp_ops_ && *(fsm.pp_ops_))
             {
-              (*(fsm.pp_ops_))->do_stop ();
+              (*(fsm.pp_ops_))->do_volume_up ();
+            }
+        }
+      };
+
+      struct do_volume_down
+      {
+        template <class FSM,class EVT,class SourceState,class TargetState>
+        void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
+        {
+          GMGR_FSM_LOG ();
+          if (fsm.pp_ops_ && *(fsm.pp_ops_))
+            {
+              (*(fsm.pp_ops_))->do_volume_down ();
+            }
+        }
+      };
+
+      struct do_mute
+      {
+        template <class FSM,class EVT,class SourceState,class TargetState>
+        void operator()(EVT const& ,FSM& fsm, SourceState& , TargetState&)
+        {
+          GMGR_FSM_LOG ();
+          if (fsm.pp_ops_ && *(fsm.pp_ops_))
+            {
+              (*(fsm.pp_ops_))->do_mute ();
+            }
+        }
+      };
+
+      struct do_unmute
+      {
+        template <class FSM,class EVT,class SourceState,class TargetState>
+        void operator()(EVT const& ,FSM& fsm, SourceState& , TargetState&)
+        {
+          GMGR_FSM_LOG ();
+          if (fsm.pp_ops_ && *(fsm.pp_ops_))
+            {
+              (*(fsm.pp_ops_))->do_unmute ();
             }
         }
       };
@@ -617,33 +302,6 @@ namespace tiz
         }
       };
 
-      template<tiz::control::playback_status_t playstatus>
-      struct do_update_control_ifcs
-      {
-        template <class FSM,class EVT,class SourceState,class TargetState>
-        void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
-        {
-          GMGR_FSM_LOG ();
-          if (fsm.pp_ops_ && *(fsm.pp_ops_))
-            {
-              (*(fsm.pp_ops_))->do_update_control_ifcs (playstatus);
-            }
-        }
-      };
-
-      struct do_update_metadata
-      {
-        template < class FSM, class EVT, class SourceState, class TargetState >
-        void operator()(EVT const& evt, FSM& fsm, SourceState&, TargetState&)
-        {
-          GMGR_FSM_LOG ();
-          if (fsm.pp_ops_ && *(fsm.pp_ops_))
-            {
-              (*(fsm.pp_ops_))->do_update_metadata (evt.metadata_);
-            }
-        }
-      };
-
       struct do_update_volume
       {
         template < class FSM, class EVT, class SourceState, class TargetState >
@@ -666,19 +324,6 @@ namespace tiz
           if (fsm.pp_ops_ && *(fsm.pp_ops_))
             {
               (*(fsm.pp_ops_))->do_report_fatal_error (evt.error_code_, evt.error_str_);
-            }
-        }
-      };
-
-      struct do_end_of_play
-      {
-        template <class FSM,class EVT,class SourceState,class TargetState>
-        void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
-        {
-          GMGR_FSM_LOG ();
-          if (fsm.pp_ops_ && *(fsm.pp_ops_))
-            {
-              (*(fsm.pp_ops_))->do_end_of_play ();
             }
         }
       };
@@ -713,62 +358,24 @@ namespace tiz
       struct transition_table : boost::mpl::vector<
         //         Start                 Event              Next          Action                   Guard
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
-        bmf::Row < inited                , start_evt        , starting    , do_load                                     >,
+        bmf::Row < inited                , start_evt        , running     , do_load_url                                 >,
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
-        bmf::Row < starting
-                   ::exit_pt
-                   <starting_
-                    ::starting_exit >    , cast_execd_evt  , running                                                   >,
-        bmf::Row < starting              , err_evt          , restarting  , bmf::none              , bmf::euml::Not_<
-                                                                                                       is_fatal_error>  >,
-        bmf::Row < starting              , quit_evt         , quitting    , do_unload                                   >,
-        bmf::Row < starting              , err_evt          , quitted     , do_report_fatal_error  , is_fatal_error     >,
-        bmf::Row < starting              , cast_unlded_evt , quitted     , do_end_of_play                              >,
-        //    +----+---------------------+------------------+-------------+------------------------+--------------------+
-        bmf::Row < running               , next_evt         , bmf::none   , do_next                                     >,
-        bmf::Row < running               , prev_evt         , bmf::none   , do_prev                                     >,
-        bmf::Row < running               , fwd_evt          , bmf::none   , do_fwd                                      >,
-        bmf::Row < running               , rwd_evt          , bmf::none   , do_rwd                                      >,
-        bmf::Row < running               , vol_up_evt       , bmf::none   , do_vol_up                                   >,
-        bmf::Row < running               , vol_down_evt     , bmf::none   , do_vol_down                                 >,
-        bmf::Row < running               , vol_evt          , bmf::none   , do_vol                                      >,
-        bmf::Row < running               , mute_evt         , bmf::none   , do_mute                                     >,
+        bmf::Row < running               , play_evt         , bmf::none   , do_play                                     >,
+        bmf::Row < running               , stop_evt         , bmf::none   , do_stop                                     >,
         bmf::Row < running               , pause_evt        , bmf::none   , do_pause                                    >,
-        bmf::Row < running               , cast_paused_evt , bmf::none   , do_update_control_ifcs<tc::Paused>          >,
-        bmf::Row < running               , cast_unpaused_evt, bmf::none  , do_update_control_ifcs<tc::Playing>         >,
-        bmf::Row < running               , cast_metadata_evt, bmf::none  , do_update_metadata                          >,
-        bmf::Row < running               , cast_volume_evt , bmf::none   , do_update_volume                            >,
-        bmf::Row < running               , start_evt        , bmf::none   , do_pause                                    >,
-        bmf::Row < running               , stop_evt         , stopping    , do_stop                                     >,
+        bmf::Row < running               , volume_up_evt    , bmf::none   , do_volume_up                                >,
+        bmf::Row < running               , volume_down_evt  , bmf::none   , do_volume_down                              >,
+        bmf::Row < running               , mute_evt         , bmf::none   , do_mute                                     >,
+        bmf::Row < running               , unmute_evt       , bmf::none   , do_pause                                    >,
         bmf::Row < running               , quit_evt         , quitting    , do_unload                                   >,
-        bmf::Row < running               , cast_eop_evt    , restarting  , bmf::none                                   >,
-        bmf::Row < running               , err_evt          , restarting  , bmf::none              , bmf::euml::Not_<
+        bmf::Row < running               , err_evt          , running     , bmf::none              , bmf::euml::Not_<
                                                                                                         is_fatal_error> >,
         bmf::Row < running               , err_evt          , quitted     , do_report_fatal_error  , is_fatal_error     >,
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
-        bmf::Row < restarting
-                   ::exit_pt
-                   <restarting_
-                    ::restarting_exit >  , cast_unlded_evt , starting    , bmf::ActionSequence_<
-                                                                              boost::mpl::vector<
-                                                                                do_deinit,
-                                                                                do_load> >                              >,
-        bmf::Row < restarting            , err_evt          , quitted     , do_report_fatal_error                       >,
-        //    +----+---------------------+------------------+-------------+------------------------+--------------------+
-        bmf::Row < stopping
-                   ::exit_pt
-                   <stopping_
-                    ::stopping_exit >    , cast_stopped_evt, stopped                                                   >,
-        bmf::Row < stopping              , err_evt          , quitted     , do_report_fatal_error                       >,
-        //    +----+---------------------+------------------+-------------+------------------------+--------------------+
-        bmf::Row < stopped               , start_evt        , starting    , do_execute_cast                            >,
+        bmf::Row < stopped               , start_evt        , running     , do_load_url                            >,
         bmf::Row < stopped               , quit_evt         , quitting    , do_unload                                   >,
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
-        bmf::Row < quitting
-                   ::exit_pt
-                   <quitting_
-                    ::quitting_exit >    , cast_unlded_evt , quitted                                                   >,
-        bmf::Row < quitting              , err_evt          , quitted     , do_report_fatal_error                       >
+        bmf::Row < quitting              , bmf::none        , quitted     , do_report_fatal_error                       >
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
         > {};
 
