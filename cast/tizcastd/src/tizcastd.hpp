@@ -42,9 +42,16 @@
 
 #include <dbus-c++/dbus.h>
 
-#include <tizchromecast_c.h>
-
 #include <tizcastd-dbus.hh>
+
+// Forward declaration
+namespace tiz
+{
+  namespace castmgr
+  {
+    class mgr;
+  }
+}
 
 class tizcastd : public com::aratelia::tiz::tizcastif_adaptor,
                  public Tiz::DBus::IntrospectableAdaptor,
@@ -53,7 +60,7 @@ class tizcastd : public com::aratelia::tiz::tizcastif_adaptor,
 {
 
 public:
-  tizcastd (Tiz::DBus::Connection &connection);
+  tizcastd (Tiz::DBus::Connection &connection, tiz::castmgr::mgr &mgr);
   ~tizcastd ();
 
   /**
@@ -134,7 +141,7 @@ public:
   int32_t unmute ();
 
 private:
-  tiz_chromecast_t *p_cc_;
+  tiz::castmgr::mgr &cast_mgr_;
   std::string cc_name_or_ip_;
 };
 

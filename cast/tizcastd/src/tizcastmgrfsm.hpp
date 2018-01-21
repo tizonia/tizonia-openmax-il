@@ -79,25 +79,18 @@ namespace tiz
 
     // main fsm events
     struct start_evt {};
-    struct next_evt {};
-    struct prev_evt {};
-    struct fwd_evt {};
-    struct rwd_evt {};
-    struct vol_up_evt {};
-    struct vol_down_evt {};
-    struct vol_evt
-    {
-      vol_evt (const double vol)
-      : vol_ (vol)
-      {
-      }
-      const double vol_;
-    };
-    struct mute_evt {};
-    struct pause_evt {};
-    struct stop_evt {};
     struct quit_evt {};
-    struct cast_eop_evt {};
+    struct connect_evt {};
+    struct disconnect_evt {};
+    struct load_url_evt {};
+    struct play_evt {};
+    struct stop_evt {};
+    struct pause_evt {};
+    struct volume_up_evt {};
+    struct volume_down_evt {};
+    struct mute_evt {};
+    struct unmute_evt {};
+    struct poll_evt {};
     struct err_evt
     {
       err_evt(const OMX_ERRORTYPE error, const std::string & error_str, bool is_internal)
@@ -110,30 +103,6 @@ namespace tiz
       std::string   error_str_;
       bool is_internal_;
     };
-
-    // cast feedback events
-    struct cast_loaded_evt {};
-    struct cast_execd_evt {};
-    struct cast_stopped_evt {};
-    struct cast_paused_evt {};
-    struct cast_unpaused_evt {};
-    struct cast_metadata_evt
-    {
-      cast_metadata_evt (const track_metadata_map_t &metadata)
-      : metadata_ (metadata)
-      {
-      }
-      const track_metadata_map_t metadata_;
-    };
-    struct cast_volume_evt
-    {
-      cast_volume_evt (const int &volume)
-      : volume_ (volume)
-      {
-      }
-      const int volume_;
-    };
-    struct cast_unlded_evt {};
 
     // Concrete FSM implementation
     struct fsm_ : public boost::msm::front::state_machine_def<fsm_>
@@ -195,14 +164,12 @@ namespace tiz
         // submachine states
         struct loading_cast : public boost::msm::front::state<>
         {
-          typedef boost::mpl::vector<next_evt, prev_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, vol_evt, mute_evt, pause_evt, stop_evt, quit_evt> deferred_events;
           template <class Event,class FSM>
           void on_entry(Event const&, FSM& fsm) {GMGR_FSM_LOG ();}
         };
 
         struct starting_exit : public boost::msm::front::exit_pseudo_state<cast_execd_evt>
         {
-          typedef boost::mpl::vector<next_evt, prev_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, vol_evt, mute_evt, pause_evt, stop_evt, quit_evt> deferred_events;
           template <class Event,class FSM>
           void on_entry(Event const&,FSM& ) {GMGR_FSM_LOG ();}
         };

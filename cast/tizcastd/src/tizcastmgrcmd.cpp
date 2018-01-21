@@ -66,16 +66,16 @@ const boost::any castmgr::cmd::evt () const
 
 void castmgr::cmd::inject (fsm& machine) const
 {
-#define INJECT_EVENT(the_evt)                                 \
-  if (is_type< the_evt >(evt_))                               \
-  {                                                           \
-    std::string arg (#the_evt);                               \
-    TIZ_LOG (TIZ_PRIORITY_NOTICE,                             \
-             "CAST MGR : Injecting "                         \
-             "CMD [%s] in STATE [%s]...",                     \
-             arg.c_str (), tiz::castmgr::pstate (machine));  \
-    machine.process_event (boost::any_cast< the_evt >(evt_)); \
-  }
+#define INJECT_EVENT(the_evt)                                   \
+  if (is_type< the_evt >(evt_))                                 \
+    {                                                           \
+      std::string arg (#the_evt);                               \
+      TIZ_LOG (TIZ_PRIORITY_NOTICE,                             \
+               "CAST MGR : Injecting "                          \
+               "CMD [%s] in STATE [%s]...",                     \
+               arg.c_str (), tiz::castmgr::pstate (machine));   \
+      machine.process_event (boost::any_cast< the_evt >(evt_)); \
+    }
 
   INJECT_EVENT (start_evt)
   else INJECT_EVENT (quit_evt)
@@ -89,9 +89,10 @@ void castmgr::cmd::inject (fsm& machine) const
                   else INJECT_EVENT (volume_down_evt)
                     else INJECT_EVENT (mute_evt)
                       else INJECT_EVENT (unmute_evt)
-                        else INJECT_EVENT (err_evt)
-                          else
-                            {
-                              assert (0);
-                            }
+                        else INJECT_EVENT (poll_evt)
+                          else INJECT_EVENT (err_evt)
+                            else
+                              {
+                                assert (0);
+                              }
 }

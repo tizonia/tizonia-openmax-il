@@ -34,6 +34,8 @@
 
 #include <OMX_Core.h>
 
+#include <tizchromecast_c.h>
+
 #define GMGR_OPS_RECORD_ERROR(err, str)                                     \
   do                                                                        \
   {                                                                         \
@@ -108,6 +110,7 @@ namespace tiz
 //       termination_callback_t termination_cback_;
       OMX_ERRORTYPE error_code_;
       std::string error_msg_;
+      tiz_chromecast_t *p_cc_;
     };
   }  // namespace castmgr
 }  // namespace tiz

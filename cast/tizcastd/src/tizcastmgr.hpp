@@ -209,7 +209,7 @@ namespace tiz
       OMX_ERRORTYPE unmute ();
 
     protected:
-      virtual ops *do_init () = 0;
+      ops *do_init ();
 
     protected:
       ops *p_ops_;

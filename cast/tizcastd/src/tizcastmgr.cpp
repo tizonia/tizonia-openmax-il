@@ -75,13 +75,20 @@ void *castmgr::thread_func (void *p_arg)
     tiz_check_omx_ret_null (
         tiz_queue_timed_receive (p_mgr->p_queue_, &p_data, poll_time));
 
+    // Dispatch events from the command queue
     if (p_data)
     {
       cmd *p_cmd = static_cast< cmd * > (p_data);
       done = mgr::dispatch_cmd (p_mgr, p_cmd);
+      delete p_cmd;
     }
 
-    delete p_cmd;
+    // Poll the chromecast socket
+    if (!done)
+    {
+      cmd poll_cmd (castmgr::poll_evt ());
+      done = mgr::dispatch_cmd (p_mgr, &poll_cmd);
+    }
   }
 
   tiz_check_omx_ret_null (tiz_sem_post (&(p_mgr->sem_)));
@@ -122,8 +129,7 @@ castmgr::mgr::init ()
   return OMX_ErrorNone;
 }
 
-void
-castmgr::mgr::deinit ()
+void castmgr::mgr::deinit ()
 {
   TIZ_LOG (TIZ_PRIORITY_NOTICE, "Waiting until stopped...");
   static_cast< void > (tiz_sem_wait (&sem_));
@@ -206,6 +212,11 @@ castmgr::mgr::unmute ()
   return post_cmd (new castmgr::cmd (castmgr::unmute_evt ()));
 }
 
+cast::ops *cast::mgr::do_init ()
+{
+  return new ops (this);
+}
+
 OMX_ERRORTYPE
 castmgr::mgr::init_cmd_queue ()
 {
@@ -236,8 +247,7 @@ castmgr::mgr::post_cmd (castmgr::cmd *p_cmd)
   return OMX_ErrorNone;
 }
 
-bool
-castmgr::mgr::dispatch_cmd (castmgr::mgr *p_mgr, const castmgr::cmd *p_cmd)
+bool castmgr::mgr::dispatch_cmd (castmgr::mgr *p_mgr, const castmgr::cmd *p_cmd)
 {
   assert (p_mgr);
   assert (p_mgr->p_ops_);
