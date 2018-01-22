@@ -208,20 +208,18 @@ namespace tiz
        */
       OMX_ERRORTYPE unmute ();
 
-    protected:
-      ops *do_init ();
-
-    protected:
-      ops *p_ops_;
-      fsm fsm_;
 
     private:
+      ops *do_init ();
       OMX_ERRORTYPE init_cmd_queue ();
       void deinit_cmd_queue ();
       OMX_ERRORTYPE post_cmd (cmd *p_cmd);
+
       static bool dispatch_cmd (mgr *p_mgr, const cmd *p_cmd);
 
     private:
+      ops *p_ops_;
+      fsm fsm_;
       tiz_thread_t thread_;
       tiz_mutex_t mutex_;
       tiz_sem_t sem_;

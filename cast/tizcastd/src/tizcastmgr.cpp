@@ -100,7 +100,13 @@ void *castmgr::thread_func (void *p_arg)
 //
 // mgr
 //
-castmgr::mgr::mgr () : thread_ (), mutex_ (), sem_ (), p_queue_ (NULL)
+castmgr::mgr::mgr ()
+  : p_ops_ (NULL),
+    fsm_ (boost::msm::back::states_, &p_ops_),
+    thread_ (),
+    mutex_ (),
+    sem_ (),
+    p_queue_ (NULL),
 {
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Constructing...");
 }

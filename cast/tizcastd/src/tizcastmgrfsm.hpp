@@ -65,7 +65,8 @@ namespace tiz
 {
   namespace castmgr
   {
-    static char const* const state_names[] = { "inited",
+    static char const* const state_names[] = { "starting",
+                                               "started",
                                                "running",
                                                "stopped",
                                                "quitting",
@@ -122,13 +123,21 @@ namespace tiz
       {}
 
       // states
-      struct inited : public boost::msm::front::state<>
+      struct starting : public boost::msm::front::state<>
       {
         // optional entry/exit methods
         template <class Event,class FSM>
         void on_entry(Event const&,FSM& ) { GMGR_FSM_LOG (); }
         template <class Event,class FSM>
         void on_exit(Event const&,FSM& ) { GMGR_FSM_LOG (); }
+      };
+
+      struct started : public boost::msm::front::state<>
+      {
+        template <class Event,class FSM>
+        void on_entry(Event const&, FSM& fsm) {GMGR_FSM_LOG ();}
+        template <class Event,class FSM>
+        void on_exit(Event const&,FSM& ) {GMGR_FSM_LOG ();}
       };
 
       struct running : public boost::msm::front::state<>
@@ -169,7 +178,7 @@ namespace tiz
       };
 
       // The initial state of the SM. Must be defined
-      typedef inited initial_state;
+      typedef starting initial_state;
 
       // transition actions
       struct do_load_url
@@ -358,7 +367,9 @@ namespace tiz
       struct transition_table : boost::mpl::vector<
         //         Start                 Event              Next          Action                   Guard
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
-        bmf::Row < inited                , start_evt        , running     , do_load_url                                 >,
+        bmf::Row < starting              , start_evt        , started     , bmf::none                                   >,
+        //    +----+---------------------+------------------+-------------+------------------------+--------------------+
+        bmf::Row < started               , load_url_evt     , running     , do_load_url                                 >,
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
         bmf::Row < running               , play_evt         , bmf::none   , do_play                                     >,
         bmf::Row < running               , stop_evt         , bmf::none   , do_stop                                     >,
