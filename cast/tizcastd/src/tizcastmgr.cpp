@@ -39,14 +39,8 @@
 #include <tizmacros.h>
 #include <tizplatform.h>
 
-#include "mpris/tizmpriscbacks.hpp"
-#include "mpris/tizmprisprops.hpp"
-#include "tizcast.hpp"
 #include "tizcastmgr.hpp"
-#include "tizcastmgrcaps.hpp"
 #include "tizcastmgrcmd.hpp"
-#include "tizcastutil.hpp"
-#include "tizomxutil.hpp"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -56,7 +50,6 @@
 #define TIZ_CAST_MGR_QUEUE_MAX_ITEMS 30
 
 namespace castmgr = tiz::castmgr;
-namespace cast = tiz::cast;
 
 void *castmgr::thread_func (void *p_arg)
 {
@@ -86,8 +79,9 @@ void *castmgr::thread_func (void *p_arg)
     // Poll the chromecast socket
     if (!done)
     {
-      cmd poll_cmd (castmgr::poll_evt ());
-      done = mgr::dispatch_cmd (p_mgr, &poll_cmd);
+      cmd* p_poll_cmd = new castmgr::cmd (castmgr::poll_evt ());
+      done = mgr::dispatch_cmd (p_mgr, p_poll_cmd);
+      delete p_poll_cmd;
     }
   }
 
@@ -106,7 +100,7 @@ castmgr::mgr::mgr ()
     thread_ (),
     mutex_ (),
     sem_ (),
-    p_queue_ (NULL),
+    p_queue_ (NULL)
 {
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Constructing...");
 }
@@ -159,9 +153,9 @@ castmgr::mgr::quit ()
 }
 
 OMX_ERRORTYPE
-castmgr::mgr::connect ()
+castmgr::mgr::connect (const std::string &name_or_ip)
 {
-  return post_cmd (new castmgr::cmd (castmgr::connect_evt ()));
+  return post_cmd (new castmgr::cmd (castmgr::connect_evt (name_or_ip)));
 }
 
 OMX_ERRORTYPE
@@ -171,9 +165,11 @@ castmgr::mgr::disconnect ()
 }
 
 OMX_ERRORTYPE
-castmgr::mgr::load_url ()
+castmgr::mgr::load_url (const std::string &url,
+                        const std::string &mime_type,
+                        const std::string &title)
 {
-  return post_cmd (new castmgr::cmd (castmgr::load_url_evt ()));
+  return post_cmd (new castmgr::cmd (castmgr::load_url_evt (url, mime_type, title)));
 }
 
 OMX_ERRORTYPE
@@ -218,7 +214,7 @@ castmgr::mgr::unmute ()
   return post_cmd (new castmgr::cmd (castmgr::unmute_evt ()));
 }
 
-cast::ops *cast::mgr::do_init ()
+castmgr::ops *castmgr::mgr::do_init ()
 {
   return new ops (this);
 }

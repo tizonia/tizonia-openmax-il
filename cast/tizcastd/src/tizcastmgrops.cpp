@@ -34,7 +34,6 @@
 #include <tizmacros.h>
 #include <tizplatform.h>
 
-#include "tizcast.hpp"
 #include "tizcastmgr.hpp"
 #include "tizcastmgrops.hpp"
 
@@ -44,6 +43,11 @@
 #endif
 
 namespace castmgr = tiz::castmgr;
+
+static void cc_new_media_status_cback (void *ap_user_data)
+{
+  // TODO
+}
 
 //
 // ops
@@ -66,130 +70,87 @@ void castmgr::ops::deinit ()
   //   termination_cback_ (OMX_ErrorNone, "");
 }
 
-void castmgr::ops::do_connect ()
+void castmgr::ops::do_connect (const std::string &name_or_ip)
 {
-  tiz_cast_error_t outcome = TIZ_CAST_SUCCESS;
   // Make sure a previous client has been disconnected
-  disconnect ();
-  if (0 != tiz_chromecast_init (&(p_cc_), name_or_ip.c_str(),
-                                cc_new_media_status_cback,
-                                this))
-    {
-      outcome = TIZ_CAST_MISUSE;
-    }
-  return outcome;
+  // disconnect ();
+  CAST_MGR_OPS_BAIL_IF_ERROR (
+      tiz_chromecast_init (&(p_cc_), name_or_ip.c_str (),
+                           cc_new_media_status_cback, this),
+      "TODO: ADD ERROR MSG");
 }
 
 void castmgr::ops::do_disconnect ()
 {
-  tiz_cast_error_t outcome = TIZ_CAST_SUCCESS;
   if (p_cc_)
     {
       tiz_chromecast_destroy (p_cc_);
       p_cc_ = NULL;
     }
-  return outcome;
 }
 
-void castmgr::ops::do_load_url ()
+void castmgr::ops::do_load_url (const std::string &url,
+                                const std::string &mime_type,
+                                const std::string &title)
 {
-    tiz_cast_error_t outcome = TIZ_CAST_SUCCESS;
-  if (0 != tiz_chromecast_load_url (p_cc_, url.c_str (), mime_type.c_str (),
-                                    title.c_str ()))
-    {
-      TIZ_LOG(TIZ_PRIORITY_ERROR, "While loading url : [%s]", url.c_str ());
-      outcome = TIZ_CAST_URL_LOAD_FAILURE;
-    }
-  return outcome;
+  CAST_MGR_OPS_BAIL_IF_ERROR (
+      tiz_chromecast_load_url (p_cc_, url.c_str (), mime_type.c_str (),
+                               title.c_str ()),
+      "TODO: ADD ERROR MSG");
 }
 
 void castmgr::ops::do_play ()
 {
-  tiz_cast_error_t outcome = TIZ_CAST_SUCCESS;
-  if (0 != tiz_chromecast_play (p_cc_))
-    {
-      TIZ_LOG(TIZ_PRIORITY_ERROR, "While invoking play");
-      outcome = TIZ_CAST_CC_CMD_FAILURE;
-    }
-  return outcome;
+  CAST_MGR_OPS_BAIL_IF_ERROR (tiz_chromecast_play (p_cc_),
+                              "TODO: ADD ERROR MSG");
 }
 
 void castmgr::ops::do_stop ()
 {
-  tiz_cast_error_t outcome = TIZ_CAST_SUCCESS;
-  if (0 != tiz_chromecast_stop (p_cc_))
-    {
-      TIZ_LOG(TIZ_PRIORITY_ERROR, "While invoking stop");
-      outcome = TIZ_CAST_CC_CMD_FAILURE;
-    }
-  return outcome;
+  CAST_MGR_OPS_BAIL_IF_ERROR (tiz_chromecast_stop (p_cc_),
+                              "TODO: ADD ERROR MSG");
 }
 
 void castmgr::ops::do_pause ()
 {
-  tiz_cast_error_t outcome = TIZ_CAST_SUCCESS;
-  if (0 != tiz_chromecast_pause (p_cc_))
-    {
-      TIZ_LOG(TIZ_PRIORITY_ERROR, "While invoking pause");
-      outcome = TIZ_CAST_CC_CMD_FAILURE;
-    }
-  return outcome;
+  CAST_MGR_OPS_BAIL_IF_ERROR (tiz_chromecast_pause (p_cc_),
+                              "TODO: ADD ERROR MSG");
 }
 
 void castmgr::ops::do_volume_up ()
 {
-  tiz_cast_error_t outcome = TIZ_CAST_SUCCESS;
-  if (0 != tiz_chromecast_volume_up (p_cc_))
-    {
-      TIZ_LOG(TIZ_PRIORITY_ERROR, "While invoking volume up");
-      outcome = TIZ_CAST_CC_CMD_FAILURE;
-    }
-  return outcome;
+  CAST_MGR_OPS_BAIL_IF_ERROR (tiz_chromecast_volume_up (p_cc_),
+                              "TODO: ADD ERROR MSG");
 }
 
 void castmgr::ops::do_volume_down ()
 {
-  tiz_cast_error_t outcome = TIZ_CAST_SUCCESS;
-  if (0 != tiz_chromecast_volume_down (p_cc_))
-    {
-      TIZ_LOG(TIZ_PRIORITY_ERROR, "While invoking volume down");
-      outcome = TIZ_CAST_CC_CMD_FAILURE;
-    }
-  return outcome;
+  CAST_MGR_OPS_BAIL_IF_ERROR (tiz_chromecast_volume_down (p_cc_),
+                              "TODO: ADD ERROR MSG");
 }
 
 void castmgr::ops::do_mute ()
 {
-  tiz_cast_error_t outcome = TIZ_CAST_SUCCESS;
-  if (0 != tiz_chromecast_mute (p_cc_))
-    {
-      TIZ_LOG(TIZ_PRIORITY_ERROR, "While invoking mute");
-      outcome = TIZ_CAST_CC_CMD_FAILURE;
-    }
-  return outcome;
+  CAST_MGR_OPS_BAIL_IF_ERROR (tiz_chromecast_mute (p_cc_),
+                              "TODO: ADD ERROR MSG");
 }
 
 void castmgr::ops::do_unmute ()
 {
-  tiz_cast_error_t outcome = TIZ_CAST_SUCCESS;
-  if (0 != tiz_chromecast_unmute (p_cc_))
-    {
-      TIZ_LOG(TIZ_PRIORITY_ERROR, "While invoking unmute");
-      outcome = TIZ_CAST_CC_CMD_FAILURE;
-    }
-  return outcome;
+  CAST_MGR_OPS_BAIL_IF_ERROR (tiz_chromecast_unmute (p_cc_),
+                              "TODO: ADD ERROR MSG");
 }
 
-void castmgr::ops::do_report_fatal_error (const OMX_ERRORTYPE error,
+void castmgr::ops::do_report_fatal_error (const int error,
                                           const std::string &msg)
 {
   //   termination_cback_ (error, msg);
 }
 
-bool castmgr::ops::is_fatal_error (const OMX_ERRORTYPE error,
+bool castmgr::ops::is_fatal_error (const int error,
                                    const std::string &msg)
 {
-  TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s] : %s", tiz_err_to_str (error),
+  TIZ_LOG (TIZ_PRIORITY_ERROR, "[%d] : %s", error,
            msg.c_str ());
   // This is a generic implementation. We use here some common understanding of
   // fatal errors. Each manager cast may decide to use its own list of fatal
@@ -198,7 +159,7 @@ bool castmgr::ops::is_fatal_error (const OMX_ERRORTYPE error,
   return true;
 }
 
-OMX_ERRORTYPE
+int
 castmgr::ops::internal_error () const
 {
   return error_code_;

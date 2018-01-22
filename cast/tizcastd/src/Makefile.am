@@ -18,10 +18,18 @@
 bin_PROGRAMS = tizcastd
 
 noinst_HEADERS = \
-	tizcastd.hpp
+	tizcastd.hpp \
+	tizcastmgr.hpp \
+	tizcastmgrcmd.hpp \
+	tizcastmgrfsm.hpp \
+	tizcastmgrops.hpp
 
 tizcastd_SOURCES = \
-	tizcastd.cpp
+	tizcastd.cpp \
+	tizcastmgr.cpp \
+	tizcastmgrcmd.cpp \
+	tizcastmgrfsm.cpp \
+	tizcastmgrops.cpp
 
 tizcastd_CPPFLAGS = \
 	-I$(top_srcdir)/dbus \

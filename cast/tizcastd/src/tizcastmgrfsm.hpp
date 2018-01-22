@@ -75,9 +75,29 @@ namespace tiz
     // main fsm events
     struct start_evt {};
     struct quit_evt {};
-    struct connect_evt {};
+    struct connect_evt
+    {
+      connect_evt (const std::string &name_or_ip)
+        : name_or_ip_ (name_or_ip)
+      {
+      }
+      const std::string name_or_ip_;
+    };
     struct disconnect_evt {};
-    struct load_url_evt {};
+    struct load_url_evt
+    {
+      load_url_evt (const std::string &url,
+                    const std::string &mime_type,
+                    const std::string &title)
+        : url_ (url),
+          mime_type_ (mime_type),
+          title_ (title)
+      {
+      }
+      const std::string url_;
+      const std::string mime_type_;
+      const std::string title_;
+    };
     struct play_evt {};
     struct stop_evt {};
     struct pause_evt {};
@@ -88,13 +108,13 @@ namespace tiz
     struct poll_evt {};
     struct err_evt
     {
-      err_evt(const OMX_ERRORTYPE error, const std::string & error_str, bool is_internal)
+      err_evt(const int error, const std::string & error_str, bool is_internal)
         :
         error_code_ (error),
         error_str_(error_str),
         is_internal_ (is_internal)
       {}
-      OMX_ERRORTYPE error_code_;
+      int error_code_;
       std::string   error_str_;
       bool is_internal_;
     };
@@ -184,12 +204,12 @@ namespace tiz
       struct do_load_url
       {
         template <class FSM,class EVT,class SourceState,class TargetState>
-        void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
+        void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
         {
           GMGR_FSM_LOG ();
           if (fsm.pp_ops_ && *(fsm.pp_ops_))
             {
-              (*(fsm.pp_ops_))->do_load_url ();
+              (*(fsm.pp_ops_))->do_load_url (evt.url_, evt.mime_type_, evt.title_);
             }
         }
       };
@@ -285,7 +305,7 @@ namespace tiz
         }
       };
 
-      struct do_unload
+      struct do_disconnect
       {
         template <class FSM,class EVT,class SourceState,class TargetState>
         void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
@@ -293,7 +313,7 @@ namespace tiz
           GMGR_FSM_LOG ();
           if (fsm.pp_ops_ && *(fsm.pp_ops_))
             {
-              (*(fsm.pp_ops_))->do_unload ();
+              (*(fsm.pp_ops_))->do_disconnect ();
             }
         }
       };
@@ -378,15 +398,15 @@ namespace tiz
         bmf::Row < running               , volume_down_evt  , bmf::none   , do_volume_down                              >,
         bmf::Row < running               , mute_evt         , bmf::none   , do_mute                                     >,
         bmf::Row < running               , unmute_evt       , bmf::none   , do_pause                                    >,
-        bmf::Row < running               , quit_evt         , quitting    , do_unload                                   >,
+        bmf::Row < running               , quit_evt         , quitting    , do_disconnect                               >,
         bmf::Row < running               , err_evt          , running     , bmf::none              , bmf::euml::Not_<
                                                                                                         is_fatal_error> >,
         bmf::Row < running               , err_evt          , quitted     , do_report_fatal_error  , is_fatal_error     >,
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
-        bmf::Row < stopped               , start_evt        , running     , do_load_url                            >,
-        bmf::Row < stopped               , quit_evt         , quitting    , do_unload                                   >,
+        bmf::Row < stopped               , start_evt        , started     , bmf::none                                   >,
+        bmf::Row < stopped               , quit_evt         , quitting    , do_disconnect                               >,
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
-        bmf::Row < quitting              , bmf::none        , quitted     , do_report_fatal_error                       >
+        bmf::Row < quitting              , bmf::none        , quitted     , bmf::none                                   >
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
         > {};
 

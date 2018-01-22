@@ -29,33 +29,29 @@
 #ifndef TIZCASTMGROPS_HPP
 #define TIZCASTMGROPS_HPP
 
-#include <string>
 #include <boost/function.hpp>
+#include <string>
 
 #include <OMX_Core.h>
 
 #include <tizchromecast_c.h>
 
-#define GMGR_OPS_RECORD_ERROR(err, str)                                     \
-  do                                                                        \
-  {                                                                         \
-    error_msg_.assign (str);                                                \
-    error_code_ = err;                                                      \
-    TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s] : %s", tiz_err_to_str (error_code_), \
-             error_msg_.c_str ());                                          \
+#define CAST_MGR_OPS_RECORD_ERROR(err, str)                              \
+  do                                                                     \
+  {                                                                      \
+    error_msg_.assign (str);                                             \
+    error_code_ = err;                                                   \
+    TIZ_LOG (TIZ_PRIORITY_ERROR, "[%d] : %s", err, error_msg_.c_str ()); \
   } while (0)
 
-#define GMGR_OPS_BAIL_IF_ERROR(ptr, exp, str) \
-  do                                          \
-  {                                           \
-    if (ptr)                                  \
-    {                                         \
-      OMX_ERRORTYPE rc_ = OMX_ErrorNone;      \
-      if (OMX_ErrorNone != (rc_ = (exp)))     \
-      {                                       \
-        GMGR_OPS_RECORD_ERROR (rc_, str);     \
-      }                                       \
-    }                                         \
+#define CAST_MGR_OPS_BAIL_IF_ERROR(exp, str) \
+  do                                         \
+  {                                          \
+    int rc_ = 0;                             \
+    if (0 != (rc_ = (exp)))                  \
+    {                                        \
+      CAST_MGR_OPS_RECORD_ERROR (rc_, str);  \
+    }                                        \
   } while (0)
 
 namespace tiz
@@ -84,9 +80,11 @@ namespace tiz
       void deinit ();
 
     public:
-      virtual void do_connect ();
+      virtual void do_connect (const std::string &name_or_ip);
       virtual void do_disconnect ();
-      virtual void do_load_url ();
+      virtual void do_load_url (const std::string &url,
+                                const std::string &mime_type,
+                                const std::string &title);
       virtual void do_play ();
       virtual void do_stop ();
       virtual void do_pause ();
@@ -94,21 +92,18 @@ namespace tiz
       virtual void do_volume_down ();
       virtual void do_mute ();
       virtual void do_unmute ();
-      virtual void do_report_fatal_error (const OMX_ERRORTYPE error,
+      virtual void do_report_fatal_error (const int error,
                                           const std::string &msg);
-      virtual bool is_fatal_error (const OMX_ERRORTYPE error,
+      virtual bool is_fatal_error (const int error,
                                    const std::string &msg);
 
-      OMX_ERRORTYPE internal_error () const;
+      int internal_error () const;
       std::string internal_error_msg () const;
 
     protected:
-      virtual tizcast_ptr_t get_cast (const std::string &uri);
-
-    protected:
-      mgr *p_mgr_;              // Not owned
-//       termination_callback_t termination_cback_;
-      OMX_ERRORTYPE error_code_;
+      mgr *p_mgr_;  // Not owned
+                    //       termination_callback_t termination_cback_;
+      int error_code_;
       std::string error_msg_;
       tiz_chromecast_t *p_cc_;
     };

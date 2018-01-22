@@ -116,7 +116,7 @@ namespace tiz
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
        */
-      OMX_ERRORTYPE connect ();
+      OMX_ERRORTYPE connect (const std::string &name_or_ip);
 
       /**
        * Halt processing of the playlist.
@@ -136,7 +136,9 @@ namespace tiz
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
        */
-      OMX_ERRORTYPE load_url ();
+      OMX_ERRORTYPE load_url (const std::string &url,
+                              const std::string &mime_type,
+                              const std::string &title);
 
       /**
        * Process the previous item in the playlist.
