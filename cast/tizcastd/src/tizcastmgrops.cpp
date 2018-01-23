@@ -83,68 +83,102 @@ void castmgr::ops::do_connect (const std::string &name_or_ip)
 void castmgr::ops::do_disconnect ()
 {
   if (p_cc_)
-    {
-      tiz_chromecast_destroy (p_cc_);
-      p_cc_ = NULL;
-    }
+  {
+    tiz_chromecast_destroy (p_cc_);
+    p_cc_ = NULL;
+  }
 }
 
 void castmgr::ops::do_poll (int poll_time_ms)
 {
-  CAST_MGR_OPS_BAIL_IF_ERROR (tiz_chromecast_poll (p_cc_, poll_time_ms),
-                              "Unable to 'poll' the Chromecast socket");
+  if (p_cc_)
+  {
+    CAST_MGR_OPS_BAIL_IF_ERROR (tiz_chromecast_poll (p_cc_, poll_time_ms),
+                                "Unable to 'poll' the Chromecast socket");
+  }
 }
 
 void castmgr::ops::do_load_url (const std::string &url,
                                 const std::string &mime_type,
                                 const std::string &title)
 {
-  CAST_MGR_OPS_BAIL_IF_ERROR (
-      tiz_chromecast_load_url (p_cc_, url.c_str (), mime_type.c_str (),
-                               title.c_str ()),
-      "Unable to load the URL into the Chromecast device");
+  if (p_cc_)
+  {
+    CAST_MGR_OPS_BAIL_IF_ERROR (
+        tiz_chromecast_load_url (p_cc_, url.c_str (), mime_type.c_str (),
+                                 title.c_str ()),
+        "Unable to load the URL into the Chromecast device");
+  }
 }
 
 void castmgr::ops::do_play ()
 {
-  CAST_MGR_OPS_BAIL_IF_ERROR (tiz_chromecast_play (p_cc_),
-                              "Unable to deliver 'play' to Chromecast device");
+  if (p_cc_)
+  {
+    CAST_MGR_OPS_BAIL_IF_ERROR (
+        tiz_chromecast_play (p_cc_),
+        "Unable to deliver 'play' to Chromecast device");
+  }
 }
 
 void castmgr::ops::do_stop ()
 {
-  CAST_MGR_OPS_BAIL_IF_ERROR (tiz_chromecast_stop (p_cc_),
-                              "Unable to deliver 'stop' to Chromecast device");
+  if (p_cc_)
+  {
+    CAST_MGR_OPS_BAIL_IF_ERROR (
+        tiz_chromecast_stop (p_cc_),
+        "Unable to deliver 'stop' to Chromecast device");
+  }
 }
 
 void castmgr::ops::do_pause ()
 {
-  CAST_MGR_OPS_BAIL_IF_ERROR (tiz_chromecast_pause (p_cc_),
-                              "Unable to deliver 'pause' to Chromecast device");
+  if (p_cc_)
+  {
+    CAST_MGR_OPS_BAIL_IF_ERROR (
+        tiz_chromecast_pause (p_cc_),
+        "Unable to deliver 'pause' to Chromecast device");
+  }
 }
 
 void castmgr::ops::do_volume_up ()
 {
-  CAST_MGR_OPS_BAIL_IF_ERROR (tiz_chromecast_volume_up (p_cc_),
-                              "Unable to deliver 'volume up' to Chromecast device");
+  if (p_cc_)
+  {
+    CAST_MGR_OPS_BAIL_IF_ERROR (
+        tiz_chromecast_volume_up (p_cc_),
+        "Unable to deliver 'volume up' to Chromecast device");
+  }
 }
 
 void castmgr::ops::do_volume_down ()
 {
-  CAST_MGR_OPS_BAIL_IF_ERROR (tiz_chromecast_volume_down (p_cc_),
-                              "Unable to deliver 'volume down' to Chromecast device");
+  if (p_cc_)
+  {
+    CAST_MGR_OPS_BAIL_IF_ERROR (
+        tiz_chromecast_volume_down (p_cc_),
+        "Unable to deliver 'volume down' to Chromecast device");
+  }
 }
 
 void castmgr::ops::do_mute ()
 {
-  CAST_MGR_OPS_BAIL_IF_ERROR (tiz_chromecast_mute (p_cc_),
-                              "Unable to deliver 'mute' to Chromecast device");
+  if (p_cc_)
+  {
+    CAST_MGR_OPS_BAIL_IF_ERROR (
+        tiz_chromecast_mute (p_cc_),
+        "Unable to deliver 'mute' to Chromecast device");
+  }
 }
 
 void castmgr::ops::do_unmute ()
 {
-  CAST_MGR_OPS_BAIL_IF_ERROR (tiz_chromecast_unmute (p_cc_),
-                              "Unable to deliver 'unmute' to Chromecast device");
+  if (p_cc_)
+  {
+    CAST_MGR_OPS_BAIL_IF_ERROR (
+        tiz_chromecast_unmute (p_cc_),
+        "Unable to deliver 'unmute' to Chromecast device");
+  }
 }
 
 void castmgr::ops::do_report_fatal_error (const int error,
@@ -153,11 +187,9 @@ void castmgr::ops::do_report_fatal_error (const int error,
   //   termination_cback_ (error, msg);
 }
 
-bool castmgr::ops::is_fatal_error (const int error,
-                                   const std::string &msg)
+bool castmgr::ops::is_fatal_error (const int error, const std::string &msg)
 {
-  TIZ_LOG (TIZ_PRIORITY_ERROR, "[%d] : %s", error,
-           msg.c_str ());
+  TIZ_LOG (TIZ_PRIORITY_ERROR, "[%d] : %s", error, msg.c_str ());
   // This is a generic implementation. We use here some common understanding of
   // fatal errors. Each manager cast may decide to use its own list of fatal
   // errors.
@@ -165,8 +197,7 @@ bool castmgr::ops::is_fatal_error (const int error,
   return true;
 }
 
-int
-castmgr::ops::internal_error () const
+int castmgr::ops::internal_error () const
 {
   return error_code_;
 }
