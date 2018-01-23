@@ -23,6 +23,7 @@ Access a Chromecast device to initiate and manage audio streaming sessions..
 
 from __future__ import unicode_literals
 
+import select
 import sys
 import logging
 import unicodedata
@@ -132,6 +133,12 @@ class tizchromecastproxy(object):
 
     def deactivate(self):
         self.cast.quit_app()
+
+    def poll_socket(self, polltime):
+        can_read, _, _ = select.select([self.cast.socket_client.get_socket()], [], [], polltime/1000)
+        if can_read:
+            # Received something on the socket, gets handled with run_once()
+            self.cast.socket_client.run_once()
 
     def media_load(self, url, content_type, title=None,
                    thumb=DEFAULT_THUMB,
