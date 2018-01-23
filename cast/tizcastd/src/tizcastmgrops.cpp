@@ -77,7 +77,7 @@ void castmgr::ops::do_connect (const std::string &name_or_ip)
   CAST_MGR_OPS_BAIL_IF_ERROR (
       tiz_chromecast_init (&(p_cc_), name_or_ip.c_str (),
                            cc_new_media_status_cback, this),
-      "TODO: ADD ERROR MSG");
+      "Unable to initialize the Chromecast client library");
 }
 
 void castmgr::ops::do_disconnect ()
@@ -96,49 +96,49 @@ void castmgr::ops::do_load_url (const std::string &url,
   CAST_MGR_OPS_BAIL_IF_ERROR (
       tiz_chromecast_load_url (p_cc_, url.c_str (), mime_type.c_str (),
                                title.c_str ()),
-      "TODO: ADD ERROR MSG");
+      "Unable to load the URL into the Chromecast device");
 }
 
 void castmgr::ops::do_play ()
 {
   CAST_MGR_OPS_BAIL_IF_ERROR (tiz_chromecast_play (p_cc_),
-                              "TODO: ADD ERROR MSG");
+                              "Unable to deliver 'play' to Chromecast device");
 }
 
 void castmgr::ops::do_stop ()
 {
   CAST_MGR_OPS_BAIL_IF_ERROR (tiz_chromecast_stop (p_cc_),
-                              "TODO: ADD ERROR MSG");
+                              "Unable to deliver 'stop' to Chromecast device");
 }
 
 void castmgr::ops::do_pause ()
 {
   CAST_MGR_OPS_BAIL_IF_ERROR (tiz_chromecast_pause (p_cc_),
-                              "TODO: ADD ERROR MSG");
+                              "Unable to deliver 'pause' to Chromecast device");
 }
 
 void castmgr::ops::do_volume_up ()
 {
   CAST_MGR_OPS_BAIL_IF_ERROR (tiz_chromecast_volume_up (p_cc_),
-                              "TODO: ADD ERROR MSG");
+                              "Unable to deliver 'volume up' to Chromecast device");
 }
 
 void castmgr::ops::do_volume_down ()
 {
   CAST_MGR_OPS_BAIL_IF_ERROR (tiz_chromecast_volume_down (p_cc_),
-                              "TODO: ADD ERROR MSG");
+                              "Unable to deliver 'volume down' to Chromecast device");
 }
 
 void castmgr::ops::do_mute ()
 {
   CAST_MGR_OPS_BAIL_IF_ERROR (tiz_chromecast_mute (p_cc_),
-                              "TODO: ADD ERROR MSG");
+                              "Unable to deliver 'mute' to Chromecast device");
 }
 
 void castmgr::ops::do_unmute ()
 {
   CAST_MGR_OPS_BAIL_IF_ERROR (tiz_chromecast_unmute (p_cc_),
-                              "TODO: ADD ERROR MSG");
+                              "Unable to deliver 'unmute' to Chromecast device");
 }
 
 void castmgr::ops::do_report_fatal_error (const int error,
