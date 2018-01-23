@@ -121,16 +121,18 @@ castmgr::mgr::init ()
   tiz_check_omx_ret_oom (tiz_mutex_unlock (&mutex_));
 
   // Init this mgr's operations using the do_init template method
-  tiz_check_null_ret_oom ((p_ops_ = do_init ()));
+  tiz_check_null_ret_oom ((p_ops_ = new ops (this)));
 
   // Let's wait until this manager's thread is ready to receive requests
   tiz_check_omx_ret_oom (tiz_sem_wait (&sem_));
 
-  return OMX_ErrorNone;
+  // Get the fsm to start processing events
+  return start_fsm ();
 }
 
 void castmgr::mgr::deinit ()
 {
+  (void)stop_fsm ();
   TIZ_LOG (TIZ_PRIORITY_NOTICE, "Waiting until stopped...");
   static_cast< void > (tiz_sem_wait (&sem_));
   void *p_result = NULL;
@@ -138,18 +140,6 @@ void castmgr::mgr::deinit ()
   deinit_cmd_queue ();
   delete p_ops_;
   p_ops_ = NULL;
-}
-
-OMX_ERRORTYPE
-castmgr::mgr::start ()
-{
-  return post_cmd (new castmgr::cmd (castmgr::start_evt ()));
-}
-
-OMX_ERRORTYPE
-castmgr::mgr::quit ()
-{
-  return post_cmd (new castmgr::cmd (castmgr::quit_evt ()));
 }
 
 OMX_ERRORTYPE
@@ -214,9 +204,20 @@ castmgr::mgr::unmute ()
   return post_cmd (new castmgr::cmd (castmgr::unmute_evt ()));
 }
 
-castmgr::ops *castmgr::mgr::do_init ()
+//
+// Private methods
+//
+
+OMX_ERRORTYPE
+castmgr::mgr::start_fsm ()
 {
-  return new ops (this);
+  return post_cmd (new castmgr::cmd (castmgr::start_evt ()));
+}
+
+OMX_ERRORTYPE
+castmgr::mgr::stop_fsm ()
+{
+  return post_cmd (new castmgr::cmd (castmgr::quit_evt ()));
 }
 
 OMX_ERRORTYPE

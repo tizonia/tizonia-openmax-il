@@ -60,7 +60,7 @@ class tizcastd : public com::aratelia::tiz::tizcastif_adaptor,
 {
 
 public:
-  tizcastd (Tiz::DBus::Connection &connection, tiz::castmgr::mgr &mgr);
+  tizcastd (Tiz::DBus::Connection &connection);
   ~tizcastd ();
 
   /**
@@ -141,7 +141,7 @@ public:
   int32_t unmute ();
 
 private:
-  tiz::castmgr::mgr &cast_mgr_;
+  tiz::castmgr::mgr * p_cast_mgr_;
   std::string cc_name_or_ip_;
 };
 

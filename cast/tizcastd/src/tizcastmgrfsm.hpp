@@ -68,7 +68,6 @@ namespace tiz
     static char const* const state_names[] = { "starting",
                                                "started",
                                                "running",
-                                               "stopped",
                                                "quitting",
                                                "quitted"};
 
@@ -127,7 +126,6 @@ namespace tiz
 
       /* Forward declarations */
       struct running;
-      struct stopped;
       struct quitting;
       struct quitted;
       struct do_report_fatal_error;
@@ -168,14 +166,6 @@ namespace tiz
         void on_exit(Event const&,FSM& ) {GMGR_FSM_LOG ();}
       };
 
-      struct stopped : public boost::msm::front::state<>
-      {
-        template <class Event,class FSM>
-        void on_entry(Event const&,FSM& fsm) {GMGR_FSM_LOG ();}
-        template <class Event,class FSM>
-        void on_exit(Event const&,FSM& ) {GMGR_FSM_LOG ();}
-      };
-
       struct quitting: public boost::msm::front::state<>
       {
         template <class Event,class FSM>
@@ -201,6 +191,32 @@ namespace tiz
       typedef starting initial_state;
 
       // transition actions
+      struct do_connect
+      {
+        template <class FSM,class EVT,class SourceState,class TargetState>
+        void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
+        {
+          GMGR_FSM_LOG ();
+          if (fsm.pp_ops_ && *(fsm.pp_ops_))
+            {
+              (*(fsm.pp_ops_))->do_connect (evt.name_or_ip_);
+            }
+        }
+      };
+
+      struct do_disconnect
+      {
+        template <class FSM,class EVT,class SourceState,class TargetState>
+        void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
+        {
+          GMGR_FSM_LOG ();
+          if (fsm.pp_ops_ && *(fsm.pp_ops_))
+            {
+              (*(fsm.pp_ops_))->do_disconnect ();
+            }
+        }
+      };
+
       struct do_load_url
       {
         template <class FSM,class EVT,class SourceState,class TargetState>
@@ -305,45 +321,6 @@ namespace tiz
         }
       };
 
-      struct do_disconnect
-      {
-        template <class FSM,class EVT,class SourceState,class TargetState>
-        void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
-        {
-          GMGR_FSM_LOG ();
-          if (fsm.pp_ops_ && *(fsm.pp_ops_))
-            {
-              (*(fsm.pp_ops_))->do_disconnect ();
-            }
-        }
-      };
-
-      struct do_deinit
-      {
-        template <class FSM,class EVT,class SourceState,class TargetState>
-        void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
-        {
-          GMGR_FSM_LOG ();
-          if (fsm.pp_ops_ && *(fsm.pp_ops_))
-            {
-              (*(fsm.pp_ops_))->do_deinit ();
-            }
-        }
-      };
-
-      struct do_update_volume
-      {
-        template < class FSM, class EVT, class SourceState, class TargetState >
-        void operator()(EVT const& evt, FSM& fsm, SourceState&, TargetState&)
-        {
-          GMGR_FSM_LOG ();
-          if (fsm.pp_ops_ && *(fsm.pp_ops_))
-            {
-              (*(fsm.pp_ops_))->do_update_volume (evt.volume_);
-            }
-        }
-      };
-
       struct do_report_fatal_error
       {
         template <class FSM,class EVT,class SourceState,class TargetState>
@@ -389,8 +366,9 @@ namespace tiz
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
         bmf::Row < starting              , start_evt        , started     , bmf::none                                   >,
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
-        bmf::Row < started               , load_url_evt     , running     , do_load_url                                 >,
+        bmf::Row < started               , connect_evt      , running     , do_connect                                  >,
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
+        bmf::Row < running               , load_url_evt     , bmf::none   , do_load_url                                 >,
         bmf::Row < running               , play_evt         , bmf::none   , do_play                                     >,
         bmf::Row < running               , stop_evt         , bmf::none   , do_stop                                     >,
         bmf::Row < running               , pause_evt        , bmf::none   , do_pause                                    >,
@@ -399,12 +377,9 @@ namespace tiz
         bmf::Row < running               , mute_evt         , bmf::none   , do_mute                                     >,
         bmf::Row < running               , unmute_evt       , bmf::none   , do_pause                                    >,
         bmf::Row < running               , quit_evt         , quitting    , do_disconnect                               >,
-        bmf::Row < running               , err_evt          , running     , bmf::none              , bmf::euml::Not_<
+        bmf::Row < running               , err_evt          , bmf::none   , bmf::none              , bmf::euml::Not_<
                                                                                                         is_fatal_error> >,
         bmf::Row < running               , err_evt          , quitted     , do_report_fatal_error  , is_fatal_error     >,
-        //    +----+---------------------+------------------+-------------+------------------------+--------------------+
-        bmf::Row < stopped               , start_evt        , started     , bmf::none                                   >,
-        bmf::Row < stopped               , quit_evt         , quitting    , do_disconnect                               >,
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
         bmf::Row < quitting              , bmf::none        , quitted     , bmf::none                                   >
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+

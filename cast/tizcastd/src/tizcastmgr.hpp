@@ -92,26 +92,6 @@ namespace tiz
        * Start processing the play list from the beginning.
        *
        * @pre init() has been called on this manager.
-       *
-       * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
-       * success.
-       */
-      OMX_ERRORTYPE start ();
-
-      /**
-       * Exit the manager thread.
-       *
-       * @pre init() has been called on this manager.
-       *
-       * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
-       * success.
-       */
-      OMX_ERRORTYPE quit ();
-
-      /**
-       * Start processing the play list from the beginning.
-       *
-       * @pre init() has been called on this manager.
 
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
@@ -212,7 +192,26 @@ namespace tiz
 
 
     private:
-      ops *do_init ();
+      /**
+       * Start processing the play list from the beginning.
+       *
+       * @pre init() has been called on this manager.
+       *
+       * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
+       * success.
+       */
+      OMX_ERRORTYPE start_fsm ();
+
+      /**
+       * Exit the manager thread.
+       *
+       * @pre init() has been called on this manager.
+       *
+       * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
+       * success.
+       */
+      OMX_ERRORTYPE stop_fsm ();
+
       OMX_ERRORTYPE init_cmd_queue ();
       void deinit_cmd_queue ();
       OMX_ERRORTYPE post_cmd (cmd *p_cmd);
