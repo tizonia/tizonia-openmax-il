@@ -89,6 +89,12 @@ void castmgr::ops::do_disconnect ()
     }
 }
 
+void castmgr::ops::do_poll (int poll_time_ms)
+{
+  CAST_MGR_OPS_BAIL_IF_ERROR (tiz_chromecast_poll (p_cc_, poll_time_ms),
+                              "Unable to 'poll' the Chromecast socket");
+}
+
 void castmgr::ops::do_load_url (const std::string &url,
                                 const std::string &mime_type,
                                 const std::string &title)

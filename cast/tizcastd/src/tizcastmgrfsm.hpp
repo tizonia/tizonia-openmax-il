@@ -69,6 +69,7 @@ namespace tiz
                                                "started",
                                                "running",
                                                "quitting",
+                                               "polling",
                                                "quitted"};
 
     // main fsm events
@@ -104,7 +105,14 @@ namespace tiz
     struct volume_down_evt {};
     struct mute_evt {};
     struct unmute_evt {};
-    struct poll_evt {};
+    struct poll_evt
+    {
+      poll_evt (int poll_time_ms)
+        : poll_time_ms_ (poll_time_ms)
+      {
+      }
+      const int poll_time_ms_;
+    };
     struct err_evt
     {
       err_evt(const int error, const std::string & error_str, bool is_internal)
@@ -128,7 +136,7 @@ namespace tiz
       struct running;
       struct quitting;
       struct quitted;
-      struct do_report_fatal_error;
+      struct polling;
 
       // data members
       ops ** pp_ops_;
@@ -152,6 +160,7 @@ namespace tiz
 
       struct started : public boost::msm::front::state<>
       {
+        typedef boost::mpl::vector<poll_evt> deferred_events;
         template <class Event,class FSM>
         void on_entry(Event const&, FSM& fsm) {GMGR_FSM_LOG ();}
         template <class Event,class FSM>
@@ -187,8 +196,17 @@ namespace tiz
         void on_exit(Event const&,FSM& ) {GMGR_FSM_LOG ();}
       };
 
+      // Orthogonal region's state
+      struct polling: public boost::msm::front::state<>
+      {
+        template <class Event,class FSM>
+        void on_entry(Event const&,FSM& fsm) {GMGR_FSM_LOG ();}
+        template <class Event,class FSM>
+        void on_exit(Event const&,FSM& ) {GMGR_FSM_LOG ();}
+      };
+
       // The initial state of the SM. Must be defined
-      typedef starting initial_state;
+      typedef boost::mpl::vector<starting, polling> initial_state;
 
       // transition actions
       struct do_connect
@@ -213,6 +231,19 @@ namespace tiz
           if (fsm.pp_ops_ && *(fsm.pp_ops_))
             {
               (*(fsm.pp_ops_))->do_disconnect ();
+            }
+        }
+      };
+
+      struct do_poll
+      {
+        template <class FSM,class EVT,class SourceState,class TargetState>
+        void operator()(EVT const& evt,FSM& fsm, SourceState& , TargetState&)
+        {
+          GMGR_FSM_LOG ();
+          if (fsm.pp_ops_ && *(fsm.pp_ops_))
+            {
+              (*(fsm.pp_ops_))->do_poll (evt.poll_time_ms_);
             }
         }
       };
@@ -381,7 +412,9 @@ namespace tiz
                                                                                                         is_fatal_error> >,
         bmf::Row < running               , err_evt          , quitted     , do_report_fatal_error  , is_fatal_error     >,
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
-        bmf::Row < quitting              , bmf::none        , quitted     , bmf::none                                   >
+        bmf::Row < quitting              , bmf::none        , quitted     , bmf::none                                   >,
+        //    +----+---------------------+------------------+-------------+------------------------+--------------------+
+        bmf::Row < polling               , poll_evt         , bmf::none   , do_poll                                     >
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
         > {};
 

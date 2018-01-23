@@ -82,6 +82,7 @@ namespace tiz
     public:
       virtual void do_connect (const std::string &name_or_ip);
       virtual void do_disconnect ();
+      virtual void do_poll (int poll_time_ms);
       virtual void do_load_url (const std::string &url,
                                 const std::string &mime_type,
                                 const std::string &title);

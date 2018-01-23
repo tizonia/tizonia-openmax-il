@@ -56,7 +56,9 @@ void *castmgr::thread_func (void *p_arg)
   mgr *p_mgr = static_cast< mgr * > (p_arg);
   void *p_data = NULL;
   bool done = false;
-  OMX_U32 poll_time = 0.2;  // ms
+  int poll_time_ms = 100;  // ms
+  // Pre-allocated poll command
+  cmd* p_poll_cmd = new castmgr::cmd (castmgr::poll_evt (poll_time_ms));
 
   assert (p_mgr);
 
@@ -66,7 +68,7 @@ void *castmgr::thread_func (void *p_arg)
   while (!done)
   {
     tiz_check_omx_ret_null (
-        tiz_queue_timed_receive (p_mgr->p_queue_, &p_data, poll_time));
+        tiz_queue_timed_receive (p_mgr->p_queue_, &p_data, poll_time_ms));
 
     // Dispatch events from the command queue
     if (p_data)
@@ -76,17 +78,17 @@ void *castmgr::thread_func (void *p_arg)
       delete p_cmd;
     }
 
-    // Poll the chromecast socket
+    // This is to poll the chromecast socket periodically
     if (!done)
     {
-      cmd* p_poll_cmd = new castmgr::cmd (castmgr::poll_evt ());
       done = mgr::dispatch_cmd (p_mgr, p_poll_cmd);
-      delete p_poll_cmd;
     }
   }
 
   tiz_check_omx_ret_null (tiz_sem_post (&(p_mgr->sem_)));
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Cast manager thread exiting...");
+
+  delete p_poll_cmd;
 
   return NULL;
 }
