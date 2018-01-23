@@ -107,6 +107,13 @@ extern "C" int tiz_chromecast_init (
   return rc;
 }
 
+extern "C" int tiz_chromecast_poll (tiz_chromecast_t *ap_chromecast, int a_poll_time_ms)
+{
+  assert (ap_chromecast);
+  assert (ap_chromecast->p_proxy_);
+  return ap_chromecast->p_proxy_->poll_socket (a_poll_time_ms);
+}
+
 extern "C" int tiz_chromecast_load_url (tiz_chromecast_t *ap_chromecast,
                                         const char *ap_url,
                                         const char *ap_content_type,

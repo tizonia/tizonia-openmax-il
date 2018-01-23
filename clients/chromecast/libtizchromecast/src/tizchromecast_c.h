@@ -77,6 +77,18 @@ int tiz_chromecast_init (/*@null@ */ tiz_chromecast_ptr_t *app_chromecast,
                          void * ap_user_data);
 
 /**
+ * Poll and read any events received on the chromecast socket.
+ *
+ * @ingroup libtizchromecast
+ *
+ * @param app_chromecast The Tizonia Chromecast handle.
+ * @param a_poll_time_ms The polling time, in milliseconds.
+ *
+ * @return 0 on success.
+ */
+  int tiz_chromecast_poll (tiz_chromecast_t *ap_chromecast, int a_poll_time_ms);
+
+/**
  * Loads a new audio stream URL into the Chromecast media player.
  *
  * After calling this method, the various tiz_gmusic_get* methods can be

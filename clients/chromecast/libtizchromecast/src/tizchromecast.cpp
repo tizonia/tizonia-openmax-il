@@ -131,6 +131,14 @@ void tizchromecast::deinit ()
   // boost::python doesn't support Py_Finalize() yet!
 }
 
+int tizchromecast::poll_socket (int a_poll_time_ms)
+{
+  int rc = 0;
+  try_catch_wrapper (
+      py_cc_proxy_.attr ("poll_socket") (bp::object (a_poll_time_ms)));
+  return rc;
+}
+
 int tizchromecast::media_load (const std::string &url,
                                const std::string &content_type,
                                const std::string &title)
