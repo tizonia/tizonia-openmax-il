@@ -35,14 +35,16 @@ extern "C" {
 
 #include <stdbool.h>
 
+#include "tizchromecasttypes.h"
+
 /**
-* @defgroup libtizchromecast 'libtizchromecast' : Tizonia's Chromecast client
-* library
-*
-* A C library to access and control a Chromecast streaming device.
-*
-* @ingroup Tizonia
-*/
+ * @defgroup libtizchromecast 'libtizchromecast' : Tizonia's Chromecast client
+ * library
+ *
+ * A C library to access and control a Chromecast streaming device.
+ *
+ * @ingroup Tizonia
+ */
 
 /**
  * The chromecast opaque structure
@@ -50,14 +52,6 @@ extern "C" {
  */
 typedef struct tiz_chromecast tiz_chromecast_t;
 typedef /*@null@ */ tiz_chromecast_t *tiz_chromecast_ptr_t;
-
-/**
- * This callback is invoked when the.
- *
- * @param ap_arg The client data structure.
- *
- */
-typedef void (*tiz_chromecast_status_cback_f) (void * ap_user_data);
 
 /**
  * Initialize the chromecast handle.
@@ -74,7 +68,7 @@ typedef void (*tiz_chromecast_status_cback_f) (void * ap_user_data);
 int tiz_chromecast_init (/*@null@ */ tiz_chromecast_ptr_t *app_chromecast,
                          const char *ap_name_or_ip,
                          tiz_chromecast_status_cback_f apf_status_cb,
-                         void * ap_user_data);
+                         void *ap_user_data);
 
 /**
  * Poll and read any events received on the chromecast socket.
@@ -86,7 +80,7 @@ int tiz_chromecast_init (/*@null@ */ tiz_chromecast_ptr_t *app_chromecast,
  *
  * @return 0 on success.
  */
-  int tiz_chromecast_poll (tiz_chromecast_t *ap_chromecast, int a_poll_time_ms);
+int tiz_chromecast_poll (tiz_chromecast_t *ap_chromecast, int a_poll_time_ms);
 
 /**
  * Loads a new audio stream URL into the Chromecast media player.

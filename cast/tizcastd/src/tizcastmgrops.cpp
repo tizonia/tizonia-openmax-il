@@ -44,7 +44,8 @@
 
 namespace castmgr = tiz::castmgr;
 
-static void cc_new_media_status_cback (void *ap_user_data)
+static void cc_new_media_status_cback (void *ap_user_data,
+                                       tiz_chromecast_status_t a_status)
 {
   // TODO
 }

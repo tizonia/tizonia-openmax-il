@@ -34,6 +34,7 @@
 
 #include <OMX_Core.h>
 
+#include <tizchromecasttypes.h>
 #include <tizchromecast_c.h>
 
 #define CAST_MGR_OPS_RECORD_ERROR(err, str)                              \

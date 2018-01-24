@@ -36,38 +36,43 @@
 #include <boost/function.hpp>
 #include <boost/function_types/components.hpp>
 // ----------------------------------------------------------------------------
-namespace boost { namespace python { namespace detail {
-// ----------------------------------------------------------------------------
-// get_signature overloads must be declared before including
-// boost/python.hpp.  The declaration must be visible at the
-// point of definition of various Boost.Python templates during
-// the first phase of two phase lookup.  Boost.Python invokes the
-// get_signature function via qualified-id, thus ADL is disabled.
-// ----------------------------------------------------------------------------
-/// @brief Get the signature of a boost::function.
-template <typename Signature>
-inline typename boost::function_types::components<Signature>::type
-get_signature(boost::function<Signature>&, void* = 0)
+namespace boost
 {
-    return typename boost::function_types::components<Signature>::type();
-}
-// ----------------------------------------------------------------------------
-}}} // namespace boost::python::detail
-// ============================================================================
+  namespace python
+  {
+    namespace detail
+    {
+      // ----------------------------------------------------------------------------
+      // get_signature overloads must be declared before including
+      // boost/python.hpp.  The declaration must be visible at the
+      // point of definition of various Boost.Python templates during
+      // the first phase of two phase lookup.  Boost.Python invokes the
+      // get_signature function via qualified-id, thus ADL is disabled.
+      // ----------------------------------------------------------------------------
+      /// @brief Get the signature of a boost::function.
+      template < typename Signature >
+      inline typename boost::function_types::components< Signature >::type
+          get_signature (boost::function< Signature > &, void * = 0)
+      {
+        return typename boost::function_types::components< Signature >::type ();
+      }
+      // ----------------------------------------------------------------------------
+    }
+  }
+}  // namespace boost::python::detail
+  // ============================================================================
 
 #include <boost/python.hpp>
 
 #include <string>
 
+#include "tizchromecasttypes.h"
+
 class tizchromecast
 {
 public:
-  typedef boost::function< void(void *) > status_cback_t;
-
-public:
   tizchromecast (const std::string &name_or_ip,
-                 status_cback_t status_cb,
-                 void *ap_user_data);
+                 tiz_chromecast_status_cback_f status_cb, void *ap_user_data);
   ~tizchromecast ();
 
   int init ();
@@ -75,7 +80,7 @@ public:
   void stop ();
   void deinit ();
 
-  int poll_socket(int a_poll_time_ms);
+  int poll_socket (int a_poll_time_ms);
 
   int media_load (const std::string &url, const std::string &content_type,
                   const std::string &title);
@@ -98,8 +103,8 @@ private:
   boost::python::object py_main_;
   boost::python::object py_global_;
   boost::python::object py_cc_proxy_;
-  status_cback_t cback_;
-  void * p_user_data_;
+  tiz_chromecast_status_cback_f cback_;
+  void *p_user_data_;
 };
 
 #endif  // TIZCHROMECAST_HPP

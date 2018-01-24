@@ -23,6 +23,7 @@ noinst_HEADERS =
 
 libtizchromecast_include_HEADERS = \
 	tizchromecast.hpp \
+	tizchromecasttypes.h \
 	tizchromecast_c.h
 
 libtizchromecast_la_SOURCES = \
