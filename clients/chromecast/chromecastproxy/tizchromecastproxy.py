@@ -116,7 +116,7 @@ class tizchromecastproxy(object):
     """
     def __init__(self, name_or_ip):
         self.name_or_ip = name_or_ip
-        self.cast = pychromecast.Chromecast(name_or_ip)
+        self.cast = pychromecast.Chromecast(name_or_ip, blocking=False)
         self.cast.wait()
         self.cast_status_listener = None
         self.media_status_listener = None
@@ -134,8 +134,9 @@ class tizchromecastproxy(object):
     def deactivate(self):
         self.cast.quit_app()
 
-    def poll_socket(self, polltime):
-        can_read, _, _ = select.select([self.cast.socket_client.get_socket()], [], [], polltime/1000)
+    def poll_socket(self, polltime_ms):
+        polltime_s = polltime / 1000;
+        can_read, _, _ = select.select([self.cast.socket_client.get_socket()], [], [], polltime_s)
         if can_read:
             # Received something on the socket, gets handled with run_once()
             self.cast.socket_client.run_once()
