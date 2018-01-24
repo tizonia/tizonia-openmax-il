@@ -55,6 +55,7 @@ struct cc_gmusic_prc
   OMX_BUFFERHEADERTYPE * p_inhdr_;
   tiz_gmusic_t * p_gm_;
   tiz_cast_t * p_cc_;
+  char * p_cc_display_title_;
   OMX_UUIDTYPE cc_uuid_;
   bool eos_;
   bool port_disabled_;

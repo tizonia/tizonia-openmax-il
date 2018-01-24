@@ -55,7 +55,7 @@
 #endif
 
 #define CONTENT_TYPE "audio/mpeg"
-#define TITLE "Tizonia Audio Stream"
+#define DISPLAY_TITLE "Tizonia Audio Stream"
 
 /* forward declarations */
 static OMX_ERRORTYPE
@@ -99,6 +99,28 @@ cc_gmusic_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
   while (0)
 
 static OMX_ERRORTYPE
+store_display_title (cc_gmusic_prc_t * ap_prc, const char * ap_artist,
+                     const char * ap_title)
+{
+  assert (ap_prc);
+  if (ap_artist && ap_title)
+    {
+      size_t artist_len = 0;
+      size_t title_len = 0;
+      size_t display_title_len = 0;
+      artist_len = strnlen (ap_artist, OMX_MAX_STRINGNAME_SIZE);
+      title_len = strnlen (ap_artist, OMX_MAX_STRINGNAME_SIZE);
+      display_title_len = artist_len + title_len + 10;
+      tiz_mem_free (ap_prc->p_cc_display_title_);
+      ap_prc->p_cc_display_title_ = tiz_mem_calloc (1, display_title_len);
+      tiz_check_null_ret_oom (ap_prc->p_cc_display_title_);
+      snprintf (ap_prc->p_cc_display_title_, display_title_len, "%s - %s",
+                ap_artist, ap_title);
+    }
+  return OMX_ErrorNone;
+}
+
+static OMX_ERRORTYPE
 store_metadata (cc_gmusic_prc_t * ap_prc, const char * ap_header_name,
                 const char * ap_header_info)
 {
@@ -113,8 +135,9 @@ store_metadata (cc_gmusic_prc_t * ap_prc, const char * ap_header_name,
       info_len = strnlen (ap_header_info, OMX_MAX_STRINGNAME_SIZE - 1) + 1;
       metadata_len = sizeof (OMX_CONFIG_METADATAITEMTYPE) + info_len;
 
-      if (NULL == (p_meta = (OMX_CONFIG_METADATAITEMTYPE *) tiz_mem_calloc (
-                     1, metadata_len)))
+      if (NULL
+          == (p_meta = (OMX_CONFIG_METADATAITEMTYPE *) tiz_mem_calloc (
+                1, metadata_len)))
         {
           rc = OMX_ErrorInsufficientResources;
         }
@@ -159,15 +182,18 @@ update_metadata (cc_gmusic_prc_t * ap_prc)
 {
   assert (ap_prc);
 
-  TIZ_DEBUG(handleOf(ap_prc), "update_metadata");
+  TIZ_DEBUG (handleOf (ap_prc), "update_metadata");
 
   /* Clear previous metatada items */
   tiz_krn_clear_metadata (tiz_get_krn (handleOf (ap_prc)));
 
   /* Artist and song title */
-  tiz_check_omx (
-    store_metadata (ap_prc, tiz_gmusic_get_current_song_artist (ap_prc->p_gm_),
-                    tiz_gmusic_get_current_song_title (ap_prc->p_gm_)));
+  {
+    const char * p_artist = tiz_gmusic_get_current_song_artist (ap_prc->p_gm_);
+    const char * p_title = tiz_gmusic_get_current_song_title (ap_prc->p_gm_);
+    tiz_check_omx (store_display_title (ap_prc, p_artist, p_title));
+    tiz_check_omx (store_metadata (ap_prc, p_artist, p_title));
+  }
 
   /* Album */
   tiz_check_omx (store_metadata (
@@ -184,8 +210,7 @@ update_metadata (cc_gmusic_prc_t * ap_prc)
 
   /* Store genre if not empty */
   {
-    const char * p_genre
-      = tiz_gmusic_get_current_song_genre (ap_prc->p_gm_);
+    const char * p_genre = tiz_gmusic_get_current_song_genre (ap_prc->p_gm_);
     if (p_genre && strnlen (p_genre, OMX_MAX_STRINGNAME_SIZE) > 0)
       {
         tiz_check_omx (store_metadata (ap_prc, "Genre", p_genre));
@@ -286,7 +311,9 @@ load_next_url (cc_gmusic_prc_t * p_prc)
     {
       on_cc_error_ret_omx_oom (tiz_cast_client_load_url (
         p_prc->p_cc_, (const char *) p_prc->p_uri_param_->contentURI,
-        CONTENT_TYPE, TITLE));
+        CONTENT_TYPE,
+        (p_prc->p_cc_display_title_ ? p_prc->p_cc_display_title_
+                                    : DISPLAY_TITLE)));
       p_prc->uri_changed_ = false;
     }
   return OMX_ErrorNone;
@@ -453,6 +480,7 @@ cc_gmusic_prc_ctor (void * ap_obj, va_list * app)
   p_prc->p_inhdr_ = NULL;
   p_prc->p_gm_ = NULL;
   p_prc->p_cc_ = NULL;
+  p_prc->p_cc_display_title_ = NULL;
   p_prc->eos_ = false;
   p_prc->port_disabled_ = false;
   p_prc->uri_changed_ = false;
@@ -510,6 +538,8 @@ cc_gmusic_prc_deallocate_resources (void * ap_prc)
   p_prc->p_gm_ = NULL;
   tiz_cast_client_destroy (p_prc->p_cc_);
   p_prc->p_cc_ = NULL;
+  tiz_mem_free (p_prc->p_cc_display_title_);
+  p_prc->p_cc_display_title_ = NULL;
   return OMX_ErrorNone;
 }
 
@@ -541,10 +571,10 @@ cc_gmusic_prc_transfer_and_process (void * ap_prc, OMX_U32 a_pid)
   assert (p_prc->p_cc_);
   assert (p_prc->p_uri_param_);
   assert ((const char *) p_prc->p_uri_param_->contentURI);
-  TIZ_DEBUG (handleOf(p_prc), "transfer_and_process");
+  TIZ_DEBUG (handleOf (p_prc), "transfer_and_process");
   if (p_prc->uri_changed_)
     {
-      tiz_check_omx (load_next_url(p_prc));
+      tiz_check_omx (load_next_url (p_prc));
     }
   return OMX_ErrorNone;
 }
@@ -654,7 +684,7 @@ cc_gmusic_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
       p_prc->playlist_skip_.nValue > 0 ? obtain_next_url (p_prc, 1)
                                        : obtain_next_url (p_prc, -1);
       /* Load the new URL */
-      tiz_check_omx (load_next_url(p_prc));
+      tiz_check_omx (load_next_url (p_prc));
     }
   return rc;
 }
