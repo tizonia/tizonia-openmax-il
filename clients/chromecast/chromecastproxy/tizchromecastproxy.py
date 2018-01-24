@@ -22,6 +22,7 @@ Access a Chromecast device to initiate and manage audio streaming sessions..
 """
 
 from __future__ import unicode_literals
+from __future__ import division
 
 import select
 import sys
@@ -117,7 +118,6 @@ class tizchromecastproxy(object):
     def __init__(self, name_or_ip):
         self.name_or_ip = name_or_ip
         self.cast = pychromecast.Chromecast(name_or_ip, blocking=False)
-        self.cast.wait()
         self.cast_status_listener = None
         self.media_status_listener = None
         self.cast.register_status_listener(self)
@@ -135,7 +135,7 @@ class tizchromecastproxy(object):
         self.cast.quit_app()
 
     def poll_socket(self, polltime_ms):
-        polltime_s = polltime / 1000;
+        polltime_s = polltime_ms / 1000;
         can_read, _, _ = select.select([self.cast.socket_client.get_socket()], [], [], polltime_s)
         if can_read:
             # Received something on the socket, gets handled with run_once()
@@ -144,7 +144,7 @@ class tizchromecastproxy(object):
     def media_load(self, url, content_type, title=None,
                    thumb=DEFAULT_THUMB,
                    current_time=0, autoplay=True,
-                   stream_type=STREAM_TYPE_LIVE):
+                   stream_type=STREAM_TYPE_BUFFERED):
         print_nfo("[Chromecast] [{0}] [Loading stream]" \
                   .format(to_ascii(self.name_or_ip)))
         logging.info("proxy : Loading a new stream")
