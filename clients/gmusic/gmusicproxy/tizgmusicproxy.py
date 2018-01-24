@@ -209,8 +209,8 @@ class tizgmusicproxy(object):
         logging.info("current_song_title_and_artist")
         song = self.now_playing_song
         if song:
-            title = to_ascii(self.now_playing_song.get('title'))
-            artist = to_ascii(self.now_playing_song.get('artist'))
+            title = to_ascii(song.get('title'))
+            artist = to_ascii(song.get('artist'))
             logging.info("Now playing %s by %s", title, artist)
             return artist, title
         else:
@@ -223,9 +223,9 @@ class tizgmusicproxy(object):
         logging.info("current_song_album_and_duration")
         song = self.now_playing_song
         if song:
-            album = to_ascii(self.now_playing_song.get('album'))
+            album = to_ascii(song.get('album'))
             duration = to_ascii \
-                       (self.now_playing_song.get('durationMillis'))
+                       (song.get('durationMillis'))
             logging.info("album %s duration %s", album, duration)
             return album, int(duration)
         else:
@@ -242,8 +242,8 @@ class tizgmusicproxy(object):
         total = 0
         if song:
             try:
-                track = self.now_playing_song['trackNumber']
-                total = self.now_playing_song['totalTrackCount']
+                track = song['trackNumber']
+                total = song['totalTrackCount']
                 logging.info("track number %s total tracks %s", track, total)
             except KeyError:
                 logging.info("trackNumber or totalTrackCount : not found")
@@ -268,6 +268,19 @@ class tizgmusicproxy(object):
         else:
             logging.info("current_song_year : not found")
         return year
+
+    def current_song_genre(self):
+        """ Return the current track's genre.
+
+        """
+        logging.info("current_song_genre")
+        song = self.now_playing_song
+        if song:
+            genre = to_ascii(song.get('genre'))
+            logging.info("genre %s", genre)
+            return genre
+        else:
+            return ''
 
     def clear_queue(self):
         """ Clears the playback queue.
