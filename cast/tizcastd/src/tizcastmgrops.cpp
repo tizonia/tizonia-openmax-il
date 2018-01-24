@@ -74,6 +74,7 @@ void castmgr::ops::do_connect (const std::string &name_or_ip)
 {
   // Make sure a previous client has been disconnected
   // disconnect ();
+  TIZ_LOG (TIZ_PRIORITY_NOTICE, "do_connect");
   CAST_MGR_OPS_BAIL_IF_ERROR (
       tiz_chromecast_init (&(p_cc_), name_or_ip.c_str (),
                            cc_new_media_status_cback, this),
@@ -93,6 +94,7 @@ void castmgr::ops::do_poll (int poll_time_ms)
 {
   if (p_cc_)
   {
+    TIZ_LOG (TIZ_PRIORITY_NOTICE, "polling socket");
     CAST_MGR_OPS_BAIL_IF_ERROR (tiz_chromecast_poll (p_cc_, poll_time_ms),
                                 "Unable to 'poll' the Chromecast socket");
   }
@@ -104,6 +106,7 @@ void castmgr::ops::do_load_url (const std::string &url,
 {
   if (p_cc_)
   {
+    TIZ_LOG (TIZ_PRIORITY_NOTICE, "do_load_url");
     CAST_MGR_OPS_BAIL_IF_ERROR (
         tiz_chromecast_load_url (p_cc_, url.c_str (), mime_type.c_str (),
                                  title.c_str ()),
@@ -115,6 +118,7 @@ void castmgr::ops::do_play ()
 {
   if (p_cc_)
   {
+    TIZ_LOG (TIZ_PRIORITY_NOTICE, "do_play");
     CAST_MGR_OPS_BAIL_IF_ERROR (
         tiz_chromecast_play (p_cc_),
         "Unable to deliver 'play' to Chromecast device");
@@ -125,6 +129,7 @@ void castmgr::ops::do_stop ()
 {
   if (p_cc_)
   {
+    TIZ_LOG (TIZ_PRIORITY_NOTICE, "do_stop");
     CAST_MGR_OPS_BAIL_IF_ERROR (
         tiz_chromecast_stop (p_cc_),
         "Unable to deliver 'stop' to Chromecast device");
@@ -135,6 +140,7 @@ void castmgr::ops::do_pause ()
 {
   if (p_cc_)
   {
+    TIZ_LOG (TIZ_PRIORITY_NOTICE, "do_pause");
     CAST_MGR_OPS_BAIL_IF_ERROR (
         tiz_chromecast_pause (p_cc_),
         "Unable to deliver 'pause' to Chromecast device");

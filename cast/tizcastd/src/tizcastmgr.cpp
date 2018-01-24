@@ -67,8 +67,7 @@ void *castmgr::thread_func (void *p_arg)
 
   while (!done)
   {
-    tiz_check_omx_ret_null (
-        tiz_queue_timed_receive (p_mgr->p_queue_, &p_data, poll_time_ms));
+    tiz_queue_timed_receive (p_mgr->p_queue_, &p_data, poll_time_ms);
 
     // Dispatch events from the command queue
     if (p_data)
@@ -76,6 +75,7 @@ void *castmgr::thread_func (void *p_arg)
       cmd *p_cmd = static_cast< cmd * > (p_data);
       done = mgr::dispatch_cmd (p_mgr, p_cmd);
       delete p_cmd;
+      p_data = NULL;
     }
 
     // This is to poll the chromecast socket periodically

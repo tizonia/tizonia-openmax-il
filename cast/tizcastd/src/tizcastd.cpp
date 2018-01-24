@@ -78,12 +78,14 @@ tizcastd::~tizcastd ()
 
 int32_t tizcastd::connect (const std::string &name_or_ip)
 {
+  TIZ_LOG (TIZ_PRIORITY_NOTICE, "connect");
   p_cast_mgr_->connect(name_or_ip);
   return TIZ_CAST_SUCCESS;
 }
 
 int32_t tizcastd::disconnect ()
 {
+  TIZ_LOG (TIZ_PRIORITY_NOTICE, "disconnect");
   p_cast_mgr_->disconnect();
   return TIZ_CAST_SUCCESS;
 }
@@ -92,18 +94,21 @@ int32_t tizcastd::load_url (const std::string &url,
                             const std::string &mime_type,
                             const std::string &title)
 {
+  TIZ_LOG (TIZ_PRIORITY_NOTICE, "load_url");
   p_cast_mgr_->load_url(url, mime_type, title);
   return TIZ_CAST_SUCCESS;
 }
 
 int32_t tizcastd::play ()
 {
+  TIZ_LOG (TIZ_PRIORITY_NOTICE, "play");
   p_cast_mgr_->play();
   return TIZ_CAST_SUCCESS;
 }
 
 int32_t tizcastd::stop ()
 {
+  TIZ_LOG (TIZ_PRIORITY_NOTICE, "stop");
   p_cast_mgr_->stop();
   return TIZ_CAST_SUCCESS;
 }
