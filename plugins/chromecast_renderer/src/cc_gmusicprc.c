@@ -159,6 +159,8 @@ update_metadata (cc_gmusic_prc_t * ap_prc)
 {
   assert (ap_prc);
 
+  TIZ_DEBUG(handleOf(ap_prc), "update_metadata");
+
   /* Clear previous metatada items */
   tiz_krn_clear_metadata (tiz_get_krn (handleOf (ap_prc)));
 
@@ -177,6 +179,16 @@ update_metadata (cc_gmusic_prc_t * ap_prc)
     if (p_year && strncmp (p_year, "0", 4) != 0)
       {
         tiz_check_omx (store_metadata (ap_prc, "Year", p_year));
+      }
+  }
+
+  /* Store genre if not empty */
+  {
+    const char * p_genre
+      = tiz_gmusic_get_current_song_genre (ap_prc->p_gm_);
+    if (p_genre && strnlen (p_genre, OMX_MAX_STRINGNAME_SIZE) > 0)
+      {
+        tiz_check_omx (store_metadata (ap_prc, "Genre", p_genre));
       }
   }
 
@@ -254,11 +266,30 @@ obtain_next_url (cc_gmusic_prc_t * ap_prc, int a_skip_value)
 
           /* Song metadata is now available, update the IL client */
           rc = update_metadata (ap_prc);
+          ap_prc->uri_changed_ = true;
         }
     }
   }
 
   return rc;
+}
+
+static OMX_ERRORTYPE
+load_next_url (cc_gmusic_prc_t * p_prc)
+{
+  assert (p_prc);
+  assert (p_prc->p_cc_);
+  assert (p_prc->p_uri_param_);
+  assert (p_prc->p_uri_param_->contentURI);
+  if (p_prc->p_cc_ && p_prc->p_uri_param_
+      && (const char *) p_prc->p_uri_param_->contentURI)
+    {
+      on_cc_error_ret_omx_oom (tiz_cast_client_load_url (
+        p_prc->p_cc_, (const char *) p_prc->p_uri_param_->contentURI,
+        CONTENT_TYPE, TITLE));
+      p_prc->uri_changed_ = false;
+    }
+  return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
@@ -510,12 +541,10 @@ cc_gmusic_prc_transfer_and_process (void * ap_prc, OMX_U32 a_pid)
   assert (p_prc->p_cc_);
   assert (p_prc->p_uri_param_);
   assert ((const char *) p_prc->p_uri_param_->contentURI);
-  if (p_prc->p_cc_ && p_prc->p_uri_param_
-      && (const char *) p_prc->p_uri_param_->contentURI)
+  TIZ_DEBUG (handleOf(p_prc), "transfer_and_process");
+  if (p_prc->uri_changed_)
     {
-      on_cc_error_ret_omx_oom (tiz_cast_client_load_url (
-        p_prc->p_cc_, (const char *) p_prc->p_uri_param_->contentURI,
-        CONTENT_TYPE, TITLE));
+      tiz_check_omx (load_next_url(p_prc));
     }
   return OMX_ErrorNone;
 }
@@ -625,9 +654,7 @@ cc_gmusic_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
       p_prc->playlist_skip_.nValue > 0 ? obtain_next_url (p_prc, 1)
                                        : obtain_next_url (p_prc, -1);
       /* Load the new URL */
-      on_cc_error_ret_omx_oom (tiz_cast_client_load_url (
-        p_prc->p_cc_, (const char *) p_prc->p_uri_param_->contentURI,
-        CONTENT_TYPE, TITLE));
+      tiz_check_omx (load_next_url(p_prc));
     }
   return rc;
 }
