@@ -335,9 +335,12 @@ const char *tizgmusic::get_current_song_tracks_in_album ()
 
 const char *tizgmusic::get_current_song_year ()
 {
-  return current_song_year_.empty ()
-             ? NULL
-             : current_song_year_.c_str ();
+  return current_song_year_.empty () ? NULL : current_song_year_.c_str ();
+}
+
+const char *tizgmusic::get_current_song_genre ()
+{
+  return current_song_genre_.empty () ? NULL : current_song_genre_.c_str ();
 }
 
 void tizgmusic::clear_queue ()
@@ -376,6 +379,7 @@ int tizgmusic::get_current_song ()
   int rc = 1;
   current_artist_.clear ();
   current_title_.clear ();
+  current_song_genre_.clear ();
 
   const bp::tuple &info1 = bp::extract< bp::tuple >(
       py_gm_proxy_.attr ("current_song_title_and_artist")());
@@ -445,6 +449,13 @@ int tizgmusic::get_current_song ()
 
   const int song_year = bp::extract< int >(py_gm_proxy_.attr ("current_song_year")());
   current_song_year_.assign (boost::lexical_cast< std::string >(song_year));
+
+  const char *p_genre = bp::extract< char const * >(
+      py_gm_proxy_.attr ("current_song_genre")());
+  if (p_genre)
+    {
+      current_song_genre_.assign (p_genre);
+    }
 
   if (p_artist || p_title)
     {

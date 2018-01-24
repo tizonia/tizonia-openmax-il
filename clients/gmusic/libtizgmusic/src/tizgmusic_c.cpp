@@ -265,6 +265,14 @@ extern "C" const char *tiz_gmusic_get_current_song_year (
   return ap_gmusic->p_proxy_->get_current_song_year ();
 }
 
+extern "C" const char *tiz_gmusic_get_current_song_genre (
+    tiz_gmusic_t *ap_gmusic)
+{
+  assert (ap_gmusic);
+  assert (ap_gmusic->p_proxy_);
+  return ap_gmusic->p_proxy_->get_current_song_genre ();
+}
+
 extern "C" void tiz_gmusic_destroy (tiz_gmusic_t *ap_gmusic)
 {
   if (ap_gmusic)
