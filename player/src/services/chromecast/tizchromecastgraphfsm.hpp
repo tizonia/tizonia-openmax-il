@@ -131,7 +131,11 @@ namespace tiz
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < tg::config2idle              , tg::omx_trans_evt         , tg::idle2exe            , tg::do_idle2exe             , tg::is_trans_complete        >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
-        bmf::Row < tg::idle2exe                 , tg::omx_trans_evt         , tg::executing           , tg::do_ack_execd            , tg::is_trans_complete        >,
+        bmf::Row < tg::idle2exe                 , tg::omx_trans_evt         , tg::executing           , bmf::ActionSequence_<
+                                                                                                          boost::mpl::vector<
+                                                                                                            tg::do_ack_execd,
+                                                                                                            tg::do_retrieve_metadata>
+                                                                                                            >                       , tg::is_trans_complete        >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < tg::executing                , tg::omx_err_evt           , tg::exe2idle            , bmf::ActionSequence_<
                                                                                                           boost::mpl::vector<
@@ -147,7 +151,9 @@ namespace tiz
         bmf::Row < tg::executing                , tg::skip_evt              , bmf::none               , bmf::ActionSequence_<
                                                                                                           boost::mpl::vector<
                                                                                                             tg::do_store_skip,
-                                                                                                            tg::do_skip> >          , bmf::none                    >,
+                                                                                                            tg::do_skip,
+                                                                                                            tg::do_retrieve_metadata>
+                                                                                                          >                         , bmf::none                    >,
         bmf::Row < tg::executing                , tg::omx_eos_evt           , bmf::none               , tg::do_skip                 , tg::is_last_eos              >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < tg::exe2pause                , tg::omx_trans_evt         , tg::pause               , tg::do_ack_paused           , tg::is_trans_complete        >,
