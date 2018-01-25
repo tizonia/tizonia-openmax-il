@@ -72,7 +72,8 @@ class tizchromecast
 {
 public:
   tizchromecast (const std::string &name_or_ip,
-                 tiz_chromecast_status_cback_f status_cb, void *ap_user_data);
+                 const tiz_chromecast_callbacks_t *ap_cbacks,
+                 void *ap_user_data);
   ~tizchromecast ();
 
   int init ();
@@ -103,7 +104,7 @@ private:
   boost::python::object py_main_;
   boost::python::object py_global_;
   boost::python::object py_cc_proxy_;
-  tiz_chromecast_status_cback_f cback_;
+  tiz_chromecast_callbacks_t cbacks_;
   void *p_user_data_;
 };
 

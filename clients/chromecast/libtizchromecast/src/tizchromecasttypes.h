@@ -33,25 +33,45 @@
 extern "C" {
 #endif
 
-enum tiz_chromecast_status
-{
-  ETizCcStatusCastUnknown,
-  ETizCcStatusCastReadyToCast,
-  ETizCcStatusMediaIdle,
-  ETizCcStatusMediaBuffering,
-  ETizCcStatusMediaPlaying,
-};
-typedef enum tiz_chromecast_status tiz_chromecast_status_t;
+typedef enum tiz_chromecast_cast_status {
+  ETizCcCastStatusUnknown,
+  ETizCcCastStatusReadyToCast,
+  ETizCcCastStatusNowCasting
+} tiz_chromecast_cast_status_t;
 
 /**
  * Callback invoked when the Chromecast device changes its device or media
  * statuses.
  *
  * @param ap_user_data Client-provided data structure.
- * @param a_status The 'cast' or 'media' status.
+ * @param a_status The 'cast' status.
  */
-typedef void (*tiz_chromecast_status_cback_f) (
-    void *ap_user_data, tiz_chromecast_status_t a_status);
+typedef void (*tiz_chromecast_cast_status_cb_f) (
+    void *ap_user_data, tiz_chromecast_cast_status_t a_status);
+
+typedef enum tiz_chromecast_media_status {
+  ETizCcMediaStatusUnknown,
+  ETizCcMediaStatusIdle,
+  ETizCcMediaStatusBuffering,
+  ETizCcMediaStatusPaused,
+  ETizCcMediaStatusPlaying
+} tiz_chromecast_media_status_t;
+
+/**
+ * Callback invoked when the Chromecast device changes its device or media
+ * statuses.
+ *
+ * @param ap_user_data Client-provided data structure.
+ * @param a_status The 'media' status.
+ */
+typedef void (*tiz_chromecast_media_status_cb_f) (
+    void *ap_user_data, tiz_chromecast_media_status_t a_status);
+
+typedef struct tiz_chromecast_callbacks
+{
+  tiz_chromecast_cast_status_cb_f pf_cast_status;
+  tiz_chromecast_media_status_cb_f pf_media_status;
+} tiz_chromecast_callbacks_t;
 
 #ifdef __cplusplus
 }

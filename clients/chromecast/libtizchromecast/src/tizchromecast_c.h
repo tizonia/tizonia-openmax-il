@@ -67,7 +67,7 @@ typedef /*@null@ */ tiz_chromecast_t *tiz_chromecast_ptr_t;
  */
 int tiz_chromecast_init (/*@null@ */ tiz_chromecast_ptr_t *app_chromecast,
                          const char *ap_name_or_ip,
-                         tiz_chromecast_status_cback_f apf_status_cb,
+                         const tiz_chromecast_callbacks_t *ap_cbacks,
                          void *ap_user_data);
 
 /**

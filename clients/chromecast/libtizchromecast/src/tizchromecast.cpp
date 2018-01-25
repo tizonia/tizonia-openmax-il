@@ -85,10 +85,15 @@ namespace
 }
 
 tizchromecast::tizchromecast (const std::string &name_or_ip,
-                              tiz_chromecast_status_cback_f status_cb,
+                              const tiz_chromecast_callbacks_t *ap_cbacks,
                               void *ap_user_data)
-  : name_or_ip_ (name_or_ip), cback_ (status_cb), p_user_data_ (ap_user_data)
+  : name_or_ip_ (name_or_ip), cbacks_ (), p_user_data_ (ap_user_data)
 {
+  if (ap_cbacks)
+    {
+      cbacks_.pf_cast_status = ap_cbacks->pf_cast_status;
+      cbacks_.pf_media_status = ap_cbacks->pf_media_status;
+    }
 }
 
 tizchromecast::~tizchromecast ()
@@ -203,10 +208,50 @@ void tizchromecast::new_cast_status (const std::string &status)
 {
   std::cout << "tizchromecast::new_cast_status: " << status << " pid "
             << getpid () << std::endl;
+  if (!status.compare ("UNKNOWN"))
+    {
+      cbacks_.pf_cast_status (p_user_data_, ETizCcCastStatusUnknown);
+    }
+  else if (!status.compare ("READY_TO_CAST"))
+    {
+      cbacks_.pf_cast_status (p_user_data_, ETizCcCastStatusReadyToCast);
+    }
+  else if (!status.compare ("NOW_CASTING"))
+    {
+      cbacks_.pf_cast_status (p_user_data_, ETizCcCastStatusNowCasting);
+    }
+  else
+    {
+      assert (0);
+    }
 }
 
 void tizchromecast::new_media_status (const std::string &status)
 {
   std::cout << "tizchromecast::new_media_status: " << status << " pid "
             << getpid () << std::endl;
+  if (!status.compare ("UNKNOWN"))
+    {
+      cbacks_.pf_media_status (p_user_data_, ETizCcMediaStatusUnknown);
+    }
+  else if (!status.compare ("IDLE"))
+    {
+      cbacks_.pf_media_status (p_user_data_, ETizCcMediaStatusIdle);
+    }
+  else if (!status.compare ("BUFFERING"))
+    {
+      cbacks_.pf_media_status (p_user_data_, ETizCcMediaStatusBuffering);
+    }
+  else if (!status.compare ("PAUSED"))
+    {
+      cbacks_.pf_media_status (p_user_data_, ETizCcMediaStatusPaused);
+    }
+  else if (!status.compare ("PLAYING"))
+    {
+      cbacks_.pf_media_status (p_user_data_, ETizCcMediaStatusPlaying);
+    }
+  else
+    {
+      assert (0);
+    }
 }

@@ -49,16 +49,17 @@ static void chromecast_free_data (tiz_chromecast_t *ap_chromecast)
     }
 }
 
-static int chromecast_alloc_data (
-    tiz_chromecast_t *ap_chromecast, const char *ap_name_or_ip,
-    tiz_chromecast_status_cback_f apf_status_cb, void * ap_user_data)
+static int chromecast_alloc_data (tiz_chromecast_t *ap_chromecast,
+                                  const char *ap_name_or_ip,
+                                  const tiz_chromecast_callbacks_t *ap_cbacks,
+                                  void *ap_user_data)
 {
   int rc = 0;
   assert (ap_chromecast);
   try
     {
       ap_chromecast->p_proxy_
-          = new tizchromecast (ap_name_or_ip, apf_status_cb, ap_user_data);
+          = new tizchromecast (ap_name_or_ip, ap_cbacks, ap_user_data);
     }
   catch (...)
     {
@@ -68,9 +69,10 @@ static int chromecast_alloc_data (
   return rc;
 }
 
-extern "C" int tiz_chromecast_init (
-    tiz_chromecast_ptr_t *app_chromecast, const char *ap_name_or_ip,
-    tiz_chromecast_status_cback_f apf_status_cb, void * ap_user_data)
+extern "C" int tiz_chromecast_init (tiz_chromecast_ptr_t *app_chromecast,
+                                    const char *ap_name_or_ip,
+                                    const tiz_chromecast_callbacks_t *ap_cbacks,
+                                    void *ap_user_data)
 {
   tiz_chromecast_t *p_chromecast = NULL;
   int rc = 1;
@@ -81,8 +83,7 @@ extern "C" int tiz_chromecast_init (
   if ((p_chromecast
        = (tiz_chromecast_t *)calloc (1, sizeof (tiz_chromecast_t))))
     {
-      if (!chromecast_alloc_data (p_chromecast, ap_name_or_ip,
-                                  apf_status_cb,
+      if (!chromecast_alloc_data (p_chromecast, ap_name_or_ip, ap_cbacks,
                                   ap_user_data))
         {
           tizchromecast *p_cc = p_chromecast->p_proxy_;
@@ -107,7 +108,8 @@ extern "C" int tiz_chromecast_init (
   return rc;
 }
 
-extern "C" int tiz_chromecast_poll (tiz_chromecast_t *ap_chromecast, int a_poll_time_ms)
+extern "C" int tiz_chromecast_poll (tiz_chromecast_t *ap_chromecast,
+                                    int a_poll_time_ms)
 {
   assert (ap_chromecast);
   assert (ap_chromecast->p_proxy_);
