@@ -240,7 +240,7 @@ namespace tiz
         template <class FSM,class EVT,class SourceState,class TargetState>
         void operator()(EVT const& evt,FSM& fsm, SourceState& , TargetState&)
         {
-          GMGR_FSM_LOG ();
+          // GMGR_FSM_LOG ();
           if (fsm.pp_ops_ && *(fsm.pp_ops_))
             {
               (*(fsm.pp_ops_))->do_poll (evt.poll_time_ms_);

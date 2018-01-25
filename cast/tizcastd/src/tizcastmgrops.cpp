@@ -44,10 +44,16 @@
 
 namespace castmgr = tiz::castmgr;
 
-static void cc_new_media_status_cback (void *ap_user_data,
-                                       tiz_chromecast_status_t a_status)
+static void cc_cast_status_cback (void *ap_user_data,
+                                  tiz_chromecast_cast_status_t a_status)
 {
-  // TODO
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "cast status [%d]", a_status);
+}
+
+static void cc_media_status_cback (void *ap_user_data,
+                                   tiz_chromecast_media_status_t a_status)
+{
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "media status [%d]", a_status);
 }
 
 //
@@ -76,9 +82,10 @@ void castmgr::ops::do_connect (const std::string &name_or_ip)
   // Make sure a previous client has been disconnected
   // disconnect ();
   TIZ_LOG (TIZ_PRIORITY_NOTICE, "do_connect");
+  tiz_chromecast_callbacks_t cc_cbacks
+      = { cc_cast_status_cback, cc_media_status_cback };
   CAST_MGR_OPS_BAIL_IF_ERROR (
-      tiz_chromecast_init (&(p_cc_), name_or_ip.c_str (),
-                           cc_new_media_status_cback, this),
+      tiz_chromecast_init (&(p_cc_), name_or_ip.c_str (), &cc_cbacks, this),
       "Unable to initialize the Chromecast client library");
 }
 
@@ -95,7 +102,6 @@ void castmgr::ops::do_poll (int poll_time_ms)
 {
   if (p_cc_)
   {
-    TIZ_LOG (TIZ_PRIORITY_NOTICE, "polling socket");
     CAST_MGR_OPS_BAIL_IF_ERROR (tiz_chromecast_poll (p_cc_, poll_time_ms),
                                 "Unable to 'poll' the Chromecast socket");
   }
