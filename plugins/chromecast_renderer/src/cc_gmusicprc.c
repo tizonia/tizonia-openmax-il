@@ -458,10 +458,17 @@ enqueue_playlist_items (cc_gmusic_prc_t * ap_prc)
 }
 
 void
-cc_url_loaded_cback (void * ap_user_data)
+cc_cast_status_cback (void * ap_user_data)
 {
   /* TODO */
 }
+
+void
+cc_media_status_cback (void * ap_user_data)
+{
+  /* TODO */
+}
+
 
 /*
  * cc_gmusicprc
@@ -553,7 +560,7 @@ cc_gmusic_prc_prepare_to_transfer (void * ap_prc, OMX_U32 a_pid)
   /* Lazy instantiation of the cast client object */
   if (!p_prc->p_cc_)
     {
-      tiz_cast_client_callbacks_t cast_cbacks = {cc_url_loaded_cback};
+      tiz_cast_client_callbacks_t cast_cbacks = {cc_cast_status_cback, cc_media_status_cback};
       bzero (&(p_prc->cc_uuid_), 128);
       tiz_uuid_generate (&(p_prc->cc_uuid_));
       on_cc_error_ret_omx_oom (tiz_cast_client_init (
