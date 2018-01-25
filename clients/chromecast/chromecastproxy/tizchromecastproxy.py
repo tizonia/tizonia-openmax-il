@@ -32,9 +32,18 @@ import pychromecast
 from pychromecast.controllers.media import (
     STREAM_TYPE_UNKNOWN,
     STREAM_TYPE_BUFFERED,
-    STREAM_TYPE_LIVE)
+    STREAM_TYPE_LIVE,
+    MEDIA_PLAYER_STATE_PLAYING,
+    MEDIA_PLAYER_STATE_BUFFERING,
+    MEDIA_PLAYER_STATE_PAUSED,
+    MEDIA_PLAYER_STATE_IDLE,
+    MEDIA_PLAYER_STATE_UNKNOWN
+)
 from pychromecast.error import (
     PyChromecastError)
+from pychromecast.config import (
+    APP_MEDIA_RECEIVER
+)
 
 # For use during debugging
 import pprint
@@ -205,7 +214,14 @@ class tizchromecastproxy(object):
         if status:
             logging.info("new_cast_status: %r" % (status,))
             try:
-                self.cast_status_listener(to_ascii(status.status_text))
+                if not status.app_id:
+                    self.cast_status_listener(to_ascii(u'UNKNOWN'))
+                elif status.app_id == APP_MEDIA_RECEIVER \
+                     and status.status_text == u'Ready To Cast':
+                    self.cast_status_listener(to_ascii(u'READY_TO_CAST'))
+                elif status.app_id == APP_MEDIA_RECEIVER \
+                     and u'Now Casting' in status.status_text:
+                    self.cast_status_listener(to_ascii(u'NOW_CASTING'))
             except Exception as exception:
                 logging.info('Unable to deliver cast status callback %s', \
                              exception)
