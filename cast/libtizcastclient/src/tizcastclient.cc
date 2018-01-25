@@ -53,14 +53,14 @@ tizcastclient::~tizcastclient ()
 
 const tizcastclient::cast_client_id_ptr_t
 tizcastclient::connect (const char * ap_device_name_or_ip, const uint8_t uuid[],
-                        tiz_cast_client_url_loaded_f apf_url_loaded,
+                        const tiz_cast_client_callbacks_t *ap_cbacks,
                         void * ap_data)
 {
   int32_t rc = TIZ_CAST_SUCCESS;
   cast_client_id_ptr_t client_id = NULL;
 
   if ((client_id
-       = register_client (ap_device_name_or_ip, uuid, apf_url_loaded, ap_data)))
+       = register_client (ap_device_name_or_ip, uuid, ap_cbacks, ap_data)))
     {
       try
         {
@@ -201,7 +201,7 @@ tizcastclient::unmute (const cast_client_id_ptr_t ap_cast_clnt)
 const tizcastclient::cast_client_id_ptr_t
 tizcastclient::register_client (const char * ap_device_name_or_ip,
                                 const uint8_t uuid[],
-                                tiz_cast_client_url_loaded_f apf_url_loaded,
+                                const tiz_cast_client_callbacks_t *ap_cbacks,
                                 void * ap_data)
 {
   char uuid_str[128];
@@ -214,7 +214,7 @@ tizcastclient::register_client (const char * ap_device_name_or_ip,
 
   std::pair< clients_map_t::iterator, bool > rv = clients_.insert (
     std::make_pair (uuid_vec, client_data (ap_device_name_or_ip, uuid_vec,
-                                           apf_url_loaded, ap_data)));
+                                           ap_cbacks, ap_data)));
   if (rv.second)
     {
       TIZ_LOG (TIZ_PRIORITY_NOTICE,

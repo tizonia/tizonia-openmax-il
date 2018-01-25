@@ -53,7 +53,7 @@ public:
 
   const cast_client_id_ptr_t
   connect (const char * ap_device_name_or_ip, const uint8_t uuid[],
-           tiz_cast_client_url_loaded_f apf_url_loaded, void * ap_data);
+           const tiz_cast_client_callbacks_t * ap_cbacks, void * ap_data);
 
   int32_t
   disconnect (const cast_client_id_ptr_t ap_cast);
@@ -86,7 +86,7 @@ public:
 private:
   const cast_client_id_ptr_t
   register_client (const char * ap_device_name_or_ip, const uint8_t uuid[],
-                   tiz_cast_client_url_loaded_f apf_url_loaded, void * ap_data);
+                   const tiz_cast_client_callbacks_t * ap_cbacks, void * ap_data);
 
   void
   unregister_client (const cast_client_id_ptr_t ap_cast_clnt);
@@ -99,17 +99,24 @@ private:
   struct client_data
   {
     client_data ()
-      : cname_ (""), uuid_ (), pf_url_loaded_ (NULL), p_data_ (NULL)
+      : cname_ (""), uuid_ (), p_data_ (NULL)
     {
+      cbacks_.pf_cast_status = NULL;
+      cbacks_.pf_media_status = NULL;
     }
 
     client_data (const char * ap_cname, std::vector< unsigned char > uuid,
-                 tiz_cast_client_url_loaded_f apf_url_loaded, void * ap_data)
+                 const tiz_cast_client_callbacks_t *ap_cbacks, void * ap_data)
       : cname_ (ap_cname),
         uuid_ (uuid),
-        pf_url_loaded_ (apf_url_loaded),
         p_data_ (ap_data)
     {
+      assert (ap_cbacks);
+      if (ap_cbacks)
+        {
+          cbacks_.pf_cast_status = ap_cbacks->pf_cast_status;
+          cbacks_.pf_media_status = ap_cbacks->pf_media_status;
+        }
     }
 
     bool
@@ -127,8 +134,8 @@ private:
     // Data members
     std::string cname_;
     std::vector< unsigned char > uuid_;
-    tiz_cast_client_url_loaded_f pf_url_loaded_;
     void * p_data_;
+    tiz_cast_client_callbacks_t cbacks_;
   };
 
 private:
@@ -141,13 +148,13 @@ private:
   invokecast (pmf_t a_pmf, const cast_client_id_ptr_t ap_cast_clnt);
 
   using com::aratelia::tiz::tizcastif_proxy::load_url;
+  using com::aratelia::tiz::tizcastif_proxy::mute;
+  using com::aratelia::tiz::tizcastif_proxy::pause;
   using com::aratelia::tiz::tizcastif_proxy::play;
   using com::aratelia::tiz::tizcastif_proxy::stop;
-  using com::aratelia::tiz::tizcastif_proxy::pause;
-  using com::aratelia::tiz::tizcastif_proxy::volume_up;
-  using com::aratelia::tiz::tizcastif_proxy::volume_down;
-  using com::aratelia::tiz::tizcastif_proxy::mute;
   using com::aratelia::tiz::tizcastif_proxy::unmute;
+  using com::aratelia::tiz::tizcastif_proxy::volume_down;
+  using com::aratelia::tiz::tizcastif_proxy::volume_up;
 
 private:
   clients_map_t clients_;

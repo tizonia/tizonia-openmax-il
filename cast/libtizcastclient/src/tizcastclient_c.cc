@@ -232,7 +232,7 @@ tiz_cast_client_init (tiz_cast_ptr_t * app_cast,
 
   p_global->ref_count++;
   if (!(*app_cast = (tiz_cast_ptr_t) p_global->p_client->connect (
-          ap_device_name_or_ip, *ap_uuid, ap_cbacks->pf_url_loaded, ap_data)))
+          ap_device_name_or_ip, *ap_uuid, ap_cbacks, ap_data)))
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR, "While registering cast client");
       rc = TIZ_CAST_OOM;

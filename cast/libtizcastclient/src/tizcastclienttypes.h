@@ -37,14 +37,21 @@ typedef struct tiz_cast tiz_cast_t;
 typedef /*@null@ */ tiz_cast_t * tiz_cast_ptr_t;
 
 /**
- * Callback function to signal a waiting client when a resource has become
- * available.
+ * Callback function to signal a when the Chromecast device 'cast' status has
+ * changed.
  */
-typedef void (*tiz_cast_client_url_loaded_f) (void * ap_user_data);
+typedef void (*tiz_cast_client_cast_status_cb_f) (void * ap_user_data);
 
-typedef struct tiz_cast_client_callbacks_t
+/**
+ * Callback function to signal a when the Chromecast device 'media' status has
+ * changed.
+ */
+typedef void (*tiz_cast_client_media_status_cb_f) (void * ap_user_data);
+
+typedef struct tiz_cast_client_callbacks
 {
-  tiz_cast_client_url_loaded_f pf_url_loaded;
+  tiz_cast_client_cast_status_cb_f pf_cast_status;
+  tiz_cast_client_media_status_cb_f pf_media_status;
 } tiz_cast_client_callbacks_t;
 
 #ifdef __cplusplus
