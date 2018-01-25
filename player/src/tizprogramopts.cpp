@@ -1684,9 +1684,7 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
         }
       else
         {
-          rc = call_handler (option_handlers_map_.find ("gmusic-stream"));
-          // NOTE: This will be used when Chromecast support is enabled
-          // rc = call_handler (option_handlers_map_.find ("gmusic-stream-chromecast"));
+          rc = call_handler (option_handlers_map_.find ("gmusic-stream-chromecast"));
         }
     }
   }
