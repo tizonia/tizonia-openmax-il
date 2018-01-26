@@ -160,8 +160,6 @@ class tizchromecastproxy(object):
         mc = self.cast.media_controller
         st = mc.status
         try:
-            if st.player_is_playing:
-                mc.stop()
             mc.play_media(url, content_type, title,
                           thumb, current_time, autoplay,
                           stream_type)

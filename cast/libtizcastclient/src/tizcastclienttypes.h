@@ -36,17 +36,33 @@ extern "C" {
 typedef struct tiz_cast tiz_cast_t;
 typedef /*@null@ */ tiz_cast_t * tiz_cast_ptr_t;
 
-/**
- * Callback function to signal a when the Chromecast device 'cast' status has
- * changed.
- */
-typedef void (*tiz_cast_client_cast_status_cb_f) (void * ap_user_data);
+typedef enum tiz_cast_client_cast_status {
+  ETizCcCastStatusUnknown,
+  ETizCcCastStatusReadyToCast,
+  ETizCcCastStatusNowCasting
+} tiz_cast_client_cast_status_t;
 
 /**
- * Callback function to signal a when the Chromecast device 'media' status has
+ * Callback function to signal when the Chromecast device's 'cast' status has
  * changed.
  */
-typedef void (*tiz_cast_client_media_status_cb_f) (void * ap_user_data);
+typedef void (*tiz_cast_client_cast_status_cb_f) (
+  void * ap_user_data, tiz_cast_client_cast_status_t a_status);
+
+typedef enum tiz_cast_client_media_status {
+  ETizCcMediaStatusUnknown,
+  ETizCcMediaStatusIdle,
+  ETizCcMediaStatusBuffering,
+  ETizCcMediaStatusPaused,
+  ETizCcMediaStatusPlaying
+} tiz_cast_client_media_status_t;
+
+/**
+ * Callback function to signal when the Chromecast device's 'media' status has
+ * changed.
+ */
+typedef void (*tiz_cast_client_media_status_cb_f) (
+  void * ap_user_data, tiz_cast_client_media_status_t a_status);
 
 typedef struct tiz_cast_client_callbacks
 {

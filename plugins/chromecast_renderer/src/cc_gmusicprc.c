@@ -457,18 +457,23 @@ enqueue_playlist_items (cc_gmusic_prc_t * ap_prc)
   return (rc == 0 ? OMX_ErrorNone : OMX_ErrorInsufficientResources);
 }
 
-void
-cc_cast_status_cback (void * ap_user_data)
+static void
+cc_cast_status_cback (void * ap_user_data,
+                      tiz_cast_client_cast_status_t a_status)
 {
-  /* TODO */
+  cc_gmusic_prc_t * p_prc = ap_user_data;
+  assert(p_prc);
+  TIZ_DEBUG (handleOf (p_prc), "status [%d]", a_status);
 }
 
-void
-cc_media_status_cback (void * ap_user_data)
+static void
+cc_media_status_cback (void * ap_user_data,
+                       tiz_cast_client_media_status_t a_status)
 {
-  /* TODO */
+  cc_gmusic_prc_t * p_prc = ap_user_data;
+  assert(p_prc);
+  TIZ_DEBUG (handleOf (p_prc), "status [%d]", a_status);
 }
-
 
 /*
  * cc_gmusicprc

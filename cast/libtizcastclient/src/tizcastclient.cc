@@ -40,8 +40,8 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.cast.client.cc_api"
 #endif
 
-tizcastclient::tizcastclient (Tiz::DBus::Connection & connection, const char * path,
-                              const char * name)
+tizcastclient::tizcastclient (Tiz::DBus::Connection & connection,
+                              const char * path, const char * name)
   : Tiz::DBus::ObjectProxy (connection, path, name), clients_ ()
 {
 }
@@ -53,7 +53,7 @@ tizcastclient::~tizcastclient ()
 
 const tizcastclient::cast_client_id_ptr_t
 tizcastclient::connect (const char * ap_device_name_or_ip, const uint8_t uuid[],
-                        const tiz_cast_client_callbacks_t *ap_cbacks,
+                        const tiz_cast_client_callbacks_t * ap_cbacks,
                         void * ap_data)
 {
   int32_t rc = TIZ_CAST_SUCCESS;
@@ -201,7 +201,7 @@ tizcastclient::unmute (const cast_client_id_ptr_t ap_cast_clnt)
 const tizcastclient::cast_client_id_ptr_t
 tizcastclient::register_client (const char * ap_device_name_or_ip,
                                 const uint8_t uuid[],
-                                const tiz_cast_client_callbacks_t *ap_cbacks,
+                                const tiz_cast_client_callbacks_t * ap_cbacks,
                                 void * ap_data)
 {
   char uuid_str[128];
@@ -252,12 +252,36 @@ tizcastclient::unregister_client (const cast_client_id_ptr_t ap_cast_clnt)
 }
 
 void
-tizcastclient::cast_status(const uint32_t& status)
+tizcastclient::cast_status (const uint32_t & status)
 {
+  const tiz_cast_client_cast_status_t cast_status
+    = static_cast< tiz_cast_client_cast_status_t > (status);
+
   // Notify the client of the cast status
 
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "cast status...");
-
+  switch (cast_status)
+    {
+      case ETizCcCastStatusUnknown:
+        {
+          TIZ_LOG (TIZ_PRIORITY_TRACE, "cast status [Unknown]");
+        }
+        break;
+      case ETizCcCastStatusReadyToCast:
+        {
+          TIZ_LOG (TIZ_PRIORITY_TRACE, "cast status [ReadyToCast]");
+        }
+        break;
+      case ETizCcCastStatusNowCasting:
+        {
+          TIZ_LOG (TIZ_PRIORITY_TRACE, "cast status [NowCasting]");
+        }
+        break;
+      default:
+        {
+          assert (0);
+        }
+        break;
+    }
   //   if (clients_.count (uuid))
   //     {
   //       uint32_t res = rid;
@@ -271,11 +295,46 @@ tizcastclient::cast_status(const uint32_t& status)
 }
 
 void
-tizcastclient::media_status(const uint32_t& status)
+tizcastclient::media_status (const uint32_t & status)
 {
+  const tiz_cast_client_media_status_t media_status
+    = static_cast< tiz_cast_client_media_status_t > (status);
+
   // Notify the client of the media status
 
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "media status...");
+  switch (media_status)
+    {
+      case ETizCcMediaStatusUnknown:
+        {
+          TIZ_LOG (TIZ_PRIORITY_TRACE, "media status [Unknown]");
+        }
+        break;
+      case ETizCcMediaStatusIdle:
+        {
+          TIZ_LOG (TIZ_PRIORITY_TRACE, "media status [Idle]");
+        }
+        break;
+      case ETizCcMediaStatusBuffering:
+        {
+          TIZ_LOG (TIZ_PRIORITY_TRACE, "media status [Buffering]");
+        }
+        break;
+      case ETizCcMediaStatusPaused:
+        {
+          TIZ_LOG (TIZ_PRIORITY_TRACE, "media status [Paused]");
+        }
+        break;
+      case ETizCcMediaStatusPlaying:
+        {
+          TIZ_LOG (TIZ_PRIORITY_TRACE, "media status [Playing]");
+        }
+        break;
+      default:
+        {
+          assert (0);
+        }
+        break;
+    }
 
   //   if (clients_.count (uuid))
   //     {

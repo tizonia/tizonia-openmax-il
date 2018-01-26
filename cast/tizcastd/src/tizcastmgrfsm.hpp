@@ -67,6 +67,7 @@ namespace tiz
   {
     static char const* const state_names[] = { "starting",
                                                "started",
+                                               "connected",
                                                "running",
                                                "quitting",
                                                "polling",
@@ -159,6 +160,15 @@ namespace tiz
       };
 
       struct started : public boost::msm::front::state<>
+      {
+        typedef boost::mpl::vector<poll_evt, load_url_evt> deferred_events;
+        template <class Event,class FSM>
+        void on_entry(Event const&, FSM& fsm) {GMGR_FSM_LOG ();}
+        template <class Event,class FSM>
+        void on_exit(Event const&,FSM& ) {GMGR_FSM_LOG ();}
+      };
+
+      struct connected : public boost::msm::front::state<>
       {
         typedef boost::mpl::vector<poll_evt> deferred_events;
         template <class Event,class FSM>
@@ -397,7 +407,9 @@ namespace tiz
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
         bmf::Row < starting              , start_evt        , started     , bmf::none                                   >,
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
-        bmf::Row < started               , connect_evt      , running     , do_connect                                  >,
+        bmf::Row < started               , connect_evt      , connected   , do_connect                                  >,
+        //    +----+---------------------+------------------+-------------+------------------------+--------------------+
+        bmf::Row < connected             , load_url_evt     , running     , do_load_url                                 >,
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
         bmf::Row < running               , load_url_evt     , bmf::none   , do_load_url                                 >,
         bmf::Row < running               , play_evt         , bmf::none   , do_play                                     >,
