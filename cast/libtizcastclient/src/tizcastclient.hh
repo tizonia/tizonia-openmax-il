@@ -92,8 +92,8 @@ private:
   unregister_client (const cast_client_id_ptr_t ap_cast_clnt);
 
   // DBUS Signals
-  void
-  url_loaded ();
+  void cast_status(const uint32_t& status);
+  void media_status(const uint32_t& status);
 
 private:
   struct client_data

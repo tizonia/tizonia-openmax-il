@@ -58,7 +58,7 @@ void *castmgr::thread_func (void *p_arg)
   bool done = false;
   int poll_time_ms = 100;  // ms
   // Pre-allocated poll command
-  cmd* p_poll_cmd = new castmgr::cmd (castmgr::poll_evt (poll_time_ms));
+  cmd *p_poll_cmd = new castmgr::cmd (castmgr::poll_evt (poll_time_ms));
 
   assert (p_mgr);
 
@@ -96,9 +96,11 @@ void *castmgr::thread_func (void *p_arg)
 //
 // mgr
 //
-castmgr::mgr::mgr ()
+castmgr::mgr::mgr (cast_status_cback_t cast_cb, media_status_cback_t media_cb)
   : p_ops_ (NULL),
     fsm_ (boost::msm::back::states_, &p_ops_),
+    cast_cb_ (cast_cb),
+    media_cb_ (media_cb),
     thread_ (),
     mutex_ (),
     sem_ (),
@@ -123,7 +125,7 @@ castmgr::mgr::init ()
   tiz_check_omx_ret_oom (tiz_mutex_unlock (&mutex_));
 
   // Init this mgr's operations using the do_init template method
-  tiz_check_null_ret_oom ((p_ops_ = new ops (this)));
+  tiz_check_null_ret_oom ((p_ops_ = new ops (this, cast_cb_, media_cb_)));
 
   // Let's wait until this manager's thread is ready to receive requests
   tiz_check_omx_ret_oom (tiz_sem_wait (&sem_));
@@ -157,11 +159,11 @@ castmgr::mgr::disconnect ()
 }
 
 OMX_ERRORTYPE
-castmgr::mgr::load_url (const std::string &url,
-                        const std::string &mime_type,
+castmgr::mgr::load_url (const std::string &url, const std::string &mime_type,
                         const std::string &title)
 {
-  return post_cmd (new castmgr::cmd (castmgr::load_url_evt (url, mime_type, title)));
+  return post_cmd (
+      new castmgr::cmd (castmgr::load_url_evt (url, mime_type, title)));
 }
 
 OMX_ERRORTYPE

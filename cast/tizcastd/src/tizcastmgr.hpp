@@ -29,12 +29,13 @@
 #ifndef TIZCASTMGR_HPP
 #define TIZCASTMGR_HPP
 
-#include <string>
 #include <boost/function.hpp>
+#include <string>
 
-#include <tizplatform.h>
 #include <OMX_Core.h>
+#include <tizplatform.h>
 
+#include "tizcastmgrtypes.hpp"
 #include "tizcastmgrfsm.hpp"
 
 namespace tiz
@@ -60,7 +61,7 @@ namespace tiz
       friend void *thread_func (void *);
 
     public:
-      mgr ();
+      mgr (cast_status_cback_t cast_cb, media_status_cback_t media_cb);
       virtual ~mgr ();
 
       /**
@@ -161,7 +162,8 @@ namespace tiz
       OMX_ERRORTYPE volume_up ();
 
       /**
-       * Changes the volume to the specified value. 1.0 is maximum volume and 0.0 means mute.
+       * Changes the volume to the specified value. 1.0 is maximum volume and
+       * 0.0 means mute.
        *
        * @pre init() has been called on this manager.
        *
@@ -189,7 +191,6 @@ namespace tiz
        * success.
        */
       OMX_ERRORTYPE unmute ();
-
 
     private:
       /**
@@ -221,6 +222,8 @@ namespace tiz
     private:
       ops *p_ops_;
       fsm fsm_;
+      cast_status_cback_t cast_cb_;
+      media_status_cback_t media_cb_;
       tiz_thread_t thread_;
       tiz_mutex_t mutex_;
       tiz_sem_t sem_;

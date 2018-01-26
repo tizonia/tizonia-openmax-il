@@ -67,7 +67,12 @@
       <arg type="i" name="retcode" direction="out"/>
     </method>
 
-    <signal name="url_loaded">
+    <signal name="cast_status">
+      <arg name="status" type="u"/>
+    </signal>
+
+    <signal name="media_status">
+      <arg name="status" type="u"/>
     </signal>
 
   </interface>

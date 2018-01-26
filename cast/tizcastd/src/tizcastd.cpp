@@ -21,7 +21,7 @@
  * @file   tizcastd.cpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Chromecast access daemon implementation
+ * @brief  Tizonia Chromecast access daemon implementation
  *
  */
 
@@ -38,12 +38,15 @@
 
 #include <algorithm>
 
+#include <boost/bind.hpp>
+
 #include <tizplatform.h>
 
 #include <tizcasttypes.h>
 
 #include "tizcastd.hpp"
 #include "tizcastmgr.hpp"
+#include "tizcastmgrtypes.hpp"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -60,33 +63,35 @@ static const char *TIZ_CAST_DAEMON_PATH = "/com/aratelia/tiz/tizcastd";
 
 tizcastd::tizcastd (Tiz::DBus::Connection &a_connection)
   : Tiz::DBus::ObjectAdaptor (a_connection, TIZ_CAST_DAEMON_PATH),
-    p_cast_mgr_(new tiz::castmgr::mgr()),
+    p_cast_mgr_ (new tiz::castmgr::mgr (
+        boost::bind (&tizcastd::cast_status, this, _1),
+        boost::bind (&tizcastd::media_status, this, _1))),
     cc_name_or_ip_ ()
 {
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Constructing tizcastd...");
-  p_cast_mgr_->init();
+  p_cast_mgr_->init ();
 }
 
 tizcastd::~tizcastd ()
 {
   if (p_cast_mgr_)
-    {
-      p_cast_mgr_->deinit();
-      delete p_cast_mgr_;
-    }
+  {
+    p_cast_mgr_->deinit ();
+    delete p_cast_mgr_;
+  }
 }
 
 int32_t tizcastd::connect (const std::string &name_or_ip)
 {
   TIZ_LOG (TIZ_PRIORITY_NOTICE, "connect");
-  p_cast_mgr_->connect(name_or_ip);
+  p_cast_mgr_->connect (name_or_ip);
   return TIZ_CAST_SUCCESS;
 }
 
 int32_t tizcastd::disconnect ()
 {
   TIZ_LOG (TIZ_PRIORITY_NOTICE, "disconnect");
-  p_cast_mgr_->disconnect();
+  p_cast_mgr_->disconnect ();
   return TIZ_CAST_SUCCESS;
 }
 
@@ -95,51 +100,51 @@ int32_t tizcastd::load_url (const std::string &url,
                             const std::string &title)
 {
   TIZ_LOG (TIZ_PRIORITY_NOTICE, "load_url");
-  p_cast_mgr_->load_url(url, mime_type, title);
+  p_cast_mgr_->load_url (url, mime_type, title);
   return TIZ_CAST_SUCCESS;
 }
 
 int32_t tizcastd::play ()
 {
   TIZ_LOG (TIZ_PRIORITY_NOTICE, "play");
-  p_cast_mgr_->play();
+  p_cast_mgr_->play ();
   return TIZ_CAST_SUCCESS;
 }
 
 int32_t tizcastd::stop ()
 {
   TIZ_LOG (TIZ_PRIORITY_NOTICE, "stop");
-  p_cast_mgr_->stop();
+  p_cast_mgr_->stop ();
   return TIZ_CAST_SUCCESS;
 }
 
 int32_t tizcastd::pause ()
 {
-  p_cast_mgr_->pause();
+  p_cast_mgr_->pause ();
   return TIZ_CAST_SUCCESS;
 }
 
 int32_t tizcastd::volume_up ()
 {
-  p_cast_mgr_->volume_up();
+  p_cast_mgr_->volume_up ();
   return TIZ_CAST_SUCCESS;
 }
 
 int32_t tizcastd::volume_down ()
 {
-  p_cast_mgr_->volume_down();
+  p_cast_mgr_->volume_down ();
   return TIZ_CAST_SUCCESS;
 }
 
 int32_t tizcastd::mute ()
 {
-  p_cast_mgr_->mute();
+  p_cast_mgr_->mute ();
   return TIZ_CAST_SUCCESS;
 }
 
 int32_t tizcastd::unmute ()
 {
-  p_cast_mgr_->unmute();
+  p_cast_mgr_->unmute ();
   return TIZ_CAST_SUCCESS;
 }
 

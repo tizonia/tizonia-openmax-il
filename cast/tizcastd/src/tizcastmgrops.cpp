@@ -44,23 +44,53 @@
 
 namespace castmgr = tiz::castmgr;
 
-static void cc_cast_status_cback (void *ap_user_data,
-                                  tiz_chromecast_cast_status_t a_status)
+#define CAST_MGR_OPS_RECORD_ERROR(err, str)                              \
+  do                                                                     \
+  {                                                                      \
+    error_msg_.assign (str);                                             \
+    error_code_ = err;                                                   \
+    TIZ_LOG (TIZ_PRIORITY_ERROR, "[%d] : %s", err, error_msg_.c_str ()); \
+  } while (0)
+
+#define CAST_MGR_OPS_BAIL_IF_ERROR(exp, str) \
+  do                                         \
+  {                                          \
+    int rc_ = 0;                             \
+    if (0 != (rc_ = (exp)))                  \
+    {                                        \
+      CAST_MGR_OPS_RECORD_ERROR (rc_, str);  \
+    }                                        \
+  } while (0)
+
+void castmgr::cc_cast_status_cback (void *ap_user_data,
+                                    tiz_chromecast_cast_status_t a_status)
 {
+  tiz::castmgr::ops *p_ops = static_cast< tiz::castmgr::ops * > (ap_user_data);
   TIZ_LOG (TIZ_PRIORITY_TRACE, "cast status [%d]", a_status);
+  assert (p_ops);
+  p_ops->cast_cb_ (a_status);
 }
 
-static void cc_media_status_cback (void *ap_user_data,
-                                   tiz_chromecast_media_status_t a_status)
+void castmgr::cc_media_status_cback (void *ap_user_data,
+                                     tiz_chromecast_media_status_t a_status)
 {
+  tiz::castmgr::ops *p_ops = static_cast< tiz::castmgr::ops * > (ap_user_data);
   TIZ_LOG (TIZ_PRIORITY_TRACE, "media status [%d]", a_status);
+  assert (p_ops);
+  p_ops->media_cb_ (a_status);
 }
 
 //
 // ops
 //
-castmgr::ops::ops (mgr *p_mgr)
-  : p_mgr_ (p_mgr), error_code_ (OMX_ErrorNone), error_msg_ (), p_cc_ (NULL)
+castmgr::ops::ops (mgr *p_mgr, cast_status_cback_t cast_cb,
+                   media_status_cback_t media_cb)
+  : p_mgr_ (p_mgr),
+    cast_cb_ (cast_cb),
+    media_cb_ (media_cb),
+    error_code_ (OMX_ErrorNone),
+    error_msg_ (),
+    p_cc_ (NULL)
 {
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Constructing...");
 }
@@ -83,7 +113,8 @@ void castmgr::ops::do_connect (const std::string &name_or_ip)
   // disconnect ();
   TIZ_LOG (TIZ_PRIORITY_NOTICE, "do_connect");
   tiz_chromecast_callbacks_t cc_cbacks
-      = { cc_cast_status_cback, cc_media_status_cback };
+      = { tiz::castmgr::cc_cast_status_cback,
+          tiz::castmgr::cc_media_status_cback };
   CAST_MGR_OPS_BAIL_IF_ERROR (
       tiz_chromecast_init (&(p_cc_), name_or_ip.c_str (), &cc_cbacks, this),
       "Unable to initialize the Chromecast client library");

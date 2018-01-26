@@ -252,11 +252,30 @@ tizcastclient::unregister_client (const cast_client_id_ptr_t ap_cast_clnt)
 }
 
 void
-tizcastclient::url_loaded ()
+tizcastclient::cast_status(const uint32_t& status)
 {
-  // Notify the client that the url has been loaded
+  // Notify the client of the cast status
 
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "url loaded...");
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "cast status...");
+
+  //   if (clients_.count (uuid))
+  //     {
+  //       uint32_t res = rid;
+  //       client_data &data = clients_[uuid];
+
+  //       TIZ_LOG (TIZ_PRIORITY_TRACE, "wait_complete on component  [%s]...",
+  //                data.cname_.c_str ());
+
+  //       data.pf_waitend_ (res, data.p_data_);
+  //     }
+}
+
+void
+tizcastclient::media_status(const uint32_t& status)
+{
+  // Notify the client of the media status
+
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "media status...");
 
   //   if (clients_.count (uuid))
   //     {

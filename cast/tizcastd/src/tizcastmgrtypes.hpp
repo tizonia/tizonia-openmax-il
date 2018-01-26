@@ -18,7 +18,7 @@
  */
 
 /**
- * @file   tizcasttypes.h
+ * @file   tizcastmgrtypes.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
  * @brief  Chromecast client daemon - Types and constants
@@ -26,26 +26,24 @@
  *
  */
 
-#ifndef TIZCASTTYPES_H
-#define TIZCASTTYPES_H
+#ifndef TIZCASTMGRTYPES_H
+#define TIZCASTMGRTYPES_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
+#include <boost/function.hpp>
 
-typedef enum tiz_cast_error_t {
-  TIZ_CAST_SUCCESS = 0,
-  TIZ_CAST_MISUSE,
-  TIZ_CAST_URL_LOAD_FAILURE,
-  TIZ_CAST_CC_CMD_FAILURE,
-  TIZ_CAST_OOM,
-  TIZ_CAST_DBUS,
-  TIZ_CAST_UNKNOWN,
-  TIZ_CAST_ERROR_MAX
-} tiz_cast_error_t;
+#include <tizchromecasttypes.h>
+namespace tiz
+{
+  namespace castmgr
+  {
 
-#ifdef __cplusplus
-}
-#endif
+    typedef boost::function< void(const tiz_chromecast_cast_status_t a_status) >
+        cast_status_cback_t;
+    typedef boost::function< void(
+        const tiz_chromecast_media_status_t a_status) >
+        media_status_cback_t;
 
-#endif  // TIZCASTTYPES_H
+  }  // namespace castmgr
+}  // namespace tiz
+
+#endif  // TIZCASTMGRTYPES_H

@@ -20,6 +20,7 @@ bin_PROGRAMS = tizcastd
 noinst_HEADERS = \
 	tizcastd.hpp \
 	tizcastmgr.hpp \
+	tizcastmgrtypes.hpp \
 	tizcastmgrcmd.hpp \
 	tizcastmgrfsm.hpp \
 	tizcastmgrops.hpp

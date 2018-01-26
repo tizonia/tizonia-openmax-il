@@ -34,33 +34,22 @@
 
 #include <OMX_Core.h>
 
-#include <tizchromecasttypes.h>
 #include <tizchromecast_c.h>
+#include <tizchromecasttypes.h>
 
-#define CAST_MGR_OPS_RECORD_ERROR(err, str)                              \
-  do                                                                     \
-  {                                                                      \
-    error_msg_.assign (str);                                             \
-    error_code_ = err;                                                   \
-    TIZ_LOG (TIZ_PRIORITY_ERROR, "[%d] : %s", err, error_msg_.c_str ()); \
-  } while (0)
-
-#define CAST_MGR_OPS_BAIL_IF_ERROR(exp, str) \
-  do                                         \
-  {                                          \
-    int rc_ = 0;                             \
-    if (0 != (rc_ = (exp)))                  \
-    {                                        \
-      CAST_MGR_OPS_RECORD_ERROR (rc_, str);  \
-    }                                        \
-  } while (0)
+#include "tizcastmgrtypes.hpp"
 
 namespace tiz
 {
   namespace castmgr
   {
-    // forward decl
+    // Forward declarations
     class mgr;
+    void cc_cast_status_cback (void *ap_user_data,
+                               tiz_chromecast_cast_status_t a_status);
+
+    void cc_media_status_cback (void *ap_user_data,
+                                tiz_chromecast_media_status_t a_status);
 
     /**
      *  @class ops
@@ -69,42 +58,45 @@ namespace tiz
      */
     class ops
     {
+      friend void cc_cast_status_cback (void *, tiz_chromecast_cast_status_t);
+
+      friend void cc_media_status_cback (void *, tiz_chromecast_media_status_t);
 
     public:
       typedef boost::function< void(OMX_ERRORTYPE, std::string) >
           termination_callback_t;
 
     public:
-      ops (mgr *p_mgr);
+      ops (mgr *p_mgr, cast_status_cback_t cast_cb,
+           media_status_cback_t media_cb);
       virtual ~ops ();
 
       void deinit ();
 
     public:
-      virtual void do_connect (const std::string &name_or_ip);
-      virtual void do_disconnect ();
-      virtual void do_poll (int poll_time_ms);
-      virtual void do_load_url (const std::string &url,
-                                const std::string &mime_type,
-                                const std::string &title);
-      virtual void do_play ();
-      virtual void do_stop ();
-      virtual void do_pause ();
-      virtual void do_volume_up ();
-      virtual void do_volume_down ();
-      virtual void do_mute ();
-      virtual void do_unmute ();
-      virtual void do_report_fatal_error (const int error,
-                                          const std::string &msg);
-      virtual bool is_fatal_error (const int error,
-                                   const std::string &msg);
+      void do_connect (const std::string &name_or_ip);
+      void do_disconnect ();
+      void do_poll (int poll_time_ms);
+      void do_load_url (const std::string &url, const std::string &mime_type,
+                        const std::string &title);
+      void do_play ();
+      void do_stop ();
+      void do_pause ();
+      void do_volume_up ();
+      void do_volume_down ();
+      void do_mute ();
+      void do_unmute ();
+      void do_report_fatal_error (const int error, const std::string &msg);
+      bool is_fatal_error (const int error, const std::string &msg);
 
       int internal_error () const;
       std::string internal_error_msg () const;
 
-    protected:
+    private:
       mgr *p_mgr_;  // Not owned
-                    //       termination_callback_t termination_cback_;
+      cast_status_cback_t cast_cb_;
+      media_status_cback_t media_cb_;
+      // termination_callback_t termination_cback_;
       int error_code_;
       std::string error_msg_;
       tiz_chromecast_t *p_cc_;
