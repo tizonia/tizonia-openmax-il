@@ -107,8 +107,8 @@ get_global ()
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   /* For now, don't bother about thread safety of initialization of this */
-  /* singleton. The current assumption is that this CAST client will be */
-  /* initialized and deinitialized by the IL Core at init time. */
+  /* singleton. The current assumption is that this cast client will be */
+  /* initialized and deinitialized by a single entity in the process. */
 
   if (!p_cast)
     {
