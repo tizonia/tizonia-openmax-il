@@ -63,6 +63,7 @@ struct cc_gmusic_prc
   bool port_disabled_;
   bool uri_changed_;
   OMX_U32 bytes_before_eos_;
+  long volume_;
 };
 
 typedef struct cc_gmusic_prc_class cc_gmusic_prc_class_t;

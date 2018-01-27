@@ -418,7 +418,7 @@ namespace tiz
         bmf::Row < running               , volume_up_evt    , bmf::none   , do_volume_up                                >,
         bmf::Row < running               , volume_down_evt  , bmf::none   , do_volume_down                              >,
         bmf::Row < running               , mute_evt         , bmf::none   , do_mute                                     >,
-        bmf::Row < running               , unmute_evt       , bmf::none   , do_pause                                    >,
+        bmf::Row < running               , unmute_evt       , bmf::none   , do_unmute                                   >,
         bmf::Row < running               , quit_evt         , quitting    , do_disconnect                               >,
         bmf::Row < running               , err_evt          , bmf::none   , bmf::none              , bmf::euml::Not_<
                                                                                                         is_fatal_error> >,

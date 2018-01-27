@@ -44,7 +44,6 @@
 #include <tizscheduler.h>
 
 #include "chromecastrndprc.h"
-#include "chromecastrndport.h"
 #include "chromecastrnd.h"
 #include "cc_gmusicprc.h"
 #include "cc_gmusiccfgport.h"
@@ -76,10 +75,12 @@
 static OMX_VERSIONTYPE chromecast_renderer_version = {{1, 0, 0, 0}};
 
 static OMX_PTR
-instantiate_input_port (OMX_HANDLETYPE ap_hdl)
+instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
 {
-  OMX_AUDIO_CODINGTYPE encodings[]
-    = {OMX_AUDIO_CodingUnused, OMX_AUDIO_CodingMax};
+  OMX_AUDIO_PARAM_PCMMODETYPE pcmmode;
+  OMX_AUDIO_CONFIG_VOLUMETYPE volume;
+  OMX_AUDIO_CONFIG_MUTETYPE mute;
+  OMX_AUDIO_CODINGTYPE encodings[] = {OMX_AUDIO_CodingPCM, OMX_AUDIO_CodingMax};
   tiz_port_options_t port_opts = {
     OMX_PortDomainAudio,
     OMX_DirInput,
@@ -92,8 +93,35 @@ instantiate_input_port (OMX_HANDLETYPE ap_hdl)
     -1 /* use -1 for now */
   };
 
-  return factory_new (tiz_get_type (ap_hdl, "chromecastrndport"), &port_opts,
-                      &encodings);
+  /* Instantiate the pcm port */
+  pcmmode.nSize = sizeof (OMX_AUDIO_PARAM_PCMMODETYPE);
+  pcmmode.nVersion.nVersion = OMX_VERSION;
+  pcmmode.nPortIndex = ARATELIA_CHROMECAST_RENDERER_PORT_INDEX;
+  pcmmode.nChannels = 2;
+  pcmmode.eNumData = OMX_NumericalDataSigned;
+  pcmmode.eEndian = OMX_EndianLittle;
+  pcmmode.bInterleaved = OMX_TRUE;
+  pcmmode.nBitPerSample = 16;
+  pcmmode.nSamplingRate = 48000;
+  pcmmode.ePCMMode = OMX_AUDIO_PCMModeLinear;
+  pcmmode.eChannelMapping[0] = OMX_AUDIO_ChannelLF;
+  pcmmode.eChannelMapping[1] = OMX_AUDIO_ChannelRF;
+
+  volume.nSize = sizeof (OMX_AUDIO_CONFIG_VOLUMETYPE);
+  volume.nVersion.nVersion = OMX_VERSION;
+  volume.nPortIndex = ARATELIA_CHROMECAST_RENDERER_PORT_INDEX;
+  volume.bLinear = OMX_FALSE;
+  volume.sVolume.nValue = ARATELIA_CHROMECAST_RENDERER_DEFAULT_VOLUME_VALUE;
+  volume.sVolume.nMin = ARATELIA_CHROMECAST_RENDERER_MIN_VOLUME_VALUE;
+  volume.sVolume.nMax = ARATELIA_CHROMECAST_RENDERER_MAX_VOLUME_VALUE;
+
+  mute.nSize = sizeof (OMX_AUDIO_CONFIG_MUTETYPE);
+  mute.nVersion.nVersion = OMX_VERSION;
+  mute.nPortIndex = ARATELIA_CHROMECAST_RENDERER_PORT_INDEX;
+  mute.bMute = OMX_FALSE;
+
+  return factory_new (tiz_get_type (ap_hdl, "tizpcmport"), &port_opts,
+                      &encodings, &pcmmode, &volume, &mute);
 }
 
 static OMX_PTR
@@ -183,7 +211,6 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
     = {&chromecast_client_role, &gmusic_client_role, &scloud_client_role,
        &dirble_client_role, &youtube_client_role};
   tiz_type_factory_t chromecastrndprc_type;
-  tiz_type_factory_t chromecastrndport_type;
   tiz_type_factory_t cc_gmusicprc_type;
   tiz_type_factory_t cc_gmusiccfgport_type;
   tiz_type_factory_t cc_scloudprc_type;
@@ -193,43 +220,42 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   tiz_type_factory_t cc_youtubeprc_type;
   tiz_type_factory_t cc_youtubecfgport_type;
   const tiz_type_factory_t * tf_list[]
-    = {&chromecastrndprc_type, &chromecastrndport_type, &cc_gmusicprc_type,
-       &cc_gmusiccfgport_type, &cc_scloudprc_type,      &cc_scloudcfgport_type,
-       &cc_dirbleprc_type,     &cc_dirblecfgport_type,  &cc_youtubeprc_type,
-       &cc_youtubecfgport_type};
+    = {&chromecastrndprc_type, &cc_gmusicprc_type,     &cc_gmusiccfgport_type,
+       &cc_scloudprc_type,     &cc_scloudcfgport_type, &cc_dirbleprc_type,
+       &cc_dirblecfgport_type, &cc_youtubeprc_type,    &cc_youtubecfgport_type};
 
   strcpy ((OMX_STRING) chromecast_client_role.role,
           ARATELIA_CHROMECAST_RENDERER_DEFAULT_ROLE);
   chromecast_client_role.pf_cport = instantiate_config_port;
-  chromecast_client_role.pf_port[0] = instantiate_input_port;
+  chromecast_client_role.pf_port[0] = instantiate_pcm_port;
   chromecast_client_role.nports = 1;
   chromecast_client_role.pf_proc = instantiate_processor;
 
   strcpy ((OMX_STRING) gmusic_client_role.role,
           ARATELIA_GMUSIC_SOURCE_DEFAULT_ROLE);
   gmusic_client_role.pf_cport = instantiate_gmusic_config_port;
-  gmusic_client_role.pf_port[0] = instantiate_input_port;
+  gmusic_client_role.pf_port[0] = instantiate_pcm_port;
   gmusic_client_role.nports = 1;
   gmusic_client_role.pf_proc = instantiate_gmusic_processor;
 
   strcpy ((OMX_STRING) scloud_client_role.role,
           ARATELIA_SCLOUD_SOURCE_DEFAULT_ROLE);
   scloud_client_role.pf_cport = instantiate_scloud_config_port;
-  scloud_client_role.pf_port[0] = instantiate_input_port;
+  scloud_client_role.pf_port[0] = instantiate_pcm_port;
   scloud_client_role.nports = 1;
   scloud_client_role.pf_proc = instantiate_scloud_processor;
 
   strcpy ((OMX_STRING) dirble_client_role.role,
           ARATELIA_DIRBLE_SOURCE_DEFAULT_ROLE);
   dirble_client_role.pf_cport = instantiate_dirble_config_port;
-  dirble_client_role.pf_port[0] = instantiate_input_port;
+  dirble_client_role.pf_port[0] = instantiate_pcm_port;
   dirble_client_role.nports = 1;
   dirble_client_role.pf_proc = instantiate_dirble_processor;
 
   strcpy ((OMX_STRING) youtube_client_role.role,
           ARATELIA_YOUTUBE_SOURCE_DEFAULT_ROLE);
   youtube_client_role.pf_cport = instantiate_youtube_config_port;
-  youtube_client_role.pf_port[0] = instantiate_input_port;
+  youtube_client_role.pf_port[0] = instantiate_pcm_port;
   youtube_client_role.nports = 1;
   youtube_client_role.pf_proc = instantiate_youtube_processor;
 
@@ -238,12 +264,6 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   chromecastrndprc_type.pf_class_init = chromecastrnd_prc_class_init;
   strcpy ((OMX_STRING) chromecastrndprc_type.object_name, "chromecastrndprc");
   chromecastrndprc_type.pf_object_init = chromecastrnd_prc_init;
-
-  strcpy ((OMX_STRING) chromecastrndport_type.class_name,
-          "chromecastrndport_class");
-  chromecastrndport_type.pf_class_init = chromecastrnd_port_class_init;
-  strcpy ((OMX_STRING) chromecastrndport_type.object_name, "chromecastrndport");
-  chromecastrndport_type.pf_object_init = chromecastrnd_port_init;
 
   strcpy ((OMX_STRING) cc_gmusicprc_type.class_name, "cc_gmusicprc_class");
   cc_gmusicprc_type.pf_class_init = cc_gmusic_prc_class_init;

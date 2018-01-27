@@ -545,6 +545,38 @@ enqueue_playlist_items (cc_gmusic_prc_t * ap_prc)
   return (rc == 0 ? OMX_ErrorNone : OMX_ErrorInsufficientResources);
 }
 
+static void
+set_volume (cc_gmusic_prc_t * ap_prc, const long a_volume)
+{
+  assert (ap_prc);
+  assert (ap_prc->p_cc_);
+  TIZ_DEBUG (handleOf (ap_prc), "ap_prc->volume_ [%d]", ap_prc->volume_);
+  if (a_volume > ap_prc->volume_)
+    {
+      tiz_cast_client_volume_up (ap_prc->p_cc_);
+    }
+  else if (a_volume < ap_prc->volume_)
+    {
+      tiz_cast_client_volume_down (ap_prc->p_cc_);
+    }
+  ap_prc->volume_ = a_volume;
+}
+
+static void
+toggle_mute (cc_gmusic_prc_t * ap_prc, const bool a_mute)
+{
+  assert (ap_prc);
+
+  if (a_mute)
+    {
+      tiz_cast_client_mute (ap_prc->p_cc_);
+    }
+  else
+    {
+      tiz_cast_client_unmute (ap_prc->p_cc_);
+    }
+}
+
 /*
  * cc_gmusicprc
  */
@@ -752,13 +784,49 @@ cc_gmusic_prc_port_enable (const void * ap_prc, OMX_U32 a_pid)
 }
 
 static OMX_ERRORTYPE
-cc_gmusic_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
+cc_gmusic_prc_config_change (void * ap_prc, OMX_U32 a_pid,
                              OMX_INDEXTYPE a_config_idx)
 {
   cc_gmusic_prc_t * p_prc = ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (p_prc);
+  if (ARATELIA_CHROMECAST_RENDERER_PORT_INDEX == a_pid)
+    {
+      if (OMX_IndexConfigAudioVolume == a_config_idx)
+        {
+          OMX_AUDIO_CONFIG_VOLUMETYPE volume;
+          TIZ_INIT_OMX_PORT_STRUCT (volume,
+                                    ARATELIA_CHROMECAST_RENDERER_PORT_INDEX);
+          tiz_check_omx (
+            tiz_api_GetConfig (tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
+                               OMX_IndexConfigAudioVolume, &volume));
+          TIZ_DEBUG (
+            handleOf (p_prc),
+            "[OMX_IndexConfigAudioVolume] : volume.sVolume.nValue = %ld",
+            volume.sVolume.nValue);
+          if (volume.sVolume.nValue
+                <= ARATELIA_CHROMECAST_RENDERER_MAX_VOLUME_VALUE
+              && volume.sVolume.nValue
+                   >= ARATELIA_CHROMECAST_RENDERER_MIN_VOLUME_VALUE)
+            {
+              set_volume (p_prc, volume.sVolume.nValue);
+            }
+        }
+      else if (OMX_IndexConfigAudioMute == a_config_idx)
+        {
+          OMX_AUDIO_CONFIG_MUTETYPE mute;
+          TIZ_INIT_OMX_PORT_STRUCT (mute,
+                                    ARATELIA_CHROMECAST_RENDERER_PORT_INDEX);
+          tiz_check_omx (tiz_api_GetConfig (tiz_get_krn (handleOf (p_prc)),
+                                            handleOf (p_prc),
+                                            OMX_IndexConfigAudioMute, &mute));
+          TIZ_DEBUG (handleOf (p_prc),
+                     "[OMX_IndexConfigAudioMute] : bMute = [%s]",
+                     (mute.bMute == OMX_FALSE ? "FALSE" : "TRUE"));
+          toggle_mute (p_prc, mute.bMute == OMX_TRUE ? true : false);
+        }
+    }
 
   if (OMX_TizoniaIndexConfigPlaylistSkip == a_config_idx && p_prc->p_cc_)
     {
