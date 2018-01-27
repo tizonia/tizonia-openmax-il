@@ -102,6 +102,14 @@ namespace tiz
     struct play_evt {};
     struct stop_evt {};
     struct pause_evt {};
+    struct volume_evt
+    {
+      volume_evt (int volume)
+        : volume_ (volume)
+      {
+      }
+      const int volume_;
+    };
     struct volume_up_evt {};
     struct volume_down_evt {};
     struct mute_evt {};
@@ -310,6 +318,19 @@ namespace tiz
         }
       };
 
+      struct do_volume
+      {
+        template <class FSM,class EVT,class SourceState,class TargetState>
+        void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
+        {
+          GMGR_FSM_LOG ();
+          if (fsm.pp_ops_ && *(fsm.pp_ops_))
+            {
+              (*(fsm.pp_ops_))->do_volume (evt.volume_);
+            }
+        }
+      };
+
       struct do_volume_up
       {
         template <class FSM,class EVT,class SourceState,class TargetState>
@@ -415,6 +436,7 @@ namespace tiz
         bmf::Row < running               , play_evt         , bmf::none   , do_play                                     >,
         bmf::Row < running               , stop_evt         , bmf::none   , do_stop                                     >,
         bmf::Row < running               , pause_evt        , bmf::none   , do_pause                                    >,
+        bmf::Row < running               , volume_evt       , bmf::none   , do_volume                                   >,
         bmf::Row < running               , volume_up_evt    , bmf::none   , do_volume_up                                >,
         bmf::Row < running               , volume_down_evt  , bmf::none   , do_volume_down                              >,
         bmf::Row < running               , mute_evt         , bmf::none   , do_mute                                     >,

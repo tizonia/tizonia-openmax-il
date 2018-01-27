@@ -82,6 +82,7 @@ namespace tiz
       void do_play ();
       void do_stop ();
       void do_pause ();
+      void do_volume (int volume);
       void do_volume_up ();
       void do_volume_down ();
       void do_mute ();

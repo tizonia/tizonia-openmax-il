@@ -139,6 +139,18 @@ int tiz_chromecast_stop (tiz_chromecast_t *ap_chromecast);
 int tiz_chromecast_pause (tiz_chromecast_t *ap_chromecast);
 
 /**
+ * Set the volume level (0-100).
+ *
+ * @ingroup libtizchromecast
+ *
+ * @param ap_chromecast The Tizonia Chromecast handle.
+ * @param a_volume The volume level (0-100).
+ *
+ * @return 0 on success
+ */
+int tiz_chromecast_volume (tiz_chromecast_t *ap_chromecast, int a_volume);
+
+/**
  * Increase playback volumen.
  *
  * @ingroup libtizchromecast

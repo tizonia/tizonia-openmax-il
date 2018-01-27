@@ -185,6 +185,16 @@ void castmgr::ops::do_pause ()
   }
 }
 
+void castmgr::ops::do_volume (int volume)
+{
+  if (p_cc_)
+  {
+    CAST_MGR_OPS_BAIL_IF_ERROR (
+        tiz_chromecast_volume (p_cc_, volume),
+        "Unable to deliver 'volume up' to Chromecast device");
+  }
+}
+
 void castmgr::ops::do_volume_up ()
 {
   if (p_cc_)

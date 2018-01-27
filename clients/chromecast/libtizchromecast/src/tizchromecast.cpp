@@ -176,6 +176,13 @@ int tizchromecast::media_pause ()
   return rc;
 }
 
+int tizchromecast::media_volume (int volume)
+{
+  int rc = 0;
+  try_catch_wrapper (py_cc_proxy_.attr ("media_vol") (bp::object (volume)));
+  return rc;
+}
+
 int tizchromecast::media_volume_up ()
 {
   int rc = 0;

@@ -361,6 +361,23 @@ tiz_cast_client_pause (const tiz_cast_t * ap_cast)
 }
 
 extern "C" tiz_cast_error_t
+tiz_cast_client_volume (const tiz_cast_t * ap_cast, int a_volume)
+{
+  tiz_cast_global_t * p_cast = NULL;
+  if (!ap_cast || a_volume > 100 || a_volume < 0)
+    {
+      return TIZ_CAST_MISUSE;
+    }
+
+  p_cast = get_global ();
+  assert (p_cast);
+
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "tiz_cast_client_volume");
+  return (tiz_cast_error_t) p_cast->p_client->volume (
+    (cast_client_id_ptr_t) ap_cast, a_volume);
+}
+
+extern "C" tiz_cast_error_t
 tiz_cast_client_volume_up (const tiz_cast_t * ap_cast)
 {
   tiz_cast_global_t * p_cast = NULL;

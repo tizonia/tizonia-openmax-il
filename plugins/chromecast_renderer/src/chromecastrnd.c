@@ -314,7 +314,7 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
     tiz_comp_init (ap_hdl, ARATELIA_CHROMECAST_RENDERER_COMPONENT_NAME));
 
   /* Register the various classes */
-  tiz_check_omx (tiz_comp_register_types (ap_hdl, tf_list, 10));
+  tiz_check_omx (tiz_comp_register_types (ap_hdl, tf_list, 9));
 
   /* Register the component roles */
   tiz_check_omx (tiz_comp_register_roles (ap_hdl, rf_list, 5));

@@ -177,6 +177,13 @@ class tizchromecastproxy(object):
     def media_stop(self):
         self.cast.media_controller.stop()
 
+    def media_vol(self, volume):
+        vol = volume / 100
+        try:
+            self.cast.set_volume(vol)
+        except PyChromecastError:
+            pass
+
     def media_vol_up(self):
         vol = round(self.cast.status.volume_level, 1)
         try:

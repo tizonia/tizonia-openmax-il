@@ -152,6 +152,16 @@ namespace tiz
       OMX_ERRORTYPE pause ();
 
       /**
+       * Set the volume level (0-100).
+       *
+       * @pre init() has been called on this manager.
+       *
+       * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
+       * success.
+       */
+      OMX_ERRORTYPE volume (int volume);
+
+      /**
        * Increments or decrements the volume by steps.
        *
        * @pre init() has been called on this manager.

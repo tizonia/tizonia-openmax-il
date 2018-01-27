@@ -601,6 +601,7 @@ cc_gmusic_prc_ctor (void * ap_obj, va_list * app)
   p_prc->port_disabled_ = false;
   p_prc->uri_changed_ = false;
   p_prc->bytes_before_eos_ = 0;
+  p_prc->volume_ = ARATELIA_CHROMECAST_RENDERER_DEFAULT_VOLUME_VALUE;
   return p_prc;
 }
 
@@ -676,6 +677,9 @@ cc_gmusic_prc_prepare_to_transfer (void * ap_prc, OMX_U32 a_pid)
       on_cc_error_ret_omx_oom (tiz_cast_client_init (
         &(p_prc->p_cc_), (const char *) p_prc->cc_session_.cNameOrIpAddr,
         &(p_prc->cc_uuid_), &cast_cbacks, p_prc));
+      /* Set initial volume */
+      on_cc_error_ret_omx_oom (
+        tiz_cast_client_volume (p_prc->p_cc_, p_prc->volume_));
     }
   return OMX_ErrorNone;
 }

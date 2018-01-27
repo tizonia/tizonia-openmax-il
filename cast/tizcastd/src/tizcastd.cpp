@@ -124,6 +124,12 @@ int32_t tizcastd::pause ()
   return TIZ_CAST_SUCCESS;
 }
 
+int32_t tizcastd::volume (const int32_t & volume)
+{
+  p_cast_mgr_->volume (volume);
+  return TIZ_CAST_SUCCESS;
+}
+
 int32_t tizcastd::volume_up ()
 {
   p_cast_mgr_->volume_up ();

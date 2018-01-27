@@ -148,6 +148,14 @@ extern "C" int tiz_chromecast_pause (tiz_chromecast_t *ap_chromecast)
   return ap_chromecast->p_proxy_->media_pause ();
 }
 
+extern "C" int tiz_chromecast_volume (tiz_chromecast_t *ap_chromecast,
+                                      int a_volume)
+{
+  assert (ap_chromecast);
+  assert (ap_chromecast->p_proxy_);
+  return ap_chromecast->p_proxy_->media_volume (a_volume);
+}
+
 extern "C" int tiz_chromecast_volume_up (tiz_chromecast_t *ap_chromecast)
 {
   assert (ap_chromecast);

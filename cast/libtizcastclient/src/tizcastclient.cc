@@ -172,6 +172,47 @@ tizcastclient::pause (const cast_client_id_ptr_t ap_cast_clnt)
 }
 
 int32_t
+tizcastclient::volume (const cast_client_id_ptr_t ap_cast_clnt, int a_volume)
+{
+  int32_t rc = TIZ_CAST_SUCCESS;
+  assert (ap_cast_clnt);
+
+  if (clients_.count (*ap_cast_clnt))
+    {
+      try
+        {
+          //         client_data & clnt = clients_[*ap_cast_clnt];
+          rc = com::aratelia::tiz::tizcastif_proxy::volume (a_volume);
+        }
+      catch (Tiz::DBus::Error const & e)
+        {
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "DBus error [%s]...", e.what ());
+          rc = TIZ_CAST_DBUS;
+        }
+      catch (std::exception const & e)
+        {
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "Standard exception error [%s]...",
+                   e.what ());
+          rc = TIZ_CAST_UNKNOWN;
+        }
+      catch (...)
+        {
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "Uknonwn exception error...");
+          rc = TIZ_CAST_UNKNOWN;
+        }
+    }
+  else
+    {
+      rc = TIZ_CAST_MISUSE;
+      char uuid_str[128];
+      tiz_uuid_str (&((*ap_cast_clnt)[0]), uuid_str);
+      TIZ_LOG (TIZ_PRIORITY_ERROR,
+               "Could not find the client with uuid [%s]...", uuid_str);
+    }
+  return rc;
+}
+
+int32_t
 tizcastclient::volume_up (const cast_client_id_ptr_t ap_cast_clnt)
 {
   return invokecast (&com::aratelia::tiz::tizcastif_proxy::volume_up,

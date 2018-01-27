@@ -185,6 +185,12 @@ castmgr::mgr::pause ()
 }
 
 OMX_ERRORTYPE
+castmgr::mgr::volume (int volume)
+{
+  return post_cmd (new castmgr::cmd (castmgr::volume_evt (volume)));
+}
+
+OMX_ERRORTYPE
 castmgr::mgr::volume_up ()
 {
   return post_cmd (new castmgr::cmd (castmgr::volume_up_evt ()));

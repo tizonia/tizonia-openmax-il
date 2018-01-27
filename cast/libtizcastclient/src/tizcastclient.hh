@@ -72,6 +72,9 @@ public:
   pause (const cast_client_id_ptr_t ap_cast_clnt);
 
   int32_t
+  volume (const cast_client_id_ptr_t ap_cast_clnt, int a_volume);
+
+  int32_t
   volume_up (const cast_client_id_ptr_t ap_cast_clnt);
 
   int32_t
@@ -153,6 +156,7 @@ private:
   using com::aratelia::tiz::tizcastif_proxy::play;
   using com::aratelia::tiz::tizcastif_proxy::stop;
   using com::aratelia::tiz::tizcastif_proxy::unmute;
+  using com::aratelia::tiz::tizcastif_proxy::volume;
   using com::aratelia::tiz::tizcastif_proxy::volume_down;
   using com::aratelia::tiz::tizcastif_proxy::volume_up;
 

@@ -51,6 +51,11 @@
       <arg type="i" name="retcode" direction="out"/>
     </method>
 
+    <method name="volume">
+      <arg type="i" name="volume" direction="in"/>
+      <arg type="i" name="retcode" direction="out"/>
+    </method>
+
     <method name="volume_up">
       <arg type="i" name="retcode" direction="out"/>
     </method>

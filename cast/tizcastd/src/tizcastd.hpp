@@ -30,12 +30,13 @@
 #define TIZCASTD_HPP
 
 /**
-* @defgroup tizcastd 'tizcastd' : Tizonia's cast daemon process.
-*
-* This module implements a D-Bus-based daemon to interface with Chromecast devices.
-*
-* @ingroup cast
-*/
+ * @defgroup tizcastd 'tizcastd' : Tizonia's cast daemon process.
+ *
+ * This module implements a D-Bus-based daemon to interface with Chromecast
+ * devices.
+ *
+ * @ingroup cast
+ */
 
 #include <string.h>
 #include <string>
@@ -115,6 +116,15 @@ public:
   /**
    * @brief Increase the playback volume.
    *
+   * @param volume The volume level (0-100).
+   *
+   * @return A tiz_cast_error_t error code
+   */
+  int32_t volume (const int32_t & volume);
+
+  /**
+   * @brief Increase the playback volume.
+   *
    * @return A tiz_cast_error_t error code
    */
   int32_t volume_up ();
@@ -141,7 +151,7 @@ public:
   int32_t unmute ();
 
 private:
-  tiz::castmgr::mgr * p_cast_mgr_;
+  tiz::castmgr::mgr *p_cast_mgr_;
   std::string cc_name_or_ip_;
 };
 
