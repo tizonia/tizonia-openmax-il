@@ -37,10 +37,13 @@ namespace tiz
   namespace castmgr
   {
 
-    typedef boost::function< void(const tiz_chromecast_cast_status_t a_status) >
+    typedef boost::function< void() > cast_status_received_cback_t;
+
+    typedef boost::function< void(const tiz_chromecast_cast_status_t a_status,
+                                  const int a_volume) >
         cast_status_cback_t;
-    typedef boost::function< void(
-        const tiz_chromecast_media_status_t a_status) >
+    typedef boost::function< void(const tiz_chromecast_media_status_t a_status,
+                                  const int a_volume) >
         media_status_cback_t;
 
   }  // namespace castmgr

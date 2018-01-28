@@ -220,13 +220,16 @@ class tizchromecastproxy(object):
             logging.info("new_cast_status: %r" % (status,))
             try:
                 if not status.app_id:
-                    self.cast_status_listener(to_ascii(u'UNKNOWN'))
+                    self.cast_status_listener(to_ascii(u'UNKNOWN'), \
+                                              status.volume_level)
                 elif status.app_id == APP_MEDIA_RECEIVER \
                      and status.status_text == u'Ready To Cast':
-                    self.cast_status_listener(to_ascii(u'READY_TO_CAST'))
+                    self.cast_status_listener(to_ascii(u'READY_TO_CAST'), \
+                                              status.volume_level)
                 elif status.app_id == APP_MEDIA_RECEIVER \
                      and u'Now Casting' in status.status_text:
-                    self.cast_status_listener(to_ascii(u'NOW_CASTING'))
+                    self.cast_status_listener(to_ascii(u'NOW_CASTING'), \
+                                              status.volume_level)
             except Exception as exception:
                 logging.info('Unable to deliver cast status callback %s', \
                              exception)
@@ -241,7 +244,8 @@ class tizchromecastproxy(object):
         if status:
             logging.info("new_media_status: %r" % (status,))
             try:
-                self.media_status_listener(to_ascii(status.player_state))
+                self.media_status_listener(to_ascii(status.player_state), \
+                                           status.volume_level)
             except Exception as exception:
                 logging.info('Unable to deliver media status callback %s', \
                              exception)

@@ -120,7 +120,7 @@ public:
    *
    * @return A tiz_cast_error_t error code
    */
-  int32_t volume (const int32_t & volume);
+  int32_t volume_set (const int32_t & volume);
 
   /**
    * @brief Increase the playback volume.

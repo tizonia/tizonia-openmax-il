@@ -47,7 +47,7 @@ typedef enum tiz_cast_client_cast_status {
  * changed.
  */
 typedef void (*tiz_cast_client_cast_status_cb_f) (
-  void * ap_user_data, tiz_cast_client_cast_status_t a_status);
+  void * ap_user_data, tiz_cast_client_cast_status_t a_status, int a_volume);
 
 typedef enum tiz_cast_client_media_status {
   ETizCcMediaStatusUnknown,
@@ -62,7 +62,7 @@ typedef enum tiz_cast_client_media_status {
  * changed.
  */
 typedef void (*tiz_cast_client_media_status_cb_f) (
-  void * ap_user_data, tiz_cast_client_media_status_t a_status);
+  void * ap_user_data, tiz_cast_client_media_status_t a_status, int a_volume);
 
 typedef struct tiz_cast_client_callbacks
 {

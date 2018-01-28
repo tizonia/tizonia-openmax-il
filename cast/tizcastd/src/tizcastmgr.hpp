@@ -159,7 +159,7 @@ namespace tiz
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
        */
-      OMX_ERRORTYPE volume (int volume);
+      OMX_ERRORTYPE volume_set (int volume);
 
       /**
        * Increments or decrements the volume by steps.
@@ -222,6 +222,8 @@ namespace tiz
        * success.
        */
       OMX_ERRORTYPE stop_fsm ();
+
+      OMX_ERRORTYPE cast_status_received ();
 
       OMX_ERRORTYPE init_cmd_queue ();
       void deinit_cmd_queue ();

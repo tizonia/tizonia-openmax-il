@@ -172,7 +172,8 @@ tizcastclient::pause (const cast_client_id_ptr_t ap_cast_clnt)
 }
 
 int32_t
-tizcastclient::volume (const cast_client_id_ptr_t ap_cast_clnt, int a_volume)
+tizcastclient::volume_set (const cast_client_id_ptr_t ap_cast_clnt,
+                           int a_volume)
 {
   int32_t rc = TIZ_CAST_SUCCESS;
   assert (ap_cast_clnt);
@@ -182,7 +183,7 @@ tizcastclient::volume (const cast_client_id_ptr_t ap_cast_clnt, int a_volume)
       try
         {
           //         client_data & clnt = clients_[*ap_cast_clnt];
-          rc = com::aratelia::tiz::tizcastif_proxy::volume (a_volume);
+          rc = com::aratelia::tiz::tizcastif_proxy::volume_set (a_volume);
         }
       catch (Tiz::DBus::Error const & e)
         {
@@ -293,7 +294,7 @@ tizcastclient::unregister_client (const cast_client_id_ptr_t ap_cast_clnt)
 }
 
 void
-tizcastclient::cast_status (const uint32_t & status)
+tizcastclient::cast_status (const uint32_t & status, const int32_t & volume)
 {
   const tiz_cast_client_cast_status_t cast_status
     = static_cast< tiz_cast_client_cast_status_t > (status);
@@ -336,7 +337,7 @@ tizcastclient::cast_status (const uint32_t & status)
 }
 
 void
-tizcastclient::media_status (const uint32_t & status)
+tizcastclient::media_status (const uint32_t & status, const int32_t & volume)
 {
   const tiz_cast_client_media_status_t media_status
     = static_cast< tiz_cast_client_media_status_t > (status);

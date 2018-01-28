@@ -64,8 +64,8 @@ static const char *TIZ_CAST_DAEMON_PATH = "/com/aratelia/tiz/tizcastd";
 tizcastd::tizcastd (Tiz::DBus::Connection &a_connection)
   : Tiz::DBus::ObjectAdaptor (a_connection, TIZ_CAST_DAEMON_PATH),
     p_cast_mgr_ (new tiz::castmgr::mgr (
-        boost::bind (&tizcastd::cast_status, this, _1),
-        boost::bind (&tizcastd::media_status, this, _1))),
+        boost::bind (&tizcastd::cast_status, this, _1, _2),
+        boost::bind (&tizcastd::media_status, this, _1, _2))),
     cc_name_or_ip_ ()
 {
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Constructing tizcastd...");
@@ -124,9 +124,9 @@ int32_t tizcastd::pause ()
   return TIZ_CAST_SUCCESS;
 }
 
-int32_t tizcastd::volume (const int32_t & volume)
+int32_t tizcastd::volume_set (const int32_t & volume)
 {
-  p_cast_mgr_->volume (volume);
+  p_cast_mgr_->volume_set (volume);
   return TIZ_CAST_SUCCESS;
 }
 

@@ -125,7 +125,9 @@ castmgr::mgr::init ()
   tiz_check_omx_ret_oom (tiz_mutex_unlock (&mutex_));
 
   // Init this mgr's operations using the do_init template method
-  tiz_check_null_ret_oom ((p_ops_ = new ops (this, cast_cb_, media_cb_)));
+  tiz_check_null_ret_oom ((p_ops_ = new ops (this,
+                                             boost::bind (&tiz::castmgr::mgr::cast_status_received, this),
+                                             cast_cb_, media_cb_)));
 
   // Let's wait until this manager's thread is ready to receive requests
   tiz_check_omx_ret_oom (tiz_sem_wait (&sem_));
@@ -185,7 +187,7 @@ castmgr::mgr::pause ()
 }
 
 OMX_ERRORTYPE
-castmgr::mgr::volume (int volume)
+castmgr::mgr::volume_set (int volume)
 {
   return post_cmd (new castmgr::cmd (castmgr::volume_evt (volume)));
 }
@@ -228,6 +230,12 @@ OMX_ERRORTYPE
 castmgr::mgr::stop_fsm ()
 {
   return post_cmd (new castmgr::cmd (castmgr::quit_evt ()));
+}
+
+OMX_ERRORTYPE
+castmgr::mgr::cast_status_received ()
+{
+  return post_cmd (new castmgr::cmd (castmgr::cast_status_evt ()));
 }
 
 OMX_ERRORTYPE

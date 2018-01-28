@@ -29,8 +29,6 @@
 #include <config.h>
 #endif
 
-#include <boost/make_shared.hpp>
-
 #include <tizmacros.h>
 #include <tizplatform.h>
 
@@ -63,29 +61,35 @@ namespace castmgr = tiz::castmgr;
   } while (0)
 
 void castmgr::cc_cast_status_cback (void *ap_user_data,
-                                    tiz_chromecast_cast_status_t a_status)
+                                    tiz_chromecast_cast_status_t a_status,
+                                    int a_volume)
 {
   tiz::castmgr::ops *p_ops = static_cast< tiz::castmgr::ops * > (ap_user_data);
   TIZ_LOG (TIZ_PRIORITY_TRACE, "cast status [%d]", a_status);
   assert (p_ops);
-  p_ops->cast_cb_ (a_status);
+  p_ops->cast_received_cb_ ();
+  p_ops->cast_cb_ (a_status, a_volume);
 }
 
 void castmgr::cc_media_status_cback (void *ap_user_data,
-                                     tiz_chromecast_media_status_t a_status)
+                                     tiz_chromecast_media_status_t a_status,
+                                     int a_volume)
 {
-  tiz::castmgr::ops *p_ops = static_cast< tiz::castmgr::ops * > (ap_user_data);
+  tiz::castmgr::ops *p_ops
+      = static_cast< tiz::castmgr::ops * > (ap_user_data);
   TIZ_LOG (TIZ_PRIORITY_TRACE, "media status [%d]", a_status);
   assert (p_ops);
-  p_ops->media_cb_ (a_status);
+  p_ops->media_cb_ (a_status, a_volume);
 }
 
 //
 // ops
 //
-castmgr::ops::ops (mgr *p_mgr, cast_status_cback_t cast_cb,
+castmgr::ops::ops (mgr *p_mgr, cast_status_received_cback_t cast_received_cb,
+                   cast_status_cback_t cast_cb,
                    media_status_cback_t media_cb)
   : p_mgr_ (p_mgr),
+    cast_received_cb_(cast_received_cb),
     cast_cb_ (cast_cb),
     media_cb_ (media_cb),
     error_code_ (OMX_ErrorNone),

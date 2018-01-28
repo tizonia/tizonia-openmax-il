@@ -67,6 +67,7 @@ namespace tiz
   {
     static char const* const state_names[] = { "starting",
                                                "started",
+                                               "connecting",
                                                "connected",
                                                "running",
                                                "quitting",
@@ -85,6 +86,7 @@ namespace tiz
       const std::string name_or_ip_;
     };
     struct disconnect_evt {};
+    struct cast_status_evt {};
     struct load_url_evt
     {
       load_url_evt (const std::string &url,
@@ -168,6 +170,15 @@ namespace tiz
       };
 
       struct started : public boost::msm::front::state<>
+      {
+        typedef boost::mpl::vector<poll_evt, load_url_evt> deferred_events;
+        template <class Event,class FSM>
+        void on_entry(Event const&, FSM& fsm) {GMGR_FSM_LOG ();}
+        template <class Event,class FSM>
+        void on_exit(Event const&,FSM& ) {GMGR_FSM_LOG ();}
+      };
+
+      struct connecting : public boost::msm::front::state<>
       {
         typedef boost::mpl::vector<poll_evt, load_url_evt> deferred_events;
         template <class Event,class FSM>
@@ -262,6 +273,19 @@ namespace tiz
           if (fsm.pp_ops_ && *(fsm.pp_ops_))
             {
               (*(fsm.pp_ops_))->do_poll (evt.poll_time_ms_);
+            }
+        }
+      };
+
+      struct do_update_volume
+      {
+        template <class FSM,class EVT,class SourceState,class TargetState>
+        void operator()(EVT const&,FSM& fsm, SourceState& , TargetState&)
+        {
+          // GMGR_FSM_LOG ();
+          if (fsm.pp_ops_ && *(fsm.pp_ops_))
+            {
+              (*(fsm.pp_ops_))->do_update_volume ();
             }
         }
       };
@@ -428,7 +452,9 @@ namespace tiz
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
         bmf::Row < starting              , start_evt        , started     , bmf::none                                   >,
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
-        bmf::Row < started               , connect_evt      , connected   , do_connect                                  >,
+        bmf::Row < started               , connect_evt      , connecting  , do_connect                                  >,
+        //    +----+---------------------+------------------+-------------+------------------------+--------------------+
+        bmf::Row < connecting            , cast_status_evt  , connected   , bmf::none                                   >,
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
         bmf::Row < connected             , load_url_evt     , running     , do_load_url                                 >,
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+

@@ -72,7 +72,10 @@ public:
   pause (const cast_client_id_ptr_t ap_cast_clnt);
 
   int32_t
-  volume (const cast_client_id_ptr_t ap_cast_clnt, int a_volume);
+  volume_set (const cast_client_id_ptr_t ap_cast_clnt, int a_volume);
+
+  int32_t
+  volume_get (const cast_client_id_ptr_t ap_cast_clnt, int * ap_volume);
 
   int32_t
   volume_up (const cast_client_id_ptr_t ap_cast_clnt);
@@ -95,8 +98,8 @@ private:
   unregister_client (const cast_client_id_ptr_t ap_cast_clnt);
 
   // DBUS Signals
-  void cast_status(const uint32_t& status);
-  void media_status(const uint32_t& status);
+  void cast_status(const uint32_t& status, const int32_t& volume);
+  void media_status(const uint32_t& status, const int32_t& volume);
 
 private:
   struct client_data
@@ -156,7 +159,7 @@ private:
   using com::aratelia::tiz::tizcastif_proxy::play;
   using com::aratelia::tiz::tizcastif_proxy::stop;
   using com::aratelia::tiz::tizcastif_proxy::unmute;
-  using com::aratelia::tiz::tizcastif_proxy::volume;
+  using com::aratelia::tiz::tizcastif_proxy::volume_set;
   using com::aratelia::tiz::tizcastif_proxy::volume_down;
   using com::aratelia::tiz::tizcastif_proxy::volume_up;
 

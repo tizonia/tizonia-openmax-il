@@ -51,7 +51,7 @@
       <arg type="i" name="retcode" direction="out"/>
     </method>
 
-    <method name="volume">
+    <method name="volume_set">
       <arg type="i" name="volume" direction="in"/>
       <arg type="i" name="retcode" direction="out"/>
     </method>
@@ -74,10 +74,12 @@
 
     <signal name="cast_status">
       <arg name="status" type="u"/>
+      <arg name="volume" type="i"/>
     </signal>
 
     <signal name="media_status">
       <arg name="status" type="u"/>
+      <arg name="volume" type="i"/>
     </signal>
 
   </interface>

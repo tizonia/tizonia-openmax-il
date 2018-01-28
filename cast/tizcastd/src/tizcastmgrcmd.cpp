@@ -81,19 +81,20 @@ void castmgr::cmd::inject (fsm& machine) const
   else INJECT_EVENT (quit_evt)
     else INJECT_EVENT (connect_evt)
       else INJECT_EVENT (disconnect_evt)
-        else INJECT_EVENT (load_url_evt)
-          else INJECT_EVENT (play_evt)
-            else INJECT_EVENT (stop_evt)
-              else INJECT_EVENT (pause_evt)
-                else INJECT_EVENT (volume_evt)
-                  else INJECT_EVENT (volume_up_evt)
-                    else INJECT_EVENT (volume_down_evt)
-                      else INJECT_EVENT (mute_evt)
-                        else INJECT_EVENT (unmute_evt)
-                          else INJECT_EVENT (poll_evt)
-                            else INJECT_EVENT (err_evt)
-                              else
-                                {
-                                  assert (0);
-                                }
+        else INJECT_EVENT (cast_status_evt)
+          else INJECT_EVENT (load_url_evt)
+            else INJECT_EVENT (play_evt)
+              else INJECT_EVENT (stop_evt)
+                else INJECT_EVENT (pause_evt)
+                  else INJECT_EVENT (volume_evt)
+                    else INJECT_EVENT (volume_up_evt)
+                      else INJECT_EVENT (volume_down_evt)
+                        else INJECT_EVENT (mute_evt)
+                          else INJECT_EVENT (unmute_evt)
+                            else INJECT_EVENT (poll_evt)
+                              else INJECT_EVENT (err_evt)
+                                else
+                                  {
+                                    assert (0);
+                                  }
 }

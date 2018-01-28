@@ -45,22 +45,22 @@
 /* Object path, a.k.a. node */
 #define TIZ_CAST_DAEMON_PATH "/com/aratelia/tiz/tizcastd"
 
-enum tiz_cast_state
+enum tiz_cast_client_state
 {
   ETIZCastStateInvalid = 0,
   ETIZCastStateStarting,
   ETIZCastStateStarted,
   ETIZCastStateStopped
 };
-typedef enum tiz_cast_state tiz_cast_state_t;
+typedef enum tiz_cast_client_state tiz_cast_client_state_t;
 
-struct tiz_cast_global
+struct tiz_cast_client_global
 {
   tiz_thread_t thread;
   tiz_sem_t sem;
   tiz_queue_t * p_queue;
   tiz_cast_error_t error;
-  tiz_cast_state_t state;
+  tiz_cast_client_state_t state;
   OMX_S32 ref_count;
   Tiz::DBus::DefaultTimeout * p_dbustimeout;
   Tiz::DBus::BusDispatcher * p_dispatcher;
@@ -68,7 +68,7 @@ struct tiz_cast_global
   tizcastclient * p_client;
 };
 
-typedef struct tiz_cast_global tiz_cast_global_t;
+typedef struct tiz_cast_client_global tiz_cast_client_global_t;
 
 struct tiz_cast
 {
@@ -77,13 +77,13 @@ struct tiz_cast
 
 typedef tizcastclient::cast_client_id_ptr_t cast_client_id_ptr_t;
 
-static inline tiz_cast_global_t *
+static inline tiz_cast_client_global_t *
 get_global ();
 
 static void *
 cast_client_thread_func (void * p_arg)
 {
-  tiz_cast_global_t * p_cast = (tiz_cast_global_t *) (p_arg);
+  tiz_cast_client_global_t * p_cast = (tiz_cast_client_global_t *) (p_arg);
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "p_cast [%08X]", p_cast);
 
@@ -100,10 +100,10 @@ cast_client_thread_func (void * p_arg)
   return NULL;
 }
 
-static inline tiz_cast_global_t *
+static inline tiz_cast_client_global_t *
 get_global ()
 {
-  static tiz_cast_global_t * p_cast = NULL;
+  static tiz_cast_client_global_t * p_cast = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   /* For now, don't bother about thread safety of initialization of this */
@@ -113,7 +113,7 @@ get_global ()
   if (!p_cast)
     {
       p_cast
-        = (tiz_cast_global_t *) tiz_mem_calloc (1, sizeof (tiz_cast_global_t));
+        = (tiz_cast_client_global_t *) tiz_mem_calloc (1, sizeof (tiz_cast_client_global_t));
 
       if (!p_cast)
         {
@@ -121,7 +121,7 @@ get_global ()
           return NULL;
         }
 
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "Initializing rm [%p]...", p_cast);
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "Initializing the cast client [%p]...", p_cast);
 
       p_cast->p_client = NULL;
 
@@ -152,7 +152,7 @@ get_global ()
 static tiz_cast_error_t
 stop_client ()
 {
-  tiz_cast_global_t * p_cast = get_global ();
+  tiz_cast_client_global_t * p_cast = get_global ();
   OMX_PTR p_result = NULL;
   assert (p_cast);
 
@@ -173,7 +173,7 @@ stop_client ()
   p_cast->p_queue = NULL;
   tiz_sem_destroy (&(p_cast->sem));
 
-  /* NOTE: Do not free the tiz_cast_global_t structure. This will be reused in case
+  /* NOTE: Do not free the tiz_cast_client_global_t structure. This will be reused in case
      the client is re-initialized */
   /* tiz_mem_free(p_cast); */
 
@@ -188,7 +188,7 @@ tiz_cast_client_init (tiz_cast_ptr_t * app_cast,
                       OMX_PTR ap_data)
 {
   tiz_cast_error_t rc = TIZ_CAST_SUCCESS;
-  tiz_cast_global_t * p_global = NULL;
+  tiz_cast_client_global_t * p_global = NULL;
   assert (app_cast);
   assert (ap_device_name_or_ip);
   assert (ap_uuid);
@@ -245,7 +245,7 @@ extern "C" tiz_cast_error_t
 tiz_cast_client_destroy (tiz_cast_t * ap_cast)
 {
   tiz_cast_error_t rc = TIZ_CAST_SUCCESS;
-  tiz_cast_global_t * p_cast = NULL;
+  tiz_cast_client_global_t * p_cast = NULL;
 
   if (!ap_cast)
     {
@@ -283,9 +283,9 @@ tiz_cast_client_destroy (tiz_cast_t * ap_cast)
 }
 
 extern "C" OMX_S32
-tiz_cast_client_version (const tiz_cast_t * ap_cast)
+tiz_cast_client_get_version (const tiz_cast_t * ap_cast)
 {
-  tiz_cast_global_t * p_cast = NULL;
+  tiz_cast_client_global_t * p_cast = NULL;
   if (!ap_cast)
     {
       return TIZ_CAST_MISUSE;
@@ -299,7 +299,7 @@ extern "C" tiz_cast_error_t
 tiz_cast_client_load_url (const tiz_cast_t * ap_cast, const char * url,
                           const char * mime_type, const char * title)
 {
-  tiz_cast_global_t * p_cast = NULL;
+  tiz_cast_client_global_t * p_cast = NULL;
   if (!ap_cast)
     {
       return TIZ_CAST_MISUSE;
@@ -314,7 +314,7 @@ tiz_cast_client_load_url (const tiz_cast_t * ap_cast, const char * url,
 extern "C" tiz_cast_error_t
 tiz_cast_client_play (const tiz_cast_t * ap_cast)
 {
-  tiz_cast_global_t * p_cast = NULL;
+  tiz_cast_client_global_t * p_cast = NULL;
   if (!ap_cast)
     {
       return TIZ_CAST_MISUSE;
@@ -329,7 +329,7 @@ tiz_cast_client_play (const tiz_cast_t * ap_cast)
 extern "C" tiz_cast_error_t
 tiz_cast_client_stop (const tiz_cast_t * ap_cast)
 {
-  tiz_cast_global_t * p_cast = NULL;
+  tiz_cast_client_global_t * p_cast = NULL;
   if (!ap_cast)
     {
       return TIZ_CAST_MISUSE;
@@ -346,7 +346,7 @@ tiz_cast_client_stop (const tiz_cast_t * ap_cast)
 extern "C" tiz_cast_error_t
 tiz_cast_client_pause (const tiz_cast_t * ap_cast)
 {
-  tiz_cast_global_t * p_cast = NULL;
+  tiz_cast_client_global_t * p_cast = NULL;
   if (!ap_cast)
     {
       return TIZ_CAST_MISUSE;
@@ -361,9 +361,9 @@ tiz_cast_client_pause (const tiz_cast_t * ap_cast)
 }
 
 extern "C" tiz_cast_error_t
-tiz_cast_client_volume (const tiz_cast_t * ap_cast, int a_volume)
+tiz_cast_client_volume_set (const tiz_cast_t * ap_cast, int a_volume)
 {
-  tiz_cast_global_t * p_cast = NULL;
+  tiz_cast_client_global_t * p_cast = NULL;
   if (!ap_cast || a_volume > 100 || a_volume < 0)
     {
       return TIZ_CAST_MISUSE;
@@ -372,15 +372,15 @@ tiz_cast_client_volume (const tiz_cast_t * ap_cast, int a_volume)
   p_cast = get_global ();
   assert (p_cast);
 
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "tiz_cast_client_volume");
-  return (tiz_cast_error_t) p_cast->p_client->volume (
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "tiz_cast_client_volume_set");
+  return (tiz_cast_error_t) p_cast->p_client->volume_set (
     (cast_client_id_ptr_t) ap_cast, a_volume);
 }
 
 extern "C" tiz_cast_error_t
 tiz_cast_client_volume_up (const tiz_cast_t * ap_cast)
 {
-  tiz_cast_global_t * p_cast = NULL;
+  tiz_cast_client_global_t * p_cast = NULL;
   if (!ap_cast)
     {
       return TIZ_CAST_MISUSE;
@@ -397,7 +397,7 @@ tiz_cast_client_volume_up (const tiz_cast_t * ap_cast)
 extern "C" tiz_cast_error_t
 tiz_cast_client_volume_down (const tiz_cast_t * ap_cast)
 {
-  tiz_cast_global_t * p_cast = NULL;
+  tiz_cast_client_global_t * p_cast = NULL;
   if (!ap_cast)
     {
       return TIZ_CAST_MISUSE;
@@ -414,7 +414,7 @@ tiz_cast_client_volume_down (const tiz_cast_t * ap_cast)
 extern "C" tiz_cast_error_t
 tiz_cast_client_mute (const tiz_cast_t * ap_cast)
 {
-  tiz_cast_global_t * p_cast = NULL;
+  tiz_cast_client_global_t * p_cast = NULL;
   if (!ap_cast)
     {
       return TIZ_CAST_MISUSE;
@@ -431,7 +431,7 @@ tiz_cast_client_mute (const tiz_cast_t * ap_cast)
 extern "C" tiz_cast_error_t
 tiz_cast_client_unmute (const tiz_cast_t * ap_cast)
 {
-  tiz_cast_global_t * p_cast = NULL;
+  tiz_cast_client_global_t * p_cast = NULL;
   if (!ap_cast)
     {
       return TIZ_CAST_MISUSE;

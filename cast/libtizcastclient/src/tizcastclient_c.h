@@ -58,7 +58,7 @@ tiz_cast_error_t
 tiz_cast_client_destroy (tiz_cast_t * ap_cast);
 
 OMX_S32
-tiz_cast_client_version (const tiz_cast_t * ap_cast);
+tiz_cast_client_get_version (const tiz_cast_t * ap_cast);
 
 tiz_cast_error_t
 tiz_cast_client_load_url (const tiz_cast_t * ap_cast, const char * url,
@@ -74,7 +74,7 @@ tiz_cast_error_t
 tiz_cast_client_pause (const tiz_cast_t * ap_cast);
 
 tiz_cast_error_t
-tiz_cast_client_volume (const tiz_cast_t * ap_cast, int a_volume);
+tiz_cast_client_volume_set (const tiz_cast_t * ap_cast, int a_volume);
 
 tiz_cast_error_t
 tiz_cast_client_volume_up (const tiz_cast_t * ap_cast);

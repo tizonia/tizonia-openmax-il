@@ -60,7 +60,7 @@ namespace boost
     }
   }
 }  // namespace boost::python::detail
-  // ============================================================================
+   // ============================================================================
 
 #include <boost/python.hpp>
 
@@ -94,8 +94,8 @@ public:
   int media_mute ();
   int media_unmute ();
 
-  void new_cast_status (const std::string &);
-  void new_media_status (const std::string &);
+  void new_cast_status (const std::string &, const float &);
+  void new_media_status (const std::string &, const int &);
 
 private:
   std::string name_or_ip_;

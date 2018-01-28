@@ -45,11 +45,12 @@ namespace tiz
   {
     // Forward declarations
     class mgr;
-    void cc_cast_status_cback (void *ap_user_data,
-                               tiz_chromecast_cast_status_t a_status);
 
-    void cc_media_status_cback (void *ap_user_data,
-                                tiz_chromecast_media_status_t a_status);
+    void cc_volume_cback (void *, int);
+
+    void cc_cast_status_cback (void *, tiz_chromecast_cast_status_t, int);
+
+    void cc_media_status_cback (void *, tiz_chromecast_media_status_t, int);
 
     /**
      *  @class ops
@@ -58,16 +59,16 @@ namespace tiz
      */
     class ops
     {
-      friend void cc_cast_status_cback (void *, tiz_chromecast_cast_status_t);
+      friend void cc_cast_status_cback (void *, tiz_chromecast_cast_status_t, int);
 
-      friend void cc_media_status_cback (void *, tiz_chromecast_media_status_t);
+      friend void cc_media_status_cback (void *, tiz_chromecast_media_status_t, int);
 
     public:
       typedef boost::function< void(OMX_ERRORTYPE, std::string) >
           termination_callback_t;
 
     public:
-      ops (mgr *p_mgr, cast_status_cback_t cast_cb,
+      ops (mgr *p_mgr, cast_status_received_cback_t, cast_status_cback_t cast_cb,
            media_status_cback_t media_cb);
       virtual ~ops ();
 
@@ -95,6 +96,7 @@ namespace tiz
 
     private:
       mgr *p_mgr_;  // Not owned
+      cast_status_received_cback_t cast_received_cb_;
       cast_status_cback_t cast_cb_;
       media_status_cback_t media_cb_;
       // termination_callback_t termination_cback_;

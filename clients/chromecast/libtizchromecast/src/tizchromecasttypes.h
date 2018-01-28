@@ -47,7 +47,7 @@ typedef enum tiz_chromecast_cast_status {
  * @param a_status The 'cast' status.
  */
 typedef void (*tiz_chromecast_cast_status_cb_f) (
-    void *ap_user_data, tiz_chromecast_cast_status_t a_status);
+    void *ap_user_data, tiz_chromecast_cast_status_t a_status, int a_volume);
 
 typedef enum tiz_chromecast_media_status {
   ETizCcMediaStatusUnknown,
@@ -65,7 +65,7 @@ typedef enum tiz_chromecast_media_status {
  * @param a_status The 'media' status.
  */
 typedef void (*tiz_chromecast_media_status_cb_f) (
-    void *ap_user_data, tiz_chromecast_media_status_t a_status);
+    void *ap_user_data, tiz_chromecast_media_status_t a_status, int a_volume);
 
 typedef struct tiz_chromecast_callbacks
 {
