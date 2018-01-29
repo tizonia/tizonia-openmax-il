@@ -40,6 +40,7 @@
 
 #include <string.h>
 #include <string>
+#include <vector>
 
 #include <dbus-c++/dbus.h>
 
@@ -71,14 +72,15 @@ public:
    *
    * @return A tiz_cast_error_t error code
    */
-  int32_t connect (const std::string &name_or_ip);
+  int32_t connect (const std::vector< uint8_t > &uuid,
+                   const std::string &name_or_ip);
 
   /**
    * @brief Disconnect an existing connection to a Chromecast device.
    *
    * @return A tiz_cast_error_t error code
    */
-  int32_t disconnect ();
+  int32_t disconnect (const std::vector< uint8_t > &uuid);
 
   /**
    * @brief Load a stream URL on a Chromecast device.
@@ -89,29 +91,29 @@ public:
    *
    * @return A tiz_cast_error_t error code
    */
-  int32_t load_url (const std::string &url, const std::string &mime_type,
-                    const std::string &title);
+  int32_t load_url (const std::vector< uint8_t > &uuid, const std::string &url,
+                    const std::string &mime_type, const std::string &title);
 
   /**
    * @brief Play a previously loaded stream URL.
    *
    * @return A tiz_cast_error_t error code
    */
-  int32_t play ();
+  int32_t play (const std::vector< uint8_t > &uuid);
 
   /**
    * @brief Stop the stream.
    *
    * @return A tiz_cast_error_t error code
    */
-  int32_t stop ();
+  int32_t stop (const std::vector< uint8_t > &uuid);
 
   /**
    * @brief Pause the stream.
    *
    * @return A tiz_cast_error_t error code
    */
-  int32_t pause ();
+  int32_t pause (const std::vector< uint8_t > &uuid);
 
   /**
    * @brief Increase the playback volume.
@@ -120,39 +122,86 @@ public:
    *
    * @return A tiz_cast_error_t error code
    */
-  int32_t volume_set (const int32_t & volume);
+  int32_t volume_set (const std::vector< uint8_t > &uuid,
+                      const int32_t &volume);
 
   /**
    * @brief Increase the playback volume.
    *
    * @return A tiz_cast_error_t error code
    */
-  int32_t volume_up ();
+  int32_t volume_up (const std::vector< uint8_t > &uuid);
 
   /**
    * @brief Decrease the playback volume.
    *
    * @return A tiz_cast_error_t error code
    */
-  int32_t volume_down ();
+  int32_t volume_down (const std::vector< uint8_t > &uuid);
 
   /**
    * @brief Mute playback.
    *
    * @return A tiz_cast_error_t error code
    */
-  int32_t mute ();
+  int32_t mute (const std::vector< uint8_t > &uuid);
 
   /**
    * @brief Unmute playback.
    *
    * @return A tiz_cast_error_t error code
    */
-  int32_t unmute ();
+  int32_t unmute (const std::vector< uint8_t > &uuid);
+
+  void cast_status_forwarder (const std::string &name_or_ip,
+                              const uint32_t &status, const int32_t &volume);
+
+  void media_status_forwarder (const std::string &name_or_ip,
+                               const uint32_t &status, const int32_t &volume);
 
 private:
-  tiz::castmgr::mgr *p_cast_mgr_;
-  std::string cc_name_or_ip_;
+  struct device_info
+  {
+    device_info () : name_or_ip_ (), client_uuid_ (), p_cast_mgr_ (NULL)
+    {
+    }
+
+    device_info (const std::string &name_or_ip,
+                 std::vector< unsigned char > client_uuid,
+                 tiz::castmgr::mgr *p_cast_mgr)
+      : name_or_ip_ (name_or_ip),
+        client_uuid_ (client_uuid),
+        p_cast_mgr_ (p_cast_mgr)
+    {
+    }
+
+    bool operator< (const device_info &rhs) const
+    {
+      return (client_uuid_ < rhs.client_uuid_);
+    }
+
+    bool operator== (const device_info &rhs) const
+    {
+      return (client_uuid_ == rhs.client_uuid_);
+    }
+
+    // Data members
+    std::string name_or_ip_;
+    std::vector< unsigned char > client_uuid_;
+    tiz::castmgr::mgr *p_cast_mgr_;  // Not owned
+  };
+
+private:
+  typedef std::string device_name_or_ip_t;
+  typedef std::map< device_name_or_ip_t, device_info > devices_map_t;
+  typedef std::pair< device_name_or_ip_t, device_info > devices_pair_t;
+
+private:
+  tiz::castmgr::mgr * get_mgr (std::vector< unsigned char > client_uuid);
+  void dispose_mgr (tiz::castmgr::mgr * p_mgr);
+
+private:
+  devices_map_t devices_;
 };
 
 #endif  // TIZCASTD_HPP

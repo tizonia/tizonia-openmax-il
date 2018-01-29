@@ -24,15 +24,18 @@
     <property name="version" type="i" access="read"/>
 
     <method name="connect">
+      <arg type="ay" name="uuid" direction="in"/>
       <arg type="s" name="name_or_ip" direction="in"/>
       <arg type="i" name="retcode" direction="out"/>
     </method>
 
     <method name="disconnect">
+      <arg type="ay" name="uuid" direction="in"/>
       <arg type="i" name="retcode" direction="out"/>
     </method>
 
     <method name="load_url">
+      <arg type="ay" name="uuid" direction="in"/>
       <arg type="s" name="url" direction="in"/>
       <arg type="s" name="mime_type" direction="in"/>
       <arg type="s" name="title" direction="in"/>
@@ -40,44 +43,54 @@
     </method>
 
     <method name="play">
+      <arg type="ay" name="uuid" direction="in"/>
       <arg type="i" name="retcode" direction="out"/>
     </method>
 
     <method name="stop">
+      <arg type="ay" name="uuid" direction="in"/>
       <arg type="i" name="retcode" direction="out"/>
     </method>
 
     <method name="pause">
+      <arg type="ay" name="uuid" direction="in"/>
       <arg type="i" name="retcode" direction="out"/>
     </method>
 
     <method name="volume_set">
+      <arg type="ay" name="uuid" direction="in"/>
       <arg type="i" name="volume" direction="in"/>
       <arg type="i" name="retcode" direction="out"/>
     </method>
 
     <method name="volume_up">
+      <arg type="ay" name="uuid" direction="in"/>
       <arg type="i" name="retcode" direction="out"/>
     </method>
 
     <method name="volume_down">
+      <arg type="ay" name="uuid" direction="in"/>
       <arg type="i" name="retcode" direction="out"/>
     </method>
 
     <method name="mute">
+      <arg type="ay" name="uuid" direction="in"/>
       <arg type="i" name="retcode" direction="out"/>
     </method>
 
     <method name="unmute">
+      <arg type="ay" name="uuid" direction="in"/>
       <arg type="i" name="retcode" direction="out"/>
     </method>
 
     <signal name="cast_status">
+      <arg type="ay" name="uuid"/>
       <arg name="status" type="u"/>
       <arg name="volume" type="i"/>
     </signal>
 
     <signal name="media_status">
+      <arg type="ay" name="uuid"/>
       <arg name="status" type="u"/>
       <arg name="volume" type="i"/>
     </signal>

@@ -59,7 +59,7 @@
 
 typedef struct cc_status_event_data
 {
-  int status;
+  unsigned int status;
   int volume;
 } cc_status_event_data_t;
 
@@ -79,6 +79,8 @@ static OMX_ERRORTYPE
 obtain_next_url (cc_gmusic_prc_t * ap_prc, int a_skip_value);
 static OMX_ERRORTYPE
 load_next_url (cc_gmusic_prc_t * p_prc);
+static OMX_ERRORTYPE
+update_chromecast_status (cc_gmusic_prc_t * ap_prc);
 
 #define on_gmusic_error_ret_omx_oom(expr)                                    \
   do                                                                         \
@@ -110,7 +112,7 @@ load_next_url (cc_gmusic_prc_t * p_prc);
 
 static void
 post_chromecast_event (cc_gmusic_prc_t * ap_prc,
-                       tiz_event_pluggable_hdlr_f apf_hdlr, int a_status,
+                       tiz_event_pluggable_hdlr_f apf_hdlr, unsigned int a_status,
                        int a_volume)
 {
   tiz_event_pluggable_t * p_event = NULL;
@@ -125,7 +127,7 @@ post_chromecast_event (cc_gmusic_prc_t * ap_prc,
       p_event->p_servant = ap_prc;
       p_event->pf_hdlr = apf_hdlr;
       p_status->status = a_status;
-      p_status->status = a_volume;
+      p_status->volume = a_volume;
       p_event->p_data = p_status;
       tiz_comp_event_pluggable (handleOf (ap_prc), p_event);
     }
@@ -142,12 +144,22 @@ cast_status_handler (OMX_PTR ap_prc, tiz_event_pluggable_t * ap_event)
   cc_gmusic_prc_t * p_prc = ap_prc;
   cc_status_event_data_t * p_event_data = NULL;
   tiz_cast_client_cast_status_t status = ETizCcCastStatusUnknown;
+  int volume = 0;
+  bool need_status_update = false;
+
   assert (p_prc);
   assert (ap_event);
   assert (ap_event->p_data);
+
   p_event_data = ap_event->p_data;
-  status = (tiz_cast_client_cast_status_t) p_event_data->status;
-  TIZ_DEBUG (handleOf (p_prc), "status [%u]", status);
+  status = p_event_data->status;
+  volume = p_event_data->volume;
+
+  TIZ_DEBUG (handleOf (p_prc), "current status [%s] current volume [%d]",
+             tiz_cast_client_cast_status_str (p_prc->cc_cast_status_),
+             p_prc->volume_);
+  TIZ_DEBUG (handleOf (p_prc), "new status [%s] new volume [%d]",
+             tiz_cast_client_cast_status_str (status), volume);
 
   if (ETizCcCastStatusNowCasting == p_prc->cc_cast_status_
       && ETizCcCastStatusReadyToCast == status)
@@ -158,7 +170,18 @@ cast_status_handler (OMX_PTR ap_prc, tiz_event_pluggable_t * ap_event)
       (void) load_next_url (p_prc);
     }
 
+  if ((p_prc->cc_cast_status_ != status) || (volume != p_prc->volume_))
+    {
+      need_status_update = true;
+    }
+
   p_prc->cc_cast_status_ = status;
+  p_prc->volume_ = p_event_data->volume;
+  if (need_status_update)
+    {
+      update_chromecast_status(p_prc);
+    }
+
   tiz_mem_free (ap_event->p_data);
   tiz_mem_free (ap_event);
 }
@@ -169,8 +192,7 @@ cc_cast_status_cback (void * ap_user_data,
 {
   cc_gmusic_prc_t * p_prc = ap_user_data;
   assert (p_prc);
-  TIZ_DEBUG (handleOf (p_prc), "status [%d]", a_status);
-  post_chromecast_event (p_prc, cast_status_handler, (int) a_status, a_volume);
+  post_chromecast_event (p_prc, cast_status_handler, a_status, a_volume);
 }
 
 static void
@@ -179,13 +201,22 @@ media_status_handler (OMX_PTR ap_prc, tiz_event_pluggable_t * ap_event)
   cc_gmusic_prc_t * p_prc = ap_prc;
   cc_status_event_data_t * p_event_data = NULL;
   tiz_cast_client_media_status_t status = ETizCcMediaStatusUnknown;
+
   assert (p_prc);
   assert (ap_event);
   assert (ap_event->p_data);
+
   p_event_data = ap_event->p_data;
   status = (tiz_cast_client_media_status_t) p_event_data->status;
-  TIZ_DEBUG (handleOf (p_prc), "status [%u]", status);
-  p_prc->cc_media_status_ = status;
+  TIZ_DEBUG (handleOf (p_prc), "status [%s]",
+             tiz_cast_client_media_status_str (status));
+
+  if (p_prc->cc_media_status_ != status)
+    {
+      p_prc->cc_media_status_ = status;
+      update_chromecast_status(p_prc);
+    }
+
   tiz_mem_free (ap_event->p_data);
   tiz_mem_free (ap_event);
 }
@@ -196,7 +227,7 @@ cc_media_status_cback (void * ap_user_data,
 {
   cc_gmusic_prc_t * p_prc = ap_user_data;
   assert (p_prc);
-  post_chromecast_event (p_prc, media_status_handler, (int) a_status, a_volume);
+  post_chromecast_event (p_prc, media_status_handler, a_status, a_volume);
 }
 
 static OMX_ERRORTYPE
@@ -334,6 +365,39 @@ update_metadata (cc_gmusic_prc_t * ap_prc)
       {
         tiz_check_omx (store_metadata (ap_prc, "Total tracks", p_total_tracks));
       }
+  }
+
+  /* Signal that a new set of metatadata items is available */
+  (void) tiz_srv_issue_event ((OMX_PTR) ap_prc, OMX_EventIndexSettingChanged,
+                              OMX_ALL, /* no particular port associated */
+                              OMX_IndexConfigMetadataItem, /* index of the
+                                                             struct that has
+                                                             been modififed */
+                              NULL);
+  return OMX_ErrorNone;
+}
+
+static OMX_ERRORTYPE
+update_chromecast_status (cc_gmusic_prc_t * ap_prc)
+{
+  assert (ap_prc);
+
+  TIZ_DEBUG (handleOf (ap_prc), "update_chromecast_status");
+
+  /* Clear previous metatada items */
+  tiz_krn_clear_metadata (tiz_get_krn (handleOf (ap_prc)));
+
+  /* Artist and song title */
+  {
+    char cast_name_or_ip[OMX_MAX_STRINGNAME_SIZE];
+    char status_line[OMX_MAX_STRINGNAME_SIZE];
+    snprintf (cast_name_or_ip, OMX_MAX_STRINGNAME_SIZE, "  %s",
+              (char *) ap_prc->cc_session_.cNameOrIpAddr);
+    snprintf (status_line, OMX_MAX_STRINGNAME_SIZE, "(CC:%s) (Media:%s) (Vol:%ld)",
+              tiz_cast_client_cast_status_str (ap_prc->cc_cast_status_),
+              tiz_cast_client_media_status_str (ap_prc->cc_media_status_),
+              ap_prc->volume_);
+    tiz_check_omx (store_metadata (ap_prc, cast_name_or_ip, status_line));
   }
 
   /* Signal that a new set of metatadata items is available */
@@ -690,9 +754,6 @@ cc_gmusic_prc_prepare_to_transfer (void * ap_prc, OMX_U32 a_pid)
       on_cc_error_ret_omx_oom (tiz_cast_client_init (
         &(p_prc->p_cc_), (const char *) p_prc->cc_session_.cNameOrIpAddr,
         &(p_prc->cc_uuid_), &cast_cbacks, p_prc));
-      /* Set initial volume */
-      on_cc_error_ret_omx_oom (
-        tiz_cast_client_volume_set (p_prc->p_cc_, p_prc->volume_));
     }
   return OMX_ErrorNone;
 }

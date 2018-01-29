@@ -71,8 +71,8 @@ namespace tiz
                                                "connected",
                                                "running",
                                                "quitting",
-                                               "polling",
-                                               "quitted"};
+                                               "quitted",
+                                               "polling"};
 
     // main fsm events
     struct start_evt {};
@@ -171,7 +171,7 @@ namespace tiz
 
       struct started : public boost::msm::front::state<>
       {
-        typedef boost::mpl::vector<poll_evt, load_url_evt> deferred_events;
+        typedef boost::mpl::vector<cast_status_evt, load_url_evt, volume_evt> deferred_events;
         template <class Event,class FSM>
         void on_entry(Event const&, FSM& fsm) {GMGR_FSM_LOG ();}
         template <class Event,class FSM>
@@ -180,7 +180,7 @@ namespace tiz
 
       struct connecting : public boost::msm::front::state<>
       {
-        typedef boost::mpl::vector<poll_evt, load_url_evt> deferred_events;
+        typedef boost::mpl::vector<load_url_evt, volume_evt> deferred_events;
         template <class Event,class FSM>
         void on_entry(Event const&, FSM& fsm) {GMGR_FSM_LOG ();}
         template <class Event,class FSM>
@@ -189,7 +189,7 @@ namespace tiz
 
       struct connected : public boost::msm::front::state<>
       {
-        typedef boost::mpl::vector<poll_evt> deferred_events;
+        typedef boost::mpl::vector<volume_evt> deferred_events;
         template <class Event,class FSM>
         void on_entry(Event const&, FSM& fsm) {GMGR_FSM_LOG ();}
         template <class Event,class FSM>
@@ -455,8 +455,10 @@ namespace tiz
         bmf::Row < started               , connect_evt      , connecting  , do_connect                                  >,
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
         bmf::Row < connecting            , cast_status_evt  , connected   , bmf::none                                   >,
+        bmf::Row < connecting            , poll_evt         , bmf::none   , do_poll                                     >,
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
         bmf::Row < connected             , load_url_evt     , running     , do_load_url                                 >,
+        bmf::Row < connected             , poll_evt         , bmf::none   , do_poll                                     >,
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
         bmf::Row < running               , load_url_evt     , bmf::none   , do_load_url                                 >,
         bmf::Row < running               , play_evt         , bmf::none   , do_play                                     >,
@@ -468,11 +470,14 @@ namespace tiz
         bmf::Row < running               , mute_evt         , bmf::none   , do_mute                                     >,
         bmf::Row < running               , unmute_evt       , bmf::none   , do_unmute                                   >,
         bmf::Row < running               , quit_evt         , quitting    , do_disconnect                               >,
+        bmf::Row < running               , poll_evt         , bmf::none   , do_poll                                     >,
         bmf::Row < running               , err_evt          , bmf::none   , bmf::none              , bmf::euml::Not_<
                                                                                                         is_fatal_error> >,
         bmf::Row < running               , err_evt          , quitted     , do_report_fatal_error  , is_fatal_error     >,
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
         bmf::Row < quitting              , bmf::none        , quitted     , bmf::none                                   >,
+        //    +----+---------------------+------------------+-------------+------------------------+--------------------+
+        bmf::Row < quitted               , connect_evt      , connecting  , do_connect                                  >,
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
         bmf::Row < polling               , poll_evt         , bmf::none   , do_poll                                     >
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+

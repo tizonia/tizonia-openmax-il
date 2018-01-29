@@ -88,6 +88,12 @@ tiz_cast_client_mute (const tiz_cast_t * ap_cast);
 tiz_cast_error_t
 tiz_cast_client_unmute (const tiz_cast_t * ap_cast);
 
+const char *
+tiz_cast_client_cast_status_str (const tiz_cast_client_cast_status_t status);
+
+const char *
+tiz_cast_client_media_status_str (const tiz_cast_client_media_status_t status);
+
 #ifdef __cplusplus
 }
 #endif

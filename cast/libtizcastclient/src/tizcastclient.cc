@@ -31,6 +31,8 @@
 
 #include <utility>
 
+#include <boost/foreach.hpp>
+
 #include "tizcasttypes.h"
 #include "tizcastclient.hh"
 #include "tizplatform.h"
@@ -64,9 +66,8 @@ tizcastclient::connect (const char * ap_device_name_or_ip, const uint8_t uuid[],
     {
       try
         {
-          //         client_data & clnt = clients_[*p_uuid_vec];
           rc = com::aratelia::tiz::tizcastif_proxy::connect (
-            ap_device_name_or_ip);
+            *client_id, ap_device_name_or_ip);
         }
       catch (Tiz::DBus::Error const & e)
         {
@@ -122,8 +123,8 @@ tizcastclient::load_url (const cast_client_id_ptr_t ap_cast_clnt,
       try
         {
           //         client_data & clnt = clients_[*ap_cast_clnt];
-          rc = com::aratelia::tiz::tizcastif_proxy::load_url (url, mime_type,
-                                                              title);
+          rc = com::aratelia::tiz::tizcastif_proxy::load_url (
+            *ap_cast_clnt, url, mime_type, title);
         }
       catch (Tiz::DBus::Error const & e)
         {
@@ -182,8 +183,8 @@ tizcastclient::volume_set (const cast_client_id_ptr_t ap_cast_clnt,
     {
       try
         {
-          //         client_data & clnt = clients_[*ap_cast_clnt];
-          rc = com::aratelia::tiz::tizcastif_proxy::volume_set (a_volume);
+          rc = com::aratelia::tiz::tizcastif_proxy::volume_set (*ap_cast_clnt,
+                                                                a_volume);
         }
       catch (Tiz::DBus::Error const & e)
         {
@@ -264,8 +265,8 @@ tizcastclient::register_client (const char * ap_device_name_or_ip,
                ap_device_name_or_ip, uuid_str);
       return (const cast_client_id_ptr_t) & (rv.first->first);
     }
-  TIZ_LOG (TIZ_PRIORITY_ERROR, "Unable to register the clientwith uuid [%s]...",
-           uuid_str);
+  TIZ_LOG (TIZ_PRIORITY_ERROR,
+           "Unable to register the client with uuid [%s]...", uuid_str);
   return NULL;
 }
 
@@ -294,7 +295,8 @@ tizcastclient::unregister_client (const cast_client_id_ptr_t ap_cast_clnt)
 }
 
 void
-tizcastclient::cast_status (const uint32_t & status, const int32_t & volume)
+tizcastclient::cast_status (const std::vector< uint8_t > & uuid,
+                            const uint32_t & status, const int32_t & volume)
 {
   const tiz_cast_client_cast_status_t cast_status
     = static_cast< tiz_cast_client_cast_status_t > (status);
@@ -324,20 +326,31 @@ tizcastclient::cast_status (const uint32_t & status, const int32_t & volume)
         }
         break;
     }
-  //   if (clients_.count (uuid))
-  //     {
-  //       uint32_t res = rid;
-  //       client_data &data = clients_[uuid];
 
-  //       TIZ_LOG (TIZ_PRIORITY_TRACE, "wait_complete on component  [%s]...",
-  //                data.cname_.c_str ());
+  char uuid_str[128];
+  tiz_uuid_str (&(uuid[0]), uuid_str);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "cast status received for uuid [%s]", uuid_str);
 
-  //       data.pf_waitend_ (res, data.p_data_);
-  //     }
+  typedef std::pair< const std::vector<unsigned char>, tizcastclient::client_data > client_pair_t;
+  BOOST_FOREACH(const client_pair_t &clnt, clients_)
+    {
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "ip/name [%s]", clnt.second.cname_.c_str());
+      tiz_uuid_str (&(clnt.second.uuid_[0]), uuid_str);
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "uuid [%s]", uuid_str);
+    }
+
+  if (clients_.count (uuid))
+    {
+      client_data & clnt = clients_[uuid];
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "cast status");
+      clnt.cbacks_.pf_cast_status (
+        clnt.p_data_, (tiz_cast_client_cast_status_t) status, volume);
+    }
 }
 
 void
-tizcastclient::media_status (const uint32_t & status, const int32_t & volume)
+tizcastclient::media_status (const std::vector< uint8_t > & uuid,
+                             const uint32_t & status, const int32_t & volume)
 {
   const tiz_cast_client_media_status_t media_status
     = static_cast< tiz_cast_client_media_status_t > (status);
@@ -378,16 +391,17 @@ tizcastclient::media_status (const uint32_t & status, const int32_t & volume)
         break;
     }
 
-  //   if (clients_.count (uuid))
-  //     {
-  //       uint32_t res = rid;
-  //       client_data &data = clients_[uuid];
+  char uuid_str[128];
+  tiz_uuid_str (&(uuid[0]), uuid_str);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "media status received for uuid [%s]", uuid_str);
 
-  //       TIZ_LOG (TIZ_PRIORITY_TRACE, "wait_complete on component  [%s]...",
-  //                data.cname_.c_str ());
-
-  //       data.pf_waitend_ (res, data.p_data_);
-  //     }
+  if (clients_.count (uuid))
+    {
+      client_data & clnt = clients_[uuid];
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "media status");
+      clnt.cbacks_.pf_media_status (
+        clnt.p_data_, (tiz_cast_client_media_status_t) status, volume);
+    }
 }
 
 int32_t
@@ -401,8 +415,7 @@ tizcastclient::invokecast (pmf_t a_pmf, const cast_client_id_ptr_t ap_cast_clnt)
     {
       try
         {
-          // client_data & clnt = clients_[*ap_cast_clnt];
-          rc = (this->*a_pmf) ();
+          rc = (this->*a_pmf) (*ap_cast_clnt);
         }
       catch (Tiz::DBus::Error const & e)
         {

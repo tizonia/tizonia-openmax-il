@@ -165,8 +165,8 @@ class tizchromecastproxy(object):
                           stream_type)
         except Exception as exception:
             print_err('Unable to load stream')
-        else:
-            mc.block_until_active()
+#         else:
+#             mc.block_until_active()
 
     def media_play(self):
         self.cast.media_controller.play()

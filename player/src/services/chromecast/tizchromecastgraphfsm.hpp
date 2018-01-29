@@ -146,18 +146,24 @@ namespace tiz
         bmf::Row < tg::executing                , tg::volume_step_evt       , bmf::none               , tg::do_volume_step                                         >,
         bmf::Row < tg::executing                , tg::volume_evt            , bmf::none               , tg::do_volume                                              >,
         bmf::Row < tg::executing                , tg::mute_evt              , bmf::none               , tg::do_mute                                                >,
+        bmf::Row < tg::executing                , tg::omx_index_setting_evt , bmf::none               , tg::do_retrieve_metadata                                   >,
         bmf::Row < tg::executing                , tg::omx_err_evt           , bmf::none               , tg::do_skip                 , tg::is_error<OMX_ErrorStreamCorruptFatal> >,
         bmf::Row < tg::executing                , tg::omx_err_evt           , bmf::none               , tg::do_skip                 , tg::is_error<OMX_ErrorFormatNotDetected> >,
         bmf::Row < tg::executing                , tg::skip_evt              , bmf::none               , bmf::ActionSequence_<
                                                                                                           boost::mpl::vector<
                                                                                                             tg::do_store_skip,
+                                                                                                            tg::do_skip>
+                                                                                                          >                         , bmf::none                    >,
+        bmf::Row < tg::executing                , tg::omx_eos_evt           , bmf::none               , bmf::ActionSequence_<
+                                                                                                          boost::mpl::vector<
                                                                                                             tg::do_skip,
                                                                                                             tg::do_retrieve_metadata>
-                                                                                                          >                         , bmf::none                    >,
-        bmf::Row < tg::executing                , tg::omx_eos_evt           , bmf::none               , tg::do_skip                 , tg::is_last_eos              >,
+                                                                                                          >                         , tg::is_last_eos              >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
+        bmf::Row < tg::exe2pause                , tg::omx_index_setting_evt , bmf::none               , tg::do_retrieve_metadata                                   >,
         bmf::Row < tg::exe2pause                , tg::omx_trans_evt         , tg::pause               , tg::do_ack_paused           , tg::is_trans_complete        >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
+        bmf::Row < tg::pause                    , tg::omx_index_setting_evt , bmf::none               , tg::do_retrieve_metadata                                   >,
         bmf::Row < tg::pause                    , tg::execute_evt           , tg::pause2exe           , tg::do_pause2exe                                           >,
         bmf::Row < tg::pause                    , tg::pause_evt             , tg::pause2exe           , tg::do_pause2exe                                           >,
         bmf::Row < tg::pause                    , tg::stop_evt              , tg::pause2idle          , bmf::ActionSequence_<

@@ -68,28 +68,26 @@ void castmgr::cc_cast_status_cback (void *ap_user_data,
   TIZ_LOG (TIZ_PRIORITY_TRACE, "cast status [%d]", a_status);
   assert (p_ops);
   p_ops->cast_received_cb_ ();
-  p_ops->cast_cb_ (a_status, a_volume);
+  p_ops->cast_cb_ (p_ops->device_name_or_ip (), a_status, a_volume);
 }
 
 void castmgr::cc_media_status_cback (void *ap_user_data,
                                      tiz_chromecast_media_status_t a_status,
                                      int a_volume)
 {
-  tiz::castmgr::ops *p_ops
-      = static_cast< tiz::castmgr::ops * > (ap_user_data);
+  tiz::castmgr::ops *p_ops = static_cast< tiz::castmgr::ops * > (ap_user_data);
   TIZ_LOG (TIZ_PRIORITY_TRACE, "media status [%d]", a_status);
   assert (p_ops);
-  p_ops->media_cb_ (a_status, a_volume);
+  p_ops->media_cb_ (p_ops->device_name_or_ip (), a_status, a_volume);
 }
 
 //
 // ops
 //
 castmgr::ops::ops (mgr *p_mgr, cast_status_received_cback_t cast_received_cb,
-                   cast_status_cback_t cast_cb,
-                   media_status_cback_t media_cb)
+                   cast_status_cback_t cast_cb, media_status_cback_t media_cb)
   : p_mgr_ (p_mgr),
-    cast_received_cb_(cast_received_cb),
+    cast_received_cb_ (cast_received_cb),
     cast_cb_ (cast_cb),
     media_cb_ (media_cb),
     error_code_ (OMX_ErrorNone),
@@ -263,4 +261,10 @@ int castmgr::ops::internal_error () const
 std::string castmgr::ops::internal_error_msg () const
 {
   return error_msg_;
+}
+
+std::string castmgr::ops::device_name_or_ip ()
+{
+  assert (p_mgr_);
+  return p_mgr_->name_or_ip_;
 }

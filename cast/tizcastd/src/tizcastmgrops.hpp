@@ -29,8 +29,9 @@
 #ifndef TIZCASTMGROPS_HPP
 #define TIZCASTMGROPS_HPP
 
-#include <boost/function.hpp>
 #include <string>
+
+#include <boost/function.hpp>
 
 #include <OMX_Core.h>
 
@@ -93,6 +94,9 @@ namespace tiz
 
       int internal_error () const;
       std::string internal_error_msg () const;
+
+    private:
+      std::string device_name_or_ip ();
 
     private:
       mgr *p_mgr_;  // Not owned

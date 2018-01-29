@@ -98,8 +98,12 @@ private:
   unregister_client (const cast_client_id_ptr_t ap_cast_clnt);
 
   // DBUS Signals
-  void cast_status(const uint32_t& status, const int32_t& volume);
-  void media_status(const uint32_t& status, const int32_t& volume);
+  void
+  cast_status (const std::vector< uint8_t > & uuid, const uint32_t & status,
+               const int32_t & volume);
+  void
+  media_status (const std::vector< uint8_t > & uuid, const uint32_t & status,
+                const int32_t & volume);
 
 private:
   struct client_data
@@ -147,7 +151,7 @@ private:
 private:
   typedef std::map< std::vector< unsigned char >, client_data > clients_map_t;
 
-  typedef int32_t (com::aratelia::tiz::tizcastif_proxy::*pmf_t) ();
+  typedef int32_t (com::aratelia::tiz::tizcastif_proxy::*pmf_t) (const std::vector<unsigned char>&);
 
 private:
   int32_t

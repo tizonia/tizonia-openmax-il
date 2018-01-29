@@ -40,6 +40,7 @@
 #include <tizplatform.h>
 
 #include "tizcastmgr.hpp"
+#include "tizcastmgrops.hpp"
 #include "tizcastmgrcmd.hpp"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
@@ -96,9 +97,10 @@ void *castmgr::thread_func (void *p_arg)
 //
 // mgr
 //
-castmgr::mgr::mgr (cast_status_cback_t cast_cb, media_status_cback_t media_cb)
-  : p_ops_ (NULL),
+castmgr::mgr::mgr (const std::string &name_or_ip, cast_status_cback_t cast_cb, media_status_cback_t media_cb)
+  : p_ops_ (),
     fsm_ (boost::msm::back::states_, &p_ops_),
+    name_or_ip_(name_or_ip),
     cast_cb_ (cast_cb),
     media_cb_ (media_cb),
     thread_ (),
@@ -125,9 +127,10 @@ castmgr::mgr::init ()
   tiz_check_omx_ret_oom (tiz_mutex_unlock (&mutex_));
 
   // Init this mgr's operations using the do_init template method
-  tiz_check_null_ret_oom ((p_ops_ = new ops (this,
-                                             boost::bind (&tiz::castmgr::mgr::cast_status_received, this),
-                                             cast_cb_, media_cb_)));
+  tiz_check_null_ret_oom (
+      (p_ops_ = new ops (
+           this, boost::bind (&tiz::castmgr::mgr::cast_status_received, this),
+           cast_cb_, media_cb_)));
 
   // Let's wait until this manager's thread is ready to receive requests
   tiz_check_omx_ret_oom (tiz_sem_wait (&sem_));
@@ -149,9 +152,9 @@ void castmgr::mgr::deinit ()
 }
 
 OMX_ERRORTYPE
-castmgr::mgr::connect (const std::string &name_or_ip)
+castmgr::mgr::connect ()
 {
-  return post_cmd (new castmgr::cmd (castmgr::connect_evt (name_or_ip)));
+  return post_cmd (new castmgr::cmd (castmgr::connect_evt (name_or_ip_)));
 }
 
 OMX_ERRORTYPE

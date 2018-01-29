@@ -45,6 +45,32 @@
 /* Object path, a.k.a. node */
 #define TIZ_CAST_DAEMON_PATH "/com/aratelia/tiz/tizcastd"
 
+typedef struct tiz_cast_client_cast_status_str
+{
+  tiz_cast_client_cast_status_t status;
+  const char * str;
+} tiz_cast_client_cast_status_str_t;
+
+static const tiz_cast_client_cast_status_str_t
+  tiz_cast_client_cast_status_str_tbl[]
+  = {{ETizCcCastStatusUnknown, (const char *) "Unknown"},
+     {ETizCcCastStatusReadyToCast, (const char *) "ReadyToCast"},
+     {ETizCcCastStatusNowCasting, (const char *) "NowCasting"}};
+
+typedef struct tiz_cast_client_media_status_str
+{
+  tiz_cast_client_media_status_t status;
+  const char * str;
+} tiz_cast_client_media_status_str_t;
+
+static const tiz_cast_client_media_status_str_t
+  tiz_cast_client_media_status_str_tbl[]
+  = {{ETizCcMediaStatusUnknown, (const char *) "Unknown"},
+     {ETizCcMediaStatusIdle, (const char *) "Idle"},
+     {ETizCcMediaStatusBuffering, (const char *) "Buffering"},
+     {ETizCcMediaStatusPaused, (const char *) "Paused"},
+     {ETizCcMediaStatusPlaying, (const char *) "Playing"}};
+
 enum tiz_cast_client_state
 {
   ETIZCastStateInvalid = 0,
@@ -112,8 +138,8 @@ get_global ()
 
   if (!p_cast)
     {
-      p_cast
-        = (tiz_cast_client_global_t *) tiz_mem_calloc (1, sizeof (tiz_cast_client_global_t));
+      p_cast = (tiz_cast_client_global_t *) tiz_mem_calloc (
+        1, sizeof (tiz_cast_client_global_t));
 
       if (!p_cast)
         {
@@ -121,7 +147,8 @@ get_global ()
           return NULL;
         }
 
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "Initializing the cast client [%p]...", p_cast);
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "Initializing the cast client [%p]...",
+               p_cast);
 
       p_cast->p_client = NULL;
 
@@ -443,4 +470,40 @@ tiz_cast_client_unmute (const tiz_cast_t * ap_cast)
   TIZ_LOG (TIZ_PRIORITY_TRACE, "tiz_cast_client_unmute");
   return (tiz_cast_error_t) p_cast->p_client->unmute (
     (cast_client_id_ptr_t) ap_cast);
+}
+
+const char *
+tiz_cast_client_cast_status_str (const tiz_cast_client_cast_status_t status)
+{
+  const size_t count = sizeof (tiz_cast_client_cast_status_str_tbl)
+                       / sizeof (tiz_cast_client_cast_status_str_t);
+  size_t i = 0;
+
+  for (i = 0; i < count; ++i)
+    {
+      if (tiz_cast_client_cast_status_str_tbl[i].status == status)
+        {
+          return tiz_cast_client_cast_status_str_tbl[i].str;
+        }
+    }
+
+  return (const char *) "Unknown Chromecast 'cast' status";
+}
+
+const char *
+tiz_cast_client_media_status_str (const tiz_cast_client_media_status_t status)
+{
+  const size_t count = sizeof (tiz_cast_client_media_status_str_tbl)
+                       / sizeof (tiz_cast_client_media_status_str_t);
+  size_t i = 0;
+
+  for (i = 0; i < count; ++i)
+    {
+      if (tiz_cast_client_media_status_str_tbl[i].status == status)
+        {
+          return tiz_cast_client_media_status_str_tbl[i].str;
+        }
+    }
+
+  return (const char *) "Unknown Chromecast 'media' status";
 }

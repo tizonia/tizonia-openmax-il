@@ -29,14 +29,15 @@
 #ifndef TIZCASTMGR_HPP
 #define TIZCASTMGR_HPP
 
-#include <boost/function.hpp>
 #include <string>
+
+#include <boost/function.hpp>
 
 #include <OMX_Core.h>
 #include <tizplatform.h>
 
-#include "tizcastmgrtypes.hpp"
 #include "tizcastmgrfsm.hpp"
+#include "tizcastmgrtypes.hpp"
 
 namespace tiz
 {
@@ -46,6 +47,8 @@ namespace tiz
     // Forward declarations
     void *thread_func (void *p_arg);
     class cmd;
+    class vector;
+    class ops;
 
     /**
      *  @class mgr
@@ -59,9 +62,11 @@ namespace tiz
     {
 
       friend void *thread_func (void *);
+      friend class ops;
 
     public:
-      mgr (cast_status_cback_t cast_cb, media_status_cback_t media_cb);
+      mgr (const std::string &name_or_ip, cast_status_cback_t cast_cb,
+           media_status_cback_t media_cb);
       virtual ~mgr ();
 
       /**
@@ -97,7 +102,7 @@ namespace tiz
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
        */
-      OMX_ERRORTYPE connect (const std::string &name_or_ip);
+      OMX_ERRORTYPE connect ();
 
       /**
        * Halt processing of the playlist.
@@ -202,6 +207,11 @@ namespace tiz
        */
       OMX_ERRORTYPE unmute ();
 
+      std::string get_name_or_ip()
+      {
+        return name_or_ip_;
+      }
+
     private:
       /**
        * Start processing the play list from the beginning.
@@ -234,6 +244,7 @@ namespace tiz
     private:
       ops *p_ops_;
       fsm fsm_;
+      std::string name_or_ip_;
       cast_status_cback_t cast_cb_;
       media_status_cback_t media_cb_;
       tiz_thread_t thread_;
