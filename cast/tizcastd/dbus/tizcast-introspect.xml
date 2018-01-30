@@ -39,6 +39,7 @@
       <arg type="s" name="url" direction="in"/>
       <arg type="s" name="mime_type" direction="in"/>
       <arg type="s" name="title" direction="in"/>
+      <arg type="s" name="album_art" direction="in"/>
       <arg type="i" name="retcode" direction="out"/>
     </method>
 

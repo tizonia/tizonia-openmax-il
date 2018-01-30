@@ -40,8 +40,8 @@
 #include <tizplatform.h>
 
 #include "tizcastmgr.hpp"
-#include "tizcastmgrops.hpp"
 #include "tizcastmgrcmd.hpp"
+#include "tizcastmgrops.hpp"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -97,10 +97,11 @@ void *castmgr::thread_func (void *p_arg)
 //
 // mgr
 //
-castmgr::mgr::mgr (const std::string &name_or_ip, cast_status_cback_t cast_cb, media_status_cback_t media_cb)
+castmgr::mgr::mgr (const std::string &name_or_ip, cast_status_cback_t cast_cb,
+                   media_status_cback_t media_cb)
   : p_ops_ (),
     fsm_ (boost::msm::back::states_, &p_ops_),
-    name_or_ip_(name_or_ip),
+    name_or_ip_ (name_or_ip),
     cast_cb_ (cast_cb),
     media_cb_ (media_cb),
     thread_ (),
@@ -165,10 +166,10 @@ castmgr::mgr::disconnect ()
 
 OMX_ERRORTYPE
 castmgr::mgr::load_url (const std::string &url, const std::string &mime_type,
-                        const std::string &title)
+                        const std::string &title, const std::string &album_art)
 {
-  return post_cmd (
-      new castmgr::cmd (castmgr::load_url_evt (url, mime_type, title)));
+  return post_cmd (new castmgr::cmd (
+      castmgr::load_url_evt (url, mime_type, title, album_art)));
 }
 
 OMX_ERRORTYPE

@@ -113,7 +113,7 @@ tizcastclient::disconnect (const cast_client_id_ptr_t ap_cast_clnt)
 int32_t
 tizcastclient::load_url (const cast_client_id_ptr_t ap_cast_clnt,
                          const char * url, const char * mime_type,
-                         const char * title)
+                         const char * title, const char * album_art)
 {
   int32_t rc = TIZ_CAST_SUCCESS;
   assert (ap_cast_clnt);
@@ -124,7 +124,7 @@ tizcastclient::load_url (const cast_client_id_ptr_t ap_cast_clnt,
         {
           //         client_data & clnt = clients_[*ap_cast_clnt];
           rc = com::aratelia::tiz::tizcastif_proxy::load_url (
-            *ap_cast_clnt, url, mime_type, title);
+            *ap_cast_clnt, url, mime_type, title, album_art);
         }
       catch (Tiz::DBus::Error const & e)
         {

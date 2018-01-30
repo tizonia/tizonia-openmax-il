@@ -91,15 +91,18 @@ namespace tiz
     {
       load_url_evt (const std::string &url,
                     const std::string &mime_type,
-                    const std::string &title)
+                    const std::string &title,
+                    const std::string &album_art)
         : url_ (url),
           mime_type_ (mime_type),
-          title_ (title)
+          title_ (title),
+          album_art_ (album_art)
       {
       }
       const std::string url_;
       const std::string mime_type_;
       const std::string title_;
+      const std::string album_art_;
     };
     struct play_evt {};
     struct stop_evt {};
@@ -298,7 +301,7 @@ namespace tiz
           GMGR_FSM_LOG ();
           if (fsm.pp_ops_ && *(fsm.pp_ops_))
             {
-              (*(fsm.pp_ops_))->do_load_url (evt.url_, evt.mime_type_, evt.title_);
+              (*(fsm.pp_ops_))->do_load_url (evt.url_, evt.mime_type_, evt.title_, evt.album_art_);
             }
         }
       };

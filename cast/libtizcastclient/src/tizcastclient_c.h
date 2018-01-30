@@ -62,7 +62,8 @@ tiz_cast_client_get_version (const tiz_cast_t * ap_cast);
 
 tiz_cast_error_t
 tiz_cast_client_load_url (const tiz_cast_t * ap_cast, const char * url,
-                          const char * mime_type, const char * title);
+                          const char * mime_type, const char * title,
+                          const char * album_art);
 
 tiz_cast_error_t
 tiz_cast_client_play (const tiz_cast_t * ap_cast);

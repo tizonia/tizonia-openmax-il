@@ -124,7 +124,8 @@ namespace tiz
        */
       OMX_ERRORTYPE load_url (const std::string &url,
                               const std::string &mime_type,
-                              const std::string &title);
+                              const std::string &title,
+                              const std::string &album_art);
 
       /**
        * Process the previous item in the playlist.
@@ -207,7 +208,7 @@ namespace tiz
        */
       OMX_ERRORTYPE unmute ();
 
-      std::string get_name_or_ip()
+      std::string get_name_or_ip ()
       {
         return name_or_ip_;
       }

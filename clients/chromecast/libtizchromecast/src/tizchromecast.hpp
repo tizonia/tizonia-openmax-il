@@ -84,7 +84,7 @@ public:
   int poll_socket (int a_poll_time_ms);
 
   int media_load (const std::string &url, const std::string &content_type,
-                  const std::string &title);
+                  const std::string &title, const std::string &album_art);
   int media_play ();
   int media_stop ();
   int media_pause ();

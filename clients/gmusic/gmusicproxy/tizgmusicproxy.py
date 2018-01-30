@@ -42,7 +42,7 @@ from gmusicapi.exceptions import CallFailure
 from requests.structures import CaseInsensitiveDict
 
 # For use during debugging
-# import pprint
+import pprint
 
 
 logging.captureWarnings(True)
@@ -279,6 +279,23 @@ class tizgmusicproxy(object):
             genre = to_ascii(song.get('genre'))
             logging.info("genre %s", genre)
             return genre
+        else:
+            return ''
+
+    def current_song_album_art(self):
+        """ Return the current track's album art image.
+
+        """
+        logging.info("current_song_art")
+        song = self.now_playing_song
+        if song:
+            artref = song.get('albumArtRef')
+            pprint.pprint(artref)
+            if len(artref) > 0:
+                url = to_ascii(artref[0].get('url'))
+                pprint.pprint(url)
+                logging.info("url %s", url)
+            return url
         else:
             return ''
 

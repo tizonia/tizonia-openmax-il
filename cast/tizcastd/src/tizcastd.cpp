@@ -74,7 +74,7 @@ tizcastd::~tizcastd ()
   BOOST_FOREACH (const devices_pair_t &device, devices_)
   {
     tiz::castmgr::mgr *p_cast_mgr = device.second.p_cast_mgr_;
-    dispose_mgr(p_cast_mgr);
+    dispose_mgr (p_cast_mgr);
   }
 }
 
@@ -88,13 +88,14 @@ int32_t tizcastd::connect (const std::vector< uint8_t > &uuid,
   {
     p_cast_mgr = devices_[name_or_ip].p_cast_mgr_;
     assert (p_cast_mgr);
-    dispose_mgr(p_cast_mgr);
+    dispose_mgr (p_cast_mgr);
     p_cast_mgr = NULL;
   }
 
   if (!p_cast_mgr)
   {
-    p_cast_mgr = new tiz::castmgr::mgr (name_or_ip,
+    p_cast_mgr = new tiz::castmgr::mgr (
+        name_or_ip,
         boost::bind (&tizcastd::cast_status_forwarder, this, _1, _2, _3),
         boost::bind (&tizcastd::media_status_forwarder, this, _1, _2, _3));
     assert (p_cast_mgr);
@@ -119,20 +120,21 @@ int32_t tizcastd::connect (const std::vector< uint8_t > &uuid,
 int32_t tizcastd::disconnect (const std::vector< uint8_t > &uuid)
 {
   TIZ_LOG (TIZ_PRIORITY_NOTICE, "disconnect");
-  dispose_mgr(get_mgr (uuid));
+  dispose_mgr (get_mgr (uuid));
   return TIZ_CAST_SUCCESS;
 }
 
 int32_t tizcastd::load_url (const std::vector< uint8_t > &uuid,
                             const std::string &url,
                             const std::string &mime_type,
-                            const std::string &title)
+                            const std::string &title,
+                            const std::string &album_art)
 {
   TIZ_LOG (TIZ_PRIORITY_NOTICE, "load_url");
   tiz::castmgr::mgr *p_cast_mgr = get_mgr (uuid);
   if (p_cast_mgr)
   {
-    p_cast_mgr->load_url (url, mime_type, title);
+    p_cast_mgr->load_url (url, mime_type, title, album_art);
   }
   return TIZ_CAST_SUCCESS;
 }
@@ -224,11 +226,13 @@ void tizcastd::cast_status_forwarder (const std::string &name_or_ip,
                                       const uint32_t &status,
                                       const int32_t &volume)
 {
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "forwarding for manager [%s]", name_or_ip.c_str());
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "forwarding for manager [%s]",
+           name_or_ip.c_str ());
   if (devices_.count (name_or_ip))
   {
     cast_status (devices_[name_or_ip].client_uuid_, status, volume);
-    TIZ_LOG (TIZ_PRIORITY_TRACE, "forwarded for manager [%s]", name_or_ip.c_str());
+    TIZ_LOG (TIZ_PRIORITY_TRACE, "forwarded for manager [%s]",
+             name_or_ip.c_str ());
   }
 }
 
@@ -236,11 +240,13 @@ void tizcastd::media_status_forwarder (const std::string &name_or_ip,
                                        const uint32_t &status,
                                        const int32_t &volume)
 {
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "forwarding for manager [%s]", name_or_ip.c_str());
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "forwarding for manager [%s]",
+           name_or_ip.c_str ());
   if (devices_.count (name_or_ip))
   {
     media_status (devices_[name_or_ip].client_uuid_, status, volume);
-    TIZ_LOG (TIZ_PRIORITY_TRACE, "forwarded for manager [%s]", name_or_ip.c_str());
+    TIZ_LOG (TIZ_PRIORITY_TRACE, "forwarded for manager [%s]",
+             name_or_ip.c_str ());
   }
 }
 
@@ -264,7 +270,7 @@ void tizcastd::dispose_mgr (tiz::castmgr::mgr *p_cast_mgr)
   {
     // p_cast_mgr->disconnect ();
     p_cast_mgr->deinit ();
-    devices_.erase (p_cast_mgr->get_name_or_ip());
+    devices_.erase (p_cast_mgr->get_name_or_ip ());
     delete p_cast_mgr;
     p_cast_mgr = NULL;
   }

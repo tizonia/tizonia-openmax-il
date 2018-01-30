@@ -119,12 +119,12 @@ extern "C" int tiz_chromecast_poll (tiz_chromecast_t *ap_chromecast,
 extern "C" int tiz_chromecast_load_url (tiz_chromecast_t *ap_chromecast,
                                         const char *ap_url,
                                         const char *ap_content_type,
-                                        const char *ap_title)
+                                        const char *ap_title, const char *ap_album_art)
 {
   assert (ap_chromecast);
   assert (ap_chromecast->p_proxy_);
-  return ap_chromecast->p_proxy_->media_load (ap_url, ap_content_type,
-                                              ap_title);
+  return ap_chromecast->p_proxy_->media_load (ap_url, ap_content_type, ap_title,
+                                              ap_album_art);
 }
 
 extern "C" int tiz_chromecast_play (tiz_chromecast_t *ap_chromecast)

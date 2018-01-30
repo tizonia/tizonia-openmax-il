@@ -324,7 +324,8 @@ tiz_cast_client_get_version (const tiz_cast_t * ap_cast)
 
 extern "C" tiz_cast_error_t
 tiz_cast_client_load_url (const tiz_cast_t * ap_cast, const char * url,
-                          const char * mime_type, const char * title)
+                          const char * mime_type, const char * title,
+                          const char * album_art)
 {
   tiz_cast_client_global_t * p_cast = NULL;
   if (!ap_cast)
@@ -335,7 +336,7 @@ tiz_cast_client_load_url (const tiz_cast_t * ap_cast, const char * url,
   assert (p_cast);
   TIZ_LOG (TIZ_PRIORITY_TRACE, "tiz_cast_client_load_url");
   return (tiz_cast_error_t) p_cast->p_client->load_url (
-    (cast_client_id_ptr_t) ap_cast, url, mime_type, title);
+    (cast_client_id_ptr_t) ap_cast, url, mime_type, title, album_art);
 }
 
 extern "C" tiz_cast_error_t

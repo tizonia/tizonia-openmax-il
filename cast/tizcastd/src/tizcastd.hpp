@@ -92,7 +92,8 @@ public:
    * @return A tiz_cast_error_t error code
    */
   int32_t load_url (const std::vector< uint8_t > &uuid, const std::string &url,
-                    const std::string &mime_type, const std::string &title);
+                    const std::string &mime_type, const std::string &title,
+                    const std::string &album_art);
 
   /**
    * @brief Play a previously loaded stream URL.

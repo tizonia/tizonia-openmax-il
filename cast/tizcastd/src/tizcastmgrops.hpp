@@ -80,7 +80,7 @@ namespace tiz
       void do_disconnect ();
       void do_poll (int poll_time_ms);
       void do_load_url (const std::string &url, const std::string &mime_type,
-                        const std::string &title);
+                        const std::string &title, const std::string &album_art);
       void do_play ();
       void do_stop ();
       void do_pause ();

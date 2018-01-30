@@ -60,7 +60,7 @@ public:
 
   int32_t
   load_url (const cast_client_id_ptr_t ap_cast_clnt, const char * url,
-            const char * mime_type, const char * title);
+            const char * mime_type, const char * title, const char * album_art);
 
   int32_t
   play (const cast_client_id_ptr_t ap_cast_clnt);
@@ -92,7 +92,8 @@ public:
 private:
   const cast_client_id_ptr_t
   register_client (const char * ap_device_name_or_ip, const uint8_t uuid[],
-                   const tiz_cast_client_callbacks_t * ap_cbacks, void * ap_data);
+                   const tiz_cast_client_callbacks_t * ap_cbacks,
+                   void * ap_data);
 
   void
   unregister_client (const cast_client_id_ptr_t ap_cast_clnt);
@@ -108,18 +109,15 @@ private:
 private:
   struct client_data
   {
-    client_data ()
-      : cname_ (""), uuid_ (), p_data_ (NULL)
+    client_data () : cname_ (""), uuid_ (), p_data_ (NULL)
     {
       cbacks_.pf_cast_status = NULL;
       cbacks_.pf_media_status = NULL;
     }
 
     client_data (const char * ap_cname, std::vector< unsigned char > uuid,
-                 const tiz_cast_client_callbacks_t *ap_cbacks, void * ap_data)
-      : cname_ (ap_cname),
-        uuid_ (uuid),
-        p_data_ (ap_data)
+                 const tiz_cast_client_callbacks_t * ap_cbacks, void * ap_data)
+      : cname_ (ap_cname), uuid_ (uuid), p_data_ (ap_data)
     {
       assert (ap_cbacks);
       if (ap_cbacks)
@@ -151,7 +149,8 @@ private:
 private:
   typedef std::map< std::vector< unsigned char >, client_data > clients_map_t;
 
-  typedef int32_t (com::aratelia::tiz::tizcastif_proxy::*pmf_t) (const std::vector<unsigned char>&);
+  typedef int32_t (com::aratelia::tiz::tizcastif_proxy::*pmf_t) (
+    const std::vector< unsigned char > &);
 
 private:
   int32_t
@@ -163,8 +162,8 @@ private:
   using com::aratelia::tiz::tizcastif_proxy::play;
   using com::aratelia::tiz::tizcastif_proxy::stop;
   using com::aratelia::tiz::tizcastif_proxy::unmute;
-  using com::aratelia::tiz::tizcastif_proxy::volume_set;
   using com::aratelia::tiz::tizcastif_proxy::volume_down;
+  using com::aratelia::tiz::tizcastif_proxy::volume_set;
   using com::aratelia::tiz::tizcastif_proxy::volume_up;
 
 private:

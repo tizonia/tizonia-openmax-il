@@ -160,13 +160,13 @@ class tizchromecastproxy(object):
         mc = self.cast.media_controller
         st = mc.status
         try:
+            if not thumb or thumb == '':
+                thum = DEFAULT_THUMB;
             mc.play_media(url, content_type, title,
                           thumb, current_time, autoplay,
                           stream_type)
         except Exception as exception:
             print_err('Unable to load stream')
-#         else:
-#             mc.block_until_active()
 
     def media_play(self):
         self.cast.media_controller.play()

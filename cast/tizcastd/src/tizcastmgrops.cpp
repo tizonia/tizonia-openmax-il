@@ -142,14 +142,15 @@ void castmgr::ops::do_poll (int poll_time_ms)
 
 void castmgr::ops::do_load_url (const std::string &url,
                                 const std::string &mime_type,
-                                const std::string &title)
+                                const std::string &title,
+                                const std::string &album_art)
 {
   if (p_cc_)
   {
     TIZ_LOG (TIZ_PRIORITY_NOTICE, "do_load_url");
     CAST_MGR_OPS_BAIL_IF_ERROR (
         tiz_chromecast_load_url (p_cc_, url.c_str (), mime_type.c_str (),
-                                 title.c_str ()),
+                                 title.c_str (), album_art.c_str ()),
         "Unable to load the URL into the Chromecast device");
   }
 }

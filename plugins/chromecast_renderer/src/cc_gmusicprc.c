@@ -112,8 +112,8 @@ update_chromecast_status (cc_gmusic_prc_t * ap_prc);
 
 static void
 post_chromecast_event (cc_gmusic_prc_t * ap_prc,
-                       tiz_event_pluggable_hdlr_f apf_hdlr, unsigned int a_status,
-                       int a_volume)
+                       tiz_event_pluggable_hdlr_f apf_hdlr,
+                       unsigned int a_status, int a_volume)
 {
   tiz_event_pluggable_t * p_event = NULL;
   cc_status_event_data_t * p_status = NULL;
@@ -179,7 +179,7 @@ cast_status_handler (OMX_PTR ap_prc, tiz_event_pluggable_t * ap_event)
   p_prc->volume_ = p_event_data->volume;
   if (need_status_update)
     {
-      update_chromecast_status(p_prc);
+      update_chromecast_status (p_prc);
     }
 
   tiz_mem_free (ap_event->p_data);
@@ -214,7 +214,7 @@ media_status_handler (OMX_PTR ap_prc, tiz_event_pluggable_t * ap_event)
   if (p_prc->cc_media_status_ != status)
     {
       p_prc->cc_media_status_ = status;
-      update_chromecast_status(p_prc);
+      update_chromecast_status (p_prc);
     }
 
   tiz_mem_free (ap_event->p_data);
@@ -349,6 +349,15 @@ update_metadata (cc_gmusic_prc_t * ap_prc)
       }
   }
 
+  /* Store album art if not empty */
+  {
+    const char * p_album_art = tiz_gmusic_get_current_song_album_art (ap_prc->p_gm_);
+    if (p_album_art && strnlen (p_album_art, OMX_MAX_STRINGNAME_SIZE) > 0)
+      {
+        tiz_check_omx (store_metadata (ap_prc, "Album Art", p_album_art));
+      }
+  }
+
   /* Song duration */
   tiz_check_omx (store_metadata (
     ap_prc, "Duration", tiz_gmusic_get_current_song_duration (ap_prc->p_gm_)));
@@ -393,7 +402,8 @@ update_chromecast_status (cc_gmusic_prc_t * ap_prc)
     char status_line[OMX_MAX_STRINGNAME_SIZE];
     snprintf (cast_name_or_ip, OMX_MAX_STRINGNAME_SIZE, "  %s",
               (char *) ap_prc->cc_session_.cNameOrIpAddr);
-    snprintf (status_line, OMX_MAX_STRINGNAME_SIZE, "(CC:%s) (Media:%s) (Vol:%ld)",
+    snprintf (status_line, OMX_MAX_STRINGNAME_SIZE,
+              "(CC:%s) (Media:%s) (Vol:%ld)",
               tiz_cast_client_cast_status_str (ap_prc->cc_cast_status_),
               tiz_cast_client_media_status_str (ap_prc->cc_media_status_),
               ap_prc->volume_);
@@ -478,7 +488,8 @@ load_next_url (cc_gmusic_prc_t * p_prc)
         p_prc->p_cc_, (const char *) p_prc->p_uri_param_->contentURI,
         CONTENT_TYPE,
         (p_prc->p_cc_display_title_ ? p_prc->p_cc_display_title_
-                                    : DISPLAY_TITLE)));
+         : DISPLAY_TITLE),
+         tiz_gmusic_get_current_song_album_art (p_prc->p_gm_)));
       p_prc->uri_changed_ = false;
     }
   return OMX_ErrorNone;

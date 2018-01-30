@@ -352,6 +352,15 @@ const char *tiz_gmusic_get_current_song_year (tiz_gmusic_t *ap_gmusic);
 const char *tiz_gmusic_get_current_song_genre (tiz_gmusic_t *ap_gmusic);
 
 /**
+ * Retrieve the current song's album art.
+ *
+ * @ingroup libtizgmusic
+ *
+ * @param ap_gmusic The gmusic handle.
+ */
+const char *tiz_gmusic_get_current_song_album_art (tiz_gmusic_t *ap_gmusic);
+
+/**
  * Destroy the gmusic handle.
  *
  * @ingroup libtizgmusic

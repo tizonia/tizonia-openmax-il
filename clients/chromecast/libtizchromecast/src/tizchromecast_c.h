@@ -94,12 +94,13 @@ int tiz_chromecast_poll (tiz_chromecast_t *ap_chromecast, int a_poll_time_ms);
  * @param ap_url The stream url.
  * @param ap_content_type MIME content type of the media being played.
  * @param ap_title The title of the media being played.
+ * @param ap_album_art The album art url.
  *
  * @return 0 on success
  */
 int tiz_chromecast_load_url (tiz_chromecast_t *ap_chromecast,
                              const char *ap_url, const char *ap_content_type,
-                             const char *ap_title);
+                             const char *ap_title, const char *ap_album_art);
 
 /**
  * Resume playback of media that has been previously paused. Playback is

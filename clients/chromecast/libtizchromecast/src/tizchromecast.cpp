@@ -148,11 +148,13 @@ int tizchromecast::poll_socket (int a_poll_time_ms)
 
 int tizchromecast::media_load (const std::string &url,
                                const std::string &content_type,
-                               const std::string &title)
+                               const std::string &title,
+                               const std::string &album_art)
 {
   int rc = 0;
   try_catch_wrapper (py_cc_proxy_.attr ("media_load") (
-      bp::object (url), bp::object (content_type), bp::object (title)));
+      bp::object (url), bp::object (content_type), bp::object (title),
+      bp::object (album_art)));
   return rc;
 }
 
