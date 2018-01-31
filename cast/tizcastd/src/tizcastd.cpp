@@ -260,7 +260,8 @@ void tizcastd::error_status_forwarder (const std::string &name_or_ip,
   if (devices_.count (name_or_ip))
   {
     error_status (devices_[name_or_ip].client_uuid_, status, error_str);
-    dispose_mgr (devices_[name_or_ip].p_cast_mgr_);
+    // We don't remove the manager naw. We'll remove it the next time there is
+    // an attempt to connect to its managed chromecast device.
   }
 }
 
@@ -282,7 +283,6 @@ void tizcastd::dispose_mgr (tiz::castmgr::mgr *p_cast_mgr)
 {
   if (p_cast_mgr)
   {
-    // p_cast_mgr->disconnect ();
     p_cast_mgr->deinit ();
     devices_.erase (p_cast_mgr->get_name_or_ip ());
     delete p_cast_mgr;

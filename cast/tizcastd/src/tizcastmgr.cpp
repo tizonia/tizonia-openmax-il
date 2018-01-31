@@ -116,6 +116,9 @@ castmgr::mgr::mgr (const std::string &name_or_ip, cast_status_cback_t cast_cb,
 
 castmgr::mgr::~mgr ()
 {
+  deinit_cmd_queue ();
+  delete p_ops_;
+  p_ops_ = NULL;
 }
 
 OMX_ERRORTYPE
@@ -144,14 +147,14 @@ castmgr::mgr::init ()
 
 void castmgr::mgr::deinit ()
 {
-  (void)stop_fsm ();
-  TIZ_LOG (TIZ_PRIORITY_NOTICE, "Waiting until stopped...");
-  static_cast< void > (tiz_sem_wait (&sem_));
-  void *p_result = NULL;
-  static_cast< void > (tiz_thread_join (&thread_, &p_result));
-  deinit_cmd_queue ();
-  delete p_ops_;
-  p_ops_ = NULL;
+  if (!fsm_.terminated_)
+    {
+      (void)stop_fsm ();
+      TIZ_LOG (TIZ_PRIORITY_NOTICE, "Waiting until stopped...");
+      static_cast< void > (tiz_sem_wait (&sem_));
+      void *p_result = NULL;
+      static_cast< void > (tiz_thread_join (&thread_, &p_result));
+    }
 }
 
 OMX_ERRORTYPE

@@ -157,15 +157,6 @@ void graph::chromecastops::do_retrieve_metadata ()
   while (OMX_ErrorNone == dump_metadata_item (index++, chromecast_index))
   {
   };
-
-  // TODO
-  // Now print renderer metadata
-  //   TIZ_PRINTF_MAG (
-  //       "     %ld Ch, %g KHz, %lu:%s:%s \n", renderer_pcmtype_.nChannels,
-  //       ((float)renderer_pcmtype_.nSamplingRate) / 1000,
-  //       renderer_pcmtype_.nBitPerSample,
-  //       renderer_pcmtype_.eNumData == OMX_NumericalDataSigned ? "s" : "u",
-  //       renderer_pcmtype_.eEndian == OMX_EndianBig ? "b" : "l");
 }
 
 bool graph::chromecastops::is_fatal_error (const OMX_ERRORTYPE error) const
