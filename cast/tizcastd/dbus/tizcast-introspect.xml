@@ -86,14 +86,20 @@
 
     <signal name="cast_status">
       <arg type="ay" name="uuid"/>
-      <arg name="status" type="u"/>
-      <arg name="volume" type="i"/>
+      <arg type="u" name="status"/>
+      <arg type="i" name="volume"/>
     </signal>
 
     <signal name="media_status">
       <arg type="ay" name="uuid"/>
-      <arg name="status" type="u"/>
-      <arg name="volume" type="i"/>
+      <arg type="u" name="status"/>
+      <arg type="i" name="volume"/>
+    </signal>
+
+    <signal name="error_status">
+      <arg type="ay" name="uuid"/>
+      <arg type="u" name="status"/>
+      <arg type="s" name="error_msg"/>
     </signal>
 
   </interface>

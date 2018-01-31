@@ -122,9 +122,9 @@ tizcastclient::load_url (const cast_client_id_ptr_t ap_cast_clnt,
     {
       try
         {
-          //         client_data & clnt = clients_[*ap_cast_clnt];
           rc = com::aratelia::tiz::tizcastif_proxy::load_url (
-            *ap_cast_clnt, url, mime_type, title, album_art);
+            *ap_cast_clnt, url, mime_type, title,
+            (album_art ? album_art : std::string ()));
         }
       catch (Tiz::DBus::Error const & e)
         {
@@ -331,10 +331,12 @@ tizcastclient::cast_status (const std::vector< uint8_t > & uuid,
   tiz_uuid_str (&(uuid[0]), uuid_str);
   TIZ_LOG (TIZ_PRIORITY_TRACE, "cast status received for uuid [%s]", uuid_str);
 
-  typedef std::pair< const std::vector<unsigned char>, tizcastclient::client_data > client_pair_t;
-  BOOST_FOREACH(const client_pair_t &clnt, clients_)
+  typedef std::pair< const std::vector< unsigned char >,
+                     tizcastclient::client_data >
+    client_pair_t;
+  BOOST_FOREACH (const client_pair_t & clnt, clients_)
     {
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "ip/name [%s]", clnt.second.cname_.c_str());
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "ip/name [%s]", clnt.second.cname_.c_str ());
       tiz_uuid_str (&(clnt.second.uuid_[0]), uuid_str);
       TIZ_LOG (TIZ_PRIORITY_TRACE, "uuid [%s]", uuid_str);
     }
@@ -342,7 +344,6 @@ tizcastclient::cast_status (const std::vector< uint8_t > & uuid,
   if (clients_.count (uuid))
     {
       client_data & clnt = clients_[uuid];
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "cast status");
       clnt.cbacks_.pf_cast_status (
         clnt.p_data_, (tiz_cast_client_cast_status_t) status, volume);
     }
@@ -398,9 +399,50 @@ tizcastclient::media_status (const std::vector< uint8_t > & uuid,
   if (clients_.count (uuid))
     {
       client_data & clnt = clients_[uuid];
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "media status");
       clnt.cbacks_.pf_media_status (
         clnt.p_data_, (tiz_cast_client_media_status_t) status, volume);
+    }
+}
+
+void
+tizcastclient::error_status (const std::vector< uint8_t > & uuid,
+                             const uint32_t & status,
+                             const std::string & error_msg)
+{
+  const tiz_cast_client_error_status_t error_status
+    = static_cast< tiz_cast_client_error_status_t > (status);
+
+  // Notify the client of the error status
+
+  switch (error_status)
+    {
+      case ETizCcErrorStatusNoError:
+        {
+          TIZ_LOG (TIZ_PRIORITY_TRACE, "error status [NoError]");
+        }
+        break;
+      case ETizCcErrorStatusConnectionError:
+        {
+          TIZ_LOG (TIZ_PRIORITY_TRACE, "error status [ConnectionError]");
+        }
+        break;
+      default:
+        {
+          assert (0);
+        }
+        break;
+    }
+
+  char uuid_str[128];
+  tiz_uuid_str (&(uuid[0]), uuid_str);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "error status received for uuid [%s]", uuid_str);
+
+  if (clients_.count (uuid))
+    {
+      client_data & clnt = clients_[uuid];
+      clnt.cbacks_.pf_error_status (clnt.p_data_,
+                                    (tiz_cast_client_error_status_t) status,
+                                    error_msg.c_str ());
     }
 }
 

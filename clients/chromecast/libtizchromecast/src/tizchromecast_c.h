@@ -65,10 +65,9 @@ typedef /*@null@ */ tiz_chromecast_t *tiz_chromecast_ptr_t;
  *
  * @return 0 on success.
  */
-int tiz_chromecast_init (/*@null@ */ tiz_chromecast_ptr_t *app_chromecast,
-                         const char *ap_name_or_ip,
-                         const tiz_chromecast_callbacks_t *ap_cbacks,
-                         void *ap_user_data);
+tiz_chromecast_error_t tiz_chromecast_init (
+    /*@null@ */ tiz_chromecast_ptr_t *app_chromecast, const char *ap_name_or_ip,
+    const tiz_chromecast_callbacks_t *ap_cbacks, void *ap_user_data);
 
 /**
  * Poll and read any events received on the chromecast socket.
@@ -80,7 +79,8 @@ int tiz_chromecast_init (/*@null@ */ tiz_chromecast_ptr_t *app_chromecast,
  *
  * @return 0 on success.
  */
-int tiz_chromecast_poll (tiz_chromecast_t *ap_chromecast, int a_poll_time_ms);
+tiz_chromecast_error_t tiz_chromecast_poll (tiz_chromecast_t *ap_chromecast,
+                                            int a_poll_time_ms);
 
 /**
  * Loads a new audio stream URL into the Chromecast media player.
@@ -98,9 +98,11 @@ int tiz_chromecast_poll (tiz_chromecast_t *ap_chromecast, int a_poll_time_ms);
  *
  * @return 0 on success
  */
-int tiz_chromecast_load_url (tiz_chromecast_t *ap_chromecast,
-                             const char *ap_url, const char *ap_content_type,
-                             const char *ap_title, const char *ap_album_art);
+tiz_chromecast_error_t tiz_chromecast_load_url (tiz_chromecast_t *ap_chromecast,
+                                                const char *ap_url,
+                                                const char *ap_content_type,
+                                                const char *ap_title,
+                                                const char *ap_album_art);
 
 /**
  * Resume playback of media that has been previously paused. Playback is
@@ -112,7 +114,7 @@ int tiz_chromecast_load_url (tiz_chromecast_t *ap_chromecast,
  *
  * @return 0 on success
  */
-int tiz_chromecast_play (tiz_chromecast_t *ap_chromecast);
+tiz_chromecast_error_t tiz_chromecast_play (tiz_chromecast_t *ap_chromecast);
 
 /**
  * Stop playback of media. Triggers a STATUS event notification to all sender
@@ -126,7 +128,7 @@ int tiz_chromecast_play (tiz_chromecast_t *ap_chromecast);
  *
  * @return 0 on success
  */
-int tiz_chromecast_stop (tiz_chromecast_t *ap_chromecast);
+tiz_chromecast_error_t tiz_chromecast_stop (tiz_chromecast_t *ap_chromecast);
 
 /**
  * Pause playback of the content that was loaded with the load call.
@@ -137,7 +139,7 @@ int tiz_chromecast_stop (tiz_chromecast_t *ap_chromecast);
  *
  * @return 0 on success
  */
-int tiz_chromecast_pause (tiz_chromecast_t *ap_chromecast);
+tiz_chromecast_error_t tiz_chromecast_pause (tiz_chromecast_t *ap_chromecast);
 
 /**
  * Set the volume level (0-100).
@@ -149,7 +151,8 @@ int tiz_chromecast_pause (tiz_chromecast_t *ap_chromecast);
  *
  * @return 0 on success
  */
-int tiz_chromecast_volume (tiz_chromecast_t *ap_chromecast, int a_volume);
+tiz_chromecast_error_t tiz_chromecast_volume (tiz_chromecast_t *ap_chromecast,
+                                              int a_volume);
 
 /**
  * Increase playback volumen.
@@ -160,7 +163,8 @@ int tiz_chromecast_volume (tiz_chromecast_t *ap_chromecast, int a_volume);
  *
  * @return 0 on success
  */
-int tiz_chromecast_volume_up (tiz_chromecast_t *ap_chromecast);
+tiz_chromecast_error_t tiz_chromecast_volume_up (
+    tiz_chromecast_t *ap_chromecast);
 
 /**
  * Decrease playback volume.
@@ -171,7 +175,8 @@ int tiz_chromecast_volume_up (tiz_chromecast_t *ap_chromecast);
  *
  * @return 0 on success
  */
-int tiz_chromecast_volume_down (tiz_chromecast_t *ap_chromecast);
+tiz_chromecast_error_t tiz_chromecast_volume_down (
+    tiz_chromecast_t *ap_chromecast);
 
 /**
  * Mute playback.
@@ -182,7 +187,7 @@ int tiz_chromecast_volume_down (tiz_chromecast_t *ap_chromecast);
  *
  * @return 0 on success
  */
-int tiz_chromecast_mute (tiz_chromecast_t *ap_chromecast);
+tiz_chromecast_error_t tiz_chromecast_mute (tiz_chromecast_t *ap_chromecast);
 
 /**
  * Unmute playback.
@@ -193,7 +198,7 @@ int tiz_chromecast_mute (tiz_chromecast_t *ap_chromecast);
  *
  * @return 0 on success
  */
-int tiz_chromecast_unmute (tiz_chromecast_t *ap_chromecast);
+tiz_chromecast_error_t tiz_chromecast_unmute (tiz_chromecast_t *ap_chromecast);
 
 /**
  * Destroy the chromecast handle.
@@ -203,6 +208,9 @@ int tiz_chromecast_unmute (tiz_chromecast_t *ap_chromecast);
  * @param ap_chromecast The chromecast handle.
  */
 void tiz_chromecast_destroy (tiz_chromecast_t *ap_chromecast);
+
+const char *
+tiz_chromecast_error_str (const tiz_chromecast_error_t error);
 
 #ifdef __cplusplus
 }

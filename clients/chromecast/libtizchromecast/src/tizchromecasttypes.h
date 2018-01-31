@@ -33,6 +33,11 @@
 extern "C" {
 #endif
 
+typedef enum tiz_chromecast_error {
+  ETizCcErrorNoError = 0,
+  ETizCcErrorConnectionError = -1
+} tiz_chromecast_error_t;
+
 typedef enum tiz_chromecast_cast_status {
   ETizCcCastStatusUnknown,
   ETizCcCastStatusReadyToCast,
@@ -56,6 +61,7 @@ typedef enum tiz_chromecast_media_status {
   ETizCcMediaStatusPaused,
   ETizCcMediaStatusPlaying
 } tiz_chromecast_media_status_t;
+
 
 /**
  * Callback invoked when the Chromecast device changes its device or media

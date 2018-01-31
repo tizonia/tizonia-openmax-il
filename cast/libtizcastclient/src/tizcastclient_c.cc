@@ -71,6 +71,17 @@ static const tiz_cast_client_media_status_str_t
      {ETizCcMediaStatusPaused, (const char *) "Paused"},
      {ETizCcMediaStatusPlaying, (const char *) "Playing"}};
 
+typedef struct tiz_cast_client_error_status_str
+{
+  tiz_cast_client_error_status_t status;
+  const char * str;
+} tiz_cast_client_error_status_str_t;
+
+static const tiz_cast_client_error_status_str_t
+  tiz_cast_client_error_status_str_tbl[]
+  = {{ETizCcErrorStatusNoError, (const char *) "NoError"},
+     {ETizCcErrorStatusConnectionError, (const char *) "ConnectionError"}};
+
 enum tiz_cast_client_state
 {
   ETIZCastStateInvalid = 0,
@@ -473,7 +484,7 @@ tiz_cast_client_unmute (const tiz_cast_t * ap_cast)
     (cast_client_id_ptr_t) ap_cast);
 }
 
-const char *
+extern "C" const char *
 tiz_cast_client_cast_status_str (const tiz_cast_client_cast_status_t status)
 {
   const size_t count = sizeof (tiz_cast_client_cast_status_str_tbl)
@@ -491,7 +502,7 @@ tiz_cast_client_cast_status_str (const tiz_cast_client_cast_status_t status)
   return (const char *) "Unknown Chromecast 'cast' status";
 }
 
-const char *
+extern "C" const char *
 tiz_cast_client_media_status_str (const tiz_cast_client_media_status_t status)
 {
   const size_t count = sizeof (tiz_cast_client_media_status_str_tbl)
@@ -507,4 +518,22 @@ tiz_cast_client_media_status_str (const tiz_cast_client_media_status_t status)
     }
 
   return (const char *) "Unknown Chromecast 'media' status";
+}
+
+extern "C" const char *
+tiz_cast_client_error_status_str (const tiz_cast_client_error_status_t status)
+{
+  const size_t count = sizeof (tiz_cast_client_error_status_str_tbl)
+                       / sizeof (tiz_cast_client_error_status_str_t);
+  size_t i = 0;
+
+  for (i = 0; i < count; ++i)
+    {
+      if (tiz_cast_client_error_status_str_tbl[i].status == status)
+        {
+          return tiz_cast_client_error_status_str_tbl[i].str;
+        }
+    }
+
+  return (const char *) "Unknown Chromecast 'error' status";
 }

@@ -66,7 +66,8 @@ namespace tiz
 
     public:
       mgr (const std::string &name_or_ip, cast_status_cback_t cast_cb,
-           media_status_cback_t media_cb);
+           media_status_cback_t media_cb,
+           termination_callback_t termination_cb);
       virtual ~mgr ();
 
       /**
@@ -138,7 +139,6 @@ namespace tiz
       OMX_ERRORTYPE play ();
 
       /**
-       * NOT IMPLEMENTED YET
        *
        * @pre init() has been called on this manager.
        *
@@ -148,7 +148,6 @@ namespace tiz
       OMX_ERRORTYPE stop ();
 
       /**
-       * NOT IMPLEMENTED YET
        *
        * @pre init() has been called on this manager.
        *
@@ -248,6 +247,7 @@ namespace tiz
       std::string name_or_ip_;
       cast_status_cback_t cast_cb_;
       media_status_cback_t media_cb_;
+      termination_callback_t termination_cb_;
       tiz_thread_t thread_;
       tiz_mutex_t mutex_;
       tiz_sem_t sem_;

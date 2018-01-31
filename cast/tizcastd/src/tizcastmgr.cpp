@@ -98,12 +98,14 @@ void *castmgr::thread_func (void *p_arg)
 // mgr
 //
 castmgr::mgr::mgr (const std::string &name_or_ip, cast_status_cback_t cast_cb,
-                   media_status_cback_t media_cb)
+                   media_status_cback_t media_cb,
+                   termination_callback_t termination_cb)
   : p_ops_ (),
     fsm_ (boost::msm::back::states_, &p_ops_),
     name_or_ip_ (name_or_ip),
     cast_cb_ (cast_cb),
     media_cb_ (media_cb),
+    termination_cb_ (termination_cb),
     thread_ (),
     mutex_ (),
     sem_ (),
@@ -131,7 +133,7 @@ castmgr::mgr::init ()
   tiz_check_null_ret_oom (
       (p_ops_ = new ops (
            this, boost::bind (&tiz::castmgr::mgr::cast_status_received, this),
-           cast_cb_, media_cb_)));
+           cast_cb_, media_cb_, termination_cb_)));
 
   // Let's wait until this manager's thread is ready to receive requests
   tiz_check_omx_ret_oom (tiz_sem_wait (&sem_));

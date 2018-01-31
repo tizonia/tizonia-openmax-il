@@ -50,14 +50,14 @@ namespace castmgr = tiz::castmgr;
     TIZ_LOG (TIZ_PRIORITY_ERROR, "[%d] : %s", err, error_msg_.c_str ()); \
   } while (0)
 
-#define CAST_MGR_OPS_BAIL_IF_ERROR(exp, str) \
-  do                                         \
-  {                                          \
-    int rc_ = 0;                             \
-    if (0 != (rc_ = (exp)))                  \
-    {                                        \
-      CAST_MGR_OPS_RECORD_ERROR (rc_, str);  \
-    }                                        \
+#define CAST_MGR_OPS_BAIL_IF_ERROR(exp, str)         \
+  do                                                 \
+  {                                                  \
+    tiz_chromecast_error_t rc_ = ETizCcErrorNoError; \
+    if (ETizCcErrorNoError != (rc_ = (exp)))         \
+    {                                                \
+      CAST_MGR_OPS_RECORD_ERROR (rc_, str);          \
+    }                                                \
   } while (0)
 
 void castmgr::cc_cast_status_cback (void *ap_user_data,
@@ -85,11 +85,13 @@ void castmgr::cc_media_status_cback (void *ap_user_data,
 // ops
 //
 castmgr::ops::ops (mgr *p_mgr, cast_status_received_cback_t cast_received_cb,
-                   cast_status_cback_t cast_cb, media_status_cback_t media_cb)
+                   cast_status_cback_t cast_cb, media_status_cback_t media_cb,
+                   termination_callback_t termination_cb)
   : p_mgr_ (p_mgr),
     cast_received_cb_ (cast_received_cb),
     cast_cb_ (cast_cb),
     media_cb_ (media_cb),
+    termination_cb_ (termination_cb),
     error_code_ (OMX_ErrorNone),
     error_msg_ (),
     p_cc_ (NULL)
@@ -105,8 +107,6 @@ void castmgr::ops::deinit ()
 {
   tiz_chromecast_destroy (p_cc_);
   p_cc_ = NULL;
-
-  //   termination_cback_ (OMX_ErrorNone, "");
 }
 
 void castmgr::ops::do_connect (const std::string &name_or_ip)
@@ -117,9 +117,10 @@ void castmgr::ops::do_connect (const std::string &name_or_ip)
   tiz_chromecast_callbacks_t cc_cbacks
       = { tiz::castmgr::cc_cast_status_cback,
           tiz::castmgr::cc_media_status_cback };
-  CAST_MGR_OPS_BAIL_IF_ERROR (
-      tiz_chromecast_init (&(p_cc_), name_or_ip.c_str (), &cc_cbacks, this),
-      "Unable to initialize the Chromecast client library");
+  tiz_chromecast_error_t rc
+      = tiz_chromecast_init (&(p_cc_), name_or_ip.c_str (), &cc_cbacks, this);
+  std::string error_msg = tiz_chromecast_error_str (rc);
+  CAST_MGR_OPS_BAIL_IF_ERROR (rc, error_msg);
 }
 
 void castmgr::ops::do_disconnect ()
@@ -241,16 +242,12 @@ void castmgr::ops::do_unmute ()
 void castmgr::ops::do_report_fatal_error (const int error,
                                           const std::string &msg)
 {
-  //   termination_cback_ (error, msg);
+  termination_cb_ (device_name_or_ip (), error, msg);
 }
 
 bool castmgr::ops::is_fatal_error (const int error, const std::string &msg)
 {
   TIZ_LOG (TIZ_PRIORITY_ERROR, "[%d] : %s", error, msg.c_str ());
-  // This is a generic implementation. We use here some common understanding of
-  // fatal errors. Each manager cast may decide to use its own list of fatal
-  // errors.
-  // return tiz::cast::util::is_fatal_error (error);
   return true;
 }
 

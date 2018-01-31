@@ -39,7 +39,8 @@
 
 namespace bp = boost::python;
 
-/* This macro assumes the existence of an "int rc" local variable */
+/* This macro assumes the existence of an "tiz_chromecast_error_t rc" local
+ * variable */
 #define try_catch_wrapper(expr)                                  \
   do                                                             \
     {                                                            \
@@ -50,15 +51,17 @@ namespace bp = boost::python;
       catch (bp::error_already_set & e)                          \
         {                                                        \
           PyErr_PrintEx (0);                                     \
-          rc = 1;                                                \
+          rc = ETizCcErrorConnectionError;                       \
         }                                                        \
       catch (const std::exception &e)                            \
         {                                                        \
           std::cerr << e.what ();                                \
+          rc = ETizCcErrorConnectionError;                       \
         }                                                        \
       catch (...)                                                \
         {                                                        \
           std::cerr << std::string ("Unknown exception caught"); \
+          rc = ETizCcErrorConnectionError;                       \
         }                                                        \
     }                                                            \
   while (0)
@@ -100,18 +103,18 @@ tizchromecast::~tizchromecast ()
 {
 }
 
-int tizchromecast::init ()
+tiz_chromecast_error_t tizchromecast::init ()
 {
-  int rc = 0;
+  tiz_chromecast_error_t rc = ETizCcErrorNoError;
   try_catch_wrapper (init_chromecast (py_main_, py_global_));
   return rc;
 }
 
-int tizchromecast::start ()
+tiz_chromecast_error_t tizchromecast::start ()
 {
-  int rc = 0;
+  tiz_chromecast_error_t rc = ETizCcErrorNoError;
   try_catch_wrapper (start_chromecast (py_global_, py_cc_proxy_, name_or_ip_));
-  if (py_cc_proxy_)
+  if (!rc && py_cc_proxy_)
     {
       typedef boost::function< void(std::string, float) > handler_fn1;
       typedef boost::function< void(std::string, int) > handler_fn2;
@@ -123,12 +126,13 @@ int tizchromecast::start ()
           bp::make_function (cast_status_handler),
           bp::make_function (media_status_handler)));
     }
+  std::cout << "tizchromecast::start: rc " << rc << std::endl;
   return rc;
 }
 
 void tizchromecast::stop ()
 {
-  int rc = 0;
+  tiz_chromecast_error_t rc = ETizCcErrorNoError;
   try_catch_wrapper (py_cc_proxy_.attr ("deactivate") ());
   (void)rc;
 }
@@ -138,78 +142,78 @@ void tizchromecast::deinit ()
   // boost::python doesn't support Py_Finalize() yet!
 }
 
-int tizchromecast::poll_socket (int a_poll_time_ms)
+tiz_chromecast_error_t tizchromecast::poll_socket (int a_poll_time_ms)
 {
-  int rc = 0;
+  tiz_chromecast_error_t rc = ETizCcErrorNoError;
   try_catch_wrapper (
       py_cc_proxy_.attr ("poll_socket") (bp::object (a_poll_time_ms)));
   return rc;
 }
 
-int tizchromecast::media_load (const std::string &url,
+tiz_chromecast_error_t tizchromecast::media_load (const std::string &url,
                                const std::string &content_type,
                                const std::string &title,
                                const std::string &album_art)
 {
-  int rc = 0;
+  tiz_chromecast_error_t rc = ETizCcErrorNoError;
   try_catch_wrapper (py_cc_proxy_.attr ("media_load") (
       bp::object (url), bp::object (content_type), bp::object (title),
       bp::object (album_art)));
   return rc;
 }
 
-int tizchromecast::media_play ()
+tiz_chromecast_error_t tizchromecast::media_play ()
 {
-  int rc = 0;
+  tiz_chromecast_error_t rc = ETizCcErrorNoError;
   try_catch_wrapper (py_cc_proxy_.attr ("media_play") ());
   return rc;
 }
 
-int tizchromecast::media_stop ()
+tiz_chromecast_error_t tizchromecast::media_stop ()
 {
-  int rc = 0;
+  tiz_chromecast_error_t rc = ETizCcErrorNoError;
   try_catch_wrapper (py_cc_proxy_.attr ("media_stop") ());
   return rc;
 }
 
-int tizchromecast::media_pause ()
+tiz_chromecast_error_t tizchromecast::media_pause ()
 {
-  int rc = 0;
+  tiz_chromecast_error_t rc = ETizCcErrorNoError;
   try_catch_wrapper (py_cc_proxy_.attr ("media_pause") ());
   return rc;
 }
 
-int tizchromecast::media_volume (int volume)
+tiz_chromecast_error_t tizchromecast::media_volume (int volume)
 {
-  int rc = 0;
+  tiz_chromecast_error_t rc = ETizCcErrorNoError;
   try_catch_wrapper (py_cc_proxy_.attr ("media_vol") (bp::object (volume)));
   return rc;
 }
 
-int tizchromecast::media_volume_up ()
+tiz_chromecast_error_t tizchromecast::media_volume_up ()
 {
-  int rc = 0;
+  tiz_chromecast_error_t rc = ETizCcErrorNoError;
   try_catch_wrapper (py_cc_proxy_.attr ("media_vol_up") ());
   return rc;
 }
 
-int tizchromecast::media_volume_down ()
+tiz_chromecast_error_t tizchromecast::media_volume_down ()
 {
-  int rc = 0;
+  tiz_chromecast_error_t rc = ETizCcErrorNoError;
   try_catch_wrapper (py_cc_proxy_.attr ("media_vol_down") ());
   return rc;
 }
 
-int tizchromecast::media_mute ()
+tiz_chromecast_error_t tizchromecast::media_mute ()
 {
-  int rc = 0;
+  tiz_chromecast_error_t rc = ETizCcErrorNoError;
   try_catch_wrapper (py_cc_proxy_.attr ("media_mute") ());
   return rc;
 }
 
-int tizchromecast::media_unmute ()
+tiz_chromecast_error_t tizchromecast::media_unmute ()
 {
-  int rc = 0;
+  tiz_chromecast_error_t rc = ETizCcErrorNoError;
   try_catch_wrapper (py_cc_proxy_.attr ("media_unmute") ());
   return rc;
 }

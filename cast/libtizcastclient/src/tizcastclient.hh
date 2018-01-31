@@ -106,6 +106,10 @@ private:
   media_status (const std::vector< uint8_t > & uuid, const uint32_t & status,
                 const int32_t & volume);
 
+  void
+  error_status (const std::vector< uint8_t > & uuid, const uint32_t & status,
+                const std::string & error_msg);
+
 private:
   struct client_data
   {
@@ -124,6 +128,7 @@ private:
         {
           cbacks_.pf_cast_status = ap_cbacks->pf_cast_status;
           cbacks_.pf_media_status = ap_cbacks->pf_media_status;
+          cbacks_.pf_error_status = ap_cbacks->pf_error_status;
         }
     }
 

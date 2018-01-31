@@ -97,7 +97,8 @@ int32_t tizcastd::connect (const std::vector< uint8_t > &uuid,
     p_cast_mgr = new tiz::castmgr::mgr (
         name_or_ip,
         boost::bind (&tizcastd::cast_status_forwarder, this, _1, _2, _3),
-        boost::bind (&tizcastd::media_status_forwarder, this, _1, _2, _3));
+        boost::bind (&tizcastd::media_status_forwarder, this, _1, _2, _3),
+        boost::bind (&tizcastd::error_status_forwarder, this, _1, _2, _3));
     assert (p_cast_mgr);
     p_cast_mgr->init ();
 
@@ -247,6 +248,19 @@ void tizcastd::media_status_forwarder (const std::string &name_or_ip,
     media_status (devices_[name_or_ip].client_uuid_, status, volume);
     TIZ_LOG (TIZ_PRIORITY_TRACE, "forwarded for manager [%s]",
              name_or_ip.c_str ());
+  }
+}
+
+void tizcastd::error_status_forwarder (const std::string &name_or_ip,
+                                       const uint32_t &status,
+                                       const std::string &error_str)
+{
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "termination signal from manager [%s]",
+           name_or_ip.c_str ());
+  if (devices_.count (name_or_ip))
+  {
+    error_status (devices_[name_or_ip].client_uuid_, status, error_str);
+    dispose_mgr (devices_[name_or_ip].p_cast_mgr_);
   }
 }
 

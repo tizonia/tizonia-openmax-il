@@ -65,12 +65,8 @@ namespace tiz
       friend void cc_media_status_cback (void *, tiz_chromecast_media_status_t, int);
 
     public:
-      typedef boost::function< void(OMX_ERRORTYPE, std::string) >
-          termination_callback_t;
-
-    public:
       ops (mgr *p_mgr, cast_status_received_cback_t, cast_status_cback_t cast_cb,
-           media_status_cback_t media_cb);
+           media_status_cback_t media_cb, termination_callback_t termination_cb);
       virtual ~ops ();
 
       void deinit ();
@@ -103,7 +99,7 @@ namespace tiz
       cast_status_received_cback_t cast_received_cb_;
       cast_status_cback_t cast_cb_;
       media_status_cback_t media_cb_;
-      // termination_callback_t termination_cback_;
+      termination_callback_t termination_cb_;
       int error_code_;
       std::string error_msg_;
       tiz_chromecast_t *p_cc_;

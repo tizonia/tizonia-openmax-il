@@ -476,12 +476,12 @@ namespace tiz
         bmf::Row < running               , poll_evt         , bmf::none   , do_poll                                     >,
         bmf::Row < running               , err_evt          , bmf::none   , bmf::none              , bmf::euml::Not_<
                                                                                                         is_fatal_error> >,
-        bmf::Row < running               , err_evt          , quitted     , do_report_fatal_error  , is_fatal_error     >,
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
         bmf::Row < quitting              , bmf::none        , quitted     , bmf::none                                   >,
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
         bmf::Row < quitted               , connect_evt      , connecting  , do_connect                                  >,
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
+        bmf::Row < polling               , err_evt          , quitted     , do_report_fatal_error  , is_fatal_error     >,
         bmf::Row < polling               , poll_evt         , bmf::none   , do_poll                                     >
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
         > {};

@@ -160,6 +160,10 @@ public:
   void media_status_forwarder (const std::string &name_or_ip,
                                const uint32_t &status, const int32_t &volume);
 
+  void error_status_forwarder (const std::string &name_or_ip,
+                               const uint32_t &status,
+                               const std::string &error_str);
+
 private:
   struct device_info
   {
@@ -198,8 +202,8 @@ private:
   typedef std::pair< device_name_or_ip_t, device_info > devices_pair_t;
 
 private:
-  tiz::castmgr::mgr * get_mgr (std::vector< unsigned char > client_uuid);
-  void dispose_mgr (tiz::castmgr::mgr * p_mgr);
+  tiz::castmgr::mgr *get_mgr (std::vector< unsigned char > client_uuid);
+  void dispose_mgr (tiz::castmgr::mgr *p_mgr);
 
 private:
   devices_map_t devices_;

@@ -43,10 +43,16 @@ namespace tiz
                                   const tiz_chromecast_cast_status_t a_status,
                                   const int a_volume) >
         cast_status_cback_t;
+
     typedef boost::function< void(const std::string& device_or_ip,
                                   const tiz_chromecast_media_status_t a_status,
                                   const int a_volume) >
         media_status_cback_t;
+
+    typedef boost::function< void(const std::string& device_or_ip,
+                                  const uint32_t& status,
+                                  const std::string& error_str) >
+        termination_callback_t;
 
   }  // namespace castmgr
 }  // namespace tiz

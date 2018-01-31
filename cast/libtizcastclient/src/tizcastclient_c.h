@@ -95,6 +95,9 @@ tiz_cast_client_cast_status_str (const tiz_cast_client_cast_status_t status);
 const char *
 tiz_cast_client_media_status_str (const tiz_cast_client_media_status_t status);
 
+const char *
+tiz_cast_client_error_status_str (const tiz_cast_client_error_status_t status);
+
 #ifdef __cplusplus
 }
 #endif

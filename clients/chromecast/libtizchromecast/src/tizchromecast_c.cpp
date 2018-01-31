@@ -35,6 +35,16 @@
 #include "tizchromecast.hpp"
 #include "tizchromecast_c.h"
 
+typedef struct tiz_chromecast_error_str
+{
+  tiz_chromecast_error_t status;
+  const char *str;
+} tiz_chromecast_error_str_t;
+
+static const tiz_chromecast_error_str_t tiz_chromecast_error_str_tbl[]
+    = { { ETizCcErrorNoError, (const char *)"NoError" },
+        { ETizCcErrorConnectionError, (const char *)"ConnectionError" } };
+
 struct tiz_chromecast
 {
   tizchromecast *p_proxy_;
@@ -49,12 +59,11 @@ static void chromecast_free_data (tiz_chromecast_t *ap_chromecast)
     }
 }
 
-static int chromecast_alloc_data (tiz_chromecast_t *ap_chromecast,
-                                  const char *ap_name_or_ip,
-                                  const tiz_chromecast_callbacks_t *ap_cbacks,
-                                  void *ap_user_data)
+static tiz_chromecast_error_t chromecast_alloc_data (
+    tiz_chromecast_t *ap_chromecast, const char *ap_name_or_ip,
+    const tiz_chromecast_callbacks_t *ap_cbacks, void *ap_user_data)
 {
-  int rc = 0;
+  tiz_chromecast_error_t rc = ETizCcErrorNoError;
   assert (ap_chromecast);
   try
     {
@@ -64,18 +73,17 @@ static int chromecast_alloc_data (tiz_chromecast_t *ap_chromecast,
   catch (...)
     {
       chromecast_free_data (ap_chromecast);
-      rc = 1;
+      rc = ETizCcErrorConnectionError;
     }
   return rc;
 }
 
-extern "C" int tiz_chromecast_init (tiz_chromecast_ptr_t *app_chromecast,
-                                    const char *ap_name_or_ip,
-                                    const tiz_chromecast_callbacks_t *ap_cbacks,
-                                    void *ap_user_data)
+extern "C" tiz_chromecast_error_t tiz_chromecast_init (
+    tiz_chromecast_ptr_t *app_chromecast, const char *ap_name_or_ip,
+    const tiz_chromecast_callbacks_t *ap_cbacks, void *ap_user_data)
 {
   tiz_chromecast_t *p_chromecast = NULL;
-  int rc = 1;
+  tiz_chromecast_error_t rc = ETizCcErrorConnectionError;
 
   assert (app_chromecast);
   assert (ap_name_or_ip);
@@ -83,19 +91,21 @@ extern "C" int tiz_chromecast_init (tiz_chromecast_ptr_t *app_chromecast,
   if ((p_chromecast
        = (tiz_chromecast_t *)calloc (1, sizeof (tiz_chromecast_t))))
     {
-      if (!chromecast_alloc_data (p_chromecast, ap_name_or_ip, ap_cbacks,
-                                  ap_user_data))
+      if (ETizCcErrorNoError
+          == chromecast_alloc_data (p_chromecast, ap_name_or_ip, ap_cbacks,
+                                    ap_user_data))
         {
           tizchromecast *p_cc = p_chromecast->p_proxy_;
           assert (p_cc);
-          if (!p_cc->init () && !p_cc->start ())
+          if (ETizCcErrorNoError == p_cc->init ()
+              && ETizCcErrorNoError == p_cc->start ())
             {
               // all good
-              rc = 0;
+              rc = ETizCcErrorNoError;
             }
         }
 
-      if (0 != rc)
+      if (ETizCcErrorNoError != rc)
         {
           chromecast_free_data (p_chromecast);
           free (p_chromecast);
@@ -108,18 +118,17 @@ extern "C" int tiz_chromecast_init (tiz_chromecast_ptr_t *app_chromecast,
   return rc;
 }
 
-extern "C" int tiz_chromecast_poll (tiz_chromecast_t *ap_chromecast,
-                                    int a_poll_time_ms)
+extern "C" tiz_chromecast_error_t tiz_chromecast_poll (
+    tiz_chromecast_t *ap_chromecast, int a_poll_time_ms)
 {
   assert (ap_chromecast);
   assert (ap_chromecast->p_proxy_);
   return ap_chromecast->p_proxy_->poll_socket (a_poll_time_ms);
 }
 
-extern "C" int tiz_chromecast_load_url (tiz_chromecast_t *ap_chromecast,
-                                        const char *ap_url,
-                                        const char *ap_content_type,
-                                        const char *ap_title, const char *ap_album_art)
+extern "C" tiz_chromecast_error_t tiz_chromecast_load_url (
+    tiz_chromecast_t *ap_chromecast, const char *ap_url,
+    const char *ap_content_type, const char *ap_title, const char *ap_album_art)
 {
   assert (ap_chromecast);
   assert (ap_chromecast->p_proxy_);
@@ -127,57 +136,64 @@ extern "C" int tiz_chromecast_load_url (tiz_chromecast_t *ap_chromecast,
                                               ap_album_art);
 }
 
-extern "C" int tiz_chromecast_play (tiz_chromecast_t *ap_chromecast)
+extern "C" tiz_chromecast_error_t tiz_chromecast_play (
+    tiz_chromecast_t *ap_chromecast)
 {
   assert (ap_chromecast);
   assert (ap_chromecast->p_proxy_);
   return ap_chromecast->p_proxy_->media_play ();
 }
 
-extern "C" int tiz_chromecast_stop (tiz_chromecast_t *ap_chromecast)
+extern "C" tiz_chromecast_error_t tiz_chromecast_stop (
+    tiz_chromecast_t *ap_chromecast)
 {
   assert (ap_chromecast);
   assert (ap_chromecast->p_proxy_);
   return ap_chromecast->p_proxy_->media_stop ();
 }
 
-extern "C" int tiz_chromecast_pause (tiz_chromecast_t *ap_chromecast)
+extern "C" tiz_chromecast_error_t tiz_chromecast_pause (
+    tiz_chromecast_t *ap_chromecast)
 {
   assert (ap_chromecast);
   assert (ap_chromecast->p_proxy_);
   return ap_chromecast->p_proxy_->media_pause ();
 }
 
-extern "C" int tiz_chromecast_volume (tiz_chromecast_t *ap_chromecast,
-                                      int a_volume)
+extern "C" tiz_chromecast_error_t tiz_chromecast_volume (
+    tiz_chromecast_t *ap_chromecast, int a_volume)
 {
   assert (ap_chromecast);
   assert (ap_chromecast->p_proxy_);
   return ap_chromecast->p_proxy_->media_volume (a_volume);
 }
 
-extern "C" int tiz_chromecast_volume_up (tiz_chromecast_t *ap_chromecast)
+extern "C" tiz_chromecast_error_t tiz_chromecast_volume_up (
+    tiz_chromecast_t *ap_chromecast)
 {
   assert (ap_chromecast);
   assert (ap_chromecast->p_proxy_);
   return ap_chromecast->p_proxy_->media_volume_up ();
 }
 
-extern "C" int tiz_chromecast_volume_down (tiz_chromecast_t *ap_chromecast)
+extern "C" tiz_chromecast_error_t tiz_chromecast_volume_down (
+    tiz_chromecast_t *ap_chromecast)
 {
   assert (ap_chromecast);
   assert (ap_chromecast->p_proxy_);
   return ap_chromecast->p_proxy_->media_volume_down ();
 }
 
-extern "C" int tiz_chromecast_mute (tiz_chromecast_t *ap_chromecast)
+extern "C" tiz_chromecast_error_t tiz_chromecast_mute (
+    tiz_chromecast_t *ap_chromecast)
 {
   assert (ap_chromecast);
   assert (ap_chromecast->p_proxy_);
   return ap_chromecast->p_proxy_->media_mute ();
 }
 
-extern "C" int tiz_chromecast_unmute (tiz_chromecast_t *ap_chromecast)
+extern "C" tiz_chromecast_error_t tiz_chromecast_unmute (
+    tiz_chromecast_t *ap_chromecast)
 {
   assert (ap_chromecast);
   assert (ap_chromecast->p_proxy_);
@@ -197,4 +213,22 @@ extern "C" void tiz_chromecast_destroy (tiz_chromecast_t *ap_chromecast)
       chromecast_free_data (ap_chromecast);
       free (ap_chromecast);
     }
+}
+
+extern "C" const char *tiz_chromecast_error_str (
+    const tiz_chromecast_error_t error)
+{
+  const size_t count = sizeof (tiz_chromecast_error_str_tbl)
+                       / sizeof (tiz_chromecast_error_str_t);
+  size_t i = 0;
+
+  for (i = 0; i < count; ++i)
+    {
+      if (tiz_chromecast_error_str_tbl[i].status == error)
+        {
+          return tiz_chromecast_error_str_tbl[i].str;
+        }
+    }
+
+  return (const char *)"Unknown Chromecast 'media' status";
 }

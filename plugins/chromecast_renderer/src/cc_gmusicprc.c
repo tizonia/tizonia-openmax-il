@@ -61,6 +61,7 @@ typedef struct cc_status_event_data
 {
   unsigned int status;
   int volume;
+  char * p_err_msg;
 } cc_status_event_data_t;
 
 /* forward declarations */
@@ -117,7 +118,8 @@ clear_stored_metadata (cc_gmusic_prc_t * ap_prc);
 static void
 post_chromecast_event (cc_gmusic_prc_t * ap_prc,
                        tiz_event_pluggable_hdlr_f apf_hdlr,
-                       unsigned int a_status, int a_volume)
+                       unsigned int a_status, int a_volume,
+                       const char * ap_err_msg)
 {
   tiz_event_pluggable_t * p_event = NULL;
   cc_status_event_data_t * p_status = NULL;
@@ -132,6 +134,9 @@ post_chromecast_event (cc_gmusic_prc_t * ap_prc,
       p_event->pf_hdlr = apf_hdlr;
       p_status->status = a_status;
       p_status->volume = a_volume;
+      p_status->p_err_msg
+        = (ap_err_msg != NULL ? strndup (ap_err_msg, strlen (ap_err_msg))
+                              : NULL);
       p_event->p_data = p_status;
       tiz_comp_event_pluggable (handleOf (ap_prc), p_event);
     }
@@ -205,7 +210,7 @@ cc_cast_status_cback (void * ap_user_data,
 {
   cc_gmusic_prc_t * p_prc = ap_user_data;
   assert (p_prc);
-  post_chromecast_event (p_prc, cast_status_handler, a_status, a_volume);
+  post_chromecast_event (p_prc, cast_status_handler, a_status, a_volume, NULL);
 }
 
 static void
@@ -242,7 +247,44 @@ cc_media_status_cback (void * ap_user_data,
 {
   cc_gmusic_prc_t * p_prc = ap_user_data;
   assert (p_prc);
-  post_chromecast_event (p_prc, media_status_handler, a_status, a_volume);
+  post_chromecast_event (p_prc, media_status_handler, a_status, a_volume, NULL);
+}
+
+static void
+error_status_handler (OMX_PTR ap_prc, tiz_event_pluggable_t * ap_event)
+{
+  cc_gmusic_prc_t * p_prc = ap_prc;
+  cc_status_event_data_t * p_event_data = NULL;
+  tiz_cast_client_error_status_t status = ETizCcErrorStatusNoError;
+
+  assert (p_prc);
+  assert (ap_event);
+  assert (ap_event->p_data);
+
+  p_event_data = ap_event->p_data;
+  status = (tiz_cast_client_error_status_t) p_event_data->status;
+  TIZ_DEBUG (handleOf (p_prc), "status [%s]",
+             tiz_cast_client_error_status_str (status));
+
+  if (ETizCcErrorStatusNoError != status)
+    {
+      store_chromecast_metadata (p_prc);
+      (void) tiz_srv_issue_err_event ((OMX_PTR) ap_prc,
+                                      OMX_ErrorInsufficientResources);
+    }
+
+  tiz_mem_free (p_event_data->p_err_msg);
+  tiz_mem_free (ap_event->p_data);
+  tiz_mem_free (ap_event);
+}
+
+static void
+cc_error_status_cback (void * ap_user_data,
+                       tiz_cast_client_error_status_t a_status, const char * ap_err_msg)
+{
+  cc_gmusic_prc_t * p_prc = ap_user_data;
+  assert (p_prc);
+  post_chromecast_event (p_prc, error_status_handler, a_status, 0, ap_err_msg);
 }
 
 static OMX_ERRORTYPE
@@ -784,7 +826,7 @@ cc_gmusic_prc_prepare_to_transfer (void * ap_prc, OMX_U32 a_pid)
   if (!p_prc->p_cc_)
     {
       tiz_cast_client_callbacks_t cast_cbacks
-        = {cc_cast_status_cback, cc_media_status_cback};
+        = {cc_cast_status_cback, cc_media_status_cback, cc_error_status_cback};
       bzero (&(p_prc->cc_uuid_), 128);
       tiz_uuid_generate (&(p_prc->cc_uuid_));
       on_cc_error_ret_omx_oom (tiz_cast_client_init (

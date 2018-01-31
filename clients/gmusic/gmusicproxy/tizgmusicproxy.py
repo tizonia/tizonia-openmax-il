@@ -290,12 +290,11 @@ class tizgmusicproxy(object):
         song = self.now_playing_song
         if song:
             artref = song.get('albumArtRef')
-            if len(artref) > 0:
+            if artref and len(artref) > 0:
                 url = to_ascii(artref[0].get('url'))
                 logging.info("url %s", url)
-            return url
-        else:
-            return ''
+                return url
+        return ''
 
     def clear_queue(self):
         """ Clears the playback queue.

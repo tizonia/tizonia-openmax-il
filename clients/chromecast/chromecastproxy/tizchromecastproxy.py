@@ -126,15 +126,16 @@ class tizchromecastproxy(object):
     """
     def __init__(self, name_or_ip):
         self.name_or_ip = name_or_ip
-        self.cast = pychromecast.Chromecast(name_or_ip, blocking=False)
+        self.cast = None
         self.cast_status_listener = None
         self.media_status_listener = None
-        self.cast.register_status_listener(self)
-        self.cast.media_controller.register_status_listener(self)
 
     def activate(self, cast_status_listener, media_status_listener):
+        self.cast = pychromecast.Chromecast(self.name_or_ip, blocking=False)
         self.cast_status_listener = cast_status_listener
         self.media_status_listener = media_status_listener
+        self.cast.register_status_listener(self)
+        self.cast.media_controller.register_status_listener(self)
         print_nfo("[Chromecast] [{0}] [Activating]" \
                   .format(to_ascii(self.name_or_ip)))
         self.cast.play_media(

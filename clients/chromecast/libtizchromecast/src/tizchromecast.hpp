@@ -76,23 +76,25 @@ public:
                  void *ap_user_data);
   ~tizchromecast ();
 
-  int init ();
-  int start ();
+  tiz_chromecast_error_t init ();
+  tiz_chromecast_error_t start ();
   void stop ();
   void deinit ();
 
-  int poll_socket (int a_poll_time_ms);
+  tiz_chromecast_error_t poll_socket (int a_poll_time_ms);
 
-  int media_load (const std::string &url, const std::string &content_type,
-                  const std::string &title, const std::string &album_art);
-  int media_play ();
-  int media_stop ();
-  int media_pause ();
-  int media_volume (int volume);
-  int media_volume_up ();
-  int media_volume_down ();
-  int media_mute ();
-  int media_unmute ();
+  tiz_chromecast_error_t media_load (const std::string &url,
+                                     const std::string &content_type,
+                                     const std::string &title,
+                                     const std::string &album_art);
+  tiz_chromecast_error_t media_play ();
+  tiz_chromecast_error_t media_stop ();
+  tiz_chromecast_error_t media_pause ();
+  tiz_chromecast_error_t media_volume (int volume);
+  tiz_chromecast_error_t media_volume_up ();
+  tiz_chromecast_error_t media_volume_down ();
+  tiz_chromecast_error_t media_mute ();
+  tiz_chromecast_error_t media_unmute ();
 
   void new_cast_status (const std::string &, const float &);
   void new_media_status (const std::string &, const int &);
