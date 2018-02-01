@@ -35,6 +35,7 @@ extern "C" {
 
 #include <stdbool.h>
 
+#include "tizchromecastctx_c.h"
 #include "tizchromecasttypes.h"
 
 /**
@@ -66,7 +67,8 @@ typedef /*@null@ */ tiz_chromecast_t *tiz_chromecast_ptr_t;
  * @return 0 on success.
  */
 tiz_chromecast_error_t tiz_chromecast_init (
-    /*@null@ */ tiz_chromecast_ptr_t *app_chromecast, const char *ap_name_or_ip,
+    /*@null@ */ tiz_chromecast_ptr_t *app_chromecast,
+    const tiz_chromecast_ctx_t * p_cc_ctx_, const char *ap_name_or_ip,
     const tiz_chromecast_callbacks_t *ap_cbacks, void *ap_user_data);
 
 /**
@@ -209,8 +211,7 @@ tiz_chromecast_error_t tiz_chromecast_unmute (tiz_chromecast_t *ap_chromecast);
  */
 void tiz_chromecast_destroy (tiz_chromecast_t *ap_chromecast);
 
-const char *
-tiz_chromecast_error_str (const tiz_chromecast_error_t error);
+const char *tiz_chromecast_error_str (const tiz_chromecast_error_t error);
 
 #ifdef __cplusplus
 }

@@ -36,6 +36,7 @@
 #include <iostream>
 
 #include "tizchromecast.hpp"
+#include "tizchromecastctx.hpp"
 
 namespace bp = boost::python;
 
@@ -66,31 +67,14 @@ namespace bp = boost::python;
     }                                                            \
   while (0)
 
-namespace
-{
-  void init_chromecast (bp::object &py_main, bp::object &py_global)
-  {
-    Py_Initialize ();
-
-    // Import the Chromecast proxy module
-    py_main = bp::import ("tizchromecastproxy");
-
-    // Retrieve the main module's namespace
-    py_global = py_main.attr ("__dict__");
-  }
-
-  void start_chromecast (const bp::object &py_global, bp::object &py_cc_proxy,
-                         const std::string &name_or_ip)
-  {
-    bp::object pychromecastproxy = py_global["tizchromecastproxy"];
-    py_cc_proxy = pychromecastproxy (name_or_ip.c_str ());
-  }
-}
-
-tizchromecast::tizchromecast (const std::string &name_or_ip,
+tizchromecast::tizchromecast (const tizchromecastctx &cc_ctx,
+                              const std::string &name_or_ip,
                               const tiz_chromecast_callbacks_t *ap_cbacks,
                               void *ap_user_data)
-  : name_or_ip_ (name_or_ip), cbacks_ (), p_user_data_ (ap_user_data)
+  : cc_ctx_ (cc_ctx),
+    name_or_ip_ (name_or_ip),
+    cbacks_ (),
+    p_user_data_ (ap_user_data)
 {
   if (ap_cbacks)
     {
@@ -105,16 +89,16 @@ tizchromecast::~tizchromecast ()
 
 tiz_chromecast_error_t tizchromecast::init ()
 {
-  tiz_chromecast_error_t rc = ETizCcErrorNoError;
-  try_catch_wrapper (init_chromecast (py_main_, py_global_));
-  return rc;
+  return ETizCcErrorNoError;
 }
 
 tiz_chromecast_error_t tizchromecast::start ()
 {
   tiz_chromecast_error_t rc = ETizCcErrorNoError;
-  try_catch_wrapper (start_chromecast (py_global_, py_cc_proxy_, name_or_ip_));
-  if (!rc && py_cc_proxy_)
+
+  bp::object & py_cc_proxy = cc_ctx_.get_cc_proxy (name_or_ip_);
+
+  if (ETizCcErrorNoError == rc)
     {
       typedef boost::function< void(std::string, float) > handler_fn1;
       typedef boost::function< void(std::string, int) > handler_fn2;
@@ -122,7 +106,7 @@ tiz_chromecast_error_t tizchromecast::start ()
           boost::bind (&tizchromecast::new_cast_status, this, _1, _2));
       handler_fn2 media_status_handler (
           boost::bind (&tizchromecast::new_media_status, this, _1, _2));
-      try_catch_wrapper (py_cc_proxy_.attr ("activate") (
+      try_catch_wrapper (py_cc_proxy.attr ("activate") (
           bp::make_function (cast_status_handler),
           bp::make_function (media_status_handler)));
     }
@@ -133,7 +117,7 @@ tiz_chromecast_error_t tizchromecast::start ()
 void tizchromecast::stop ()
 {
   tiz_chromecast_error_t rc = ETizCcErrorNoError;
-  try_catch_wrapper (py_cc_proxy_.attr ("deactivate") ());
+  try_catch_wrapper (cc_ctx_.get_cc_proxy ().attr ("deactivate") ());
   (void)rc;
 }
 
@@ -146,17 +130,16 @@ tiz_chromecast_error_t tizchromecast::poll_socket (int a_poll_time_ms)
 {
   tiz_chromecast_error_t rc = ETizCcErrorNoError;
   try_catch_wrapper (
-      py_cc_proxy_.attr ("poll_socket") (bp::object (a_poll_time_ms)));
+      cc_ctx_.get_cc_proxy ().attr ("poll_socket") (bp::object (a_poll_time_ms)));
   return rc;
 }
 
-tiz_chromecast_error_t tizchromecast::media_load (const std::string &url,
-                               const std::string &content_type,
-                               const std::string &title,
-                               const std::string &album_art)
+tiz_chromecast_error_t tizchromecast::media_load (
+    const std::string &url, const std::string &content_type,
+    const std::string &title, const std::string &album_art)
 {
   tiz_chromecast_error_t rc = ETizCcErrorNoError;
-  try_catch_wrapper (py_cc_proxy_.attr ("media_load") (
+  try_catch_wrapper (cc_ctx_.get_cc_proxy ().attr ("media_load") (
       bp::object (url), bp::object (content_type), bp::object (title),
       bp::object (album_art)));
   return rc;
@@ -165,56 +148,56 @@ tiz_chromecast_error_t tizchromecast::media_load (const std::string &url,
 tiz_chromecast_error_t tizchromecast::media_play ()
 {
   tiz_chromecast_error_t rc = ETizCcErrorNoError;
-  try_catch_wrapper (py_cc_proxy_.attr ("media_play") ());
+  try_catch_wrapper (cc_ctx_.get_cc_proxy ().attr ("media_play") ());
   return rc;
 }
 
 tiz_chromecast_error_t tizchromecast::media_stop ()
 {
   tiz_chromecast_error_t rc = ETizCcErrorNoError;
-  try_catch_wrapper (py_cc_proxy_.attr ("media_stop") ());
+  try_catch_wrapper (cc_ctx_.get_cc_proxy ().attr ("media_stop") ());
   return rc;
 }
 
 tiz_chromecast_error_t tizchromecast::media_pause ()
 {
   tiz_chromecast_error_t rc = ETizCcErrorNoError;
-  try_catch_wrapper (py_cc_proxy_.attr ("media_pause") ());
+  try_catch_wrapper (cc_ctx_.get_cc_proxy ().attr ("media_pause") ());
   return rc;
 }
 
 tiz_chromecast_error_t tizchromecast::media_volume (int volume)
 {
   tiz_chromecast_error_t rc = ETizCcErrorNoError;
-  try_catch_wrapper (py_cc_proxy_.attr ("media_vol") (bp::object (volume)));
+  try_catch_wrapper (cc_ctx_.get_cc_proxy ().attr ("media_vol") (bp::object (volume)));
   return rc;
 }
 
 tiz_chromecast_error_t tizchromecast::media_volume_up ()
 {
   tiz_chromecast_error_t rc = ETizCcErrorNoError;
-  try_catch_wrapper (py_cc_proxy_.attr ("media_vol_up") ());
+  try_catch_wrapper (cc_ctx_.get_cc_proxy ().attr ("media_vol_up") ());
   return rc;
 }
 
 tiz_chromecast_error_t tizchromecast::media_volume_down ()
 {
   tiz_chromecast_error_t rc = ETizCcErrorNoError;
-  try_catch_wrapper (py_cc_proxy_.attr ("media_vol_down") ());
+  try_catch_wrapper (cc_ctx_.get_cc_proxy ().attr ("media_vol_down") ());
   return rc;
 }
 
 tiz_chromecast_error_t tizchromecast::media_mute ()
 {
   tiz_chromecast_error_t rc = ETizCcErrorNoError;
-  try_catch_wrapper (py_cc_proxy_.attr ("media_mute") ());
+  try_catch_wrapper (cc_ctx_.get_cc_proxy ().attr ("media_mute") ());
   return rc;
 }
 
 tiz_chromecast_error_t tizchromecast::media_unmute ()
 {
   tiz_chromecast_error_t rc = ETizCcErrorNoError;
-  try_catch_wrapper (py_cc_proxy_.attr ("media_unmute") ());
+  try_catch_wrapper (cc_ctx_.get_cc_proxy ().attr ("media_unmute") ());
   return rc;
 }
 
@@ -257,7 +240,8 @@ void tizchromecast::new_media_status (const std::string &status,
     }
   else if (!status.compare ("BUFFERING"))
     {
-      cbacks_.pf_media_status (p_user_data_, ETizCcMediaStatusBuffering, volume);
+      cbacks_.pf_media_status (p_user_data_, ETizCcMediaStatusBuffering,
+                               volume);
     }
   else if (!status.compare ("PAUSED"))
     {

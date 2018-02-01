@@ -68,10 +68,12 @@ namespace boost
 
 #include "tizchromecasttypes.h"
 
+class tizchromecastctx;
+
 class tizchromecast
 {
 public:
-  tizchromecast (const std::string &name_or_ip,
+  tizchromecast (const tizchromecastctx &cc_ctx, const std::string &name_or_ip,
                  const tiz_chromecast_callbacks_t *ap_cbacks,
                  void *ap_user_data);
   ~tizchromecast ();
@@ -100,13 +102,11 @@ public:
   void new_media_status (const std::string &, const int &);
 
 private:
+  const tizchromecastctx &cc_ctx_;
   std::string name_or_ip_;
   std::string url_;
   std::string content_type_;
   std::string title_;
-  boost::python::object py_main_;
-  boost::python::object py_global_;
-  boost::python::object py_cc_proxy_;
   tiz_chromecast_callbacks_t cbacks_;
   void *p_user_data_;
 };

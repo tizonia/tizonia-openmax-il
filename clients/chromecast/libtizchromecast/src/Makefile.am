@@ -22,13 +22,17 @@ libtizchromecast_includedir = $(includedir)/tizonia
 noinst_HEADERS =
 
 libtizchromecast_include_HEADERS = \
+	tizchromecastctx_c.h \
+	tizchromecast_c.h \
+	tizchromecastctx.hpp \
 	tizchromecast.hpp \
-	tizchromecasttypes.h \
-	tizchromecast_c.h
+	tizchromecasttypes.h
 
 libtizchromecast_la_SOURCES = \
-	tizchromecast.cpp \
-	tizchromecast_c.cpp
+	tizchromecastctx_c.cpp \
+	tizchromecast_c.cpp \
+	tizchromecastctx.cpp \
+	tizchromecast.cpp
 
 libtizchromecast_la_CPPFLAGS = \
 	@PYTHON_CPPFLAGS@ \

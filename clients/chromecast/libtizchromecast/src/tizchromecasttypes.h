@@ -62,7 +62,6 @@ typedef enum tiz_chromecast_media_status {
   ETizCcMediaStatusPlaying
 } tiz_chromecast_media_status_t;
 
-
 /**
  * Callback invoked when the Chromecast device changes its device or media
  * statuses.

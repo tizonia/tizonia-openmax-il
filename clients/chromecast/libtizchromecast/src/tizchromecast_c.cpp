@@ -34,6 +34,8 @@
 
 #include "tizchromecast.hpp"
 #include "tizchromecast_c.h"
+#include "tizchromecastctx_c.h"
+#include "tizchromecastctxtypes.h"
 
 typedef struct tiz_chromecast_error_str
 {
@@ -60,15 +62,16 @@ static void chromecast_free_data (tiz_chromecast_t *ap_chromecast)
 }
 
 static tiz_chromecast_error_t chromecast_alloc_data (
-    tiz_chromecast_t *ap_chromecast, const char *ap_name_or_ip,
-    const tiz_chromecast_callbacks_t *ap_cbacks, void *ap_user_data)
+    tiz_chromecast_t *ap_chromecast, const tiz_chromecast_ctx_t * p_cc_ctx,
+    const char *ap_name_or_ip, const tiz_chromecast_callbacks_t *ap_cbacks,
+    void *ap_user_data)
 {
   tiz_chromecast_error_t rc = ETizCcErrorNoError;
   assert (ap_chromecast);
   try
     {
-      ap_chromecast->p_proxy_
-          = new tizchromecast (ap_name_or_ip, ap_cbacks, ap_user_data);
+      ap_chromecast->p_proxy_ = new tizchromecast (
+          *(p_cc_ctx->p_ctx_), ap_name_or_ip, ap_cbacks, ap_user_data);
     }
   catch (...)
     {
@@ -79,7 +82,8 @@ static tiz_chromecast_error_t chromecast_alloc_data (
 }
 
 extern "C" tiz_chromecast_error_t tiz_chromecast_init (
-    tiz_chromecast_ptr_t *app_chromecast, const char *ap_name_or_ip,
+    tiz_chromecast_ptr_t *app_chromecast,
+    const tiz_chromecast_ctx_t * p_cc_ctx_, const char *ap_name_or_ip,
     const tiz_chromecast_callbacks_t *ap_cbacks, void *ap_user_data)
 {
   tiz_chromecast_t *p_chromecast = NULL;
@@ -92,8 +96,8 @@ extern "C" tiz_chromecast_error_t tiz_chromecast_init (
        = (tiz_chromecast_t *)calloc (1, sizeof (tiz_chromecast_t))))
     {
       if (ETizCcErrorNoError
-          == chromecast_alloc_data (p_chromecast, ap_name_or_ip, ap_cbacks,
-                                    ap_user_data))
+          == chromecast_alloc_data (p_chromecast, p_cc_ctx_, ap_name_or_ip,
+                                    ap_cbacks, ap_user_data))
         {
           tizchromecast *p_cc = p_chromecast->p_proxy_;
           assert (p_cc);
