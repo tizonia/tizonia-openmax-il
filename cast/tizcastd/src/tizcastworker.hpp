@@ -38,6 +38,8 @@
 
 #include <tizchromecastctx_c.h>
 
+#include "tizcastmgrtypes.hpp"
+
 namespace tiz
 {
   namespace cast
@@ -45,9 +47,9 @@ namespace tiz
 
     // Forward declarations
     void *thread_func (void *p_arg);
+    class mgr;
     class cmd;
     class vector;
-    class ops;
 
     /**
      *  @class worker
@@ -64,14 +66,12 @@ namespace tiz
       friend class ops;
 
     public:
-      worker (const tiz_chromecast_ctx_t * p_cc_ctx,
-           const std::string &name_or_ip, cast_status_cback_t cast_cb,
-           media_status_cback_t media_cb,
-           termination_callback_t termination_cb);
+      worker (cast_status_cback_t cast_cb, media_status_cback_t media_cb,
+              termination_callback_t termination_cb);
       virtual ~worker ();
 
       /**
-       * Initialise the manager thread.
+       * Initialise the cast worker thread.
        *
        * @pre This method must be called only once, before any call is made to
        * the other APIs.
@@ -84,7 +84,7 @@ namespace tiz
       OMX_ERRORTYPE init ();
 
       /**
-       * Destroy the manager thread and release all resources.
+       * Destroy the worker thread and release all resources.
        *
        * @pre stop() has been called on this manager.
        *
@@ -103,7 +103,8 @@ namespace tiz
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
        */
-      OMX_ERRORTYPE connect ();
+      OMX_ERRORTYPE connect (const std::vector< uint8_t > &uuid,
+                             const std::string &name_or_ip);
 
       /**
        * Halt processing of the playlist.
@@ -113,7 +114,7 @@ namespace tiz
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
        */
-      OMX_ERRORTYPE disconnect ();
+      OMX_ERRORTYPE disconnect (const std::vector< uint8_t > &uuid);
 
       /**
        * Process the next item in the playlist.
@@ -123,7 +124,8 @@ namespace tiz
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
        */
-      OMX_ERRORTYPE load_url (const std::string &url,
+      OMX_ERRORTYPE load_url (const std::vector< uint8_t > &uuid,
+                              const std::string &url,
                               const std::string &mime_type,
                               const std::string &title,
                               const std::string &album_art);
@@ -136,7 +138,7 @@ namespace tiz
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
        */
-      OMX_ERRORTYPE play ();
+      OMX_ERRORTYPE play (const std::vector< uint8_t > &uuid);
 
       /**
        *
@@ -145,7 +147,7 @@ namespace tiz
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
        */
-      OMX_ERRORTYPE stop ();
+      OMX_ERRORTYPE stop (const std::vector< uint8_t > &uuid);
 
       /**
        *
@@ -154,7 +156,7 @@ namespace tiz
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
        */
-      OMX_ERRORTYPE pause ();
+      OMX_ERRORTYPE pause (const std::vector< uint8_t > &uuid);
 
       /**
        * Set the volume level (0-100).
@@ -164,7 +166,8 @@ namespace tiz
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
        */
-      OMX_ERRORTYPE volume_set (int volume);
+      OMX_ERRORTYPE volume_set (const std::vector< uint8_t > &uuid,
+                                int volume);
 
       /**
        * Increments or decrements the volume by steps.
@@ -174,7 +177,7 @@ namespace tiz
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
        */
-      OMX_ERRORTYPE volume_up ();
+      OMX_ERRORTYPE volume_up (const std::vector< uint8_t > &uuid);
 
       /**
        * Changes the volume to the specified value. 1.0 is maximum volume and
@@ -185,7 +188,7 @@ namespace tiz
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
        */
-      OMX_ERRORTYPE volume_down ();
+      OMX_ERRORTYPE volume_down (const std::vector< uint8_t > &uuid);
 
       /**
        * Mute/unmute toggle.
@@ -195,7 +198,7 @@ namespace tiz
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
        */
-      OMX_ERRORTYPE mute ();
+      OMX_ERRORTYPE mute (const std::vector< uint8_t > &uuid);
 
       /**
        * Pause the processing of the current item in the playlist.
@@ -205,12 +208,7 @@ namespace tiz
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
        */
-      OMX_ERRORTYPE unmute ();
-
-      std::string get_name_or_ip ()
-      {
-        return name_or_ip_;
-      }
+      OMX_ERRORTYPE unmute (const std::vector< uint8_t > &uuid);
 
     private:
       /**
@@ -234,16 +232,53 @@ namespace tiz
       OMX_ERRORTYPE stop_fsm ();
 
       OMX_ERRORTYPE cast_status_received ();
-
       OMX_ERRORTYPE init_cmd_queue ();
       void deinit_cmd_queue ();
       OMX_ERRORTYPE post_cmd (cmd *p_cmd);
 
-      static bool dispatch_cmd (mgr *p_mgr, const cmd *p_cmd);
+      static bool dispatch_cmd (worker *p_worker, const cmd *p_cmd);
 
     private:
-      const tiz_chromecast_ctx_t * p_cc_ctx_;
-      std::string name_or_ip_;
+      struct device_info
+      {
+        device_info () : name_or_ip_ (), client_uuid_ (), p_cast_mgr_ (NULL)
+        {
+        }
+
+        device_info (const std::string &name_or_ip,
+                     std::vector< unsigned char > client_uuid,
+                     tiz::cast::mgr *p_cast_mgr)
+          : name_or_ip_ (name_or_ip),
+            client_uuid_ (client_uuid),
+            p_cast_mgr_ (p_cast_mgr)
+        {
+        }
+
+        bool operator< (const device_info &rhs) const
+        {
+          return (name_or_ip_ < rhs.name_or_ip_);
+        }
+
+        bool operator== (const device_info &rhs) const
+        {
+          return (name_or_ip_ == rhs.name_or_ip_);
+        }
+
+        // Data members
+        std::string name_or_ip_;
+        std::vector< unsigned char > client_uuid_;
+        tiz::cast::mgr *p_cast_mgr_;  // Not owned
+      };
+
+    private:
+      typedef std::string device_name_or_ip_t;
+      typedef std::map< device_name_or_ip_t, device_info > devices_map_t;
+      typedef std::pair< device_name_or_ip_t, device_info > devices_pair_t;
+
+
+    private:
+      devices_map_t devices_;
+      tiz_chromecast_ctx_t * p_cc_ctx_;
       cast_status_cback_t cast_cb_;
       media_status_cback_t media_cb_;
       termination_callback_t termination_cb_;

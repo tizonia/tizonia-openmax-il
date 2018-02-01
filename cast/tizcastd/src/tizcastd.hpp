@@ -46,14 +46,12 @@
 
 #include <tizcastd-dbus.hh>
 
-#include <tizchromecastctx_c.h>
-
 // Forward declaration
 namespace tiz
 {
-  namespace castmgr
+  namespace cast
   {
-    class mgr;
+    class worker;
   }
 }
 
@@ -167,49 +165,7 @@ public:
                                const std::string &error_str);
 
 private:
-  struct device_info
-  {
-    device_info () : name_or_ip_ (), client_uuid_ (), p_cast_mgr_ (NULL)
-    {
-    }
-
-    device_info (const std::string &name_or_ip,
-                 std::vector< unsigned char > client_uuid,
-                 tiz::castmgr::mgr *p_cast_mgr)
-      : name_or_ip_ (name_or_ip),
-        client_uuid_ (client_uuid),
-        p_cast_mgr_ (p_cast_mgr)
-    {
-    }
-
-    bool operator< (const device_info &rhs) const
-    {
-      return (client_uuid_ < rhs.client_uuid_);
-    }
-
-    bool operator== (const device_info &rhs) const
-    {
-      return (client_uuid_ == rhs.client_uuid_);
-    }
-
-    // Data members
-    std::string name_or_ip_;
-    std::vector< unsigned char > client_uuid_;
-    tiz::castmgr::mgr *p_cast_mgr_;  // Not owned
-  };
-
-private:
-  typedef std::string device_name_or_ip_t;
-  typedef std::map< device_name_or_ip_t, device_info > devices_map_t;
-  typedef std::pair< device_name_or_ip_t, device_info > devices_pair_t;
-
-private:
-  tiz::castmgr::mgr *get_mgr (std::vector< unsigned char > client_uuid);
-  void dispose_mgr (tiz::castmgr::mgr *p_mgr);
-
-private:
-  tiz_chromecast_ctx_t * p_cc_ctx_;
-  devices_map_t devices_;
+  tiz::cast::worker * p_worker_;
 };
 
 #endif  // TIZCASTD_HPP

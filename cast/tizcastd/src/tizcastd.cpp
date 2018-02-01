@@ -47,7 +47,7 @@
 #include <tizcasttypes.h>
 
 #include "tizcastd.hpp"
-#include "tizcastmgr.hpp"
+#include "tizcastworker.hpp"
 #include "tizcastmgrtypes.hpp"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
@@ -64,67 +64,76 @@ static const char *TIZ_CAST_DAEMON_NAME = "com.aratelia.tiz.tizcastd";
 static const char *TIZ_CAST_DAEMON_PATH = "/com/aratelia/tiz/tizcastd";
 
 tizcastd::tizcastd (Tiz::DBus::Connection &a_connection)
-  : Tiz::DBus::ObjectAdaptor (a_connection, TIZ_CAST_DAEMON_PATH), p_cc_ctx_(NULL), devices_ ()
+  : Tiz::DBus::ObjectAdaptor (a_connection, TIZ_CAST_DAEMON_PATH), p_worker_ (NULL)
 {
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Constructing tizcastd...");
-  int rc = tiz_chromecast_ctx_init (&(p_cc_ctx_));
-  assert (0 == rc);
+  p_worker_ = new tiz::cast::worker (
+      boost::bind (&tizcastd::cast_status_forwarder, this, _1, _2, _3),
+      boost::bind (&tizcastd::media_status_forwarder, this, _1, _2, _3),
+      boost::bind (&tizcastd::error_status_forwarder, this, _1, _2, _3));
+  assert (p_worker_);
+  p_worker_->init ();
+
 }
 
 tizcastd::~tizcastd ()
 {
-  BOOST_FOREACH (const devices_pair_t &device, devices_)
-  {
-    tiz::castmgr::mgr *p_cast_mgr = device.second.p_cast_mgr_;
-    dispose_mgr (p_cast_mgr);
-  }
-  tiz_chromecast_ctx_destroy (&(p_cc_ctx_));
+  if (p_worker_)
+    {
+      p_worker_->deinit ();
+      delete p_worker_;
+      p_worker_ = NULL;
+    }
 }
 
 int32_t tizcastd::connect (const std::vector< uint8_t > &uuid,
                            const std::string &name_or_ip)
 {
-  tiz::castmgr::mgr *p_cast_mgr = NULL;
+//   tiz::cast::mgr *p_cast_mgr = NULL;
 
-  TIZ_LOG (TIZ_PRIORITY_NOTICE, "connect");
-  if (devices_.count (name_or_ip))
-  {
-    p_cast_mgr = devices_[name_or_ip].p_cast_mgr_;
-    assert (p_cast_mgr);
-    dispose_mgr (p_cast_mgr);
-    p_cast_mgr = NULL;
-  }
+//   TIZ_LOG (TIZ_PRIORITY_NOTICE, "connect");
+//   if (devices_.count (name_or_ip))
+//   {
+//     p_cast_mgr = devices_[name_or_ip].p_cast_mgr_;
+//     assert (p_cast_mgr);
+//     dispose_mgr (p_cast_mgr);
+//     p_cast_mgr = NULL;
+//   }
 
-  if (!p_cast_mgr)
-  {
-    p_cast_mgr = new tiz::castmgr::mgr (p_cc_ctx_,
-        name_or_ip,
-        boost::bind (&tizcastd::cast_status_forwarder, this, _1, _2, _3),
-        boost::bind (&tizcastd::media_status_forwarder, this, _1, _2, _3),
-        boost::bind (&tizcastd::error_status_forwarder, this, _1, _2, _3));
-    assert (p_cast_mgr);
-    p_cast_mgr->init ();
+//   if (!p_cast_mgr)
+//   {
+//     p_cast_mgr = new tiz::cast::mgr (p_cc_ctx_,
+//         name_or_ip,
+//         boost::bind (&tizcastd::cast_status_forwarder, this, _1, _2, _3),
+//         boost::bind (&tizcastd::media_status_forwarder, this, _1, _2, _3),
+//         boost::bind (&tizcastd::error_status_forwarder, this, _1, _2, _3));
+//     assert (p_cast_mgr);
+//     p_cast_mgr->init ();
 
-    std::pair< devices_map_t::iterator, bool > rv
-        = devices_.insert (std::make_pair (
-            name_or_ip, device_info (name_or_ip, uuid, p_cast_mgr)));
-    if (rv.second)
-    {
-      char uuid_str[128];
-      tiz_uuid_str (&(uuid[0]), uuid_str);
-      TIZ_LOG (TIZ_PRIORITY_NOTICE,
-               "'%s' : Successfully registered client with uuid [%s]...",
-               name_or_ip.c_str (), uuid_str);
-    }
-  }
-  p_cast_mgr->connect ();
+//     std::pair< devices_map_t::iterator, bool > rv
+//         = devices_.insert (std::make_pair (
+//             name_or_ip, device_info (name_or_ip, uuid, p_cast_mgr)));
+//     if (rv.second)
+//     {
+//       char uuid_str[128];
+//       tiz_uuid_str (&(uuid[0]), uuid_str);
+//       TIZ_LOG (TIZ_PRIORITY_NOTICE,
+//                "'%s' : Successfully registered client with uuid [%s]...",
+//                name_or_ip.c_str (), uuid_str);
+//     }
+//   }
+  p_worker_->connect ();
   return TIZ_CAST_SUCCESS;
 }
 
 int32_t tizcastd::disconnect (const std::vector< uint8_t > &uuid)
 {
   TIZ_LOG (TIZ_PRIORITY_NOTICE, "disconnect");
-  dispose_mgr (get_mgr (uuid));
+  if (p_worker_)
+    {
+      p_worker_->disconnect(uuid);
+    }
+//   dispose_mgr (get_mgr (uuid));
   return TIZ_CAST_SUCCESS;
 }
 
@@ -135,10 +144,9 @@ int32_t tizcastd::load_url (const std::vector< uint8_t > &uuid,
                             const std::string &album_art)
 {
   TIZ_LOG (TIZ_PRIORITY_NOTICE, "load_url");
-  tiz::castmgr::mgr *p_cast_mgr = get_mgr (uuid);
-  if (p_cast_mgr)
+  if (p_worker_)
   {
-    p_cast_mgr->load_url (url, mime_type, title, album_art);
+    p_worker_->load_url (url, mime_type, title, album_art);
   }
   return TIZ_CAST_SUCCESS;
 }
@@ -146,10 +154,10 @@ int32_t tizcastd::load_url (const std::vector< uint8_t > &uuid,
 int32_t tizcastd::play (const std::vector< uint8_t > &uuid)
 {
   TIZ_LOG (TIZ_PRIORITY_NOTICE, "play");
-  tiz::castmgr::mgr *p_cast_mgr = get_mgr (uuid);
-  if (p_cast_mgr)
+  tiz::cast::mgr *p_cast_mgr = get_mgr (uuid);
+  if (p_worker_)
   {
-    p_cast_mgr->play ();
+    p_worker_->play ();
   }
   return TIZ_CAST_SUCCESS;
 }
@@ -157,20 +165,20 @@ int32_t tizcastd::play (const std::vector< uint8_t > &uuid)
 int32_t tizcastd::stop (const std::vector< uint8_t > &uuid)
 {
   TIZ_LOG (TIZ_PRIORITY_NOTICE, "stop");
-  tiz::castmgr::mgr *p_cast_mgr = get_mgr (uuid);
-  if (p_cast_mgr)
+  tiz::cast::mgr *p_cast_mgr = get_mgr (uuid);
+  if (p_worker_)
   {
-    p_cast_mgr->stop ();
+    p_worker_->stop ();
   }
   return TIZ_CAST_SUCCESS;
 }
 
 int32_t tizcastd::pause (const std::vector< uint8_t > &uuid)
 {
-  tiz::castmgr::mgr *p_cast_mgr = get_mgr (uuid);
-  if (p_cast_mgr)
+  tiz::cast::mgr *p_cast_mgr = get_mgr (uuid);
+  if (p_worker_)
   {
-    p_cast_mgr->pause ();
+    p_worker_->pause ();
   }
   return TIZ_CAST_SUCCESS;
 }
@@ -178,50 +186,50 @@ int32_t tizcastd::pause (const std::vector< uint8_t > &uuid)
 int32_t tizcastd::volume_set (const std::vector< uint8_t > &uuid,
                               const int32_t &volume)
 {
-  tiz::castmgr::mgr *p_cast_mgr = get_mgr (uuid);
-  if (p_cast_mgr)
+  tiz::cast::mgr *p_cast_mgr = get_mgr (uuid);
+  if (p_worker_)
   {
-    p_cast_mgr->volume_set (volume);
+    p_worker_->volume_set (volume);
   }
   return TIZ_CAST_SUCCESS;
 }
 
 int32_t tizcastd::volume_up (const std::vector< uint8_t > &uuid)
 {
-  tiz::castmgr::mgr *p_cast_mgr = get_mgr (uuid);
-  if (p_cast_mgr)
+  tiz::cast::mgr *p_cast_mgr = get_mgr (uuid);
+  if (p_worker_)
   {
-    p_cast_mgr->volume_up ();
+    p_worker_->volume_up ();
   }
   return TIZ_CAST_SUCCESS;
 }
 
 int32_t tizcastd::volume_down (const std::vector< uint8_t > &uuid)
 {
-  tiz::castmgr::mgr *p_cast_mgr = get_mgr (uuid);
-  if (p_cast_mgr)
+  tiz::cast::mgr *p_cast_mgr = get_mgr (uuid);
+  if (p_worker_)
   {
-    p_cast_mgr->volume_down ();
+    p_worker_->volume_down ();
   }
   return TIZ_CAST_SUCCESS;
 }
 
 int32_t tizcastd::mute (const std::vector< uint8_t > &uuid)
 {
-  tiz::castmgr::mgr *p_cast_mgr = get_mgr (uuid);
-  if (p_cast_mgr)
+  tiz::cast::mgr *p_cast_mgr = get_mgr (uuid);
+  if (p_worker_)
   {
-    p_cast_mgr->mute ();
+    p_worker_->mute ();
   }
   return TIZ_CAST_SUCCESS;
 }
 
 int32_t tizcastd::unmute (const std::vector< uint8_t > &uuid)
 {
-  tiz::castmgr::mgr *p_cast_mgr = get_mgr (uuid);
-  if (p_cast_mgr)
+  tiz::cast::mgr *p_cast_mgr = get_mgr (uuid);
+  if (p_worker_)
   {
-    p_cast_mgr->unmute ();
+    p_worker_->unmute ();
   }
   return TIZ_CAST_SUCCESS;
 }
@@ -268,30 +276,30 @@ void tizcastd::error_status_forwarder (const std::string &name_or_ip,
   }
 }
 
-tiz::castmgr::mgr *tizcastd::get_mgr (std::vector< unsigned char > client_uuid)
-{
-  tiz::castmgr::mgr *p_cast_mgr = NULL;
-  BOOST_FOREACH (const devices_pair_t &device, devices_)
-  {
-    if (device.second.client_uuid_ == client_uuid)
-    {
-      p_cast_mgr = device.second.p_cast_mgr_;
-      break;
-    }
-  }
-  return p_cast_mgr;
-}
+// tiz::cast::mgr *tizcastd::get_mgr (std::vector< unsigned char > client_uuid)
+// {
+//   tiz::cast::mgr *p_cast_mgr = NULL;
+//   BOOST_FOREACH (const devices_pair_t &device, devices_)
+//   {
+//     if (device.second.client_uuid_ == client_uuid)
+//     {
+//       p_cast_mgr = device.second.p_cast_mgr_;
+//       break;
+//     }
+//   }
+//   return p_cast_mgr;
+// }
 
-void tizcastd::dispose_mgr (tiz::castmgr::mgr *p_cast_mgr)
-{
-  if (p_cast_mgr)
-  {
-    p_cast_mgr->deinit ();
-    devices_.erase (p_cast_mgr->get_name_or_ip ());
-    delete p_cast_mgr;
-    p_cast_mgr = NULL;
-  }
-}
+// void tizcastd::dispose_mgr (tiz::cast::mgr *p_cast_mgr)
+// {
+//   if (p_cast_mgr)
+//   {
+//     p_cast_mgr->deinit ();
+//     devices_.erase (p_cast_mgr->get_name_or_ip ());
+//     delete p_cast_mgr;
+//     p_cast_mgr = NULL;
+//   }
+// }
 
 static void tizcastd_sig_hdlr (int sig)
 {

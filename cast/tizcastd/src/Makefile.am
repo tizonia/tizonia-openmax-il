@@ -19,6 +19,7 @@ bin_PROGRAMS = tizcastd
 
 noinst_HEADERS = \
 	tizcastd.hpp \
+	tizcastworker.hpp \
 	tizcastmgr.hpp \
 	tizcastmgrtypes.hpp \
 	tizcastmgrcmd.hpp \
@@ -27,6 +28,7 @@ noinst_HEADERS = \
 
 tizcastd_SOURCES = \
 	tizcastd.cpp \
+	tizcastworker.cpp \
 	tizcastmgr.cpp \
 	tizcastmgrcmd.cpp \
 	tizcastmgrfsm.cpp \

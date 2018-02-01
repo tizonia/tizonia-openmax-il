@@ -85,7 +85,7 @@ void *cast::thread_func (void *p_arg)
   }
 
   tiz_check_omx_ret_null (tiz_sem_post (&(p_worker->sem_)));
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "Cast manager thread exiting...");
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Cast daemon worker thread exiting...");
 
   delete p_poll_cmd;
 
@@ -95,12 +95,10 @@ void *cast::thread_func (void *p_arg)
 //
 // worker
 //
-cast::worker::worker (const std::string &name_or_ip, cast_status_cback_t cast_cb,
-                   media_status_cback_t media_cb,
-                   termination_callback_t termination_cb)
-  : p_ops_ (),
-    fsm_ (boost::msm::back::states_, &p_ops_),
-    name_or_ip_ (name_or_ip),
+cast::worker::worker (cast_status_cback_t cast_cb,
+                      media_status_cback_t media_cb,
+                      termination_callback_t termination_cb)
+  : p_cc_ctx_(NULL),
     cast_cb_ (cast_cb),
     media_cb_ (media_cb),
     termination_cb_ (termination_cb),
@@ -110,13 +108,19 @@ cast::worker::worker (const std::string &name_or_ip, cast_status_cback_t cast_cb
     p_queue_ (NULL)
 {
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Constructing...");
+  int rc = tiz_chromecast_ctx_init (&(p_cc_ctx_));
+  assert (0 == rc);
 }
 
 cast::worker::~worker ()
 {
   deinit_cmd_queue ();
-  delete p_ops_;
-  p_ops_ = NULL;
+  BOOST_FOREACH (const devices_pair_t &device, devices_)
+    {
+      tiz::cast::mgr *p_cast_mgr = device.second.p_cast_mgr_;
+      dispose_mgr (p_cast_mgr);
+    }
+  tiz_chromecast_ctx_destroy (&(p_cc_ctx_));
 }
 
 OMX_ERRORTYPE
@@ -156,71 +160,73 @@ void cast::worker::deinit ()
 }
 
 OMX_ERRORTYPE
-cast::worker::connect ()
+cast::worker::connect (const std::vector< uint8_t > &uuid,
+                       const std::string &name_or_ip)
 {
-  return post_cmd (new cast::cmd (cast::connect_evt (name_or_ip_)));
+  return post_cmd (new cast::cmd (cast::connect_evt (uuid, name_or_ip)));
 }
 
 OMX_ERRORTYPE
-cast::worker::disconnect ()
+cast::worker::disconnect (const std::vector< uint8_t > &uuid)
 {
-  return post_cmd (new cast::cmd (cast::disconnect_evt ()));
+  return post_cmd (new cast::cmd (cast::disconnect_evt (uuid)));
 }
 
 OMX_ERRORTYPE
-cast::worker::load_url (const std::string &url, const std::string &mime_type,
+cast::worker::load_url (const std::vector< uint8_t > &uuid,
+                        const std::string &url, const std::string &mime_type,
                         const std::string &title, const std::string &album_art)
 {
   return post_cmd (new cast::cmd (
-      cast::load_url_evt (url, mime_type, title, album_art)));
+      cast::load_url_evt (uuid, url, mime_type, title, album_art)));
 }
 
 OMX_ERRORTYPE
-cast::worker::play ()
+cast::worker::play (const std::vector< uint8_t > &uuid)
 {
-  return post_cmd (new cast::cmd (cast::play_evt ()));
+  return post_cmd (new cast::cmd (cast::play_evt (uuid)));
 }
 
 OMX_ERRORTYPE
-cast::worker::stop ()
+cast::worker::stop (const std::vector< uint8_t > &uuid)
 {
-  return post_cmd (new cast::cmd (cast::stop_evt ()));
+  return post_cmd (new cast::cmd (cast::stop_evt (uuid)));
 }
 
 OMX_ERRORTYPE
-cast::worker::pause ()
+cast::worker::pause (const std::vector< uint8_t > &uuid)
 {
-  return post_cmd (new cast::cmd (cast::pause_evt ()));
+  return post_cmd (new cast::cmd (cast::pause_evt (uuid)));
 }
 
 OMX_ERRORTYPE
-cast::worker::volume_set (int volume)
+cast::worker::volume_set (const std::vector< uint8_t > &uuid, int volume)
 {
-  return post_cmd (new cast::cmd (cast::volume_evt (volume)));
+  return post_cmd (new cast::cmd (cast::volume_evt (uuid, volume)));
 }
 
 OMX_ERRORTYPE
-cast::worker::volume_up ()
+cast::worker::volume_up (const std::vector< uint8_t > &uuid)
 {
-  return post_cmd (new cast::cmd (cast::volume_up_evt ()));
+  return post_cmd (new cast::cmd (cast::volume_up_evt (uuid)));
 }
 
 OMX_ERRORTYPE
-cast::worker::volume_down ()
+cast::worker::volume_down (const std::vector< uint8_t > &uuid)
 {
-  return post_cmd (new cast::cmd (cast::volume_down_evt ()));
+  return post_cmd (new cast::cmd (cast::volume_down_evt (uuid)));
 }
 
 OMX_ERRORTYPE
-cast::worker::mute ()
+cast::worker::mute (const std::vector< uint8_t > &uuid)
 {
-  return post_cmd (new cast::cmd (cast::mute_evt ()));
+  return post_cmd (new cast::cmd (cast::mute_evt (uuid)));
 }
 
 OMX_ERRORTYPE
-cast::worker::unmute ()
+cast::worker::unmute (const std::vector< uint8_t > &uuid)
 {
-  return post_cmd (new cast::cmd (cast::unmute_evt ()));
+  return post_cmd (new cast::cmd (cast::unmute_evt (uuid)));
 }
 
 //
