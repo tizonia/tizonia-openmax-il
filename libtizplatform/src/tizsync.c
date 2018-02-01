@@ -116,6 +116,43 @@ tiz_sem_wait (tiz_sem_t * app_sem)
 }
 
 OMX_ERRORTYPE
+tiz_sem_timedwait (tiz_sem_t * app_sem, OMX_U32 a_millis)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  sem_t * p_sem;
+  int error = 0;
+  OMX_U32 timeout_us;
+  struct timespec timeout;
+  struct timeval now;
+
+  assert (app_sem);
+  assert (*app_sem);
+
+  p_sem = *app_sem;
+
+  gettimeofday (&now, NULL);
+  timeout_us = now.tv_usec + 1000 * a_millis;
+  timeout.tv_sec = now.tv_sec + timeout_us / 1000000;
+  timeout.tv_nsec = (timeout_us % 1000000) * 1000;
+
+  if (SEM_SUCCESS != sem_timedwait (p_sem, &timeout))
+    {
+      if (ETIMEDOUT == error)
+        {
+          TIZ_LOG (TIZ_PRIORITY_NOTICE, "The wait time specified has passed");
+          rc = OMX_ErrorTimeout;
+        }
+      else
+        {
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "OMX_ErrorUndefined : %s", strerror (errno));
+          rc = OMX_ErrorUndefined;
+        }
+    }
+
+  return rc;
+}
+
+OMX_ERRORTYPE
 tiz_sem_post (tiz_sem_t * app_sem)
 {
   sem_t * p_sem;

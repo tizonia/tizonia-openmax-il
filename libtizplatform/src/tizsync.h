@@ -105,6 +105,16 @@ OMX_ERRORTYPE
 tiz_sem_wait (tiz_sem_t * ap_sem);
 
 /**
+ * Wait for a semaphore being posted, for a limited amount of time.
+ *
+ * @ingroup tizsync
+ *
+ * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
+ */
+OMX_ERRORTYPE
+tiz_sem_timedwait (tiz_sem_t * ap_sem, OMX_U32 a_millis);
+
+/**
  * Post semaphore.
  *
  * @ingroup tizsync
