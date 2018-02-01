@@ -64,9 +64,11 @@ static const char *TIZ_CAST_DAEMON_NAME = "com.aratelia.tiz.tizcastd";
 static const char *TIZ_CAST_DAEMON_PATH = "/com/aratelia/tiz/tizcastd";
 
 tizcastd::tizcastd (Tiz::DBus::Connection &a_connection)
-  : Tiz::DBus::ObjectAdaptor (a_connection, TIZ_CAST_DAEMON_PATH), devices_ ()
+  : Tiz::DBus::ObjectAdaptor (a_connection, TIZ_CAST_DAEMON_PATH), p_cc_ctx_(NULL), devices_ ()
 {
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Constructing tizcastd...");
+  int rc = tiz_chromecast_ctx_init (&(p_cc_ctx_));
+  assert (0 == rc);
 }
 
 tizcastd::~tizcastd ()
@@ -76,6 +78,7 @@ tizcastd::~tizcastd ()
     tiz::castmgr::mgr *p_cast_mgr = device.second.p_cast_mgr_;
     dispose_mgr (p_cast_mgr);
   }
+  tiz_chromecast_ctx_destroy (&(p_cc_ctx_));
 }
 
 int32_t tizcastd::connect (const std::vector< uint8_t > &uuid,
@@ -94,7 +97,7 @@ int32_t tizcastd::connect (const std::vector< uint8_t > &uuid,
 
   if (!p_cast_mgr)
   {
-    p_cast_mgr = new tiz::castmgr::mgr (
+    p_cast_mgr = new tiz::castmgr::mgr (p_cc_ctx_,
         name_or_ip,
         boost::bind (&tizcastd::cast_status_forwarder, this, _1, _2, _3),
         boost::bind (&tizcastd::media_status_forwarder, this, _1, _2, _3),

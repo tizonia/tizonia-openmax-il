@@ -63,7 +63,7 @@ namespace bmf = boost::msm::front;
 
 namespace tiz
 {
-  namespace castmgr
+  namespace cast
   {
     static char const* const state_names[] = { "starting",
                                                "started",
@@ -491,7 +491,7 @@ namespace tiz
       void no_transition(Event const& e, FSM&,int state)
       {
         TIZ_LOG (TIZ_PRIORITY_ERROR, "no transition from state [%s] on event [%s]",
-                 tiz::castmgr::state_names[state], typeid(e).name());
+                 tiz::cast::state_names[state], typeid(e).name());
       }
     };
     // typedef boost::msm::back::state_machine<fsm_, boost::msm::back::mpl_cast_fsm_check> fsm;
@@ -500,7 +500,7 @@ namespace tiz
     // Helper function to aid in printing the current state when debugging
     char const* const pstate(fsm const& p);
 
-  } // namespace castmgr
+  } // namespace cast
 } // namespace tiz
 
 #endif // TIZCASTMGRFSM_HPP

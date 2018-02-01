@@ -46,6 +46,8 @@
 
 #include <tizcastd-dbus.hh>
 
+#include <tizchromecastctx_c.h>
+
 // Forward declaration
 namespace tiz
 {
@@ -206,6 +208,7 @@ private:
   void dispose_mgr (tiz::castmgr::mgr *p_mgr);
 
 private:
+  tiz_chromecast_ctx_t * p_cc_ctx_;
   devices_map_t devices_;
 };
 

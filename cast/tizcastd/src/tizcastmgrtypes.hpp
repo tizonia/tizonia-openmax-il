@@ -34,7 +34,7 @@
 #include <tizchromecasttypes.h>
 namespace tiz
 {
-  namespace castmgr
+  namespace cast
   {
 
     typedef boost::function< void() > cast_status_received_cback_t;
@@ -54,7 +54,7 @@ namespace tiz
                                   const std::string& error_str) >
         termination_callback_t;
 
-  }  // namespace castmgr
+  }  // namespace cast
 }  // namespace tiz
 
 #endif  // TIZCASTMGRTYPES_H

@@ -40,7 +40,7 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.cast.mgr.ops"
 #endif
 
-namespace castmgr = tiz::castmgr;
+namespace cast = tiz::cast;
 
 #define CAST_MGR_OPS_RECORD_ERROR(err, str)                              \
   do                                                                     \
@@ -60,22 +60,22 @@ namespace castmgr = tiz::castmgr;
     }                                                \
   } while (0)
 
-void castmgr::cc_cast_status_cback (void *ap_user_data,
+void cast::cc_cast_status_cback (void *ap_user_data,
                                     tiz_chromecast_cast_status_t a_status,
                                     int a_volume)
 {
-  tiz::castmgr::ops *p_ops = static_cast< tiz::castmgr::ops * > (ap_user_data);
+  tiz::cast::ops *p_ops = static_cast< tiz::cast::ops * > (ap_user_data);
   TIZ_LOG (TIZ_PRIORITY_TRACE, "cast status [%d]", a_status);
   assert (p_ops);
   p_ops->cast_received_cb_ ();
   p_ops->cast_cb_ (p_ops->device_name_or_ip (), a_status, a_volume);
 }
 
-void castmgr::cc_media_status_cback (void *ap_user_data,
+void cast::cc_media_status_cback (void *ap_user_data,
                                      tiz_chromecast_media_status_t a_status,
                                      int a_volume)
 {
-  tiz::castmgr::ops *p_ops = static_cast< tiz::castmgr::ops * > (ap_user_data);
+  tiz::cast::ops *p_ops = static_cast< tiz::cast::ops * > (ap_user_data);
   TIZ_LOG (TIZ_PRIORITY_TRACE, "media status [%d]", a_status);
   assert (p_ops);
   p_ops->media_cb_ (p_ops->device_name_or_ip (), a_status, a_volume);
@@ -84,10 +84,12 @@ void castmgr::cc_media_status_cback (void *ap_user_data,
 //
 // ops
 //
-castmgr::ops::ops (mgr *p_mgr, cast_status_received_cback_t cast_received_cb,
+cast::ops::ops (mgr *p_mgr, const tiz_chromecast_ctx_t *p_cc_ctx,
+                   cast_status_received_cback_t cast_received_cb,
                    cast_status_cback_t cast_cb, media_status_cback_t media_cb,
                    termination_callback_t termination_cb)
   : p_mgr_ (p_mgr),
+    p_cc_ctx_(p_cc_ctx),
     cast_received_cb_ (cast_received_cb),
     cast_cb_ (cast_cb),
     media_cb_ (media_cb),
@@ -99,31 +101,30 @@ castmgr::ops::ops (mgr *p_mgr, cast_status_received_cback_t cast_received_cb,
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Constructing...");
 }
 
-castmgr::ops::~ops ()
+cast::ops::~ops ()
 {
 }
 
-void castmgr::ops::deinit ()
+void cast::ops::deinit ()
 {
   tiz_chromecast_destroy (p_cc_);
   p_cc_ = NULL;
 }
 
-void castmgr::ops::do_connect (const std::string &name_or_ip)
+void cast::ops::do_connect (const std::string &name_or_ip)
 {
   // Make sure a previous client has been disconnected
-  // disconnect ();
   TIZ_LOG (TIZ_PRIORITY_NOTICE, "do_connect");
   tiz_chromecast_callbacks_t cc_cbacks
-      = { tiz::castmgr::cc_cast_status_cback,
-          tiz::castmgr::cc_media_status_cback };
-  tiz_chromecast_error_t rc
-      = tiz_chromecast_init (&(p_cc_), name_or_ip.c_str (), &cc_cbacks, this);
+      = { tiz::cast::cc_cast_status_cback,
+          tiz::cast::cc_media_status_cback };
+  tiz_chromecast_error_t rc = tiz_chromecast_init (
+      &(p_cc_), p_cc_ctx_, name_or_ip.c_str (), &cc_cbacks, this);
   std::string error_msg = tiz_chromecast_error_str (rc);
   CAST_MGR_OPS_BAIL_IF_ERROR (rc, error_msg);
 }
 
-void castmgr::ops::do_disconnect ()
+void cast::ops::do_disconnect ()
 {
   if (p_cc_)
   {
@@ -132,7 +133,7 @@ void castmgr::ops::do_disconnect ()
   }
 }
 
-void castmgr::ops::do_poll (int poll_time_ms)
+void cast::ops::do_poll (int poll_time_ms)
 {
   if (p_cc_)
   {
@@ -141,7 +142,7 @@ void castmgr::ops::do_poll (int poll_time_ms)
   }
 }
 
-void castmgr::ops::do_load_url (const std::string &url,
+void cast::ops::do_load_url (const std::string &url,
                                 const std::string &mime_type,
                                 const std::string &title,
                                 const std::string &album_art)
@@ -156,7 +157,7 @@ void castmgr::ops::do_load_url (const std::string &url,
   }
 }
 
-void castmgr::ops::do_play ()
+void cast::ops::do_play ()
 {
   if (p_cc_)
   {
@@ -167,7 +168,7 @@ void castmgr::ops::do_play ()
   }
 }
 
-void castmgr::ops::do_stop ()
+void cast::ops::do_stop ()
 {
   if (p_cc_)
   {
@@ -178,7 +179,7 @@ void castmgr::ops::do_stop ()
   }
 }
 
-void castmgr::ops::do_pause ()
+void cast::ops::do_pause ()
 {
   if (p_cc_)
   {
@@ -189,7 +190,7 @@ void castmgr::ops::do_pause ()
   }
 }
 
-void castmgr::ops::do_volume (int volume)
+void cast::ops::do_volume (int volume)
 {
   if (p_cc_)
   {
@@ -199,7 +200,7 @@ void castmgr::ops::do_volume (int volume)
   }
 }
 
-void castmgr::ops::do_volume_up ()
+void cast::ops::do_volume_up ()
 {
   if (p_cc_)
   {
@@ -209,7 +210,7 @@ void castmgr::ops::do_volume_up ()
   }
 }
 
-void castmgr::ops::do_volume_down ()
+void cast::ops::do_volume_down ()
 {
   if (p_cc_)
   {
@@ -219,7 +220,7 @@ void castmgr::ops::do_volume_down ()
   }
 }
 
-void castmgr::ops::do_mute ()
+void cast::ops::do_mute ()
 {
   if (p_cc_)
   {
@@ -229,7 +230,7 @@ void castmgr::ops::do_mute ()
   }
 }
 
-void castmgr::ops::do_unmute ()
+void cast::ops::do_unmute ()
 {
   if (p_cc_)
   {
@@ -239,29 +240,29 @@ void castmgr::ops::do_unmute ()
   }
 }
 
-void castmgr::ops::do_report_fatal_error (const int error,
+void cast::ops::do_report_fatal_error (const int error,
                                           const std::string &msg)
 {
   termination_cb_ (device_name_or_ip (), error, msg);
 }
 
-bool castmgr::ops::is_fatal_error (const int error, const std::string &msg)
+bool cast::ops::is_fatal_error (const int error, const std::string &msg)
 {
   TIZ_LOG (TIZ_PRIORITY_ERROR, "[%d] : %s", error, msg.c_str ());
   return true;
 }
 
-int castmgr::ops::internal_error () const
+int cast::ops::internal_error () const
 {
   return error_code_;
 }
 
-std::string castmgr::ops::internal_error_msg () const
+std::string cast::ops::internal_error_msg () const
 {
   return error_msg_;
 }
 
-std::string castmgr::ops::device_name_or_ip ()
+std::string cast::ops::device_name_or_ip ()
 {
   assert (p_mgr_);
   return p_mgr_->name_or_ip_;

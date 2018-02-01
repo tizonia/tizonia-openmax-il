@@ -18,16 +18,16 @@
  */
 
 /**
- * @file   tizcastmgr.hpp
+ * @file   tizcastworker.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia cast manager thread
+ * @brief  Tizonia cast daemon worker thread
  *
  *
  */
 
-#ifndef TIZCASTMGR_HPP
-#define TIZCASTMGR_HPP
+#ifndef TIZCASTWORKER_HPP
+#define TIZCASTWORKER_HPP
 
 #include <string>
 
@@ -38,41 +38,40 @@
 
 #include <tizchromecastctx_c.h>
 
-#include "tizcastmgrfsm.hpp"
-#include "tizcastmgrtypes.hpp"
-
 namespace tiz
 {
   namespace cast
   {
 
     // Forward declarations
+    void *thread_func (void *p_arg);
     class cmd;
     class vector;
     class ops;
 
     /**
-     *  @class mgr
-     *  @brief The cast manager class.
+     *  @class worker
+     *  @brief The cast daemon worker thread class.
      *
      *  A cast manager instantiates a thread, an event loop and an associated
      *  command queue, to communicate with Chromecast devices and cast audio to
      *  them.
      */
-    class mgr
+    class worker
     {
 
+      friend void *thread_func (void *);
       friend class ops;
 
     public:
-      mgr (const tiz_chromecast_ctx_t * p_cc_ctx,
+      worker (const tiz_chromecast_ctx_t * p_cc_ctx,
            const std::string &name_or_ip, cast_status_cback_t cast_cb,
            media_status_cback_t media_cb,
            termination_callback_t termination_cb);
-      virtual ~mgr ();
+      virtual ~worker ();
 
       /**
-       * Initialise the cast manager thread.
+       * Initialise the manager thread.
        *
        * @pre This method must be called only once, before any call is made to
        * the other APIs.
@@ -236,23 +235,27 @@ namespace tiz
 
       OMX_ERRORTYPE cast_status_received ();
 
+      OMX_ERRORTYPE init_cmd_queue ();
+      void deinit_cmd_queue ();
       OMX_ERRORTYPE post_cmd (cmd *p_cmd);
 
       static bool dispatch_cmd (mgr *p_mgr, const cmd *p_cmd);
 
     private:
-      ops *p_ops_;
-      fsm fsm_;
       const tiz_chromecast_ctx_t * p_cc_ctx_;
       std::string name_or_ip_;
       cast_status_cback_t cast_cb_;
       media_status_cback_t media_cb_;
       termination_callback_t termination_cb_;
+      tiz_thread_t thread_;
+      tiz_mutex_t mutex_;
+      tiz_sem_t sem_;
+      tiz_queue_t *p_queue_;
     };
 
-    typedef boost::shared_ptr< mgr > mgr_ptr_t;
+    typedef boost::shared_ptr< worker > worker_ptr_t;
 
   }  // namespace cast
 }  // namespace tiz
 
-#endif  // TIZCASTMGR_HPP
+#endif  // TIZCASTWORKER_HPP

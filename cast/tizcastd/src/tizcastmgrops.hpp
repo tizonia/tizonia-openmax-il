@@ -36,13 +36,14 @@
 #include <OMX_Core.h>
 
 #include <tizchromecast_c.h>
+#include <tizchromecastctx_c.h>
 #include <tizchromecasttypes.h>
 
 #include "tizcastmgrtypes.hpp"
 
 namespace tiz
 {
-  namespace castmgr
+  namespace cast
   {
     // Forward declarations
     class mgr;
@@ -60,13 +61,17 @@ namespace tiz
      */
     class ops
     {
-      friend void cc_cast_status_cback (void *, tiz_chromecast_cast_status_t, int);
+      friend void cc_cast_status_cback (void *, tiz_chromecast_cast_status_t,
+                                        int);
 
-      friend void cc_media_status_cback (void *, tiz_chromecast_media_status_t, int);
+      friend void cc_media_status_cback (void *, tiz_chromecast_media_status_t,
+                                         int);
 
     public:
-      ops (mgr *p_mgr, cast_status_received_cback_t, cast_status_cback_t cast_cb,
-           media_status_cback_t media_cb, termination_callback_t termination_cb);
+      ops (mgr *p_mgr, const tiz_chromecast_ctx_t *p_cc_ctx,
+           cast_status_received_cback_t, cast_status_cback_t cast_cb,
+           media_status_cback_t media_cb,
+           termination_callback_t termination_cb);
       virtual ~ops ();
 
       void deinit ();
@@ -96,6 +101,7 @@ namespace tiz
 
     private:
       mgr *p_mgr_;  // Not owned
+      const tiz_chromecast_ctx_t *p_cc_ctx_;
       cast_status_received_cback_t cast_received_cb_;
       cast_status_cback_t cast_cb_;
       media_status_cback_t media_cb_;
@@ -104,7 +110,7 @@ namespace tiz
       std::string error_msg_;
       tiz_chromecast_t *p_cc_;
     };
-  }  // namespace castmgr
+  }  // namespace cast
 }  // namespace tiz
 
 #endif  // TIZCASTMGROPS_HPP

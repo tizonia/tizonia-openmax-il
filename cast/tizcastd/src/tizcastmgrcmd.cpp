@@ -40,61 +40,47 @@ namespace
   template < typename T >
   bool is_type (const boost::any& operand)
   {
-    return operand.type () == typeid(T);
+    return operand.type () == typeid (T);
   }
 }
 
-namespace castmgr = tiz::castmgr;
+namespace cast = tiz::cast;
 
-castmgr::cmd::cmd (boost::any any_event) : evt_ (any_event)
+cast::cmd::cmd (boost::any any_event) : evt_ (any_event)
 {
 }
 
-const boost::any castmgr::cmd::evt () const
+const boost::any cast::cmd::evt () const
 {
   return evt_;
 }
 
-/*@observer@*/ const char* castmgr::cmd::c_str () const
+/*@observer@*/ const char* cast::cmd::c_str () const
 {
-  if (is_type< start_evt >(evt_))
+  if (is_type< start_evt > (evt_))
   {
     return "start_evt";
   }
   return "Unknown Cast Manager command";
 }
 
-void castmgr::cmd::inject (fsm& machine) const
+void cast::cmd::inject (fsm& machine) const
 {
-#define INJECT_EVENT(the_evt)                                   \
-  if (is_type< the_evt >(evt_))                                 \
-    {                                                           \
-      std::string arg (#the_evt);                               \
-      TIZ_LOG (TIZ_PRIORITY_NOTICE,                             \
-               "CAST MGR : Injecting "                          \
-               "CMD [%s] in STATE [%s]...",                     \
-               arg.c_str (), tiz::castmgr::pstate (machine));   \
-      machine.process_event (boost::any_cast< the_evt >(evt_)); \
-    }
+#define INJECT_EVENT(the_evt)                                  \
+  if (is_type< the_evt > (evt_))                               \
+  {                                                            \
+    std::string arg (#the_evt);                                \
+    TIZ_LOG (TIZ_PRIORITY_NOTICE,                              \
+             "CAST MGR : Injecting "                           \
+             "CMD [%s] in STATE [%s]...",                      \
+             arg.c_str (), tiz::cast::pstate (machine));       \
+    machine.process_event (boost::any_cast< the_evt > (evt_)); \
+  }
 
   INJECT_EVENT (start_evt)
-  else INJECT_EVENT (quit_evt)
-    else INJECT_EVENT (connect_evt)
-      else INJECT_EVENT (disconnect_evt)
-        else INJECT_EVENT (cast_status_evt)
-          else INJECT_EVENT (load_url_evt)
-            else INJECT_EVENT (play_evt)
-              else INJECT_EVENT (stop_evt)
-                else INJECT_EVENT (pause_evt)
-                  else INJECT_EVENT (volume_evt)
-                    else INJECT_EVENT (volume_up_evt)
-                      else INJECT_EVENT (volume_down_evt)
-                        else INJECT_EVENT (mute_evt)
-                          else INJECT_EVENT (unmute_evt)
-                            else INJECT_EVENT (poll_evt)
-                              else INJECT_EVENT (err_evt)
-                                else
-                                  {
-                                    assert (0);
-                                  }
+  else INJECT_EVENT (quit_evt) else INJECT_EVENT (connect_evt) else INJECT_EVENT (disconnect_evt) else INJECT_EVENT (cast_status_evt) else INJECT_EVENT (load_url_evt) else INJECT_EVENT (play_evt) else INJECT_EVENT (
+      stop_evt) else INJECT_EVENT (pause_evt) else INJECT_EVENT (volume_evt) else INJECT_EVENT (volume_up_evt) else INJECT_EVENT (volume_down_evt) else INJECT_EVENT (mute_evt) else INJECT_EVENT (unmute_evt) else INJECT_EVENT (poll_evt) else INJECT_EVENT (err_evt) else
+  {
+    assert (0);
+  }
 }

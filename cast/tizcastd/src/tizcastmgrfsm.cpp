@@ -31,10 +31,10 @@
 
 #include "tizcastmgrfsm.hpp"
 
-namespace castmgr = tiz::castmgr;
+namespace cast = tiz::cast;
 
-char const* const castmgr::pstate(castmgr::fsm const& p)
+char const* const cast::pstate(cast::fsm const& p)
 {
-  return castmgr::state_names[p.current_state()[0]];
+  return cast::state_names[p.current_state()[0]];
 }
 

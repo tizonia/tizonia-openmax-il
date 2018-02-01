@@ -35,7 +35,7 @@
 
 namespace tiz
 {
-  namespace castmgr
+  namespace cast
   {
     class cmd
     {
@@ -52,7 +52,7 @@ namespace tiz
       const boost::any evt_;
     };
 
-  }  // namespace castmgr
+  }  // namespace cast
 }  // namespace tiz
 
 #endif  // TIZCASTMGRCMD_HPP
