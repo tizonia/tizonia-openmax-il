@@ -46,17 +46,17 @@ namespace tiz
 
     typedef boost::function< void() > cast_status_received_cback_t;
 
-    typedef boost::function< void(const std::string& device_or_ip,
+    typedef boost::function< void(const uuid_t& uuid,
                                   const tiz_chromecast_cast_status_t a_status,
                                   const int a_volume) >
         cast_status_cback_t;
 
-    typedef boost::function< void(const std::string& device_or_ip,
+    typedef boost::function< void(const uuid_t& uuid,
                                   const tiz_chromecast_media_status_t a_status,
                                   const int a_volume) >
         media_status_cback_t;
 
-    typedef boost::function< void(const std::string& device_or_ip,
+    typedef boost::function< void(const uuid_t& uuid,
                                   const uint32_t& status,
                                   const std::string& error_str) >
         termination_callback_t;

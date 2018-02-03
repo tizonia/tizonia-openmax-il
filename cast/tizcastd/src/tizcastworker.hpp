@@ -30,6 +30,7 @@
 #define TIZCASTWORKER_HPP
 
 #include <string>
+#include <map>
 
 #include <boost/function.hpp>
 
@@ -218,6 +219,8 @@ namespace tiz
       OMX_ERRORTYPE post_cmd (cmd *p_cmd);
 
       static bool dispatch_cmd (worker *p_worker, const cmd *p_cmd);
+
+      static bool poll_mgrs (worker *p_worker, const cmd *p_cmd);
 
     private:
       struct client_info

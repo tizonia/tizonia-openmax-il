@@ -32,7 +32,7 @@
 #include <assert.h>
 
 #include <algorithm>
-#include <boost/make_shared.hpp>
+#include <boost/any.hpp>
 
 #include <OMX_Component.h>
 
@@ -53,13 +53,13 @@ namespace cast = tiz::cast;
 //
 // mgr
 //
-cast::mgr::mgr (const tiz_chromecast_ctx_t *p_cc_ctx,
-                const std::string &name_or_ip, cast_status_cback_t cast_cb,
-                media_status_cback_t media_cb,
+cast::mgr::mgr (const uuid_t &uuid, const tiz_chromecast_ctx_t *p_cc_ctx,
+                cast_status_cback_t cast_cb, media_status_cback_t media_cb,
                 termination_callback_t termination_cb)
   : p_ops_ (),
     fsm_ (boost::msm::back::states_, &p_ops_),
-    name_or_ip_ (name_or_ip),
+    name_or_ip_ (),
+    uuid_(uuid),
     cast_cb_ (cast_cb),
     media_cb_ (media_cb),
     termination_cb_ (termination_cb)
@@ -90,9 +90,19 @@ cast::mgr::init ()
 void cast::mgr::deinit ()
 {
   if (!fsm_.terminated_)
-    {
-      (void)stop_fsm ();
-    }
+  {
+    (void)stop_fsm ();
+  }
+}
+
+cast::uuid_t cast::mgr::uuid () const
+{
+  return uuid_;
+}
+
+std::string cast::mgr::device_name_or_ip () const
+{
+  return name_or_ip_;
 }
 
 //
@@ -102,19 +112,34 @@ void cast::mgr::deinit ()
 OMX_ERRORTYPE
 cast::mgr::start_fsm ()
 {
-  return post_cmd (new cast::cmd (cast::start_evt ()));
+  return post_cmd (cast::start_evt ());
 }
 
 OMX_ERRORTYPE
 cast::mgr::stop_fsm ()
 {
-  return post_cmd (new cast::cmd (cast::quit_evt ()));
+  return post_cmd (cast::quit_evt ());
 }
 
 OMX_ERRORTYPE
 cast::mgr::cast_status_received ()
 {
-  return post_cmd (new cast::cmd (cast::cast_status_evt ()));
+  return post_cmd (cast::cast_status_evt ());
+}
+
+OMX_ERRORTYPE
+cast::mgr::post_cmd (const boost::any &any_event)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  uuid_t null_uuid;
+  bool done = false;
+  cast::cmd cmd (null_uuid, any_event);
+  done = dispatch_cmd (&cmd);
+  if (done)
+  {
+    rc = OMX_ErrorInsufficientResources;
+  }
+  return rc;
 }
 
 bool cast::mgr::dispatch_cmd (const cast::cmd *p_cmd)
@@ -132,9 +157,9 @@ bool cast::mgr::dispatch_cmd (const cast::cmd *p_cmd)
     TIZ_LOG (TIZ_PRIORITY_ERROR,
              "MGR error detected. Injecting err_evt (this is fatal)");
     bool is_internal_error = true;
-    fsm_.process_event (cast::err_evt (
-        p_ops_->internal_error (), p_ops_->internal_error_msg (),
-        is_internal_error));
+    fsm_.process_event (cast::err_evt (p_ops_->internal_error (),
+                                       p_ops_->internal_error_msg (),
+                                       is_internal_error));
   }
   if (fsm_.terminated_)
   {

@@ -40,14 +40,12 @@
 #include <vector>
 
 #include <boost/bind.hpp>
-#include <boost/foreach.hpp>
 
 #include <tizplatform.h>
 
 #include <tizcasttypes.h>
 
 #include "tizcastd.hpp"
-#include "tizcastmgrtypes.hpp"
 #include "tizcastworker.hpp"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
@@ -103,7 +101,6 @@ int32_t tizcastd::disconnect (const std::vector< uint8_t > &uuid)
   {
     p_worker_->disconnect (uuid);
   }
-  //   dispose_mgr (get_mgr (uuid));
   return TIZ_CAST_SUCCESS;
 }
 
@@ -196,46 +193,28 @@ int32_t tizcastd::unmute (const std::vector< uint8_t > &uuid)
   return TIZ_CAST_SUCCESS;
 }
 
-void tizcastd::cast_status_forwarder (const std::string &name_or_ip,
+void tizcastd::cast_status_forwarder (const uuid_t& uuid,
                                       const uint32_t &status,
                                       const int32_t &volume)
 {
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "forwarding for manager [%s]",
-           name_or_ip.c_str ());
-  if (devices_.count (name_or_ip))
-  {
-    cast_status (devices_[name_or_ip].client_uuid_, status, volume);
-    TIZ_LOG (TIZ_PRIORITY_TRACE, "forwarded for manager [%s]",
-             name_or_ip.c_str ());
-  }
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "forwarding from manager");
+  cast_status (uuid, status, volume);
 }
 
-void tizcastd::media_status_forwarder (const std::string &name_or_ip,
+void tizcastd::media_status_forwarder (const uuid_t& uuid,
                                        const uint32_t &status,
                                        const int32_t &volume)
 {
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "forwarding for manager [%s]",
-           name_or_ip.c_str ());
-  if (devices_.count (name_or_ip))
-  {
-    media_status (devices_[name_or_ip].client_uuid_, status, volume);
-    TIZ_LOG (TIZ_PRIORITY_TRACE, "forwarded for manager [%s]",
-             name_or_ip.c_str ());
-  }
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "media status from manager");
+  media_status (uuid, status, volume);
 }
 
-void tizcastd::error_status_forwarder (const std::string &name_or_ip,
+void tizcastd::error_status_forwarder (const uuid_t &uuid,
                                        const uint32_t &status,
                                        const std::string &error_str)
 {
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "termination signal from manager [%s]",
-           name_or_ip.c_str ());
-  if (devices_.count (name_or_ip))
-  {
-    error_status (devices_[name_or_ip].client_uuid_, status, error_str);
-    // We don't remove the manager naw. We'll remove it the next time there is
-    // an attempt to connect to its managed chromecast device.
-  }
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "error signal from manager");
+  error_status (uuid, status, error_str);
 }
 
 static void tizcastd_sig_hdlr (int sig)

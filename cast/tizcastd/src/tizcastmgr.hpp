@@ -41,6 +41,13 @@
 #include "tizcastmgrfsm.hpp"
 #include "tizcastmgrtypes.hpp"
 
+// Forward declarations
+class vector;
+namespace boost
+{
+  class any;
+}
+
 namespace tiz
 {
   namespace cast
@@ -48,7 +55,6 @@ namespace tiz
 
     // Forward declarations
     class cmd;
-    class vector;
     class ops;
 
     /**
@@ -65,7 +71,8 @@ namespace tiz
       friend class ops;
 
     public:
-      mgr (const tiz_chromecast_ctx_t * p_cc_ctx,
+      mgr (const uuid_t &uuid,
+           const tiz_chromecast_ctx_t * p_cc_ctx,
            cast_status_cback_t cast_cb,
            media_status_cback_t media_cb,
            termination_callback_t termination_cb);
@@ -96,10 +103,9 @@ namespace tiz
        */
       void deinit ();
 
-      std::string get_name_or_ip ()
-      {
-        return name_or_ip_;
-      }
+      uuid_t uuid () const;
+
+      std::string device_name_or_ip () const;
 
       bool dispatch_cmd (const cmd *p_cmd);
 
@@ -124,13 +130,16 @@ namespace tiz
        */
       OMX_ERRORTYPE stop_fsm ();
 
+      OMX_ERRORTYPE post_cmd (const boost::any &any_event);
+
       OMX_ERRORTYPE cast_status_received ();
 
     private:
       ops *p_ops_;
       fsm fsm_;
-      const tiz_chromecast_ctx_t * p_cc_ctx_;
       std::string name_or_ip_;
+      const uuid_t uuid_;
+      const tiz_chromecast_ctx_t * p_cc_ctx_;
       cast_status_cback_t cast_cb_;
       media_status_cback_t media_cb_;
       termination_callback_t termination_cb_;

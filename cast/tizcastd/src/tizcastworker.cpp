@@ -32,14 +32,17 @@
 #include <assert.h>
 
 #include <algorithm>
-#include <boost/make_shared.hpp>
 #include <vector>
+
+#include <boost/foreach.hpp>
 
 #include <OMX_Component.h>
 
 #include <tizmacros.h>
 #include <tizplatform.h>
 
+#include "tizcastmgr.hpp"
+#include "tizcastmgrcmd.hpp"
 #include "tizcastworker.hpp"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
@@ -48,15 +51,6 @@
 #endif
 
 #define TIZ_CAST_WORKER_QUEUE_MAX_ITEMS 30
-
-namespace
-{
-  template < typename T >
-  bool is_type (const boost::any &operand)
-  {
-    return operand.type () == typeid (T);
-  }
-}
 
 namespace cast = tiz::cast;
 
@@ -67,7 +61,8 @@ void *cast::thread_func (void *p_arg)
   bool done = false;
   int poll_time_ms = 100;  // ms
   // Pre-allocated poll command
-  cmd *p_poll_cmd = new cast::cmd (cast::poll_evt (poll_time_ms));
+  uuid_t null_uuid;
+  cast::cmd cmd (null_uuid, cast::poll_evt (poll_time_ms));
 
   assert (p_worker);
 
@@ -81,23 +76,21 @@ void *cast::thread_func (void *p_arg)
     // Dispatch events from the command queue
     if (p_data)
     {
-      cmd *p_cmd = static_cast< cmd * > (p_data);
-      done = worker::dispatch_cmd (p_worker, p_cmd);
+      cast::cmd *p_cmd = static_cast< cast::cmd * > (p_data);
+      done = cast::worker::dispatch_cmd (p_worker, p_cmd);
       delete p_cmd;
       p_data = NULL;
     }
 
-    // This is to poll the chromecast socket periodically
+    // This is to poll the chromecast sockets periodically
     if (!done)
     {
-      done = worker::dispatch_cmd (p_worker, p_poll_cmd);
+      done = cast::worker::poll_mgrs (p_worker, &cmd);
     }
   }
 
   tiz_check_omx_ret_null (tiz_sem_post (&(p_worker->sem_)));
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Cast daemon worker thread exiting...");
-
-  delete p_poll_cmd;
 
   return NULL;
 }
@@ -127,8 +120,9 @@ cast::worker::~worker ()
   deinit_cmd_queue ();
   BOOST_FOREACH (const clients_pair_t &client, clients_)
   {
-    tiz::cast::mgr *p_cast_mgr = client.second.p_cast_mgr_;
-    dispose_mgr (p_cast_mgr);
+    cast::mgr *p_mgr = client.second.p_cast_mgr_;
+    p_mgr->deinit ();
+    delete p_mgr;
   }
   tiz_chromecast_ctx_destroy (&(p_cc_ctx_));
 }
@@ -144,12 +138,6 @@ cast::worker::init ()
   tiz_check_omx_ret_oom (tiz_thread_create (&thread_, 0, 0, thread_func, this));
   tiz_check_omx_ret_oom (tiz_mutex_unlock (&mutex_));
 
-  // Init this worker's operations using the do_init template method
-  tiz_check_null_ret_oom (
-      (p_ops_ = new ops (
-           this, boost::bind (&tiz::cast::worker::cast_status_received, this),
-           cast_cb_, media_cb_, termination_cb_)));
-
   // Let's wait until this manager's thread is ready to receive requests
   tiz_check_omx_ret_oom (tiz_sem_wait (&sem_));
 
@@ -158,7 +146,8 @@ cast::worker::init ()
 
 void cast::worker::deinit ()
 {
-  post_cmd (new cast::cmd (cast::quit_evt ()));
+  cast::uuid_t null_uuid;
+  post_cmd (new cast::cmd (null_uuid, cast::quit_evt ()));
   TIZ_LOG (TIZ_PRIORITY_NOTICE, "Waiting until stopped...");
   static_cast< void > (tiz_sem_wait (&sem_));
   void *p_result = NULL;
@@ -242,7 +231,8 @@ cast::worker::unmute (const std::vector< uint8_t > &uuid)
 OMX_ERRORTYPE
 cast::worker::cast_status_received ()
 {
-  return post_cmd (new cast::cmd (cast::cast_status_evt ()));
+  cast::uuid_t null_uuid;
+  return post_cmd (new cast::cmd (null_uuid, cast::cast_status_evt ()));
 }
 
 OMX_ERRORTYPE
@@ -277,21 +267,20 @@ cast::worker::post_cmd (cast::cmd *p_cmd)
 
 bool cast::worker::dispatch_cmd (cast::worker *p_worker, const cast::cmd *p_cmd)
 {
-  bool rc = false;
   cast::mgr *p_mgr = NULL;
 
   assert (p_worker);
   assert (p_cmd);
 
   clients_map_t &clients = p_worker->clients_;
-  uuid_t &uuid = cmd.uuid ();
+  const uuid_t &uuid = p_cmd->uuid ();
   if (clients.count (uuid))
   {
-    p_mgr = clients_[uuid].p_mgr;
+    p_mgr = clients[uuid].p_cast_mgr_;
   }
   else
   {
-    p_mgr = new tiz::cast::mgr (p_worker->p_cc_ctx_, p_worker->cast_cb_,
+    p_mgr = new tiz::cast::mgr (uuid, p_worker->p_cc_ctx_, p_worker->cast_cb_,
                                 p_worker->media_cb_, p_worker->termination_cb_);
 
     assert (p_mgr);
@@ -305,7 +294,7 @@ bool cast::worker::dispatch_cmd (cast::worker *p_worker, const cast::cmd *p_cmd)
     char uuid_str[128];
     tiz_uuid_str (&(uuid[0]), uuid_str);
     TIZ_LOG (TIZ_PRIORITY_NOTICE,
-               "Successfully registered client with uuid [%s]...", uuid_str);
+             "Successfully registered client with uuid [%s]...", uuid_str);
   }
 
   if (!p_mgr->dispatch_cmd (p_cmd))
@@ -317,5 +306,21 @@ bool cast::worker::dispatch_cmd (cast::worker *p_worker, const cast::cmd *p_cmd)
     p_mgr = NULL;
   }
 
+  return false;
+}
+
+bool cast::worker::poll_mgrs (cast::worker *p_worker, const cast::cmd *p_cmd)
+{
+  assert (p_worker);
+  assert (p_cmd);
+
+  clients_map_t &clients = p_worker->clients_;
+
+  BOOST_FOREACH (const clients_pair_t &clnt, clients)
+  {
+    cast::mgr *p_mgr = clnt.second.p_cast_mgr_;
+    assert (p_mgr);
+    (void)p_mgr->dispatch_cmd (p_cmd);
+  }
   return false;
 }

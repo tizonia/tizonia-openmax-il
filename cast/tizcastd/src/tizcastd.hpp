@@ -46,6 +46,8 @@
 
 #include <tizcastd-dbus.hh>
 
+#include "tizcastmgrtypes.hpp"
+
 // Forward declaration
 namespace tiz
 {
@@ -60,6 +62,7 @@ class tizcastd : public com::aratelia::tiz::tizcastif_adaptor,
                  public Tiz::DBus::ObjectAdaptor
 
 {
+  typedef tiz::cast::uuid_t uuid_t;
 
 public:
   tizcastd (Tiz::DBus::Connection &connection);
@@ -154,13 +157,13 @@ public:
    */
   int32_t unmute (const std::vector< uint8_t > &uuid);
 
-  void cast_status_forwarder (const std::string &name_or_ip,
+  void cast_status_forwarder (const uuid_t& uuid,
                               const uint32_t &status, const int32_t &volume);
 
-  void media_status_forwarder (const std::string &name_or_ip,
+  void media_status_forwarder (const uuid_t& uuid,
                                const uint32_t &status, const int32_t &volume);
 
-  void error_status_forwarder (const std::string &name_or_ip,
+  void error_status_forwarder (const uuid_t& uuid,
                                const uint32_t &status,
                                const std::string &error_str);
 

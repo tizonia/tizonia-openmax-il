@@ -97,7 +97,7 @@ namespace tiz
       std::string internal_error_msg () const;
 
     private:
-      std::string device_name_or_ip ();
+      cast::uuid_t uuid () const;
 
     private:
       mgr *p_mgr_;  // Not owned

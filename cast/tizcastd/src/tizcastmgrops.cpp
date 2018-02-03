@@ -61,14 +61,14 @@ namespace cast = tiz::cast;
   } while (0)
 
 void cast::cc_cast_status_cback (void *ap_user_data,
-                                    tiz_chromecast_cast_status_t a_status,
-                                    int a_volume)
+                                 tiz_chromecast_cast_status_t a_status,
+                                 int a_volume)
 {
   tiz::cast::ops *p_ops = static_cast< tiz::cast::ops * > (ap_user_data);
   TIZ_LOG (TIZ_PRIORITY_TRACE, "cast status [%d]", a_status);
   assert (p_ops);
   p_ops->cast_received_cb_ ();
-  p_ops->cast_cb_ (p_ops->device_name_or_ip (), a_status, a_volume);
+  p_ops->cast_cb_ (p_ops->uuid (), a_status, a_volume);
 }
 
 void cast::cc_media_status_cback (void *ap_user_data,
@@ -78,7 +78,7 @@ void cast::cc_media_status_cback (void *ap_user_data,
   tiz::cast::ops *p_ops = static_cast< tiz::cast::ops * > (ap_user_data);
   TIZ_LOG (TIZ_PRIORITY_TRACE, "media status [%d]", a_status);
   assert (p_ops);
-  p_ops->media_cb_ (p_ops->device_name_or_ip (), a_status, a_volume);
+  p_ops->media_cb_ (p_ops->uuid (), a_status, a_volume);
 }
 
 //
@@ -109,6 +109,12 @@ void cast::ops::deinit ()
 {
   tiz_chromecast_destroy (p_cc_);
   p_cc_ = NULL;
+}
+
+cast::uuid_t cast::ops::uuid () const
+{
+  assert (p_mgr_);
+  return p_mgr_->uuid ();
 }
 
 void cast::ops::do_connect (const std::string &name_or_ip)
@@ -243,7 +249,7 @@ void cast::ops::do_unmute ()
 void cast::ops::do_report_fatal_error (const int error,
                                           const std::string &msg)
 {
-  termination_cb_ (device_name_or_ip (), error, msg);
+  termination_cb_ (uuid (), error, msg);
 }
 
 bool cast::ops::is_fatal_error (const int error, const std::string &msg)
@@ -260,10 +266,4 @@ int cast::ops::internal_error () const
 std::string cast::ops::internal_error_msg () const
 {
   return error_msg_;
-}
-
-std::string cast::ops::device_name_or_ip ()
-{
-  assert (p_mgr_);
-  return p_mgr_->name_or_ip_;
 }
