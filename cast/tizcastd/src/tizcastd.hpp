@@ -165,7 +165,7 @@ public:
                                const std::string &error_str);
 
 private:
-  tiz::cast::worker * p_worker_;
+  tiz::cast::worker *p_worker_;
 };
 
 #endif  // TIZCASTD_HPP

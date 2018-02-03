@@ -29,13 +29,20 @@
 #ifndef TIZCASTMGRTYPES_H
 #define TIZCASTMGRTYPES_H
 
+
+#include <string>
+#include <vector>
+
 #include <boost/function.hpp>
 
 #include <tizchromecasttypes.h>
+
 namespace tiz
 {
   namespace cast
   {
+
+    typedef std::vector< unsigned char > uuid_t;
 
     typedef boost::function< void() > cast_status_received_cback_t;
 

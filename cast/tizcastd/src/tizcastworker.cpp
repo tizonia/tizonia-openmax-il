@@ -33,6 +33,7 @@
 
 #include <algorithm>
 #include <boost/make_shared.hpp>
+#include <vector>
 
 #include <OMX_Component.h>
 
@@ -47,6 +48,15 @@
 #endif
 
 #define TIZ_CAST_WORKER_QUEUE_MAX_ITEMS 30
+
+namespace
+{
+  template < typename T >
+  bool is_type (const boost::any &operand)
+  {
+    return operand.type () == typeid (T);
+  }
+}
 
 namespace cast = tiz::cast;
 
@@ -98,7 +108,7 @@ void *cast::thread_func (void *p_arg)
 cast::worker::worker (cast_status_cback_t cast_cb,
                       media_status_cback_t media_cb,
                       termination_callback_t termination_cb)
-  : p_cc_ctx_(NULL),
+  : p_cc_ctx_ (NULL),
     cast_cb_ (cast_cb),
     media_cb_ (media_cb),
     termination_cb_ (termination_cb),
@@ -115,11 +125,11 @@ cast::worker::worker (cast_status_cback_t cast_cb,
 cast::worker::~worker ()
 {
   deinit_cmd_queue ();
-  BOOST_FOREACH (const devices_pair_t &device, devices_)
-    {
-      tiz::cast::mgr *p_cast_mgr = device.second.p_cast_mgr_;
-      dispose_mgr (p_cast_mgr);
-    }
+  BOOST_FOREACH (const clients_pair_t &client, clients_)
+  {
+    tiz::cast::mgr *p_cast_mgr = client.second.p_cast_mgr_;
+    dispose_mgr (p_cast_mgr);
+  }
   tiz_chromecast_ctx_destroy (&(p_cc_ctx_));
 }
 
@@ -143,33 +153,29 @@ cast::worker::init ()
   // Let's wait until this manager's thread is ready to receive requests
   tiz_check_omx_ret_oom (tiz_sem_wait (&sem_));
 
-  // Get the fsm to start processing events
-  return start_fsm ();
+  return OMX_ErrorNone;
 }
 
 void cast::worker::deinit ()
 {
-  if (!fsm_.terminated_)
-    {
-      (void)stop_fsm ();
-      TIZ_LOG (TIZ_PRIORITY_NOTICE, "Waiting until stopped...");
-      static_cast< void > (tiz_sem_wait (&sem_));
-      void *p_result = NULL;
-      static_cast< void > (tiz_thread_join (&thread_, &p_result));
-    }
+  post_cmd (new cast::cmd (cast::quit_evt ()));
+  TIZ_LOG (TIZ_PRIORITY_NOTICE, "Waiting until stopped...");
+  static_cast< void > (tiz_sem_wait (&sem_));
+  void *p_result = NULL;
+  static_cast< void > (tiz_thread_join (&thread_, &p_result));
 }
 
 OMX_ERRORTYPE
 cast::worker::connect (const std::vector< uint8_t > &uuid,
                        const std::string &name_or_ip)
 {
-  return post_cmd (new cast::cmd (cast::connect_evt (uuid, name_or_ip)));
+  return post_cmd (new cast::cmd (uuid, cast::connect_evt (name_or_ip)));
 }
 
 OMX_ERRORTYPE
 cast::worker::disconnect (const std::vector< uint8_t > &uuid)
 {
-  return post_cmd (new cast::cmd (cast::disconnect_evt (uuid)));
+  return post_cmd (new cast::cmd (uuid, cast::disconnect_evt ()));
 }
 
 OMX_ERRORTYPE
@@ -178,72 +184,60 @@ cast::worker::load_url (const std::vector< uint8_t > &uuid,
                         const std::string &title, const std::string &album_art)
 {
   return post_cmd (new cast::cmd (
-      cast::load_url_evt (uuid, url, mime_type, title, album_art)));
+      uuid, cast::load_url_evt (url, mime_type, title, album_art)));
 }
 
 OMX_ERRORTYPE
 cast::worker::play (const std::vector< uint8_t > &uuid)
 {
-  return post_cmd (new cast::cmd (cast::play_evt (uuid)));
+  return post_cmd (new cast::cmd (uuid, cast::play_evt ()));
 }
 
 OMX_ERRORTYPE
 cast::worker::stop (const std::vector< uint8_t > &uuid)
 {
-  return post_cmd (new cast::cmd (cast::stop_evt (uuid)));
+  return post_cmd (new cast::cmd (uuid, cast::stop_evt ()));
 }
 
 OMX_ERRORTYPE
 cast::worker::pause (const std::vector< uint8_t > &uuid)
 {
-  return post_cmd (new cast::cmd (cast::pause_evt (uuid)));
+  return post_cmd (new cast::cmd (uuid, cast::pause_evt ()));
 }
 
 OMX_ERRORTYPE
 cast::worker::volume_set (const std::vector< uint8_t > &uuid, int volume)
 {
-  return post_cmd (new cast::cmd (cast::volume_evt (uuid, volume)));
+  return post_cmd (new cast::cmd (uuid, cast::volume_evt (volume)));
 }
 
 OMX_ERRORTYPE
 cast::worker::volume_up (const std::vector< uint8_t > &uuid)
 {
-  return post_cmd (new cast::cmd (cast::volume_up_evt (uuid)));
+  return post_cmd (new cast::cmd (uuid, cast::volume_up_evt ()));
 }
 
 OMX_ERRORTYPE
 cast::worker::volume_down (const std::vector< uint8_t > &uuid)
 {
-  return post_cmd (new cast::cmd (cast::volume_down_evt (uuid)));
+  return post_cmd (new cast::cmd (uuid, cast::volume_down_evt ()));
 }
 
 OMX_ERRORTYPE
 cast::worker::mute (const std::vector< uint8_t > &uuid)
 {
-  return post_cmd (new cast::cmd (cast::mute_evt (uuid)));
+  return post_cmd (new cast::cmd (uuid, cast::mute_evt ()));
 }
 
 OMX_ERRORTYPE
 cast::worker::unmute (const std::vector< uint8_t > &uuid)
 {
-  return post_cmd (new cast::cmd (cast::unmute_evt (uuid)));
+  return post_cmd (new cast::cmd (uuid, cast::unmute_evt ()));
 }
 
 //
 // Private methods
 //
-
-OMX_ERRORTYPE
-cast::worker::start_fsm ()
-{
-  return post_cmd (new cast::cmd (cast::start_evt ()));
-}
-
-OMX_ERRORTYPE
-cast::worker::stop_fsm ()
-{
-  return post_cmd (new cast::cmd (cast::quit_evt ()));
-}
 
 OMX_ERRORTYPE
 cast::worker::cast_status_received ()
@@ -283,29 +277,45 @@ cast::worker::post_cmd (cast::cmd *p_cmd)
 
 bool cast::worker::dispatch_cmd (cast::worker *p_worker, const cast::cmd *p_cmd)
 {
+  bool rc = false;
+  cast::mgr *p_mgr = NULL;
+
   assert (p_worker);
-  assert (p_worker->p_ops_);
   assert (p_cmd);
 
-  p_cmd->inject (p_worker->fsm_);
-
-  // Check for internal errors produced during the processing of the last
-  // event. If any, inject an "internal" error event. This is fatal and shall
-  // terminate the state machine.
-  if (OMX_ErrorNone != p_worker->p_ops_->internal_error ())
+  clients_map_t &clients = p_worker->clients_;
+  uuid_t &uuid = cmd.uuid ();
+  if (clients.count (uuid))
   {
-    TIZ_LOG (TIZ_PRIORITY_ERROR,
-             "WORKER error detected. Injecting err_evt (this is fatal)");
-    bool is_internal_error = true;
-    p_worker->fsm_.process_event (cast::err_evt (
-        p_worker->p_ops_->internal_error (), p_worker->p_ops_->internal_error_msg (),
-        is_internal_error));
+    p_mgr = clients_[uuid].p_mgr;
   }
-  if (p_worker->fsm_.terminated_)
+  else
   {
-    TIZ_LOG (TIZ_PRIORITY_NOTICE, "WORKER fsm terminated");
-    p_worker->p_ops_->deinit ();
+    p_mgr = new tiz::cast::mgr (p_worker->p_cc_ctx_, p_worker->cast_cb_,
+                                p_worker->media_cb_, p_worker->termination_cb_);
+
+    assert (p_mgr);
+    p_mgr->init ();
+
+    std::pair< clients_map_t::iterator, bool > rv
+        = clients.insert (std::make_pair (uuid, client_info (uuid, p_mgr)));
+
+    assert (rv.second);
+
+    char uuid_str[128];
+    tiz_uuid_str (&(uuid[0]), uuid_str);
+    TIZ_LOG (TIZ_PRIORITY_NOTICE,
+               "Successfully registered client with uuid [%s]...", uuid_str);
   }
 
-  return p_worker->fsm_.terminated_;
+  if (!p_mgr->dispatch_cmd (p_cmd))
+  {
+    // The manager has terminated
+    p_mgr->deinit ();
+    clients.erase (uuid);
+    delete p_mgr;
+    p_mgr = NULL;
+  }
+
+  return false;
 }

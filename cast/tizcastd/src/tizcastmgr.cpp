@@ -95,74 +95,6 @@ void cast::mgr::deinit ()
     }
 }
 
-OMX_ERRORTYPE
-cast::mgr::connect ()
-{
-  return post_cmd (new cast::cmd (cast::connect_evt (name_or_ip_)));
-}
-
-OMX_ERRORTYPE
-cast::mgr::disconnect ()
-{
-  return post_cmd (new cast::cmd (cast::disconnect_evt ()));
-}
-
-OMX_ERRORTYPE
-cast::mgr::load_url (const std::string &url, const std::string &mime_type,
-                        const std::string &title, const std::string &album_art)
-{
-  return post_cmd (new cast::cmd (
-      cast::load_url_evt (url, mime_type, title, album_art)));
-}
-
-OMX_ERRORTYPE
-cast::mgr::play ()
-{
-  return post_cmd (new cast::cmd (cast::play_evt ()));
-}
-
-OMX_ERRORTYPE
-cast::mgr::stop ()
-{
-  return post_cmd (new cast::cmd (cast::stop_evt ()));
-}
-
-OMX_ERRORTYPE
-cast::mgr::pause ()
-{
-  return post_cmd (new cast::cmd (cast::pause_evt ()));
-}
-
-OMX_ERRORTYPE
-cast::mgr::volume_set (int volume)
-{
-  return post_cmd (new cast::cmd (cast::volume_evt (volume)));
-}
-
-OMX_ERRORTYPE
-cast::mgr::volume_up ()
-{
-  return post_cmd (new cast::cmd (cast::volume_up_evt ()));
-}
-
-OMX_ERRORTYPE
-cast::mgr::volume_down ()
-{
-  return post_cmd (new cast::cmd (cast::volume_down_evt ()));
-}
-
-OMX_ERRORTYPE
-cast::mgr::mute ()
-{
-  return post_cmd (new cast::cmd (cast::mute_evt ()));
-}
-
-OMX_ERRORTYPE
-cast::mgr::unmute ()
-{
-  return post_cmd (new cast::cmd (cast::unmute_evt ()));
-}
-
 //
 // Private methods
 //
@@ -185,37 +117,30 @@ cast::mgr::cast_status_received ()
   return post_cmd (new cast::cmd (cast::cast_status_evt ()));
 }
 
-OMX_ERRORTYPE
-cast::mgr::post_cmd (cast::cmd *p_cmd)
+bool cast::mgr::dispatch_cmd (const cast::cmd *p_cmd)
 {
-  return OMX_ErrorNone;
-}
-
-bool cast::mgr::dispatch_cmd (cast::mgr *p_mgr, const cast::cmd *p_cmd)
-{
-  assert (p_mgr);
-  assert (p_mgr->p_ops_);
+  assert (p_ops_);
   assert (p_cmd);
 
-  p_cmd->inject (p_mgr->fsm_);
+  p_cmd->inject (fsm_);
 
   // Check for internal errors produced during the processing of the last
   // event. If any, inject an "internal" error event. This is fatal and shall
   // terminate the state machine.
-  if (OMX_ErrorNone != p_mgr->p_ops_->internal_error ())
+  if (OMX_ErrorNone != p_ops_->internal_error ())
   {
     TIZ_LOG (TIZ_PRIORITY_ERROR,
              "MGR error detected. Injecting err_evt (this is fatal)");
     bool is_internal_error = true;
-    p_mgr->fsm_.process_event (cast::err_evt (
-        p_mgr->p_ops_->internal_error (), p_mgr->p_ops_->internal_error_msg (),
+    fsm_.process_event (cast::err_evt (
+        p_ops_->internal_error (), p_ops_->internal_error_msg (),
         is_internal_error));
   }
-  if (p_mgr->fsm_.terminated_)
+  if (fsm_.terminated_)
   {
     TIZ_LOG (TIZ_PRIORITY_NOTICE, "MGR fsm terminated");
-    p_mgr->p_ops_->deinit ();
+    p_ops_->deinit ();
   }
 
-  return p_mgr->fsm_.terminated_;
+  return fsm_.terminated_;
 }

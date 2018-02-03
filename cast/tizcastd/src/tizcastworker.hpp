@@ -211,25 +211,6 @@ namespace tiz
       OMX_ERRORTYPE unmute (const std::vector< uint8_t > &uuid);
 
     private:
-      /**
-       * Start processing the play list from the beginning.
-       *
-       * @pre init() has been called on this manager.
-       *
-       * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
-       * success.
-       */
-      OMX_ERRORTYPE start_fsm ();
-
-      /**
-       * Exit the manager thread.
-       *
-       * @pre init() has been called on this manager.
-       *
-       * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
-       * success.
-       */
-      OMX_ERRORTYPE stop_fsm ();
 
       OMX_ERRORTYPE cast_status_received ();
       OMX_ERRORTYPE init_cmd_queue ();
@@ -239,45 +220,40 @@ namespace tiz
       static bool dispatch_cmd (worker *p_worker, const cmd *p_cmd);
 
     private:
-      struct device_info
+      struct client_info
       {
-        device_info () : name_or_ip_ (), client_uuid_ (), p_cast_mgr_ (NULL)
+        client_info () : uuid_ (), p_cast_mgr_ (NULL)
         {
         }
 
-        device_info (const std::string &name_or_ip,
-                     std::vector< unsigned char > client_uuid,
+        client_info (std::vector< unsigned char > client_uuid,
                      tiz::cast::mgr *p_cast_mgr)
-          : name_or_ip_ (name_or_ip),
-            client_uuid_ (client_uuid),
+          : uuid_ (client_uuid),
             p_cast_mgr_ (p_cast_mgr)
         {
         }
 
-        bool operator< (const device_info &rhs) const
+        bool operator< (const client_info &rhs) const
         {
-          return (name_or_ip_ < rhs.name_or_ip_);
+          return (uuid_ < rhs.uuid_);
         }
 
-        bool operator== (const device_info &rhs) const
+        bool operator== (const client_info &rhs) const
         {
-          return (name_or_ip_ == rhs.name_or_ip_);
+          return (uuid_ == rhs.uuid_);
         }
 
         // Data members
-        std::string name_or_ip_;
-        std::vector< unsigned char > client_uuid_;
+        uuid_t uuid_;
         tiz::cast::mgr *p_cast_mgr_;  // Not owned
       };
 
     private:
-      typedef std::string device_name_or_ip_t;
-      typedef std::map< device_name_or_ip_t, device_info > devices_map_t;
-      typedef std::pair< device_name_or_ip_t, device_info > devices_pair_t;
-
+      typedef std::map< uuid_t, client_info > clients_map_t;
+      typedef std::pair< uuid_t, client_info > clients_pair_t;
 
     private:
-      devices_map_t devices_;
+      clients_map_t clients_;
       tiz_chromecast_ctx_t * p_cc_ctx_;
       cast_status_cback_t cast_cb_;
       media_status_cback_t media_cb_;

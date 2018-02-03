@@ -66,7 +66,7 @@ namespace tiz
 
     public:
       mgr (const tiz_chromecast_ctx_t * p_cc_ctx,
-           const std::string &name_or_ip, cast_status_cback_t cast_cb,
+           cast_status_cback_t cast_cb,
            media_status_cback_t media_cb,
            termination_callback_t termination_cb);
       virtual ~mgr ();
@@ -96,122 +96,12 @@ namespace tiz
        */
       void deinit ();
 
-      /**
-       * Start processing the play list from the beginning.
-       *
-       * @pre init() has been called on this manager.
-
-       * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
-       * success.
-       */
-      OMX_ERRORTYPE connect ();
-
-      /**
-       * Halt processing of the playlist.
-       *
-       * @pre init() has been called on this manager.
-       *
-       * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
-       * success.
-       */
-      OMX_ERRORTYPE disconnect ();
-
-      /**
-       * Process the next item in the playlist.
-       *
-       * @pre init() has been called on this manager.
-       *
-       * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
-       * success.
-       */
-      OMX_ERRORTYPE load_url (const std::string &url,
-                              const std::string &mime_type,
-                              const std::string &title,
-                              const std::string &album_art);
-
-      /**
-       * Process the previous item in the playlist.
-       *
-       * @pre init() has been called on this manager.
-       *
-       * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
-       * success.
-       */
-      OMX_ERRORTYPE play ();
-
-      /**
-       *
-       * @pre init() has been called on this manager.
-       *
-       * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
-       * success.
-       */
-      OMX_ERRORTYPE stop ();
-
-      /**
-       *
-       * @pre init() has been called on this manager.
-       *
-       * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
-       * success.
-       */
-      OMX_ERRORTYPE pause ();
-
-      /**
-       * Set the volume level (0-100).
-       *
-       * @pre init() has been called on this manager.
-       *
-       * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
-       * success.
-       */
-      OMX_ERRORTYPE volume_set (int volume);
-
-      /**
-       * Increments or decrements the volume by steps.
-       *
-       * @pre init() has been called on this manager.
-       *
-       * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
-       * success.
-       */
-      OMX_ERRORTYPE volume_up ();
-
-      /**
-       * Changes the volume to the specified value. 1.0 is maximum volume and
-       * 0.0 means mute.
-       *
-       * @pre init() has been called on this manager.
-       *
-       * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
-       * success.
-       */
-      OMX_ERRORTYPE volume_down ();
-
-      /**
-       * Mute/unmute toggle.
-       *
-       * @pre init() has been called on this manager.
-       *
-       * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
-       * success.
-       */
-      OMX_ERRORTYPE mute ();
-
-      /**
-       * Pause the processing of the current item in the playlist.
-       *
-       * @pre init() has been called on this manager.
-       *
-       * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
-       * success.
-       */
-      OMX_ERRORTYPE unmute ();
-
       std::string get_name_or_ip ()
       {
         return name_or_ip_;
       }
+
+      bool dispatch_cmd (const cmd *p_cmd);
 
     private:
       /**
@@ -235,10 +125,6 @@ namespace tiz
       OMX_ERRORTYPE stop_fsm ();
 
       OMX_ERRORTYPE cast_status_received ();
-
-      OMX_ERRORTYPE post_cmd (cmd *p_cmd);
-
-      static bool dispatch_cmd (mgr *p_mgr, const cmd *p_cmd);
 
     private:
       ops *p_ops_;
