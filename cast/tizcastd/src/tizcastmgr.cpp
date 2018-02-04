@@ -60,6 +60,7 @@ cast::mgr::mgr (const uuid_t &uuid, const tiz_chromecast_ctx_t *p_cc_ctx,
     fsm_ (boost::msm::back::states_, &p_ops_),
     name_or_ip_ (),
     uuid_(uuid),
+    p_cc_ctx_(p_cc_ctx),
     cast_cb_ (cast_cb),
     media_cb_ (media_cb),
     termination_cb_ (termination_cb)
@@ -93,6 +94,13 @@ void cast::mgr::deinit ()
   {
     (void)stop_fsm ();
   }
+  delete p_ops_;
+  p_ops_ = NULL;
+}
+
+bool cast::mgr::terminated () const
+{
+  return fsm_.terminated_;
 }
 
 cast::uuid_t cast::mgr::uuid () const
@@ -112,23 +120,23 @@ std::string cast::mgr::device_name_or_ip () const
 OMX_ERRORTYPE
 cast::mgr::start_fsm ()
 {
-  return post_cmd (cast::start_evt ());
+  return post_internal_cmd (cast::start_evt ());
 }
 
 OMX_ERRORTYPE
 cast::mgr::stop_fsm ()
 {
-  return post_cmd (cast::quit_evt ());
+  return post_internal_cmd (cast::quit_evt ());
 }
 
 OMX_ERRORTYPE
 cast::mgr::cast_status_received ()
 {
-  return post_cmd (cast::cast_status_evt ());
+  return post_internal_cmd (cast::cast_status_evt ());
 }
 
 OMX_ERRORTYPE
-cast::mgr::post_cmd (const boost::any &any_event)
+cast::mgr::post_internal_cmd (const boost::any &any_event)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   uuid_t null_uuid;
@@ -144,28 +152,28 @@ cast::mgr::post_cmd (const boost::any &any_event)
 
 bool cast::mgr::dispatch_cmd (const cast::cmd *p_cmd)
 {
-  assert (p_ops_);
   assert (p_cmd);
-
-  p_cmd->inject (fsm_);
-
-  // Check for internal errors produced during the processing of the last
-  // event. If any, inject an "internal" error event. This is fatal and shall
-  // terminate the state machine.
-  if (OMX_ErrorNone != p_ops_->internal_error ())
+  if (p_ops_)
   {
-    TIZ_LOG (TIZ_PRIORITY_ERROR,
-             "MGR error detected. Injecting err_evt (this is fatal)");
-    bool is_internal_error = true;
-    fsm_.process_event (cast::err_evt (p_ops_->internal_error (),
-                                       p_ops_->internal_error_msg (),
-                                       is_internal_error));
-  }
-  if (fsm_.terminated_)
-  {
-    TIZ_LOG (TIZ_PRIORITY_NOTICE, "MGR fsm terminated");
-    p_ops_->deinit ();
-  }
+    p_cmd->inject (fsm_);
 
+    // Check for internal errors produced during the processing of the last
+    // event. If any, inject an "internal" error event. This is fatal and shall
+    // terminate the state machine.
+    if (OMX_ErrorNone != p_ops_->internal_error ())
+    {
+      TIZ_LOG (TIZ_PRIORITY_ERROR,
+               "MGR error detected. Injecting err_evt (this is fatal)");
+      bool is_internal_error = true;
+      fsm_.process_event (cast::err_evt (p_ops_->internal_error (),
+                                         p_ops_->internal_error_msg (),
+                                         is_internal_error));
+    }
+
+    if (fsm_.terminated_)
+    {
+      TIZ_LOG (TIZ_PRIORITY_NOTICE, "MGR fsm terminated");
+    }
+  }
   return fsm_.terminated_;
 }

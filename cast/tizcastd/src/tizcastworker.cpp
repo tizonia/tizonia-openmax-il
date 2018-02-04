@@ -85,7 +85,7 @@ void *cast::thread_func (void *p_arg)
     // This is to poll the chromecast sockets periodically
     if (!done)
     {
-      done = cast::worker::poll_mgrs (p_worker, &cmd);
+      cast::worker::poll_mgrs (p_worker, &cmd);
     }
   }
 
@@ -297,7 +297,7 @@ bool cast::worker::dispatch_cmd (cast::worker *p_worker, const cast::cmd *p_cmd)
              "Successfully registered client with uuid [%s]...", uuid_str);
   }
 
-  if (!p_mgr->dispatch_cmd (p_cmd))
+  if (p_mgr->dispatch_cmd (p_cmd))
   {
     // The manager has terminated
     p_mgr->deinit ();
@@ -309,7 +309,7 @@ bool cast::worker::dispatch_cmd (cast::worker *p_worker, const cast::cmd *p_cmd)
   return false;
 }
 
-bool cast::worker::poll_mgrs (cast::worker *p_worker, const cast::cmd *p_cmd)
+void cast::worker::poll_mgrs (cast::worker *p_worker, const cast::cmd *p_cmd)
 {
   assert (p_worker);
   assert (p_cmd);
@@ -322,5 +322,4 @@ bool cast::worker::poll_mgrs (cast::worker *p_worker, const cast::cmd *p_cmd)
     assert (p_mgr);
     (void)p_mgr->dispatch_cmd (p_cmd);
   }
-  return false;
 }

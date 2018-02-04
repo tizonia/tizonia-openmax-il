@@ -103,6 +103,8 @@ namespace tiz
        */
       void deinit ();
 
+      bool terminated() const;
+
       uuid_t uuid () const;
 
       std::string device_name_or_ip () const;
@@ -130,7 +132,7 @@ namespace tiz
        */
       OMX_ERRORTYPE stop_fsm ();
 
-      OMX_ERRORTYPE post_cmd (const boost::any &any_event);
+      OMX_ERRORTYPE post_internal_cmd (const boost::any &any_event);
 
       OMX_ERRORTYPE cast_status_received ();
 

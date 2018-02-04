@@ -220,7 +220,7 @@ namespace tiz
 
       static bool dispatch_cmd (worker *p_worker, const cmd *p_cmd);
 
-      static bool poll_mgrs (worker *p_worker, const cmd *p_cmd);
+      static void poll_mgrs (worker *p_worker, const cmd *p_cmd);
 
     private:
       struct client_info
