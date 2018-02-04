@@ -45,6 +45,17 @@ struct cc_prc
 {
   /* Object */
   const tiz_prc_t _;
+  OMX_TIZONIA_PARAM_CHROMECASTSESSIONTYPE cc_session_;
+  OMX_TIZONIA_PLAYLISTSKIPTYPE pl_skip_;
+  OMX_PARAM_CONTENTURITYPE * p_uri_param_;
+  OMX_BUFFERHEADERTYPE * p_inhdr_;
+  tiz_cast_t * p_cc_;
+  tiz_cast_client_cast_status_t cc_cast_status_;
+  tiz_cast_client_media_status_t cc_media_status_;
+  char * p_cc_display_title_;
+  char * p_cc_err_msg_;
+  bool uri_changed_;
+  long volume_;
 };
 
 typedef struct cc_prc_class cc_prc_class_t;

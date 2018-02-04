@@ -41,6 +41,15 @@ cc_prc_class_init (void * ap_tos, void * ap_hdl);
 void *
 cc_prc_init (void * ap_tos, void * ap_hdl);
 
+OMX_ERRORTYPE
+cc_prc_buffers_ready (const void * ap_prc);
+
+OMX_ERRORTYPE
+cc_prc_pause (const void * ap_prc);
+
+OMX_ERRORTYPE
+cc_prc_resume (const void * ap_prc);
+
 /* OMX_BUFFERHEADERTYPE * */
 /* cc_prc_get_header (void * ap_obj, const OMX_U32 a_pid); */
 

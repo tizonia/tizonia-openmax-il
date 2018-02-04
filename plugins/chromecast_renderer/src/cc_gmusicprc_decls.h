@@ -49,18 +49,7 @@ struct cc_gmusic_prc
   const tiz_prc_t _;
   OMX_TIZONIA_AUDIO_PARAM_GMUSICSESSIONTYPE gm_session_;
   OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE gm_playlist_;
-  OMX_TIZONIA_PLAYLISTSKIPTYPE pl_skip_;
-  OMX_TIZONIA_PARAM_CHROMECASTSESSIONTYPE cc_session_;
-  OMX_PARAM_CONTENTURITYPE * p_uri_param_;
-  OMX_BUFFERHEADERTYPE * p_inhdr_;
   tiz_gmusic_t * p_gm_;
-  tiz_cast_t * p_cc_;
-  tiz_cast_client_cast_status_t cc_cast_status_;
-  tiz_cast_client_media_status_t cc_media_status_;
-  char * p_cc_display_title_;
-  char * p_cc_err_msg_;
-  bool uri_changed_;
-  long volume_;
 };
 
 typedef struct cc_gmusic_prc_class cc_gmusic_prc_class_t;
