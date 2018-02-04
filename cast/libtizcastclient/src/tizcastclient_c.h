@@ -21,7 +21,7 @@
  * @file   tizcastclient_c.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia Chromecast daemon - client library (c wrapper)
+ * @brief  Tizonia's Chromecast daemon - client library (c wrapper)
  *
  *
  */
@@ -34,12 +34,12 @@ extern "C" {
 #endif /* __cplusplus */
 
 /**
-* @defgroup libtizcastclient 'libtizcastclient' : Tizonia's OpenMAX IL Chromecast
-* daemon client library
+* @defgroup libtizcastclient 'libtizcastclient' : Tizonia's Chromecast daemon
+* client library
 *
 * This library implements a client to access Tizonia's Chromecast daemon.
 *
-* @ingroup rm
+* @ingroup cast
 */
 
 #include <OMX_Core.h>

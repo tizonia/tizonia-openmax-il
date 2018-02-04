@@ -30,10 +30,11 @@
 #define TIZCASTD_HPP
 
 /**
- * @defgroup tizcastd 'tizcastd' : Tizonia's cast daemon process.
+ * @defgroup tizcastd 'tizcastd' : Tizonia's Chromecast management daemon
+ * process.
  *
- * This module implements a D-Bus-based daemon to interface with Chromecast
- * devices.
+ * This module implements a D-Bus-based server to interface and control
+ * Chromecast devices.
  *
  * @ingroup cast
  */
