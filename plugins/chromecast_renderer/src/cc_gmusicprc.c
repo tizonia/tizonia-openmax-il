@@ -897,15 +897,6 @@ cc_gmusic_prc_buffers_ready (const void * ap_prc)
 }
 
 static OMX_ERRORTYPE
-cc_gmusic_prc_timer_ready (void * ap_prc, tiz_event_timer_t * ap_ev_timer,
-                           void * ap_arg, const uint32_t a_id)
-{
-  cc_gmusic_prc_t * p_prc = ap_prc;
-  assert (p_prc);
-  return OMX_ErrorNone;
-}
-
-static OMX_ERRORTYPE
 cc_gmusic_prc_pause (const void * ap_prc)
 {
   cc_gmusic_prc_t * p_prc = (cc_gmusic_prc_t *) ap_prc;
@@ -1081,8 +1072,6 @@ cc_gmusic_prc_init (void * ap_tos, void * ap_hdl)
      tiz_srv_transfer_and_process, cc_gmusic_prc_transfer_and_process,
      /* TIZ_CLASS_COMMENT: */
      tiz_srv_stop_and_return, cc_gmusic_prc_stop_and_return,
-     /* TIZ_CLASS_COMMENT: */
-     tiz_srv_timer_ready, cc_gmusic_prc_timer_ready,
      /* TIZ_CLASS_COMMENT: */
      tiz_prc_buffers_ready, cc_gmusic_prc_buffers_ready,
      /* TIZ_CLASS_COMMENT: */
