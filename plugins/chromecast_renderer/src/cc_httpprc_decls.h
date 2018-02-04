@@ -17,7 +17,7 @@
  * along with Tizonia.  If not, see <chromecast://www.gnu.org/licenses/>.
  */
 /**
- * @file   chromecastrndprc_decls.h
+ * @file   cc_httpprc_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
  * @brief  Chromecast renderer - processor declarations
@@ -25,8 +25,8 @@
  *
  */
 
-#ifndef CHROMECASTSRCPRC_DECLS_H
-#define CHROMECASTSRCPRC_DECLS_H
+#ifndef CC_HTTPPRC_DECLS_H
+#define CC_HTTPPRC_DECLS_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,8 +40,8 @@ extern "C" {
 
 #include <tizplatform.h>
 
-typedef struct chromecastrnd_prc chromecastrnd_prc_t;
-struct chromecastrnd_prc
+typedef struct cc_http_prc cc_http_prc_t;
+struct cc_http_prc
 {
   /* Object */
   const tiz_prc_t _;
@@ -58,8 +58,8 @@ struct chromecastrnd_prc
   int cache_bytes_;
 };
 
-typedef struct chromecastrnd_prc_class chromecastrnd_prc_class_t;
-struct chromecastrnd_prc_class
+typedef struct cc_http_prc_class cc_http_prc_class_t;
+struct cc_http_prc_class
 {
   /* Class */
   const tiz_prc_class_t _;
@@ -70,4 +70,4 @@ struct chromecastrnd_prc_class
 }
 #endif
 
-#endif /* CHROMECASTSRCPRC_DECLS_H */
+#endif /* CC_HTTPPRC_DECLS_H */

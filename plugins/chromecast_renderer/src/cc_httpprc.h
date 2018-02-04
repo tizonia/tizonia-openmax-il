@@ -18,28 +18,28 @@
  */
 
 /**
- * @file   chromecastrndprc.h
+ * @file   cc_httpprc.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Chromecast renderer - processor class
+ * @brief  Chromecast renderer - http straming client - processor class
  *
  *
  */
 
-#ifndef CHROMECASTSRCPRC_H
-#define CHROMECASTSRCPRC_H
+#ifndef CC_HTTPPRC_H
+#define CC_HTTPPRC_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 void *
-chromecastrnd_prc_class_init (void * ap_tos, void * ap_hdl);
+cc_http_prc_class_init (void * ap_tos, void * ap_hdl);
 void *
-chromecastrnd_prc_init (void * ap_tos, void * ap_hdl);
+cc_http_prc_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* CHROMECASTSRCPRC_H */
+#endif /* CC_HTTPPRC_H */

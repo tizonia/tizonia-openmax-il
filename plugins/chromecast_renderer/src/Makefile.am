@@ -21,8 +21,8 @@ libtizchromecastrnd_LTLIBRARIES = libtizchromecastrnd.la
 
 noinst_HEADERS = \
 	chromecastrnd.h \
-	chromecastrndprc.h \
-	chromecastrndprc_decls.h \
+	cc_httpprc.h \
+	cc_httpprc_decls.h \
 	cc_gmusicprc.h \
 	cc_gmusicprc_decls.h \
 	cc_gmusiccfgport.h \
@@ -42,7 +42,7 @@ noinst_HEADERS = \
 
 libtizchromecastrnd_la_SOURCES = \
 	chromecastrnd.c \
-	chromecastrndprc.c \
+	cc_httpprc.c \
 	cc_gmusicprc.c \
 	cc_gmusiccfgport.c \
 	cc_scloudprc.c \

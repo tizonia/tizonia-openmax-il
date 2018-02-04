@@ -43,8 +43,8 @@
 #include <tizport.h>
 #include <tizscheduler.h>
 
-#include "chromecastrndprc.h"
 #include "chromecastrnd.h"
+#include "cc_httpprc.h"
 #include "cc_gmusicprc.h"
 #include "cc_gmusiccfgport.h"
 #include "cc_scloudprc.h"
@@ -136,7 +136,7 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
-  return factory_new (tiz_get_type (ap_hdl, "chromecastrndprc"));
+  return factory_new (tiz_get_type (ap_hdl, "cc_httpprc"));
 }
 
 static OMX_PTR
@@ -202,15 +202,15 @@ instantiate_youtube_processor (OMX_HANDLETYPE ap_hdl)
 OMX_ERRORTYPE
 OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 {
-  tiz_role_factory_t chromecast_client_role;
+  tiz_role_factory_t http_client_role;
   tiz_role_factory_t gmusic_client_role;
   tiz_role_factory_t scloud_client_role;
   tiz_role_factory_t dirble_client_role;
   tiz_role_factory_t youtube_client_role;
   const tiz_role_factory_t * rf_list[]
-    = {&chromecast_client_role, &gmusic_client_role, &scloud_client_role,
+    = {&http_client_role, &gmusic_client_role, &scloud_client_role,
        &dirble_client_role, &youtube_client_role};
-  tiz_type_factory_t chromecastrndprc_type;
+  tiz_type_factory_t cc_httpprc_type;
   tiz_type_factory_t cc_gmusicprc_type;
   tiz_type_factory_t cc_gmusiccfgport_type;
   tiz_type_factory_t cc_scloudprc_type;
@@ -220,16 +220,16 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   tiz_type_factory_t cc_youtubeprc_type;
   tiz_type_factory_t cc_youtubecfgport_type;
   const tiz_type_factory_t * tf_list[]
-    = {&chromecastrndprc_type, &cc_gmusicprc_type,     &cc_gmusiccfgport_type,
+    = {&cc_httpprc_type, &cc_gmusicprc_type,     &cc_gmusiccfgport_type,
        &cc_scloudprc_type,     &cc_scloudcfgport_type, &cc_dirbleprc_type,
        &cc_dirblecfgport_type, &cc_youtubeprc_type,    &cc_youtubecfgport_type};
 
-  strcpy ((OMX_STRING) chromecast_client_role.role,
+  strcpy ((OMX_STRING) http_client_role.role,
           ARATELIA_CHROMECAST_RENDERER_DEFAULT_ROLE);
-  chromecast_client_role.pf_cport = instantiate_config_port;
-  chromecast_client_role.pf_port[0] = instantiate_pcm_port;
-  chromecast_client_role.nports = 1;
-  chromecast_client_role.pf_proc = instantiate_processor;
+  http_client_role.pf_cport = instantiate_config_port;
+  http_client_role.pf_port[0] = instantiate_pcm_port;
+  http_client_role.nports = 1;
+  http_client_role.pf_proc = instantiate_processor;
 
   strcpy ((OMX_STRING) gmusic_client_role.role,
           ARATELIA_GMUSIC_SOURCE_DEFAULT_ROLE);
@@ -259,11 +259,11 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   youtube_client_role.nports = 1;
   youtube_client_role.pf_proc = instantiate_youtube_processor;
 
-  strcpy ((OMX_STRING) chromecastrndprc_type.class_name,
-          "chromecastrndprc_class");
-  chromecastrndprc_type.pf_class_init = chromecastrnd_prc_class_init;
-  strcpy ((OMX_STRING) chromecastrndprc_type.object_name, "chromecastrndprc");
-  chromecastrndprc_type.pf_object_init = chromecastrnd_prc_init;
+  strcpy ((OMX_STRING) cc_httpprc_type.class_name,
+          "cc_httpprc_class");
+  cc_httpprc_type.pf_class_init = cc_http_prc_class_init;
+  strcpy ((OMX_STRING) cc_httpprc_type.object_name, "cc_httpprc");
+  cc_httpprc_type.pf_object_init = cc_http_prc_init;
 
   strcpy ((OMX_STRING) cc_gmusicprc_type.class_name, "cc_gmusicprc_class");
   cc_gmusicprc_type.pf_class_init = cc_gmusic_prc_class_init;

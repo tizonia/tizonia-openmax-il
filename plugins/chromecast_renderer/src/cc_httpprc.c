@@ -18,7 +18,7 @@
  */
 
 /**
- * @file   chromecastrndprc.c
+ * @file   cc_httpprc.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
  * @brief  Chromecast renderer - processor class
@@ -43,21 +43,21 @@
 #include <tizscheduler.h>
 
 #include "chromecastrnd.h"
-#include "chromecastrndprc.h"
-#include "chromecastrndprc_decls.h"
+#include "cc_httpprc.h"
+#include "cc_httpprc_decls.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.chromecast_renderer.prc"
+#define TIZ_LOG_CATEGORY_NAME "tiz.chromecast_renderer.prc.http"
 #endif
 
 /* forward declarations */
 static OMX_ERRORTYPE
-chromecastrnd_prc_deallocate_resources (void *);
+cc_http_prc_deallocate_resources (void *);
 static OMX_ERRORTYPE
-release_buffer (chromecastrnd_prc_t *);
+release_buffer (cc_http_prc_t *);
 static OMX_ERRORTYPE
-prepare_for_port_auto_detection (chromecastrnd_prc_t * ap_prc);
+prepare_for_port_auto_detection (cc_http_prc_t * ap_prc);
 
 typedef struct ogg_codec_id ogg_codec_id_t;
 struct ogg_codec_id
@@ -87,7 +87,7 @@ static const ogg_codec_id_t ogg_codec_type_tbl[]
      {"", 0, "Unknown", OMX_AUDIO_CodingUnused}};
 
 static OMX_S32
-identify_ogg_codec (chromecastrnd_prc_t * ap_prc, unsigned char * ap_data,
+identify_ogg_codec (cc_http_prc_t * ap_prc, unsigned char * ap_data,
                     long a_len)
 {
   OMX_S32 rc = OMX_AUDIO_CodingUnused;
@@ -122,7 +122,7 @@ is_valid_character (const char c)
 }
 
 static void
-obtain_coding_type (chromecastrnd_prc_t * ap_prc, char * ap_info)
+obtain_coding_type (cc_http_prc_t * ap_prc, char * ap_info)
 {
   assert (ap_prc);
   assert (ap_info);
@@ -175,7 +175,7 @@ obtain_coding_type (chromecastrnd_prc_t * ap_prc, char * ap_info)
 }
 
 static int
-convert_str_to_int (chromecastrnd_prc_t * ap_prc, const char * ap_start,
+convert_str_to_int (cc_http_prc_t * ap_prc, const char * ap_start,
                     char ** ap_end)
 {
   long val = -1;
@@ -205,7 +205,7 @@ convert_str_to_int (chromecastrnd_prc_t * ap_prc, const char * ap_start,
 }
 
 static void
-obtain_audio_info (chromecastrnd_prc_t * ap_prc, char * ap_info)
+obtain_audio_info (cc_http_prc_t * ap_prc, char * ap_info)
 {
   const char * channels = "channels";
   const char * samplerate = "samplerate";
@@ -241,7 +241,7 @@ obtain_audio_info (chromecastrnd_prc_t * ap_prc, char * ap_info)
 }
 
 static void
-obtain_bit_rate (chromecastrnd_prc_t * ap_prc, char * ap_info)
+obtain_bit_rate (cc_http_prc_t * ap_prc, char * ap_info)
 {
   char * p_end = NULL;
 
@@ -254,7 +254,7 @@ obtain_bit_rate (chromecastrnd_prc_t * ap_prc, char * ap_info)
 }
 
 static OMX_ERRORTYPE
-set_audio_coding_on_port (chromecastrnd_prc_t * ap_prc)
+set_audio_coding_on_port (cc_http_prc_t * ap_prc)
 {
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
   assert (ap_prc);
@@ -274,7 +274,7 @@ set_audio_coding_on_port (chromecastrnd_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
-set_mp3_audio_info_on_port (chromecastrnd_prc_t * ap_prc)
+set_mp3_audio_info_on_port (cc_http_prc_t * ap_prc)
 {
   OMX_AUDIO_PARAM_MP3TYPE mp3type;
   assert (ap_prc);
@@ -295,7 +295,7 @@ set_mp3_audio_info_on_port (chromecastrnd_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
-set_aac_audio_info_on_port (chromecastrnd_prc_t * ap_prc)
+set_aac_audio_info_on_port (cc_http_prc_t * ap_prc)
 {
   OMX_AUDIO_PARAM_AACPROFILETYPE aactype;
   assert (ap_prc);
@@ -316,7 +316,7 @@ set_aac_audio_info_on_port (chromecastrnd_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
-set_opus_audio_info_on_port (chromecastrnd_prc_t * ap_prc)
+set_opus_audio_info_on_port (cc_http_prc_t * ap_prc)
 {
   OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE opustype;
   assert (ap_prc);
@@ -337,7 +337,7 @@ set_opus_audio_info_on_port (chromecastrnd_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
-set_audio_info_on_port (chromecastrnd_prc_t * ap_prc)
+set_audio_info_on_port (cc_http_prc_t * ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (ap_prc);
@@ -381,7 +381,7 @@ set_audio_info_on_port (chromecastrnd_prc_t * ap_prc)
 }
 
 static void
-update_cache_size (chromecastrnd_prc_t * ap_prc)
+update_cache_size (cc_http_prc_t * ap_prc)
 {
   assert (ap_prc);
   assert (ap_prc->bitrate_ > 0);
@@ -395,7 +395,7 @@ update_cache_size (chromecastrnd_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
-store_metadata (chromecastrnd_prc_t * ap_prc, const char * ap_header_name,
+store_metadata (cc_http_prc_t * ap_prc, const char * ap_header_name,
                 const char * ap_header_info)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
@@ -444,7 +444,7 @@ store_metadata (chromecastrnd_prc_t * ap_prc, const char * ap_header_name,
 }
 
 static void
-obtain_audio_encoding_from_headers (chromecastrnd_prc_t * ap_prc,
+obtain_audio_encoding_from_headers (cc_http_prc_t * ap_prc,
                                     const char * ap_header, const size_t a_size)
 {
   assert (ap_prc);
@@ -509,7 +509,7 @@ obtain_audio_encoding_from_headers (chromecastrnd_prc_t * ap_prc,
 }
 
 static void
-send_port_auto_detect_events (chromecastrnd_prc_t * ap_prc)
+send_port_auto_detect_events (cc_http_prc_t * ap_prc)
 {
   assert (ap_prc);
   if (ap_prc->audio_coding_type_ != OMX_AUDIO_CodingUnused
@@ -534,7 +534,7 @@ send_port_auto_detect_events (chromecastrnd_prc_t * ap_prc)
 }
 
 static inline void
-delete_uri (chromecastrnd_prc_t * ap_prc)
+delete_uri (cc_http_prc_t * ap_prc)
 {
   assert (ap_prc);
   tiz_mem_free (ap_prc->p_uri_param_);
@@ -542,7 +542,7 @@ delete_uri (chromecastrnd_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
-obtain_uri (chromecastrnd_prc_t * ap_prc)
+obtain_uri (cc_http_prc_t * ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   const long pathname_max = PATH_MAX + NAME_MAX;
@@ -586,7 +586,7 @@ obtain_uri (chromecastrnd_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
-release_buffer (chromecastrnd_prc_t * ap_prc)
+release_buffer (cc_http_prc_t * ap_prc)
 {
   assert (ap_prc);
 
@@ -605,7 +605,7 @@ release_buffer (chromecastrnd_prc_t * ap_prc)
 static void
 buffer_filled (OMX_BUFFERHEADERTYPE * ap_hdr, void * ap_arg)
 {
-  chromecastrnd_prc_t * p_prc = ap_arg;
+  cc_http_prc_t * p_prc = ap_arg;
   assert (p_prc);
   assert (ap_hdr);
   assert (p_prc->p_inhdr_ == ap_hdr);
@@ -616,7 +616,7 @@ buffer_filled (OMX_BUFFERHEADERTYPE * ap_hdr, void * ap_arg)
 static OMX_BUFFERHEADERTYPE *
 buffer_emptied (OMX_PTR ap_arg)
 {
-  chromecastrnd_prc_t * p_prc = ap_arg;
+  cc_http_prc_t * p_prc = ap_arg;
   OMX_BUFFERHEADERTYPE * p_hdr = NULL;
   assert (p_prc);
 
@@ -649,7 +649,7 @@ buffer_emptied (OMX_PTR ap_arg)
 static void
 header_available (OMX_PTR ap_arg, const void * ap_ptr, const size_t a_nbytes)
 {
-  chromecastrnd_prc_t * p_prc = ap_arg;
+  cc_http_prc_t * p_prc = ap_arg;
   assert (p_prc);
   assert (ap_ptr);
 
@@ -662,7 +662,7 @@ header_available (OMX_PTR ap_arg, const void * ap_ptr, const size_t a_nbytes)
 static bool
 data_available (OMX_PTR ap_arg, const void * ap_ptr, const size_t a_nbytes)
 {
-  chromecastrnd_prc_t * p_prc = ap_arg;
+  cc_http_prc_t * p_prc = ap_arg;
   bool pause_needed = false;
   assert (p_prc);
   assert (ap_ptr);
@@ -696,7 +696,7 @@ data_available (OMX_PTR ap_arg, const void * ap_ptr, const size_t a_nbytes)
 static bool
 connection_lost (OMX_PTR ap_arg)
 {
-  chromecastrnd_prc_t * p_prc = ap_arg;
+  cc_http_prc_t * p_prc = ap_arg;
   assert (p_prc);
   prepare_for_port_auto_detection (p_prc);
   /* Return true to indicate that the automatic reconnection procedure needs to
@@ -705,7 +705,7 @@ connection_lost (OMX_PTR ap_arg)
 }
 
 static OMX_ERRORTYPE
-prepare_for_port_auto_detection (chromecastrnd_prc_t * ap_prc)
+prepare_for_port_auto_detection (cc_http_prc_t * ap_prc)
 {
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
   assert (ap_prc);
@@ -726,14 +726,14 @@ prepare_for_port_auto_detection (chromecastrnd_prc_t * ap_prc)
 }
 
 /*
- * chromecastrndprc
+ * cc_httpprc
  */
 
 static void *
-chromecastrnd_prc_ctor (void * ap_obj, va_list * app)
+cc_http_prc_ctor (void * ap_obj, va_list * app)
 {
-  chromecastrnd_prc_t * p_prc
-    = super_ctor (typeOf (ap_obj, "chromecastrndprc"), ap_obj, app);
+  cc_http_prc_t * p_prc
+    = super_ctor (typeOf (ap_obj, "cc_httpprc"), ap_obj, app);
   p_prc->p_inhdr_ = NULL;
   p_prc->p_uri_param_ = NULL;
   p_prc->p_trans_ = NULL;
@@ -749,10 +749,10 @@ chromecastrnd_prc_ctor (void * ap_obj, va_list * app)
 }
 
 static void *
-chromecastrnd_prc_dtor (void * ap_obj)
+cc_http_prc_dtor (void * ap_obj)
 {
-  (void) chromecastrnd_prc_deallocate_resources (ap_obj);
-  return super_dtor (typeOf (ap_obj, "chromecastrndprc"), ap_obj);
+  (void) cc_http_prc_deallocate_resources (ap_obj);
+  return super_dtor (typeOf (ap_obj, "cc_httpprc"), ap_obj);
 }
 
 /*
@@ -760,9 +760,9 @@ chromecastrnd_prc_dtor (void * ap_obj)
  */
 
 static OMX_ERRORTYPE
-chromecastrnd_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
+cc_http_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
 {
-  chromecastrnd_prc_t * p_prc = ap_obj;
+  cc_http_prc_t * p_prc = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
   assert (p_prc);
   assert (!p_prc->p_uri_param_);
@@ -791,9 +791,9 @@ chromecastrnd_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
 }
 
 static OMX_ERRORTYPE
-chromecastrnd_prc_deallocate_resources (void * ap_prc)
+cc_http_prc_deallocate_resources (void * ap_prc)
 {
-  chromecastrnd_prc_t * p_prc = ap_prc;
+  cc_http_prc_t * p_prc = ap_prc;
   assert (p_prc);
   tiz_urltrans_destroy (p_prc->p_trans_);
   p_prc->p_trans_ = NULL;
@@ -802,9 +802,9 @@ chromecastrnd_prc_deallocate_resources (void * ap_prc)
 }
 
 static OMX_ERRORTYPE
-chromecastrnd_prc_prepare_to_transfer (void * ap_prc, OMX_U32 a_pid)
+cc_http_prc_prepare_to_transfer (void * ap_prc, OMX_U32 a_pid)
 {
-  chromecastrnd_prc_t * p_prc = ap_prc;
+  cc_http_prc_t * p_prc = ap_prc;
   assert (ap_prc);
   p_prc->eos_ = false;
   tiz_urltrans_cancel (p_prc->p_trans_);
@@ -813,9 +813,9 @@ chromecastrnd_prc_prepare_to_transfer (void * ap_prc, OMX_U32 a_pid)
 }
 
 static OMX_ERRORTYPE
-chromecastrnd_prc_transfer_and_process (void * ap_prc, OMX_U32 a_pid)
+cc_http_prc_transfer_and_process (void * ap_prc, OMX_U32 a_pid)
 {
-  chromecastrnd_prc_t * p_prc = ap_prc;
+  cc_http_prc_t * p_prc = ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (p_prc);
   if (p_prc->auto_detect_on_)
@@ -826,9 +826,9 @@ chromecastrnd_prc_transfer_and_process (void * ap_prc, OMX_U32 a_pid)
 }
 
 static OMX_ERRORTYPE
-chromecastrnd_prc_stop_and_return (void * ap_prc)
+cc_http_prc_stop_and_return (void * ap_prc)
 {
-  chromecastrnd_prc_t * p_prc = ap_prc;
+  cc_http_prc_t * p_prc = ap_prc;
   assert (p_prc);
   if (p_prc->p_trans_)
     {
@@ -843,47 +843,47 @@ chromecastrnd_prc_stop_and_return (void * ap_prc)
  */
 
 static OMX_ERRORTYPE
-chromecastrnd_prc_buffers_ready (const void * ap_prc)
+cc_http_prc_buffers_ready (const void * ap_prc)
 {
-  chromecastrnd_prc_t * p_prc = (chromecastrnd_prc_t *) ap_prc;
+  cc_http_prc_t * p_prc = (cc_http_prc_t *) ap_prc;
   assert (p_prc);
   return tiz_urltrans_on_buffers_ready (p_prc->p_trans_);
 }
 
 static OMX_ERRORTYPE
-chromecastrnd_prc_io_ready (void * ap_prc, tiz_event_io_t * ap_ev_io, int a_fd,
+cc_http_prc_io_ready (void * ap_prc, tiz_event_io_t * ap_ev_io, int a_fd,
                             int a_events)
 {
-  chromecastrnd_prc_t * p_prc = ap_prc;
+  cc_http_prc_t * p_prc = ap_prc;
   assert (p_prc);
   return tiz_urltrans_on_io_ready (p_prc->p_trans_, ap_ev_io, a_fd, a_events);
 }
 
 static OMX_ERRORTYPE
-chromecastrnd_prc_timer_ready (void * ap_prc, tiz_event_timer_t * ap_ev_timer,
+cc_http_prc_timer_ready (void * ap_prc, tiz_event_timer_t * ap_ev_timer,
                                void * ap_arg, const uint32_t a_id)
 {
-  chromecastrnd_prc_t * p_prc = ap_prc;
+  cc_http_prc_t * p_prc = ap_prc;
   assert (p_prc);
   return tiz_urltrans_on_timer_ready (p_prc->p_trans_, ap_ev_timer);
 }
 
 static OMX_ERRORTYPE
-chromecastrnd_prc_pause (const void * ap_obj)
+cc_http_prc_pause (const void * ap_obj)
 {
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
-chromecastrnd_prc_resume (const void * ap_obj)
+cc_http_prc_resume (const void * ap_obj)
 {
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
-chromecastrnd_prc_port_flush (const void * ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
+cc_http_prc_port_flush (const void * ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
 {
-  chromecastrnd_prc_t * p_prc = (chromecastrnd_prc_t *) ap_obj;
+  cc_http_prc_t * p_prc = (cc_http_prc_t *) ap_obj;
   if (p_prc->p_trans_)
     {
       tiz_urltrans_flush_buffer (p_prc->p_trans_);
@@ -892,9 +892,9 @@ chromecastrnd_prc_port_flush (const void * ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
 }
 
 static OMX_ERRORTYPE
-chromecastrnd_prc_port_disable (const void * ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
+cc_http_prc_port_disable (const void * ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
 {
-  chromecastrnd_prc_t * p_prc = (chromecastrnd_prc_t *) ap_obj;
+  cc_http_prc_t * p_prc = (cc_http_prc_t *) ap_obj;
   assert (p_prc);
   p_prc->port_disabled_ = true;
   if (p_prc->p_trans_)
@@ -903,13 +903,13 @@ chromecastrnd_prc_port_disable (const void * ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
       tiz_urltrans_flush_buffer (p_prc->p_trans_);
     }
   /* Release any buffers held  */
-  return release_buffer ((chromecastrnd_prc_t *) ap_obj);
+  return release_buffer ((cc_http_prc_t *) ap_obj);
 }
 
 static OMX_ERRORTYPE
-chromecastrnd_prc_port_enable (const void * ap_prc, OMX_U32 a_pid)
+cc_http_prc_port_enable (const void * ap_prc, OMX_U32 a_pid)
 {
-  chromecastrnd_prc_t * p_prc = (chromecastrnd_prc_t *) ap_prc;
+  cc_http_prc_t * p_prc = (cc_http_prc_t *) ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (p_prc);
   TIZ_NOTICE (handleOf (p_prc), "Enabling port [%d] was disabled? [%s]", a_pid,
@@ -923,14 +923,14 @@ chromecastrnd_prc_port_enable (const void * ap_prc, OMX_U32 a_pid)
 }
 
 /*
- * chromecastrnd_prc_class
+ * cc_http_prc_class
  */
 
 static void *
-chromecastrnd_prc_class_ctor (void * ap_obj, va_list * app)
+cc_http_prc_class_ctor (void * ap_obj, va_list * app)
 {
   /* NOTE: Class methods might be added in the future. None for now. */
-  return super_ctor (typeOf (ap_obj, "chromecastrndprc_class"), ap_obj, app);
+  return super_ctor (typeOf (ap_obj, "cc_httpprc_class"), ap_obj, app);
 }
 
 /*
@@ -938,67 +938,67 @@ chromecastrnd_prc_class_ctor (void * ap_obj, va_list * app)
  */
 
 void *
-chromecastrnd_prc_class_init (void * ap_tos, void * ap_hdl)
+cc_http_prc_class_init (void * ap_tos, void * ap_hdl)
 {
   void * tizprc = tiz_get_type (ap_hdl, "tizprc");
-  void * chromecastrndprc_class = factory_new
+  void * cc_httpprc_class = factory_new
     /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-    (classOf (tizprc), "chromecastrndprc_class", classOf (tizprc),
-     sizeof (chromecastrnd_prc_class_t),
+    (classOf (tizprc), "cc_httpprc_class", classOf (tizprc),
+     sizeof (cc_http_prc_class_t),
      /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
      /* TIZ_CLASS_COMMENT: class constructor */
-     ctor, chromecastrnd_prc_class_ctor,
+     ctor, cc_http_prc_class_ctor,
      /* TIZ_CLASS_COMMENT: stop value*/
      0);
-  return chromecastrndprc_class;
+  return cc_httpprc_class;
 }
 
 void *
-chromecastrnd_prc_init (void * ap_tos, void * ap_hdl)
+cc_http_prc_init (void * ap_tos, void * ap_hdl)
 {
   void * tizprc = tiz_get_type (ap_hdl, "tizprc");
-  void * chromecastrndprc_class
-    = tiz_get_type (ap_hdl, "chromecastrndprc_class");
-  TIZ_LOG_CLASS (chromecastrndprc_class);
-  void * chromecastrndprc = factory_new
+  void * cc_httpprc_class
+    = tiz_get_type (ap_hdl, "cc_httpprc_class");
+  TIZ_LOG_CLASS (cc_httpprc_class);
+  void * cc_httpprc = factory_new
     /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-    (chromecastrndprc_class, "chromecastrndprc", tizprc,
-     sizeof (chromecastrnd_prc_t),
+    (cc_httpprc_class, "cc_httpprc", tizprc,
+     sizeof (cc_http_prc_t),
      /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
      /* TIZ_CLASS_COMMENT: class constructor */
-     ctor, chromecastrnd_prc_ctor,
+     ctor, cc_http_prc_ctor,
      /* TIZ_CLASS_COMMENT: class destructor */
-     dtor, chromecastrnd_prc_dtor,
+     dtor, cc_http_prc_dtor,
      /* TIZ_CLASS_COMMENT: */
-     tiz_srv_allocate_resources, chromecastrnd_prc_allocate_resources,
+     tiz_srv_allocate_resources, cc_http_prc_allocate_resources,
      /* TIZ_CLASS_COMMENT: */
-     tiz_srv_deallocate_resources, chromecastrnd_prc_deallocate_resources,
+     tiz_srv_deallocate_resources, cc_http_prc_deallocate_resources,
      /* TIZ_CLASS_COMMENT: */
-     tiz_srv_prepare_to_transfer, chromecastrnd_prc_prepare_to_transfer,
+     tiz_srv_prepare_to_transfer, cc_http_prc_prepare_to_transfer,
      /* TIZ_CLASS_COMMENT: */
-     tiz_srv_transfer_and_process, chromecastrnd_prc_transfer_and_process,
+     tiz_srv_transfer_and_process, cc_http_prc_transfer_and_process,
      /* TIZ_CLASS_COMMENT: */
-     tiz_srv_stop_and_return, chromecastrnd_prc_stop_and_return,
+     tiz_srv_stop_and_return, cc_http_prc_stop_and_return,
      /* TIZ_CLASS_COMMENT: */
-     tiz_srv_io_ready, chromecastrnd_prc_io_ready,
+     tiz_srv_io_ready, cc_http_prc_io_ready,
      /* TIZ_CLASS_COMMENT: */
-     tiz_srv_timer_ready, chromecastrnd_prc_timer_ready,
+     tiz_srv_timer_ready, cc_http_prc_timer_ready,
      /* TIZ_CLASS_COMMENT: */
-     tiz_prc_buffers_ready, chromecastrnd_prc_buffers_ready,
+     tiz_prc_buffers_ready, cc_http_prc_buffers_ready,
      /* TIZ_CLASS_COMMENT: */
-     tiz_prc_pause, chromecastrnd_prc_pause,
+     tiz_prc_pause, cc_http_prc_pause,
      /* TIZ_CLASS_COMMENT: */
-     tiz_prc_resume, chromecastrnd_prc_resume,
+     tiz_prc_resume, cc_http_prc_resume,
      /* TIZ_CLASS_COMMENT: */
-     tiz_prc_port_flush, chromecastrnd_prc_port_flush,
+     tiz_prc_port_flush, cc_http_prc_port_flush,
      /* TIZ_CLASS_COMMENT: */
-     tiz_prc_port_disable, chromecastrnd_prc_port_disable,
+     tiz_prc_port_disable, cc_http_prc_port_disable,
      /* TIZ_CLASS_COMMENT: */
-     tiz_prc_port_enable, chromecastrnd_prc_port_enable,
+     tiz_prc_port_enable, cc_http_prc_port_enable,
      /* TIZ_CLASS_COMMENT: stop value */
      0);
 
-  return chromecastrndprc;
+  return cc_httpprc;
 }
