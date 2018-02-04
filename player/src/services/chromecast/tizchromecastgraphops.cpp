@@ -176,17 +176,6 @@ bool graph::chromecastops::is_fatal_error (const OMX_ERRORTYPE error) const
   return rc;
 }
 
-void graph::chromecastops::do_record_fatal_error (const OMX_HANDLETYPE handle,
-                                                  const OMX_ERRORTYPE error,
-                                                  const OMX_U32 port)
-{
-  tiz::graph::ops::do_record_fatal_error (handle, error, port);
-  if (error == OMX_ErrorContentURIError)
-  {
-    error_msg_.append ("\n [Playlist not found]");
-  }
-}
-
 void graph::chromecastops::do_configure_chromecast ()
 {
   assert (cc_config_);

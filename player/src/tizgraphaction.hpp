@@ -658,7 +658,7 @@ namespace tiz
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
         {
           (*(fsm.pp_ops_))
-            ->do_record_fatal_error (evt.handle_, evt.error_, evt.port_);
+            ->do_record_fatal_error (evt.handle_, evt.error_, evt.port_, evt.p_eventdata_);
         }
       }
     };

@@ -58,6 +58,7 @@ struct cc_gmusic_prc
   tiz_cast_client_cast_status_t cc_cast_status_;
   tiz_cast_client_media_status_t cc_media_status_;
   char * p_cc_display_title_;
+  char * p_cc_err_msg_;
   OMX_UUIDTYPE cc_uuid_;
   bool eos_;
   bool port_disabled_;

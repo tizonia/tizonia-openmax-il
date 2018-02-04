@@ -53,9 +53,6 @@ namespace tiz
       void do_retrieve_metadata ();
 
       bool is_fatal_error (const OMX_ERRORTYPE error) const;
-      void do_record_fatal_error (const OMX_HANDLETYPE handle,
-                                  const OMX_ERRORTYPE error,
-                                  const OMX_U32 port);
 
     private:
       void do_configure_chromecast ();

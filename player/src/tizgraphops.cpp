@@ -601,17 +601,27 @@ void graph::ops::do_reset_internal_error ()
 
 void graph::ops::do_record_fatal_error (const OMX_HANDLETYPE handle,
                                         const OMX_ERRORTYPE error,
-                                        const OMX_U32 port)
+                                        const OMX_U32 port,
+                                        const OMX_PTR p_eventdata /* = NULL */)
 {
   std::string msg ("[");
   msg.append (handle2name (handle));
   if (port != OMX_ALL)
   {
     msg.append (":port:");
-    msg.append (boost::lexical_cast< std::string >(port));
+    msg.append (boost::lexical_cast< std::string > (port));
   }
   msg.append ("]\n [");
-  msg.append (std::string (tiz_err_to_str (error)));
+  if (p_eventdata
+      && strnlen ((const OMX_STRING)p_eventdata, OMX_MAX_STRINGNAME_SIZE)
+             < OMX_MAX_STRINGNAME_SIZE)
+  {
+    msg.append (std::string ((const OMX_STRING)p_eventdata));
+  }
+  else
+  {
+    msg.append (std::string (tiz_err_to_str (error)));
+  }
   msg.append ("]");
   record_error (error, msg);
 }

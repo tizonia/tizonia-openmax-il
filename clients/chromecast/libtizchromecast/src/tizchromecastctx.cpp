@@ -63,7 +63,8 @@ namespace bp = boost::python;
 
 namespace
 {
-  void init_cc_ctx (bp::object &py_main, bp::object &py_global, bp::object &py_chromecastproxy)
+  void init_cc_ctx (bp::object &py_main, bp::object &py_global,
+                    bp::object &py_chromecastproxy)
   {
     if (!Py_IsInitialized ())
       {

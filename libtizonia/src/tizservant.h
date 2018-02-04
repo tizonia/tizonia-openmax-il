@@ -100,6 +100,10 @@ void
 tiz_srv_issue_err_event (const void * ap_obj, OMX_ERRORTYPE a_error);
 
 void
+tiz_srv_issue_err_event_with_data (const void * ap_obj, OMX_ERRORTYPE a_error,
+                                   OMX_STRING ap_msg);
+
+void
 tiz_srv_issue_cmd_event (const void * ap_obj, OMX_COMMANDTYPE a_cmd,
                          OMX_U32 a_pid, OMX_ERRORTYPE a_error);
 

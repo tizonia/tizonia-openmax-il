@@ -79,8 +79,9 @@ typedef struct tiz_cast_client_error_status_str
 
 static const tiz_cast_client_error_status_str_t
   tiz_cast_client_error_status_str_tbl[]
-  = {{ETizCcErrorStatusNoError, (const char *) "NoError"},
-     {ETizCcErrorStatusConnectionError, (const char *) "ConnectionError"}};
+  = {{ETizCcErrorStatusNoError, (const char *) "TizCcErrorStatusNoError"},
+     {ETizCcErrorStatusConnectionError,
+      (const char *) "TizCcErrorStatusConnectionError"}};
 
 enum tiz_cast_client_state
 {

@@ -55,7 +55,8 @@ namespace tiz
       bool is_fatal_error (const OMX_ERRORTYPE error) const;
       void do_record_fatal_error (const OMX_HANDLETYPE handle,
                                   const OMX_ERRORTYPE error,
-                                  const OMX_U32 port);
+                                  const OMX_U32 port,
+                                  const OMX_PTR p_eventdata = NULL);
 
     private:
       void do_load_http_source ();

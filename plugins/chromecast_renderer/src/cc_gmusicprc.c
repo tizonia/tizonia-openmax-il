@@ -86,6 +86,8 @@ static void
 deliver_stored_metadata (cc_gmusic_prc_t * ap_prc);
 static void
 clear_stored_metadata (cc_gmusic_prc_t * ap_prc);
+static OMX_ERRORTYPE
+store_error_msg (cc_gmusic_prc_t * ap_prc, const char * ap_err_msg);
 
 #define on_gmusic_error_ret_omx_oom(expr)                                    \
   do                                                                         \
@@ -269,10 +271,22 @@ error_status_handler (OMX_PTR ap_prc, tiz_event_pluggable_t * ap_event)
   if (ETizCcErrorStatusNoError != status)
     {
       store_chromecast_metadata (p_prc);
-      (void) tiz_srv_issue_err_event ((OMX_PTR) ap_prc,
-                                      OMX_ErrorInsufficientResources);
+      if (OMX_ErrorNone
+          == store_error_msg (p_prc, tiz_cast_client_error_status_str (status)))
+        {
+          TIZ_DEBUG (handleOf (p_prc), "with_data [%s]",
+                     p_prc->p_cc_err_msg_);
+          (void) tiz_srv_issue_err_event_with_data (
+            (OMX_PTR) ap_prc, OMX_ErrorInsufficientResources,
+            p_prc->p_cc_err_msg_);
+        }
+      else
+        {
+          TIZ_DEBUG (handleOf (p_prc), "without _data");
+          (void) tiz_srv_issue_err_event ((OMX_PTR) ap_prc,
+                                          OMX_ErrorInsufficientResources);
+        }
     }
-
   tiz_mem_free (p_event_data->p_err_msg);
   tiz_mem_free (ap_event->p_data);
   tiz_mem_free (ap_event);
@@ -294,17 +308,24 @@ store_display_title (cc_gmusic_prc_t * ap_prc, const char * ap_artist,
   assert (ap_prc);
   if (ap_artist && ap_title)
     {
-      size_t artist_len = 0;
-      size_t title_len = 0;
-      size_t display_title_len = 0;
-      artist_len = strnlen (ap_artist, OMX_MAX_STRINGNAME_SIZE);
-      title_len = strnlen (ap_artist, OMX_MAX_STRINGNAME_SIZE);
-      display_title_len = artist_len + title_len + 10;
       tiz_mem_free (ap_prc->p_cc_display_title_);
-      ap_prc->p_cc_display_title_ = tiz_mem_calloc (1, display_title_len);
+      ap_prc->p_cc_display_title_ = tiz_mem_calloc (1, OMX_MAX_STRINGNAME_SIZE);
       tiz_check_null_ret_oom (ap_prc->p_cc_display_title_);
-      snprintf (ap_prc->p_cc_display_title_, display_title_len, "%s - %s",
+      snprintf (ap_prc->p_cc_display_title_, OMX_MAX_STRINGNAME_SIZE - 1, "%s - %s",
                 ap_artist, ap_title);
+    }
+  return OMX_ErrorNone;
+}
+
+static OMX_ERRORTYPE
+store_error_msg (cc_gmusic_prc_t * ap_prc, const char * ap_err_msg)
+{
+  assert (ap_prc);
+  if (ap_err_msg)
+    {
+      tiz_mem_free (ap_prc->p_cc_err_msg_);
+      ap_prc->p_cc_err_msg_ = strndup (ap_err_msg, OMX_MAX_STRINGNAME_SIZE);
+      tiz_check_null_ret_oom (ap_prc->p_cc_err_msg_);
     }
   return OMX_ErrorNone;
 }
@@ -750,6 +771,7 @@ cc_gmusic_prc_ctor (void * ap_obj, va_list * app)
   p_prc->cc_cast_status_ = ETizCcCastStatusUnknown;
   p_prc->cc_media_status_ = ETizCcMediaStatusUnknown;
   p_prc->p_cc_display_title_ = NULL;
+  p_prc->p_cc_err_msg_ = NULL;
   p_prc->eos_ = false;
   p_prc->port_disabled_ = false;
   p_prc->uri_changed_ = false;
@@ -812,6 +834,8 @@ cc_gmusic_prc_deallocate_resources (void * ap_prc)
   p_prc->p_cc_ = NULL;
   tiz_mem_free (p_prc->p_cc_display_title_);
   p_prc->p_cc_display_title_ = NULL;
+  tiz_mem_free (p_prc->p_cc_err_msg_);
+  p_prc->p_cc_err_msg_ = NULL;
   return OMX_ErrorNone;
 }
 

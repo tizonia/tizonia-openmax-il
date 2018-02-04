@@ -249,7 +249,7 @@ void graph::graph::omx_evt (const omx_event_info &evt_info)
     {
       post_cmd (new tiz::graph::cmd (tiz::graph::omx_err_evt (
           evt_info.component_, static_cast< OMX_ERRORTYPE >(evt_info.ndata1_),
-          evt_info.ndata2_)));
+          evt_info.ndata2_, evt_info.pEventData_)));
     }
     else if (evt_info.event_ == OMX_EventPortSettingsChanged)
     {

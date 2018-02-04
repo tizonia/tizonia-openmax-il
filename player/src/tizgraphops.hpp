@@ -150,7 +150,8 @@ namespace tiz
       virtual void do_reset_internal_error ();
       virtual void do_record_fatal_error (const OMX_HANDLETYPE handle,
                                           const OMX_ERRORTYPE error,
-                                          const OMX_U32 port);
+                                          const OMX_U32 port,
+                                          const OMX_PTR p_eventdata = NULL);
 
       virtual bool is_port_settings_evt_required () const;
       virtual bool is_disabled_evt_required () const;
