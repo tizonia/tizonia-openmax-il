@@ -320,6 +320,9 @@ void cast::worker::poll_mgrs (cast::worker *p_worker, const cast::cmd *p_cmd)
   {
     cast::mgr *p_mgr = clnt.second.p_cast_mgr_;
     assert (p_mgr);
-    (void)p_mgr->dispatch_cmd (p_cmd);
+    if (!p_mgr->terminated ())
+    {
+      (void)p_mgr->dispatch_cmd (p_cmd);
+    }
   }
 }

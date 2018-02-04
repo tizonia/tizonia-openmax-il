@@ -32,20 +32,23 @@
 #include <boost/python.hpp>
 
 #include <string>
+#include <map>
 
 class tizchromecastctx
 {
 public:
   tizchromecastctx ();
   ~tizchromecastctx ();
-  boost::python::object & get_cc_proxy (const std::string& arg
-                                        = std::string ()) const;
+  boost::python::object & get_cc_proxy (const std::string& name_or_ip) const;
+
+private:
+  typedef std::map< std::string, boost::python::object> cc_proxy_instances_t;
 
 private:
   boost::python::object py_main_;
   boost::python::object py_global_;
-  mutable boost::python::object py_chromecastproxy_;
-  mutable boost::python::object py_cc_proxy_instance_;
+  boost::python::object py_chromecastproxy_;
+  mutable cc_proxy_instances_t instances_;
 };
 
 #endif  // TIZCHROMECASTCTX_HPP

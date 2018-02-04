@@ -65,7 +65,9 @@ void cast::cc_cast_status_cback (void *ap_user_data,
                                  int a_volume)
 {
   tiz::cast::ops *p_ops = static_cast< tiz::cast::ops * > (ap_user_data);
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "cast status [%d]", a_status);
+  char uuid_str[128];
+  tiz_uuid_str (&(p_ops->uuid ()[0]), uuid_str);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "cast status [%d] p_ops [%p] uuid [%s]", a_status, p_ops, uuid_str);
   assert (p_ops);
   p_ops->cast_received_cb_ ();
   p_ops->cast_cb_ (p_ops->uuid (), a_status, a_volume);

@@ -90,12 +90,11 @@ tizchromecastctx::~tizchromecastctx ()
   // boost::python doesn't support Py_Finalize() yet!
 }
 
-bp::object & tizchromecastctx::get_cc_proxy (
-    const std::string &arg /* = std::string() */) const
+bp::object &tizchromecastctx::get_cc_proxy (const std::string &name_or_ip) const
 {
-  if (!arg.empty ())
+  if (!instances_.count (name_or_ip))
     {
-      py_cc_proxy_instance_ = py_chromecastproxy_ (arg.c_str ());
+      instances_[name_or_ip] = py_chromecastproxy_ (name_or_ip.c_str ());
     }
-  return py_cc_proxy_instance_;
+  return instances_[name_or_ip];
 }

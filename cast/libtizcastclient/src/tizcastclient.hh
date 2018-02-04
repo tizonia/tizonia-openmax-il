@@ -152,10 +152,10 @@ private:
   };
 
 private:
-  typedef std::map< std::vector< unsigned char >, client_data > clients_map_t;
+  typedef std::map< cast_client_id_t, client_data > clients_map_t;
 
   typedef int32_t (com::aratelia::tiz::tizcastif_proxy::*pmf_t) (
-    const std::vector< unsigned char > &);
+    const cast_client_id_t &);
 
 private:
   int32_t

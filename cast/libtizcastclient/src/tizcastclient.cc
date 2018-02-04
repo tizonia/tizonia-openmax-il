@@ -30,6 +30,8 @@
 #endif
 
 #include <utility>
+#include <map>
+#include <vector>
 
 #include <boost/foreach.hpp>
 
@@ -295,7 +297,7 @@ tizcastclient::unregister_client (const cast_client_id_ptr_t ap_cast_clnt)
 }
 
 void
-tizcastclient::cast_status (const std::vector< uint8_t > & uuid,
+tizcastclient::cast_status (const cast_client_id_t & uuid,
                             const uint32_t & status, const int32_t & volume)
 {
   const tiz_cast_client_cast_status_t cast_status
@@ -331,9 +333,7 @@ tizcastclient::cast_status (const std::vector< uint8_t > & uuid,
   tiz_uuid_str (&(uuid[0]), uuid_str);
   TIZ_LOG (TIZ_PRIORITY_TRACE, "cast status received for uuid [%s]", uuid_str);
 
-  typedef std::pair< const std::vector< unsigned char >,
-                     tizcastclient::client_data >
-    client_pair_t;
+  typedef std::pair< const cast_client_id_t, client_data > client_pair_t;
   BOOST_FOREACH (const client_pair_t & clnt, clients_)
     {
       TIZ_LOG (TIZ_PRIORITY_TRACE, "ip/name [%s]", clnt.second.cname_.c_str ());
