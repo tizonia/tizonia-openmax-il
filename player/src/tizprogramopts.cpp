@@ -999,15 +999,15 @@ void tiz::programopts::init_global_options ()
       ("daemon,d", po::bool_switch (&daemon_)->default_value (false),
        "Run in the background.")
       /* TIZ_CLASS_COMMENT: */
-      ("chromecast,C", po::value (&chromecast_),
-       "Cast to a Chromecast device (WIP, not supported yet).")
+      ("cast,c", po::value (&chromecast_),
+       "Cast to a Chromecast device.")
       /* TIZ_CLASS_COMMENT: */
       ;
   register_consume_function (&tiz::programopts::consume_global_options);
   // TODO: help and version are not included. These should be moved out of
   // "global" and into its own category: "info"
   all_global_options_
-    = boost::assign::list_of ("recurse") ("shuffle") ("daemon") ("chromecast")
+    = boost::assign::list_of ("recurse") ("shuffle") ("daemon") ("cast")
             .convert_to_container< std::vector< std::string > > ();
 }
 
@@ -1763,7 +1763,14 @@ int tiz::programopts::consume_scloud_client_options (bool &done,
     }
     else
     {
-      rc = call_handler (option_handlers_map_.find ("scloud-stream"));
+      if (chromecast_.empty())
+        {
+          rc = call_handler (option_handlers_map_.find ("scloud-stream"));
+        }
+      else
+        {
+          rc = call_handler (option_handlers_map_.find ("scloud-stream-chromecast"));
+        }
     }
   }
   TIZ_PRINTF_DBG_RED ("scloud ; rc = [%s]\n",
@@ -1829,7 +1836,14 @@ int tiz::programopts::consume_dirble_client_options (bool &done,
     }
     else
     {
-      rc = call_handler (option_handlers_map_.find ("dirble-stream"));
+      if (chromecast_.empty())
+        {
+          rc = call_handler (option_handlers_map_.find ("dirble-stream"));
+        }
+      else
+        {
+          rc = call_handler (option_handlers_map_.find ("dirble-stream-chromecast"));
+        }
     }
   }
   TIZ_PRINTF_DBG_RED ("dirble ; rc = [%s]\n",
@@ -1876,7 +1890,14 @@ int tiz::programopts::consume_youtube_client_options (bool &done,
     }
     else
     {
-      rc = call_handler (option_handlers_map_.find ("youtube-stream"));
+      if (chromecast_.empty())
+        {
+          rc = call_handler (option_handlers_map_.find ("youtube-stream"));
+        }
+      else
+        {
+          rc = call_handler (option_handlers_map_.find ("youtube-stream-chromecast"));
+        }
     }
   }
   TIZ_PRINTF_DBG_RED ("youtube ; rc = [%s]\n",
