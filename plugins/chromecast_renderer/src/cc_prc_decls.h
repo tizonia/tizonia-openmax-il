@@ -45,10 +45,6 @@ struct cc_prc
 {
   /* Object */
   const tiz_prc_t _;
-  tiz_vector_t * p_hdrs_;
-  tiz_vector_t * p_disabled_flags_;
-  tiz_vector_t * p_port_dirs_;
-  bool eos_;
 };
 
 typedef struct cc_prc_class cc_prc_class_t;
@@ -56,20 +52,6 @@ struct cc_prc_class
 {
   /* Class */
   const tiz_prc_class_t _;
-  OMX_BUFFERHEADERTYPE ** (*get_header_ptr) (void * ap_obj,
-                                             const OMX_U32 a_pid);
-  OMX_BUFFERHEADERTYPE * (*get_header) (void * ap_obj, const OMX_U32 a_pid);
-  bool (*headers_available) (const void * ap_obj);
-  bool (*output_headers_available) (const void * ap_obj);
-  OMX_ERRORTYPE (*release_header) (void * ap_obj, const OMX_U32 a_pid);
-  OMX_ERRORTYPE (*release_all_headers) (void * ap_obj);
-  bool * (*get_port_disabled_ptr) (void * ap_obj, const OMX_U32 a_pid);
-  bool (*is_port_disabled) (void * ap_obj, const OMX_U32 a_pid);
-  bool (*is_port_enabled) (void * ap_obj, const OMX_U32 a_pid);
-  bool (*is_eos) (const void * ap_obj);
-  void (*update_eos_flag) (void * ap_obj, const bool flag);
-  void (*update_port_disabled_flag) (void * ap_obj, const OMX_U32 a_pid,
-                                     const bool flag);
 };
 
 #ifdef __cplusplus

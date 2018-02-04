@@ -588,21 +588,6 @@ release_buffer (cc_gmusic_prc_t * ap_prc)
 
   if (ap_prc->p_inhdr_)
     {
-      if (ap_prc->bytes_before_eos_ > ap_prc->p_inhdr_->nFilledLen)
-        {
-          ap_prc->bytes_before_eos_ -= ap_prc->p_inhdr_->nFilledLen;
-        }
-      else
-        {
-          ap_prc->bytes_before_eos_ = 0;
-          ap_prc->eos_ = true;
-        }
-
-      if (ap_prc->eos_)
-        {
-          ap_prc->eos_ = false;
-          ap_prc->p_inhdr_->nFlags |= OMX_BUFFERFLAG_EOS;
-        }
       tiz_check_omx (tiz_krn_release_buffer (
         tiz_get_krn (handleOf (ap_prc)),
         ARATELIA_CHROMECAST_RENDERER_PORT_INDEX, ap_prc->p_inhdr_));
@@ -624,7 +609,7 @@ retrieve_playlist (cc_gmusic_prc_t * ap_prc)
 {
   return tiz_api_GetParameter (
     tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
-    OMX_TizoniaIndexParamAudioGmusicPlaylist, &(ap_prc->playlist_));
+    OMX_TizoniaIndexParamAudioGmusicPlaylist, &(ap_prc->gm_playlist_));
 }
 
 static OMX_ERRORTYPE
@@ -644,15 +629,15 @@ enqueue_playlist_items (cc_gmusic_prc_t * ap_prc)
   assert (ap_prc->p_gm_);
 
   {
-    const char * p_playlist = (const char *) ap_prc->playlist_.cPlaylistName;
-    const OMX_BOOL is_unlimited_search = ap_prc->playlist_.bUnlimitedSearch;
-    const OMX_BOOL shuffle = ap_prc->playlist_.bShuffle;
+    const char * p_playlist = (const char *) ap_prc->gm_playlist_.cPlaylistName;
+    const OMX_BOOL is_unlimited_search = ap_prc->gm_playlist_.bUnlimitedSearch;
+    const OMX_BOOL shuffle = ap_prc->gm_playlist_.bShuffle;
 
     tiz_gmusic_set_playback_mode (
       ap_prc->p_gm_, (shuffle == OMX_TRUE ? ETIZGmusicPlaybackModeShuffle
                                           : ETIZGmusicPlaybackModeNormal));
 
-    switch (ap_prc->playlist_.ePlaylistType)
+    switch (ap_prc->gm_playlist_.ePlaylistType)
       {
         case OMX_AUDIO_GmusicPlaylistTypeUnknown:
           {
@@ -761,8 +746,8 @@ cc_gmusic_prc_ctor (void * ap_obj, va_list * app)
   cc_gmusic_prc_t * p_prc
     = super_ctor (typeOf (ap_obj, "cc_gmusicprc"), ap_obj, app);
   TIZ_INIT_OMX_STRUCT (p_prc->gm_session_);
-  TIZ_INIT_OMX_STRUCT (p_prc->playlist_);
-  TIZ_INIT_OMX_STRUCT (p_prc->playlist_skip_);
+  TIZ_INIT_OMX_STRUCT (p_prc->gm_playlist_);
+  TIZ_INIT_OMX_STRUCT (p_prc->pl_skip_);
   TIZ_INIT_OMX_STRUCT (p_prc->cc_session_);
   p_prc->p_uri_param_ = NULL;
   p_prc->p_inhdr_ = NULL;
@@ -772,10 +757,7 @@ cc_gmusic_prc_ctor (void * ap_obj, va_list * app)
   p_prc->cc_media_status_ = ETizCcMediaStatusUnknown;
   p_prc->p_cc_display_title_ = NULL;
   p_prc->p_cc_err_msg_ = NULL;
-  p_prc->eos_ = false;
-  p_prc->port_disabled_ = false;
   p_prc->uri_changed_ = false;
-  p_prc->bytes_before_eos_ = 0;
   p_prc->volume_ = ARATELIA_CHROMECAST_RENDERER_DEFAULT_VOLUME_VALUE;
   return p_prc;
 }
@@ -844,18 +826,18 @@ cc_gmusic_prc_prepare_to_transfer (void * ap_prc, OMX_U32 a_pid)
 {
   cc_gmusic_prc_t * p_prc = ap_prc;
   assert (ap_prc);
-  p_prc->eos_ = false;
 
   /* Lazy instantiation of the cast client object */
   if (!p_prc->p_cc_)
     {
+      OMX_UUIDTYPE cc_uuid;
       tiz_cast_client_callbacks_t cast_cbacks
         = {cc_cast_status_cback, cc_media_status_cback, cc_error_status_cback};
-      bzero (&(p_prc->cc_uuid_), 128);
-      tiz_uuid_generate (&(p_prc->cc_uuid_));
+      bzero (&(cc_uuid), 128);
+      tiz_uuid_generate (&(cc_uuid));
       on_cc_error_ret_omx_oom (tiz_cast_client_init (
         &(p_prc->p_cc_), (const char *) p_prc->cc_session_.cNameOrIpAddr,
-        &(p_prc->cc_uuid_), &cast_cbacks, p_prc));
+        &(cc_uuid), &cast_cbacks, p_prc));
     }
   return OMX_ErrorNone;
 }
@@ -928,30 +910,8 @@ cc_gmusic_prc_port_disable (const void * ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
 {
   cc_gmusic_prc_t * p_prc = (cc_gmusic_prc_t *) ap_obj;
   assert (p_prc);
-  TIZ_PRINTF_DBG_RED ("Disabling port was disabled? [%s]\n",
-                      p_prc->port_disabled_ ? "YES" : "NO");
-  p_prc->port_disabled_ = true;
   /* Release any buffers held  */
   return release_buffer ((cc_gmusic_prc_t *) ap_obj);
-}
-
-static OMX_ERRORTYPE
-cc_gmusic_prc_port_enable (const void * ap_prc, OMX_U32 a_pid)
-{
-  cc_gmusic_prc_t * p_prc = (cc_gmusic_prc_t *) ap_prc;
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (p_prc);
-  TIZ_PRINTF_DBG_RED ("Enabling port was disabled? [%s]\n",
-                      p_prc->port_disabled_ ? "YES" : "NO");
-  if (p_prc->port_disabled_)
-    {
-      p_prc->port_disabled_ = false;
-      if (p_prc->uri_changed_)
-        {
-          p_prc->uri_changed_ = false;
-        }
-    }
-  return rc;
 }
 
 static OMX_ERRORTYPE
@@ -1001,13 +961,13 @@ cc_gmusic_prc_config_change (void * ap_prc, OMX_U32 a_pid,
 
   if (OMX_TizoniaIndexConfigPlaylistSkip == a_config_idx && p_prc->p_cc_)
     {
-      TIZ_INIT_OMX_STRUCT (p_prc->playlist_skip_);
+      TIZ_INIT_OMX_STRUCT (p_prc->pl_skip_);
       tiz_check_omx (tiz_api_GetConfig (
         tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
-        OMX_TizoniaIndexConfigPlaylistSkip, &p_prc->playlist_skip_));
+        OMX_TizoniaIndexConfigPlaylistSkip, &p_prc->pl_skip_));
       clear_stored_metadata (p_prc);
-      p_prc->playlist_skip_.nValue > 0 ? obtain_next_url (p_prc, 1)
-                                       : obtain_next_url (p_prc, -1);
+      p_prc->pl_skip_.nValue > 0 ? obtain_next_url (p_prc, 1)
+                                 : obtain_next_url (p_prc, -1);
       deliver_stored_metadata (p_prc);
       /* Load the new URL */
       tiz_check_omx (load_next_url (p_prc));
@@ -1082,8 +1042,6 @@ cc_gmusic_prc_init (void * ap_tos, void * ap_hdl)
      tiz_prc_port_flush, cc_gmusic_prc_port_flush,
      /* TIZ_CLASS_COMMENT: */
      tiz_prc_port_disable, cc_gmusic_prc_port_disable,
-     /* TIZ_CLASS_COMMENT: */
-     tiz_prc_port_enable, cc_gmusic_prc_port_enable,
      /* TIZ_CLASS_COMMENT: */
      tiz_prc_config_change, cc_gmusic_prc_config_change,
      /* TIZ_CLASS_COMMENT: stop value */

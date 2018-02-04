@@ -41,31 +41,8 @@ cc_prc_class_init (void * ap_tos, void * ap_hdl);
 void *
 cc_prc_init (void * ap_tos, void * ap_hdl);
 
-OMX_BUFFERHEADERTYPE **
-cc_prc_get_header_ptr (void * ap_obj, const OMX_U32 a_pid);
-OMX_BUFFERHEADERTYPE *
-cc_prc_get_header (void * ap_obj, const OMX_U32 a_pid);
-bool
-cc_prc_headers_available (const void * ap_obj);
-bool
-cc_prc_output_headers_available (const void * ap_obj);
-OMX_ERRORTYPE
-cc_prc_release_header (void * ap_obj, const OMX_U32 a_pid);
-OMX_ERRORTYPE
-cc_prc_release_all_headers (void * ap_obj);
-bool *
-cc_prc_get_port_disabled_ptr (void * ap_obj, const OMX_U32 a_pid);
-bool
-cc_prc_is_port_disabled (void * ap_obj, const OMX_U32 a_pid);
-bool
-cc_prc_is_port_enabled (void * ap_obj, const OMX_U32 a_pid);
-bool
-cc_prc_is_eos (const void * ap_obj);
-void
-cc_prc_update_eos_flag (void * ap_obj, const bool flag);
-void
-cc_prc_update_port_disabled_flag (void * ap_obj, const OMX_U32 a_pid,
-                                          const bool flag);
+/* OMX_BUFFERHEADERTYPE * */
+/* cc_prc_get_header (void * ap_obj, const OMX_U32 a_pid); */
 
 #ifdef __cplusplus
 }
