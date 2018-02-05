@@ -36,13 +36,13 @@ extern "C" {
 #include <OMX_TizoniaExt.h>
 #include <OMX_Types.h>
 
-#include <tizconfigport_decls.h>
+#include "cc_cfgport_decls.h"
 
 typedef struct cc_dirble_cfgport cc_dirble_cfgport_t;
 struct cc_dirble_cfgport
 {
   /* Object */
-  const tiz_configport_t _;
+  const cc_cfgport_t _;
   OMX_TIZONIA_AUDIO_PARAM_DIRBLESESSIONTYPE session_;
   OMX_TIZONIA_AUDIO_PARAM_DIRBLEPLAYLISTTYPE playlist_;
 };
@@ -51,7 +51,7 @@ typedef struct cc_dirble_cfgport_class cc_dirble_cfgport_class_t;
 struct cc_dirble_cfgport_class
 {
   /* Class */
-  const tiz_configport_class_t _;
+  const cc_cfgport_class_t _;
   /* NOTE: Class methods might be added in the future */
 };
 

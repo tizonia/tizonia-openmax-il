@@ -173,10 +173,10 @@ cc_dirble_cfgport_class_ctor (void * ap_obj, va_list * app)
 void *
 cc_dirble_cfgport_class_init (void * ap_tos, void * ap_hdl)
 {
-  void * tizconfigport = tiz_get_type (ap_hdl, "tizconfigport");
+  void * cc_cfgport = tiz_get_type (ap_hdl, "cc_cfgport");
   void * cc_dirblecfgport_class
-    = factory_new (classOf (tizconfigport), "cc_dirblecfgport_class",
-                   classOf (tizconfigport), sizeof (cc_dirble_cfgport_class_t),
+    = factory_new (classOf (cc_cfgport), "cc_dirblecfgport_class",
+                   classOf (cc_cfgport), sizeof (cc_dirble_cfgport_class_t),
                    ap_tos, ap_hdl, ctor, cc_dirble_cfgport_class_ctor, 0);
   return cc_dirblecfgport_class;
 }
@@ -184,13 +184,13 @@ cc_dirble_cfgport_class_init (void * ap_tos, void * ap_hdl)
 void *
 cc_dirble_cfgport_init (void * ap_tos, void * ap_hdl)
 {
-  void * tizconfigport = tiz_get_type (ap_hdl, "tizconfigport");
+  void * cc_cfgport = tiz_get_type (ap_hdl, "cc_cfgport");
   void * cc_dirblecfgport_class
     = tiz_get_type (ap_hdl, "cc_dirblecfgport_class");
   TIZ_LOG_CLASS (cc_dirblecfgport_class);
   void * cc_dirblecfgport = factory_new
     /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-    (cc_dirblecfgport_class, "cc_dirblecfgport", tizconfigport,
+    (cc_dirblecfgport_class, "cc_dirblecfgport", cc_cfgport,
      sizeof (cc_dirble_cfgport_t),
      /* TIZ_CLASS_COMMENT: class constructor */
      ap_tos, ap_hdl,
