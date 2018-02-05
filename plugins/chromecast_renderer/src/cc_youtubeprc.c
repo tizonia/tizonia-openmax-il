@@ -21,7 +21,7 @@
  * @file   cc_youtubeprc.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Youtube chromecast renderer - processor class
+ * @brief  YouTube Chromecast renderer - processor class
  *
  *
  */

@@ -20,7 +20,7 @@
  * @file   cc_dirbleprc_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Dirble client - processor declarations
+ * @brief  Dirble Chromecast renderer - processor declarations
  *
  *
  */

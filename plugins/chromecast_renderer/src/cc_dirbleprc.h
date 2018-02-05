@@ -21,7 +21,7 @@
  * @file   cc_dirbleprc.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Dirble chromecast renderer - processor class
+ * @brief  Dirble Chromecast renderer - processor class
  *
  *
  */
