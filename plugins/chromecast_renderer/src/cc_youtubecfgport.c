@@ -173,10 +173,10 @@ cc_youtube_cfgport_class_ctor (void * ap_obj, va_list * app)
 void *
 cc_youtube_cfgport_class_init (void * ap_tos, void * ap_hdl)
 {
-  void * tizconfigport = tiz_get_type (ap_hdl, "tizconfigport");
+  void * cc_cfgport = tiz_get_type (ap_hdl, "cc_cfgport");
   void * cc_youtubecfgport_class
-    = factory_new (classOf (tizconfigport), "cc_youtubecfgport_class",
-                   classOf (tizconfigport), sizeof (cc_youtube_cfgport_class_t),
+    = factory_new (classOf (cc_cfgport), "cc_youtubecfgport_class",
+                   classOf (cc_cfgport), sizeof (cc_youtube_cfgport_class_t),
                    ap_tos, ap_hdl, ctor, cc_youtube_cfgport_class_ctor, 0);
   return cc_youtubecfgport_class;
 }
@@ -184,13 +184,13 @@ cc_youtube_cfgport_class_init (void * ap_tos, void * ap_hdl)
 void *
 cc_youtube_cfgport_init (void * ap_tos, void * ap_hdl)
 {
-  void * tizconfigport = tiz_get_type (ap_hdl, "tizconfigport");
+  void * cc_cfgport = tiz_get_type (ap_hdl, "cc_cfgport");
   void * cc_youtubecfgport_class
     = tiz_get_type (ap_hdl, "cc_youtubecfgport_class");
   TIZ_LOG_CLASS (cc_youtubecfgport_class);
   void * cc_youtubecfgport = factory_new
     /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-    (cc_youtubecfgport_class, "cc_youtubecfgport", tizconfigport,
+    (cc_youtubecfgport_class, "cc_youtubecfgport", cc_cfgport,
      sizeof (cc_youtube_cfgport_t),
      /* TIZ_CLASS_COMMENT: class constructor */
      ap_tos, ap_hdl,

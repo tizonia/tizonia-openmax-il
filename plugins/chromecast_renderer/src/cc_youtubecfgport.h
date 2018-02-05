@@ -21,7 +21,7 @@
  * @file   cc_youtubecfgport.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  A specialised config port class for the Youtube renderer component
+ * @brief  A specialised config port class for the YouTube renderer component
  *
  *
  */
