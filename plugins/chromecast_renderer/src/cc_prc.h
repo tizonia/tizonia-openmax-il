@@ -41,17 +41,26 @@ cc_prc_class_init (void * ap_tos, void * ap_hdl);
 void *
 cc_prc_init (void * ap_tos, void * ap_hdl);
 
-OMX_ERRORTYPE
-cc_prc_buffers_ready (const void * ap_prc);
+const char *
+cc_prc_get_next_url (const void * p_obj);
+
+const char *
+cc_prc_get_prev_url (const void * p_obj);
+
+const char *
+cc_prc_get_current_song_album_art_url (const void * p_obj);
 
 OMX_ERRORTYPE
-cc_prc_pause (const void * ap_prc);
+cc_prc_store_song_metadata (const void * p_obj);
 
 OMX_ERRORTYPE
-cc_prc_resume (const void * ap_prc);
+cc_prc_store_song_metadata_item (const void * p_obj,
+                                 const char * ap_header_name,
+                                 const char * ap_header_info);
 
-/* OMX_BUFFERHEADERTYPE * */
-/* cc_prc_get_header (void * ap_obj, const OMX_U32 a_pid); */
+OMX_ERRORTYPE
+cc_prc_store_display_title (const void * p_obj, const char * ap_artist,
+                            const char * ap_title);
 
 #ifdef __cplusplus
 }

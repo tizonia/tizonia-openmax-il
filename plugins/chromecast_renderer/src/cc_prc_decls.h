@@ -38,6 +38,8 @@ extern "C" {
 
 #include <tizplatform.h>
 
+#include <tizcastclient_c.h>
+
 #include "tizprc_decls.h"
 
 typedef struct cc_prc cc_prc_t;
@@ -63,6 +65,15 @@ struct cc_prc_class
 {
   /* Class */
   const tiz_prc_class_t _;
+  const char * (*get_next_url) (const void * p_obj);
+  const char * (*get_prev_url) (const void * p_obj);
+  const char * (*get_current_song_album_art_url) (const void * p_obj);
+  OMX_ERRORTYPE (*store_song_metadata) (const void * p_obj);
+  OMX_ERRORTYPE (*store_song_metadata_item)
+  (const void * p_obj, const char * ap_header_name,
+   const char * ap_header_info);
+  OMX_ERRORTYPE (*store_display_title)
+  (const void * p_obj, const char * ap_artist, const char * ap_title);
 };
 
 #ifdef __cplusplus

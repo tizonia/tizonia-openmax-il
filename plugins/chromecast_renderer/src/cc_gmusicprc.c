@@ -43,8 +43,6 @@
 #include <tizkernel.h>
 #include <tizscheduler.h>
 
-#include <tizcasttypes.h>
-
 #include "chromecastrnd.h"
 #include "cc_gmusicprc.h"
 #include "cc_gmusicprc_decls.h"
@@ -54,34 +52,7 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.chromecast_renderer.prc.gmusic"
 #endif
 
-#define CONTENT_TYPE "audio/mpeg"
-#define DISPLAY_TITLE "Tizonia Audio Stream"
-
-typedef struct cc_status_event_data
-{
-  unsigned int status;
-  int volume;
-  char * p_err_msg;
-} cc_status_event_data_t;
-
 /* forward declarations */
-static OMX_ERRORTYPE
-cc_gmusic_prc_prepare_to_transfer (void * ap_prc, OMX_U32 a_pid);
-static OMX_ERRORTYPE
-cc_gmusic_prc_transfer_and_process (void * ap_prc, OMX_U32 a_pid);
-
-static OMX_ERRORTYPE
-obtain_next_url (cc_gmusic_prc_t * ap_prc, int a_skip_value);
-static OMX_ERRORTYPE
-load_next_url (cc_gmusic_prc_t * p_prc);
-static OMX_ERRORTYPE
-store_chromecast_metadata (cc_gmusic_prc_t * ap_prc);
-static void
-deliver_stored_metadata (cc_gmusic_prc_t * ap_prc);
-static void
-clear_stored_metadata (cc_gmusic_prc_t * ap_prc);
-static OMX_ERRORTYPE
-store_error_msg (cc_gmusic_prc_t * ap_prc, const char * ap_err_msg);
 
 #define on_gmusic_error_ret_omx_oom(expr)                                    \
   do                                                                         \
@@ -97,486 +68,8 @@ store_error_msg (cc_gmusic_prc_t * ap_prc, const char * ap_err_msg);
     }                                                                        \
   while (0)
 
-#define on_cc_error_ret_omx_oom(expr)                                        \
-  do                                                                         \
-    {                                                                        \
-      tiz_cast_error_t cc_error = 0;                                         \
-      if (TIZ_CAST_SUCCESS != (cc_error = (expr)))                           \
-        {                                                                    \
-          TIZ_ERROR (handleOf (p_prc),                                       \
-                     "[OMX_ErrorInsufficientResources] : error while using " \
-                     "libtizcastclient");                                    \
-          return OMX_ErrorInsufficientResources;                             \
-        }                                                                    \
-    }                                                                        \
-  while (0)
-
-static void
-post_chromecast_event (cc_gmusic_prc_t * ap_prc,
-                       tiz_event_pluggable_hdlr_f apf_hdlr,
-                       unsigned int a_status, int a_volume,
-                       const char * ap_err_msg)
-{
-  tiz_event_pluggable_t * p_event = NULL;
-  cc_status_event_data_t * p_status = NULL;
-  assert (ap_prc);
-  assert (apf_hdlr);
-
-  p_event = tiz_mem_calloc (1, sizeof (tiz_event_pluggable_t));
-  p_status = tiz_mem_calloc (1, sizeof (cc_status_event_data_t));
-  if (p_event && p_status)
-    {
-      p_event->p_servant = ap_prc;
-      p_event->pf_hdlr = apf_hdlr;
-      p_status->status = a_status;
-      p_status->volume = a_volume;
-      p_status->p_err_msg
-        = (ap_err_msg != NULL ? strndup (ap_err_msg, strlen (ap_err_msg))
-                              : NULL);
-      p_event->p_data = p_status;
-      tiz_comp_event_pluggable (handleOf (ap_prc), p_event);
-    }
-  else
-    {
-      tiz_mem_free (p_event);
-      tiz_mem_free (p_status);
-    }
-}
-
-static void
-cast_status_handler (OMX_PTR ap_prc, tiz_event_pluggable_t * ap_event)
-{
-  cc_gmusic_prc_t * p_prc = ap_prc;
-  cc_status_event_data_t * p_event_data = NULL;
-  tiz_cast_client_cast_status_t status = ETizCcCastStatusUnknown;
-  int volume = 0;
-  bool need_song_metadata_update = false;
-  bool need_chromecast_metadata_update = false;
-
-  assert (p_prc);
-  assert (ap_event);
-  assert (ap_event->p_data);
-
-  p_event_data = ap_event->p_data;
-  status = p_event_data->status;
-  volume = p_event_data->volume;
-
-  TIZ_DEBUG (handleOf (p_prc), "current status [%s] current volume [%d]",
-             tiz_cast_client_cast_status_str (p_prc->cc_cast_status_),
-             p_prc->volume_);
-  TIZ_DEBUG (handleOf (p_prc), "new status [%s] new volume [%d]",
-             tiz_cast_client_cast_status_str (status), volume);
-
-  clear_stored_metadata (p_prc);
-
-  if (ETizCcCastStatusNowCasting == p_prc->cc_cast_status_
-      && ETizCcCastStatusReadyToCast == status)
-    {
-      need_song_metadata_update = true;
-      /* End of stream, skip to next track */
-      (void) obtain_next_url (p_prc, 1);
-      /* Load the new URL */
-      (void) load_next_url (p_prc);
-    }
-
-  if ((p_prc->cc_cast_status_ != status) || (volume != p_prc->volume_))
-    {
-      need_chromecast_metadata_update = true;
-    }
-
-  p_prc->cc_cast_status_ = status;
-  p_prc->volume_ = p_event_data->volume;
-  if (need_chromecast_metadata_update)
-    {
-      store_chromecast_metadata (p_prc);
-    }
-
-  if (need_song_metadata_update || need_chromecast_metadata_update)
-    {
-      deliver_stored_metadata (p_prc);
-    }
-
-  tiz_mem_free (ap_event->p_data);
-  tiz_mem_free (ap_event);
-}
-
-static void
-cc_cast_status_cback (void * ap_user_data,
-                      tiz_cast_client_cast_status_t a_status, int a_volume)
-{
-  cc_gmusic_prc_t * p_prc = ap_user_data;
-  assert (p_prc);
-  post_chromecast_event (p_prc, cast_status_handler, a_status, a_volume, NULL);
-}
-
-static void
-media_status_handler (OMX_PTR ap_prc, tiz_event_pluggable_t * ap_event)
-{
-  cc_gmusic_prc_t * p_prc = ap_prc;
-  cc_status_event_data_t * p_event_data = NULL;
-  tiz_cast_client_media_status_t status = ETizCcMediaStatusUnknown;
-
-  assert (p_prc);
-  assert (ap_event);
-  assert (ap_event->p_data);
-
-  p_event_data = ap_event->p_data;
-  status = (tiz_cast_client_media_status_t) p_event_data->status;
-  TIZ_DEBUG (handleOf (p_prc), "status [%s]",
-             tiz_cast_client_media_status_str (status));
-
-  if (p_prc->cc_media_status_ != status)
-    {
-      p_prc->cc_media_status_ = status;
-      clear_stored_metadata (p_prc);
-      store_chromecast_metadata (p_prc);
-      deliver_stored_metadata (p_prc);
-    }
-
-  tiz_mem_free (ap_event->p_data);
-  tiz_mem_free (ap_event);
-}
-
-static void
-cc_media_status_cback (void * ap_user_data,
-                       tiz_cast_client_media_status_t a_status, int a_volume)
-{
-  cc_gmusic_prc_t * p_prc = ap_user_data;
-  assert (p_prc);
-  post_chromecast_event (p_prc, media_status_handler, a_status, a_volume, NULL);
-}
-
-static void
-error_status_handler (OMX_PTR ap_prc, tiz_event_pluggable_t * ap_event)
-{
-  cc_gmusic_prc_t * p_prc = ap_prc;
-  cc_status_event_data_t * p_event_data = NULL;
-  tiz_cast_client_error_status_t status = ETizCcErrorStatusNoError;
-
-  assert (p_prc);
-  assert (ap_event);
-  assert (ap_event->p_data);
-
-  p_event_data = ap_event->p_data;
-  status = (tiz_cast_client_error_status_t) p_event_data->status;
-  TIZ_DEBUG (handleOf (p_prc), "status [%s]",
-             tiz_cast_client_error_status_str (status));
-
-  if (ETizCcErrorStatusNoError != status)
-    {
-      store_chromecast_metadata (p_prc);
-      if (OMX_ErrorNone
-          == store_error_msg (p_prc, tiz_cast_client_error_status_str (status)))
-        {
-          TIZ_DEBUG (handleOf (p_prc), "with_data [%s]",
-                     p_prc->p_cc_err_msg_);
-          (void) tiz_srv_issue_err_event_with_data (
-            (OMX_PTR) ap_prc, OMX_ErrorInsufficientResources,
-            p_prc->p_cc_err_msg_);
-        }
-      else
-        {
-          TIZ_DEBUG (handleOf (p_prc), "without _data");
-          (void) tiz_srv_issue_err_event ((OMX_PTR) ap_prc,
-                                          OMX_ErrorInsufficientResources);
-        }
-    }
-  tiz_mem_free (p_event_data->p_err_msg);
-  tiz_mem_free (ap_event->p_data);
-  tiz_mem_free (ap_event);
-}
-
-static void
-cc_error_status_cback (void * ap_user_data,
-                       tiz_cast_client_error_status_t a_status, const char * ap_err_msg)
-{
-  cc_gmusic_prc_t * p_prc = ap_user_data;
-  assert (p_prc);
-  post_chromecast_event (p_prc, error_status_handler, a_status, 0, ap_err_msg);
-}
-
 static OMX_ERRORTYPE
-store_display_title (cc_gmusic_prc_t * ap_prc, const char * ap_artist,
-                     const char * ap_title)
-{
-  assert (ap_prc);
-  if (ap_artist && ap_title)
-    {
-      tiz_mem_free (ap_prc->p_cc_display_title_);
-      ap_prc->p_cc_display_title_ = tiz_mem_calloc (1, OMX_MAX_STRINGNAME_SIZE);
-      tiz_check_null_ret_oom (ap_prc->p_cc_display_title_);
-      snprintf (ap_prc->p_cc_display_title_, OMX_MAX_STRINGNAME_SIZE - 1, "%s - %s",
-                ap_artist, ap_title);
-    }
-  return OMX_ErrorNone;
-}
-
-static OMX_ERRORTYPE
-store_error_msg (cc_gmusic_prc_t * ap_prc, const char * ap_err_msg)
-{
-  assert (ap_prc);
-  if (ap_err_msg)
-    {
-      tiz_mem_free (ap_prc->p_cc_err_msg_);
-      ap_prc->p_cc_err_msg_ = strndup (ap_err_msg, OMX_MAX_STRINGNAME_SIZE);
-      tiz_check_null_ret_oom (ap_prc->p_cc_err_msg_);
-    }
-  return OMX_ErrorNone;
-}
-
-static OMX_ERRORTYPE
-store_metadata (cc_gmusic_prc_t * ap_prc, const char * ap_header_name,
-                const char * ap_header_info)
-{
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-  OMX_CONFIG_METADATAITEMTYPE * p_meta = NULL;
-  size_t metadata_len = 0;
-  size_t info_len = 0;
-
-  assert (ap_prc);
-  if (ap_header_name && ap_header_info)
-    {
-      info_len = strnlen (ap_header_info, OMX_MAX_STRINGNAME_SIZE - 1) + 1;
-      metadata_len = sizeof (OMX_CONFIG_METADATAITEMTYPE) + info_len;
-
-      if (NULL
-          == (p_meta = (OMX_CONFIG_METADATAITEMTYPE *) tiz_mem_calloc (
-                1, metadata_len)))
-        {
-          rc = OMX_ErrorInsufficientResources;
-        }
-      else
-        {
-          const size_t name_len
-            = strnlen (ap_header_name, OMX_MAX_STRINGNAME_SIZE - 1) + 1;
-          strncpy ((char *) p_meta->nKey, ap_header_name, name_len - 1);
-          p_meta->nKey[name_len - 1] = '\0';
-          p_meta->nKeySizeUsed = name_len;
-
-          strncpy ((char *) p_meta->nValue, ap_header_info, info_len - 1);
-          p_meta->nValue[info_len - 1] = '\0';
-          p_meta->nValueMaxSize = info_len;
-          p_meta->nValueSizeUsed = info_len;
-
-          p_meta->nSize = metadata_len;
-          p_meta->nVersion.nVersion = OMX_VERSION;
-          p_meta->eScopeMode = OMX_MetadataScopeAllLevels;
-          p_meta->nScopeSpecifier = 0;
-          p_meta->nMetadataItemIndex = 0;
-          p_meta->eSearchMode = OMX_MetadataSearchValueSizeByIndex;
-          p_meta->eKeyCharset = OMX_MetadataCharsetASCII;
-          p_meta->eValueCharset = OMX_MetadataCharsetASCII;
-
-          rc = tiz_krn_store_metadata (tiz_get_krn (handleOf (ap_prc)), p_meta);
-        }
-    }
-  return rc;
-}
-
-static inline void
-delete_uri (cc_gmusic_prc_t * ap_prc)
-{
-  assert (ap_prc);
-  tiz_mem_free (ap_prc->p_uri_param_);
-  ap_prc->p_uri_param_ = NULL;
-}
-
-static void
-clear_stored_metadata (cc_gmusic_prc_t * ap_prc)
-{
-  assert (ap_prc);
-
-  TIZ_DEBUG (handleOf (ap_prc), "clear_previous_metadata_items");
-
-  /* Clear previous metatada items */
-  (void) tiz_krn_clear_metadata (tiz_get_krn (handleOf (ap_prc)));
-}
-
-static OMX_ERRORTYPE
-store_song_metadata (cc_gmusic_prc_t * ap_prc)
-{
-  assert (ap_prc);
-
-  TIZ_DEBUG (handleOf (ap_prc), "store_song_metadata");
-
-  /* Artist and song title */
-  {
-    const char * p_artist = tiz_gmusic_get_current_song_artist (ap_prc->p_gm_);
-    const char * p_title = tiz_gmusic_get_current_song_title (ap_prc->p_gm_);
-    tiz_check_omx (store_display_title (ap_prc, p_artist, p_title));
-    tiz_check_omx (store_metadata (ap_prc, p_artist, p_title));
-  }
-
-  /* Album */
-  tiz_check_omx (store_metadata (
-    ap_prc, "Album", tiz_gmusic_get_current_song_album (ap_prc->p_gm_)));
-
-  /* Store the year if not 0 */
-  {
-    const char * p_year = tiz_gmusic_get_current_song_year (ap_prc->p_gm_);
-    if (p_year && strncmp (p_year, "0", 4) != 0)
-      {
-        tiz_check_omx (store_metadata (ap_prc, "Year", p_year));
-      }
-  }
-
-  /* Store genre if not empty */
-  {
-    const char * p_genre = tiz_gmusic_get_current_song_genre (ap_prc->p_gm_);
-    if (p_genre && strnlen (p_genre, OMX_MAX_STRINGNAME_SIZE) > 0)
-      {
-        tiz_check_omx (store_metadata (ap_prc, "Genre", p_genre));
-      }
-  }
-
-  /* Store album art if not empty */
-  {
-    const char * p_album_art
-      = tiz_gmusic_get_current_song_album_art (ap_prc->p_gm_);
-    if (p_album_art && strnlen (p_album_art, OMX_MAX_STRINGNAME_SIZE) > 0)
-      {
-        tiz_check_omx (store_metadata (ap_prc, "Album Art", p_album_art));
-      }
-  }
-
-  /* Song duration */
-  tiz_check_omx (store_metadata (
-    ap_prc, "Duration", tiz_gmusic_get_current_song_duration (ap_prc->p_gm_)));
-
-  /* Track number */
-  tiz_check_omx (store_metadata (
-    ap_prc, "Track", tiz_gmusic_get_current_song_track_number (ap_prc->p_gm_)));
-
-  /* Store total tracks if not 0 */
-  {
-    const char * p_total_tracks
-      = tiz_gmusic_get_current_song_tracks_in_album (ap_prc->p_gm_);
-    if (p_total_tracks && strncmp (p_total_tracks, "0", 2) != 0)
-      {
-        tiz_check_omx (store_metadata (ap_prc, "Total tracks", p_total_tracks));
-      }
-  }
-
-  return OMX_ErrorNone;
-}
-
-static OMX_ERRORTYPE
-store_chromecast_metadata (cc_gmusic_prc_t * ap_prc)
-{
-  assert (ap_prc);
-
-  TIZ_DEBUG (handleOf (ap_prc), "store_chromecast_metadata");
-
-  /* Artist and song title */
-  {
-    char cast_name_or_ip[OMX_MAX_STRINGNAME_SIZE];
-    char status_line[OMX_MAX_STRINGNAME_SIZE];
-    snprintf (cast_name_or_ip, OMX_MAX_STRINGNAME_SIZE, "  %s",
-              (char *) ap_prc->cc_session_.cNameOrIpAddr);
-    snprintf (status_line, OMX_MAX_STRINGNAME_SIZE,
-              "(CC:%s) (Media:%s) (Vol:%ld)",
-              tiz_cast_client_cast_status_str (ap_prc->cc_cast_status_),
-              tiz_cast_client_media_status_str (ap_prc->cc_media_status_),
-              ap_prc->volume_);
-    tiz_check_omx (store_metadata (ap_prc, cast_name_or_ip, status_line));
-  }
-
-  return OMX_ErrorNone;
-}
-
-static void
-deliver_stored_metadata (cc_gmusic_prc_t * ap_prc)
-{
-  assert (ap_prc);
-
-  TIZ_DEBUG (handleOf (ap_prc), "deliver_stored_metadata");
-
-  /* Signal that a new set of metatadata items is available */
-  (void) tiz_srv_issue_event ((OMX_PTR) ap_prc, OMX_EventIndexSettingChanged,
-                              OMX_ALL, /* no particular port associated */
-                              OMX_IndexConfigMetadataItem, /* index of the
-                                                             struct that has
-                                                             been modififed */
-                              NULL);
-}
-
-static OMX_ERRORTYPE
-obtain_next_url (cc_gmusic_prc_t * ap_prc, int a_skip_value)
-{
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-  const long pathname_max = PATH_MAX + NAME_MAX;
-
-  assert (ap_prc);
-  assert (ap_prc->p_gm_);
-
-  if (!ap_prc->p_uri_param_)
-    {
-      ap_prc->p_uri_param_ = tiz_mem_calloc (
-        1, sizeof (OMX_PARAM_CONTENTURITYPE) + pathname_max + 1);
-    }
-
-  tiz_check_null_ret_oom (ap_prc->p_uri_param_);
-
-  ap_prc->p_uri_param_->nSize
-    = sizeof (OMX_PARAM_CONTENTURITYPE) + pathname_max + 1;
-  ap_prc->p_uri_param_->nVersion.nVersion = OMX_VERSION;
-
-  {
-    const char * p_next_url = a_skip_value > 0
-                                ? tiz_gmusic_get_next_url (ap_prc->p_gm_)
-                                : tiz_gmusic_get_prev_url (ap_prc->p_gm_);
-    tiz_check_null_ret_oom (p_next_url);
-
-    {
-      const OMX_U32 url_len = strnlen (p_next_url, pathname_max);
-      TIZ_TRACE (handleOf (ap_prc), "URL [%s]", p_next_url);
-
-      /* Verify we are getting an http scheme */
-      if (!p_next_url || !url_len
-          || (memcmp (p_next_url, "http://", 7) != 0
-              && memcmp (p_next_url, "https://", 8) != 0))
-        {
-          rc = OMX_ErrorContentURIError;
-        }
-      else
-        {
-          strncpy ((char *) ap_prc->p_uri_param_->contentURI, p_next_url,
-                   url_len);
-          ap_prc->p_uri_param_->contentURI[url_len] = '\000';
-
-          /* Song metadata is now available, update the IL client */
-          rc = store_song_metadata (ap_prc);
-          ap_prc->uri_changed_ = true;
-        }
-    }
-  }
-
-  return rc;
-}
-
-static OMX_ERRORTYPE
-load_next_url (cc_gmusic_prc_t * p_prc)
-{
-  assert (p_prc);
-  assert (p_prc->p_cc_);
-  assert (p_prc->p_uri_param_);
-  assert (p_prc->p_uri_param_->contentURI);
-  if (p_prc->p_cc_ && p_prc->p_uri_param_
-      && (const char *) p_prc->p_uri_param_->contentURI)
-    {
-      on_cc_error_ret_omx_oom (tiz_cast_client_load_url (
-        p_prc->p_cc_, (const char *) p_prc->p_uri_param_->contentURI,
-        CONTENT_TYPE,
-        (p_prc->p_cc_display_title_ ? p_prc->p_cc_display_title_
-                                    : DISPLAY_TITLE),
-        tiz_gmusic_get_current_song_album_art (p_prc->p_gm_)));
-      p_prc->uri_changed_ = false;
-    }
-  return OMX_ErrorNone;
-}
-
-static OMX_ERRORTYPE
-retrieve_gm_session_configuration (cc_gmusic_prc_t * ap_prc)
+retrieve_gm_session (cc_gmusic_prc_t * ap_prc)
 {
   return tiz_api_GetParameter (
     tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
@@ -584,7 +77,7 @@ retrieve_gm_session_configuration (cc_gmusic_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
-retrieve_playlist (cc_gmusic_prc_t * ap_prc)
+retrieve_gm_playlist (cc_gmusic_prc_t * ap_prc)
 {
   return tiz_api_GetParameter (
     tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
@@ -592,7 +85,7 @@ retrieve_playlist (cc_gmusic_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
-enqueue_playlist_items (cc_gmusic_prc_t * ap_prc)
+enqueue_gm_playlist_items (cc_gmusic_prc_t * ap_prc)
 {
   int rc = 1;
 
@@ -675,38 +168,6 @@ enqueue_playlist_items (cc_gmusic_prc_t * ap_prc)
   return (rc == 0 ? OMX_ErrorNone : OMX_ErrorInsufficientResources);
 }
 
-static void
-set_volume (cc_gmusic_prc_t * ap_prc, const long a_volume)
-{
-  assert (ap_prc);
-  assert (ap_prc->p_cc_);
-  TIZ_DEBUG (handleOf (ap_prc), "ap_prc->volume_ [%d]", ap_prc->volume_);
-  if (a_volume > ap_prc->volume_)
-    {
-      tiz_cast_client_volume_up (ap_prc->p_cc_);
-    }
-  else if (a_volume < ap_prc->volume_)
-    {
-      tiz_cast_client_volume_down (ap_prc->p_cc_);
-    }
-  ap_prc->volume_ = a_volume;
-}
-
-static void
-toggle_mute (cc_gmusic_prc_t * ap_prc, const bool a_mute)
-{
-  assert (ap_prc);
-
-  if (a_mute)
-    {
-      tiz_cast_client_mute (ap_prc->p_cc_);
-    }
-  else
-    {
-      tiz_cast_client_unmute (ap_prc->p_cc_);
-    }
-}
-
 /*
  * cc_gmusicprc
  */
@@ -718,8 +179,6 @@ cc_gmusic_prc_ctor (void * ap_obj, va_list * app)
     = super_ctor (typeOf (ap_obj, "cc_gmusicprc"), ap_obj, app);
   TIZ_INIT_OMX_STRUCT (p_prc->gm_session_);
   TIZ_INIT_OMX_STRUCT (p_prc->gm_playlist_);
-  p_prc->p_uri_param_ = NULL;
-  p_prc->p_inhdr_ = NULL;
   p_prc->p_gm_ = NULL;
   return p_prc;
 }
@@ -728,6 +187,149 @@ static void *
 cc_gmusic_prc_dtor (void * ap_obj)
 {
   return super_dtor (typeOf (ap_obj, "cc_gmusicprc"), ap_obj);
+}
+
+static OMX_ERRORTYPE
+cc_gmusic_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
+{
+  cc_gmusic_prc_t * p_prc = ap_obj;
+  assert (p_prc);
+
+  tiz_check_omx (tiz_srv_super_allocate_resources (
+    typeOf (p_prc, "cc_gmusicprc"), p_prc, a_pid));
+
+  tiz_check_omx (retrieve_gm_session (p_prc));
+  tiz_check_omx (retrieve_gm_playlist (p_prc));
+
+  on_gmusic_error_ret_omx_oom (tiz_gmusic_init (
+    &(p_prc->p_gm_), (const char *) p_prc->gm_session_.cUserName,
+    (const char *) p_prc->gm_session_.cUserPassword,
+    (const char *) p_prc->gm_session_.cDeviceId));
+
+  tiz_check_omx (enqueue_gm_playlist_items (p_prc));
+
+  TIZ_TRACE (handleOf (p_prc), "cUserName  : [%s]",
+             p_prc->gm_session_.cUserName);
+  TIZ_TRACE (handleOf (p_prc), "cUserPassword  : [%s]",
+             p_prc->gm_session_.cUserPassword);
+  TIZ_TRACE (handleOf (p_prc), "cDeviceId  : [%s]",
+             p_prc->gm_session_.cDeviceId);
+
+  return OMX_ErrorNone;
+}
+
+static OMX_ERRORTYPE
+cc_gmusic_prc_deallocate_resources (void * ap_prc)
+{
+  cc_gmusic_prc_t * p_prc = ap_prc;
+  assert (p_prc);
+  tiz_gmusic_destroy (p_prc->p_gm_);
+  p_prc->p_gm_ = NULL;
+  return tiz_srv_super_deallocate_resources (typeOf (ap_prc, "cc_gmusicprc"),
+                                             ap_prc);
+}
+
+static const char *
+cc_gmusic_prc_get_next_url (const void * p_obj)
+{
+  cc_gmusic_prc_t * p_prc = (cc_gmusic_prc_t *) p_obj;
+  assert (p_prc);
+  assert (p_prc->p_gm_);
+  return tiz_gmusic_get_next_url (p_prc->p_gm_);
+}
+
+static const char *
+cc_gmusic_prc_get_prev_url (const void * p_obj)
+{
+  cc_gmusic_prc_t * p_prc = (cc_gmusic_prc_t *) p_obj;
+  assert (p_prc);
+  assert (p_prc->p_gm_);
+  return tiz_gmusic_get_prev_url (p_prc->p_gm_);
+}
+
+static const char *
+cc_gmusic_prc_get_current_song_album_art_url (const void * p_obj)
+{
+  cc_gmusic_prc_t * p_prc = (cc_gmusic_prc_t *) p_obj;
+  assert (p_prc);
+  assert (p_prc->p_gm_);
+  return tiz_gmusic_get_current_song_album_art (p_prc->p_gm_);
+}
+
+static OMX_ERRORTYPE
+cc_gmusic_prc_store_song_metadata (const void * p_obj)
+{
+  cc_gmusic_prc_t * p_prc = (cc_gmusic_prc_t *) p_obj;
+  cc_prc_t * p_cc_prc = (cc_prc_t *) p_obj;
+  assert (p_prc);
+
+  TIZ_DEBUG (handleOf (p_prc), "store_song_metadata");
+
+  /* Artist and song title */
+  {
+    const char * p_artist = tiz_gmusic_get_current_song_artist (p_prc->p_gm_);
+    const char * p_title = tiz_gmusic_get_current_song_title (p_prc->p_gm_);
+    tiz_check_omx (cc_prc_store_display_title (p_cc_prc, p_artist, p_title));
+    tiz_check_omx (
+      cc_prc_store_song_metadata_item (p_cc_prc, p_artist, p_title));
+  }
+
+  /* Album */
+  tiz_check_omx (cc_prc_store_song_metadata_item (
+    p_cc_prc, "Album", tiz_gmusic_get_current_song_album (p_prc->p_gm_)));
+
+  /* Store the year if not 0 */
+  {
+    const char * p_year = tiz_gmusic_get_current_song_year (p_prc->p_gm_);
+    if (p_year && strncmp (p_year, "0", 4) != 0)
+      {
+        tiz_check_omx (
+          cc_prc_store_song_metadata_item (p_cc_prc, "Year", p_year));
+      }
+  }
+
+  /* Store genre if not empty */
+  {
+    const char * p_genre = tiz_gmusic_get_current_song_genre (p_prc->p_gm_);
+    if (p_genre && strnlen (p_genre, OMX_MAX_STRINGNAME_SIZE) > 0)
+      {
+        tiz_check_omx (
+          cc_prc_store_song_metadata_item (p_cc_prc, "Genre", p_genre));
+      }
+  }
+
+  /* Store album art if not empty */
+  {
+    const char * p_album_art
+      = tiz_gmusic_get_current_song_album_art (p_prc->p_gm_);
+    if (p_album_art && strnlen (p_album_art, OMX_MAX_STRINGNAME_SIZE) > 0)
+      {
+        tiz_check_omx (
+          cc_prc_store_song_metadata_item (p_cc_prc, "Album Art", p_album_art));
+      }
+  }
+
+  /* Song duration */
+  tiz_check_omx (cc_prc_store_song_metadata_item (
+    p_cc_prc, "Duration", tiz_gmusic_get_current_song_duration (p_prc->p_gm_)));
+
+  /* Track number */
+  tiz_check_omx (cc_prc_store_song_metadata_item (
+    p_cc_prc, "Track",
+    tiz_gmusic_get_current_song_track_number (p_prc->p_gm_)));
+
+  /* Store total tracks if not 0 */
+  {
+    const char * p_total_tracks
+      = tiz_gmusic_get_current_song_tracks_in_album (p_prc->p_gm_);
+    if (p_total_tracks && strncmp (p_total_tracks, "0", 2) != 0)
+      {
+        tiz_check_omx (cc_prc_store_song_metadata_item (
+          p_cc_prc, "Total tracks", p_total_tracks));
+      }
+  }
+
+  return OMX_ErrorNone;
 }
 
 /*
@@ -748,10 +350,10 @@ cc_gmusic_prc_class_ctor (void * ap_obj, va_list * app)
 void *
 cc_gmusic_prc_class_init (void * ap_tos, void * ap_hdl)
 {
-  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void * cc_prc = tiz_get_type (ap_hdl, "cc_prc");
   void * cc_gmusicprc_class = factory_new
     /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-    (classOf (tizprc), "cc_gmusicprc_class", classOf (tizprc),
+    (classOf (cc_prc), "cc_gmusicprc_class", classOf (cc_prc),
      sizeof (cc_gmusic_prc_class_t),
      /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
@@ -765,18 +367,31 @@ cc_gmusic_prc_class_init (void * ap_tos, void * ap_hdl)
 void *
 cc_gmusic_prc_init (void * ap_tos, void * ap_hdl)
 {
-  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void * cc_prc = tiz_get_type (ap_hdl, "cc_prc");
   void * cc_gmusicprc_class = tiz_get_type (ap_hdl, "cc_gmusicprc_class");
   TIZ_LOG_CLASS (cc_gmusicprc_class);
   void * cc_gmusicprc = factory_new
     /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-    (cc_gmusicprc_class, "cc_gmusicprc", tizprc, sizeof (cc_gmusic_prc_t),
+    (cc_gmusicprc_class, "cc_gmusicprc", cc_prc, sizeof (cc_gmusic_prc_t),
      /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
      /* TIZ_CLASS_COMMENT: class constructor */
      ctor, cc_gmusic_prc_ctor,
      /* TIZ_CLASS_COMMENT: class destructor */
      dtor, cc_gmusic_prc_dtor,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_allocate_resources, cc_gmusic_prc_allocate_resources,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_deallocate_resources, cc_gmusic_prc_deallocate_resources,
+     /* TIZ_CLASS_COMMENT: */
+     cc_prc_get_next_url, cc_gmusic_prc_get_next_url,
+     /* TIZ_CLASS_COMMENT: */
+     cc_prc_get_prev_url, cc_gmusic_prc_get_prev_url,
+     /* TIZ_CLASS_COMMENT: */
+     cc_prc_get_current_song_album_art_url,
+     cc_gmusic_prc_get_current_song_album_art_url,
+     /* TIZ_CLASS_COMMENT: */
+     cc_prc_store_song_metadata, cc_gmusic_prc_store_song_metadata,
      /* TIZ_CLASS_COMMENT: stop value */
      0);
 
