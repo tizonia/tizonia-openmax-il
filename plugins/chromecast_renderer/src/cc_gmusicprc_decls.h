@@ -20,7 +20,7 @@
  * @file   cc_gmusicprc_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Google Music client - processor declarations
+ * @brief  Google Music Chromecast renderer - processor declarations
  *
  *
  */

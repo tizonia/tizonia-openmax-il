@@ -21,7 +21,7 @@
  * @file   cc_gmusicprc.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Google Music chromecast renderer - processor class
+ * @brief  Google Music Chromecast renderer - processor class
  *
  *
  */

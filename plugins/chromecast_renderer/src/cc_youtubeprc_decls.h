@@ -20,13 +20,13 @@
  * @file   cc_youtubeprc_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Youtube client - processor declarations
+ * @brief  YouTube Chromecast renderer - processor declarations
  *
  *
  */
 
-#ifndef YOUTUBEPRC_DECLS_H
-#define YOUTUBEPRC_DECLS_H
+#ifndef CC_YOUTUBEPRC_DECLS_H
+#define CC_YOUTUBEPRC_DECLS_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,29 +36,21 @@ extern "C" {
 
 #include <OMX_Core.h>
 
-#include <tizprc_decls.h>
+#include <tizyoutube_c.h>
 
 #include <tizplatform.h>
-#include <tizyoutube_c.h>
-#include <tizcastclient_c.h>
+
+#include "cc_prc_decls.h"
+#include "cc_prc.h"
 
 typedef struct cc_youtube_prc cc_youtube_prc_t;
 struct cc_youtube_prc
 {
   /* Object */
-  const tiz_prc_t _;
+  const cc_prc_t _;
   OMX_TIZONIA_AUDIO_PARAM_YOUTUBESESSIONTYPE yt_session_;
-  OMX_TIZONIA_AUDIO_PARAM_YOUTUBEPLAYLISTTYPE playlist_;
-  OMX_TIZONIA_PLAYLISTSKIPTYPE playlist_skip_;
-  OMX_TIZONIA_PARAM_CHROMECASTSESSIONTYPE cc_session_;
-  OMX_PARAM_CONTENTURITYPE * p_uri_param_;
-  OMX_BUFFERHEADERTYPE * p_inhdr_;
+  OMX_TIZONIA_AUDIO_PARAM_YOUTUBEPLAYLISTTYPE yt_playlist_;
   tiz_youtube_t * p_yt_;
-  tiz_cast_t * p_cc_;
-  bool eos_;
-  bool port_disabled_;
-  bool uri_changed_;
-  OMX_U32 bytes_before_eos_;
   bool remove_current_url_;
 };
 
@@ -66,7 +58,7 @@ typedef struct cc_youtube_prc_class cc_youtube_prc_class_t;
 struct cc_youtube_prc_class
 {
   /* Class */
-  const tiz_prc_class_t _;
+  const cc_prc_class_t _;
   /* NOTE: Class methods might be added in the future */
 };
 
@@ -74,4 +66,4 @@ struct cc_youtube_prc_class
 }
 #endif
 
-#endif /* YOUTUBEPRC_DECLS_H */
+#endif /* CC_YOUTUBEPRC_DECLS_H */
