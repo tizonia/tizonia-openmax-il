@@ -1120,7 +1120,7 @@ tiz::playapp::scloud_stream_chromecast ()
   tizgraphconfig_ptr_t config
       = boost::make_shared< tiz::graph::chromecastconfig > (
           cc_name_or_ip, service_config,
-          tiz::graph::chromecastconfig::ConfigGoogleMusic);
+          tiz::graph::chromecastconfig::ConfigSoundCloud);
 
   // Instantiate the chromecast client manager
   tiz::graphmgr::mgr_ptr_t p_mgr
@@ -1169,7 +1169,7 @@ tiz::playapp::dirble_stream_chromecast ()
   tizgraphconfig_ptr_t config
       = boost::make_shared< tiz::graph::chromecastconfig > (
           cc_name_or_ip, service_config,
-          tiz::graph::chromecastconfig::ConfigGoogleMusic);
+          tiz::graph::chromecastconfig::ConfigDirble);
 
   // Instantiate the chromecast client manager
   tiz::graphmgr::mgr_ptr_t p_mgr
