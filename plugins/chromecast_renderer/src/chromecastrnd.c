@@ -45,6 +45,7 @@
 
 #include "chromecastrnd.h"
 #include "cc_prc.h"
+#include "cc_cfgport.h"
 #include "cc_httpprc.h"
 #include "cc_gmusicprc.h"
 #include "cc_gmusiccfgport.h"
@@ -212,6 +213,7 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
     = {&http_client_role, &gmusic_client_role, &scloud_client_role,
        &dirble_client_role, &youtube_client_role};
   tiz_type_factory_t cc_prc_type;
+  tiz_type_factory_t cc_cfgport_type;
   tiz_type_factory_t cc_httpprc_type;
   tiz_type_factory_t cc_gmusicprc_type;
   tiz_type_factory_t cc_gmusiccfgport_type;
@@ -222,10 +224,10 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   tiz_type_factory_t cc_youtubeprc_type;
   tiz_type_factory_t cc_youtubecfgport_type;
   const tiz_type_factory_t * tf_list[]
-    = {&cc_prc_type,           &cc_httpprc_type,       &cc_gmusicprc_type,
-       &cc_gmusiccfgport_type, &cc_scloudprc_type,     &cc_scloudcfgport_type,
-       &cc_dirbleprc_type,     &cc_dirblecfgport_type, &cc_youtubeprc_type,
-       &cc_youtubecfgport_type};
+    = {&cc_prc_type,           &cc_cfgport_type,       &cc_httpprc_type,
+       &cc_gmusicprc_type,     &cc_gmusiccfgport_type, &cc_scloudprc_type,
+       &cc_scloudcfgport_type, &cc_dirbleprc_type,     &cc_dirblecfgport_type,
+       &cc_youtubeprc_type,    &cc_youtubecfgport_type};
 
   strcpy ((OMX_STRING) http_client_role.role,
           ARATELIA_CHROMECAST_RENDERER_DEFAULT_ROLE);
@@ -262,14 +264,17 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   youtube_client_role.nports = 1;
   youtube_client_role.pf_proc = instantiate_youtube_processor;
 
-  strcpy ((OMX_STRING) cc_prc_type.class_name,
-          "cc_prc_class");
+  strcpy ((OMX_STRING) cc_prc_type.class_name, "cc_prc_class");
   cc_prc_type.pf_class_init = cc_prc_class_init;
   strcpy ((OMX_STRING) cc_prc_type.object_name, "cc_prc");
   cc_prc_type.pf_object_init = cc_prc_init;
 
-  strcpy ((OMX_STRING) cc_httpprc_type.class_name,
-          "cc_httpprc_class");
+  strcpy ((OMX_STRING) cc_cfgport_type.class_name, "cc_cfgport_class");
+  cc_cfgport_type.pf_class_init = cc_cfgport_class_init;
+  strcpy ((OMX_STRING) cc_cfgport_type.object_name, "cc_cfgport");
+  cc_cfgport_type.pf_object_init = cc_cfgport_init;
+
+  strcpy ((OMX_STRING) cc_httpprc_type.class_name, "cc_httpprc_class");
   cc_httpprc_type.pf_class_init = cc_http_prc_class_init;
   strcpy ((OMX_STRING) cc_httpprc_type.object_name, "cc_httpprc");
   cc_httpprc_type.pf_object_init = cc_http_prc_init;
@@ -323,7 +328,7 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
     tiz_comp_init (ap_hdl, ARATELIA_CHROMECAST_RENDERER_COMPONENT_NAME));
 
   /* Register the various classes */
-  tiz_check_omx (tiz_comp_register_types (ap_hdl, tf_list, 10));
+  tiz_check_omx (tiz_comp_register_types (ap_hdl, tf_list, 11));
 
   /* Register the component roles */
   tiz_check_omx (tiz_comp_register_roles (ap_hdl, rf_list, 5));

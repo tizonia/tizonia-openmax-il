@@ -56,7 +56,7 @@ cc_cfgport_ctor (void * ap_obj, va_list * app)
 
   assert (p_obj);
 
-    tiz_port_register_index (p_obj, OMX_TizoniaIndexParamChromecastSession);
+  tiz_port_register_index (p_obj, OMX_TizoniaIndexParamChromecastSession);
 
   /* Initialize the OMX_TIZONIA_PARAM_CHROMECASTSESSIONTYPE structure */
   TIZ_INIT_OMX_STRUCT (p_obj->cc_session_);
