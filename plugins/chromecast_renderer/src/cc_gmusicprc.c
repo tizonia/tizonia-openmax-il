@@ -248,7 +248,7 @@ cc_gmusic_prc_get_prev_url (const void * p_obj)
 }
 
 static const char *
-cc_gmusic_prc_get_current_song_album_art_url (const void * p_obj)
+cc_gmusic_prc_get_current_stream_album_art_url (const void * p_obj)
 {
   cc_gmusic_prc_t * p_prc = (cc_gmusic_prc_t *) p_obj;
   assert (p_prc);
@@ -257,13 +257,13 @@ cc_gmusic_prc_get_current_song_album_art_url (const void * p_obj)
 }
 
 static OMX_ERRORTYPE
-cc_gmusic_prc_store_song_metadata (const void * p_obj)
+cc_gmusic_prc_store_stream_metadata (const void * p_obj)
 {
   cc_gmusic_prc_t * p_prc = (cc_gmusic_prc_t *) p_obj;
   cc_prc_t * p_cc_prc = (cc_prc_t *) p_obj;
   assert (p_prc);
 
-  TIZ_DEBUG (handleOf (p_prc), "store_song_metadata");
+  TIZ_DEBUG (handleOf (p_prc), "store_stream_metadata");
 
   /* Artist and song title */
   {
@@ -271,11 +271,11 @@ cc_gmusic_prc_store_song_metadata (const void * p_obj)
     const char * p_title = tiz_gmusic_get_current_song_title (p_prc->p_gm_);
     tiz_check_omx (cc_prc_store_display_title (p_cc_prc, p_artist, p_title));
     tiz_check_omx (
-      cc_prc_store_song_metadata_item (p_cc_prc, p_artist, p_title));
+      cc_prc_store_stream_metadata_item (p_cc_prc, p_artist, p_title));
   }
 
   /* Album */
-  tiz_check_omx (cc_prc_store_song_metadata_item (
+  tiz_check_omx (cc_prc_store_stream_metadata_item (
     p_cc_prc, "Album", tiz_gmusic_get_current_song_album (p_prc->p_gm_)));
 
   /* Store the year if not 0 */
@@ -284,7 +284,7 @@ cc_gmusic_prc_store_song_metadata (const void * p_obj)
     if (p_year && strncmp (p_year, "0", 4) != 0)
       {
         tiz_check_omx (
-          cc_prc_store_song_metadata_item (p_cc_prc, "Year", p_year));
+          cc_prc_store_stream_metadata_item (p_cc_prc, "Year", p_year));
       }
   }
 
@@ -294,7 +294,7 @@ cc_gmusic_prc_store_song_metadata (const void * p_obj)
     if (p_genre && strnlen (p_genre, OMX_MAX_STRINGNAME_SIZE) > 0)
       {
         tiz_check_omx (
-          cc_prc_store_song_metadata_item (p_cc_prc, "Genre", p_genre));
+          cc_prc_store_stream_metadata_item (p_cc_prc, "Genre", p_genre));
       }
   }
 
@@ -305,16 +305,16 @@ cc_gmusic_prc_store_song_metadata (const void * p_obj)
     if (p_album_art && strnlen (p_album_art, OMX_MAX_STRINGNAME_SIZE) > 0)
       {
         tiz_check_omx (
-          cc_prc_store_song_metadata_item (p_cc_prc, "Album Art", p_album_art));
+          cc_prc_store_stream_metadata_item (p_cc_prc, "Album Art", p_album_art));
       }
   }
 
   /* Song duration */
-  tiz_check_omx (cc_prc_store_song_metadata_item (
+  tiz_check_omx (cc_prc_store_stream_metadata_item (
     p_cc_prc, "Duration", tiz_gmusic_get_current_song_duration (p_prc->p_gm_)));
 
   /* Track number */
-  tiz_check_omx (cc_prc_store_song_metadata_item (
+  tiz_check_omx (cc_prc_store_stream_metadata_item (
     p_cc_prc, "Track",
     tiz_gmusic_get_current_song_track_number (p_prc->p_gm_)));
 
@@ -324,7 +324,7 @@ cc_gmusic_prc_store_song_metadata (const void * p_obj)
       = tiz_gmusic_get_current_song_tracks_in_album (p_prc->p_gm_);
     if (p_total_tracks && strncmp (p_total_tracks, "0", 2) != 0)
       {
-        tiz_check_omx (cc_prc_store_song_metadata_item (
+        tiz_check_omx (cc_prc_store_stream_metadata_item (
           p_cc_prc, "Total tracks", p_total_tracks));
       }
   }
@@ -388,10 +388,10 @@ cc_gmusic_prc_init (void * ap_tos, void * ap_hdl)
      /* TIZ_CLASS_COMMENT: */
      cc_prc_get_prev_url, cc_gmusic_prc_get_prev_url,
      /* TIZ_CLASS_COMMENT: */
-     cc_prc_get_current_song_album_art_url,
-     cc_gmusic_prc_get_current_song_album_art_url,
+     cc_prc_get_current_stream_album_art_url,
+     cc_gmusic_prc_get_current_stream_album_art_url,
      /* TIZ_CLASS_COMMENT: */
-     cc_prc_store_song_metadata, cc_gmusic_prc_store_song_metadata,
+     cc_prc_store_stream_metadata, cc_gmusic_prc_store_stream_metadata,
      /* TIZ_CLASS_COMMENT: stop value */
      0);
 

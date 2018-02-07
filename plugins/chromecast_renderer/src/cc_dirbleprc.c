@@ -214,43 +214,58 @@ cc_dirble_prc_get_prev_url (const void * p_obj)
 }
 
 static const char *
-cc_dirble_prc_get_current_song_album_art_url (const void * p_obj)
+cc_dirble_prc_get_current_stream_album_art_url (const void * p_obj)
 {
   cc_dirble_prc_t * p_prc = (cc_dirble_prc_t *) p_obj;
   assert (p_prc);
   assert (p_prc->p_db_);
-  /*   return tiz_dirble_get_current_song_album_art (p_prc->p_db_); */
-  return NULL;
+#define DB_LOGO "http://tizonia.org/img/dirble-logo.png"
+  return DB_LOGO;
 }
 
 static OMX_ERRORTYPE
-cc_dirble_prc_store_song_metadata (cc_dirble_prc_t * ap_obj)
+cc_dirble_prc_store_stream_metadata (cc_dirble_prc_t * ap_obj)
 {
   cc_dirble_prc_t * p_prc = (cc_dirble_prc_t *) ap_obj;
   cc_prc_t * p_cc_prc = (cc_prc_t *) p_prc;
   assert (p_prc);
 
   /* Station Name */
-  tiz_check_omx (cc_prc_store_song_metadata_item (
-    p_prc, "Station", tiz_dirble_get_current_station_name (p_prc->p_db_)));
+  {
+    const char * p_station = tiz_dirble_get_current_station_name (p_prc->p_db_);
+    tiz_check_omx (
+      cc_prc_store_stream_metadata_item (p_prc, "Station", p_station));
+    tiz_check_omx (cc_prc_store_display_title (p_cc_prc, "Station", p_station));
+  }
+
+  /* Stream URL */
+  tiz_check_omx (cc_prc_store_stream_metadata_item (
+    p_cc_prc, "Stream URL",
+    tiz_dirble_get_current_station_stream_url (p_prc->p_db_)));
+
+  /* Bitrate */
+  {
+    const char * p_bitrate
+      = tiz_dirble_get_current_station_bitrate (p_prc->p_db_);
+    if (p_bitrate && strncmp (p_bitrate, "0", 3) != 0)
+      {
+        tiz_check_omx (
+          cc_prc_store_stream_metadata_item (p_cc_prc, "Bitrate", p_bitrate));
+      }
+  }
 
   /* Country */
-  /* TODO */
-  /*   tiz_check_omx (cc_prc_store_song_metadata_item ( */
-  /*     p_cc_prc, "URL", (const char *) p_prc->p_uri_param_->contentURI)); */
-
-  /* Country */
-  tiz_check_omx (cc_prc_store_song_metadata_item (
+  tiz_check_omx (cc_prc_store_stream_metadata_item (
     p_cc_prc, "Country",
     tiz_dirble_get_current_station_country (p_prc->p_db_)));
 
   /* Category */
-  tiz_check_omx (cc_prc_store_song_metadata_item (
+  tiz_check_omx (cc_prc_store_stream_metadata_item (
     p_cc_prc, "Categories",
     tiz_dirble_get_current_station_category (p_prc->p_db_)));
 
   /* Website */
-  tiz_check_omx (cc_prc_store_song_metadata_item (
+  tiz_check_omx (cc_prc_store_stream_metadata_item (
     p_cc_prc, "Website",
     tiz_dirble_get_current_station_website (p_prc->p_db_)));
 
@@ -313,10 +328,10 @@ cc_dirble_prc_init (void * ap_tos, void * ap_hdl)
      /* TIZ_CLASS_COMMENT: */
      cc_prc_get_prev_url, cc_dirble_prc_get_prev_url,
      /* TIZ_CLASS_COMMENT: */
-     cc_prc_get_current_song_album_art_url,
-     cc_dirble_prc_get_current_song_album_art_url,
+     cc_prc_get_current_stream_album_art_url,
+     cc_dirble_prc_get_current_stream_album_art_url,
      /* TIZ_CLASS_COMMENT: */
-     cc_prc_store_song_metadata, cc_dirble_prc_store_song_metadata,
+     cc_prc_store_stream_metadata, cc_dirble_prc_store_stream_metadata,
      /* TIZ_CLASS_COMMENT: stop value */
      0);
 

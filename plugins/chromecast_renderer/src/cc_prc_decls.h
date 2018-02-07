@@ -67,9 +67,9 @@ struct cc_prc_class
   const tiz_prc_class_t _;
   const char * (*get_next_url) (const void * p_obj);
   const char * (*get_prev_url) (const void * p_obj);
-  const char * (*get_current_song_album_art_url) (const void * p_obj);
-  OMX_ERRORTYPE (*store_song_metadata) (const void * p_obj);
-  OMX_ERRORTYPE (*store_song_metadata_item)
+  const char * (*get_current_stream_album_art_url) (const void * p_obj);
+  OMX_ERRORTYPE (*store_stream_metadata) (const void * p_obj);
+  OMX_ERRORTYPE (*store_stream_metadata_item)
   (const void * p_obj, const char * ap_header_name,
    const char * ap_header_info);
   OMX_ERRORTYPE (*store_display_title)

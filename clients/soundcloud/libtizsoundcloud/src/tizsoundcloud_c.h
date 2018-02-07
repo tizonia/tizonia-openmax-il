@@ -302,6 +302,15 @@ const char *tiz_scloud_get_current_track_license (tiz_scloud_t *ap_scloud);
 const char *tiz_scloud_get_current_track_likes (tiz_scloud_t *ap_scloud);
 
 /**
+ * Retrieve the avatar of the user associated to the current track.
+ *
+ * @ingroup libtizsoundcloud
+ *
+ * @param ap_scloud The soundcloud handle.
+ */
+const char *tiz_scloud_get_current_track_user_avatar (tiz_scloud_t *ap_scloud);
+
+/**
  * Destroy the soundcloud handle.
  *
  * @ingroup libtizsoundcloud

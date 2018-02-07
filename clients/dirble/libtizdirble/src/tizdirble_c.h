@@ -228,12 +228,31 @@ const char *tiz_dirble_get_current_station_category (tiz_dirble_t *ap_dirble);
 const char *tiz_dirble_get_current_station_website (tiz_dirble_t *ap_dirble);
 
 /**
+ * Retrieve the current station's bitrate.
+ *
+ * @ingroup libtizdirble
+ *
+ * @param ap_dirble The dirble handle.
+ */
+const char *tiz_dirble_get_current_station_bitrate (tiz_dirble_t *ap_dirble);
+
+/**
+ * Retrieve the current station's stream url.
+ *
+ * @ingroup libtizdirble
+ *
+ * @param ap_dirble The dirble handle.
+ */
+const char *tiz_dirble_get_current_station_stream_url (tiz_dirble_t *ap_dirble);
+
+/**
  * Destroy the dirble handle.
  *
  * @ingroup libtizdirble
  *
  * @param ap_dirble The dirble handle.
  */
+
 void tiz_dirble_destroy (tiz_dirble_t *ap_dirble);
 
 #ifdef __cplusplus

@@ -309,6 +309,17 @@ class tizdirbleproxy(object):
             website = to_ascii(station.website).encode("utf-8")
         return website
 
+    def current_station_bitrate(self):
+        """ Retrieve the current station's bitrate.
+
+        """
+        logging.info("current_station_bitrate")
+        station = self.now_playing_station
+        bitrate = 0
+        if station:
+            bitrate = station.bitrate
+        return bitrate
+
     def clear_queue(self):
         """ Clears the playback queue.
 

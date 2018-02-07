@@ -29,8 +29,8 @@
 #include <config.h>
 #endif
 
-#include <iostream>
 #include <boost/lexical_cast.hpp>
+#include <iostream>
 
 #include "tizdirble.hpp"
 
@@ -79,13 +79,11 @@ namespace
                      const std::string &api_key)
   {
     bp::object pydirbleproxy = py_global["tizdirbleproxy"];
-    py_dirble_proxy
-        = pydirbleproxy (api_key.c_str ());
+    py_dirble_proxy = pydirbleproxy (api_key.c_str ());
   }
 }
 
-tizdirble::tizdirble (const std::string &api_key)
-  : api_key_ (api_key)
+tizdirble::tizdirble (const std::string &api_key) : api_key_ (api_key)
 {
 }
 
@@ -103,8 +101,7 @@ int tizdirble::init ()
 int tizdirble::start ()
 {
   int rc = 0;
-  try_catch_wrapper (
-      start_dirble (py_global_, py_dirble_proxy_, api_key_));
+  try_catch_wrapper (start_dirble (py_global_, py_dirble_proxy_, api_key_));
   return rc;
 }
 
@@ -123,7 +120,7 @@ void tizdirble::deinit ()
 int tizdirble::play_popular_stations ()
 {
   int rc = 0;
-  try_catch_wrapper (py_dirble_proxy_.attr ("enqueue_popular_stations")());
+  try_catch_wrapper (py_dirble_proxy_.attr ("enqueue_popular_stations") ());
   return rc;
 }
 
@@ -131,7 +128,7 @@ int tizdirble::play_stations (const std::string &query)
 {
   int rc = 0;
   try_catch_wrapper (
-      py_dirble_proxy_.attr ("enqueue_stations")(bp::object (query)));
+      py_dirble_proxy_.attr ("enqueue_stations") (bp::object (query)));
   return rc;
 }
 
@@ -139,7 +136,7 @@ int tizdirble::play_category (const std::string &category)
 {
   int rc = 0;
   try_catch_wrapper (
-      py_dirble_proxy_.attr ("enqueue_category")(bp::object (category)));
+      py_dirble_proxy_.attr ("enqueue_category") (bp::object (category)));
   return rc;
 }
 
@@ -147,7 +144,7 @@ int tizdirble::play_country (const std::string &country_code)
 {
   int rc = 0;
   try_catch_wrapper (
-      py_dirble_proxy_.attr ("enqueue_country")(bp::object (country_code)));
+      py_dirble_proxy_.attr ("enqueue_country") (bp::object (country_code)));
   return rc;
 }
 
@@ -158,10 +155,10 @@ const char *tizdirble::get_next_url (const bool a_remove_current_url)
     {
       if (a_remove_current_url)
         {
-          py_dirble_proxy_.attr ("remove_current_url")();
+          py_dirble_proxy_.attr ("remove_current_url") ();
         }
       const char *p_next_url
-          = bp::extract< char const * >(py_dirble_proxy_.attr ("next_url")());
+          = bp::extract< char const * > (py_dirble_proxy_.attr ("next_url") ());
       current_url_.assign (p_next_url);
       if (!p_next_url || get_current_station ())
         {
@@ -185,10 +182,10 @@ const char *tizdirble::get_prev_url (const bool a_remove_current_url)
     {
       if (a_remove_current_url)
         {
-          py_dirble_proxy_.attr ("remove_current_url")();
+          py_dirble_proxy_.attr ("remove_current_url") ();
         }
       const char *p_prev_url
-          = bp::extract< char const * >(py_dirble_proxy_.attr ("prev_url")());
+          = bp::extract< char const * > (py_dirble_proxy_.attr ("prev_url") ());
       current_url_.assign (p_prev_url);
       if (!p_prev_url || get_current_station ())
         {
@@ -212,46 +209,63 @@ const char *tizdirble::get_current_station_name ()
 
 const char *tizdirble::get_current_station_country ()
 {
-  return current_station_country_.empty () ? NULL : current_station_country_.c_str ();
+  return current_station_country_.empty () ? NULL
+                                           : current_station_country_.c_str ();
 }
 
 const char *tizdirble::get_current_station_category ()
 {
-  return current_station_category_.empty () ? NULL : current_station_category_.c_str ();
+  return current_station_category_.empty ()
+             ? NULL
+             : current_station_category_.c_str ();
 }
 
 const char *tizdirble::get_current_station_website ()
 {
-  return current_station_website_.empty () ? NULL : current_station_website_.c_str ();
+  return current_station_website_.empty () ? NULL
+                                           : current_station_website_.c_str ();
+}
+
+const char *tizdirble::get_current_station_bitrate ()
+{
+  return current_station_bitrate_.empty () ? NULL
+                                           : current_station_bitrate_.c_str ();
+}
+
+const char *tizdirble::get_current_station_stream_url ()
+{
+  return current_url_.empty () ? NULL : current_url_.c_str ();
 }
 
 void tizdirble::clear_queue ()
 {
   int rc = 0;
-  try_catch_wrapper (py_dirble_proxy_.attr ("clear_queue")());
+  try_catch_wrapper (py_dirble_proxy_.attr ("clear_queue") ());
   (void)rc;
 }
 
 void tizdirble::set_playback_mode (const playback_mode mode)
 {
   int rc = 0;
-  switch(mode)
+  switch (mode)
     {
-    case PlaybackModeNormal:
-      {
-        try_catch_wrapper (py_dirble_proxy_.attr ("set_play_mode")("NORMAL"));
-      }
-      break;
-    case PlaybackModeShuffle:
-      {
-        try_catch_wrapper (py_dirble_proxy_.attr ("set_play_mode")("SHUFFLE"));
-      }
-      break;
-    default:
-      {
-        assert (0);
-      }
-      break;
+      case PlaybackModeNormal:
+        {
+          try_catch_wrapper (
+              py_dirble_proxy_.attr ("set_play_mode") ("NORMAL"));
+        }
+        break;
+      case PlaybackModeShuffle:
+        {
+          try_catch_wrapper (
+              py_dirble_proxy_.attr ("set_play_mode") ("SHUFFLE"));
+        }
+        break;
+      default:
+        {
+          assert (0);
+        }
+        break;
     };
   (void)rc;
 }
@@ -262,10 +276,10 @@ int tizdirble::get_current_station ()
   current_station_name_.clear ();
   current_station_country_.clear ();
 
-  const bp::tuple &info1 = bp::extract< bp::tuple >(
-      py_dirble_proxy_.attr ("current_station_name_and_country")());
-  const char *p_name = bp::extract< char const * >(info1[0]);
-  const char *p_country = bp::extract< char const * >(info1[1]);
+  const bp::tuple &info1 = bp::extract< bp::tuple > (
+      py_dirble_proxy_.attr ("current_station_name_and_country") ());
+  const char *p_name = bp::extract< char const * > (info1[0]);
+  const char *p_country = bp::extract< char const * > (info1[1]);
 
   if (p_name)
     {
@@ -276,24 +290,29 @@ int tizdirble::get_current_station ()
       current_station_country_.assign (p_country);
     }
 
-  const char *p_category = bp::extract< char const * >(
-      py_dirble_proxy_.attr ("current_station_category")());
+  const char *p_category = bp::extract< char const * > (
+      py_dirble_proxy_.attr ("current_station_category") ());
   if (p_category)
     {
       current_station_category_.assign (p_category);
     }
 
-  const char *p_website = bp::extract< char const * >(
-      py_dirble_proxy_.attr ("current_station_website")());
+  const char *p_website = bp::extract< char const * > (
+      py_dirble_proxy_.attr ("current_station_website") ());
   if (p_website)
     {
       current_station_website_.assign (p_website);
     }
 
+  const int bitrate = bp::extract< int > (
+      py_dirble_proxy_.attr ("current_station_bitrate") ());
+  current_station_bitrate_.assign (
+      boost::lexical_cast< std::string > (bitrate));
+
   if (p_name)
-     {
-        rc = 0;
-     }
+    {
+      rc = 0;
+    }
 
   return rc;
 }

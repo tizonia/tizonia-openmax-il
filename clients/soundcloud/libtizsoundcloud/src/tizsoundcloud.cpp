@@ -29,8 +29,8 @@
 #include <config.h>
 #endif
 
-#include <iostream>
 #include <boost/lexical_cast.hpp>
+#include <iostream>
 
 #include "tizsoundcloud.hpp"
 
@@ -112,12 +112,11 @@ namespace
   }
 
   void start_soundcloud (boost::python::object &py_global,
-                     boost::python::object &py_gm_proxy,
-                     const std::string &oauth_token)
+                         boost::python::object &py_gm_proxy,
+                         const std::string &oauth_token)
   {
     bp::object pysoundcloudproxy = py_global["tizsoundcloudproxy"];
-    py_gm_proxy
-        = pysoundcloudproxy (oauth_token.c_str ());
+    py_gm_proxy = pysoundcloudproxy (oauth_token.c_str ());
   }
 }
 
@@ -143,8 +142,7 @@ int tizsoundcloud::init ()
 int tizsoundcloud::start ()
 {
   int rc = 0;
-  try_catch_wrapper (
-      start_soundcloud (py_global_, py_gm_proxy_, oauth_token_));
+  try_catch_wrapper (start_soundcloud (py_global_, py_gm_proxy_, oauth_token_));
   return rc;
 }
 
@@ -163,56 +161,61 @@ void tizsoundcloud::deinit ()
 int tizsoundcloud::play_user_stream ()
 {
   int rc = 0;
-  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_user_stream")());
+  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_user_stream") ());
   return rc;
 }
 
 int tizsoundcloud::play_user_likes ()
 {
   int rc = 0;
-  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_user_likes")());
+  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_user_likes") ());
   return rc;
 }
 
 int tizsoundcloud::play_user_playlist (const std::string &playlist)
 {
   int rc = 0;
-  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_user_playlist")(bp::object (playlist)));
+  try_catch_wrapper (
+      py_gm_proxy_.attr ("enqueue_user_playlist") (bp::object (playlist)));
   return rc;
 }
 
 int tizsoundcloud::play_creator (const std::string &creator)
 {
   int rc = 0;
-  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_creator")(bp::object (creator)));
+  try_catch_wrapper (
+      py_gm_proxy_.attr ("enqueue_creator") (bp::object (creator)));
   return rc;
 }
 
 int tizsoundcloud::play_tracks (const std::string &tracks)
 {
   int rc = 0;
-  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_tracks")(bp::object (tracks)));
+  try_catch_wrapper (
+      py_gm_proxy_.attr ("enqueue_tracks") (bp::object (tracks)));
   return rc;
 }
 
 int tizsoundcloud::play_playlists (const std::string &playlists)
 {
   int rc = 0;
-  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_playlists")(bp::object (playlists)));
+  try_catch_wrapper (
+      py_gm_proxy_.attr ("enqueue_playlists") (bp::object (playlists)));
   return rc;
 }
 
 int tizsoundcloud::play_genres (const std::string &genres)
 {
   int rc = 0;
-  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_genres")(bp::object (genres)));
+  try_catch_wrapper (
+      py_gm_proxy_.attr ("enqueue_genres") (bp::object (genres)));
   return rc;
 }
 
 int tizsoundcloud::play_tags (const std::string &tags)
 {
   int rc = 0;
-  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_tags")(bp::object (tags)));
+  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_tags") (bp::object (tags)));
   return rc;
 }
 
@@ -222,7 +225,7 @@ const char *tizsoundcloud::get_next_url ()
   try
     {
       const char *p_next_url
-          = bp::extract< char const * >(py_gm_proxy_.attr ("next_url")());
+          = bp::extract< char const * > (py_gm_proxy_.attr ("next_url") ());
       if (p_next_url && !get_current_track ())
         {
           current_url_.assign (p_next_url);
@@ -244,7 +247,7 @@ const char *tizsoundcloud::get_prev_url ()
   try
     {
       const char *p_prev_url
-          = bp::extract< char const * >(py_gm_proxy_.attr ("prev_url")());
+          = bp::extract< char const * > (py_gm_proxy_.attr ("prev_url") ());
       if (p_prev_url && !get_current_track ())
         {
           current_url_.assign (p_prev_url);
@@ -277,59 +280,60 @@ const char *tizsoundcloud::get_current_track_duration ()
 
 const char *tizsoundcloud::get_current_track_year ()
 {
-  return current_track_year_.empty ()
-             ? NULL
-             : current_track_year_.c_str ();
+  return current_track_year_.empty () ? NULL : current_track_year_.c_str ();
 }
 
 const char *tizsoundcloud::get_current_track_permalink ()
 {
-  return current_track_permalink_.empty ()
-             ? NULL
-             : current_track_permalink_.c_str ();
+  return current_track_permalink_.empty () ? NULL
+                                           : current_track_permalink_.c_str ();
 }
 
 const char *tizsoundcloud::get_current_track_license ()
 {
-  return current_track_license_.empty ()
-             ? NULL
-             : current_track_license_.c_str ();
+  return current_track_license_.empty () ? NULL
+                                         : current_track_license_.c_str ();
 }
 
 const char *tizsoundcloud::get_current_track_likes ()
 {
-  return current_track_likes_.empty ()
+  return current_track_likes_.empty () ? NULL : current_track_likes_.c_str ();
+}
+
+const char *tizsoundcloud::get_current_track_user_avatar ()
+{
+  return current_track_user_avatar_.empty ()
              ? NULL
-             : current_track_likes_.c_str ();
+             : current_track_user_avatar_.c_str ();
 }
 
 void tizsoundcloud::clear_queue ()
 {
   int rc = 0;
-  try_catch_wrapper (py_gm_proxy_.attr ("clear_queue")());
+  try_catch_wrapper (py_gm_proxy_.attr ("clear_queue") ());
   (void)rc;
 }
 
 void tizsoundcloud::set_playback_mode (const playback_mode mode)
 {
   int rc = 0;
-  switch(mode)
+  switch (mode)
     {
-    case PlaybackModeNormal:
-      {
-        try_catch_wrapper (py_gm_proxy_.attr ("set_play_mode")("NORMAL"));
-      }
-      break;
-    case PlaybackModeShuffle:
-      {
-        try_catch_wrapper (py_gm_proxy_.attr ("set_play_mode")("SHUFFLE"));
-      }
-      break;
-    default:
-      {
-        assert (0);
-      }
-      break;
+      case PlaybackModeNormal:
+        {
+          try_catch_wrapper (py_gm_proxy_.attr ("set_play_mode") ("NORMAL"));
+        }
+        break;
+      case PlaybackModeShuffle:
+        {
+          try_catch_wrapper (py_gm_proxy_.attr ("set_play_mode") ("SHUFFLE"));
+        }
+        break;
+      default:
+        {
+          assert (0);
+        }
+        break;
     };
   (void)rc;
 }
@@ -340,10 +344,10 @@ int tizsoundcloud::get_current_track ()
   current_user_.clear ();
   current_title_.clear ();
 
-  const bp::tuple &info1 = bp::extract< bp::tuple >(
-      py_gm_proxy_.attr ("current_track_title_and_user")());
-  const char *p_user = bp::extract< char const * >(info1[0]);
-  const char *p_title = bp::extract< char const * >(info1[1]);
+  const bp::tuple &info1 = bp::extract< bp::tuple > (
+      py_gm_proxy_.attr ("current_track_title_and_user") ());
+  const char *p_user = bp::extract< char const * > (info1[0]);
+  const char *p_title = bp::extract< char const * > (info1[1]);
 
   if (p_user)
     {
@@ -355,7 +359,7 @@ int tizsoundcloud::get_current_track ()
     }
 
   int duration
-      = bp::extract< int >(py_gm_proxy_.attr ("current_track_duration")());
+      = bp::extract< int > (py_gm_proxy_.attr ("current_track_duration") ());
 
   int seconds = 0;
   current_duration_.clear ();
@@ -374,14 +378,14 @@ int tizsoundcloud::get_current_track ()
 
       if (hours > 0)
         {
-          current_duration_.append (boost::lexical_cast< std::string >(hours));
+          current_duration_.append (boost::lexical_cast< std::string > (hours));
           current_duration_.append ("h:");
         }
 
       if (minutes > 0)
         {
           current_duration_.append (
-              boost::lexical_cast< std::string >(minutes));
+              boost::lexical_cast< std::string > (minutes));
           current_duration_.append ("m:");
         }
     }
@@ -391,25 +395,32 @@ int tizsoundcloud::get_current_track ()
   current_duration_.append (seconds_str);
   current_duration_.append ("s");
 
-  const int track_year = bp::extract< int >(py_gm_proxy_.attr ("current_track_year")());
-  current_track_year_.assign (boost::lexical_cast< std::string >(track_year));
+  const int track_year
+      = bp::extract< int > (py_gm_proxy_.attr ("current_track_year") ());
+  current_track_year_.assign (boost::lexical_cast< std::string > (track_year));
 
-  const char *p_track_permalink = bp::extract< char const * >(
-      py_gm_proxy_.attr ("current_track_permalink")());
+  const char *p_track_permalink = bp::extract< char const * > (
+      py_gm_proxy_.attr ("current_track_permalink") ());
   if (p_track_permalink)
     {
       current_track_permalink_.assign (p_track_permalink);
     }
 
-  const char *p_track_license = bp::extract< char const * >(
-      py_gm_proxy_.attr ("current_track_license")());
+  const char *p_track_license = bp::extract< char const * > (
+      py_gm_proxy_.attr ("current_track_license") ());
   if (p_track_license)
     {
       current_track_license_.assign (p_track_license);
     }
 
-  const int track_likes = bp::extract< int >(py_gm_proxy_.attr ("current_track_likes")());
-  current_track_likes_.assign (boost::lexical_cast< std::string >(track_likes));
+  const int track_likes
+      = bp::extract< int > (py_gm_proxy_.attr ("current_track_likes") ());
+  current_track_likes_.assign (
+      boost::lexical_cast< std::string > (track_likes));
+
+  const char *track_user_avatar = bp::extract< char const * > (
+      py_gm_proxy_.attr ("current_track_user_avatar") ());
+  current_track_user_avatar_.assign (track_user_avatar);
 
   if (p_user || p_title)
     {

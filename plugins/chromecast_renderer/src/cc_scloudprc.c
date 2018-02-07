@@ -232,26 +232,32 @@ cc_scloud_prc_get_prev_url (const void * p_obj)
 }
 
 static const char *
-cc_scloud_prc_get_current_song_album_art_url (const void * p_obj)
+cc_scloud_prc_get_current_stream_album_art_url (const void * p_obj)
 {
   cc_scloud_prc_t * p_prc = (cc_scloud_prc_t *) p_obj;
+  const char * p_avatar_url = NULL;
   assert (p_prc);
   assert (p_prc->p_sc_);
-  /*   return tiz_scloud_get_current_song_album_art (p_prc->p_sc_); */
-  return NULL;
+#define SC_LOGO "http://tizonia.org/img/soundcloud-logo.png"
+  p_avatar_url = tiz_scloud_get_current_track_user_avatar (p_prc->p_sc_);
+  return (p_avatar_url ? p_avatar_url : SC_LOGO);
 }
 
 static OMX_ERRORTYPE
-cc_scloud_prc_store_song_metadata (cc_scloud_prc_t * ap_obj)
+cc_scloud_prc_store_stream_metadata (cc_scloud_prc_t * ap_obj)
 {
   cc_scloud_prc_t * p_prc = (cc_scloud_prc_t *) ap_obj;
   cc_prc_t * p_cc_prc = (cc_prc_t *) p_prc;
   assert (p_prc);
 
   /* User and track title */
-  tiz_check_omx (cc_prc_store_song_metadata_item (
-    p_cc_prc, tiz_scloud_get_current_track_user (p_prc->p_sc_),
-    tiz_scloud_get_current_track_title (p_prc->p_sc_)));
+  {
+    const char * p_user = tiz_scloud_get_current_track_user (p_prc->p_sc_);
+    const char * p_title = tiz_scloud_get_current_track_title (p_prc->p_sc_);
+    tiz_check_omx (cc_prc_store_display_title (p_cc_prc, p_user, p_title));
+    tiz_check_omx (
+      cc_prc_store_stream_metadata_item (p_cc_prc, p_user, p_title));
+  }
 
   /* Store the year if not 0 */
   {
@@ -259,27 +265,27 @@ cc_scloud_prc_store_song_metadata (cc_scloud_prc_t * ap_obj)
     if (p_year && strncmp (p_year, "0", 4) != 0)
       {
         tiz_check_omx (
-          cc_prc_store_song_metadata_item (p_cc_prc, "Year", p_year));
+          cc_prc_store_stream_metadata_item (p_cc_prc, "Year", p_year));
       }
   }
 
   /* Duration */
-  tiz_check_omx (cc_prc_store_song_metadata_item (
+  tiz_check_omx (cc_prc_store_stream_metadata_item (
     p_cc_prc, "Duration",
     tiz_scloud_get_current_track_duration (p_prc->p_sc_)));
 
   /* Likes */
-  tiz_check_omx (cc_prc_store_song_metadata_item (
+  tiz_check_omx (cc_prc_store_stream_metadata_item (
     p_cc_prc, "Likes count",
     tiz_scloud_get_current_track_likes (p_prc->p_sc_)));
 
   /* Permalink */
-  tiz_check_omx (cc_prc_store_song_metadata_item (
+  tiz_check_omx (cc_prc_store_stream_metadata_item (
     p_cc_prc, "Permalink",
     tiz_scloud_get_current_track_permalink (p_prc->p_sc_)));
 
   /* License */
-  tiz_check_omx (cc_prc_store_song_metadata_item (
+  tiz_check_omx (cc_prc_store_stream_metadata_item (
     p_cc_prc, "License", tiz_scloud_get_current_track_license (p_prc->p_sc_)));
 
   return OMX_ErrorNone;
@@ -341,10 +347,10 @@ cc_scloud_prc_init (void * ap_tos, void * ap_hdl)
      /* TIZ_CLASS_COMMENT: */
      cc_prc_get_prev_url, cc_scloud_prc_get_prev_url,
      /* TIZ_CLASS_COMMENT: */
-     cc_prc_get_current_song_album_art_url,
-     cc_scloud_prc_get_current_song_album_art_url,
+     cc_prc_get_current_stream_album_art_url,
+     cc_scloud_prc_get_current_stream_album_art_url,
      /* TIZ_CLASS_COMMENT: */
-     cc_prc_store_song_metadata, cc_scloud_prc_store_song_metadata,
+     cc_prc_store_stream_metadata, cc_scloud_prc_store_stream_metadata,
      /* TIZ_CLASS_COMMENT: stop value */
      0);
 

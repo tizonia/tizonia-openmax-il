@@ -69,6 +69,8 @@ public:
   const char * get_current_station_country ();
   const char * get_current_station_category ();
   const char * get_current_station_website ();
+  const char * get_current_station_bitrate ();
+  const char * get_current_station_stream_url ();
 
 private:
   int get_current_station ();
@@ -80,6 +82,7 @@ private:
   std::string current_station_country_;
   std::string current_station_category_;
   std::string current_station_website_;
+  std::string current_station_bitrate_;
   boost::python::object py_main_;
   boost::python::object py_global_;
   boost::python::object py_dirble_proxy_;

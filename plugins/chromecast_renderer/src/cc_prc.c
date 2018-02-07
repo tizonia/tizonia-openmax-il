@@ -338,10 +338,10 @@ obtain_next_url (cc_prc_t * ap_prc, int a_skip_value)
         {
           strncpy ((char *) ap_prc->p_uri_param_->contentURI, p_next_url,
                    url_len);
-          ap_prc->p_uri_param_->contentURI[url_len] = '\000';
+          ap_prc->p_uri_param_->contentURI[url_len] = '\0';
 
           /* Song metadata is now available, update the IL client */
-          rc = cc_prc_store_song_metadata (ap_prc);
+          rc = cc_prc_store_stream_metadata (ap_prc);
           ap_prc->uri_changed_ = true;
         }
     }
@@ -365,7 +365,7 @@ load_next_url (cc_prc_t * p_prc)
         CONTENT_TYPE,
         (p_prc->p_cc_display_title_ ? p_prc->p_cc_display_title_
                                     : DISPLAY_TITLE),
-        cc_prc_get_current_song_album_art_url (p_prc)));
+        cc_prc_get_current_stream_album_art_url (p_prc)));
       p_prc->uri_changed_ = false;
     }
   return OMX_ErrorNone;
@@ -406,7 +406,7 @@ store_chromecast_metadata (cc_prc_t * ap_prc)
               tiz_cast_client_media_status_str (ap_prc->cc_media_status_),
               ap_prc->volume_);
     tiz_check_omx (
-      cc_prc_store_song_metadata_item (ap_prc, cast_name_or_ip, status_line));
+      cc_prc_store_stream_metadata_item (ap_prc, cast_name_or_ip, status_line));
   }
 
   return OMX_ErrorNone;
@@ -716,37 +716,37 @@ cc_prc_get_prev_url (const void * ap_obj)
 }
 
 static const char *
-prc_get_current_song_album_art_url (const void * p_obj)
+prc_get_current_stream_album_art_url (const void * p_obj)
 {
   /* To be implemented in derived classes */
   return NULL;
 }
 
 const char *
-cc_prc_get_current_song_album_art_url (const void * ap_obj)
+cc_prc_get_current_stream_album_art_url (const void * ap_obj)
 {
   const cc_prc_class_t * class = classOf (ap_obj);
-  assert (class->get_current_song_album_art_url);
-  return class->get_current_song_album_art_url (ap_obj);
+  assert (class->get_current_stream_album_art_url);
+  return class->get_current_stream_album_art_url (ap_obj);
 }
 
 static OMX_ERRORTYPE
-prc_store_song_metadata (const void * p_obj)
+prc_store_stream_metadata (const void * p_obj)
 {
   /* To be implemented in derived classes */
   return OMX_ErrorNotImplemented;
 }
 
 OMX_ERRORTYPE
-cc_prc_store_song_metadata (const void * ap_obj)
+cc_prc_store_stream_metadata (const void * ap_obj)
 {
   const cc_prc_class_t * class = classOf (ap_obj);
-  assert (class->store_song_metadata);
-  return class->store_song_metadata (ap_obj);
+  assert (class->store_stream_metadata);
+  return class->store_stream_metadata (ap_obj);
 }
 
 static OMX_ERRORTYPE
-prc_store_song_metadata_item (const void * ap_obj, const char * ap_header_name,
+prc_store_stream_metadata_item (const void * ap_obj, const char * ap_header_name,
                               const char * ap_header_info)
 {
   cc_prc_t * p_prc = (cc_prc_t *) ap_obj;
@@ -796,13 +796,13 @@ prc_store_song_metadata_item (const void * ap_obj, const char * ap_header_name,
 }
 
 OMX_ERRORTYPE
-cc_prc_store_song_metadata_item (const void * ap_obj,
+cc_prc_store_stream_metadata_item (const void * ap_obj,
                                  const char * ap_header_name,
                                  const char * ap_header_info)
 {
   const cc_prc_class_t * class = classOf (ap_obj);
-  assert (class->store_song_metadata_item);
-  return class->store_song_metadata_item (ap_obj, ap_header_name,
+  assert (class->store_stream_metadata_item);
+  return class->store_stream_metadata_item (ap_obj, ap_header_name,
                                           ap_header_info);
 }
 
@@ -859,17 +859,17 @@ cc_prc_class_ctor (void * ap_obj, va_list * app)
         {
           *(voidf *) &p_obj->get_prev_url = method;
         }
-      else if (selector == (voidf) cc_prc_get_current_song_album_art_url)
+      else if (selector == (voidf) cc_prc_get_current_stream_album_art_url)
         {
-          *(voidf *) &p_obj->get_current_song_album_art_url = method;
+          *(voidf *) &p_obj->get_current_stream_album_art_url = method;
         }
-      else if (selector == (voidf) cc_prc_store_song_metadata)
+      else if (selector == (voidf) cc_prc_store_stream_metadata)
         {
-          *(voidf *) &p_obj->store_song_metadata = method;
+          *(voidf *) &p_obj->store_stream_metadata = method;
         }
-      else if (selector == (voidf) cc_prc_store_song_metadata_item)
+      else if (selector == (voidf) cc_prc_store_stream_metadata_item)
         {
-          *(voidf *) &p_obj->store_song_metadata_item = method;
+          *(voidf *) &p_obj->store_stream_metadata_item = method;
         }
       else if (selector == (voidf) cc_prc_store_display_title)
         {
@@ -946,11 +946,11 @@ cc_prc_init (void * ap_tos, void * ap_hdl)
      /* TIZ_CLASS_COMMENT: */
      cc_prc_get_prev_url, prc_get_prev_url,
      /* TIZ_CLASS_COMMENT: */
-     cc_prc_get_current_song_album_art_url, prc_get_current_song_album_art_url,
+     cc_prc_get_current_stream_album_art_url, prc_get_current_stream_album_art_url,
      /* TIZ_CLASS_COMMENT: */
-     cc_prc_store_song_metadata, prc_store_song_metadata,
+     cc_prc_store_stream_metadata, prc_store_stream_metadata,
      /* TIZ_CLASS_COMMENT: */
-     cc_prc_store_song_metadata_item, prc_store_song_metadata_item,
+     cc_prc_store_stream_metadata_item, prc_store_stream_metadata_item,
      /* TIZ_CLASS_COMMENT: */
      cc_prc_store_display_title, prc_store_display_title,
      /* TIZ_CLASS_COMMENT: stop value*/

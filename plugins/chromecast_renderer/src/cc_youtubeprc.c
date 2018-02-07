@@ -218,67 +218,70 @@ cc_youtube_prc_get_prev_url (const void * p_obj)
 }
 
 static const char *
-cc_youtube_prc_get_current_song_album_art_url (const void * p_obj)
+cc_youtube_prc_get_current_stream_album_art_url (const void * p_obj)
 {
   cc_youtube_prc_t * p_prc = (cc_youtube_prc_t *) p_obj;
   assert (p_prc);
   assert (p_prc->p_yt_);
-  /* return tiz_youtube_get_current_song_album_art (p_prc->p_yt_); */
-  return NULL;
+#define YT_LOGO "http://tizonia.org/img/youtube-logo.png"
+  return YT_LOGO;
 }
 
 static OMX_ERRORTYPE
-cc_youtube_prc_store_song_metadata (const void * p_obj)
+cc_youtube_prc_store_stream_metadata (const void * p_obj)
 {
   cc_youtube_prc_t * p_prc = (cc_youtube_prc_t *) p_obj;
   cc_prc_t * p_cc_prc = (cc_prc_t *) p_obj;
   assert (p_prc);
 
-  /* Clear previous metadata items */
-  tiz_krn_clear_metadata (tiz_get_krn (handleOf (p_prc)));
-
   /* Audio stream title */
-  tiz_check_omx (cc_prc_store_song_metadata_item (
-    p_cc_prc, tiz_youtube_get_current_audio_stream_author (p_prc->p_yt_),
-    tiz_youtube_get_current_audio_stream_title (p_prc->p_yt_)));
+  {
+    const char * p_author
+      = tiz_youtube_get_current_audio_stream_author (p_prc->p_yt_);
+    const char * p_title
+      = tiz_youtube_get_current_audio_stream_title (p_prc->p_yt_);
+    tiz_check_omx (cc_prc_store_display_title (p_cc_prc, p_author, p_title));
+    tiz_check_omx (
+      cc_prc_store_stream_metadata_item (p_cc_prc, p_author, p_title));
+  }
 
   /* ID */
-  tiz_check_omx (cc_prc_store_song_metadata_item (
+  tiz_check_omx (cc_prc_store_stream_metadata_item (
     p_cc_prc, "YouTube Id",
     tiz_youtube_get_current_audio_stream_video_id (p_prc->p_yt_)));
 
   /* Duration */
-  tiz_check_omx (cc_prc_store_song_metadata_item (
+  tiz_check_omx (cc_prc_store_stream_metadata_item (
     p_cc_prc, "Duration",
     tiz_youtube_get_current_audio_stream_duration (p_prc->p_yt_)));
 
   /* File Format */
-  tiz_check_omx (cc_prc_store_song_metadata_item (
+  tiz_check_omx (cc_prc_store_stream_metadata_item (
     p_cc_prc, "File Format",
     tiz_youtube_get_current_audio_stream_file_extension (p_prc->p_yt_)));
 
   /* Bitrate */
-  tiz_check_omx (cc_prc_store_song_metadata_item (
+  tiz_check_omx (cc_prc_store_stream_metadata_item (
     p_cc_prc, "Bitrate",
     tiz_youtube_get_current_audio_stream_bitrate (p_prc->p_yt_)));
 
   /* File Size */
-  tiz_check_omx (cc_prc_store_song_metadata_item (
+  tiz_check_omx (cc_prc_store_stream_metadata_item (
     p_cc_prc, "Size",
     tiz_youtube_get_current_audio_stream_file_size (p_prc->p_yt_)));
 
   /* View count */
-  tiz_check_omx (cc_prc_store_song_metadata_item (
+  tiz_check_omx (cc_prc_store_stream_metadata_item (
     p_cc_prc, "View Count",
     tiz_youtube_get_current_audio_stream_view_count (p_prc->p_yt_)));
 
   /* Description */
-  tiz_check_omx (cc_prc_store_song_metadata_item (
+  tiz_check_omx (cc_prc_store_stream_metadata_item (
     p_cc_prc, "Description",
     tiz_youtube_get_current_audio_stream_description (p_prc->p_yt_)));
 
   /* Publication date/time */
-  tiz_check_omx (cc_prc_store_song_metadata_item (
+  tiz_check_omx (cc_prc_store_stream_metadata_item (
     p_cc_prc, "Published",
     tiz_youtube_get_current_audio_stream_published (p_prc->p_yt_)));
 
@@ -341,10 +344,10 @@ cc_youtube_prc_init (void * ap_tos, void * ap_hdl)
      /* TIZ_CLASS_COMMENT: */
      cc_prc_get_prev_url, cc_youtube_prc_get_prev_url,
      /* TIZ_CLASS_COMMENT: */
-     cc_prc_get_current_song_album_art_url,
-     cc_youtube_prc_get_current_song_album_art_url,
+     cc_prc_get_current_stream_album_art_url,
+     cc_youtube_prc_get_current_stream_album_art_url,
      /* TIZ_CLASS_COMMENT: */
-     cc_prc_store_song_metadata, cc_youtube_prc_store_song_metadata,
+     cc_prc_store_stream_metadata, cc_youtube_prc_store_stream_metadata,
      /* TIZ_CLASS_COMMENT: stop value */
      0);
 

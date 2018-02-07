@@ -48,13 +48,13 @@ const char *
 cc_prc_get_prev_url (const void * p_obj);
 
 const char *
-cc_prc_get_current_song_album_art_url (const void * p_obj);
+cc_prc_get_current_stream_album_art_url (const void * p_obj);
 
 OMX_ERRORTYPE
-cc_prc_store_song_metadata (const void * p_obj);
+cc_prc_store_stream_metadata (const void * p_obj);
 
 OMX_ERRORTYPE
-cc_prc_store_song_metadata_item (const void * p_obj,
+cc_prc_store_stream_metadata_item (const void * p_obj,
                                  const char * ap_header_name,
                                  const char * ap_header_info);
 

@@ -522,6 +522,26 @@ class tizsoundcloudproxy(object):
                 logging.info("likes : not found")
         return track_likes
 
+    def current_track_user_avatar(self):
+        """ Return the avatar of the user associated with the current track.
+
+        """
+        logging.info("current_track_user_avatar")
+        track = self.now_playing_track
+        track_user_avatar = ''
+        if track:
+            try:
+                user = track.get('user')
+                if user:
+                    user_avatar = user.get('avatar_url')
+                    if user_avatar:
+                        track_user_avatar = user_avatar
+                        logging.info("track user_avatar {0}".format(user_avatar))
+            except KeyError:
+                logging.info("user_avatar : not found")
+        return track_user_avatar.encode("utf-8")
+
+
     def clear_queue(self):
         """ Clears the playback queue.
 
