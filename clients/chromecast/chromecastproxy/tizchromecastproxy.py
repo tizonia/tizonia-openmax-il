@@ -138,8 +138,7 @@ class tizchromecastproxy(object):
         self.cast.media_controller.register_status_listener(self)
         print_nfo("[Chromecast] [{0}] [Activating]" \
                   .format(to_ascii(self.name_or_ip)))
-        self.cast.play_media(
-            DEFAULT_THUMB, pychromecast.STREAM_TYPE_BUFFERED)
+        self.cast.start_app(APP_MEDIA_RECEIVER)
 
     def deactivate(self):
         self.cast.quit_app()
@@ -154,7 +153,7 @@ class tizchromecastproxy(object):
     def media_load(self, url, content_type, title=None,
                    thumb=DEFAULT_THUMB,
                    current_time=0, autoplay=True,
-                   stream_type=STREAM_TYPE_BUFFERED):
+                   stream_type=STREAM_TYPE_UNKNOWN):
         print_nfo("[Chromecast] [{0}] [Loading stream]" \
                   .format(to_ascii(self.name_or_ip)))
         logging.info("proxy : Loading a new stream")
