@@ -45,6 +45,7 @@ namespace tiz
     public:
       enum service_config_type_t
         {
+         ConfigHttpStreaming,
          ConfigGoogleMusic,
          ConfigSoundCloud,
          ConfigDirble,

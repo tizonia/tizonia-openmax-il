@@ -20,7 +20,7 @@
  * @file   cc_httpprc_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Chromecast renderer - processor declarations
+ * @brief  Chromecast renderer - http streaming clinet - processor declarations
  *
  *
  */
@@ -36,33 +36,24 @@ extern "C" {
 
 #include <OMX_Core.h>
 
-#include <tizprc_decls.h>
-
 #include <tizplatform.h>
+
+#include "cc_prc_decls.h"
+#include "cc_prc.h"
 
 typedef struct cc_http_prc cc_http_prc_t;
 struct cc_http_prc
 {
   /* Object */
-  const tiz_prc_t _;
-  OMX_BUFFERHEADERTYPE * p_inhdr_;
-  OMX_PARAM_CONTENTURITYPE * p_uri_param_;
-  tiz_urltrans_t * p_trans_;
-  bool eos_;
-  bool port_disabled_;
-  OMX_S32 audio_coding_type_;
-  OMX_U32 num_channels_;
-  OMX_U32 samplerate_;
-  bool auto_detect_on_;
-  int bitrate_;
-  int cache_bytes_;
+  const cc_prc_t _;
+  OMX_PARAM_CONTENTURITYPE * p_content_uri_;
 };
 
 typedef struct cc_http_prc_class cc_http_prc_class_t;
 struct cc_http_prc_class
 {
   /* Class */
-  const tiz_prc_class_t _;
+  const cc_prc_class_t _;
   /* NOTE: Class methods might be added in the future */
 };
 

@@ -1521,7 +1521,14 @@ int tiz::programopts::consume_streaming_client_options (bool &done,
   if (EXIT_SUCCESS == rc)
   {
     done = true;
-    rc = call_handler (option_handlers_map_.find ("decode-stream"));
+    if (chromecast_.empty())
+      {
+        rc = call_handler (option_handlers_map_.find ("decode-stream"));
+      }
+    else
+      {
+        rc = call_handler (option_handlers_map_.find ("http-stream-chromecast"));
+      }
   }
   TIZ_PRINTF_DBG_RED ("streaming-client ; rc = [%s]\n",
                       rc == EXIT_SUCCESS ? "SUCCESS" : "FAILURE");

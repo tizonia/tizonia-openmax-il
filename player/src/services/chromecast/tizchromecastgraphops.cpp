@@ -89,7 +89,13 @@ void graph::chromecastops::do_load ()
   const cc_cfg_t::service_config_type_t config_type
       = cc_config_->get_service_config_type ();
 
-  if (config_type == cc_cfg_t::ConfigGoogleMusic)
+  if (config_type == cc_cfg_t::ConfigHttpStreaming)
+  {
+    role_lst_.push_back ("audio_renderer.chromecast");
+    config_service_func_
+        = boost::bind (&tiz::graph::chromecastops::do_configure_http, this);
+  }
+  else if (config_type == cc_cfg_t::ConfigGoogleMusic)
   {
     role_lst_.push_back ("audio_renderer.chromecast.gmusic");
     config_service_func_
@@ -182,6 +188,20 @@ void graph::chromecastops::do_configure_chromecast ()
   G_OPS_BAIL_IF_ERROR (tiz::graph::util::set_chromecast_name_or_ip (
                            handles_[0], cc_config_->get_name_or_ip ()),
                        "Unable to set OMX_TizoniaIndexParamChromecastSession");
+}
+
+void graph::chromecastops::do_configure_http ()
+{
+  assert (cc_config_);
+  tizgraphconfig_ptr_t config
+      = cc_config_->get_service_config ();
+
+  assert (config);
+  tizplaylist_ptr_t playlist = config_->get_playlist ();
+
+  G_OPS_BAIL_IF_ERROR (
+      util::set_content_uri (handles_[0], playlist_->get_current_uri ()),
+      "Unable to set OMX_IndexParamContentURI");
 }
 
 void graph::chromecastops::do_configure_gmusic ()

@@ -424,6 +424,10 @@ void tiz::playapp::set_option_handlers ()
   // YouTube audio streaming client program options
   popts_.set_option_handler ("youtube-stream",
                              boost::bind (&tiz::playapp::youtube_stream, this));
+  // HTTP music streaming on Chromecast device
+  popts_.set_option_handler (
+      "http-stream-chromecast",
+      boost::bind (&tiz::playapp::http_stream_chromecast, this));
   // Google music streaming on Chromecast device
   popts_.set_option_handler (
       "gmusic-stream-chromecast",
@@ -1015,6 +1019,49 @@ tiz::playapp::youtube_stream ()
   // Instantiate the streaming client manager
   tiz::graphmgr::mgr_ptr_t p_mgr
       = boost::make_shared< tiz::graphmgr::youtubemgr > (config);
+
+  // TODO: Check return codes
+  p_mgr->init (playlist, graphmgr_termination_cback ());
+  p_mgr->start ();
+
+  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr))
+  {
+  }
+
+  p_mgr->quit ();
+  p_mgr->deinit ();
+
+  return rc;
+}
+
+OMX_ERRORTYPE
+tiz::playapp::http_stream_chromecast ()
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  const bool shuffle = popts_.shuffle ();
+  const uri_lst_t &uri_list = popts_.uri_list ();
+  const std::string cc_name_or_ip (popts_.chromecast ());
+
+  (void)daemonize_if_requested ();
+  print_banner ();
+
+  tizplaylist_ptr_t playlist
+      = boost::make_shared< tiz::playlist > (tiz::playlist (uri_list, shuffle));
+
+  assert (playlist);
+  playlist->set_loop_playback (true);
+
+  tizgraphconfig_ptr_t service_config
+      = boost::make_shared< tiz::graph::config > (playlist);
+
+  tizgraphconfig_ptr_t config
+      = boost::make_shared< tiz::graph::chromecastconfig > (
+          cc_name_or_ip, service_config,
+          tiz::graph::chromecastconfig::ConfigHttpStreaming);
+
+  // Instantiate the chromecast client manager
+  tiz::graphmgr::mgr_ptr_t p_mgr
+      = boost::make_shared< tiz::graphmgr::chromecastmgr > (config);
 
   // TODO: Check return codes
   p_mgr->init (playlist, graphmgr_termination_cback ());

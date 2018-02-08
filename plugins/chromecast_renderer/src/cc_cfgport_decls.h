@@ -36,13 +36,13 @@ extern "C" {
 #include <OMX_TizoniaExt.h>
 #include <OMX_Types.h>
 
-#include <tizconfigport_decls.h>
+#include <tizuricfgport_decls.h>
 
 typedef struct cc_cfgport cc_cfgport_t;
 struct cc_cfgport
 {
   /* Object */
-  const tiz_configport_t _;
+  const tiz_uricfgport_t _;
   OMX_TIZONIA_PARAM_CHROMECASTSESSIONTYPE cc_session_;
 };
 
@@ -50,7 +50,7 @@ typedef struct cc_cfgport_class cc_cfgport_class_t;
 struct cc_cfgport_class
 {
   /* Class */
-  const tiz_configport_class_t _;
+  const tiz_uricfgport_class_t _;
   /* NOTE: Class methods might be added in the future */
 };
 

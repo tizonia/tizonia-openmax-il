@@ -62,7 +62,8 @@
 #endif
 
 /**
- *@defgroup libtizchromecastrnd 'libtizchromecastrnd' : OpenMAX IL Chromecast audio client
+ *@defgroup libtizchromecastrnd 'libtizchromecastrnd' : OpenMAX IL Chromecast
+ *audio renderer
  *
  * - Component name : "OMX.Aratelia.audio_renderer.chromecast"
  * - Implements role: "audio_renderer.chromecast"
@@ -129,7 +130,7 @@ instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
-  return factory_new (tiz_get_type (ap_hdl, "tizuricfgport"),
+  return factory_new (tiz_get_type (ap_hdl, "cc_cfgport"),
                       NULL, /* this port does not take options */
                       ARATELIA_CHROMECAST_RENDERER_COMPONENT_NAME,
                       chromecast_renderer_version);

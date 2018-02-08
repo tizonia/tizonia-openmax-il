@@ -78,7 +78,7 @@ cc_cfgport_dtor (void * ap_obj)
 
 static OMX_ERRORTYPE
 cc_cfgport_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
-                                OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+                         OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const cc_cfgport_t * p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
@@ -96,8 +96,8 @@ cc_cfgport_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
   else
     {
       /* Delegate to the base port */
-      rc = super_GetParameter (typeOf (ap_obj, "cc_cfgport"), ap_obj,
-                               ap_hdl, a_index, ap_struct);
+      rc = super_GetParameter (typeOf (ap_obj, "cc_cfgport"), ap_obj, ap_hdl,
+                               a_index, ap_struct);
     }
 
   return rc;
@@ -105,7 +105,7 @@ cc_cfgport_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
 
 static OMX_ERRORTYPE
 cc_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
-                                OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+                         OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   cc_cfgport_t * p_obj = (cc_cfgport_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
@@ -126,8 +126,8 @@ cc_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
   else
     {
       /* Delegate to the base port */
-      rc = super_SetParameter (typeOf (ap_obj, "cc_cfgport"), ap_obj,
-                               ap_hdl, a_index, ap_struct);
+      rc = super_SetParameter (typeOf (ap_obj, "cc_cfgport"), ap_obj, ap_hdl,
+                               a_index, ap_struct);
     }
 
   return rc;
@@ -151,25 +151,23 @@ cc_cfgport_class_ctor (void * ap_obj, va_list * app)
 void *
 cc_cfgport_class_init (void * ap_tos, void * ap_hdl)
 {
-  void * tizconfigport = tiz_get_type (ap_hdl, "tizconfigport");
+  void * tizuricfgport = tiz_get_type (ap_hdl, "tizuricfgport");
   void * cc_cfgport_class
-    = factory_new (classOf (tizconfigport), "cc_cfgport_class",
-                   classOf (tizconfigport), sizeof (cc_cfgport_class_t),
-                   ap_tos, ap_hdl, ctor, cc_cfgport_class_ctor, 0);
+    = factory_new (classOf (tizuricfgport), "cc_cfgport_class",
+                   classOf (tizuricfgport), sizeof (cc_cfgport_class_t), ap_tos,
+                   ap_hdl, ctor, cc_cfgport_class_ctor, 0);
   return cc_cfgport_class;
 }
 
 void *
 cc_cfgport_init (void * ap_tos, void * ap_hdl)
 {
-  void * tizconfigport = tiz_get_type (ap_hdl, "tizconfigport");
-  void * cc_cfgport_class
-    = tiz_get_type (ap_hdl, "cc_cfgport_class");
+  void * tizuricfgport = tiz_get_type (ap_hdl, "tizuricfgport");
+  void * cc_cfgport_class = tiz_get_type (ap_hdl, "cc_cfgport_class");
   TIZ_LOG_CLASS (cc_cfgport_class);
   void * cc_cfgport = factory_new
     /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-    (cc_cfgport_class, "cc_cfgport", tizconfigport,
-     sizeof (cc_cfgport_t),
+    (cc_cfgport_class, "cc_cfgport", tizuricfgport, sizeof (cc_cfgport_t),
      /* TIZ_CLASS_COMMENT: class constructor */
      ap_tos, ap_hdl,
      /* TIZ_CLASS_COMMENT: class constructor */

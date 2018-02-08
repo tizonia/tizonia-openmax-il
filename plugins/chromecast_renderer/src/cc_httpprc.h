@@ -21,7 +21,7 @@
  * @file   cc_httpprc.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Chromecast renderer - http straming client - processor class
+ * @brief  Chromecast renderer - http streaming client - processor class
  *
  *
  */

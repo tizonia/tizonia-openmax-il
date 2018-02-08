@@ -56,6 +56,7 @@ namespace tiz
 
     private:
       void do_configure_chromecast ();
+      void do_configure_http ();
       void do_configure_gmusic ();
       void do_configure_scloud ();
       void do_configure_dirble ();
