@@ -54,6 +54,15 @@
 
 namespace cast = tiz::cast;
 
+namespace
+{
+  template < typename T >
+  bool is_type (const boost::any &operand)
+  {
+    return operand.type () == typeid (T);
+  }
+}
+
 void *cast::thread_func (void *p_arg)
 {
   worker *p_worker = static_cast< worker * > (p_arg);
@@ -100,11 +109,11 @@ void *cast::thread_func (void *p_arg)
 //
 cast::worker::worker (cast_status_cback_t cast_cb,
                       media_status_cback_t media_cb,
-                      termination_callback_t termination_cb)
+                      error_status_callback_t error_cb)
   : p_cc_ctx_ (NULL),
     cast_cb_ (cast_cb),
     media_cb_ (media_cb),
-    termination_cb_ (termination_cb),
+    error_cb_ (error_cb),
     thread_ (),
     mutex_ (),
     sem_ (),
@@ -117,7 +126,7 @@ cast::worker::worker (cast_status_cback_t cast_cb,
 
 cast::worker::~worker ()
 {
-  deinit_cmd_queue ();
+  destroy_cmd_queue ();
   BOOST_FOREACH (const clients_pair_t &client, clients_)
   {
     cast::mgr *p_mgr = client.second.p_cast_mgr_;
@@ -131,7 +140,7 @@ OMX_ERRORTYPE
 cast::worker::init ()
 {
   // Init command queue infrastructure
-  tiz_check_omx_ret_oom (init_cmd_queue ());
+  tiz_check_omx_ret_oom (create_cmd_queue ());
 
   // Create the manager's thread
   tiz_check_omx_ret_oom (tiz_mutex_lock (&mutex_));
@@ -236,7 +245,7 @@ cast::worker::cast_status_received ()
 }
 
 OMX_ERRORTYPE
-cast::worker::init_cmd_queue ()
+cast::worker::create_cmd_queue ()
 {
   tiz_check_omx_ret_oom (tiz_mutex_init (&mutex_));
   tiz_check_omx_ret_oom (tiz_sem_init (&sem_, 0));
@@ -245,7 +254,7 @@ cast::worker::init_cmd_queue ()
   return OMX_ErrorNone;
 }
 
-void cast::worker::deinit_cmd_queue ()
+void cast::worker::destroy_cmd_queue ()
 {
   tiz_mutex_destroy (&mutex_);
   tiz_sem_destroy (&sem_);
@@ -265,6 +274,18 @@ cast::worker::post_cmd (cast::cmd *p_cmd)
   return OMX_ErrorNone;
 }
 
+void cast::worker::remove_client (const uuid_t &uuid, cast::mgr *p_mgr)
+{
+  assert (p_mgr);
+  p_mgr->deinit ();
+  clients_.erase (uuid);
+  delete p_mgr;
+  p_mgr = NULL;
+  char uuid_str[128];
+  tiz_uuid_str (&(uuid[0]), uuid_str);
+  TIZ_LOG (TIZ_PRIORITY_NOTICE, "Removed client with uuid [%s]...", uuid_str);
+}
+
 bool cast::worker::dispatch_cmd (cast::worker *p_worker, const cast::cmd *p_cmd)
 {
   cast::mgr *p_mgr = NULL;
@@ -278,10 +299,15 @@ bool cast::worker::dispatch_cmd (cast::worker *p_worker, const cast::cmd *p_cmd)
   {
     p_mgr = clients[uuid].p_cast_mgr_;
   }
-  else
+  else if (is_type< connect_evt > (p_cmd->evt ()))
   {
+    char uuid_str[128];
+    tiz_uuid_str (&(uuid[0]), uuid_str);
+    TIZ_LOG (TIZ_PRIORITY_NOTICE, "Registering client with uuid [%s]...",
+             uuid_str);
+
     p_mgr = new tiz::cast::mgr (uuid, p_worker->p_cc_ctx_, p_worker->cast_cb_,
-                                p_worker->media_cb_, p_worker->termination_cb_);
+                                p_worker->media_cb_, p_worker->error_cb_);
 
     assert (p_mgr);
     p_mgr->init ();
@@ -291,19 +317,14 @@ bool cast::worker::dispatch_cmd (cast::worker *p_worker, const cast::cmd *p_cmd)
 
     assert (rv.second);
 
-    char uuid_str[128];
-    tiz_uuid_str (&(uuid[0]), uuid_str);
     TIZ_LOG (TIZ_PRIORITY_NOTICE,
              "Successfully registered client with uuid [%s]...", uuid_str);
   }
 
-  if (p_mgr->dispatch_cmd (p_cmd))
+  if (p_mgr && p_mgr->dispatch_cmd (p_cmd))
   {
     // The manager has terminated
-    p_mgr->deinit ();
-    clients.erase (uuid);
-    delete p_mgr;
-    p_mgr = NULL;
+    p_worker->remove_client (uuid, p_mgr);
   }
 
   return false;
@@ -312,6 +333,7 @@ bool cast::worker::dispatch_cmd (cast::worker *p_worker, const cast::cmd *p_cmd)
 void cast::worker::poll_mgrs (cast::worker *p_worker, const cast::cmd *p_cmd)
 {
   int i = 0;
+  std::vector< clients_pair_t > finished_clients;
   assert (p_worker);
   assert (p_cmd);
 
@@ -325,8 +347,17 @@ void cast::worker::poll_mgrs (cast::worker *p_worker, const cast::cmd *p_cmd)
     {
       (void)p_mgr->dispatch_cmd (p_cmd);
     }
+    else
+    {
+      finished_clients.push_back (clnt);
+    }
     ++i;
   }
-    TIZ_LOG (TIZ_PRIORITY_NOTICE,
-             "CLIENTS [%d]...", i);
+
+  BOOST_FOREACH (const clients_pair_t &clnt, finished_clients)
+  {
+    p_worker->remove_client (clnt.first, clnt.second.p_cast_mgr_);
+  }
+
+  TIZ_LOG (TIZ_PRIORITY_NOTICE, "CLIENTS [%d]...", i);
 }

@@ -71,7 +71,7 @@ namespace tiz
       ops (mgr *p_mgr, const tiz_chromecast_ctx_t *p_cc_ctx,
            cast_status_received_cback_t, cast_status_cback_t cast_cb,
            media_status_cback_t media_cb,
-           termination_callback_t termination_cb);
+           error_status_callback_t error_cb);
       virtual ~ops ();
 
       void deinit ();
@@ -105,7 +105,7 @@ namespace tiz
       cast_status_received_cback_t cast_received_cb_;
       cast_status_cback_t cast_cb_;
       media_status_cback_t media_cb_;
-      termination_callback_t termination_cb_;
+      error_status_callback_t error_cb_;
       int error_code_;
       std::string error_msg_;
       tiz_chromecast_t *p_cc_;

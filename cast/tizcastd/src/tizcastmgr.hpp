@@ -74,7 +74,7 @@ namespace tiz
            const tiz_chromecast_ctx_t * p_cc_ctx,
            cast_status_cback_t cast_cb,
            media_status_cback_t media_cb,
-           termination_callback_t termination_cb);
+           error_status_callback_t error_cb);
       virtual ~mgr ();
 
       /**
@@ -148,7 +148,7 @@ namespace tiz
       const tiz_chromecast_ctx_t * p_cc_ctx_;
       cast_status_cback_t cast_cb_;
       media_status_cback_t media_cb_;
-      termination_callback_t termination_cb_;
+      error_status_callback_t error_cb_;
     };
 
     typedef boost::shared_ptr< mgr > mgr_ptr_t;

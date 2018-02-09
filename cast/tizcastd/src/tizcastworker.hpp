@@ -29,8 +29,8 @@
 #ifndef TIZCASTWORKER_HPP
 #define TIZCASTWORKER_HPP
 
-#include <string>
 #include <map>
+#include <string>
 
 #include <boost/function.hpp>
 
@@ -68,7 +68,7 @@ namespace tiz
 
     public:
       worker (cast_status_cback_t cast_cb, media_status_cback_t media_cb,
-              termination_callback_t termination_cb);
+              error_status_callback_t error_cb);
       virtual ~worker ();
 
       /**
@@ -167,8 +167,7 @@ namespace tiz
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
        */
-      OMX_ERRORTYPE volume_set (const std::vector< uint8_t > &uuid,
-                                int volume);
+      OMX_ERRORTYPE volume_set (const std::vector< uint8_t > &uuid, int volume);
 
       /**
        * Increments or decrements the volume by steps.
@@ -212,14 +211,15 @@ namespace tiz
       OMX_ERRORTYPE unmute (const std::vector< uint8_t > &uuid);
 
     private:
-
       OMX_ERRORTYPE cast_status_received ();
 
-      OMX_ERRORTYPE init_cmd_queue ();
+      OMX_ERRORTYPE create_cmd_queue ();
 
-      void deinit_cmd_queue ();
+      void destroy_cmd_queue ();
 
       OMX_ERRORTYPE post_cmd (cmd *p_cmd);
+
+      void remove_client (const uuid_t &uuid, tiz::cast::mgr *p_mgr);
 
       static bool dispatch_cmd (worker *p_worker, const cmd *p_cmd);
 
@@ -234,8 +234,7 @@ namespace tiz
 
         client_info (std::vector< unsigned char > client_uuid,
                      tiz::cast::mgr *p_cast_mgr)
-          : uuid_ (client_uuid),
-            p_cast_mgr_ (p_cast_mgr)
+          : uuid_ (client_uuid), p_cast_mgr_ (p_cast_mgr)
         {
         }
 
@@ -260,10 +259,10 @@ namespace tiz
 
     private:
       clients_map_t clients_;
-      tiz_chromecast_ctx_t * p_cc_ctx_;
+      tiz_chromecast_ctx_t *p_cc_ctx_;
       cast_status_cback_t cast_cb_;
       media_status_cback_t media_cb_;
-      termination_callback_t termination_cb_;
+      error_status_callback_t error_cb_;
       tiz_thread_t thread_;
       tiz_mutex_t mutex_;
       tiz_sem_t sem_;

@@ -55,7 +55,7 @@ namespace cast = tiz::cast;
 //
 cast::mgr::mgr (const uuid_t &uuid, const tiz_chromecast_ctx_t *p_cc_ctx,
                 cast_status_cback_t cast_cb, media_status_cback_t media_cb,
-                termination_callback_t termination_cb)
+                error_status_callback_t error_cb)
   : p_ops_ (),
     fsm_ (boost::msm::back::states_, &p_ops_),
     name_or_ip_ (),
@@ -63,7 +63,7 @@ cast::mgr::mgr (const uuid_t &uuid, const tiz_chromecast_ctx_t *p_cc_ctx,
     p_cc_ctx_(p_cc_ctx),
     cast_cb_ (cast_cb),
     media_cb_ (media_cb),
-    termination_cb_ (termination_cb)
+    error_cb_ (error_cb)
 {
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Constructing...");
 }
@@ -82,7 +82,7 @@ cast::mgr::init ()
       (p_ops_
        = new ops (this, p_cc_ctx_,
                   boost::bind (&tiz::cast::mgr::cast_status_received, this),
-                  cast_cb_, media_cb_, termination_cb_)));
+                  cast_cb_, media_cb_, error_cb_)));
 
   // Get the fsm to start processing events
   return start_fsm ();

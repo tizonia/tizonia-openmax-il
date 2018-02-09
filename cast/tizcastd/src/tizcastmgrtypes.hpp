@@ -59,7 +59,7 @@ namespace tiz
     typedef boost::function< void(const uuid_t& uuid,
                                   const uint32_t& status,
                                   const std::string& error_str) >
-        termination_callback_t;
+        error_status_callback_t;
 
   }  // namespace cast
 }  // namespace tiz

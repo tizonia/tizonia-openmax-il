@@ -67,15 +67,16 @@ void cast::cc_cast_status_cback (void *ap_user_data,
   tiz::cast::ops *p_ops = static_cast< tiz::cast::ops * > (ap_user_data);
   char uuid_str[128];
   tiz_uuid_str (&(p_ops->uuid ()[0]), uuid_str);
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "cast status [%d] p_ops [%p] uuid [%s]", a_status, p_ops, uuid_str);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "cast status [%d] p_ops [%p] uuid [%s]",
+           a_status, p_ops, uuid_str);
   assert (p_ops);
   p_ops->cast_received_cb_ ();
   p_ops->cast_cb_ (p_ops->uuid (), a_status, a_volume);
 }
 
 void cast::cc_media_status_cback (void *ap_user_data,
-                                     tiz_chromecast_media_status_t a_status,
-                                     int a_volume)
+                                  tiz_chromecast_media_status_t a_status,
+                                  int a_volume)
 {
   tiz::cast::ops *p_ops = static_cast< tiz::cast::ops * > (ap_user_data);
   TIZ_LOG (TIZ_PRIORITY_TRACE, "media status [%d]", a_status);
@@ -87,15 +88,15 @@ void cast::cc_media_status_cback (void *ap_user_data,
 // ops
 //
 cast::ops::ops (mgr *p_mgr, const tiz_chromecast_ctx_t *p_cc_ctx,
-                   cast_status_received_cback_t cast_received_cb,
-                   cast_status_cback_t cast_cb, media_status_cback_t media_cb,
-                   termination_callback_t termination_cb)
+                cast_status_received_cback_t cast_received_cb,
+                cast_status_cback_t cast_cb, media_status_cback_t media_cb,
+                error_status_callback_t error_cb)
   : p_mgr_ (p_mgr),
-    p_cc_ctx_(p_cc_ctx),
+    p_cc_ctx_ (p_cc_ctx),
     cast_received_cb_ (cast_received_cb),
     cast_cb_ (cast_cb),
     media_cb_ (media_cb),
-    termination_cb_ (termination_cb),
+    error_cb_ (error_cb),
     error_code_ (OMX_ErrorNone),
     error_msg_ (),
     p_cc_ (NULL)
@@ -124,8 +125,7 @@ void cast::ops::do_connect (const std::string &name_or_ip)
   // Make sure a previous client has been disconnected
   TIZ_LOG (TIZ_PRIORITY_NOTICE, "do_connect");
   tiz_chromecast_callbacks_t cc_cbacks
-      = { tiz::cast::cc_cast_status_cback,
-          tiz::cast::cc_media_status_cback };
+      = { tiz::cast::cc_cast_status_cback, tiz::cast::cc_media_status_cback };
   tiz_chromecast_error_t rc = tiz_chromecast_init (
       &(p_cc_), p_cc_ctx_, name_or_ip.c_str (), &cc_cbacks, this);
   std::string error_msg = tiz_chromecast_error_str (rc);
@@ -151,9 +151,9 @@ void cast::ops::do_poll (int poll_time_ms)
 }
 
 void cast::ops::do_load_url (const std::string &url,
-                                const std::string &mime_type,
-                                const std::string &title,
-                                const std::string &album_art)
+                             const std::string &mime_type,
+                             const std::string &title,
+                             const std::string &album_art)
 {
   if (p_cc_)
   {
@@ -248,10 +248,9 @@ void cast::ops::do_unmute ()
   }
 }
 
-void cast::ops::do_report_fatal_error (const int error,
-                                          const std::string &msg)
+void cast::ops::do_report_fatal_error (const int error, const std::string &msg)
 {
-  termination_cb_ (uuid (), error, msg);
+  error_cb_ (uuid (), error, msg);
 }
 
 bool cast::ops::is_fatal_error (const int error, const std::string &msg)
