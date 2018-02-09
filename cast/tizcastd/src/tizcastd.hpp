@@ -21,7 +21,7 @@
  * @file   tizcastd.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia cast daemon
+ * @brief  Tizonia's Chromecast daemon
  *
  *
  */
@@ -63,6 +63,7 @@ class tizcastd : public com::aratelia::tiz::tizcastif_adaptor,
                  public Tiz::DBus::ObjectAdaptor
 
 {
+  friend class tiz::cast::worker;
   typedef tiz::cast::uuid_t uuid_t;
 
 public:
@@ -72,6 +73,7 @@ public:
   /**
    * @brief Connect to a Chromecast device.
    *
+   * @param uuid The client's unique identifier.
    * @param name_or_ip The name or ip address of the Chromecast device.
    *
    * @return A tiz_cast_error_t error code
@@ -82,6 +84,8 @@ public:
   /**
    * @brief Disconnect an existing connection to a Chromecast device.
    *
+   * @param uuid The client's unique identifier.
+   *
    * @return A tiz_cast_error_t error code
    */
   int32_t disconnect (const std::vector< uint8_t > &uuid);
@@ -89,9 +93,11 @@ public:
   /**
    * @brief Load a stream URL on a Chromecast device.
    *
+   * @param uuid The client's unique identifier.
    * @param url The stream URL.
    * @param mime_type The MIME content type of the stream.
    * @param title The stream title
+   * @param album_art The album art's URL.
    *
    * @return A tiz_cast_error_t error code
    */
@@ -102,12 +108,16 @@ public:
   /**
    * @brief Play a previously loaded stream URL.
    *
+   * @param uuid The client's unique identifier.
+   *
    * @return A tiz_cast_error_t error code
    */
   int32_t play (const std::vector< uint8_t > &uuid);
 
   /**
    * @brief Stop the stream.
+   *
+   * @param uuid The client's unique identifier.
    *
    * @return A tiz_cast_error_t error code
    */
@@ -116,6 +126,8 @@ public:
   /**
    * @brief Pause the stream.
    *
+   * @param uuid The client's unique identifier.
+   *
    * @return A tiz_cast_error_t error code
    */
   int32_t pause (const std::vector< uint8_t > &uuid);
@@ -123,6 +135,7 @@ public:
   /**
    * @brief Increase the playback volume.
    *
+   * @param uuid The client's unique identifier.
    * @param volume The volume level (0-100).
    *
    * @return A tiz_cast_error_t error code
@@ -133,12 +146,16 @@ public:
   /**
    * @brief Increase the playback volume.
    *
+   * @param uuid The client's unique identifier.
+   *
    * @return A tiz_cast_error_t error code
    */
   int32_t volume_up (const std::vector< uint8_t > &uuid);
 
   /**
    * @brief Decrease the playback volume.
+   *
+   * @param uuid The client's unique identifier.
    *
    * @return A tiz_cast_error_t error code
    */
@@ -147,6 +164,8 @@ public:
   /**
    * @brief Mute playback.
    *
+   * @param uuid The client's unique identifier.
+   *
    * @return A tiz_cast_error_t error code
    */
   int32_t mute (const std::vector< uint8_t > &uuid);
@@ -154,10 +173,13 @@ public:
   /**
    * @brief Unmute playback.
    *
+   * @param uuid The client's unique identifier.
+   *
    * @return A tiz_cast_error_t error code
    */
   int32_t unmute (const std::vector< uint8_t > &uuid);
 
+private:
   void cast_status_forwarder (const uuid_t& uuid,
                               const uint32_t &status, const int32_t &volume);
 

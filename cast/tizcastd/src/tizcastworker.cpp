@@ -21,7 +21,7 @@
  * @file   tizcastworker.cpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Cast worker thread impl
+ * @brief Tizonia's Chromecast daemon worker thread implementation.
  *
  */
 

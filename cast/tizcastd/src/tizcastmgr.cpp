@@ -21,7 +21,7 @@
  * @file   tizcastmgr.cpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Cast manager impl
+ * @brief  Chromecast manager implementation.
  *
  */
 

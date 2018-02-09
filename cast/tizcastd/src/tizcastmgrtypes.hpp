@@ -21,7 +21,7 @@
  * @file   tizcastmgrtypes.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Chromecast client daemon - Types and constants
+ * @brief  Tizonia Chromecast daemon - Types and constants
  *
  *
  */

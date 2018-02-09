@@ -21,7 +21,7 @@
  * @file   tizcastd.cpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia Chromecast access daemon implementation
+ * @brief  Tizonia's Chromecast daemon implementation
  *
  */
 

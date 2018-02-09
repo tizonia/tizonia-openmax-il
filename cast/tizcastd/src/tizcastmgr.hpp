@@ -21,7 +21,7 @@
  * @file   tizcastmgr.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia cast manager thread
+ * @brief  Chromecast manager class.
  *
  *
  */
@@ -59,11 +59,10 @@ namespace tiz
 
     /**
      *  @class mgr
-     *  @brief The cast manager class.
+     *  @brief The Chromecast manager class.
      *
-     *  A cast manager instantiates a thread, an event loop and an associated
-     *  command queue, to communicate with Chromecast devices and cast audio to
-     *  them.
+     *  A class to manage the communication with a Chromecast device and cast
+     *  audio to it.
      */
     class mgr
     {
@@ -79,12 +78,10 @@ namespace tiz
       virtual ~mgr ();
 
       /**
-       * Initialise the cast manager thread.
+       * Initialise the cast manager.
        *
        * @pre This method must be called only once, before any call is made to
        * the other APIs.
-       *
-       * @post The cast manager thread is ready to process requests.
        *
        * @return OMX_ErrorNone if initialisation was
        * successful. OMX_ErrorInsuficientResources otherwise.
@@ -92,7 +89,7 @@ namespace tiz
       OMX_ERRORTYPE init ();
 
       /**
-       * Destroy the manager thread and release all resources.
+       * Release all resources.
        *
        * @pre stop() has been called on this manager.
        *
@@ -103,33 +100,40 @@ namespace tiz
        */
       void deinit ();
 
-      bool terminated() const;
-
-      uuid_t uuid () const;
-
-      std::string device_name_or_ip () const;
-
+      /**
+       * Process a manager command.
+       *
+       * @return True if the manager's fsm has been terminated. Otherwise,
+       * false is returned.
+       */
       bool dispatch_cmd (const cmd *p_cmd);
 
-    private:
       /**
-       * Start processing the play list from the beginning.
+       * If true, this manager is no longer needed and can be deinitialised and
+       * destroyed.
        *
-       * @pre init() has been called on this manager.
-       *
-       * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
-       * success.
+       * @return true if this manager's FSM has been terminated.
        */
-      OMX_ERRORTYPE start_fsm ();
+      bool terminated() const;
 
       /**
-       * Exit the manager thread.
+       * Retrieve the uuid of the client associated to this manager.
        *
-       * @pre init() has been called on this manager.
-       *
-       * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
-       * success.
+       * @return uuid
        */
+      uuid_t uuid () const;
+
+      /**
+       * Retrieve the device name or ip address of the Chromecast associated
+       * with this manager.
+       *
+       * @return uuid
+       */
+      std::string device_name_or_ip () const;
+
+    private:
+      OMX_ERRORTYPE start_fsm ();
+
       OMX_ERRORTYPE stop_fsm ();
 
       OMX_ERRORTYPE post_internal_cmd (const boost::any &any_event);

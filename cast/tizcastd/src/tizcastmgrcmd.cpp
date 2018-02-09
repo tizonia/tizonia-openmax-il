@@ -21,7 +21,7 @@
  * @file   tizcastmgrcmd.cpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Cast manager command class
+ * @brief  Tizonia Chromecast manager - command base class.
  *
  */
 

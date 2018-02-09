@@ -21,7 +21,7 @@
  * @file   tizcastworker.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia cast daemon worker thread
+ * @brief  Tizonia's Chromecast daemon worker thread
  *
  *
  */
@@ -54,11 +54,11 @@ namespace tiz
 
     /**
      *  @class worker
-     *  @brief The cast daemon worker thread class.
+     *  @brief The Chromecast daemon worker thread class.
      *
-     *  A cast manager instantiates a thread, an event loop and an associated
-     *  command queue, to communicate with Chromecast devices and cast audio to
-     *  them.
+     *  A worker class that instantiates its own thread, event loop and
+     *  associated command queue, to communicate with Chromecast devices and
+     *  cast audio to them.
      */
     class worker
     {
@@ -72,12 +72,12 @@ namespace tiz
       virtual ~worker ();
 
       /**
-       * Initialise the cast worker thread.
+       * Initialise the worker thread.
        *
        * @pre This method must be called only once, before any call is made to
        * the other APIs.
        *
-       * @post The cast manager thread is ready to process requests.
+       * @post The cast worker thread is ready to process requests.
        *
        * @return OMX_ErrorNone if initialisation was
        * successful. OMX_ErrorInsuficientResources otherwise.
@@ -87,7 +87,7 @@ namespace tiz
       /**
        * Destroy the worker thread and release all resources.
        *
-       * @pre stop() has been called on this manager.
+       * @pre stop() has been called on this worker.
        *
        * @post Only init() can be called at this point.
        *
@@ -99,7 +99,7 @@ namespace tiz
       /**
        * Start processing the play list from the beginning.
        *
-       * @pre init() has been called on this manager.
+       * @pre init() has been called on this worker.
 
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
@@ -110,7 +110,7 @@ namespace tiz
       /**
        * Halt processing of the playlist.
        *
-       * @pre init() has been called on this manager.
+       * @pre init() has been called on this worker.
        *
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
@@ -120,7 +120,7 @@ namespace tiz
       /**
        * Process the next item in the playlist.
        *
-       * @pre init() has been called on this manager.
+       * @pre init() has been called on this worker.
        *
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
@@ -134,7 +134,7 @@ namespace tiz
       /**
        * Process the previous item in the playlist.
        *
-       * @pre init() has been called on this manager.
+       * @pre init() has been called on this worker.
        *
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
@@ -143,7 +143,7 @@ namespace tiz
 
       /**
        *
-       * @pre init() has been called on this manager.
+       * @pre init() has been called on this worker.
        *
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
@@ -152,7 +152,7 @@ namespace tiz
 
       /**
        *
-       * @pre init() has been called on this manager.
+       * @pre init() has been called on this worker.
        *
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
@@ -162,7 +162,7 @@ namespace tiz
       /**
        * Set the volume level (0-100).
        *
-       * @pre init() has been called on this manager.
+       * @pre init() has been called on this worker.
        *
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
@@ -173,7 +173,7 @@ namespace tiz
       /**
        * Increments or decrements the volume by steps.
        *
-       * @pre init() has been called on this manager.
+       * @pre init() has been called on this worker.
        *
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
@@ -184,7 +184,7 @@ namespace tiz
        * Changes the volume to the specified value. 1.0 is maximum volume and
        * 0.0 means mute.
        *
-       * @pre init() has been called on this manager.
+       * @pre init() has been called on this worker.
        *
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
@@ -194,7 +194,7 @@ namespace tiz
       /**
        * Mute/unmute toggle.
        *
-       * @pre init() has been called on this manager.
+       * @pre init() has been called on this worker.
        *
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
@@ -204,7 +204,7 @@ namespace tiz
       /**
        * Pause the processing of the current item in the playlist.
        *
-       * @pre init() has been called on this manager.
+       * @pre init() has been called on this worker.
        *
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
@@ -214,8 +214,11 @@ namespace tiz
     private:
 
       OMX_ERRORTYPE cast_status_received ();
+
       OMX_ERRORTYPE init_cmd_queue ();
+
       void deinit_cmd_queue ();
+
       OMX_ERRORTYPE post_cmd (cmd *p_cmd);
 
       static bool dispatch_cmd (worker *p_worker, const cmd *p_cmd);

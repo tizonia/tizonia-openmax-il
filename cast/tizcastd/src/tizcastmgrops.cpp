@@ -21,7 +21,7 @@
  * @file   tizcastmgrops.cpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Graph manager operations
+ * @brief  Tizonia's Chromecast daemon - manager operations.
  *
  */
 
