@@ -63,6 +63,7 @@ typedef /*@null@ */ tiz_chromecast_t *tiz_chromecast_ptr_t;
  * @param ap_name_or_ip A Chromecast device's name or ip address.
  * @param ap_cbacks A structure with callbacks to inform the client of the
  * various events (cast and media status changes and error events).
+ * @param ap_user_data User's data that is returned in each callback.
  *
  * @return ETizCcErrorNoError on success.
  */
