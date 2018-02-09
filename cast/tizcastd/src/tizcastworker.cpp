@@ -311,6 +311,7 @@ bool cast::worker::dispatch_cmd (cast::worker *p_worker, const cast::cmd *p_cmd)
 
 void cast::worker::poll_mgrs (cast::worker *p_worker, const cast::cmd *p_cmd)
 {
+  int i = 0;
   assert (p_worker);
   assert (p_cmd);
 
@@ -324,5 +325,8 @@ void cast::worker::poll_mgrs (cast::worker *p_worker, const cast::cmd *p_cmd)
     {
       (void)p_mgr->dispatch_cmd (p_cmd);
     }
+    ++i;
   }
+    TIZ_LOG (TIZ_PRIORITY_NOTICE,
+             "CLIENTS [%d]...", i);
 }

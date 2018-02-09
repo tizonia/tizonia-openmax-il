@@ -401,7 +401,7 @@ store_chromecast_metadata (cc_prc_t * ap_prc)
     snprintf (cast_name_or_ip, OMX_MAX_STRINGNAME_SIZE, "  %s",
               (char *) ap_prc->cc_session_.cNameOrIpAddr);
     snprintf (status_line, OMX_MAX_STRINGNAME_SIZE,
-              "(CC:%s) (Media:%s) (Vol:%ld)",
+              "(%s) (Media:%s) (Vol:%ld)",
               tiz_cast_client_cast_status_str (ap_prc->cc_cast_status_),
               tiz_cast_client_media_status_str (ap_prc->cc_media_status_),
               ap_prc->volume_);
@@ -512,6 +512,8 @@ static OMX_ERRORTYPE
 prc_deallocate_resources (void * ap_prc)
 {
   cc_prc_t * p_prc = ap_prc;
+  TIZ_TRACE (handleOf (p_prc), "p_prc->p_cc_  : [%p]",
+             p_prc->p_cc_);
   assert (p_prc);
   delete_uri (p_prc);
   tiz_cast_client_destroy (p_prc->p_cc_);
