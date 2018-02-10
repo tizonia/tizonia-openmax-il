@@ -160,7 +160,9 @@ cc_http_prc_get_prev_url (const void * p_obj)
 static const char *
 cc_http_prc_get_current_stream_album_art_url (const void * p_obj)
 {
-  return NULL;
+  /* This is Tizonia's logo */
+#define DEFAULT_ART "https://avatars0.githubusercontent.com/u/3161606?v=3&s=400"
+  return DEFAULT_ART;
 }
 
 static OMX_ERRORTYPE
