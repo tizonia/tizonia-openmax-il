@@ -29,15 +29,15 @@
 #ifndef TIZPROGRAMOPTS_HPP
 #define TIZPROGRAMOPTS_HPP
 
-#include <string>
 #include <map>
+#include <string>
 #include <vector>
 
-#include <boost/program_options.hpp>
 #include <boost/function.hpp>
+#include <boost/program_options.hpp>
 
-#include <OMX_TizoniaExt.h>
 #include <OMX_Core.h>
+#include <OMX_TizoniaExt.h>
 
 namespace tiz
 {
@@ -61,7 +61,7 @@ namespace tiz
     bool shuffle () const;
     bool recurse () const;
     bool daemon () const;
-    std::string chromecast () const;
+    const std::string &chromecast_name_or_ip () const;
     const std::string &log_dir () const;
     bool debug_info () const;
     const std::string &component_name () const;
@@ -94,7 +94,8 @@ namespace tiz
     OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE youtube_playlist_type ();
 
   private:
-    void print_usage_feature (boost::program_options::options_description &desc) const;
+    void print_usage_feature (
+        boost::program_options::options_description &desc) const;
     void print_usage_keyboard () const;
     void print_usage_config () const;
     void print_usage_examples () const;
@@ -113,7 +114,7 @@ namespace tiz
 
     unsigned int parse_command_line (int argc, char *argv[]);
 
-    typedef int (tiz::programopts::*consume_mem_fn_t)(bool &, std::string &);
+    typedef int (tiz::programopts::*consume_mem_fn_t) (bool &, std::string &);
     typedef boost::function< int(bool &, std::string &) > consume_function_t;
 
     int consume_debug_options (bool &done, std::string &msg);
@@ -160,6 +161,7 @@ namespace tiz
     boost::program_options::options_description scloud_;
     boost::program_options::options_description dirble_;
     boost::program_options::options_description youtube_;
+    boost::program_options::options_description chromecast_;
     boost::program_options::options_description input_;
     boost::program_options::positional_options_description positional_;
 
@@ -168,7 +170,7 @@ namespace tiz
     bool recurse_;
     bool shuffle_;
     bool daemon_;
-    std::string chromecast_;
+    std::string chromecast_name_or_ip_;
     std::string log_dir_;
     bool debug_info_;
     std::string comp_name_;
@@ -227,20 +229,20 @@ namespace tiz
     std::string youtube_audio_mix_search_;
     std::vector< std::string > youtube_playlist_container_;
     OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE youtube_playlist_type_;
-    std::vector<consume_function_t> consume_functions_;
+    std::vector< consume_function_t > consume_functions_;
 
-    std::vector<std::string> all_global_options_;
-    std::vector<std::string> all_debug_options_;
-    std::vector<std::string> all_omx_options_;
-    std::vector<std::string> all_streaming_server_options_;
-    std::vector<std::string> all_streaming_client_options_;
-    std::vector<std::string> all_spotify_client_options_;
-    std::vector<std::string> all_gmusic_client_options_;
-    std::vector<std::string> all_scloud_client_options_;
-    std::vector<std::string> all_dirble_client_options_;
-    std::vector<std::string> all_youtube_client_options_;
-    std::vector<std::string> all_input_uri_options_;
-    std::vector<std::string> all_given_options_;
+    std::vector< std::string > all_global_options_;
+    std::vector< std::string > all_debug_options_;
+    std::vector< std::string > all_omx_options_;
+    std::vector< std::string > all_streaming_server_options_;
+    std::vector< std::string > all_streaming_client_options_;
+    std::vector< std::string > all_spotify_client_options_;
+    std::vector< std::string > all_gmusic_client_options_;
+    std::vector< std::string > all_scloud_client_options_;
+    std::vector< std::string > all_dirble_client_options_;
+    std::vector< std::string > all_youtube_client_options_;
+    std::vector< std::string > all_input_uri_options_;
+    std::vector< std::string > all_given_options_;
   };
 }
 #endif  // TIZPROGRAMOPTS_HPP

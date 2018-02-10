@@ -1040,7 +1040,7 @@ tiz::playapp::http_stream_chromecast ()
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   const bool shuffle = popts_.shuffle ();
   const uri_lst_t &uri_list = popts_.uri_list ();
-  const std::string cc_name_or_ip (popts_.chromecast ());
+  const std::string cc_name_or_ip (popts_.chromecast_name_or_ip ());
 
   (void)daemonize_if_requested ();
   print_banner ();
@@ -1089,7 +1089,7 @@ tiz::playapp::gmusic_stream_chromecast ()
   const OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE playlist_type
       = popts_.gmusic_playlist_type ();
   const bool is_unlimited_search = popts_.gmusic_is_unlimited_search ();
-  const std::string cc_name_or_ip (popts_.chromecast ());
+  const std::string cc_name_or_ip (popts_.chromecast_name_or_ip ());
 
   print_banner ();
 
@@ -1147,7 +1147,7 @@ tiz::playapp::scloud_stream_chromecast ()
   const uri_lst_t &uri_list = popts_.scloud_playlist_container ();
   const OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE playlist_type
       = popts_.scloud_playlist_type ();
-  const std::string cc_name_or_ip (popts_.chromecast ());
+  const std::string cc_name_or_ip (popts_.chromecast_name_or_ip ());
 
   print_banner ();
 
@@ -1196,7 +1196,7 @@ tiz::playapp::dirble_stream_chromecast ()
   const uri_lst_t &uri_list = popts_.dirble_playlist_container ();
   const OMX_TIZONIA_AUDIO_DIRBLEPLAYLISTTYPE playlist_type
       = popts_.dirble_playlist_type ();
-  const std::string cc_name_or_ip (popts_.chromecast ());
+  const std::string cc_name_or_ip (popts_.chromecast_name_or_ip ());
 
   print_banner ();
 
@@ -1241,7 +1241,7 @@ tiz::playapp::youtube_stream_chromecast ()
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   const bool shuffle = popts_.shuffle ();
-  const std::string cc_name_or_ip (popts_.chromecast ());
+  const std::string cc_name_or_ip (popts_.chromecast_name_or_ip ());
   const uri_lst_t &uri_list = popts_.youtube_playlist_container ();
   const OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE playlist_type
       = popts_.youtube_playlist_type ();

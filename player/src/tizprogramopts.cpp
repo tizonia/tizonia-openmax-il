@@ -269,14 +269,15 @@ tiz::programopts::programopts (int argc, char *argv[])
     gmusic_ ("Google Play Music options"),
     scloud_ ("SoundCloud options"),
     dirble_ ("Dirble options"),
-    youtube_ ("Youtube options"),
+    youtube_ ("YouTube options"),
+    chromecast_ ("Chromecast options"),
     input_ ("Intput urioption"),
     positional_ (),
     help_option_ ("help"),
     recurse_ (false),
     shuffle_ (false),
     daemon_ (false),
-    chromecast_ (),
+    chromecast_name_or_ip_ (),
     log_dir_ (),
     debug_info_ (false),
     comp_name_ (),
@@ -433,7 +434,7 @@ void tiz::programopts::print_usage_help () const
             << "Help topics:"
             << "\n\n";
   std::cout << "  "
-            << "global        Options that are available with most features."
+            << "global        Global options available in combination with other features."
             << "\n";
   std::cout << "  "
             << "openmax       Various OpenMAX IL query options."
@@ -459,7 +460,10 @@ void tiz::programopts::print_usage_help () const
             << "dirble        Dirble options."
             << "\n";
   std::cout << "  "
-            << "youtube       Youtube options."
+            << "youtube       YouTube options."
+            << "\n";
+  std::cout << "  "
+            << "chromecast    Chromecast options."
             << "\n";
   std::cout << "  "
             << "keyboard      Keyboard control."
@@ -502,13 +506,23 @@ void tiz::programopts::print_usage_config () const
   print_version ();
   print_license ();
   printf ("Configuration file: 'tizonia.conf'\n\n");
-  printf ("Tizonia finds its config file in one of these locations (in this order):\n");
-  printf ("1.                  A file pointed by the $TIZONIA_RC_FILE environment variable.\n");
+  printf (
+      "Tizonia finds its config file in one of these locations (in this "
+      "order):\n");
+  printf (
+      "1.                  A file pointed by the $TIZONIA_RC_FILE environment "
+      "variable.\n");
   printf ("2.                  $HOME/.config/tizonia/tizonia.conf\n");
-  printf ("3.                  A directory in $XDG_CONFIG_DIRS + /tizonia/tizonia.conf\n");
+  printf (
+      "3.                  A directory in $XDG_CONFIG_DIRS + "
+      "/tizonia/tizonia.conf\n");
   printf ("4.                  /etc/tizonia/tizonia.conf\n\n");
-  printf ("An example configuration file can be found in /etc/xdg/tizonia/tizonia.conf.\n");
-  printf ("Copy this file to $HOME/.config/tizonia/tizonia.conf and introduce there\n");
+  printf (
+      "An example configuration file can be found in "
+      "/etc/xdg/tizonia/tizonia.conf.\n");
+  printf (
+      "Copy this file to $HOME/.config/tizonia/tizonia.conf and introduce "
+      "there\n");
   printf ("the credentials for the various services.\n");
 }
 
@@ -553,9 +567,9 @@ bool tiz::programopts::daemon () const
   return daemon_;
 }
 
-std::string tiz::programopts::chromecast () const
+const std::string &tiz::programopts::chromecast_name_or_ip () const
 {
-  return chromecast_;
+  return chromecast_name_or_ip_;
 }
 
 const std::string &tiz::programopts::log_dir () const
@@ -983,8 +997,9 @@ void tiz::programopts::init_global_options ()
   global_.add_options ()
       /* TIZ_CLASS_COMMENT: This is to avoid the clang formatter messing up
          these lines*/
-      ("help,h", greedy_implicit_value< std::string > (&help_option_)
-                     ->implicit_value (std::string ("help")),
+      ("help,h",
+       greedy_implicit_value< std::string > (&help_option_)
+           ->implicit_value (std::string ("help")),
        "Print a usage message for a specific help topic (e.g. global, "
        "openmax, server, spotify, googlemusic, soundcloud, etc).")
       /* TIZ_CLASS_COMMENT: */
@@ -999,16 +1014,27 @@ void tiz::programopts::init_global_options ()
       ("daemon,d", po::bool_switch (&daemon_)->default_value (false),
        "Run in the background.")
       /* TIZ_CLASS_COMMENT: */
-      ("cast,c", po::value (&chromecast_),
-       "Cast to a Chromecast device.")
-      /* TIZ_CLASS_COMMENT: */
-      ;
+      ("cast,c", po::value (&chromecast_name_or_ip_),
+       "Cast to a Chromecast device (arg: device name or ip address). "
+       "Available in combination with Google Play Music, SoundCloud, Dirble, "
+       "YouTube and HTTP radio stations.");
+
   register_consume_function (&tiz::programopts::consume_global_options);
   // TODO: help and version are not included. These should be moved out of
   // "global" and into its own category: "info"
   all_global_options_
-    = boost::assign::list_of ("recurse") ("shuffle") ("daemon") ("cast")
+      = boost::assign::list_of ("recurse") ("shuffle") ("daemon") ("cast")
             .convert_to_container< std::vector< std::string > > ();
+
+  // Even though --cast is a global option, we also initialise here a
+  // 'chromecast' option description for the purpose of presenting it in the
+  // --help command, to provide it with a bit more visibility.
+  chromecast_.add_options ()
+      /* TIZ_CLASS_COMMENT: */
+      ("cast,c", po::value (&chromecast_name_or_ip_),
+       "Cast to a Chromecast device (arg: device name or ip address). "
+       "Available in combination with Google Play Music, SoundCloud, Dirble, "
+       "YouTube and HTTP radio stations.");
 }
 
 void tiz::programopts::init_debug_options ()
@@ -1421,6 +1447,10 @@ int tiz::programopts::consume_global_options (bool &done,
     {
       print_usage_feature (youtube_);
     }
+    else if (0 == help_option_.compare ("chromecast"))
+    {
+      print_usage_feature (chromecast_);
+    }
     else if (0 == help_option_.compare ("keyboard"))
     {
       print_usage_keyboard ();
@@ -1521,14 +1551,14 @@ int tiz::programopts::consume_streaming_client_options (bool &done,
   if (EXIT_SUCCESS == rc)
   {
     done = true;
-    if (chromecast_.empty())
-      {
-        rc = call_handler (option_handlers_map_.find ("decode-stream"));
-      }
+    if (chromecast_name_or_ip_.empty ())
+    {
+      rc = call_handler (option_handlers_map_.find ("decode-stream"));
+    }
     else
-      {
-        rc = call_handler (option_handlers_map_.find ("http-stream-chromecast"));
-      }
+    {
+      rc = call_handler (option_handlers_map_.find ("http-stream-chromecast"));
+    }
   }
   TIZ_PRINTF_DBG_RED ("streaming-client ; rc = [%s]\n",
                       rc == EXIT_SUCCESS ? "SUCCESS" : "FAILURE");
@@ -1685,14 +1715,15 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
     }
     else
     {
-      if (chromecast_.empty())
-        {
-          rc = call_handler (option_handlers_map_.find ("gmusic-stream"));
-        }
+      if (chromecast_name_or_ip_.empty ())
+      {
+        rc = call_handler (option_handlers_map_.find ("gmusic-stream"));
+      }
       else
-        {
-          rc = call_handler (option_handlers_map_.find ("gmusic-stream-chromecast"));
-        }
+      {
+        rc = call_handler (
+            option_handlers_map_.find ("gmusic-stream-chromecast"));
+      }
     }
   }
   TIZ_PRINTF_DBG_RED ("gmusic ; rc = [%s]\n",
@@ -1770,14 +1801,15 @@ int tiz::programopts::consume_scloud_client_options (bool &done,
     }
     else
     {
-      if (chromecast_.empty())
-        {
-          rc = call_handler (option_handlers_map_.find ("scloud-stream"));
-        }
+      if (chromecast_name_or_ip_.empty ())
+      {
+        rc = call_handler (option_handlers_map_.find ("scloud-stream"));
+      }
       else
-        {
-          rc = call_handler (option_handlers_map_.find ("scloud-stream-chromecast"));
-        }
+      {
+        rc = call_handler (
+            option_handlers_map_.find ("scloud-stream-chromecast"));
+      }
     }
   }
   TIZ_PRINTF_DBG_RED ("scloud ; rc = [%s]\n",
@@ -1843,14 +1875,15 @@ int tiz::programopts::consume_dirble_client_options (bool &done,
     }
     else
     {
-      if (chromecast_.empty())
-        {
-          rc = call_handler (option_handlers_map_.find ("dirble-stream"));
-        }
+      if (chromecast_name_or_ip_.empty ())
+      {
+        rc = call_handler (option_handlers_map_.find ("dirble-stream"));
+      }
       else
-        {
-          rc = call_handler (option_handlers_map_.find ("dirble-stream-chromecast"));
-        }
+      {
+        rc = call_handler (
+            option_handlers_map_.find ("dirble-stream-chromecast"));
+      }
     }
   }
   TIZ_PRINTF_DBG_RED ("dirble ; rc = [%s]\n",
@@ -1897,14 +1930,15 @@ int tiz::programopts::consume_youtube_client_options (bool &done,
     }
     else
     {
-      if (chromecast_.empty())
-        {
-          rc = call_handler (option_handlers_map_.find ("youtube-stream"));
-        }
+      if (chromecast_name_or_ip_.empty ())
+      {
+        rc = call_handler (option_handlers_map_.find ("youtube-stream"));
+      }
       else
-        {
-          rc = call_handler (option_handlers_map_.find ("youtube-stream-chromecast"));
-        }
+      {
+        rc = call_handler (
+            option_handlers_map_.find ("youtube-stream-chromecast"));
+      }
     }
   }
   TIZ_PRINTF_DBG_RED ("youtube ; rc = [%s]\n",
