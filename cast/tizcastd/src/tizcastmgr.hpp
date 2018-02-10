@@ -70,7 +70,8 @@ namespace tiz
       friend class ops;
 
     public:
-      mgr (const uuid_t &uuid,
+      mgr (const std::string &device_name_or_ip,
+           const uuid_t &uuid,
            const tiz_chromecast_ctx_t * p_cc_ctx,
            cast_status_cback_t cast_cb,
            media_status_cback_t media_cb,
@@ -143,7 +144,7 @@ namespace tiz
     private:
       ops *p_ops_;
       fsm fsm_;
-      std::string name_or_ip_;
+      const std::string name_or_ip_;
       const uuid_t uuid_;
       const tiz_chromecast_ctx_t * p_cc_ctx_;
       cast_status_cback_t cast_cb_;

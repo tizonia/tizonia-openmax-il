@@ -171,7 +171,6 @@ namespace tiz
         bmf::Row < tg::idle2loaded              , tg::omx_trans_evt         , tg::unloaded            , tg::do_destroy_graph        , tg::is_trans_complete        >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < tg::AllOk                    , tg::omx_index_setting_evt , bmf::none               , tg::do_retrieve_metadata                                   >,
-        bmf::Row < tg::AllOk                    , tg::unload_evt            , tg::unloaded            , bmf::none                                                  >,
         bmf::Row < tg::AllOk                    , tg::omx_err_evt           , bmf::none               , bmf::none                   , bmf::euml::Not_<
                                                                                                                                         tg::is_fatal_error >       >,
         bmf::Row < tg::AllOk                    , tg::omx_err_evt           , tg::unloaded            , boost::msm::front::ActionSequence_<

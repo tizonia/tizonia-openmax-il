@@ -96,7 +96,7 @@ tiz_chromecast_error_t tizchromecast::start ()
 {
   tiz_chromecast_error_t rc = ETizCcErrorNoError;
 
-  bp::object &py_cc_proxy = cc_ctx_.get_cc_proxy (name_or_ip_);
+  bp::object &py_cc_proxy = cc_ctx_.create_cc_proxy (name_or_ip_);
 
   if (ETizCcErrorNoError == rc)
     {
@@ -117,7 +117,12 @@ tiz_chromecast_error_t tizchromecast::start ()
 void tizchromecast::stop ()
 {
   tiz_chromecast_error_t rc = ETizCcErrorNoError;
-  try_catch_wrapper (cc_ctx_.get_cc_proxy (name_or_ip_).attr ("deactivate") ());
+  if (cc_ctx_.cc_proxy_exists (name_or_ip_))
+    {
+      try_catch_wrapper (
+          cc_ctx_.get_cc_proxy (name_or_ip_).attr ("deactivate") ());
+      try_catch_wrapper (cc_ctx_.destroy_cc_proxy (name_or_ip_));
+    }
   (void)rc;
 }
 
@@ -129,8 +134,12 @@ void tizchromecast::deinit ()
 tiz_chromecast_error_t tizchromecast::poll_socket (int a_poll_time_ms)
 {
   tiz_chromecast_error_t rc = ETizCcErrorNoError;
-  try_catch_wrapper (cc_ctx_.get_cc_proxy (name_or_ip_)
-                         .attr ("poll_socket") (bp::object (a_poll_time_ms)));
+  if (cc_ctx_.cc_proxy_exists (name_or_ip_))
+    {
+      try_catch_wrapper (
+          cc_ctx_.get_cc_proxy (name_or_ip_)
+              .attr ("poll_socket") (bp::object (a_poll_time_ms)));
+    }
   return rc;
 }
 
@@ -139,71 +148,101 @@ tiz_chromecast_error_t tizchromecast::media_load (
     const std::string &title, const std::string &album_art)
 {
   tiz_chromecast_error_t rc = ETizCcErrorNoError;
-  try_catch_wrapper (
-      cc_ctx_.get_cc_proxy (name_or_ip_)
-          .attr ("media_load") (bp::object (url), bp::object (content_type),
-                                bp::object (title), bp::object (album_art)));
+  if (cc_ctx_.cc_proxy_exists (name_or_ip_))
+    {
+      try_catch_wrapper (cc_ctx_.get_cc_proxy (name_or_ip_)
+                             .attr ("media_load") (
+                                 bp::object (url), bp::object (content_type),
+                                 bp::object (title), bp::object (album_art)));
+    }
   return rc;
 }
 
 tiz_chromecast_error_t tizchromecast::media_play ()
 {
   tiz_chromecast_error_t rc = ETizCcErrorNoError;
-  try_catch_wrapper (cc_ctx_.get_cc_proxy (name_or_ip_).attr ("media_play") ());
+  if (cc_ctx_.cc_proxy_exists (name_or_ip_))
+    {
+      try_catch_wrapper (
+          cc_ctx_.get_cc_proxy (name_or_ip_).attr ("media_play") ());
+    }
   return rc;
 }
 
 tiz_chromecast_error_t tizchromecast::media_stop ()
 {
   tiz_chromecast_error_t rc = ETizCcErrorNoError;
-  try_catch_wrapper (cc_ctx_.get_cc_proxy (name_or_ip_).attr ("media_stop") ());
+  if (cc_ctx_.cc_proxy_exists (name_or_ip_))
+    {
+      try_catch_wrapper (
+          cc_ctx_.get_cc_proxy (name_or_ip_).attr ("media_stop") ());
+    }
   return rc;
 }
 
 tiz_chromecast_error_t tizchromecast::media_pause ()
 {
   tiz_chromecast_error_t rc = ETizCcErrorNoError;
-  try_catch_wrapper (
-      cc_ctx_.get_cc_proxy (name_or_ip_).attr ("media_pause") ());
+  if (cc_ctx_.cc_proxy_exists (name_or_ip_))
+    {
+      try_catch_wrapper (
+          cc_ctx_.get_cc_proxy (name_or_ip_).attr ("media_pause") ());
+    }
   return rc;
 }
 
 tiz_chromecast_error_t tizchromecast::media_volume (int volume)
 {
   tiz_chromecast_error_t rc = ETizCcErrorNoError;
-  try_catch_wrapper (cc_ctx_.get_cc_proxy (name_or_ip_)
-                         .attr ("media_vol") (bp::object (volume)));
+  if (cc_ctx_.cc_proxy_exists (name_or_ip_))
+    {
+      try_catch_wrapper (cc_ctx_.get_cc_proxy (name_or_ip_)
+                             .attr ("media_vol") (bp::object (volume)));
+    }
   return rc;
 }
 
 tiz_chromecast_error_t tizchromecast::media_volume_up ()
 {
   tiz_chromecast_error_t rc = ETizCcErrorNoError;
-  try_catch_wrapper (
-      cc_ctx_.get_cc_proxy (name_or_ip_).attr ("media_vol_up") ());
+  if (cc_ctx_.cc_proxy_exists (name_or_ip_))
+    {
+      try_catch_wrapper (
+          cc_ctx_.get_cc_proxy (name_or_ip_).attr ("media_vol_up") ());
+    }
   return rc;
 }
 
 tiz_chromecast_error_t tizchromecast::media_volume_down ()
 {
   tiz_chromecast_error_t rc = ETizCcErrorNoError;
-  try_catch_wrapper (
-      cc_ctx_.get_cc_proxy (name_or_ip_).attr ("media_vol_down") ());
+  if (cc_ctx_.cc_proxy_exists (name_or_ip_))
+    {
+      try_catch_wrapper (
+          cc_ctx_.get_cc_proxy (name_or_ip_).attr ("media_vol_down") ());
+    }
   return rc;
 }
 
 tiz_chromecast_error_t tizchromecast::media_mute ()
 {
   tiz_chromecast_error_t rc = ETizCcErrorNoError;
-  try_catch_wrapper (cc_ctx_.get_cc_proxy (name_or_ip_).attr ("media_mute") ());
+  if (cc_ctx_.cc_proxy_exists (name_or_ip_))
+    {
+      try_catch_wrapper (
+          cc_ctx_.get_cc_proxy (name_or_ip_).attr ("media_mute") ());
+    }
   return rc;
 }
 
 tiz_chromecast_error_t tizchromecast::media_unmute ()
 {
   tiz_chromecast_error_t rc = ETizCcErrorNoError;
-  try_catch_wrapper (
-      cc_ctx_.get_cc_proxy (name_or_ip_).attr ("media_unmute") ());
+  if (cc_ctx_.cc_proxy_exists (name_or_ip_))
+    {
+      try_catch_wrapper (
+          cc_ctx_.get_cc_proxy (name_or_ip_).attr ("media_unmute") ());
+    }
   return rc;
 }
 

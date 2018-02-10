@@ -31,18 +31,21 @@
 
 #include <boost/python.hpp>
 
-#include <string>
 #include <map>
+#include <string>
 
 class tizchromecastctx
 {
 public:
   tizchromecastctx ();
   ~tizchromecastctx ();
-  boost::python::object & get_cc_proxy (const std::string& name_or_ip) const;
+  boost::python::object& create_cc_proxy (const std::string& name_or_ip) const;
+  void destroy_cc_proxy (const std::string& name_or_ip) const;
+  boost::python::object& get_cc_proxy (const std::string& name_or_ip) const;
+  bool cc_proxy_exists(const std::string& name_or_ip) const;
 
 private:
-  typedef std::map< std::string, boost::python::object> cc_proxy_instances_t;
+  typedef std::map< std::string, boost::python::object > cc_proxy_instances_t;
 
 private:
   boost::python::object py_main_;

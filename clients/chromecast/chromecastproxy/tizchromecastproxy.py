@@ -126,6 +126,7 @@ class tizchromecastproxy(object):
     """
     def __init__(self, name_or_ip):
         self.name_or_ip = name_or_ip
+        self.active = False
         self.cast = None
         self.cast_status_listener = None
         self.media_status_listener = None
@@ -139,8 +140,10 @@ class tizchromecastproxy(object):
         print_nfo("[Chromecast] [{0}] [Activating]" \
                   .format(to_ascii(self.name_or_ip)))
         self.cast.start_app(APP_MEDIA_RECEIVER)
+        self.active = True
 
     def deactivate(self):
+        self.active = False
         self.cast.quit_app()
 
     def poll_socket(self, polltime_ms):
@@ -216,6 +219,8 @@ class tizchromecastproxy(object):
         """
 
         # CastStatus(is_active_input=None, is_stand_by=None, volume_level=0.8999999761581421, volume_muted=False, app_id=u'CC1AD845', display_name=u'Default Media Receiver', namespaces=[u'urn:x-cast:com.google.cast.debugoverlay', u'urn:x-cast:com.google.cast.broadcast', u'urn:x-cast:com.google.cast.media'], session_id=u'2f63312e-4777-454f-acc7-8be72572c7c8', transport_id=u'2f63312e-4777-454f-acc7-8be72572c7c8', status_text=u'Now Casting: Tizonia Audio Stream')
+        if not self.active:
+            return
         if status:
             logging.info("new_cast_status: %r" % (status,))
             try:
@@ -241,6 +246,8 @@ class tizchromecastproxy(object):
 
         # <MediaStatus {'player_state': u'BUFFERING', 'volume_level': 1, 'images': [MediaImage(url=u'https://avatars0.githubusercontent.com/u/3161606?v=3&s=400', height=None, width=None)], 'media_custom_data': {}, 'duration': None, 'current_time': 0, 'playback_rate': 1, 'title': u'Tizonia Audio Stream', 'media_session_id': 4, 'volume_muted': False, 'supports_skip_forward': False, 'track': None, 'season': None, 'idle_reason': None, 'stream_type': u'LIVE', 'supports_stream_mute': True, 'supports_stream_volume': True, 'content_type': u'audio/mpeg', 'metadata_type': None, 'subtitle_tracks': {}, 'album_name': None, 'series_title': None, 'album_artist': None, 'media_metadata': {u'images': [{u'url': u'https://avatars0.githubusercontent.com/u/3161606?v=3&s=400'}], u'thumb': u'https://avatars0.githubusercontent.com/u/3161606?v=3&s=400', u'title': u'Tizonia Audio Stream'}, 'episode': None, 'artist': None, 'supported_media_commands': 15, 'supports_seek': True, 'current_subtitle_tracks': [], 'content_id': u'http://streams.radiobob.de/bob-acdc/mp3-192/dirble/', 'supports_skip_backward': False, 'supports_pause': True}>
 
+        if not self.active:
+            return
         if status:
             logging.info("new_media_status: %r" % (status,))
             try:

@@ -53,14 +53,15 @@ namespace cast = tiz::cast;
 //
 // mgr
 //
-cast::mgr::mgr (const uuid_t &uuid, const tiz_chromecast_ctx_t *p_cc_ctx,
+cast::mgr::mgr (const std::string &device_name_or_ip, const uuid_t &uuid,
+                const tiz_chromecast_ctx_t *p_cc_ctx,
                 cast_status_cback_t cast_cb, media_status_cback_t media_cb,
                 error_status_callback_t error_cb)
   : p_ops_ (),
     fsm_ (boost::msm::back::states_, &p_ops_),
-    name_or_ip_ (),
-    uuid_(uuid),
-    p_cc_ctx_(p_cc_ctx),
+    name_or_ip_ (device_name_or_ip),
+    uuid_ (uuid),
+    p_cc_ctx_ (p_cc_ctx),
     cast_cb_ (cast_cb),
     media_cb_ (media_cb),
     error_cb_ (error_cb)
@@ -90,7 +91,7 @@ cast::mgr::init ()
 
 void cast::mgr::deinit ()
 {
-  if (!fsm_.terminated_)
+  if (p_ops_ && !fsm_.terminated_)
   {
     (void)stop_fsm ();
   }

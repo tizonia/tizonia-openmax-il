@@ -221,6 +221,8 @@ namespace tiz
 
       void remove_client (const uuid_t &uuid, tiz::cast::mgr *p_mgr);
 
+      void purge_old_clients (const std::string &device_name_or_ip);
+
       static bool dispatch_cmd (worker *p_worker, const cmd *p_cmd);
 
       static void poll_mgrs (worker *p_worker, const cmd *p_cmd);

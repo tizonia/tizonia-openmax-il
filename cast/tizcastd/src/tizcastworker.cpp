@@ -286,28 +286,68 @@ void cast::worker::remove_client (const uuid_t &uuid, cast::mgr *p_mgr)
   TIZ_LOG (TIZ_PRIORITY_NOTICE, "Removed client with uuid [%s]...", uuid_str);
 }
 
+void cast::worker::purge_old_clients (
+    const std::string &device_name_or_ip)
+{
+  std::vector< clients_pair_t > purged_clients;
+
+  BOOST_FOREACH (const clients_pair_t &clnt, clients_)
+  {
+    cast::mgr *p_mgr = clnt.second.p_cast_mgr_;
+    assert (p_mgr);
+    if (p_mgr->device_name_or_ip () == device_name_or_ip)
+    {
+      purged_clients.push_back (clnt);
+    }
+  }
+
+  BOOST_FOREACH (const clients_pair_t &clnt, purged_clients)
+  {
+    char uuid_str[128];
+    cast::mgr *p_mgr = clnt.second.p_cast_mgr_;
+    assert (p_mgr);
+    tiz_uuid_str (&(p_mgr->uuid ()[0]), uuid_str);
+    TIZ_LOG (TIZ_PRIORITY_NOTICE, "[%s] : Purging client [%s]...",
+             device_name_or_ip.c_str (), uuid_str);
+    remove_client (clnt.first, clnt.second.p_cast_mgr_);
+  }
+}
+
 bool cast::worker::dispatch_cmd (cast::worker *p_worker, const cast::cmd *p_cmd)
 {
   cast::mgr *p_mgr = NULL;
+  bool is_connect_evt = false;
 
   assert (p_worker);
   assert (p_cmd);
 
+  is_connect_evt = (is_type< connect_evt > (p_cmd->evt ()));
+
   clients_map_t &clients = p_worker->clients_;
   const uuid_t &uuid = p_cmd->uuid ();
-  if (clients.count (uuid))
+
+  if (is_connect_evt && clients.count (uuid))
   {
     p_mgr = clients[uuid].p_cast_mgr_;
+    p_worker->remove_client (uuid, p_mgr);
   }
-  else if (is_type< connect_evt > (p_cmd->evt ()))
+
+  if (is_connect_evt && !clients.count (uuid))
   {
+    std::string device_name_or_ip
+        = boost::any_cast< cast::connect_evt > (p_cmd->evt ()).name_or_ip_;
     char uuid_str[128];
     tiz_uuid_str (&(uuid[0]), uuid_str);
-    TIZ_LOG (TIZ_PRIORITY_NOTICE, "Registering client with uuid [%s]...",
-             uuid_str);
 
-    p_mgr = new tiz::cast::mgr (uuid, p_worker->p_cc_ctx_, p_worker->cast_cb_,
-                                p_worker->media_cb_, p_worker->error_cb_);
+    // Make sure there is only one client registered on to a device
+    p_worker->purge_old_clients (device_name_or_ip);
+
+    TIZ_LOG (TIZ_PRIORITY_NOTICE, "[5s]: Registering client with uuid [%s]",
+             device_name_or_ip.c_str (), uuid_str);
+
+    p_mgr = new tiz::cast::mgr (device_name_or_ip, uuid, p_worker->p_cc_ctx_,
+                                p_worker->cast_cb_, p_worker->media_cb_,
+                                p_worker->error_cb_);
 
     assert (p_mgr);
     p_mgr->init ();
@@ -319,6 +359,11 @@ bool cast::worker::dispatch_cmd (cast::worker *p_worker, const cast::cmd *p_cmd)
 
     TIZ_LOG (TIZ_PRIORITY_NOTICE,
              "Successfully registered client with uuid [%s]...", uuid_str);
+  }
+
+  if (!is_connect_evt && clients.count (uuid))
+  {
+    p_mgr = clients[uuid].p_cast_mgr_;
   }
 
   if (p_mgr && p_mgr->dispatch_cmd (p_cmd))
