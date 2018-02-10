@@ -142,6 +142,7 @@ readonly TIZ_PYTHON_PROJECTS=( \
     tizsoundcloudproxy \
     tizdirbleproxy \
     tizyoutubeproxy \
+    tizchromecastproxy \
 )
 
 # dpkg-dev package is required to have dpkg-architecture available
@@ -167,7 +168,11 @@ declare -Ar TIZ_PROJECT_DIST_CMD=( \
     [tizdirble]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizyoutubeproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
     [tizyoutube]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
+    [tizchromecastproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
+    [tizchromecast]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizplatform]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
+    [tizcastd]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
+    [tizcastclient]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizrmd]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizrmproxy]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizcore]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
@@ -211,7 +216,11 @@ declare -Ar TIZ_PROJECT_DH_MAKE_CMD=( \
     [tizdirble]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizyoutubeproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
     [tizyoutube]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
+    [tizchromecastproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
+    [tizchromecast]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizplatform]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
+    [tizcastd]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
+    [tizcastclient]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizrmd]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizrmproxy]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizcore]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
@@ -252,7 +261,11 @@ declare -Ar TIZ_PROJECT_MAIN_PKG=( \
     [tizdirble]="libtizdirble0" \
     [tizyoutubeproxy]="python-tizyoutubeproxy" \
     [tizyoutube]="libtizyoutube0" \
+    [tizchromecastproxy]="python-tizchromecastproxy" \
+    [tizchromecast]="libtizchromecast0" \
     [tizplatform]="libtizplatform0" \
+    [tizcastd]="tizcastd" \
+    [tizcastclient]="libtizcastclient0" \
     [tizrmd]="tizrmd" \
     [tizrmproxy]="libtizrmproxy0" \
     [tizcore]="libtizcore0" \

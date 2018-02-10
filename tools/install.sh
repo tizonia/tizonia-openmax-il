@@ -82,7 +82,8 @@ sudo apt-get -y install python-pip \
             youtube-dl \
             pafy \
             pycountry \
-            titlecase
+            titlecase \
+            pychromecast
 
 # Install 'libspotify'
 if [[ "$?" -eq 0 ]]; then

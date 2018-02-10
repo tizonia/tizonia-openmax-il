@@ -45,7 +45,11 @@ declare -Ar TIZ_PROJECT_DIRS=( \
     [tizdirble]="clients/dirble/libtizdirble" \
     [tizyoutubeproxy]="clients/youtube/youtubeproxy" \
     [tizyoutube]="clients/youtube/libtizyoutube" \
+    [tizchromecastproxy]="clients/chromecast/chromecastproxy" \
+    [tizchromecast]="clients/chromecast/libtizchromecast" \
     [tizplatform]="libtizplatform" \
+    [tizcastd]="cast/tizcastd" \
+    [tizcastclient]="cast/libtizcastclient" \
     [tizrmd]="rm/tizrmd" \
     [tizrmproxy]="rm/libtizrmproxy" \
     [tizcore]="libtizcore" \
@@ -87,7 +91,11 @@ readonly TIZ_PROJECTS_ORDERED=( \
     tizdirble \
     tizyoutubeproxy \
     tizyoutube \
+    tizchromecastproxy \
+    tizchromecast \
     tizplatform \
+    tizcastd \
+    tizcastclient \
     tizrmd \
     tizrmproxy \
     tizcore \
