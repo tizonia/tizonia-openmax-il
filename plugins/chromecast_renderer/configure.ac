@@ -16,7 +16,7 @@
 # along with Tizonia.  If not, see <chromecast://www.gnu.org/licenses/>.
 
 AC_PREREQ([2.67])
-AC_INIT([tizchromecastrnd], [0.11.0], [juan.rubio@aratelia.com])
+AC_INIT([tizchromecastrnd], [0.12.0], [juan.rubio@aratelia.com])
 AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
 AC_CONFIG_SRCDIR([config.h.in])
@@ -140,7 +140,7 @@ AS_IF([test "x$tiz_found_castclient_headers" != "xyes"],
 	AC_SUBST([TIZCASTCLIENT_LIBS], ['$(top_builddir)/../../cast/libtizcastclient/tizonia/libtizcastclient.la'])],
 	[AC_MSG_NOTICE([Not substituting TIZCASTCLIENT cflags and libs with local paths])])
 AS_IF([test "x$tiz_found_castclient_headers" == "xyes"],
-	[PKG_CHECK_MODULES([TIZCASTCLIENT], [libtizcastclient >= 0.10.0])],
+	[PKG_CHECK_MODULES([TIZCASTCLIENT], [libtizcastclient >= 0.12.0])],
 	[AC_MSG_NOTICE([Not using pkg-config to find TIZCASTCLIENT cflags and libs])])
 
 AC_CHECK_HEADERS([tizonia/tizcasttypes.h],
