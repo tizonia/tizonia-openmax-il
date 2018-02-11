@@ -23,7 +23,7 @@ Depends: libtizcastclient0 (= ${binary:Version}),
          libtizplatform-dev,
          tizcastd-dev,
          libtizdbus-c++-dev,
-         libdbus-c++-dev
+         libdbus-1-dev
 Description: Tizonia's Chromecast daemon - client library, development files
  A helper library to access Tizonia's Chromecast daemon.
  .

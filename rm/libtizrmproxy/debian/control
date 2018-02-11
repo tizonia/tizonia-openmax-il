@@ -24,7 +24,7 @@ Depends: libtizrmproxy0 (= ${binary:Version}),
          libtizplatform-dev,
          tizrmd-dev,
          libtizdbus-c++-dev,
-         libdbus-1-dev,
+         libdbus-1-dev
 Description: Tizonia's Resource Manager proxy library, development files
  Tizonia's resource manager proxy library.
  .
