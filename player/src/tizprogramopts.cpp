@@ -420,7 +420,7 @@ int tiz::programopts::consume ()
 
 void tiz::programopts::print_version () const
 {
-  TIZ_PRINTF_BLU ("tizonia %s. Copyright (C) 2017 Juan A. Rubio\n",
+  TIZ_PRINTF_BLU ("tizonia %s. Copyright (C) 2018 Juan A. Rubio\n",
                   PACKAGE_VERSION);
   TIZ_PRINTF_BLU (
       "This software is part of the Tizonia project <http://tizonia.org>\n\n");

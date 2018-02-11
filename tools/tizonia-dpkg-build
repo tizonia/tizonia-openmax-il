@@ -311,7 +311,7 @@ readonly TIZ_DPKG_BUILD_SIGNED_CMD='dpkg-buildpackage --force-sign -rfakeroot'
 #   None
 ##################################################################
 function usage {
-    pretty_print "$BLU" "tizonia-dpkg-build $TIZONIA_RELEASE_VERSION. Copyright (C) 2017 Juan A. Rubio"
+    pretty_print "$BLU" "tizonia-dpkg-build $TIZONIA_RELEASE_VERSION. Copyright (C) 2018 Juan A. Rubio"
     pretty_print "$BLU" "This software is part of the Tizonia project <http://tizonia.org>."
 
     echo
