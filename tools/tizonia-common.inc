@@ -55,6 +55,7 @@ declare -Ar TIZ_PROJECT_DIRS=( \
     [tizcore]="libtizcore" \
     [tizonia]="libtizonia" \
     [tizaacdec]="plugins/aac_decoder" \
+    [tizchromecastrnd]="plugins/chromecast_renderer" \
     [tizfr]="plugins/file_reader" \
     [tizfw]="plugins/file_writer" \
     [tizflacdec]="plugins/flac_decoder" \
@@ -101,6 +102,7 @@ readonly TIZ_PROJECTS_ORDERED=( \
     tizcore \
     tizonia \
     tizaacdec \
+    tizchromecastrnd \
     tizfr \
     tizfw \
     tizflacdec \
