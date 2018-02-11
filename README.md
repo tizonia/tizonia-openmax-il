@@ -39,6 +39,12 @@
 
 # News
 
+:heavy_check_mark: [2017-02-11] Tizonia
+[v0.12.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.12.0). Chromecast
+support is now available for Google Play Music, YouTube, SoundCloud, and Dirble
+playlists and standalone HTTP radio stations (casting of Spotify and local
+media to be included in a future release).
+
 :heavy_check_mark: [2017-12-28]
 [Snap Package](#snap-package) and [Docker Image](#docker-image) available.
 
