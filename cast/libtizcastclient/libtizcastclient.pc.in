@@ -7,6 +7,5 @@ Name: libtizcastclient
 Description: Tizonia's Chromecast daeamon - client library
 Version: @PACKAGE_VERSION@
 Requires: tizilheaders libtizplatform tizcastd
-Requires.private: dbus-c++-1
 Libs: -L${libdir} -ltizcastclient
 Cflags: -I${includedir} -I${includedir}/tizonia

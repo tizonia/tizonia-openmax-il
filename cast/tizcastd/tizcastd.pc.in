@@ -7,7 +7,6 @@ Name: tizcastd
 Description: Tizonia Chromecast client daemon
 Version: @PACKAGE_VERSION@
 Requires: tizilheaders, libtizplatform
-Requires.private: dbus-c++-1
 Libs: -L${libdir}
 Libs.private: -llog4c -lev -lpthread
 Cflags: -I${includedir} -I${includedir}/tizonia

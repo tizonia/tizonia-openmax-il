@@ -1,1 +1,0 @@
-#define TIZ_PLATFORM_RC_FILE_ENV "TIZONIA_RC_FILE=@abs_top_builddir@/tests/tizonia.conf"

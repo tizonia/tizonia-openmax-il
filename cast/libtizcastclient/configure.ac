@@ -62,7 +62,6 @@ AC_PROG_MAKE_SET
 PKG_PROG_PKG_CONFIG()
 
 # Checks for libraries.
-PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
 
 AC_LANG_PUSH([C++])
 AC_CHECK_HEADERS([tizonia/dbus-c++/dbus.h],
@@ -106,16 +105,6 @@ AS_IF([test "x$tiz_found_castd_headers" == "xyes"],
 	[PKG_CHECK_MODULES([TIZCASTD], [tizcastd >= 0.1.0])],
 	[AC_MSG_NOTICE([Not using pkg-config to find TIZCASTD cflags and libs])])
 
-#---------------------------------------------------------------------------
-# test suite
-#---------------------------------------------------------------------------
-AC_ARG_ENABLE(test,
-	AS_HELP_STRING([--enable-test],
-		[build the test programs (default: disabled)]),,
-	enable_test=no)
-
-AM_CONDITIONAL(ENABLE_TEST, test "x$enable_test" = xyes)
-
 # Checks for header files.
 AC_CHECK_HEADERS([limits.h stdlib.h string.h unistd.h])
 
@@ -142,8 +131,7 @@ AC_DEFINE_UNQUOTED(DBUS_SERVICES_DIR, "$DBUS_SERVICES_DIR",
 
 AC_CONFIG_FILES([Makefile
                 libtizcastclient.pc
-                src/Makefile
-                tests/Makefile])
+                src/Makefile])
 
 # End the configure script.
 AC_OUTPUT
