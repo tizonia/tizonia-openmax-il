@@ -1,3 +1,9 @@
+tizgmusicproxy (0.12.0-1) unstable; urgency=low
+
+  * New upstream release (Closes: #436)
+
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Sun, 11 Feb 2018 16:00:59 +0000
+
 tizgmusicproxy (0.11.0-1) unstable; urgency=low
 
   * New upstream release (Closes: #419)

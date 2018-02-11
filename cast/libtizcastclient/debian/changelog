@@ -1,5 +1,5 @@
-tizcastclient (0.11.0-1) unstable; urgency=low
+tizcastclient (0.12.0-1) unstable; urgency=low
 
-  * Initial release (Closes: #383)
+  * Initial release (Closes: #436)
 
- -- Juan A. Rubio <juan.rubio@aratelia.com>  Thu, 19 Oct 2017 12:46:46 +0100
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Sun, 11 Feb 2018 16:01:00 +0000
