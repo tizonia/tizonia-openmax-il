@@ -29,11 +29,12 @@
 #include <config.h>
 #endif
 
+#include <ctype.h>
+
 #include <algorithm>
 
 #include <boost/assert.hpp>
 #include <boost/bind.hpp>
-#include <boost/make_shared.hpp>
 
 #include <OMX_Component.h>
 #include <OMX_Core.h>
@@ -159,12 +160,73 @@ void graph::chromecastops::do_retrieve_metadata ()
 {
   OMX_U32 index = 0;
   const int chromecast_index = 0;
-  bool use_first_as_heading = false;
   // Extract metadata from the chromecast source
   while (OMX_ErrorNone
-      == dump_metadata_item (index++, chromecast_index, use_first_as_heading))
+      == dump_metadata_item (index++, chromecast_index))
   {
   };
+}
+
+OMX_ERRORTYPE
+graph::chromecastops::dump_metadata_item (
+    const OMX_U32 index, const int comp_index,
+    const bool use_first_as_heading /* = true */)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  OMX_CONFIG_METADATAITEMTYPE *p_meta = NULL;
+  size_t metadata_len = 0;
+  size_t value_len = 0;
+
+  (void)use_first_as_heading;
+
+  value_len = OMX_MAX_STRINGNAME_SIZE;
+  metadata_len = sizeof (OMX_CONFIG_METADATAITEMTYPE) + value_len;
+
+  if (NULL
+      == (p_meta
+          = (OMX_CONFIG_METADATAITEMTYPE *)tiz_mem_calloc (1, metadata_len)))
+  {
+    rc = OMX_ErrorInsufficientResources;
+  }
+  else
+  {
+    p_meta->nSize = metadata_len;
+    p_meta->nVersion.nVersion = OMX_VERSION;
+    p_meta->eScopeMode = OMX_MetadataScopeAllLevels;
+    p_meta->nScopeSpecifier = 0;
+    p_meta->nMetadataItemIndex = index;
+    p_meta->eSearchMode = OMX_MetadataSearchValueSizeByIndex;
+    p_meta->eKeyCharset = OMX_MetadataCharsetASCII;
+    p_meta->eValueCharset = OMX_MetadataCharsetASCII;
+    p_meta->nKeySizeUsed = 0;
+    p_meta->nValue[0] = '\0';
+    p_meta->nValueMaxSize = OMX_MAX_STRINGNAME_SIZE;
+    p_meta->nValueSizeUsed = 0;
+
+    rc = OMX_GetConfig (handles_[comp_index], OMX_IndexConfigMetadataItem,
+                        p_meta);
+    if (OMX_ErrorNone == rc
+        && strnlen ((const char *)p_meta->nKey, OMX_MAX_STRINGNAME_SIZE)
+        && strnlen ((const char *)p_meta->nValue, OMX_MAX_STRINGNAME_SIZE))
+    {
+      if (isspace (p_meta->nKey[0]) && isspace (p_meta->nKey[1]))
+      {
+        TIZ_PRINTF_GRN ("   %s : %s\n", p_meta->nKey, p_meta->nValue);
+      }
+      else if (0 == index && use_first_as_heading)
+      {
+        TIZ_PRINTF_YEL ("   %s : %s\n", p_meta->nKey, p_meta->nValue);
+      }
+      else
+      {
+        TIZ_PRINTF_CYN ("     %s : %s\n", p_meta->nKey, p_meta->nValue);
+      }
+    }
+
+    tiz_mem_free (p_meta);
+    p_meta = NULL;
+  }
+  return rc;
 }
 
 bool graph::chromecastops::is_fatal_error (const OMX_ERRORTYPE error) const

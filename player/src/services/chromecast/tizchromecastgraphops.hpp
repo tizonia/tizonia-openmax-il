@@ -51,7 +51,9 @@ namespace tiz
       void do_configure ();
       void do_skip ();
       void do_retrieve_metadata ();
-
+      OMX_ERRORTYPE dump_metadata_item (const OMX_U32 index,
+                                        const int comp_index,
+                                        const bool use_first_as_heading = true);
       bool is_fatal_error (const OMX_ERRORTYPE error) const;
 
     private:
