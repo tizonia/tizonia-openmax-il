@@ -434,7 +434,8 @@ void tiz::programopts::print_usage_help () const
             << "Help topics:"
             << "\n\n";
   std::cout << "  "
-            << "global        Global options available in combination with other features."
+            << "global        Global options available in combination with "
+               "other features."
             << "\n";
   std::cout << "  "
             << "openmax       Various OpenMAX IL query options."
@@ -1027,8 +1028,8 @@ void tiz::programopts::init_global_options ()
             .convert_to_container< std::vector< std::string > > ();
 
   // Even though --cast is a global option, we also initialise here a
-  // 'chromecast' option description for the purpose of presenting it in the
-  // --help command, to provide it with a bit more visibility.
+  // 'chromecast' option description for the purpose of displaying it with the
+  // --help command, which provides a little more visibility.
   chromecast_.add_options ()
       /* TIZ_CLASS_COMMENT: */
       ("cast,c", po::value (&chromecast_name_or_ip_),
@@ -1608,7 +1609,17 @@ int tiz::programopts::consume_spotify_client_options (bool &done,
     }
     else
     {
-      rc = call_handler (option_handlers_map_.find ("spotify-stream"));
+      if (chromecast_name_or_ip_.empty ())
+      {
+        rc = call_handler (option_handlers_map_.find ("spotify-stream"));
+      }
+      else
+      {
+        rc = EXIT_FAILURE;
+        std::ostringstream oss;
+        oss << "The --cast option is currently not available with Spotify.";
+        msg.assign (oss.str ());
+      }
     }
   }
   TIZ_PRINTF_DBG_RED ("spotify ; rc = [%s]\n",
@@ -1953,9 +1964,19 @@ int tiz::programopts::consume_local_decode_options (bool &done,
   done = false;
   if (EXIT_SUCCESS == consume_input_file_uris_option ())
   {
-    rc = EXIT_SUCCESS;
-    done = true;
-    rc = call_handler (option_handlers_map_.find ("decode-local"));
+    if (chromecast_name_or_ip_.empty ())
+    {
+      rc = EXIT_SUCCESS;
+      done = true;
+      rc = call_handler (option_handlers_map_.find ("decode-local"));
+    }
+    else
+    {
+      rc = EXIT_FAILURE;
+      std::ostringstream oss;
+      oss << "The --cast option is currently not available with local media.";
+      msg.assign (oss.str ());
+    }
   }
   TIZ_PRINTF_DBG_RED ("decode-local ; rc = [%s]\n",
                       rc == EXIT_SUCCESS ? "SUCCESS" : "FAILURE");
