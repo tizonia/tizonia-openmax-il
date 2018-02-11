@@ -180,14 +180,13 @@ public:
   int32_t unmute (const std::vector< uint8_t > &uuid);
 
 private:
-  void cast_status_forwarder (const uuid_t& uuid,
-                              const uint32_t &status, const int32_t &volume);
+  void cast_status_forwarder (const uuid_t &uuid, const uint32_t &status,
+                              const int32_t &volume);
 
-  void media_status_forwarder (const uuid_t& uuid,
-                               const uint32_t &status, const int32_t &volume);
+  void media_status_forwarder (const uuid_t &uuid, const uint32_t &status,
+                               const int32_t &volume);
 
-  void error_status_forwarder (const uuid_t& uuid,
-                               const uint32_t &status,
+  void error_status_forwarder (const uuid_t &uuid, const uint32_t &status,
                                const std::string &error_str);
 
 private:

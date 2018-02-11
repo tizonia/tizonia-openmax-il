@@ -70,12 +70,9 @@ namespace tiz
       friend class ops;
 
     public:
-      mgr (const std::string &device_name_or_ip,
-           const uuid_t &uuid,
-           const tiz_chromecast_ctx_t * p_cc_ctx,
-           cast_status_cback_t cast_cb,
-           media_status_cback_t media_cb,
-           error_status_callback_t error_cb);
+      mgr (const std::string &device_name_or_ip, const uuid_t &uuid,
+           const tiz_chromecast_ctx_t *p_cc_ctx, cast_status_cback_t cast_cb,
+           media_status_cback_t media_cb, error_status_callback_t error_cb);
       virtual ~mgr ();
 
       /**
@@ -115,7 +112,7 @@ namespace tiz
        *
        * @return true if this manager's FSM has been terminated.
        */
-      bool terminated() const;
+      bool terminated () const;
 
       /**
        * Retrieve the uuid of the client associated to this manager.
@@ -146,7 +143,7 @@ namespace tiz
       fsm fsm_;
       const std::string name_or_ip_;
       const uuid_t uuid_;
-      const tiz_chromecast_ctx_t * p_cc_ctx_;
+      const tiz_chromecast_ctx_t *p_cc_ctx_;
       cast_status_cback_t cast_cb_;
       media_status_cback_t media_cb_;
       error_status_callback_t error_cb_;

@@ -29,7 +29,6 @@
 #ifndef TIZCASTMGRTYPES_H
 #define TIZCASTMGRTYPES_H
 
-
 #include <string>
 #include <vector>
 
@@ -56,8 +55,7 @@ namespace tiz
                                   const int a_volume) >
         media_status_cback_t;
 
-    typedef boost::function< void(const uuid_t& uuid,
-                                  const uint32_t& status,
+    typedef boost::function< void(const uuid_t& uuid, const uint32_t& status,
                                   const std::string& error_str) >
         error_status_callback_t;
 

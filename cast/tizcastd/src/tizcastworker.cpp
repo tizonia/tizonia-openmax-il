@@ -286,8 +286,7 @@ void cast::worker::remove_client (const uuid_t &uuid, cast::mgr *p_mgr)
   TIZ_LOG (TIZ_PRIORITY_NOTICE, "Removed client with uuid [%s]...", uuid_str);
 }
 
-void cast::worker::purge_old_clients (
-    const std::string &device_name_or_ip)
+void cast::worker::purge_old_clients (const std::string &device_name_or_ip)
 {
   std::vector< clients_pair_t > purged_clients;
 
@@ -404,5 +403,5 @@ void cast::worker::poll_mgrs (cast::worker *p_worker, const cast::cmd *p_cmd)
     p_worker->remove_client (clnt.first, clnt.second.p_cast_mgr_);
   }
 
-  TIZ_LOG (TIZ_PRIORITY_NOTICE, "CLIENTS [%d]...", i);
+  TIZ_PRINTF_DBG_RED ("cast::worker::poll_mgrs: mgrs [%d]...\n", i);
 }

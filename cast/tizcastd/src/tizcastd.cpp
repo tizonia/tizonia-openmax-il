@@ -193,7 +193,7 @@ int32_t tizcastd::unmute (const std::vector< uint8_t > &uuid)
   return TIZ_CAST_SUCCESS;
 }
 
-void tizcastd::cast_status_forwarder (const uuid_t& uuid,
+void tizcastd::cast_status_forwarder (const uuid_t &uuid,
                                       const uint32_t &status,
                                       const int32_t &volume)
 {
@@ -201,7 +201,7 @@ void tizcastd::cast_status_forwarder (const uuid_t& uuid,
   cast_status (uuid, status, volume);
 }
 
-void tizcastd::media_status_forwarder (const uuid_t& uuid,
+void tizcastd::media_status_forwarder (const uuid_t &uuid,
                                        const uint32_t &status,
                                        const int32_t &volume)
 {

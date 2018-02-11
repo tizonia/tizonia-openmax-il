@@ -70,8 +70,7 @@ namespace tiz
     public:
       ops (mgr *p_mgr, const tiz_chromecast_ctx_t *p_cc_ctx,
            cast_status_received_cback_t, cast_status_cback_t cast_cb,
-           media_status_cback_t media_cb,
-           error_status_callback_t error_cb);
+           media_status_cback_t media_cb, error_status_callback_t error_cb);
       virtual ~ops ();
 
       void deinit ();
