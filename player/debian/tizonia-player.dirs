@@ -1,5 +1,5 @@
 var/log/tizonia
 var/lib/tizonia
 usr/share/bash-completion/completions
-share/applications
-share/icons/hicolor/256x256/apps
+usr/share/applications
+usr/share/icons/hicolor/256x256/apps
