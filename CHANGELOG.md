@@ -1,10 +1,37 @@
 # Change Log
 
+## [v0.12.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.12.0) (2018-02-11)
+[Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.11.0...v0.12.0)
+
+**Improvements:**
+
+- snap: move snapcraft.yaml to its own repo [\#431](https://github.com/tizonia/tizonia-openmax-il/issues/431)
+- libtizplatform: allow expansion of environment variables in tizonia configuration file [\#429](https://github.com/tizonia/tizonia-openmax-il/issues/429)
+- tizonia-config: Default configuration files should be installed to $sysconfdir/xdg/subdir/filename with $sysconfdir defaulting to /etc. [\#427](https://github.com/tizonia/tizonia-openmax-il/issues/427)
+- build system: update ax\_boost\*.m4 macros with latest version from autoconf-archive [\#426](https://github.com/tizonia/tizonia-openmax-il/issues/426)
+- build system: Tizonia snap package [\#309](https://github.com/tizonia/tizonia-openmax-il/issues/309)
+- clients: add a 'tizchromecastproxy' Python module [\#298](https://github.com/tizonia/tizonia-openmax-il/issues/298)
+- Chromecast support [\#296](https://github.com/tizonia/tizonia-openmax-il/issues/296)
+
+**Fixed bugs:**
+
+- Use of deprecated gethostbyname\(\) [\#425](https://github.com/tizonia/tizonia-openmax-il/issues/425)
+
+**Closed issues:**
+
+- Spotify playlist fails [\#435](https://github.com/tizonia/tizonia-openmax-il/issues/435)
+- release v0.12.0  [\#436](https://github.com/tizonia/tizonia-openmax-il/issues/436)
+
+**Merged pull requests:**
+
+- Make aac\_decoder optional [\#422](https://github.com/tizonia/tizonia-openmax-il/pull/422) ([luigino](https://github.com/luigino))
+
 ## [v0.11.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.11.0) (2017-12-17)
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.10.0...v0.11.0)
 
 **Improvements:**
 
+- libtizplatform: use $XDG\_CONFIG\_HOME and $XDG\_CONFIG\_DIRS to locate tizonia.conf [\#428](https://github.com/tizonia/tizonia-openmax-il/issues/428)
 - 3rdparty: embed pkgw/dbus-cplusplus [\#413](https://github.com/tizonia/tizonia-openmax-il/issues/413)
 - http\_source: youtubeprc - increase the amount of data emitted by the output port [\#411](https://github.com/tizonia/tizonia-openmax-il/issues/411)
 - webm\_demuxer: catch up internal nestegg with kinetiknz/nestegg master [\#405](https://github.com/tizonia/tizonia-openmax-il/issues/405)
@@ -13,6 +40,7 @@
 - tizonia-player: bash completion file distributed in debian package [\#385](https://github.com/tizonia/tizonia-openmax-il/issues/385)
 - tizonia-player: zsh completion file distributed in debian package [\#384](https://github.com/tizonia/tizonia-openmax-il/issues/384)
 - tizonia-player: bash completion file [\#307](https://github.com/tizonia/tizonia-openmax-il/issues/307)
+- clients: add a 'libtizchromecast' binding library [\#297](https://github.com/tizonia/tizonia-openmax-il/issues/297)
 
 **Fixed bugs:**
 
