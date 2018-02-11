@@ -142,12 +142,12 @@ cast::worker::init ()
   // Init command queue infrastructure
   tiz_check_omx_ret_oom (create_cmd_queue ());
 
-  // Create the manager's thread
+  // Create the worker's thread
   tiz_check_omx_ret_oom (tiz_mutex_lock (&mutex_));
   tiz_check_omx_ret_oom (tiz_thread_create (&thread_, 0, 0, thread_func, this));
   tiz_check_omx_ret_oom (tiz_mutex_unlock (&mutex_));
 
-  // Let's wait until this manager's thread is ready to receive requests
+  // Let's wait until this worker's thread is ready to receive requests
   tiz_check_omx_ret_oom (tiz_sem_wait (&sem_));
 
   return OMX_ErrorNone;
