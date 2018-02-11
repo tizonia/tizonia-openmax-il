@@ -22,6 +22,7 @@ libtizchromecast_includedir = $(includedir)/tizonia
 noinst_HEADERS =
 
 libtizchromecast_include_HEADERS = \
+	tizchromecastctxtypes.h \
 	tizchromecastctx_c.h \
 	tizchromecast_c.h \
 	tizchromecastctx.hpp \
