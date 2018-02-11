@@ -9,12 +9,13 @@ Build-Depends: debhelper (>= 8.0.0),
                libtizgmusic-dev,
                libtizsoundcloud-dev,
                libtizdirble-dev,
-               libtizyoutube-dev
+               libtizyoutube-dev,
+               libtizcastclient-dev
 Standards-Version: 3.9.4
 Section: libs
 Homepage: chromecast://tizonia.org
 Vcs-Git: git://github.com/tizonia/tizonia-openmax-il.git
-Vcs-Browser: chromecasts://github.com/tizonia/tizonia-openmax-il
+Vcs-Browser: https://github.com/tizonia/tizonia-openmax-il
 
 Package: libtizchromecastrnd-dev
 Section: libdevel
@@ -27,7 +28,8 @@ Depends: libtizchromecastrnd0 (= ${binary:Version}),
          libtizgmusic-dev,
          libtizsoundcloud-dev,
          libtizdirble-dev,
-         libtizyoutube-dev
+         libtizyoutube-dev,
+         libtizcastclient-dev
 Description: Tizonia's OpenMAX IL Chromecast audio renderer library, development files
  Tizonia's OpenMAX IL Chromecast audio renderer library.
  .

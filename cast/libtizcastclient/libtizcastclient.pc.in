@@ -4,7 +4,7 @@ libdir=@libdir@
 includedir=@includedir@
 
 Name: libtizcastclient
-Description: Tizonia's Chromecast daeamon - client library
+Description: Tizonia's Chromecast daemon - client library
 Version: @PACKAGE_VERSION@
 Requires: tizilheaders libtizplatform tizcastd
 Libs: -L${libdir} -ltizcastclient
