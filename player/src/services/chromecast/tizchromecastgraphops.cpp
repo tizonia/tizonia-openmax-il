@@ -159,8 +159,10 @@ void graph::chromecastops::do_retrieve_metadata ()
 {
   OMX_U32 index = 0;
   const int chromecast_index = 0;
+  bool use_first_as_heading = false;
   // Extract metadata from the chromecast source
-  while (OMX_ErrorNone == dump_metadata_item (index++, chromecast_index))
+  while (OMX_ErrorNone
+      == dump_metadata_item (index++, chromecast_index, use_first_as_heading))
   {
   };
 }
