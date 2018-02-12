@@ -769,6 +769,12 @@ function do_install_project_debs {
     for deb in $(find . -type f -name "*bin*.deb" -print | cut -d'/' -f2)
     do
         if [[ -e "$deb" ]]; then
+            if [[ "$deb" = *dev*.deb ]]; then
+                continue
+            fi
+            if [[ "$deb" = *dbg*.deb ]]; then
+                continue
+            fi
             err_msg="[$pkg] : Error while installing the package."
             pretty_print "$BLU" "[$deb] : installing."
             sudo dpkg -i "$deb"
