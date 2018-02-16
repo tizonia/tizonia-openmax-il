@@ -29,28 +29,18 @@ import logging
 import random
 import unicodedata
 import re
-from multiprocessing.dummy import Process, Queue
-import pafy
+from plexapi.myplex import MyPlexAccount
+from plexapi.server import PlexServer
 
 # For use during debugging
-# import pprint
-# from traceback import print_exception
-
-ISO8601_TIMEDUR_EX = re.compile(r'PT((\d{1,3})H)?((\d{1,3})M)?((\d{1,2})S)?')
-
-API_KEY = 'AIzaSyAv9KX5r5WfzfAKlf4mhQMHKmHr-Uw-WOc'
-
-NOT_UTF8_ENVIRONMENT = "UTF-8" not in os.environ.get("LANG", "")
-
-WORKER_PROCESSES = 4
-
-STREAM_OBJECT_ACQUISITION_MAX_ATTEMPTS = 5
+import pprint
+from traceback import print_exception
 
 FORMAT = '[%(asctime)s] [%(levelname)5s] [%(thread)d] ' \
          '[%(module)s:%(funcName)s:%(lineno)d] - %(message)s'
 
 logging.captureWarnings(True)
-logging.getLogger().addHandler(logging.NullHandler())
+#logging.getLogger().addHandler(logging.NullHandler())
 logging.basicConfig(format=FORMAT)
 logging.getLogger().setLevel(logging.DEBUG)
 
@@ -67,26 +57,6 @@ class _Colors:
     ENDC = '\033[0m'
 
 # This code is here for debugging purposes
-def utf8_replace(txt):
-    """ Replace unsupported characters in unicode string, returns unicode. """
-    sse = sys.stdout.encoding
-    txt = txt.encode(sse, "replace").decode("utf8", "ignore")
-    return txt
-
-# This code is here for debugging purposes
-def xenc(stuff):
-    """ Replace unsupported characters. """
-    if sys.stdout.isatty():
-        return utf8_replace(stuff) if NOT_UTF8_ENVIRONMENT else stuff
-
-    else:
-        return stuff.encode("utf8", errors="replace")
-
-# This code is here for debugging purposes
-def xprint(stuff, end=None):
-    """ Compatible print. """
-    print(xenc(stuff), end=end)
-
 def pretty_print(color, msg=""):
     """Print message with color.
 
@@ -123,8 +93,8 @@ def exception_handler(exception_type, exception, traceback):
     """
 
     print_err("[Plex] (%s) : %s" % (exception_type.__name__, exception))
-    del traceback # unused
-    # print_exception(exception_type, exception, traceback)
+    #del traceback # unused
+    print_exception(exception_type, exception, traceback)
 
 sys.excepthook = exception_handler
 
@@ -149,7 +119,7 @@ class TrackInfo(object):
 
     """
 
-    def __init__(self, title, artist, album):
+    def __init__(self, track, artist, album):
         """ class members. """
         self.title = track.title
         self.artist = artist.title
@@ -181,8 +151,10 @@ class tizplexproxy(object):
         self.play_modes = TizEnumeration(["NORMAL", "SHUFFLE"])
         self.current_play_mode = self.play_modes.NORMAL
         self.now_playing_track = None
+        pprint.pprint(base_url)
+        pprint.pprint(token)
         self._plex = PlexServer(base_url, token)
-        self._music = plex.library.section('Music')
+        self._music = self._plex.library.section('Music')
 
     def set_play_mode(self, mode):
         """ Set the playback mode.
@@ -512,20 +484,14 @@ class tizplexproxy(object):
             logging.info("Could not retrieve the track url!")
             raise
 
-    def add_to_playback_queue(self, audio=None, video=None, info=None):
+    def add_to_playback_queue(self, track):
         """ Add to the playback queue. """
 
-        if audio:
-            print_nfo("[Plex] [Track] '{0}' [{1}]." \
-                      .format(to_ascii(audio.title).encode("utf-8"), \
-                              to_ascii(audio.extension)))
-        if info:
-            print_nfo("[Plex] [Track] '{0}'." \
-                      .format(to_ascii(info.title).encode("utf-8")))
+        print_nfo("[Plex] [Track] '{0}' [{1}]." \
+                  .format(to_ascii(track.title).encode("utf-8"), \
+                          to_ascii(track.codec)))
         queue_index = len(self.queue)
-        self.task_queue.put(dict(a=audio, v=video, i=info, q=queue_index))
-        self.queue.append(
-            dict(a=audio, v=video, i=info, q=queue_index))
+        self.queue.append(track)
 
 if __name__ == "__main__":
     tizplexproxy()
