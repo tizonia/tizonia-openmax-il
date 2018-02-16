@@ -72,7 +72,7 @@ void graph::plexops::do_enable_auto_detection (const int handle_id,
   assert (plex_config);
   tiz::graph::ops::do_enable_auto_detection (handle_id, port_id);
   tiz::graph::util::dump_graph_info ("Plex", "Connecting",
-                                     plex_config->get_oauth_token ().c_str ());
+                                     plex_config->get_base_url ().c_str ());
 }
 
 void graph::plexops::do_disable_comp_ports (const int comp_id, const int port_id)
@@ -93,10 +93,10 @@ void graph::plexops::do_configure_comp (const int comp_id)
         = boost::dynamic_pointer_cast< plexconfig > (config_);
     assert (plex_config);
 
-    G_OPS_BAIL_IF_ERROR (
-        tiz::graph::util::set_plex_oauth_token (
-            handles_[0], plex_config->get_oauth_token ()),
-        "Unable to set OMX_TizoniaIndexParamAudioPlexSession");
+    G_OPS_BAIL_IF_ERROR (tiz::graph::util::set_plex_session (
+                             handles_[0], plex_config->get_base_url (),
+                             plex_config->get_token ()),
+                         "Unable to set OMX_TizoniaIndexParamAudioPlexSession");
 
     G_OPS_BAIL_IF_ERROR (
         tiz::graph::util::set_plex_playlist (

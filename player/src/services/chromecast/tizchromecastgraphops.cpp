@@ -50,6 +50,7 @@
 #include <tizprobe.hpp>
 #include <tizscloudconfig.hpp>
 #include <tizyoutubeconfig.hpp>
+#include <tizplexconfig.hpp>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -119,6 +120,12 @@ void graph::chromecastops::do_load ()
     role_lst_.push_back ("audio_renderer.chromecast.youtube");
     config_service_func_
         = boost::bind (&tiz::graph::chromecastops::do_configure_youtube, this);
+  }
+  else if (config_type == cc_cfg_t::ConfigPlex)
+  {
+    role_lst_.push_back ("audio_renderer.chromecast.plex");
+    config_service_func_
+        = boost::bind (&tiz::graph::chromecastops::do_configure_plex, this);
   }
   else
   {
@@ -342,6 +349,21 @@ void graph::chromecastops::do_configure_youtube ()
           handles_[0], playlist_->get_current_uri (),
           youtube_config->get_playlist_type (), playlist_->shuffle ()),
       "Unable to set OMX_TizoniaIndexParamAudioYoutubePlaylist");
+}
+
+void graph::chromecastops::do_configure_plex ()
+{
+  assert (cc_config_);
+  tizplexconfig_ptr_t plex_config
+      = boost::dynamic_pointer_cast< plexconfig > (
+          cc_config_->get_service_config ());
+  assert (plex_config);
+
+  G_OPS_BAIL_IF_ERROR (
+      tiz::graph::util::set_plex_playlist (
+          handles_[0], playlist_->get_current_uri (),
+          plex_config->get_playlist_type (), playlist_->shuffle ()),
+      "Unable to set OMX_TizoniaIndexParamAudioPlexPlaylist");
 }
 
 OMX_ERRORTYPE graph::chromecastops::get_encoding_type_from_chromecast_source ()

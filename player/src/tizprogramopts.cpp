@@ -270,6 +270,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     scloud_ ("SoundCloud options"),
     dirble_ ("Dirble options"),
     youtube_ ("YouTube options"),
+    plex_ ("Plex options"),
     chromecast_ ("Chromecast options"),
     input_ ("Intput urioption"),
     positional_ (),
@@ -336,6 +337,14 @@ tiz::programopts::programopts (int argc, char *argv[])
     youtube_audio_mix_search_ (),
     youtube_playlist_container_ (),
     youtube_playlist_type_ (OMX_AUDIO_YoutubePlaylistTypeUnknown),
+    plex_base_url_ (),
+    plex_token_ (),
+    plex_audio_tracks_ (),
+    plex_audio_artist_ (),
+    plex_audio_album_ (),
+    plex_audio_playlist_ (),
+    plex_playlist_container_ (),
+    plex_playlist_type_ (OMX_AUDIO_PlexPlaylistTypeUnknown),
     consume_functions_ (),
     all_global_options_ (),
     all_debug_options_ (),
@@ -347,6 +356,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     all_scloud_client_options_ (),
     all_dirble_client_options_ (),
     all_youtube_client_options_ (),
+    all_plex_client_options_ (),
     all_input_uri_options_ (),
     all_given_options_ ()
 {
@@ -360,6 +370,7 @@ tiz::programopts::programopts (int argc, char *argv[])
   init_scloud_options ();
   init_dirble_options ();
   init_youtube_options ();
+  init_plex_options ();
   init_input_uri_option ();
 }
 
@@ -462,6 +473,9 @@ void tiz::programopts::print_usage_help () const
             << "\n";
   std::cout << "  "
             << "youtube       YouTube options."
+            << "\n";
+  std::cout << "  "
+            << "plex          Plex options."
             << "\n";
   std::cout << "  "
             << "chromecast    Chromecast options."
@@ -985,6 +999,69 @@ tiz::programopts::youtube_playlist_type ()
   return youtube_playlist_type_;
 }
 
+const std::string &tiz::programopts::plex_base_url () const
+{
+  return plex_base_url_;
+}
+
+const std::string &tiz::programopts::plex_token () const
+{
+  return plex_token_;
+}
+
+const std::vector< std::string > &tiz::programopts::plex_playlist_container ()
+{
+  plex_playlist_container_.clear ();
+  if (!plex_audio_tracks_.empty ())
+  {
+    plex_playlist_container_.push_back (plex_audio_tracks_);
+  }
+  else if (!plex_audio_artist_.empty ())
+  {
+    plex_playlist_container_.push_back (plex_audio_artist_);
+  }
+  else if (!plex_audio_album_.empty ())
+  {
+    plex_playlist_container_.push_back (plex_audio_album_);
+  }
+  else if (!plex_audio_playlist_.empty ())
+  {
+    plex_playlist_container_.push_back (plex_audio_playlist_);
+  }
+  else
+  {
+    assert (0);
+  }
+  return plex_playlist_container_;
+}
+
+OMX_TIZONIA_AUDIO_PLEXPLAYLISTTYPE
+tiz::programopts::plex_playlist_type ()
+{
+  if (!plex_audio_tracks_.empty ())
+  {
+    plex_playlist_type_ = OMX_AUDIO_PlexPlaylistTypeAudioTracks;
+  }
+  else if (!plex_audio_artist_.empty ())
+  {
+    plex_playlist_type_ = OMX_AUDIO_PlexPlaylistTypeAudioMix;
+  }
+  else if (!plex_audio_album_.empty ())
+  {
+    plex_playlist_type_ = OMX_AUDIO_PlexPlaylistTypeAudioSearch;
+  }
+  else if (!plex_audio_playlist_.empty ())
+  {
+    plex_playlist_type_ = OMX_AUDIO_PlexPlaylistTypeAudioPlaylist;
+  }
+  else
+  {
+    plex_playlist_type_ = OMX_AUDIO_PlexPlaylistTypeUnknown;
+  }
+
+  return plex_playlist_type_;
+}
+
 void tiz::programopts::print_license () const
 {
   TIZ_PRINTF_GRN (
@@ -1018,7 +1095,7 @@ void tiz::programopts::init_global_options ()
       ("cast,c", po::value (&chromecast_name_or_ip_),
        "Cast to a Chromecast device (arg: device name or ip address). "
        "Available in combination with Google Play Music, SoundCloud, Dirble, "
-       "YouTube and HTTP radio stations.");
+       "YouTube, Plex and HTTP radio stations.");
 
   register_consume_function (&tiz::programopts::consume_global_options);
   // TODO: help and version are not included. These should be moved out of
@@ -1035,7 +1112,7 @@ void tiz::programopts::init_global_options ()
       ("cast,c", po::value (&chromecast_name_or_ip_),
        "Cast to a Chromecast device (arg: device name or ip address). "
        "Available in combination with Google Play Music, SoundCloud, Dirble, "
-       "YouTube and HTTP radio stations.");
+       "YouTube, Plex and HTTP radio stations.");
 }
 
 void tiz::programopts::init_debug_options ()
@@ -1324,6 +1401,41 @@ void tiz::programopts::init_youtube_options ()
             .convert_to_container< std::vector< std::string > > ();
 }
 
+void tiz::programopts::init_plex_options ()
+{
+  plex_.add_options () (
+      /* TIZ_CLASS_COMMENT: */
+      ("plex-server-base-url", po::value (&plex_base_url_),
+       "Plex server base URL (e.g. 'http://plexserver:32400'. Not required if "
+       "provided via config file).")
+      /* TIZ_CLASS_COMMENT: */
+      ("plex-auth-token", po::value (&plex_token_),
+      "Plex account authentication token (not required if provided via config "
+      "file).")
+     /* TIZ_CLASS_COMMENT: */
+      ("plex-audio-stream", po::value (&plex_audio_stream_),
+       "Play a Plex audio stream from a video url or video id.")
+      /* TIZ_CLASS_COMMENT: */
+      ("plex-audio-playlist", po::value (&plex_audio_playlist_),
+       "Play a Plex audio playlist from a playlist url or playlist id.")
+      /* TIZ_CLASS_COMMENT: */
+      ("plex-audio-mix", po::value (&plex_audio_mix_),
+       "Play a Plex mix from a video url or video id.")
+      /* TIZ_CLASS_COMMENT: */
+      ("plex-audio-search", po::value (&plex_audio_search_),
+       "Search and play Plex audio streams.")
+      /* TIZ_CLASS_COMMENT: */
+      ("plex-audio-mix-search", po::value (&plex_audio_mix_search_),
+       "Play a Plex mix from a search term.");
+
+  register_consume_function (&tiz::programopts::consume_plex_client_options);
+  all_plex_client_options_
+      = boost::assign::list_of ("plex-server-base-url")("plex-auth-token")
+      ("plex-audio-tracks") ("plex-audio-artist")
+      ("plex-audio-album") ("plex-audio-playlist")
+            .convert_to_container< std::vector< std::string > > ();
+}
+
 void tiz::programopts::init_input_uri_option ()
 {
   input_.add_options ()
@@ -1355,6 +1467,7 @@ unsigned int tiz::programopts::parse_command_line (int argc, char *argv[])
       .add (scloud_)
       .add (dirble_)
       .add (youtube_)
+      .add (plex_)
       .add (input_);
   po::parsed_options parsed = po::command_line_parser (argc, argv)
                                   .options (all)
@@ -1447,6 +1560,10 @@ int tiz::programopts::consume_global_options (bool &done,
     else if (0 == help_option_.compare ("youtube"))
     {
       print_usage_feature (youtube_);
+    }
+    else if (0 == help_option_.compare ("plex"))
+    {
+      print_usage_feature (plex_);
     }
     else if (0 == help_option_.compare ("chromecast"))
     {
@@ -1957,6 +2074,71 @@ int tiz::programopts::consume_youtube_client_options (bool &done,
   return rc;
 }
 
+int tiz::programopts::consume_plex_client_options (bool &done, std::string &msg)
+{
+  int rc = EXIT_FAILURE;
+  done = false;
+
+  if (validate_plex_client_options ())
+  {
+    done = true;
+
+    const int playlist_option_count
+        = vm_.count ("plex-server-base-url") + vm_.count ("plex-auth-token")
+          + vm_.count ("plex-audio-tracks") + vm_.count ("plex-audio-artist")
+          + vm_.count ("plex-audio-album") + vm_.count ("plex-audio-playlist");
+
+    if (plex_base_url_.empty ())
+    {
+      retrieve_config_from_rc_file ("tizonia", "plex.base_url",
+                                    plex_base_url_);
+    }
+
+    if (plex_token_.empty ())
+    {
+      retrieve_config_from_rc_file ("tizonia", "plex.token",
+                                    plex_token_);
+    }
+
+    if (playlist_option_count > 1)
+    {
+      rc = EXIT_FAILURE;
+      std::ostringstream oss;
+      oss << "Only one playlist type must be specified.";
+      msg.assign (oss.str ());
+    }
+    else if (!playlist_option_count)
+    {
+      rc = EXIT_FAILURE;
+      std::ostringstream oss;
+      oss << "A playlist type must be specified.";
+      msg.assign (oss.str ());
+    }
+    else if (OMX_AUDIO_PlexPlaylistTypeUnknown == plex_playlist_type ())
+    {
+      rc = EXIT_FAILURE;
+      std::ostringstream oss;
+      oss << "A playlist value must be specified.";
+      msg.assign (oss.str ());
+    }
+    else
+    {
+      if (chromecast_name_or_ip_.empty ())
+      {
+        rc = call_handler (option_handlers_map_.find ("plex-stream"));
+      }
+      else
+      {
+        rc = call_handler (
+            option_handlers_map_.find ("plex-stream-chromecast"));
+      }
+    }
+  }
+  TIZ_PRINTF_DBG_RED ("plex ; rc = [%s]\n",
+                      rc == EXIT_SUCCESS ? "SUCCESS" : "FAILURE");
+  return rc;
+}
+
 int tiz::programopts::consume_local_decode_options (bool &done,
                                                     std::string &msg)
 {
@@ -2164,6 +2346,27 @@ bool tiz::programopts::validate_youtube_client_options () const
   concat_option_lists (all_valid_options, all_debug_options_);
 
   if (youtube_opts_count > 0
+      && is_valid_options_combination (all_valid_options, all_given_options_))
+  {
+    outcome = true;
+  }
+  TIZ_PRINTF_DBG_RED ("outcome = [%s]\n", outcome ? "SUCCESS" : "FAILURE");
+  return outcome;
+}
+
+bool tiz::programopts::validate_plex_client_options () const
+{
+  bool outcome = false;
+  unsigned int plex_opts_count
+      = vm_.count ("plex-server-base-url") + vm_.count ("plex-auth-token")
+        + vm_.count ("plex-audio-tracks") + vm_.count ("plex-audio-artist")
+        + vm_.count ("plex-audio-album") + vm_.count ("plex-audio-playlist");
+
+  std::vector< std::string > all_valid_options = all_plex_client_options_;
+  concat_option_lists (all_valid_options, all_global_options_);
+  concat_option_lists (all_valid_options, all_debug_options_);
+
+  if (plex_opts_count > 0
       && is_valid_options_combination (all_valid_options, all_given_options_))
   {
     outcome = true;

@@ -50,6 +50,7 @@ namespace tiz
          ConfigSoundCloud,
          ConfigDirble,
          ConfigYouTube,
+         ConfigPlex,
          ConfigUnknown
         };
 

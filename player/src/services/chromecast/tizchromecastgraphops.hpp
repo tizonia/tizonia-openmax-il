@@ -63,6 +63,7 @@ namespace tiz
       void do_configure_scloud ();
       void do_configure_dirble ();
       void do_configure_youtube ();
+      void do_configure_plex ();
 
       OMX_ERRORTYPE get_encoding_type_from_chromecast_source ();
 
