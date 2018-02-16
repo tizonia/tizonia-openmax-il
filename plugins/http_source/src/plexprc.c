@@ -367,53 +367,43 @@ update_metadata (plex_prc_t * ap_prc)
 
   /* Audio stream title */
   tiz_check_omx (store_metadata (
-    ap_prc, tiz_plex_get_current_audio_stream_author (ap_prc->p_plex_),
-    tiz_plex_get_current_audio_stream_title (ap_prc->p_plex_)));
+    ap_prc, tiz_plex_get_current_audio_track_artist (ap_prc->p_plex_),
+    tiz_plex_get_current_audio_track_title (ap_prc->p_plex_)));
 
-  /*  */
+  /* Playback queue progress */
   tiz_check_omx (store_metadata (
     ap_prc, "Stream #",
     tiz_plex_get_current_queue_progress (ap_prc->p_plex_)));
 
-  /* ID */
+  /* Album */
   tiz_check_omx (store_metadata (
-    ap_prc, "Plex Id",
-    tiz_plex_get_current_audio_stream_video_id (ap_prc->p_plex_)));
+    ap_prc, "Album",
+    tiz_plex_get_current_audio_track_album (ap_prc->p_plex_)));
+
+  /* Publication year */
+  tiz_check_omx (store_metadata (
+    ap_prc, "Published",
+    tiz_plex_get_current_audio_track_year (ap_prc->p_plex_)));
+
+  /* File size */
+  tiz_check_omx (store_metadata (
+    ap_prc, "Size",
+    tiz_plex_get_current_audio_track_file_size (ap_prc->p_plex_)));
 
   /* Duration */
   tiz_check_omx (store_metadata (
     ap_prc, "Duration",
-    tiz_plex_get_current_audio_stream_duration (ap_prc->p_plex_)));
+    tiz_plex_get_current_audio_track_duration (ap_prc->p_plex_)));
+
+  /* Duration */
+  tiz_check_omx (store_metadata (
+    ap_prc, "Bitrate",
+    tiz_plex_get_current_audio_track_bitrate (ap_prc->p_plex_)));
 
   /* File Format */
   tiz_check_omx (store_metadata (
-    ap_prc, "File Format",
-    tiz_plex_get_current_audio_stream_file_extension (ap_prc->p_plex_)));
-
-  /* Bitrate */
-  tiz_check_omx (store_metadata (
-    ap_prc, "Bitrate",
-    tiz_plex_get_current_audio_stream_bitrate (ap_prc->p_plex_)));
-
-  /* File Size */
-  tiz_check_omx (store_metadata (
-    ap_prc, "Size",
-    tiz_plex_get_current_audio_stream_file_size (ap_prc->p_plex_)));
-
-  /* View count */
-  tiz_check_omx (store_metadata (
-    ap_prc, "View Count",
-    tiz_plex_get_current_audio_stream_view_count (ap_prc->p_plex_)));
-
-  /* Description */
-  tiz_check_omx (store_metadata (
-    ap_prc, "Description",
-    tiz_plex_get_current_audio_stream_description (ap_prc->p_plex_)));
-
-  /* Publication date/time */
-  tiz_check_omx (store_metadata (
-    ap_prc, "Published",
-    tiz_plex_get_current_audio_stream_published (ap_prc->p_plex_)));
+    ap_prc, "Codec",
+    tiz_plex_get_current_audio_track_codec (ap_prc->p_plex_)));
 
   /* Signal that a new set of metadata items is available */
   (void) tiz_srv_issue_event ((OMX_PTR) ap_prc, OMX_EventIndexSettingChanged,
@@ -691,29 +681,24 @@ enqueue_playlist_items (plex_prc_t * ap_prc)
             assert (0);
           }
           break;
-        case OMX_AUDIO_PlexPlaylistTypeAudioStream:
+        case OMX_AUDIO_PlexPlaylistTypeAudioTracks:
           {
-            rc = tiz_plex_play_audio_stream (ap_prc->p_plex_, p_playlist);
+            rc = tiz_plex_play_audio_tracks (ap_prc->p_plex_, p_playlist);
+          }
+          break;
+        case OMX_AUDIO_PlexPlaylistTypeAudioArtist:
+          {
+            rc = tiz_plex_play_audio_artist (ap_prc->p_plex_, p_playlist);
+          }
+          break;
+        case OMX_AUDIO_PlexPlaylistTypeAudioAlbum:
+          {
+            rc = tiz_plex_play_audio_album (ap_prc->p_plex_, p_playlist);
           }
           break;
         case OMX_AUDIO_PlexPlaylistTypeAudioPlaylist:
           {
             rc = tiz_plex_play_audio_playlist (ap_prc->p_plex_, p_playlist);
-          }
-          break;
-        case OMX_AUDIO_PlexPlaylistTypeAudioMix:
-          {
-            rc = tiz_plex_play_audio_mix (ap_prc->p_plex_, p_playlist);
-          }
-          break;
-        case OMX_AUDIO_PlexPlaylistTypeAudioSearch:
-          {
-            rc = tiz_plex_play_audio_search (ap_prc->p_plex_, p_playlist);
-          }
-          break;
-        case OMX_AUDIO_PlexPlaylistTypeAudioMixSearch:
-          {
-            rc = tiz_plex_play_audio_mix_search (ap_prc->p_plex_, p_playlist);
           }
           break;
         default:

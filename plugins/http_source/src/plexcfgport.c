@@ -63,7 +63,9 @@ plex_cfgport_ctor (void * ap_obj, va_list * app)
 
   /* Initialize the OMX_TIZONIA_AUDIO_PARAM_PLEXSESSIONTYPE structure */
   TIZ_INIT_OMX_STRUCT (p_obj->session_);
-  snprintf ((char *) p_obj->session_.cApiKey, sizeof (p_obj->session_.cApiKey),
+  snprintf ((char *) p_obj->session_.cBaseUrl, sizeof (p_obj->session_.cBaseUrl),
+            "xyzxyzxyzxyzxyz");
+  snprintf ((char *) p_obj->session_.cAuthToken, sizeof (p_obj->session_.cAuthToken),
             "xyzxyzxyzxyzxyz");
 
   /* Initialize the OMX_TIZONIA_AUDIO_PARAM_PLEXPLAYLISTTYPE structure */
@@ -134,8 +136,10 @@ plex_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
     {
       memcpy (&(p_obj->session_), ap_struct,
               sizeof (OMX_TIZONIA_AUDIO_PARAM_PLEXSESSIONTYPE));
-      p_obj->session_.cApiKey[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
-      TIZ_TRACE (ap_hdl, "Plex Api Key [%s]...", p_obj->session_.cApiKey);
+      p_obj->session_.cBaseUrl[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+      TIZ_TRACE (ap_hdl, "Plex Base Url [%s]...", p_obj->session_.cBaseUrl);
+      p_obj->session_.cAuthToken[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+      TIZ_TRACE (ap_hdl, "Plex Auth Token [%s]...", p_obj->session_.cAuthToken);
     }
   else if (OMX_TizoniaIndexParamAudioPlexPlaylist == a_index)
     {
