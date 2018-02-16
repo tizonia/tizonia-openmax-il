@@ -1044,11 +1044,11 @@ tiz::programopts::plex_playlist_type ()
   }
   else if (!plex_audio_artist_.empty ())
   {
-    plex_playlist_type_ = OMX_AUDIO_PlexPlaylistTypeAudioMix;
+    plex_playlist_type_ = OMX_AUDIO_PlexPlaylistTypeAudioArtist;
   }
   else if (!plex_audio_album_.empty ())
   {
-    plex_playlist_type_ = OMX_AUDIO_PlexPlaylistTypeAudioSearch;
+    plex_playlist_type_ = OMX_AUDIO_PlexPlaylistTypeAudioAlbum;
   }
   else if (!plex_audio_playlist_.empty ())
   {
@@ -1403,36 +1403,33 @@ void tiz::programopts::init_youtube_options ()
 
 void tiz::programopts::init_plex_options ()
 {
-  plex_.add_options () (
+  plex_.add_options ()
       /* TIZ_CLASS_COMMENT: */
       ("plex-server-base-url", po::value (&plex_base_url_),
        "Plex server base URL (e.g. 'http://plexserver:32400'. Not required if "
        "provided via config file).")
       /* TIZ_CLASS_COMMENT: */
       ("plex-auth-token", po::value (&plex_token_),
-      "Plex account authentication token (not required if provided via config "
-      "file).")
-     /* TIZ_CLASS_COMMENT: */
-      ("plex-audio-stream", po::value (&plex_audio_stream_),
-       "Play a Plex audio stream from a video url or video id.")
+       "Plex account authentication token (not required if provided via config "
+       "file).")
+      /* TIZ_CLASS_COMMENT: */
+      ("plex-audio-tracks", po::value (&plex_audio_tracks_),
+       "Search and play audio tracks from a Plex server.")
+      /* TIZ_CLASS_COMMENT: */
+      ("plex-audio-artist", po::value (&plex_audio_artist_),
+       "Search and play an artist's audio tracks from a Plex server.")
+      /* TIZ_CLASS_COMMENT: */
+      ("plex-audio-album", po::value (&plex_audio_album_),
+       "Search and play a music album from a Plex server.")
       /* TIZ_CLASS_COMMENT: */
       ("plex-audio-playlist", po::value (&plex_audio_playlist_),
-       "Play a Plex audio playlist from a playlist url or playlist id.")
-      /* TIZ_CLASS_COMMENT: */
-      ("plex-audio-mix", po::value (&plex_audio_mix_),
-       "Play a Plex mix from a video url or video id.")
-      /* TIZ_CLASS_COMMENT: */
-      ("plex-audio-search", po::value (&plex_audio_search_),
-       "Search and play Plex audio streams.")
-      /* TIZ_CLASS_COMMENT: */
-      ("plex-audio-mix-search", po::value (&plex_audio_mix_search_),
-       "Play a Plex mix from a search term.");
+       "Search and play playlists from a Plex audio server.");
 
   register_consume_function (&tiz::programopts::consume_plex_client_options);
   all_plex_client_options_
-      = boost::assign::list_of ("plex-server-base-url")("plex-auth-token")
-      ("plex-audio-tracks") ("plex-audio-artist")
-      ("plex-audio-album") ("plex-audio-playlist")
+      = boost::assign::list_of ("plex-server-base-url") ("plex-auth-token") (
+            "plex-audio-tracks") ("plex-audio-artist") ("plex-audio-album") (
+            "plex-audio-playlist")
             .convert_to_container< std::vector< std::string > > ();
 }
 

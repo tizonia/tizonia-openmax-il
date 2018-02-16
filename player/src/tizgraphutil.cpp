@@ -938,7 +938,7 @@ graph::util::set_plex_session (const OMX_HANDLETYPE handle,
       static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioPlexSession),
       &sessiontype));
   tiz::graph::util::copy_omx_string (sessiontype.cBaseUrl, base_url);
-  tiz::graph::util::copy_omx_string (sessiontype.cToken, token);
+  tiz::graph::util::copy_omx_string (sessiontype.cAuthToken, token);
   return OMX_SetParameter (
       handle,
       static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioPlexSession),

@@ -46,7 +46,7 @@ namespace tiz
     public:
       plexconfig (const tizplaylist_ptr_t &playlist, const std::string &base_url,
                   const std::string &token,
-                  const OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE &playlist_type)
+                  const OMX_TIZONIA_AUDIO_PLEXPLAYLISTTYPE &playlist_type)
         : config (playlist),
           base_url_ (base_url),
           token_ (token),
@@ -68,7 +68,7 @@ namespace tiz
         return token_;
       }
 
-      OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE get_playlist_type () const
+      OMX_TIZONIA_AUDIO_PLEXPLAYLISTTYPE get_playlist_type () const
       {
         return playlist_type_;
       }
@@ -76,7 +76,7 @@ namespace tiz
     protected:
       const std::string base_url_;
       const std::string token_;
-      const OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE playlist_type_;
+      const OMX_TIZONIA_AUDIO_PLEXPLAYLISTTYPE playlist_type_;
     };
   }  // namespace graph
 }  // namespace tiz

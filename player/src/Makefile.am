@@ -197,6 +197,7 @@ tizonia_CPPFLAGS = \
 	-I$(top_srcdir)/src/services/dirble \
 	-I$(top_srcdir)/src/services/soundcloud \
 	-I$(top_srcdir)/src/services/youtube \
+	-I$(top_srcdir)/src/services/plex \
 	-I/usr/include/taglib \
 	@LIBMEDIAINFO_CFLAGS@ \
 	@TIZDBUSCPLUSPLUS_CFLAGS@ \
