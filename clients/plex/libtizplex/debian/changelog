@@ -1,0 +1,41 @@
+tizplex (0.12.0-1) unstable; urgency=low
+
+  * New upstream release (Closes: #436)
+
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Sun, 11 Feb 2018 16:00:59 +0000
+
+tizplex (0.11.0-1) unstable; urgency=low
+
+  * New upstream release (Closes: #419)
+
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Sat, 16 Dec 2017 12:15:08 +0000
+
+tizplex (0.10.0-1) unstable; urgency=low
+
+  * New upstream release (Closes: #383)
+
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Thu, 19 Oct 2017 12:46:46 +0100
+
+tizplex (0.9.0-1) unstable; urgency=low
+
+  * New upstream release (Closes: #361)
+
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Fri, 04 Aug 2017 17:52:53 +0100
+
+tizplex (0.8.0-1) unstable; urgency=low
+
+  * New upstream release (Closes: #339)
+
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Fri, 23 Jun 2017 12:14:11 +0100
+
+tizplex (0.7.0-1) unstable; urgency=low
+
+  * New upstream release (Closes: #293)
+
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Thu, 02 Mar 2017 10:44:51 +0000
+
+tizplex (0.6.0-1) unstable; urgency=low
+
+  * Initial release (Closes: #286)
+
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Fri, 13 Jan 2017 16:55:01 +0000

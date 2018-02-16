@@ -1,0 +1,37 @@
+Source: tizplex
+Priority: optional
+Maintainer: Juan A. Rubio <juan.rubio@aratelia.com>
+Build-Depends: debhelper (>= 8.0.0), dh-autoreconf
+Standards-Version: 3.9.4
+Section: libs
+Homepage: http://tizonia.org
+Vcs-Git: git://github.com/tizonia/tizonia-openmax-il.git
+Vcs-Browser: https://github.com/tizonia/tizonia-openmax-il
+
+Package: libtizplex-dev
+Section: libdevel
+Architecture: any
+Depends: libtizplex0 (= ${binary:Version})
+Description: Tizonia's Plex audio client library, development files
+ Tizonia's Plex audio client library.
+ .
+ This package contains the development library libtizplex.
+
+Package: libtizplex0
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Tizonia's Plex audio client library, run-time library
+ Tizonia's Plex audio client library.
+ .
+ This package contains the runtime library libtizplex.
+
+Package: libtizplex0-dbg
+Section: debug
+Priority: extra
+Architecture: any
+Depends: libtizplex0 (= ${binary:Version}), ${misc:Depends}
+Description: Tizonia's Plex audio client library, debug symbols
+ Tizonia's Plex audio client library.
+ .
+ This package contains the detached debug symbols for libtizplex.
