@@ -74,17 +74,19 @@ namespace
 
     try
       {
-        // Import the Google Play Music proxy module
+        // Import Tizonia YouTube proxy module
         bp::object py_main = bp::import ("__main__");
 
         // Retrieve the main module's namespace
         bp::object py_global = py_main.attr ("__dict__");
 
+        // Check the existence of the 'pafy' module
         bp::object ignored = exec (
             "import imp\n"
             "imp.find_module('pafy')\n",
             py_global);
 
+        // Check the existence of the 'youtube_dl' module
         bp::object ignored2 = exec (
             "import imp\n"
             "imp.find_module('youtube_dl')\n",
