@@ -41,6 +41,10 @@ noinst_HEADERS = \
 	youtubeprc_decls.h \
 	youtubecfgport.h \
 	youtubecfgport_decls.h
+	plexprc.h \
+	plexprc_decls.h \
+	plexcfgport.h \
+	plexcfgport_decls.h
 
 libtizhttpsrc_la_SOURCES = \
 	httpsrc.c \
@@ -54,6 +58,8 @@ libtizhttpsrc_la_SOURCES = \
 	dirblecfgport.c \
 	youtubeprc.c \
 	youtubecfgport.c
+	plexprc.c \
+	plexcfgport.c
 
 libtizhttpsrc_la_CFLAGS = \
 	@TIZILHEADERS_CFLAGS@ \
