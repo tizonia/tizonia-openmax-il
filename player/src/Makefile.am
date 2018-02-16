@@ -104,6 +104,10 @@ noinst_HEADERS = \
 	services/youtube/tizyoutubegraphops.hpp \
 	services/youtube/tizyoutubeconfig.hpp \
 	services/youtube/tizyoutubemgr.hpp \
+	services/plex/tizplexgraph.hpp \
+	services/plex/tizplexgraphops.hpp \
+	services/plex/tizplexconfig.hpp \
+	services/plex/tizplexmgr.hpp \
 	mpris/tizmpriscbacks.hpp \
 	mpris/tizmprisprops.hpp \
 	mpris/tizmprisif.hpp \
@@ -170,6 +174,9 @@ tizonia_SOURCES = \
 	services/youtube/tizyoutubegraphfsm.cpp \
 	services/youtube/tizyoutubegraphops.cpp \
 	services/youtube/tizyoutubemgr.cpp \
+	services/plex/tizplexgraph.cpp \
+	services/plex/tizplexgraphops.cpp \
+	services/plex/tizplexmgr.cpp \
 	services/chromecast/tizchromecastgraph.cpp \
 	services/chromecast/tizchromecastgraphfsm.cpp \
 	services/chromecast/tizchromecastgraphops.cpp \
