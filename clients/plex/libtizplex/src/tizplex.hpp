@@ -47,7 +47,7 @@ public:
   };
 
 public:
-  tizplex ();
+  tizplex (const std::string &base_url, const std::string &auth_token);
   ~tizplex ();
 
   int init ();
@@ -83,6 +83,8 @@ private:
   int get_current_track ();
 
 private:
+  std::string base_url_;
+  std::string auth_token_;
   std::string current_url_;
   std::string current_track_index_;
   std::string current_queue_length_;

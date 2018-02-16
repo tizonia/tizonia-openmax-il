@@ -2093,7 +2093,7 @@ int tiz::programopts::consume_plex_client_options (bool &done, std::string &msg)
 
     if (plex_token_.empty ())
     {
-      retrieve_config_from_rc_file ("tizonia", "plex.token",
+      retrieve_config_from_rc_file ("tizonia", "plex.auth_token",
                                     plex_token_);
     }
 

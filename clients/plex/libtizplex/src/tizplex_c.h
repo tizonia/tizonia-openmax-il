@@ -68,10 +68,13 @@ typedef enum tiz_plex_playback_mode {
  *
  * @param app_plex A pointer to the tiz_plex handle which will be
  * initialised.
+ * @param ap_base_url The Plex server base url.
+ * @param ap_auth_token The Plex account auth token.
  *
  * @return 0 on success.
  */
-int tiz_plex_init (/*@null@ */ tiz_plex_ptr_t *app_plex);
+int tiz_plex_init (/*@null@ */ tiz_plex_ptr_t *app_plex,
+                   const char *ap_base_url, const char *ap_auth_token);
 
 /**
  * Clear the playback queue.

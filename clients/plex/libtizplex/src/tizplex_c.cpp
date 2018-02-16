@@ -49,13 +49,14 @@ static void plex_free_data (tiz_plex_t *ap_plex)
     }
 }
 
-static int plex_alloc_data (tiz_plex_t *ap_plex)
+static int plex_alloc_data (tiz_plex_t *ap_plex, const char *ap_base_url,
+                            const char *ap_auth_token)
 {
   int rc = 0;
   assert (ap_plex);
   try
     {
-      ap_plex->p_proxy_ = new tizplex ();
+      ap_plex->p_proxy_ = new tizplex (ap_base_url, ap_auth_token);
     }
   catch (...)
     {
@@ -65,7 +66,8 @@ static int plex_alloc_data (tiz_plex_t *ap_plex)
   return rc;
 }
 
-extern "C" int tiz_plex_init (tiz_plex_ptr_t *app_plex)
+extern "C" int tiz_plex_init (tiz_plex_ptr_t *app_plex, const char *ap_base_url,
+                              const char *ap_auth_token)
 {
   tiz_plex_t *p_plex = NULL;
   int rc = 1;
@@ -74,7 +76,7 @@ extern "C" int tiz_plex_init (tiz_plex_ptr_t *app_plex)
 
   if ((p_plex = (tiz_plex_t *)calloc (1, sizeof (tiz_plex_t))))
     {
-      if (!plex_alloc_data (p_plex))
+      if (!plex_alloc_data (p_plex, ap_base_url, ap_auth_token))
         {
           tizplex *p_px = p_plex->p_proxy_;
           assert (p_px);

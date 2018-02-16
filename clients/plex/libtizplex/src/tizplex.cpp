@@ -112,15 +112,18 @@ namespace
   }
 
   void start_plex (boost::python::object &py_global,
-                   boost::python::object &py_plex_proxy)
+                   boost::python::object &py_plex_proxy,
+                   const std::string &base_url, const std::string &auth_token)
   {
     bp::object pyplexproxy = py_global["tizplexproxy"];
-    py_plex_proxy = pyplexproxy ();
+    py_plex_proxy = pyplexproxy (base_url.c_str (), auth_token.c_str ());
   }
 }
 
-tizplex::tizplex ()
-  : current_url_ (),
+tizplex::tizplex (const std::string &base_url, const std::string &auth_token)
+  : base_url_(base_url),
+    auth_token_(auth_token),
+    current_url_ (),
     current_track_index_ (),
     current_queue_length_ (),
     current_track_title_ (),
@@ -153,7 +156,7 @@ int tizplex::init ()
 int tizplex::start ()
 {
   int rc = 0;
-  try_catch_wrapper (start_plex (py_global_, py_plex_proxy_));
+  try_catch_wrapper (start_plex (py_global_, py_plex_proxy_, base_url_, auth_token_));
   return rc;
 }
 
