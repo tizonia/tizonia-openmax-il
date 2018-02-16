@@ -75,6 +75,8 @@
 #define OMX_TizoniaIndexParamAudioDeezerSession      OMX_IndexVendorStartUnused + 19 /**< reference: OMX_TIZONIA_AUDIO_PARAM_DEEZERSESSIONTYPE */
 #define OMX_TizoniaIndexParamAudioDeezerPlaylist     OMX_IndexVendorStartUnused + 20 /**< reference: OMX_TIZONIA_AUDIO_PARAM_DEEZERPLAYLISTTYPE */
 #define OMX_TizoniaIndexParamChromecastSession       OMX_IndexVendorStartUnused + 21 /**< reference: OMX_TIZONIA_PARAM_CHROMECASTSESSIONTYPE */
+#define OMX_TizoniaIndexParamAudioPlexSession        OMX_IndexVendorStartUnused + 22 /**< reference: OMX_TIZONIA_AUDIO_PARAM_PLEXSESSIONTYPE */
+#define OMX_TizoniaIndexParamAudioPlexPlaylist       OMX_IndexVendorStartUnused + 23 /**< reference: OMX_TIZONIA_AUDIO_PARAM_PLEXPLAYLISTTYPE */
 
 /**
  * OMX_AUDIO_CODINGTYPE extensions
@@ -496,5 +498,34 @@ typedef struct OMX_TIZONIA_PARAM_CHROMECASTSESSIONTYPE {
     OMX_VERSIONTYPE nVersion;
     OMX_U8 cNameOrIpAddr[OMX_MAX_STRINGNAME_SIZE];
 } OMX_TIZONIA_PARAM_CHROMECASTSESSIONTYPE;
+
+/**
+ * Plex source component
+ *
+ */
+typedef enum OMX_TIZONIA_AUDIO_PLEXPLAYLISTTYPE {
+    OMX_AUDIO_PlexPlaylistTypeUnknown = 0, /**< Playlist type unknown (Default). */
+    OMX_AUDIO_PlexPlaylistTypeAudioTracks, /**< Audio search and playback from a plex track search. */
+    OMX_AUDIO_PlexPlaylistTypeAudioArtist, /**< Audio search and playback from a plex artist search. */
+    OMX_AUDIO_PlexPlaylistTypeAudioAlbum, /**< Audio search and playback from a plex album search. */
+    OMX_AUDIO_PlexPlaylistTypeAudioPlaylist, /**< Audio playback from a plex playlist. */
+    OMX_AUDIO_PlexPlaylistTypeKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
+    OMX_AUDIO_PlexPlaylistTypeVendorStartUnused = 0x7F000000, /**< Reserved region for introducing Vendor Extensions */
+    OMX_AUDIO_PlexPlaylistTypeMax = 0x7FFFFFFF
+} OMX_TIZONIA_AUDIO_PLEXPLAYLISTTYPE;
+
+typedef struct OMX_TIZONIA_AUDIO_PARAM_PLEXSESSIONTYPE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_U8 cApiKey[OMX_MAX_STRINGNAME_SIZE];
+} OMX_TIZONIA_AUDIO_PARAM_PLEXSESSIONTYPE;
+
+typedef struct OMX_TIZONIA_AUDIO_PARAM_PLEXPLAYLISTTYPE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_TIZONIA_AUDIO_PLEXPLAYLISTTYPE ePlaylistType;
+    OMX_BOOL bShuffle;            /**< Default: OMX_FALSE */
+    OMX_U8 cPlaylistName[OMX_MAX_STRINGNAME_SIZE];
+} OMX_TIZONIA_AUDIO_PARAM_PLEXPLAYLISTTYPE;
 
 #endif /* OMX_TizoniaExt_h */
