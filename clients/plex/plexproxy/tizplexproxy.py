@@ -125,7 +125,7 @@ class TrackInfo(object):
         self.artist = artist.title
         self.album = album.title
         self.year = album.year
-        self.duration = track.duration
+        self.duration = track.duration / 1000
         self.url = track.getStreamURL()
         self.thumb_url = track.thumbUrl
         self.art_url = track.artUrl
@@ -151,8 +151,6 @@ class tizplexproxy(object):
         self.play_modes = TizEnumeration(["NORMAL", "SHUFFLE"])
         self.current_play_mode = self.play_modes.NORMAL
         self.now_playing_track = None
-        pprint.pprint(base_url)
-        pprint.pprint(token)
         self._plex = PlexServer(base_url, token)
         self._music = self._plex.library.section('Music')
 
@@ -232,7 +230,7 @@ class tizplexproxy(object):
             albums = self._music.searchAlbums(title=arg)
             for album in albums:
                 for track in album.tracks():
-                    track_info = TrackInfo(track, artist, album)
+                    track_info = TrackInfo(track, track.artist(), album)
                     self.add_to_playback_queue(track_info)
 
             if count == len(self.queue):
@@ -450,35 +448,9 @@ class tizplexproxy(object):
 
         """
         try:
-            if not len(self.workers):
-                for _ in range(WORKER_PROCESSES):
-                    proc = Process(target=obtain_track, \
-                                   args=(self.task_queue, \
-                                         self.done_queue)).start()
-                    self.workers.append(proc)
-
-            while not self.done_queue.empty():
-                track = self.done_queue.get()
-                self.queue[track['q']] = track
-
             track = self.queue[queue_index]
-            if not track.get('v') or not track.get('a'):
-                logging.info("ytid : %s", track['i'].ytid)
-                video = track.get('v')
-                if not video:
-                    video = pafy.new(track['i'].ytid)
-                audio = video.getbestaudio(preftype="webm")
-                if not audio:
-                    logging.info("no suitable audio found")
-                    raise AttributeError()
-                track.update({'a': audio, 'v': video})
-
-            # tracks = track.get('v').audiotracks[::-1]
-            # pprint.pprint(tracks)
-            # dump_track_info(tracks)
-
             self.now_playing_track = track
-            return track['a'].url.encode("utf-8")
+            return track.url.encode("utf-8")
 
         except AttributeError:
             logging.info("Could not retrieve the track url!")
