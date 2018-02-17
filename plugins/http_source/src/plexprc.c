@@ -470,6 +470,12 @@ release_buffer (plex_prc_t * ap_prc)
 
   if (ap_prc->p_outhdr_)
     {
+      TIZ_PRINTF_DBG_RED (
+        "release_buffer - bytes_before_eos_ [%lu] - content_length_bytes_ "
+        "[%lu] nFilledLen [%lu] available [%lu]\n",
+        ap_prc->bytes_before_eos_, ap_prc->content_length_bytes_,
+        ap_prc->p_outhdr_->nFilledLen,
+        tiz_urltrans_bytes_available (ap_prc->p_trans_));
       if (ap_prc->content_length_bytes_ == 0)
         {
           ap_prc->content_length_bytes_
@@ -483,6 +489,17 @@ release_buffer (plex_prc_t * ap_prc)
           ap_prc->bytes_before_eos_ -= ap_prc->p_outhdr_->nFilledLen;
         }
       else
+        {
+          ap_prc->bytes_before_eos_ = 0;
+          ap_prc->content_length_bytes_ = 0;
+          ap_prc->eos_ = true;
+        }
+
+      if (ap_prc->p_outhdr_->nFilledLen < ap_prc->p_outhdr_->nAllocLen
+          && ap_prc->bytes_before_eos_ < ap_prc->p_outhdr_->nAllocLen
+          && 0
+               == (tiz_urltrans_bytes_available (ap_prc->p_trans_)
+                   - ap_prc->p_outhdr_->nFilledLen))
         {
           ap_prc->bytes_before_eos_ = 0;
           ap_prc->content_length_bytes_ = 0;
@@ -511,11 +528,8 @@ buffer_filled (OMX_BUFFERHEADERTYPE * ap_hdr, void * ap_arg)
   assert (p_prc);
   assert (ap_hdr);
   assert (p_prc->p_outhdr_ == ap_hdr);
-  if (ARATELIA_HTTP_SOURCE_PORT_MIN_BUF_SIZE <= ap_hdr->nFilledLen
-      || p_prc->bytes_before_eos_ <= ARATELIA_HTTP_SOURCE_PORT_MIN_BUF_SIZE)
-    {
-      (void) release_buffer (p_prc);
-    }
+  ap_hdr->nOffset = 0;
+  (void) release_buffer (p_prc);
 }
 
 static OMX_BUFFERHEADERTYPE *
@@ -595,25 +609,9 @@ connection_lost (OMX_PTR ap_arg)
 {
   plex_prc_t * p_prc = ap_arg;
   assert (p_prc);
-  TIZ_PRINTF_DBG_RED ("connection_lost - bytes_before_eos_ [%d]\n",
-                      p_prc->bytes_before_eos_);
-
-  if (p_prc->auto_detect_on_)
-    {
-      /* Oops... unable to connect to the station */
-
-      /* We can make this 'true' to make sure this url will not get processed
-         again, by removing it from the playback queue. For now, let's try it
-         again in the next occasion... */
-      p_prc->remove_current_url_ = false;
-
-      /* Get ready to auto-detect another stream */
-      set_auto_detect_on_port (p_prc);
-      prepare_for_port_auto_detection (p_prc);
-
-      /* Signal the client */
-      tiz_srv_issue_err_event ((OMX_PTR) p_prc, OMX_ErrorFormatNotDetected);
-    }
+  TIZ_PRINTF_DBG_RED (
+    "connection_lost - bytes_before_eos_ [%lu] - content_length_bytes_ [%lu]\n",
+    p_prc->bytes_before_eos_, p_prc->content_length_bytes_);
 
   /* Return false to indicate that there is no need to start the automatic
      reconnection procedure */
@@ -950,6 +948,8 @@ plex_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
       /* Changing the URL has the side effect of halting the current
          download */
       tiz_urltrans_set_uri (p_prc->p_trans_, p_prc->p_uri_param_);
+      p_prc->content_length_bytes_ = 0;
+
       if (p_prc->port_disabled_)
         {
           /* Record that the URI has changed, so that when the port is
