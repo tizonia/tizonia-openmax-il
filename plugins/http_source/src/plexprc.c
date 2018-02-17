@@ -90,15 +90,11 @@ obtain_coding_type (plex_prc_t * ap_prc, char * ap_info)
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (ap_prc);
   assert (ap_info);
-  if (memcmp (ap_info, "audio/webm", 10) == 0)
+  if (memcmp (ap_info, "audio/mpeg", 10) == 0
+      || memcmp (ap_info, "audio/mpg", 9) == 0
+      || memcmp (ap_info, "audio/mp3", 9) == 0)
     {
-      /* The webm container */
-      ap_prc->audio_coding_type_ = OMX_AUDIO_CodingWEBM;
-    }
-  else if (memcmp (ap_info, "audio/mp4", 9) == 0)
-    {
-      /* This is .mp4 .m4a  */
-      ap_prc->audio_coding_type_ = OMX_AUDIO_CodingMP4;
+      ap_prc->audio_coding_type_ = OMX_AUDIO_CodingMP3;
     }
   else
     {
@@ -395,11 +391,6 @@ update_metadata (plex_prc_t * ap_prc)
     ap_prc, "Duration",
     tiz_plex_get_current_audio_track_duration (ap_prc->p_plex_)));
 
-  /* Duration */
-  tiz_check_omx (store_metadata (
-    ap_prc, "Bitrate",
-    tiz_plex_get_current_audio_track_bitrate (ap_prc->p_plex_)));
-
   /* File Format */
   tiz_check_omx (store_metadata (
     ap_prc, "Codec",
@@ -479,6 +470,14 @@ release_buffer (plex_prc_t * ap_prc)
 
   if (ap_prc->p_outhdr_)
     {
+      if (ap_prc->content_length_bytes_ == 0)
+        {
+          ap_prc->content_length_bytes_
+            = tiz_plex_get_current_audio_track_file_size_as_int (
+              ap_prc->p_plex_);
+          ap_prc->bytes_before_eos_ = ap_prc->content_length_bytes_;
+        }
+
       if (ap_prc->bytes_before_eos_ > ap_prc->p_outhdr_->nFilledLen)
         {
           ap_prc->bytes_before_eos_ -= ap_prc->p_outhdr_->nFilledLen;
@@ -486,6 +485,7 @@ release_buffer (plex_prc_t * ap_prc)
       else
         {
           ap_prc->bytes_before_eos_ = 0;
+          ap_prc->content_length_bytes_ = 0;
           ap_prc->eos_ = true;
         }
 
