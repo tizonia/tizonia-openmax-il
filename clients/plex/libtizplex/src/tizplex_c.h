@@ -264,6 +264,15 @@ const char *tiz_plex_get_current_audio_track_year (tiz_plex_t *ap_plex);
 const char *tiz_plex_get_current_audio_track_file_size (tiz_plex_t *ap_plex);
 
 /**
+ * Retrieve the current audio track's file size (as int).
+ *
+ * @ingroup libtizplex
+ *
+ * @param ap_plex The tiz_plex handle.
+ */
+int tiz_plex_get_current_audio_track_file_size_as_int (tiz_plex_t *ap_plex);
+
+/**
  * Retrieve the current audio track's duration.
  *
  * @ingroup libtizplex

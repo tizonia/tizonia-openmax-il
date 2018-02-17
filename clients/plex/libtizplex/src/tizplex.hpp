@@ -74,6 +74,7 @@ public:
   const char *get_current_audio_track_album ();
   const char *get_current_audio_track_year ();
   const char *get_current_audio_track_file_size ();
+  int get_current_audio_track_file_size_as_int ();
   const char *get_current_audio_track_duration ();
   const char *get_current_audio_track_bitrate ();
   const char *get_current_audio_track_codec ();
@@ -93,6 +94,7 @@ private:
   std::string current_track_album_;
   std::string current_track_year_;
   std::string current_track_file_size_;
+  int current_track_file_size_as_int_;
   std::string current_track_duration_;
   std::string current_track_bitrate_;
   std::string current_track_codec_;

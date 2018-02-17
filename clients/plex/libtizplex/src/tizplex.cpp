@@ -121,8 +121,8 @@ namespace
 }
 
 tizplex::tizplex (const std::string &base_url, const std::string &auth_token)
-  : base_url_(base_url),
-    auth_token_(auth_token),
+  : base_url_ (base_url),
+    auth_token_ (auth_token),
     current_url_ (),
     current_track_index_ (),
     current_queue_length_ (),
@@ -131,6 +131,7 @@ tizplex::tizplex (const std::string &base_url, const std::string &auth_token)
     current_track_album_ (),
     current_track_year_ (),
     current_track_file_size_ (),
+    current_track_file_size_as_int_ (0),
     current_track_duration_ (),
     current_track_bitrate_ (),
     current_track_codec_ (),
@@ -156,7 +157,8 @@ int tizplex::init ()
 int tizplex::start ()
 {
   int rc = 0;
-  try_catch_wrapper (start_plex (py_global_, py_plex_proxy_, base_url_, auth_token_));
+  try_catch_wrapper (
+      start_plex (py_global_, py_plex_proxy_, base_url_, auth_token_));
   return rc;
 }
 
@@ -333,6 +335,11 @@ const char *tizplex::get_current_audio_track_file_size ()
                                            : current_track_file_size_.c_str ();
 }
 
+int tizplex::get_current_audio_track_file_size_as_int ()
+{
+  return current_track_file_size_as_int_;
+}
+
 const char *tizplex::get_current_audio_track_duration ()
 {
   return current_track_duration_.empty () ? NULL
@@ -352,7 +359,8 @@ const char *tizplex::get_current_audio_track_codec ()
 
 const char *tizplex::get_current_audio_track_album_art ()
 {
-  return current_track_album_art_.empty () ? NULL : current_track_album_art_.c_str ();
+  return current_track_album_art_.empty () ? NULL
+                                           : current_track_album_art_.c_str ();
 }
 
 int tizplex::get_current_track ()
@@ -402,25 +410,50 @@ int tizplex::get_current_track ()
 
   const int year = bp::extract< int > (
       py_plex_proxy_.attr ("current_audio_track_year") ());
-  current_track_year_.assign (
-      boost::lexical_cast< std::string > (year));
-
+  current_track_year_.assign (boost::lexical_cast< std::string > (year));
 
   const int file_size = bp::extract< int > (
       py_plex_proxy_.attr ("current_audio_track_file_size") ());
-  current_track_file_size_.assign (
-      boost::lexical_cast< std::string > (file_size / (1024 * 1024)));
+  char file_size_str[20];
+  sprintf (file_size_str, "%.2g", (float)file_size / (1024 * 1024));
+  current_track_file_size_.assign (file_size_str);
   current_track_file_size_.append (" MiB");
+  current_track_file_size_as_int_ = file_size;
 
   const int duration = bp::extract< int > (
       py_plex_proxy_.attr ("current_audio_track_duration") ());
-  current_track_duration_.assign (
-      boost::lexical_cast< std::string > (duration));
+  int seconds = duration % 60;
+  int minutes = (duration - seconds) / 60;
+  int hours = 0;
+  if (minutes >= 60)
+    {
+      int total_minutes = minutes;
+      minutes = total_minutes % 60;
+      hours = (total_minutes - minutes) / 60;
+    }
+
+  if (hours > 0)
+    {
+      current_track_duration_.assign (
+          boost::lexical_cast< std::string > (hours));
+      current_track_duration_.append ("h:");
+    }
+
+  if (minutes > 0)
+    {
+      current_track_duration_.append (
+          boost::lexical_cast< std::string > (minutes));
+      current_track_duration_.append ("m:");
+    }
+
+  char seconds_str[10];
+  sprintf (seconds_str, "%02i", seconds);
+  current_track_duration_.append (seconds_str);
+  current_track_duration_.append ("s");
 
   const int bitrate = bp::extract< int > (
       py_plex_proxy_.attr ("current_audio_track_bitrate") ());
-  current_track_bitrate_.assign (
-      boost::lexical_cast< std::string > (bitrate));
+  current_track_bitrate_.assign (boost::lexical_cast< std::string > (bitrate));
 
   const char *p_codec = bp::extract< char const * > (
       py_plex_proxy_.attr ("current_audio_track_codec") ());
