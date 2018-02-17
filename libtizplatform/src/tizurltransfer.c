@@ -1340,3 +1340,14 @@ tiz_urltrans_on_timer_ready (tiz_urltrans_t * ap_trans,
   ASSERT_ASYNC_EVENTS (ap_trans);
   return rc;
 }
+
+OMX_U32
+tiz_urltrans_bytes_available (tiz_urltrans_t * ap_trans)
+{
+  assert (ap_trans);
+  if (ap_trans->p_store_)
+    {
+      return tiz_buffer_available (ap_trans->p_store_);
+    }
+  return 0;
+}
