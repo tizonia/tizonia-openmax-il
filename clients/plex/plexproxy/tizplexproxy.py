@@ -40,7 +40,7 @@ FORMAT = '[%(asctime)s] [%(levelname)5s] [%(thread)d] ' \
          '[%(module)s:%(funcName)s:%(lineno)d] - %(message)s'
 
 logging.captureWarnings(True)
-#logging.getLogger().addHandler(logging.NullHandler())
+logging.getLogger().addHandler(logging.NullHandler())
 logging.basicConfig(format=FORMAT)
 logging.getLogger().setLevel(logging.DEBUG)
 
