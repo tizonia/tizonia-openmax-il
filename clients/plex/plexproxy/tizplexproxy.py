@@ -125,7 +125,7 @@ class TrackInfo(object):
         self.artist = artist.title
         self.album = album.title
         self.year = album.year
-        self.duration = track.duration / 1000
+        self.duration = track.duration / 1000 if track.duration else 0;
         self.url = track.getStreamURL()
         self.thumb_url = track.thumbUrl
         self.art_url = track.artUrl
@@ -135,8 +135,7 @@ class TrackInfo(object):
             self.codec = media.audioCodec
             self.channels = media.audioChannels
             part = media.parts[0]
-            if part:
-                self.size = part.size
+            self.size = part.size if part else 0
 
 class tizplexproxy(object):
     """A class that accesses Plex servers, retrieves track URLs and creates and
