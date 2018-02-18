@@ -360,6 +360,11 @@ void graph::chromecastops::do_configure_plex ()
   assert (plex_config);
 
   G_OPS_BAIL_IF_ERROR (
+      tiz::graph::util::set_plex_session (
+          handles_[0], plex_config->get_base_url (), plex_config->get_token ()),
+      "Unable to set OMX_TizoniaIndexParamAudioPlexSession");
+
+  G_OPS_BAIL_IF_ERROR (
       tiz::graph::util::set_plex_playlist (
           handles_[0], playlist_->get_current_uri (),
           plex_config->get_playlist_type (), playlist_->shuffle ()),
