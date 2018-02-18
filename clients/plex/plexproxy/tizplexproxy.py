@@ -33,8 +33,8 @@ from plexapi.myplex import MyPlexAccount
 from plexapi.server import PlexServer
 
 # For use during debugging
-import pprint
-from traceback import print_exception
+# import pprint
+# from traceback import print_exception
 
 FORMAT = '[%(asctime)s] [%(levelname)5s] [%(thread)d] ' \
          '[%(module)s:%(funcName)s:%(lineno)d] - %(message)s'
@@ -93,8 +93,8 @@ def exception_handler(exception_type, exception, traceback):
     """
 
     print_err("[Plex] (%s) : %s" % (exception_type.__name__, exception))
-    #del traceback # unused
-    print_exception(exception_type, exception, traceback)
+    del traceback # unused
+    # print_exception(exception_type, exception, traceback)
 
 sys.excepthook = exception_handler
 
@@ -124,14 +124,14 @@ class TrackInfo(object):
         self.title = track.title
         self.artist = artist.title
         self.album = album.title
-        self.year = album.year
+        self.year = album.year if album.year else 0;
         self.duration = track.duration / 1000 if track.duration else 0;
         self.url = track.getStreamURL()
         self.thumb_url = track.thumbUrl
         self.art_url = track.artUrl
         media = track.media[0]
         if media:
-            self.bitrate = media.bitrate
+            self.bitrate = media.bitrate if media.bitrate else 0
             self.codec = media.audioCodec
             self.channels = media.audioChannels
             part = media.parts[0]

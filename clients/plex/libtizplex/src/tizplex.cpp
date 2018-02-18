@@ -447,7 +447,14 @@ int tizplex::get_current_track ()
     }
 
   char seconds_str[10];
-  sprintf (seconds_str, "%02i", seconds);
+  if (0 == minutes && 0 == hours)
+    {
+      sprintf (seconds_str, "%01i", seconds);
+    }
+  else
+    {
+      sprintf (seconds_str, "%02i", seconds);
+    }
   current_track_duration_.append (seconds_str);
   current_track_duration_.append ("s");
 

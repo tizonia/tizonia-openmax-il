@@ -377,9 +377,13 @@ update_metadata (plex_prc_t * ap_prc)
     tiz_plex_get_current_audio_track_album (ap_prc->p_plex_)));
 
   /* Publication year */
-  tiz_check_omx (store_metadata (
-    ap_prc, "Published",
-    tiz_plex_get_current_audio_track_year (ap_prc->p_plex_)));
+  {
+    const char * p_year = tiz_plex_get_current_audio_track_year (ap_prc->p_plex_);
+    if (p_year && strncmp (p_year, "0", 4) != 0)
+      {
+        tiz_check_omx (store_metadata (ap_prc, "Published", p_year));
+      }
+  }
 
   /* File size */
   tiz_check_omx (store_metadata (
