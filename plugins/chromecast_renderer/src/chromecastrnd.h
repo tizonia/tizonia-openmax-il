@@ -42,6 +42,7 @@ extern "C" {
 #define ARATELIA_SCLOUD_SOURCE_DEFAULT_ROLE "audio_renderer.chromecast.scloud"
 #define ARATELIA_DIRBLE_SOURCE_DEFAULT_ROLE "audio_renderer.chromecast.dirble"
 #define ARATELIA_YOUTUBE_SOURCE_DEFAULT_ROLE "audio_renderer.chromecast.youtube"
+#define ARATELIA_PLEX_SOURCE_DEFAULT_ROLE "audio_renderer.chromecast.plex"
 #define ARATELIA_CHROMECAST_RENDERER_COMPONENT_NAME \
   "OMX.Aratelia.audio_renderer.chromecast"
 /* With libtizonia, port indexes must start at index 0 */

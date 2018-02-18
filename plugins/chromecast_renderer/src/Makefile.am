@@ -42,7 +42,11 @@ noinst_HEADERS = \
 	cc_youtubeprc.h \
 	cc_youtubeprc_decls.h \
 	cc_youtubecfgport.h \
-	cc_youtubecfgport_decls.h
+	cc_youtubecfgport_decls.h \
+	cc_plexprc.h \
+	cc_plexprc_decls.h \
+	cc_plexcfgport.h \
+	cc_plexcfgport_decls.h
 
 libtizchromecastrnd_la_SOURCES = \
 	chromecastrnd.c \
@@ -56,7 +60,9 @@ libtizchromecastrnd_la_SOURCES = \
 	cc_dirbleprc.c \
 	cc_dirblecfgport.c \
 	cc_youtubeprc.c \
-	cc_youtubecfgport.c
+	cc_youtubecfgport.c \
+	cc_plexprc.c \
+	cc_plexcfgport.c
 
 libtizchromecastrnd_la_CFLAGS = \
 	@TIZILHEADERS_CFLAGS@ \
@@ -66,6 +72,7 @@ libtizchromecastrnd_la_CFLAGS = \
 	@TIZSOUNDCLOUD_CFLAGS@ \
 	@TIZDIRBLE_CFLAGS@ \
 	@TIZYOUTUBE_CFLAGS@ \
+	@TIZPLEX_CFLAGS@ \
 	@TIZCASTCLIENT_CFLAGS@ \
 	@TIZCASTD_CFLAGS@
 
@@ -78,4 +85,5 @@ libtizchromecastrnd_la_LIBADD = \
 	@TIZSOUNDCLOUD_LIBS@ \
 	@TIZDIRBLE_LIBS@ \
 	@TIZYOUTUBE_LIBS@ \
+	@TIZPLEX_LIBS@ \
 	@TIZCASTCLIENT_LIBS@
