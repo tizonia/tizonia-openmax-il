@@ -495,11 +495,9 @@ release_buffer (plex_prc_t * ap_prc)
           ap_prc->eos_ = true;
         }
 
-      if (ap_prc->p_outhdr_->nFilledLen < ap_prc->p_outhdr_->nAllocLen
-          && ap_prc->bytes_before_eos_ < ap_prc->p_outhdr_->nAllocLen
-          && 0
-               == (tiz_urltrans_bytes_available (ap_prc->p_trans_)
-                   - ap_prc->p_outhdr_->nFilledLen))
+      if (ap_prc->connection_closed_
+          && (!(tiz_urltrans_bytes_available (ap_prc->p_trans_)
+                - ap_prc->p_outhdr_->nFilledLen)))
         {
           ap_prc->bytes_before_eos_ = 0;
           ap_prc->content_length_bytes_ = 0;
@@ -613,6 +611,7 @@ connection_lost (OMX_PTR ap_arg)
     "connection_lost - bytes_before_eos_ [%lu] - content_length_bytes_ [%lu]\n",
     p_prc->bytes_before_eos_, p_prc->content_length_bytes_);
 
+  p_prc->connection_closed_ = true;
   /* Return false to indicate that there is no need to start the automatic
      reconnection procedure */
   return false;
@@ -736,6 +735,7 @@ plex_prc_ctor (void * ap_obj, va_list * app)
   p_prc->bitrate_ = ARATELIA_HTTP_SOURCE_DEFAULT_BIT_RATE_KBITS;
   update_cache_size (p_prc);
   p_prc->remove_current_url_ = false;
+  p_prc->connection_closed_ = false;
   return p_prc;
 }
 
@@ -948,7 +948,6 @@ plex_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
       /* Changing the URL has the side effect of halting the current
          download */
       tiz_urltrans_set_uri (p_prc->p_trans_, p_prc->p_uri_param_);
-      p_prc->content_length_bytes_ = 0;
 
       if (p_prc->port_disabled_)
         {
@@ -962,6 +961,8 @@ plex_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
       prepare_for_port_auto_detection (p_prc);
 
       /* Re-start the transfer */
+      p_prc->content_length_bytes_ = 0;
+      p_prc->connection_closed_ = false;
       tiz_urltrans_start (p_prc->p_trans_);
     }
   return rc;

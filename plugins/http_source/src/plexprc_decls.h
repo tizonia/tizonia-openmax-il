@@ -65,6 +65,7 @@ struct plex_prc
   int bitrate_;
   int cache_bytes_;
   bool remove_current_url_;
+  bool connection_closed_;
 };
 
 typedef struct plex_prc_class plex_prc_class_t;
