@@ -32,9 +32,12 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <vector>
 #include <algorithm>
 
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/mem_fn.hpp>
 #include <boost/lexical_cast.hpp>
@@ -76,6 +79,7 @@ graph::ops::ops (graph *p_graph, const omx_comp_name_lst_t &comp_lst,
     destination_state_ (OMX_StateMax),
     metadata_ (),
     volume_ (80),
+    duration_ (0),
     error_code_ (OMX_ErrorNone),
     error_msg_ ()
 {
@@ -631,7 +635,7 @@ graph::ops::do_start_progress_display()
 {
   if (last_op_succeeded () && p_graph_)
   {
-    p_graph_->progress_display_start ();
+    p_graph_->progress_display_start (duration_);
   }
 }
 
@@ -1000,6 +1004,7 @@ graph::ops::probe_stream (const OMX_PORTDOMAINTYPE omx_domain,
         tiz::graph::util::dump_graph_info (graph_id.c_str (),
                                            graph_action.c_str (), uri);
         probe_ptr_->dump_stream_metadata ();
+        store_last_track_duration (probe_ptr_->stream_length ().c_str());
         boost::bind (boost::mem_fn (stream_info_dump_f), probe_ptr_)();
 
         metadata_ = boost::assign::map_list_of ("trackid", "1")
@@ -1121,6 +1126,12 @@ graph::ops::dump_metadata_item (const OMX_U32 index, const int comp_index,
       else
         {
           TIZ_PRINTF_CYN ("     %s : %s\n", p_meta->nKey, p_meta->nValue);
+          std::string key;
+          key.assign ((const char*)p_meta->nKey);
+          if (boost::starts_with (key, "Duration"))
+            {
+              store_last_track_duration ((const char*)p_meta->nValue);
+            }
         }
     }
 
@@ -1128,6 +1139,36 @@ graph::ops::dump_metadata_item (const OMX_U32 index, const int comp_index,
     p_meta = NULL;
   }
   return rc;
+}
+
+void graph::ops::store_last_track_duration(const char * p_value)
+{
+  if (p_value)
+  {
+    std::string value;
+    value.assign (p_value);
+    std::vector< std::string > strs;
+    boost::split (strs, value, boost::is_any_of (":"));
+    unsigned long seconds = 0;
+    for (size_t i = 0; i < strs.size (); i++)
+    {
+      unsigned long value = boost::lexical_cast< unsigned long > (
+          strs[i].substr (0, strs[i].size () - 1));
+      if (boost::ends_with (strs[i], "h"))
+      {
+        seconds += (value * 3600);
+      }
+      if (boost::ends_with (strs[i], "m"))
+      {
+        seconds += (value * 60);
+      }
+      if (boost::ends_with (strs[i], "s"))
+      {
+        seconds += value;
+      }
+    }
+    duration_ = seconds;
+  }
 }
 
 graph::cbackhandler &graph::ops::get_cback_handler () const

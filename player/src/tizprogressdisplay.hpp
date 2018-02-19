@@ -56,13 +56,16 @@ namespace tiz
       //  Postconditions: count()== original count() + increment
       //  Returns: count().
       {
-        if ((_count += increment) >= _next_tic_count)
+        if (_count < _expected_count)
         {
-          display_tic ();
-        }
-        else
-        {
-          update_time ();
+          if ((_count += increment) >= _next_tic_count)
+          {
+            display_tic ();
+          }
+          else
+          {
+            update_time ();
+          }
         }
         return _count;
       }

@@ -229,6 +229,8 @@ namespace tiz
                                                 const bool use_first_as_heading
                                                 = true);
 
+      virtual void store_last_track_duration(const char * p_value);
+
       cbackhandler &get_cback_handler () const;
 
     protected:
@@ -246,6 +248,7 @@ namespace tiz
       OMX_STATETYPE destination_state_;
       track_metadata_map_t metadata_;
       int volume_;
+      unsigned long duration_;
       OMX_ERRORTYPE error_code_;
       std::string error_msg_;
     };

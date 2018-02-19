@@ -38,7 +38,6 @@
 #include "tizgraphtypes.hpp"
 #include "tizplaylist.hpp"
 #include "tizgraphcback.hpp"
-#include "tizprogressdisplay.hpp"
 
 namespace tiz
 {
@@ -56,6 +55,7 @@ namespace tiz
     class cmd;
     class cbackhandler;
     class ops;
+    class progress_display;
 
     class graph
     {
@@ -105,7 +105,7 @@ namespace tiz
       void graph_end_of_play ();
       void graph_error (const OMX_ERRORTYPE error, const std::string &msg);
 
-      void progress_display_start();
+      void progress_display_start(unsigned long duration);
       void progress_display_increase();
       void progress_display_pause();
       void progress_display_resume();

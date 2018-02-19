@@ -381,21 +381,22 @@ void graph::graph::graph_error (const OMX_ERRORTYPE error,
   }
 }
 
-void graph::graph::progress_display_start()
+void graph::graph::progress_display_start(unsigned long duration)
 {
   uint32_t id = 0;
   if (!p_progress_)
     {
-      p_progress_ = new tiz::graph::progress_display(450);
+      p_progress_ = new tiz::graph::progress_display(duration);
       assert (p_ev_timer_);
       (void)tiz_event_timer_set (p_ev_timer_, 1.0, 1.0);
       (void)tiz_event_timer_start (p_ev_timer_, id);
     }
   else
     {
-      p_progress_->restart(450);
+      p_progress_->restart(duration);
       (void)tiz_event_timer_restart (p_ev_timer_, id);
     }
+  ++(*p_progress_);
 }
 
 void graph::graph::progress_display_increase()
@@ -432,6 +433,8 @@ void graph::graph::progress_display_stop ()
 
   if (p_progress_)
   {
+    // Make sure we finish with a nice and full progress display
+    (*p_progress_) += (p_progress_->expected_count () - p_progress_->count ());
     delete p_progress_;
     p_progress_ = NULL;
   }
