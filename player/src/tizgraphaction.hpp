@@ -703,6 +703,72 @@ namespace tiz
       }
     };
 
+    struct do_start_progress_display
+    {
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
+      {
+        G_ACTION_LOG ();
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+        {
+          (*(fsm.pp_ops_))->do_start_progress_display ();
+        }
+      }
+    };
+
+    struct do_stop_progress_display
+    {
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
+      {
+        G_ACTION_LOG ();
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+        {
+          (*(fsm.pp_ops_))->do_stop_progress_display ();
+        }
+      }
+    };
+
+    struct do_pause_progress_display
+    {
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
+      {
+        G_ACTION_LOG ();
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+        {
+          (*(fsm.pp_ops_))->do_pause_progress_display ();
+        }
+      }
+    };
+
+    struct do_resume_progress_display
+    {
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
+      {
+        G_ACTION_LOG ();
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+        {
+          (*(fsm.pp_ops_))->do_resume_progress_display ();
+        }
+      }
+    };
+
+    struct do_increase_progress_display
+    {
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const& evt, FSM& fsm, SourceState&, TargetState&)
+      {
+        G_ACTION_LOG ();
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+        {
+          (*(fsm.pp_ops_))->do_increase_progress_display (evt.p_arg1_, evt.id_);
+        }
+      }
+    };
+
+
   }  // namespace graph
 }  // namespace tiz
 

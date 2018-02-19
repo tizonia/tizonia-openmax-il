@@ -368,7 +368,7 @@ update_metadata (plex_prc_t * ap_prc)
 
   /* Playback queue progress */
   tiz_check_omx (store_metadata (
-    ap_prc, "Stream #",
+    ap_prc, "Track #",
     tiz_plex_get_current_queue_progress (ap_prc->p_plex_)));
 
   /* Album */

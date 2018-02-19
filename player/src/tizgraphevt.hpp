@@ -320,6 +320,15 @@ namespace tiz
       }
     };
 
+    struct timer_evt
+    {
+      timer_evt (void *ap_arg1, const unsigned int a_id)
+        : p_arg1_ (ap_arg1), id_ (a_id)
+      {
+      }
+      void * p_arg1_;
+      unsigned int id_;
+    };
   }  // namespace graph
 }  // namespace tiz
 

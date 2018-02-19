@@ -160,7 +160,7 @@ namespace
 
   void player_sig_term_hdlr (int sig)
   {
-    TIZ_PRINTF_BLU ("\n%s exiting (Ctrl-C).\n", APP_NAME);
+    TIZ_PRINTF_BLU ("\n\n%s exiting (Ctrl-C).\n", APP_NAME);
     player_exit_success ();
   }
 
@@ -365,7 +365,7 @@ namespace
       }
       else
       {
-        TIZ_PRINTF_BLU ("\n%s exiting (Quit).\n\n", APP_NAME);
+        TIZ_PRINTF_BLU ("\n\n%s exiting (Quit).\n\n", APP_NAME);
         player_exit_success ();
       }
     }

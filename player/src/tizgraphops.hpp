@@ -152,6 +152,11 @@ namespace tiz
                                           const OMX_ERRORTYPE error,
                                           const OMX_U32 port,
                                           const OMX_PTR p_eventdata = NULL);
+      virtual void do_start_progress_display();
+      virtual void do_increase_progress_display(void *ap_arg1, const unsigned int a_id);
+      virtual void do_pause_progress_display();
+      virtual void do_resume_progress_display();
+      virtual void do_stop_progress_display();
 
       virtual bool is_port_settings_evt_required () const;
       virtual bool is_disabled_evt_required () const;

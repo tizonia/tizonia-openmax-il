@@ -626,6 +626,51 @@ void graph::ops::do_record_fatal_error (const OMX_HANDLETYPE handle,
   record_error (error, msg);
 }
 
+void
+graph::ops::do_start_progress_display()
+{
+  if (last_op_succeeded () && p_graph_)
+  {
+    p_graph_->progress_display_start ();
+  }
+}
+
+void
+graph::ops::do_increase_progress_display(void *ap_arg1, const unsigned int a_id)
+{
+  if (last_op_succeeded () && p_graph_)
+  {
+    p_graph_->progress_display_increase ();
+  }
+}
+
+void
+graph::ops::do_pause_progress_display()
+{
+  if (last_op_succeeded () && p_graph_)
+  {
+    p_graph_->progress_display_pause ();
+  }
+}
+
+void
+graph::ops::do_resume_progress_display()
+{
+  if (last_op_succeeded () && p_graph_)
+  {
+    p_graph_->progress_display_resume ();
+  }
+}
+
+void
+graph::ops::do_stop_progress_display()
+{
+  if (last_op_succeeded () && p_graph_)
+  {
+    p_graph_->progress_display_stop ();
+  }
+}
+
 bool graph::ops::is_port_settings_evt_required () const
 {
   // To be overriden in child classes when needed.

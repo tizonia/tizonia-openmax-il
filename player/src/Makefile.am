@@ -63,6 +63,7 @@ noinst_HEADERS = \
 	tizgraphmgrcaps.hpp \
 	tizplaybackstatus.hpp \
 	tizplaybackevents.hpp \
+	tizprogressdisplay.hpp \
 	decoders/tizdecgraphmgr.hpp \
 	decoders/tizdecgraph.hpp \
 	decoders/tizmp3graph.hpp \
@@ -182,6 +183,7 @@ tizonia_SOURCES = \
 	services/chromecast/tizchromecastgraphops.cpp \
 	services/chromecast/tizchromecastmgr.cpp \
 	tizplaybackevents.cpp \
+	tizprogressdisplay.cpp \
 	mpris/tizmprismgr.cpp \
 	mpris/tizmprisprops.cpp \
 	mpris/tizmprisif.cpp
