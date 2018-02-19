@@ -29,8 +29,12 @@
 #include <config.h>
 #endif
 
-#include <boost/lexical_cast.hpp>
+
 #include <iostream>
+#include <vector>
+#include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
 
 #include "tizyoutube.hpp"
 
@@ -432,7 +436,46 @@ int tizyoutube::get_current_stream ()
       py_yt_proxy_.attr ("current_audio_stream_duration") ());
   if (p_duration)
     {
-      current_stream_duration_.assign (p_duration);
+      std::string value;
+      value.assign (p_duration);
+      std::vector< std::string > strs;
+      boost::split (strs, value, boost::is_any_of (":"));
+      std::reverse(strs.begin(), strs.end());
+      size_t num_non_empty = 0;
+      for (size_t i = 0; i < strs.size (); ++i)
+        {
+          if (0 == i)
+            {
+              ++num_non_empty;
+              strs[i].append ("s");
+            }
+          if (1 == i)
+            {
+              ++num_non_empty;
+              strs[i].append ("m");
+            }
+          if (2 == i)
+            {
+              if (0 == boost::lexical_cast< unsigned long > (strs[i]))
+                {
+                  strs[i].clear ();
+                }
+              else
+                {
+                  ++num_non_empty;
+                  strs[i].append ("h");
+                }
+            }
+        }
+
+      for (size_t i = 0; i < num_non_empty; ++i)
+        {
+          current_stream_duration_ =  strs[i] + current_stream_duration_;
+          if ((num_non_empty - 1) != i)
+            {
+              current_stream_duration_ = ":" + current_stream_duration_;
+            }
+        }
     }
 
   const char *p_bitrate = bp::extract< char const * > (
