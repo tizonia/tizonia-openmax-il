@@ -169,7 +169,7 @@ void graph::gmusicops::do_loaded2idle ()
     G_OPS_BAIL_IF_ERROR (
         util::transition_all (decoder_and_renderer_handles, OMX_StateIdle,
                               OMX_StateLoaded),
-        "Unable to transition deoder and renderer from Loaded->Idle");
+        "Unable to transition decoder and renderer from Loaded->Idle");
     clear_expected_transitions ();
     add_expected_transition (handles_[1], OMX_StateIdle);
     add_expected_transition (handles_[2], OMX_StateIdle);

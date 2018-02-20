@@ -34,16 +34,16 @@
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
 
-#include <OMX_Core.h>
 #include <OMX_Component.h>
+#include <OMX_Core.h>
 #include <OMX_TizoniaExt.h>
 #include <tizplatform.h>
 
-#include "tizgraphutil.hpp"
-#include "tizprobe.hpp"
 #include "tizgraph.hpp"
+#include "tizgraphutil.hpp"
 #include "tizplexconfig.hpp"
 #include "tizplexgraphops.hpp"
+#include "tizprobe.hpp"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -55,27 +55,28 @@ namespace graph = tiz::graph;
 //
 // plexops
 //
-graph::plexops::plexops (graph *p_graph,
-                             const omx_comp_name_lst_t &comp_lst,
-                             const omx_comp_role_lst_t &role_lst)
+graph::plexops::plexops (graph *p_graph, const omx_comp_name_lst_t &comp_lst,
+                         const omx_comp_role_lst_t &role_lst)
   : tiz::graph::ops (p_graph, comp_lst, role_lst),
     encoding_ (OMX_AUDIO_CodingAutoDetect)
 {
   TIZ_INIT_OMX_PORT_STRUCT (renderer_pcmtype_, 0);
+  TIZ_INIT_OMX_PORT_STRUCT (decoder_mp3type_, 0);
 }
 
 void graph::plexops::do_enable_auto_detection (const int handle_id,
-                                                 const int port_id)
+                                               const int port_id)
 {
   tizplexconfig_ptr_t plex_config
-      = boost::dynamic_pointer_cast< plexconfig >(config_);
+      = boost::dynamic_pointer_cast< plexconfig > (config_);
   assert (plex_config);
   tiz::graph::ops::do_enable_auto_detection (handle_id, port_id);
   tiz::graph::util::dump_graph_info ("Plex", "Connecting",
                                      plex_config->get_base_url ().c_str ());
 }
 
-void graph::plexops::do_disable_comp_ports (const int comp_id, const int port_id)
+void graph::plexops::do_disable_comp_ports (const int comp_id,
+                                            const int port_id)
 {
   OMX_U32 plex_source_port = port_id;
   G_OPS_BAIL_IF_ERROR (util::disable_port (handles_[comp_id], plex_source_port),
@@ -147,6 +148,8 @@ void graph::plexops::do_configure ()
 {
   if (last_op_succeeded ())
   {
+    G_OPS_BAIL_IF_ERROR (override_decoder_and_renderer_sampling_rates (),
+                         "Unable to override decoder/renderer sampling rates");
     G_OPS_BAIL_IF_ERROR (apply_pcm_codec_info_from_decoder (),
                          "Unable to set OMX_IndexParamAudioPcm");
   }
@@ -232,7 +235,8 @@ void graph::plexops::do_retrieve_metadata ()
   const int decoder_index = 1;
   index = 0;
   const bool use_first_as_heading = false;
-  while (OMX_ErrorNone == dump_metadata_item (index++, decoder_index, use_first_as_heading))
+  while (OMX_ErrorNone
+         == dump_metadata_item (index++, decoder_index, use_first_as_heading))
   {
   };
 
@@ -250,8 +254,8 @@ void graph::plexops::do_retrieve_metadata ()
 // TODO: Move this implementation to the base class (and remove also from
 // httpservops)
 OMX_ERRORTYPE
-graph::plexops::switch_tunnel (
-    const int tunnel_id, const OMX_COMMANDTYPE to_disabled_or_enabled)
+graph::plexops::switch_tunnel (const int tunnel_id,
+                               const OMX_COMMANDTYPE to_disabled_or_enabled)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
@@ -311,16 +315,27 @@ OMX_ERRORTYPE graph::plexops::get_encoding_type_from_plex_source ()
 }
 
 OMX_ERRORTYPE
+graph::plexops::override_decoder_and_renderer_sampling_rates ()
+{
+  OMX_U32 channels = 2;
+  OMX_U32 sampling_rate = 44100;
+  std::string encoding_str;
+  tiz_check_omx (set_channels_and_rate_on_decoder (channels, sampling_rate));
+  return set_channels_and_rate_on_renderer (channels, sampling_rate,
+                                            encoding_str);
+}
+
+OMX_ERRORTYPE
 graph::plexops::apply_pcm_codec_info_from_decoder ()
 {
   OMX_U32 channels = 2;
   OMX_U32 sampling_rate = 44100;
   std::string encoding_str;
 
-  tiz_check_omx (get_channels_and_rate_from_decoder (
-      channels, sampling_rate, encoding_str));
+  tiz_check_omx (get_channels_and_rate_from_decoder (channels, sampling_rate,
+                                                     encoding_str));
   tiz_check_omx (set_channels_and_rate_on_renderer (channels, sampling_rate,
-                                                        encoding_str));
+                                                    encoding_str));
   return OMX_ErrorNone;
 }
 
@@ -337,9 +352,9 @@ graph::plexops::get_channels_and_rate_from_decoder (
     case OMX_AUDIO_CodingMP3:
     {
       encoding_str = "mp3";
-      rc = tiz::graph::util::
-          get_channels_and_rate_from_audio_port_v2< OMX_AUDIO_PARAM_PCMMODETYPE >(
-              handle, port_id, OMX_IndexParamAudioPcm, channels, sampling_rate);
+      rc = tiz::graph::util::get_channels_and_rate_from_audio_port_v2<
+          OMX_AUDIO_PARAM_PCMMODETYPE > (
+          handle, port_id, OMX_IndexParamAudioPcm, channels, sampling_rate);
     }
     break;
     default:
@@ -352,6 +367,38 @@ graph::plexops::get_channels_and_rate_from_decoder (
   TIZ_LOG (TIZ_PRIORITY_TRACE, "outcome = [%s]", tiz_err_to_str (rc));
 
   return rc;
+}
+
+OMX_ERRORTYPE
+graph::plexops::set_channels_and_rate_on_decoder (const OMX_U32 channels,
+                                                  const OMX_U32 sampling_rate)
+{
+  const OMX_HANDLETYPE handle = handles_[1];  // decoder's handle
+  const OMX_U32 port_id = 0;                  // decoder's input port
+
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "channels = [%d] sampling_rate = [%d]", channels,
+           sampling_rate);
+
+  // Retrieve the mp3 settings from the decoder component
+  TIZ_INIT_OMX_PORT_STRUCT (decoder_mp3type_, port_id);
+  tiz_check_omx (
+      OMX_GetParameter (handle, OMX_IndexParamAudioMp3, &decoder_mp3type_));
+
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "channels = [%d] sampling_rate = [%d]", channels,
+           sampling_rate);
+
+  // Now assign the actual settings to the pcmtype structure
+  decoder_mp3type_.nChannels = channels;
+  decoder_mp3type_.nSampleRate = sampling_rate;
+
+  // Set the new mp3 settings
+  tiz_check_omx (
+      OMX_SetParameter (handle, OMX_IndexParamAudioMp3, &decoder_mp3type_));
+
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "channels = [%d] sampling_rate = [%d]", channels,
+           sampling_rate);
+
+  return OMX_ErrorNone;
 }
 
 OMX_ERRORTYPE
@@ -405,10 +452,9 @@ bool graph::plexops::is_fatal_error (const OMX_ERRORTYPE error) const
   return rc;
 }
 
-void graph::plexops::do_record_fatal_error (const OMX_HANDLETYPE handle,
-                                              const OMX_ERRORTYPE error,
-                                              const OMX_U32 port,
-                                              const OMX_PTR p_eventdata /* = NULL */)
+void graph::plexops::do_record_fatal_error (
+    const OMX_HANDLETYPE handle, const OMX_ERRORTYPE error, const OMX_U32 port,
+    const OMX_PTR p_eventdata /* = NULL */)
 {
   tiz::graph::ops::do_record_fatal_error (handle, error, port, p_eventdata);
   if (error == OMX_ErrorContentURIError)
