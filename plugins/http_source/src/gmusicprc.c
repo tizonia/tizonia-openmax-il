@@ -341,7 +341,7 @@ update_metadata (gmusic_prc_t * ap_prc)
 
   /* Track number */
   tiz_check_omx (store_metadata (
-    ap_prc, "Track",
+    ap_prc, "Track #",
     tiz_gmusic_get_current_song_track_number (ap_prc->p_gmusic_)));
 
   /* Store total tracks if not 0 */
@@ -455,8 +455,11 @@ buffer_filled (OMX_BUFFERHEADERTYPE * ap_hdr, void * ap_arg)
   assert (p_prc);
   assert (ap_hdr);
   assert (p_prc->p_outhdr_ == ap_hdr);
-  ap_hdr->nOffset = 0;
-  (void) release_buffer (p_prc);
+  if (ARATELIA_HTTP_SOURCE_PORT_MIN_BUF_SIZE <= ap_hdr->nFilledLen
+      || p_prc->connection_closed_)
+    {
+      (void) release_buffer (p_prc);
+    }
 }
 
 static OMX_BUFFERHEADERTYPE *
@@ -531,8 +534,9 @@ connection_lost (OMX_PTR ap_arg)
   assert (p_prc);
   TIZ_PRINTF_DBG_RED ("connection_lost - bytes_before_eos_ [%d]\n",
                       p_prc->bytes_before_eos_);
-  /* With this, we force an EOS flag in the next buffer */
-  p_prc->bytes_before_eos_ = 0;
+
+  p_prc->connection_closed_ = true;
+  p_prc->bytes_before_eos_ = tiz_urltrans_bytes_available (p_prc->p_trans_);
   /* Return false to indicate that there is no need to start the automatic
      reconnection procedure */
   return false;
@@ -677,6 +681,7 @@ gmusic_prc_ctor (void * ap_obj, va_list * app)
   p_prc->auto_detect_on_ = false;
   p_prc->bitrate_ = ARATELIA_HTTP_SOURCE_DEFAULT_BIT_RATE_KBITS;
   update_cache_size (p_prc);
+  p_prc->connection_closed_ = false;
   return p_prc;
 }
 
@@ -767,6 +772,7 @@ gmusic_prc_transfer_and_process (void * ap_prc, OMX_U32 a_pid)
   assert (p_prc);
   if (p_prc->auto_detect_on_)
     {
+      p_prc->connection_closed_ = false;
       rc = tiz_urltrans_start (p_prc->p_trans_);
     }
   return rc;
@@ -873,6 +879,7 @@ gmusic_prc_port_enable (const void * ap_prc, OMX_U32 a_pid)
       else
         {
           p_prc->uri_changed_ = false;
+          p_prc->connection_closed_ = false;
           rc = tiz_urltrans_start (p_prc->p_trans_);
         }
     }
@@ -908,6 +915,7 @@ gmusic_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
       else
         {
           /* re-start the transfer */
+          p_prc->connection_closed_ = false;
           tiz_urltrans_start (p_prc->p_trans_);
         }
     }

@@ -64,6 +64,7 @@ struct gmusic_prc
   bool auto_detect_on_;
   int bitrate_;
   int cache_bytes_;
+  bool connection_closed_;
 };
 
 typedef struct gmusic_prc_class gmusic_prc_class_t;
