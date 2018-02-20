@@ -116,7 +116,7 @@ namespace tiz
     struct graph_execd_evt {};
     struct graph_stopped_evt {};
     struct graph_paused_evt {};
-    struct graph_unpaused_evt {};
+    struct graph_resumed_evt {};
     struct graph_metadata_evt
     {
       graph_metadata_evt (const track_metadata_map_t &metadata)
@@ -768,7 +768,7 @@ namespace tiz
         bmf::Row < running               , mute_evt         , bmf::none   , do_mute                                     >,
         bmf::Row < running               , pause_evt        , bmf::none   , do_pause                                    >,
         bmf::Row < running               , graph_paused_evt , bmf::none   , do_update_control_ifcs<tc::Paused>          >,
-        bmf::Row < running               , graph_unpaused_evt, bmf::none  , do_update_control_ifcs<tc::Playing>         >,
+        bmf::Row < running               , graph_resumed_evt, bmf::none  , do_update_control_ifcs<tc::Playing>         >,
         bmf::Row < running               , graph_metadata_evt, bmf::none  , do_update_metadata                          >,
         bmf::Row < running               , graph_volume_evt , bmf::none   , do_update_volume                            >,
         bmf::Row < running               , start_evt        , bmf::none   , do_pause                                    >,

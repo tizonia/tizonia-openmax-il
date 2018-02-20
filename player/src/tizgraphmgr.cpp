@@ -268,9 +268,9 @@ graphmgr::mgr::graph_paused ()
 }
 
 OMX_ERRORTYPE
-graphmgr::mgr::graph_unpaused ()
+graphmgr::mgr::graph_resumed ()
 {
-  return post_cmd (new graphmgr::cmd (graphmgr::graph_unpaused_evt ()));
+  return post_cmd (new graphmgr::cmd (graphmgr::graph_resumed_evt ()));
 }
 
 OMX_ERRORTYPE

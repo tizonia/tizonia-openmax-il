@@ -370,7 +370,7 @@ namespace tiz
         //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
         boost::msm::front::Row < pause2exe   , omx_trans_evt   , executing               , boost::msm::front::ActionSequence_<
                                                                                              boost::mpl::vector<
-                                                                                               do_ack_unpaused,
+                                                                                               do_ack_resumed,
                                                                                                do_resume_progress_display >
                                                                                                >                   , is_trans_complete    >,
         //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+

@@ -332,11 +332,11 @@ void graph::graph::graph_paused ()
   }
 }
 
-void graph::graph::graph_unpaused ()
+void graph::graph::graph_resumed ()
 {
   if (p_mgr_)
   {
-    p_mgr_->graph_unpaused ();
+    p_mgr_->graph_resumed ();
   }
 }
 

@@ -325,11 +325,11 @@ void graph::ops::do_ack_paused ()
   }
 }
 
-void graph::ops::do_ack_unpaused ()
+void graph::ops::do_ack_resumed ()
 {
   if (last_op_succeeded () && p_graph_)
   {
-    p_graph_->graph_unpaused ();
+    p_graph_->graph_resumed ();
   }
 }
 

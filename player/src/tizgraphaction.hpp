@@ -315,7 +315,7 @@ namespace tiz
       }
     };
 
-    struct do_ack_unpaused
+    struct do_ack_resumed
     {
       template < class FSM, class EVT, class SourceState, class TargetState >
       void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
@@ -323,7 +323,7 @@ namespace tiz
         G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
         {
-          (*(fsm.pp_ops_))->do_ack_unpaused ();
+          (*(fsm.pp_ops_))->do_ack_resumed ();
         }
       }
     };

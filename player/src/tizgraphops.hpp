@@ -121,7 +121,7 @@ namespace tiz
       virtual void do_ack_execd ();
       virtual void do_ack_stopped ();
       virtual void do_ack_paused ();
-      virtual void do_ack_unpaused ();
+      virtual void do_ack_resumed ();
       virtual void do_ack_metadata ();
       virtual void do_ack_volume ();
       virtual void do_exe2pause ();

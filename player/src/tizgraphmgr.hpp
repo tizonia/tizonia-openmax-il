@@ -220,7 +220,7 @@ namespace tiz
       OMX_ERRORTYPE graph_execd ();
       OMX_ERRORTYPE graph_stopped ();
       OMX_ERRORTYPE graph_paused ();
-      OMX_ERRORTYPE graph_unpaused ();
+      OMX_ERRORTYPE graph_resumed ();
       OMX_ERRORTYPE graph_metadata (const track_metadata_map_t &metadata);
       OMX_ERRORTYPE graph_volume (const int volume);
       OMX_ERRORTYPE graph_unloaded ();

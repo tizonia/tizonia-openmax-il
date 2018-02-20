@@ -98,7 +98,7 @@ namespace tiz
       void graph_execd ();
       void graph_stopped ();
       void graph_paused ();
-      void graph_unpaused ();
+      void graph_resumed ();
       void graph_metadata (const track_metadata_map_t &metadata);
       void graph_volume (const int volume);
       void graph_unloaded ();
