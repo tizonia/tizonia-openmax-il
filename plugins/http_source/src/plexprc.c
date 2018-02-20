@@ -530,8 +530,11 @@ buffer_filled (OMX_BUFFERHEADERTYPE * ap_hdr, void * ap_arg)
   assert (p_prc);
   assert (ap_hdr);
   assert (p_prc->p_outhdr_ == ap_hdr);
-  ap_hdr->nOffset = 0;
-  (void) release_buffer (p_prc);
+  if (ARATELIA_HTTP_SOURCE_PORT_MIN_BUF_SIZE <= ap_hdr->nFilledLen
+      || p_prc->connection_closed_)
+    {
+      (void) release_buffer (p_prc);
+    }
 }
 
 static OMX_BUFFERHEADERTYPE *
