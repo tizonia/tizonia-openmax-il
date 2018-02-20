@@ -29,6 +29,7 @@ import logging
 import random
 import unicodedata
 import re
+from plexapi.exceptions import NotFound
 from plexapi.myplex import MyPlexAccount
 from plexapi.server import PlexServer
 
@@ -250,12 +251,19 @@ class tizplexproxy(object):
         try:
             count = len(self.queue)
 
+            playlists = self._plex.playlist(title=arg)
+            for playlist in playlists:
+                for item in playlist.items():
+                    if item.TYPE == 'track':
+                        track = item
+                        track_info = TrackInfo(track, track.artist(), track.album())
+                        self.add_to_playback_queue(track_info)
+
             if count == len(self.queue):
                 raise ValueError
-
             self.__update_play_queue_order()
 
-        except ValueError:
+        except (ValueError, NotFound):
             raise ValueError(str("Playlist not found : %s" % arg))
 
     def current_audio_track_title(self):
