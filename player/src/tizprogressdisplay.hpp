@@ -31,7 +31,7 @@
 #include <iostream>
 #include <cmath>
 
-#include <boost/core/noncopyable.hpp>
+#include <boost/noncopyable.hpp>
 
 namespace tiz
 {
