@@ -171,8 +171,10 @@ To upgrade Tizonia, run 'apt-get' as usual, but also make sure the Python depend
 
 # Roadmap
 
-- Chromecast support.
-- YouTube live streams support.
+- Plex support.
+- Tidal support
+- Pandora support.
+- Support for YouTube live streams.
 - REPL command-line interface.
 - OS X port.
 
