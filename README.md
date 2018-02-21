@@ -92,8 +92,8 @@ along with all its dependencies.
 > the installation script before running it on your system!.
 
 ## Arch User Repository (AUR)
- - [tizonia-all (0.11.0)](https://aur.archlinux.org/packages/tizonia-all/)
- - [tizonia-all-git](https://aur.archlinux.org/packages/tizonia-all-git/)
+ - [tizonia-all (for the latest released version)](https://aur.archlinux.org/packages/tizonia-all/)
+ - [tizonia-all-git (HEAD of master branch)](https://aur.archlinux.org/packages/tizonia-all-git/)
 
 ```bash
 
