@@ -83,7 +83,8 @@ sudo apt-get -y install python-pip \
             pafy \
             pycountry \
             titlecase \
-            pychromecast
+            pychromecast \
+            fuzzywuzzy
 
 # Install 'libspotify'
 if [[ "$?" -eq 0 ]]; then

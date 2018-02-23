@@ -122,6 +122,7 @@ declare -ar TIZ_TIZONIA_PYPI_DEPS=( \
     pychromecast \
     pycountry \
     titlecase \
+    fuzzywuzzy \
 )
 
 declare -ar TIZ_DEBIAN_PKGS=( \
