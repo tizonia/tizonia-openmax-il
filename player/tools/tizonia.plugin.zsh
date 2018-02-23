@@ -4,6 +4,7 @@ tiz-grab-env-options () {
     local opts=''
     [[ "$SHUFFLE" == 'on' ]] && opts='--shuffle';
     [[ "$DAEMON" == 'on' ]] && opts="$opts --daemon";
+    [[ "$CAST" == 'on' ]] && opts='--cast';
     [[ "$ALTLOGDIR" == 'on' ]] && opts="$opts --log-directory=/tmp";
     echo "$opts"
 }
@@ -134,43 +135,75 @@ soundcloud-tags() {
     eval tizonia "$(tiz-grab-env-options)" --soundcloud-tags=\""$@"\"
 }
 
+# Tizonia's Dirble popular radio station search
 dirble-popular() {
     eval tizonia "$(tiz-grab-env-options)" --dirble-popular-stations
 }
 
+# Tizonia's Dirble station search
 dirble-station() {
     tiz-check-empty-params "$@" || return
     eval tizonia "$(tiz-grab-env-options)" --dirble-station=\""$@"\"
 }
 
+# Tizonia's Dirble category search
 dirble-category() {
     tiz-check-empty-params "$@" || return
     eval tizonia "$(tiz-grab-env-options)" --dirble-category=\""$@"\"
 }
 
+# Tizonia's Dirble country search
 dirble-country() {
     tiz-check-empty-params "$@" || return
     eval tizonia "$(tiz-grab-env-options)" --dirble-country=\""$@"\"
 }
 
+# Tizonia's YouTube audio playback (using a YouTube video id)
 youtube-search() {
     tiz-check-empty-params "$@" || return
     eval tizonia "$(tiz-grab-env-options)" --youtube-audio-search=\""$@"\"
 }
 
+# Tizonia's YouTube mix playback (using a YouTube mix id)
 youtube-mix() {
     tiz-check-empty-params "$@" || return
     eval tizonia "$(tiz-grab-env-options)" --youtube-audio-mix=\""$@"\"
 }
 
+# Tizonia's YouTube audio playlist playback (using a YouTube playlist id)
 youtube-playlist() {
     tiz-check-empty-params "$@" || return
     eval tizonia "$(tiz-grab-env-options)" --youtube-audio-playlist=\""$@"\"
 }
 
+# Tizonia's YouTube audio mix search
 youtube-mix-search() {
     tiz-check-empty-params "$@" || return
     eval tizonia "$(tiz-grab-env-options)" --youtube-audio-mix-search=\""$@"\"
+}
+
+# Tizonia's Plex server music tracks search
+plex-tracks() {
+    tiz-check-empty-params "$@" || return
+    eval tizonia "$(tiz-grab-env-options)" --plex-audio-tracks=\""$@"\"
+}
+
+# Tizonia's Plex server music artist search
+plex-artist() {
+    tiz-check-empty-params "$@" || return
+    eval tizonia "$(tiz-grab-env-options)" --plex-audio-artist=\""$@"\"
+}
+
+# Tizonia's Plex server music album search
+plex-album() {
+    tiz-check-empty-params "$@" || return
+    eval tizonia "$(tiz-grab-env-options)" --plex-audio-album=\""$@"\"
+}
+
+# Tizonia's Plex server music playlist search
+plex-playlist() {
+    tiz-check-empty-params "$@" || return
+    eval tizonia "$(tiz-grab-env-options)" --plex-audio-playlist=\""$@"\"
 }
 
 alias s='spotify-playlist'
