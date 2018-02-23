@@ -143,7 +143,7 @@ more information):
 ```bash
 
     $ mkdir -p $HOME/.config/tizonia
-    $ cp /etc/tizonia/tizonia.conf $HOME/.config/tizonia/tizonia.conf
+    $ cp /etc/xdg/tizonia/tizonia.conf $HOME/.config/tizonia/tizonia.conf
 
     ( now edit $HOME/.config/tizonia/tizonia.conf )
 
