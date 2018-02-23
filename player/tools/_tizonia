@@ -8,7 +8,12 @@ typeset -A opt_args
 local rc=1
 
 _arguments -S -s \
-  '--help[Help topics.]:Help topics by area:(global openmax server client spotify googlemusic soundcloud dirble youtube keyboard config examples)' \
+  '--help[Help topics.]:Help topics by area:(global openmax server client spotify googlemusic soundcloud dirble youtube plex chromecast keyboard config examples)' \
+  '(-v)--version[Print the version information.]' \
+  '(-r)--recurse[Recursively process a given path.]' \
+  '(-s)--shuffle[Shuffle the playlist.]' \
+  '(-d)--daemon[Run in the brackground.]' \
+  '(-c)--cast[Cast to a Chromecast device (arg: device name or ip address).]' \
   '(-L)--comp-list[Enumerate all the OpenMAX IL components in the system.]' \
   '(-R)--roles-of-comp[Display the OpenMAX IL roles found in component.]' \
   '(-C)--comps-of-role[Display the OpenMAX IL components that implement the role.]' \
@@ -50,6 +55,12 @@ _arguments -S -s \
   '--youtube-audio-mix[Play a YouTube mix from a video url or video id.]' \
   '--youtube-audio-search[Search and play YouTube audio streams.]' \
   '--youtube-audio-mix-search[Play a YouTube mix from a search term.]' \
+  '--plex-server-base-url[Plex server base URL (e.g. http://plexserver:32400. Not required if provided via config file).]' \
+  '--plex-auth-token arg[Plex account authentication token (not required if provided via config file).]' \
+  '--plex-audio-tracks[Search and play audio tracks from a Plex server.]' \
+  '--plex-audio-artist[Search and play an artist audio tracks from a Plex server.]' \
+  '--plex-audio-album[Search and play a music album from a Plex server.]' \
+  '--plex-audio-playlist[Search and play playlists from a Plex server.]' \
   '--server[Stream media files using the SHOUTcast/ICEcast streaming protocol.]' \
   '(-p)--port[TCP port to be used for Icecast/SHOUTcast streaming. Default: 8010.]' \
   '--station-name[The Icecast/SHOUTcast station name. Optional.]' \
@@ -58,7 +69,6 @@ _arguments -S -s \
   '--bitrate-modes[A comma-separated list of bitrate modes (e.g. 'CBR,VBR'). Only media with these bitrate modes will be in the playlist. Default: any.]' \
   '--sampling-rates[A comma-separated list of sampling rates. Only media with these rates will in the playlist. Default: any.]' \
   '*:files:->mfiles' && rc=0
-
 
 case $state in
 

@@ -1424,7 +1424,7 @@ void tiz::programopts::init_plex_options ()
        "Search and play a music album from a Plex server.")
       /* TIZ_CLASS_COMMENT: */
       ("plex-audio-playlist", po::value (&plex_audio_playlist_),
-       "Search and play playlists from a Plex audio server.");
+       "Search and play playlists from a Plex server.");
 
   register_consume_function (&tiz::programopts::consume_plex_client_options);
   all_plex_client_options_
