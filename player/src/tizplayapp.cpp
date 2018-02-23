@@ -43,8 +43,13 @@
 #include <sys/types.h>
 #include <termios.h>
 #include <unistd.h>
+#include <string.h>
+
+#include <cstdlib>
 
 #include <boost/algorithm/string/join.hpp>
+#include <boost/system/error_code.hpp>
+#include <boost/filesystem.hpp>
 #include <boost/foreach.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/version.hpp>
@@ -86,6 +91,8 @@
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.play.app"
 #endif
+
+namespace bf = boost::filesystem;
 
 #define APP_NAME "tizonia"
 
@@ -384,8 +391,90 @@ tiz::playapp::~playapp ()
 
 int tiz::playapp::run ()
 {
+  check_or_create_config_file ();
   set_option_handlers ();
   return popts_.consume ();
+}
+
+void tiz::playapp::check_or_create_config_file ()
+{
+  const std::string home_dir (std::getenv ("HOME"));
+  if (!home_dir.empty ())
+  {
+    const std::string home_conf_dir (home_dir + "/.config/tizonia");
+    const std::string home_conf_file (home_conf_dir + "/tizonia.conf");
+
+    if (!bf::exists (home_conf_file))
+    {
+      // Canonical locations of tizonia.conf
+      const std::string etc_conf_file ("/etc/tizonia/tizonia.conf"); // OLD location
+      const std::string etc_xdg_conf_file ("/etc/xdg/tizonia/tizonia.conf"); // NEW location
+
+      // STEP 1: Create $HOME/.config/tizonia, if it doesn't exist
+      if (!bf::exists (home_conf_dir))
+      {
+        boost::system::error_code ec;
+        bf::create_directory (home_conf_dir, ec);
+        if (ec.value () != 0)
+          {
+            // Oops... if we can't create the home config dire, then we have no
+            // business to do here. EARLY RETURN!!
+            return;
+          }
+      }
+
+      // STEP 2: See if tizonia.conf can be found under the SNAP directory
+      const char *p_snap_env = std::getenv ("SNAP");
+      if (p_snap_env)
+      {
+        const std::string snap_dir (p_snap_env);
+        if (!snap_dir.empty ())
+        {
+          const std::string snap_conf_file_path (snap_dir + etc_xdg_conf_file);
+          boost::system::error_code ec;
+          bf::copy_file (snap_conf_file_path, home_conf_file, ec);
+        }
+      }
+
+      // STEP 3: See if we can find tizonia.conf under one of $XDG_CONFIG_DIRS
+      if (!bf::exists (home_conf_file))
+      {
+        char *p_env_str = std::getenv ("XDG_CONFIG_DIRS");
+        if (p_env_str)
+        {
+          char *pch = NULL;
+          pch = strtok (p_env_str, ":");
+          while (pch != NULL && !bf::exists (home_conf_file))
+          {
+            boost::system::error_code ec;
+            std::string xdg_file(pch);
+            xdg_file.append(etc_xdg_conf_file);
+            printf ("xdg_file : %s\n", xdg_file.c_str());
+            bf::copy_file (xdg_file, home_conf_file, ec);
+            if (ec.value () == 0)
+            {
+              break;
+            }
+            pch = strtok (NULL, ":");
+          }
+        }
+      }
+
+      // STEP 4: Try to find tizonia.conf under /etc/xdg
+      if (!bf::exists (home_conf_file))
+      {
+        boost::system::error_code ec;
+        bf::copy_file (etc_xdg_conf_file, home_conf_file, ec);
+      }
+
+      // STEP 5: Last chance. Try to find tizonia.conf under /etc
+      if (!bf::exists (home_conf_file))
+      {
+        boost::system::error_code ec;
+        bf::copy_file (etc_conf_file, home_conf_file, ec);
+      }
+    }  // if (!bf::exists (home_conf_file))
+  }    // if (!home_dir.empty())
 }
 
 void tiz::playapp::set_option_handlers ()

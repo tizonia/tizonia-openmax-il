@@ -534,7 +534,8 @@ void tiz::programopts::print_usage_config () const
   printf ("4.                  /etc/tizonia/tizonia.conf\n\n");
   printf (
       "An example configuration file can be found in "
-      "/etc/xdg/tizonia/tizonia.conf.\n");
+      "/etc/xdg/tizonia/tizonia.conf or \n"
+      "/snap/tizonia/current/etc/xdg/tizonia/tizonia.conf.\n");
   printf (
       "Copy this file to $HOME/.config/tizonia/tizonia.conf and introduce "
       "there\n");

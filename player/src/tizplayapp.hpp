@@ -47,6 +47,7 @@ namespace tiz
     int run ();
 
   private:
+    void check_or_create_config_file ();
     void set_option_handlers ();
 
     OMX_ERRORTYPE daemonize_if_requested () const;
