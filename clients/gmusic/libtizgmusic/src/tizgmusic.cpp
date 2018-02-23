@@ -80,19 +80,26 @@ namespace
         // Retrieve the main module's namespace
         bp::object py_global = py_main.attr ("__dict__");
 
+        // Check the existence of the 'gmusicapi' module
         bp::object ignored = exec (
             "import imp\n"
             "imp.find_module('gmusicapi')\n",
             py_global);
+
+        // Check the existence of the 'fuzzywuzzy' module
+        bp::object ignored2 = exec (
+            "import imp\n"
+            "imp.find_module('fuzzywuzzy')\n",
+            py_global);
+
         rc = 0;
       }
     catch (bp::error_already_set &e)
       {
         PyErr_PrintEx (0);
         std::cerr << std::string (
-            "\nPython module 'gmusicapi' could not be found."
-            "\nPlease make sure this is installed correctly.\n"
-            "(e.g. 'pip install gmusicapi').\n");
+            "\nPython modules 'gmusicapi' or 'fuzzywuzzy' not found."
+            "\nPlease make sure these are installed correctly.\n");
       }
     catch (...)
       {

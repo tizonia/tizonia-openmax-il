@@ -85,14 +85,21 @@ namespace
             "import imp\n"
             "imp.find_module('plexapi')\n",
             py_global);
+
+        // Check the existence of the 'fuzzywuzzy' module
+        bp::object ignored2 = exec (
+            "import imp\n"
+            "imp.find_module('fuzzywuzzy')\n",
+            py_global);
+
         rc = 0;
       }
     catch (bp::error_already_set &e)
       {
         PyErr_PrintEx (0);
         std::cerr << std::string (
-            "\nPython module 'plexapi' not found."
-            "\nPlease make sure this is installed correctly.\n");
+            "\nPython modules 'plexapi' or 'fuzzywuzzy' not found."
+            "\nPlease make sure these are installed correctly.\n");
       }
     catch (...)
       {
