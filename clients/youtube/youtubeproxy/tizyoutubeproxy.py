@@ -141,7 +141,7 @@ def print_err(msg=""):
     pretty_print(_Colors.FAIL + msg + _Colors.ENDC)
 
 def exception_handler(exception_type, exception, traceback):
-    """A simple exception handler that prints the excetion message.
+    """A simple handler that prints the exception message.
 
     """
 

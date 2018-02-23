@@ -15,9 +15,9 @@
 # limitations under the License.
 
 """@package tizplexproxy
-Simple Plex proxy/wrapper.
+Simple Plex API proxy/wrapper.
 
-Access Plex to retrieve audio track URLs and create a playback queue.
+Access Plex servers to retrieve audio track URLs and create a playback queue.
 
 """
 
@@ -89,7 +89,7 @@ def print_err(msg=""):
     pretty_print(_Colors.FAIL + msg + _Colors.ENDC)
 
 def exception_handler(exception_type, exception, traceback):
-    """A simple exception handler that prints the excetion message.
+    """A simple handler that prints the exception message.
 
     """
 
@@ -256,7 +256,8 @@ class tizplexproxy(object):
                 for item in playlist.items():
                     if item.TYPE == 'track':
                         track = item
-                        track_info = TrackInfo(track, track.artist(), track.album())
+                        track_info = TrackInfo(track, track.artist(), \
+                                               track.album())
                         self.add_to_playback_queue(track_info)
 
             if count == len(self.queue):
