@@ -361,7 +361,7 @@ class tizplexproxy(object):
         length of the playback queue.
 
         """
-        return self.queue_index + 1, len(self.queue)
+        return self.play_queue_order[self.queue_index] + 1, len(self.queue)
 
     def clear_queue(self):
         """ Clears the playback queue.
@@ -397,7 +397,7 @@ class tizplexproxy(object):
                    and (self.queue_index >= 0):
                     next_track = self.queue[self.play_queue_order \
                                             [self.queue_index]]
-                    return self.__retrieve_track_url(next_track, self.queue_index).rstrip()
+                    return self.__retrieve_track_url(next_track)
                 else:
                     self.queue_index = -1
                     return self.next_url()
@@ -421,7 +421,7 @@ class tizplexproxy(object):
                    and (self.queue_index >= 0):
                     prev_track = self.queue[self.play_queue_order \
                                             [self.queue_index]]
-                    return self.__retrieve_track_url(prev_track, self.queue_index).rstrip()
+                    return self.__retrieve_track_url(prev_track)
                 else:
                     self.queue_index = len(self.queue)
                     return self.prev_url()
@@ -450,12 +450,11 @@ class tizplexproxy(object):
             print_nfo("[Plex] [Tracks in queue] '{0}'." \
                       .format(total_tracks))
 
-    def __retrieve_track_url(self, track, queue_index):
+    def __retrieve_track_url(self, track):
         """ Retrieve a track url
 
         """
         try:
-            track = self.queue[queue_index]
             self.now_playing_track = track
             return track.url.encode("utf-8")
 
