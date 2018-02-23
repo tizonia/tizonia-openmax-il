@@ -35,15 +35,17 @@ from plexapi.server import PlexServer
 
 # For use during debugging
 # import pprint
-# from traceback import print_exception
 
 FORMAT = '[%(asctime)s] [%(levelname)5s] [%(thread)d] ' \
          '[%(module)s:%(funcName)s:%(lineno)d] - %(message)s'
 
 logging.captureWarnings(True)
-logging.getLogger().addHandler(logging.NullHandler())
-logging.basicConfig(format=FORMAT)
 logging.getLogger().setLevel(logging.DEBUG)
+
+if os.environ.get('TIZONIA_PLEXPROXY_DEBUG'):
+    from traceback import print_exception
+else:
+    logging.getLogger().addHandler(logging.NullHandler())
 
 class _Colors:
     """A trivial class that defines various ANSI color codes.
