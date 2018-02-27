@@ -4,7 +4,7 @@ tiz-grab-env-options () {
     local opts=''
     [[ "$SHUFFLE" == 'on' ]] && opts='--shuffle';
     [[ "$DAEMON" == 'on' ]] && opts="$opts --daemon";
-    [[ "$CAST" == 'on' ]] && opts='--cast';
+    [[ "$CAST" == 'on' ]] && opts="$opts --cast $CAST_DEVICE";
     [[ "$ALTLOGDIR" == 'on' ]] && opts="$opts --log-directory=/tmp";
     echo "$opts"
 }
