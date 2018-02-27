@@ -1203,8 +1203,13 @@ class tizgmusicproxy(object):
                 choices[name] = hit
                 choice_names.append(name)
 
-            choice_name = process.extractOne(query, choice_names)[0]
-            result = choices[choice_name]
+            if len(choice_names) > 1:
+                choice_name = process.extractOne(query, choice_names)[0]
+                result = choices[choice_name]
+            elif len(choice_names) == 1:
+                choice_name = choice_names[0]
+                result = choices[choice_name]
+
 
         if not result and not len(search_results):
             # Do another search with an empty string
