@@ -576,11 +576,11 @@ class tizgmusicproxy(object):
             all_genres += second_tier_genres
             choices = dict()
             choice_names = list()
-            for genre in all_genres:
+            for g in all_genres:
                 print_nfo("[Google Play Music] [Genre] '{0}'." \
-                          .format(to_ascii(genre['name'])))
-                choices[genre['name']] = genre
-                choice_names.append(genre['name'])
+                          .format(to_ascii(g['name'])))
+                choices[g['name']] = g
+                choice_names.append(g['name'])
 
             choice_name = process.extractOne(arg, choice_names)[0]
             genre = choices[choice_name]
@@ -604,8 +604,14 @@ class tizgmusicproxy(object):
                 tracks_added = self.__enqueue_tracks(tracks)
                 logging.info("Added %d tracks from %s to queue", tracks_added, genre_name)
                 if not tracks_added:
-                    # This will produce another iteration in the loop
-                    genre = None
+                    print_wrn("[Google Play Music] '{0}' No tracks found. "\
+                              "Trying something else." \
+                              .format(genre_name.encode('utf-8')))
+                    del choices[genre_name]
+                    choice_names.remove(genre_name)
+                    choice_name = process.extractOne(arg, choice_names)[0]
+                    genre = choices[choice_name]
+
 
             print_wrn("[Google Play Music] Playing '{0}'." \
                       .format(to_ascii(genre['name'])))
@@ -617,13 +623,13 @@ class tizgmusicproxy(object):
             raise RuntimeError("Operation requires an Unlimited subscription.")
 
     def enqueue_situation_unlimited(self, arg):
-        """Search Unlimited for a situation with a given name and add its
+        """Search Unlimited for a situation (a.k.a. activity) with a given name and add its
         tracks to the playback queue.
 
         Requires Unlimited subscription.
 
         """
-        print_msg("[Google Play Music] [Retrieving situations] : '{0}'. " \
+        print_msg("[Google Play Music] [Retrieving activities] : '{0}'. " \
                   .format(self.__email))
 
         try:
@@ -637,7 +643,7 @@ class tizgmusicproxy(object):
                          len(self.queue), arg)
 
         except KeyError:
-            raise KeyError("Situation not found : {0}".format(arg))
+            raise KeyError("Activity not found : {0}".format(arg))
         except CallFailure:
             raise RuntimeError("Operation requires an Unlimited subscription.")
 
@@ -1055,9 +1061,9 @@ class tizgmusicproxy(object):
         """Search for a situation and enqueue all of its tracks (Unlimited)
 
         """
-        print_msg("[Google Play Music] [Situation search in "\
+        print_msg("[Google Play Music] [Activity search in "\
                   "Google Play Music] : '{0}'. " \
-                  .format(arg.encode('utf-8')))
+                  .format(to_ascii(arg.encode('utf-8'))))
         try:
             situation_hits = self.__gmusic.search(arg)['situation_hits']
 
@@ -1070,33 +1076,56 @@ class tizgmusicproxy(object):
                           .format(arg.encode('utf-8')))
 
             # Try to find a "best result", if one exists
-            situation = next((hit for hit in situation_hits \
-                              if 'best_result' in hit.keys() \
-                              and hit['best_result'] == True), None)
+            situation_best_hit = next((hit for hit in situation_hits \
+                                       if 'best_result' in hit.keys() \
+                                       and hit['best_result'] == True), None)
 
-            num_tracks = MAX_TRACKS
+            situation = None
+            situation_title = ''
+            situation_id = None
 
             # If there is no best result, then get a selection of tracks from
             # each situation. At least we'll play some music.
-            if not situation and len(situation_hits):
-                max_results = num_tracks / len(situation_hits)
+            if not situation_best_hit and len(situation_hits):
+                situation_dict = dict()
+                situation_titles = list()
                 for hit in situation_hits:
                     situation = hit['situation']
-                    print_nfo("[Google Play Music] [Situation] '{0} : {1}'." \
-                              .format((hit['situation']['title']).encode('utf-8'),
-                                      (hit['situation']['description']).encode('utf-8')))
-                    self.__enqueue_station_unlimited(situation['title'], max_results, True)
-            elif situation:
-                # There is at list one sitution, enqueue its tracks.
-                situation = situation['situation']
-                max_results = num_tracks
-                self.__enqueue_station_unlimited(situation['title'], max_results, True)
+                    situation_title = situation['title'] + " " + situation['description']
+                    situation_desc = situation['description']
+                    print_nfo("[Google Play Music] [Activity] '{0} : {1}'." \
+                              .format(situation['title'].encode('utf-8'),
+                                      situation_desc.encode('utf-8')))
+                    if fuzz.ratio(arg, situation_title) > 50:
+                        situation_titles.append(situation_title)
+                        situation_dict[situation_title] = situation
+
+                if len(situation_titles) > 1:
+                    situation_title = process.extractOne(arg, situation_titles)[0]
+                    situation = situation_dict[situation_title]
+                    situation_id = situation['id']
+                elif len(situation_titles) == 1:
+                    situation_title = situation_titles[0]
+                    situation = situation_dict[situation_title]
+                    situation_id = situation['id']
+            else:
+                situation = situation_best_hit['situation']
+                situation_title = situation['title']
+                situation_id = situation['id']
+
+            if situation:
+                if arg.lower() != situation_title.lower():
+                    print_wrn("[Google Play Music] '{0}' not found. " \
+                              "Playing '{1}' instead." \
+                              .format(arg.encode('utf-8'), \
+                                      to_ascii(situation_title)))
+                self.__enqueue_station_unlimited(situation_title, MAX_TRACKS, True)
 
             if not situation:
                 raise KeyError
 
         except KeyError:
-           raise KeyError("Situation not found : {0}".format(arg))
+           raise KeyError("Activity not found : {0}".format(arg))
 
     def __enqueue_podcast(self, arg):
         """Search for a podcast series and enqueue all of its tracks.
