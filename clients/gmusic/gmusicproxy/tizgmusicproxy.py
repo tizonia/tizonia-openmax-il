@@ -41,6 +41,7 @@ from gmusicapi import Mobileclient
 from gmusicapi.exceptions import CallFailure
 from requests.structures import CaseInsensitiveDict
 from fuzzywuzzy import process
+from fuzzywuzzy import fuzz
 
 # For use during debugging
 # import pprint
@@ -315,7 +316,7 @@ class tizgmusicproxy(object):
             track_hits = list ()
             for song in songs:
                 song_title = song['title']
-                if arg.lower() in song_title.lower():
+                if fuzz.partial_ratio(arg, song_title) > 60:
                     track_hits.append(song)
                     print_nfo("[Google Play Music] [Track] '{0}'." \
                               .format(to_ascii(song_title)))
@@ -354,16 +355,27 @@ class tizgmusicproxy(object):
             artist = None
             artist_dict = None
             if arg not in self.library.keys():
+                artist_dicts = dict()
+                artist_names = list()
                 for name, art in self.library.iteritems():
-                    if arg.lower() in name.lower():
-                        artist = name
-                        artist_dict = art
-                        if arg.lower() != name.lower():
-                            print_wrn("[Google Play Music] '{0}' not found. " \
-                                      "Playing '{1}' instead." \
-                                      .format(arg.encode('utf-8'), \
-                                              name.encode('utf-8')))
-                        break
+                    if fuzz.ratio(arg, name) > 50:
+                        artist_names.append(name)
+                        artist_dicts[name] = art
+
+                if len(artist_names) > 1:
+                    artist = process.extractOne(arg, artist_names)[0]
+                    artist_dict = artist_dicts[artist_name]
+                elif len(artist_names) == 1:
+                    artist = artist_names[0]
+                    artist_dict = artist_dicts[artist]
+
+                if artist:
+                    if arg.lower() != name.lower():
+                        print_wrn("[Google Play Music] '{0}' not found. " \
+                                  "Playing '{1}' instead." \
+                                  .format(arg.encode('utf-8'), \
+                                          artist.encode('utf-8')))
+
                 if not artist:
                     # Play some random artist from the library
                     random.seed()
@@ -448,16 +460,29 @@ class tizgmusicproxy(object):
                 print_nfo("[Google Play Music] [Playlist] '{0}'." \
                           .format(to_ascii(name)))
             if arg not in self.playlists.keys():
+                playlist_dict = dict()
+                playlist_names = list()
                 for name, plist in self.playlists.iteritems():
-                    if arg.lower() in name.lower():
-                        playlist = plist
-                        playlist_name = name
-                        if arg.lower() != name.lower():
-                            print_wrn("[Google Play Music] '{0}' not found. " \
-                                      "Playing '{1}' instead." \
-                                      .format(arg.encode('utf-8'), \
-                                              to_ascii(name)))
-                            break
+                    if fuzz.partial_ratio(arg, name) > 50:
+                        print_nfo("[Google Play Music] [Playlist -fuzz] '{0}'." \
+                                  .format(to_ascii(name)))
+                        playlist_dict[name] = plist
+                        playlist_names.append(name)
+
+                if len(playlist_names) > 1:
+                    playlist_name = process.extractOne(arg, playlist_names)[0]
+                    playlist = playlist_dict[playlist_name]
+                elif len(playlist_names) == 1:
+                    playlist_name = playlist_names[0]
+                    playlist = playlist_dict[playlist_name]
+
+                if playlist and playlist_name:
+                    if arg.lower() != playlist_name.lower():
+                        print_wrn("[Google Play Music] '{0}' not found. " \
+                                  "Playing '{1}' instead." \
+                                  .format(arg.encode('utf-8'), \
+                                          to_ascii(playlist_name)))
+
             else:
                 playlist_name = arg
                 playlist = self.playlists[arg]
