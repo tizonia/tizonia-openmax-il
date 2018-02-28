@@ -1021,7 +1021,6 @@ class tizgmusicproxy(object):
             station_name = arg
             station_id = None
             station = self.__gmusic_search(arg, 'station', max_results, quiet)
-
             if station:
                 station = station['station']
                 station_name = station['name']
@@ -1087,6 +1086,7 @@ class tizgmusicproxy(object):
 
             situation = None
             situation_title = ''
+            situation_desc = ''
             situation_id = None
 
             # If there is no best result, then get a selection of tracks from
@@ -1096,12 +1096,12 @@ class tizgmusicproxy(object):
                 situation_titles = list()
                 for hit in situation_hits:
                     situation = hit['situation']
-                    situation_title = situation['title'] + " " + situation['description']
+                    situation_title = situation['title']
                     situation_desc = situation['description']
                     print_nfo("[Google Play Music] [Activity] '{0} : {1}'." \
                               .format(situation['title'].encode('utf-8'),
                                       situation_desc.encode('utf-8')))
-                    if fuzz.ratio(arg, situation_title) > 50:
+                    if fuzz.partial_ratio(arg, situation_title) > 50:
                         situation_titles.append(situation_title)
                         situation_dict[situation_title] = situation
 
@@ -1119,12 +1119,10 @@ class tizgmusicproxy(object):
                 situation_id = situation['id']
 
             if situation:
-                if arg.lower() != situation_title.lower():
-                    print_wrn("[Google Play Music] '{0}' not found. " \
-                              "Playing '{1}' instead." \
-                              .format(arg.encode('utf-8'), \
-                                      to_ascii(situation_title)))
-                self.__enqueue_station_unlimited(situation_title, MAX_TRACKS, True)
+                print_wrn("[Google Play Music] Playing '{0}'." \
+                          .format(to_ascii(situation_title)))
+                self.__enqueue_station_unlimited(situation_title + " " + \
+                                                 situation_desc, MAX_TRACKS, True)
 
             if not situation:
                 raise KeyError
