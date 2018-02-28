@@ -32,9 +32,10 @@ import re
 from plexapi.exceptions import NotFound
 from plexapi.myplex import MyPlexAccount
 from plexapi.server import PlexServer
+from fuzzywuzzy import process
 
 # For use during debugging
-# import pprint
+import pprint
 
 FORMAT = '[%(asctime)s] [%(levelname)5s] [%(thread)d] ' \
          '[%(module)s:%(funcName)s:%(lineno)d] - %(message)s'
@@ -147,6 +148,7 @@ class tizplexproxy(object):
     """
 
     def __init__(self, base_url, token):
+        self.base_url = base_url
         self.queue = list()
         self.queue_index = -1
         self.play_queue_order = list()
@@ -187,42 +189,73 @@ class tizplexproxy(object):
         except ValueError:
             raise ValueError(str("Track not found : %s" % arg))
 
-    def enqueue_audio_artist(self, arg, feelinglucky=True):
+    def enqueue_audio_artist(self, arg):
         """Obtain an artist from the Plex server and add all the artist's audio tracks
         to the playback queue.
 
         :param arg: an artist search term
 
-        :param feelinglucky: If True, it will perform another Plex search to find
-        alternatives if the original artist cannot be found.
-
         """
         logging.info('arg : %s', arg)
+        print_msg("[Plex] [Artist search in server] : '{0}'. " \
+                  .format(self.base_url))
         try:
             count = len(self.queue)
+            artist = None
+            artist_name = ''
 
-            artists = self._music.searchArtists(title=arg)
-            for artist in artists:
-                for album in artist.albums():
-                    for track in album.tracks():
-                        track_info = TrackInfo(track, artist, album)
-                        self.add_to_playback_queue(track_info)
+            try:
+                artists = self._music.searchArtists(title=arg)
+                for artist in artists:
+                    artist_name = artist.title
+                    print_wrn("[Plex] Playing '{0}'." \
+                              .format(artist_name.encode('utf-8')))
+                    for album in artist.albums():
+                        for track in album.tracks():
+                            track_info = TrackInfo(track, artist, album)
+                            self.add_to_playback_queue(track_info)
+
+            except (NotFound):
+                pass
+
+            if count == len(self.queue):
+                artist_dict = dict()
+                artist_names = list()
+                artists = self._music.search(libtype='artist')
+                for art in artists:
+                    artist_names.append(art.title)
+                    artist_dict[art.title] = art
+
+                if len(artist_names) > 1:
+                    artist_name = process.extractOne(arg, artist_names)[0]
+                    artist = artist_dict[artist_name]
+                elif len(artist_names) == 1:
+                    artist_name = artist_names[0]
+                    artist = artist_dict[artist_name]
+
+                if artist:
+                    print_wrn("[Plex] '{0}' not found. " \
+                              "Playing '{1}' instead." \
+                              .format(arg.encode('utf-8'), \
+                                      artist_name.encode('utf-8')))
+                    for album in artist.albums():
+                        for track in album.tracks():
+                            track_info = TrackInfo(track, artist, album)
+                            self.add_to_playback_queue(track_info)
 
             if count == len(self.queue):
                 raise ValueError
+
             self.__update_play_queue_order()
 
         except ValueError:
             raise ValueError(str("Artist not found : %s" % arg))
 
-    def enqueue_audio_album(self, arg, feelinglucky=True):
+    def enqueue_audio_album(self, arg):
         """Obtain an album from the Plex server and add all its tracks to the playback
         queue.
 
-        :param arg: a Plex video id
-
-        :param feelinglucky: If True, it will perform another Plex search to
-        find alternatives if the original album cannot be found.
+        :param arg: an album search term
 
         """
         logging.info('arg : %s', arg)
@@ -242,32 +275,77 @@ class tizplexproxy(object):
         except ValueError:
             raise ValueError(str("Album not found : %s" % arg))
 
-
     def enqueue_audio_playlist(self, arg):
         """Add all audio tracks in a Plex playlist to the playback queue.
 
-        :param arg: a Plex playlist id
+        :param arg: a playlist search term
 
         """
         logging.info('arg : %s', arg)
+        print_msg("[Plex] [Playlist search in server] : '{0}'. " \
+                  .format(self.base_url))
         try:
             count = len(self.queue)
+            playlist_title = ''
+            playlist = None
 
-            playlists = self._plex.playlist(title=arg)
-            for playlist in playlists:
-                for item in playlist.items():
-                    if item.TYPE == 'track':
-                        track = item
-                        track_info = TrackInfo(track, track.artist(), \
-                                               track.album())
-                        self.add_to_playback_queue(track_info)
+            try:
+                playlist = self._plex.playlist(title=arg)
+                if playlist:
+                    playlist_title = playlist.title
+                    print_wrn("[Plex] Playing '{0}'." \
+                              .format(playlist_title.encode('utf-8')))
+                    for item in playlist.items():
+                        if item.TYPE == 'track':
+                            track = item
+                            track_info = TrackInfo(track, track.artist(), \
+                                                   track.album())
+                            self.add_to_playback_queue(track_info)
+                        if count == len(self.queue):
+                            print_wrn("[Plex] '{0}' No audio tracks found." \
+                                      .format(playlist_title.encode('utf-8')))
+                            raise ValueError
+
+            except (NotFound):
+                pass
+
+            if count == len(self.queue):
+                playlist_dict = dict()
+                playlist_titles = list()
+                playlists = self._plex.playlists()
+                for pl in playlists:
+                    playlist_titles.append(pl.title)
+                    playlist_dict[pl.title] = pl
+
+                if len(playlist_titles) > 1:
+                    playlist_title = process.extractOne(arg, playlist_titles)[0]
+                    playlist = playlist_dict[playlist_title]
+                elif len(playlist_titles) == 1:
+                    playlist_title = playlist_titles[0]
+                    playlist = playlist_dict[playlist_title]
+
+                if playlist:
+                    print_wrn("[Plex] '{0}' not found. " \
+                              "Playing '{1}' instead." \
+                              .format(arg.encode('utf-8'), \
+                                      playlist_title.encode('utf-8')))
+                    for item in playlist.items():
+                        if item.TYPE == 'track':
+                            track = item
+                            track_info = TrackInfo(track, track.artist(), \
+                                                   track.album())
+                            self.add_to_playback_queue(track_info)
+                        if count == len(self.queue):
+                            print_wrn("[Plex] '{0}' No audio tracks found." \
+                                      .format(playlist_title.encode('utf-8')))
 
             if count == len(self.queue):
                 raise ValueError
+
             self.__update_play_queue_order()
 
         except (ValueError, NotFound):
-            raise ValueError(str("Playlist not found : %s" % arg))
+            raise ValueError(str("Playlist not found or no audio tracks in playlist : %s" % arg))
 
     def current_audio_track_title(self):
         """ Retrieve the current track's title.
