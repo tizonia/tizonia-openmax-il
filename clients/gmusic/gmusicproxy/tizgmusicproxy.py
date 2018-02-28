@@ -950,17 +950,25 @@ class tizgmusicproxy(object):
                   "in user's library] : '{0}'. " \
                   .format(self.__email))
         self.__update_stations_unlimited()
-        station_name = arg
+        station_name = ''
         station_id = None
-        for name, st_id in self.stations.iteritems():
-            print_nfo("[Google Play Music] [Station] '{0}'." \
-                      .format(to_ascii(name)))
         if arg not in self.stations.keys():
+            station_dict = dict()
+            station_names = list()
             for name, st_id in self.stations.iteritems():
-                if arg.lower() in name.lower():
-                    station_id = st_id
-                    station_name = name
-                    break
+                print_nfo("[Google Play Music] [Station] '{0}'." \
+                          .format(to_ascii(name)))
+                if fuzz.ratio(arg, name) > 50:
+                    station_dict[name] = st_id
+                    station_names.append(name)
+
+            if len(station_names) > 1:
+                station_name = process.extractOne(arg, station_names)[0]
+                station_id = station_dict[station_name]
+            elif len(station_names) == 1:
+                station_name = station_names[0]
+                station_id = station_dict[station_name]
+
         else:
             station_id = self.stations[arg]
 
@@ -978,7 +986,7 @@ class tizgmusicproxy(object):
                 if arg.lower() != station_name.lower():
                     print_wrn("[Google Play Music] '{0}' not found. " \
                               "Playing '{1}' instead." \
-                              .format(arg.encode('utf-8'), name.encode('utf-8')))
+                              .format(arg.encode('utf-8'), station_name.encode('utf-8')))
                 logging.info("Added %d tracks from %s to queue", tracks_added, arg)
                 self.__update_play_queue_order()
             else:
