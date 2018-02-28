@@ -977,12 +977,13 @@ class tizgmusicproxy(object):
 
         else:
             station_id = self.stations[arg]
+            station_name = arg
 
         num_tracks = MAX_TRACKS
         tracks = list()
         if station_id:
             try:
-                tracks = self.__gmusic.get_station_tracks(station_id, \
+                tracks = self.__gmusic.get_station_tracks('IFL', \
                                                           num_tracks)
             except KeyError:
                 raise RuntimeError("Operation requires an "
@@ -993,6 +994,10 @@ class tizgmusicproxy(object):
                     print_wrn("[Google Play Music] '{0}' not found. " \
                               "Playing '{1}' instead." \
                               .format(arg.encode('utf-8'), station_name.encode('utf-8')))
+                else:
+                    print_wrn("[Google Play Music] Playing '{0}'." \
+                              .format(station_name.encode('utf-8')))
+
                 logging.info("Added %d tracks from %s to queue", tracks_added, arg)
                 self.__update_play_queue_order()
             else:
