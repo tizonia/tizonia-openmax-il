@@ -33,6 +33,7 @@ from plexapi.exceptions import NotFound
 from plexapi.myplex import MyPlexAccount
 from plexapi.server import PlexServer
 from fuzzywuzzy import process
+from fuzzywuzzy import fuzz
 
 # For use during debugging
 import pprint
@@ -174,16 +175,31 @@ class tizplexproxy(object):
 
         """
         logging.info('arg : %s', arg)
+        print_msg("[Plex] [Track search in server] : '{0}'. " \
+                  .format(self.base_url))
         try:
             count = len(self.queue)
 
-            tracks = self._music.searchTracks(title=arg)
-            for track in tracks:
-                track_info = TrackInfo(track, track.artist(), track.album())
-                self.add_to_playback_queue(track_info)
+            try:
+                tracks = self._music.searchTracks(title=arg)
+                for track in tracks:
+                    track_info = TrackInfo(track, track.artist(), track.album())
+                    self.add_to_playback_queue(track_info)
+
+            except (NotFound):
+                pass
+
+            if count == len(self.queue):
+                tracks = self._music.search(libtype='track')
+                for track in tracks:
+                    track_name = track.title
+                    if fuzz.partial_ratio(arg, track_name) > 60:
+                        track_info = TrackInfo(track, track.artist(), track.album())
+                        self.add_to_playback_queue(track_info)
 
             if count == len(self.queue):
                 raise ValueError
+
             self.__update_play_queue_order()
 
         except ValueError:
@@ -259,17 +275,53 @@ class tizplexproxy(object):
 
         """
         logging.info('arg : %s', arg)
+        print_msg("[Plex] [Album search in server] : '{0}'. " \
+                  .format(self.base_url))
         try:
             count = len(self.queue)
+            album = None
+            album_name = ''
 
-            albums = self._music.searchAlbums(title=arg)
-            for album in albums:
-                for track in album.tracks():
-                    track_info = TrackInfo(track, track.artist(), album)
-                    self.add_to_playback_queue(track_info)
+            try:
+                albums = self._music.searchAlbums(title=arg)
+                for album in albums:
+                    album_name = album.title
+                    print_wrn("[Plex] Playing '{0}'." \
+                              .format(album_name.encode('utf-8')))
+                    for track in album.tracks():
+                        track_info = TrackInfo(track, track.artist(), album)
+                        self.add_to_playback_queue(track_info)
+
+            except (NotFound):
+                pass
+
+            if count == len(self.queue):
+                album_dict = dict()
+                album_names = list()
+                albums = self._music.search(libtype='album')
+                for alb in albums:
+                    album_names.append(alb.title)
+                    album_dict[alb.title] = alb
+
+                if len(album_names) > 1:
+                    album_name = process.extractOne(arg, album_names)[0]
+                    album = album_dict[album_name]
+                elif len(album_names) == 1:
+                    album_name = album_names[0]
+                    album = album_dict[album_name]
+
+                if album:
+                    print_wrn("[Plex] '{0}' not found. " \
+                              "Playing '{1}' instead." \
+                              .format(arg.encode('utf-8'), \
+                                      album_name.encode('utf-8')))
+                    for track in album.tracks():
+                        track_info = TrackInfo(track, album, album)
+                        self.add_to_playback_queue(track_info)
 
             if count == len(self.queue):
                 raise ValueError
+
             self.__update_play_queue_order()
 
         except ValueError:
