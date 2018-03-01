@@ -36,7 +36,7 @@ from fuzzywuzzy import process
 from fuzzywuzzy import fuzz
 
 # For use during debugging
-import pprint
+# import pprint
 
 FORMAT = '[%(asctime)s] [%(levelname)5s] [%(thread)d] ' \
          '[%(module)s:%(funcName)s:%(lineno)d] - %(message)s'
@@ -98,8 +98,9 @@ def exception_handler(exception_type, exception, traceback):
     """
 
     print_err("[Plex] (%s) : %s" % (exception_type.__name__, exception))
-    del traceback # unused
-    # print_exception(exception_type, exception, traceback)
+
+    if os.environ.get('TIZONIA_PLEXPROXY_DEBUG'):
+        print_exception(exception_type, exception, traceback)
 
 sys.excepthook = exception_handler
 
