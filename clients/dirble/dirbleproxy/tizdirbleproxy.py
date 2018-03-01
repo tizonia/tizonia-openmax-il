@@ -24,6 +24,7 @@ Access Dirble to retrieve station URLs and create a play queue for streaming.
 from __future__ import unicode_literals
 
 import sys
+import os
 import logging
 import random
 import unicodedata
@@ -36,11 +37,14 @@ from operator import itemgetter
 
 # For use during debugging
 # import pprint
-# from traceback import print_exception
 
 logging.captureWarnings(True)
-logging.getLogger().addHandler(logging.NullHandler())
 logging.getLogger().setLevel(logging.DEBUG)
+
+if os.environ.get('TIZONIA_DIRBLEPROXY_DEBUG'):
+    from traceback import print_exception
+else:
+    logging.getLogger().addHandler(logging.NullHandler())
 
 class _Colors:
     """A trivial class that defines various ANSI color codes.
@@ -90,8 +94,9 @@ def exception_handler(exception_type, exception, traceback):
     """
 
     print_err("[Dirble] (%s) : %s" % (exception_type.__name__, exception))
-    del traceback # unused
-    # print_exception(exception_type, exception, traceback)
+
+    if os.environ.get('TIZONIA_DIRBLEPROXY_DEBUG'):
+        print_exception(exception_type, exception, traceback)
 
 sys.excepthook = exception_handler
 
