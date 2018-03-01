@@ -964,7 +964,7 @@ class tizgmusicproxy(object):
             for name, st_id in self.stations.iteritems():
                 print_nfo("[Google Play Music] [Station] '{0}'." \
                           .format(to_ascii(name)))
-                if fuzz.ratio(arg, name) > 50:
+                if fuzz.partial_ratio(arg, name) > 90:
                     station_dict[name] = st_id
                     station_names.append(name)
 
