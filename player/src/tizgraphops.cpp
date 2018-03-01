@@ -982,7 +982,7 @@ graph::ops::probe_stream (const OMX_PORTDOMAINTYPE omx_domain,
     {
       // The current uri is not what we expected. So skip it and erase it from
       // the playlist so that we don't attempt the playback again.
-      tiz::graph::util::dump_graph_info ("Unknown/unexpected format", "skip",
+      tiz::graph::util::dump_graph_info ("Unknown/unexpected format", "skipping",
                                          uri);
       playlist_->erase_uri (playlist_->current_index ());
       playlist_->set_index (playlist_->current_index () - 1);

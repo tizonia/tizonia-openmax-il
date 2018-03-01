@@ -59,6 +59,11 @@ tizgraph_ptr_t graph::factory::create_graph (const std::string &uri)
   tizprobe_ptr_t p = boost::make_shared< tiz::probe >(uri,
                                                       /* quiet = */ true);
   tizgraph_ptr_t null_ptr;
+  TIZ_LOG (TIZ_PRIORITY_DEBUG, "uri : %s", uri.c_str ());
+  TIZ_LOG (TIZ_PRIORITY_DEBUG, "domain : %s",
+           tiz_domain_to_str (p->get_omx_domain ()));
+  TIZ_LOG (TIZ_PRIORITY_DEBUG, "coding type : %s",
+           tiz_audio_coding_to_str (p->get_audio_coding_type ()));
   if (p->get_omx_domain () == OMX_PortDomainAudio
       && p->get_audio_coding_type () == OMX_AUDIO_CodingMP2)
   {
@@ -118,8 +123,13 @@ std::string graph::factory::coding_type (const std::string &uri)
   tizprobe_ptr_t p = boost::make_shared< tiz::probe >(uri,
                                                       /* quiet = */ true);
   tizgraph_ptr_t null_ptr;
-  if (p->get_omx_domain () == OMX_PortDomainAudio && p->get_audio_coding_type ()
-                                                     == OMX_AUDIO_CodingMP2)
+  TIZ_LOG (TIZ_PRIORITY_DEBUG, "uri : %s", uri.c_str ());
+  TIZ_LOG (TIZ_PRIORITY_DEBUG, "domain : %s",
+           tiz_domain_to_str (p->get_omx_domain ()));
+  TIZ_LOG (TIZ_PRIORITY_DEBUG, "coding type : %s",
+           tiz_audio_coding_to_str (p->get_audio_coding_type ()));
+  if (p->get_omx_domain () == OMX_PortDomainAudio
+      && p->get_audio_coding_type () == OMX_AUDIO_CodingMP2)
   {
     return std::string ("mp2");
   }

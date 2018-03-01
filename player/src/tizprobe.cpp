@@ -478,6 +478,10 @@ void tiz::probe::probe_stream ()
 
     mi.Close ();
   }
+  else
+  {
+    TIZ_LOG (TIZ_PRIORITY_NOTICE, "Unable to open media file : %s", uri_.c_str());
+  }
 }
 
 void tiz::probe::set_mp2_codec_info (const OMX_U32 samplerate,

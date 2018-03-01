@@ -136,10 +136,33 @@ void graphmgr::ops::do_load ()
 
   if (next_playlist_)
   {
-    const uri_lst_t &next_urilist = next_playlist_->get_uri_list ();
-    TIZ_LOG (TIZ_PRIORITY_TRACE, "next_urilist size %d", next_urilist.size ());
+    tizgraph_ptr_t g_ptr;
+    do
+    {
+      const uri_lst_t &next_uri_lst = next_playlist_->get_uri_list ();
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "next_uri_lst size %d",
+               next_uri_lst.size ());
 
-    tizgraph_ptr_t g_ptr (get_graph (next_urilist[0]));
+      g_ptr = get_graph (next_uri_lst[0]);
+      if (!g_ptr)
+      {
+        // The current uri is not what we expected. So skip it and erase it from
+        // the playlist so that we don't attempt its playback again.
+        tiz::graph::util::dump_graph_info ("Unable to open media", "skipping",
+                                           next_uri_lst[0]);
+        next_playlist_->erase_uri (0);
+        next_playlist_->set_index (0);
+      }
+      else
+      {
+        TIZ_LOG (TIZ_PRIORITY_TRACE, "g_ptr not null list size %d",
+                 next_playlist_->get_uri_list ().size ());
+        // We can proceed now. Make sure previous errors are cleared.
+        error_msg_.clear ();
+        error_code_ = OMX_ErrorNone;
+      }
+    } while (!g_ptr && next_playlist_->get_uri_list ().size ());
+
     if (g_ptr)
     {
       GMGR_OPS_BAIL_IF_ERROR (g_ptr, g_ptr->load (),
