@@ -36,7 +36,7 @@ from operator import itemgetter
 from fuzzywuzzy import process
 
 # For use during debugging
-import pprint
+# import pprint
 
 logging.captureWarnings(True)
 logging.getLogger().setLevel(logging.DEBUG)
@@ -94,6 +94,7 @@ def exception_handler(exception_type, exception, traceback):
     """
 
     print_err("[SoundCloud] (%s) : %s" % (exception_type.__name__, exception))
+
     if os.environ.get('TIZONIA_SOUNDCLOUDPROXY_DEBUG'):
         print_exception(exception_type, exception, traceback)
 
