@@ -300,6 +300,10 @@ tiz_urltrans_set_uri (tiz_urltrans_t * ap_trans,
                       OMX_PARAM_CONTENTURITYPE * ap_uri_param);
 
 void
+tiz_urltrans_set_connect_timeout (tiz_urltrans_t * ap_trans,
+                                  const long a_connect_timeout);
+
+void
 tiz_urltrans_set_internal_buffer_size (tiz_urltrans_t * ap_trans,
                                        const int a_nbytes);
 
