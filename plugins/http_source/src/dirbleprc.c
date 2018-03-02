@@ -728,6 +728,10 @@ dirble_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
                            ARATELIA_HTTP_SOURCE_PORT_MIN_BUF_SIZE,
                            ARATELIA_HTTP_SOURCE_DEFAULT_RECONNECT_TIMEOUT,
                            buffer_cbacks, info_cbacks, io_cbacks, timer_cbacks);
+    if (OMX_ErrorNone == rc)
+      {
+        tiz_urltrans_set_connect_timeout(p_prc->p_trans_, 3L);
+      }
   }
   return rc;
 }
