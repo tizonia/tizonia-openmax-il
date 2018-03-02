@@ -123,6 +123,7 @@ declare -ar TIZ_TIZONIA_PYPI_DEPS=( \
     pycountry \
     titlecase \
     fuzzywuzzy \
+    eventlet \
 )
 
 declare -ar TIZ_DEBIAN_PKGS=( \

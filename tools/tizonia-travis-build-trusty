@@ -314,6 +314,14 @@ function install_python_deps {
     fi
 
     if [[ "$exit_status" -eq 0 ]] ; then
+        pip install --user eventlet
+        exit_status=$?
+        if [[ "$exit_status" -ne 0 ]] ; then
+            echo "Error while installing eventlet" >&2
+        fi
+    fi
+
+    if [[ "$exit_status" -eq 0 ]] ; then
         pip install --user codecov
         exit_status=$?
         if [[ "$exit_status" -ne 0 ]] ; then

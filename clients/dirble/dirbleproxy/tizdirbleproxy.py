@@ -30,10 +30,14 @@ import random
 import unicodedata
 import urllib
 import pkgutil
+import requests
+import StringIO
+import eventlet
 from collections import namedtuple
 from requests import Session, exceptions
 from requests.adapters import HTTPAdapter
 from operator import itemgetter
+eventlet.monkey_patch()
 
 # For use during debugging
 # import pprint
@@ -99,6 +103,53 @@ def exception_handler(exception_type, exception, traceback):
         print_exception(exception_type, exception, traceback)
 
 sys.excepthook = exception_handler
+
+class m3u_station():
+    def __init__(self, length, title, path):
+        self.length = length
+        self.title = title
+        self.path = path
+
+def parse_m3u(url):
+    """
+        Parse m3u file.
+    """
+
+    content_type = ''
+    req = None
+    data = None
+    try:
+        req = requests.get(url, timeout=0.2)
+    except:
+        pass
+    if req:
+        data = req.text
+
+    m3u = StringIO.StringIO(data)
+    line = m3u.readline()
+    if not line.startswith('#EXTM3U'):
+        return
+
+    # initialize playlist variables before reading file
+    playlist = []
+    song = m3u_station(None, None, None)
+
+    for line in m3u.readlines():
+        line = line.strip()
+        if line.startswith('#EXTINF:'):
+            # length and title from #EXTINF line
+            length, title = line.split('#EXTINF:')[1].split(',',1)
+            song = m3u_station(length, title, None)
+        elif (len(line) != 0):
+            # song path from all other, non-blank lines
+            song.path = line
+            playlist.append(song)
+            # reset the song variable
+            song = m3u_station(None, None, None)
+
+    m3u.close()
+
+    return playlist
 
 class TizEnumeration(set):
     """A simple enumeration class.
@@ -339,7 +390,7 @@ class tizdirbleproxy(object):
         logging.info("remove_current_url")
         if len(self.queue) and self.queue_index:
             station = self.queue[self.queue_index]
-            print_nfo("[Dirble] [Station] '{0}' removed." \
+            print_err("[Dirble] '{0}' removed from queue." \
                       .format(to_ascii(station.name).encode("utf-8")))
             del self.queue[self.queue_index]
             self.queue_index -= 1
@@ -417,6 +468,9 @@ class tizdirbleproxy(object):
             logging.info("__retrieve_station_url streamurl : {0}".format(station.streamurl))
             logging.info("__retrieve_station_url bitrate   : {0}".format(station.bitrate))
             logging.info("__retrieve_station_url content_type: {0}".format(station.content_type))
+            print_wrn("[Dirble] Playing '{0} ({1})'." \
+                          .format(to_ascii(station.name).encode("utf-8").rstrip(),
+                          to_ascii(station.streamurl).encode("utf-8").rstrip()))
             return station.streamurl.encode("utf-8")
         except AttributeError:
             logging.info("Could not retrieve the station url!")
@@ -446,6 +500,18 @@ class tizdirbleproxy(object):
 
         return []
 
+    def _examine_url(self, url):
+        content_type = ''
+        req = None
+        try:
+            with eventlet.Timeout(2):
+                req = requests.get(url, verify=False, timeout=0.1)
+        except:
+            pass
+        if req:
+            content_type = req.headers.get('Content-Type')
+        return content_type
+
     def add_to_playback_queue(self, d):
         catlist = list()
         for cat in d["categories"]:
@@ -455,22 +521,35 @@ class tizdirbleproxy(object):
 
         streamurl = ''
         bitrate = ''
-        for stream in d["streams"]:
-            streamurl = stream["stream"]
-            bitrate = stream["bitrate"]
-            content_type = stream["content_type"]
+        for stream in d['streams']:
+            streamurl = stream['stream']
+            bitrate = stream['bitrate']
+            content_type = stream['content_type']
             if content_type:
                 content_type = content_type.rstrip()
-                print_nfo("[Dirble] [Station] '{0}' [{1}]." \
-                          .format(to_ascii(d["name"]).encode("utf-8"), \
-                                  to_ascii(content_type)))
-                self.queue.append(
-                    tizdirbleproxy.Station(d["id"], d["name"], d["country"], \
-                                           d["website"], \
-                                           category, \
-                                           streamurl, \
-                                           bitrate,
-                                           content_type))
+                if content_type == '?':
+                    content_type = self._examine_url(streamurl)
+                if content_type:
+                    if content_type == 'audio/x-mpegurl' \
+                       or content_type == 'application/mpegurl' \
+                       or content_type == 'application/x-mpegurl' \
+                       or content_type == 'audio/mpegurl':
+                        playlist = parse_m3u(streamurl)
+                        if playlist:
+                            # TODO: loop through the available urls in the playlist
+                            streamurl = playlist[0].path.rstrip()
+
+                    streamurl = streamurl.rstrip()
+                    print_nfo("[Dirble] [Station] '{0}' [{1}] ({2})." \
+                              .format(to_ascii(d['name']), \
+                                      to_ascii(content_type), to_ascii(streamurl)))
+                    self.queue.append(
+                        tizdirbleproxy.Station(d['id'], d['name'], d['country'], \
+                                               d['website'], \
+                                               category, \
+                                               streamurl, \
+                                               bitrate,
+                                               content_type))
 
 if __name__ == "__main__":
     tizdirbleproxy()

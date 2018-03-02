@@ -84,7 +84,8 @@ sudo apt-get -y install python-pip \
             pycountry \
             titlecase \
             pychromecast \
-            fuzzywuzzy
+            fuzzywuzzy \
+            eventlet
 
 # Install 'libspotify'
 if [[ "$?" -eq 0 ]]; then
