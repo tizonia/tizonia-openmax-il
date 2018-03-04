@@ -34,6 +34,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <string.h>
+#include <ctype.h>
 
 #include <OMX_TizoniaExt.h>
 
@@ -569,6 +570,13 @@ obtain_uri (httpsrc_prc_t * ap_prc)
         OMX_IndexParamContentURI, ap_prc->p_uri_param_));
       TIZ_NOTICE (handleOf (ap_prc), "URI [%s]",
                   ap_prc->p_uri_param_->contentURI);
+
+      {
+        /* Make a lower case URI */
+        char * p = (char *) ap_prc->p_uri_param_->contentURI;
+        for (; *p; ++p)
+          *p = tolower (*p);
+      }
       /* Verify we are getting an http scheme */
       if (strncasecmp ((const char *) ap_prc->p_uri_param_->contentURI,
                        "http://", 7)
@@ -608,8 +616,12 @@ buffer_filled (OMX_BUFFERHEADERTYPE * ap_hdr, void * ap_arg)
   assert (p_prc);
   assert (ap_hdr);
   assert (p_prc->p_outhdr_ == ap_hdr);
-  ap_hdr->nOffset = 0;
-  (void) release_buffer (p_prc);
+  if (ARATELIA_HTTP_SOURCE_PORT_MIN_BUF_SIZE <= ap_hdr->nFilledLen
+      || p_prc->connection_closed_ || p_prc->first_buffer_delivered_)
+    {
+      (void) release_buffer (p_prc);
+      p_prc->first_buffer_delivered_ = true;
+    }
 }
 
 static OMX_BUFFERHEADERTYPE *
@@ -651,6 +663,8 @@ header_available (OMX_PTR ap_arg, const void * ap_ptr, const size_t a_nbytes)
   httpsrc_prc_t * p_prc = ap_arg;
   assert (p_prc);
   assert (ap_ptr);
+
+  TIZ_PRINTF_DBG_CYN("[%s]\n", ap_ptr);
 
   if (p_prc->auto_detect_on_)
     {
@@ -698,6 +712,7 @@ connection_lost (OMX_PTR ap_arg)
   httpsrc_prc_t * p_prc = ap_arg;
   assert (p_prc);
   prepare_for_port_auto_detection (p_prc);
+  p_prc->connection_closed_ = true;
   /* Return true to indicate that the automatic reconnection procedure needs to
      be started */
   return true;
@@ -743,6 +758,8 @@ httpsrc_prc_ctor (void * ap_obj, va_list * app)
   p_prc->samplerate_ = 44100;
   p_prc->auto_detect_on_ = false;
   p_prc->bitrate_ = ARATELIA_HTTP_SOURCE_DEFAULT_BIT_RATE_KBITS;
+  p_prc->connection_closed_ = false;
+  p_prc->first_buffer_delivered_ = false;
   update_cache_size (p_prc);
   return p_prc;
 }
@@ -819,6 +836,8 @@ httpsrc_prc_transfer_and_process (void * ap_prc, OMX_U32 a_pid)
   assert (p_prc);
   if (p_prc->auto_detect_on_)
     {
+      p_prc->connection_closed_ = false;
+      p_prc->first_buffer_delivered_ = false;
       rc = tiz_urltrans_start (p_prc->p_trans_);
     }
   return rc;

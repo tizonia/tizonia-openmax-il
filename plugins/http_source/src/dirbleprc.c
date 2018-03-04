@@ -34,6 +34,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <string.h>
+#include <ctype.h>
 
 #include <OMX_TizoniaExt.h>
 
@@ -414,6 +415,12 @@ obtain_next_url (dirble_prc_t * ap_prc, int a_skip_value)
       const OMX_U32 url_len = strnlen (p_next_url, pathname_max);
       TIZ_TRACE (handleOf (ap_prc), "URL [%s]", p_next_url);
 
+      {
+        /* Make a lower case URI */
+        char * p = (char *) ap_prc->p_uri_param_->contentURI;
+        for (; *p; ++p)
+          *p = tolower (*p);
+      }
       /* Verify we are getting an http scheme */
       if (!p_next_url || !url_len
           || (memcmp (p_next_url, "http://", 7) != 0
@@ -463,8 +470,12 @@ buffer_filled (OMX_BUFFERHEADERTYPE * ap_hdr, void * ap_arg)
   assert (p_prc);
   assert (ap_hdr);
   assert (p_prc->p_outhdr_ == ap_hdr);
-  ap_hdr->nOffset = 0;
-  (void) release_buffer (p_prc);
+  if (ARATELIA_HTTP_SOURCE_PORT_MIN_BUF_SIZE <= ap_hdr->nFilledLen
+      || p_prc->connection_closed_ || p_prc->first_buffer_delivered_)
+    {
+      (void) release_buffer (p_prc);
+      p_prc->first_buffer_delivered_ = true;
+    }
 }
 
 static OMX_BUFFERHEADERTYPE *
@@ -560,6 +571,9 @@ connection_lost (OMX_PTR ap_arg)
       /* Signal the client */
       tiz_srv_issue_err_event ((OMX_PTR) p_prc, OMX_ErrorFormatNotDetected);
     }
+
+  p_prc->connection_closed_ = true;
+
   /* Return false to indicate that there is no need to start the automatic
      reconnection procedure */
   return false;
@@ -681,6 +695,8 @@ dirble_prc_ctor (void * ap_obj, va_list * app)
   p_prc->bitrate_ = ARATELIA_HTTP_SOURCE_DEFAULT_BIT_RATE_KBITS;
   update_cache_size (p_prc);
   p_prc->remove_current_url_ = false;
+  p_prc->connection_closed_ = false;
+  p_prc->first_buffer_delivered_ = false;
   return p_prc;
 }
 
@@ -768,6 +784,8 @@ dirble_prc_transfer_and_process (void * ap_prc, OMX_U32 a_pid)
   assert (p_prc);
   if (p_prc->auto_detect_on_)
     {
+      p_prc->connection_closed_ = false;
+      p_prc->first_buffer_delivered_ = false;
       rc = tiz_urltrans_start (p_prc->p_trans_);
     }
   return rc;
@@ -870,7 +888,7 @@ dirble_prc_port_enable (const void * ap_prc, OMX_U32 a_pid)
       else
         {
           p_prc->uri_changed_ = false;
-          /*           rc = tiz_urltrans_start (p_prc->p_trans_); */
+          /* rc = tiz_urltrans_start (p_prc->p_trans_); */
         }
     }
   return rc;
@@ -908,6 +926,8 @@ dirble_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
       prepare_for_port_auto_detection (p_prc);
 
       /* Re-start the transfer */
+      p_prc->connection_closed_ = false;
+      p_prc->first_buffer_delivered_ = false;
       tiz_urltrans_start (p_prc->p_trans_);
     }
   return rc;

@@ -56,6 +56,8 @@ struct httpsrc_prc
   bool auto_detect_on_;
   int bitrate_;
   int cache_bytes_;
+  bool connection_closed_;
+  bool first_buffer_delivered_;
 };
 
 typedef struct httpsrc_prc_class httpsrc_prc_class_t;

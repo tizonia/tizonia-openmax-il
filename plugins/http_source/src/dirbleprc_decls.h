@@ -63,6 +63,8 @@ struct dirble_prc
   int bitrate_;
   int cache_bytes_;
   bool remove_current_url_;
+  bool connection_closed_;
+  bool first_buffer_delivered_;
 };
 
 typedef struct dirble_prc_class dirble_prc_class_t;
