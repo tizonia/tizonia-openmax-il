@@ -2183,6 +2183,7 @@ int tiz::programopts::consume_input_http_uris_option ()
     bool all_ok = true;
     BOOST_FOREACH (std::string uri, uri_list_)
     {
+      std::transform(uri.begin(), uri.end(), uri.begin(), ::tolower);
       boost::xpressive::sregex http_s
           = boost::xpressive::sregex::compile ("^https?://");
       boost::xpressive::smatch what;
