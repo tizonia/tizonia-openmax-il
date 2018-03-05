@@ -439,7 +439,12 @@ namespace tiz
         bmf::Row < updating_graph
                    ::exit_pt\
                    <updating_graph_
-                    ::updating_graph_exit>      , tg::graph_updated_evt     , tg::executing           , tg::do_ack_execd                                           >,
+                    ::updating_graph_exit>      , tg::graph_updated_evt     , tg::executing           , bmf::ActionSequence_<
+                                                                                                          boost::mpl::vector<
+                                                                                                            tg::do_retrieve_metadata,
+                                                                                                            tg::do_ack_execd,
+                                                                                                            tg::do_start_progress_display >
+                                                                                                          >                                                        >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < tg::executing                , tg::omx_err_evt           , tg::exe2idle            , bmf::ActionSequence_<
                                                                                                           boost::mpl::vector<
@@ -451,8 +456,15 @@ namespace tiz
         bmf::Row < tg::executing                , tg::volume_step_evt       , bmf::none               , tg::do_volume_step                                         >,
         bmf::Row < tg::executing                , tg::volume_evt            , bmf::none               , tg::do_volume                                              >,
         bmf::Row < tg::executing                , tg::mute_evt              , bmf::none               , tg::do_mute                                                >,
+        bmf::Row < tg::executing                , tg::omx_index_setting_evt , bmf::none               , bmf::none                                                  >,
         bmf::Row < tg::executing                , tg::skip_evt              , skipping                , tg::do_store_skip                                          >,
-        bmf::Row < tg::executing                , tg::omx_eos_evt           , bmf::none               , tg::do_retrieve_metadata    , tg::is_last_eos              >,
+        bmf::Row < tg::executing                , tg::omx_eos_evt           , bmf::none               , bmf::ActionSequence_<
+                                                                                                          boost::mpl::vector<
+                                                                                                            tg::do_stop_progress_display,
+                                                                                                            tg::do_retrieve_metadata,
+                                                                                                            tg::do_start_progress_display >
+                                                                                                          >                         , tg::is_last_eos              >,
+        bmf::Row < tg::executing                , tg::timer_evt             , bmf::none               , tg::do_increase_progress_display                           >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < tg::exe2pause                , tg::omx_trans_evt         , tg::pause               , tg::do_ack_paused           , tg::is_trans_complete        >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
@@ -490,7 +502,7 @@ namespace tiz
         bmf::Row < skipping
                    ::exit_pt
                    <skipping_
-                    ::skip_exit>                , tg::skipped_evt           , tg::executing           , bmf::none                       , bmf::euml::Not_<
+                    ::skip_exit>                , tg::skipped_evt           , tg::executing           , bmf::none                   , bmf::euml::Not_<
                                                                                                                                             tg::is_end_of_play >   >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < tg::exe2idle                 , tg::omx_err_evt           , tg::exe2idle            , bmf::none                   , bmf::euml::Not_<
