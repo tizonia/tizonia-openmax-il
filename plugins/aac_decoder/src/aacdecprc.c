@@ -333,7 +333,7 @@ static void store_stream_metadata (aacdec_prc_t *ap_prc)
 
 static OMX_ERRORTYPE init_aac_decoder (aacdec_prc_t *ap_prc)
 {
-  OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
+  OMX_ERRORTYPE rc = OMX_ErrorStreamCorruptFatal;
   long nbytes = 0;
   OMX_BUFFERHEADERTYPE *p_in = tiz_filter_prc_get_header (
       ap_prc, ARATELIA_AAC_DECODER_INPUT_PORT_INDEX);
