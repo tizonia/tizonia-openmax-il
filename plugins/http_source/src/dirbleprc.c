@@ -34,7 +34,6 @@
 #include <assert.h>
 #include <errno.h>
 #include <string.h>
-#include <ctype.h>
 
 #include <OMX_TizoniaExt.h>
 
@@ -94,39 +93,39 @@ obtain_coding_type (dirble_prc_t * ap_prc, char * ap_info)
 
   TIZ_TRACE (handleOf (ap_prc), "encoding type  : [%s]", ap_info);
 
-  if (memcmp (ap_info, "audio/mpeg", 10) == 0
-      || memcmp (ap_info, "audio/mpg", 9) == 0
-      || memcmp (ap_info, "audio/mp3", 9) == 0)
+  if (strncasecmp (ap_info, "audio/mpeg", 10) == 0
+      || strncasecmp (ap_info, "audio/mpg", 9) == 0
+      || strncasecmp (ap_info, "audio/mp3", 9) == 0)
     {
       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingMP3;
     }
-  else if (memcmp (ap_info, "audio/aac", 9) == 0
-           || memcmp (ap_info, "audio/aacp", 10) == 0)
+  else if (strncasecmp (ap_info, "audio/aac", 9) == 0
+           || strncasecmp (ap_info, "audio/aacp", 10) == 0)
     {
       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingAAC;
     }
-  else if (memcmp (ap_info, "audio/vorbis", 12) == 0)
+  else if (strncasecmp (ap_info, "audio/vorbis", 12) == 0)
     {
       /* This is vorbis without container */
       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingVORBIS;
     }
-  else if (memcmp (ap_info, "audio/speex", 11) == 0)
+  else if (strncasecmp (ap_info, "audio/speex", 11) == 0)
     {
       /* This is speex without container */
       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingSPEEX;
     }
-  else if (memcmp (ap_info, "audio/flac", 10) == 0)
+  else if (strncasecmp (ap_info, "audio/flac", 10) == 0)
     {
       /* This is flac without container */
       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingFLAC;
     }
-  else if (memcmp (ap_info, "audio/opus", 10) == 0)
+  else if (strncasecmp (ap_info, "audio/opus", 10) == 0)
     {
       /* This is opus without container */
       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingOPUS;
     }
-  else if (memcmp (ap_info, "application/ogg", 15) == 0
-           || memcmp (ap_info, "audio/ogg", 9) == 0)
+  else if (strncasecmp (ap_info, "application/ogg", 15) == 0
+           || strncasecmp (ap_info, "audio/ogg", 9) == 0)
     {
       /* This is for audio with ogg container (may be FLAC, Vorbis, Opus,
          etc). We'll have to identify the actual codec when the first bytes
@@ -276,12 +275,11 @@ obtain_audio_encoding_from_headers (dirble_prc_t * ap_prc,
         {
           char * p_info = tiz_mem_calloc (1, (p_end - p_value) + 1);
           memcpy (p_info, p_value, p_end - p_value);
-          p_info[(p_end - p_value)] = '\000';
+          p_info[(p_end - p_value)] = '\0';
           TIZ_TRACE (handleOf (ap_prc), "header name  : [%s]", name);
           TIZ_TRACE (handleOf (ap_prc), "header value : [%s]", p_info);
 
-          if (memcmp (name, "Content-Type", 12) == 0
-              || memcmp (name, "content-type", 12) == 0)
+          if (strncasecmp (name, "content-type", 12) == 0)
             {
               if (OMX_ErrorNone == obtain_coding_type (ap_prc, p_info))
                 {
@@ -415,16 +413,10 @@ obtain_next_url (dirble_prc_t * ap_prc, int a_skip_value)
       const OMX_U32 url_len = strnlen (p_next_url, pathname_max);
       TIZ_TRACE (handleOf (ap_prc), "URL [%s]", p_next_url);
 
-      {
-        /* Make a lower case URI */
-        char * p = (char *) ap_prc->p_uri_param_->contentURI;
-        for (; *p; ++p)
-          *p = tolower (*p);
-      }
       /* Verify we are getting an http scheme */
       if (!p_next_url || !url_len
-          || (memcmp (p_next_url, "http://", 7) != 0
-              && memcmp (p_next_url, "https://", 8) != 0))
+          || (strncasecmp (p_next_url, "http://", 7) != 0
+              && strncasecmp (p_next_url, "https://", 8) != 0))
         {
           rc = OMX_ErrorContentURIError;
         }
@@ -432,7 +424,7 @@ obtain_next_url (dirble_prc_t * ap_prc, int a_skip_value)
         {
           strncpy ((char *) ap_prc->p_uri_param_->contentURI, p_next_url,
                    url_len);
-          ap_prc->p_uri_param_->contentURI[url_len] = '\000';
+          ap_prc->p_uri_param_->contentURI[url_len] = '\0';
 
           /* Song metadata is now available, update the IL client */
           rc = update_metadata (ap_prc);

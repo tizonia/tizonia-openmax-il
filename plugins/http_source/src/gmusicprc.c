@@ -92,9 +92,9 @@ obtain_coding_type (gmusic_prc_t * ap_prc, char * ap_info)
   assert (ap_prc);
   assert (ap_info);
 
-  if (memcmp (ap_info, "audio/mpeg", 10) == 0
-      || memcmp (ap_info, "audio/mpg", 9) == 0
-      || memcmp (ap_info, "audio/mp3", 9) == 0)
+  if (strncasecmp (ap_info, "audio/mpeg", 10) == 0
+      || strncasecmp (ap_info, "audio/mpg", 9) == 0
+      || strncasecmp (ap_info, "audio/mp3", 9) == 0)
     {
       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingMP3;
     }
@@ -258,16 +258,15 @@ obtain_audio_encoding_from_headers (gmusic_prc_t * ap_prc,
         {
           char * p_info = tiz_mem_calloc (1, (p_end - p_value) + 1);
           memcpy (p_info, p_value, p_end - p_value);
-          p_info[(p_end - p_value)] = '\000';
+          p_info[(p_end - p_value)] = '\0';
 
-          if (memcmp (name, "Content-Type", 12) == 0
-              || memcmp (name, "content-type", 12) == 0)
+          if (strncasecmp (name, "Content-Type", 12) == 0)
             {
               obtain_coding_type (ap_prc, p_info);
               /* Now set the new coding type value on the output port */
               (void) set_audio_coding_on_port (ap_prc);
             }
-          else if (memcmp (name, "Content-Length", 14) == 0)
+          else if (strncasecmp (name, "Content-Length", 14) == 0)
             {
               obtain_content_length (ap_prc, p_info);
             }
@@ -398,8 +397,8 @@ obtain_next_url (gmusic_prc_t * ap_prc, int a_skip_value)
 
       /* Verify we are getting an http scheme */
       if (!p_next_url || !url_len
-          || (memcmp (p_next_url, "http://", 7) != 0
-              && memcmp (p_next_url, "https://", 8) != 0))
+          || (strncasecmp (p_next_url, "http://", 7) != 0
+              && strncasecmp (p_next_url, "https://", 8) != 0))
         {
           rc = OMX_ErrorContentURIError;
         }

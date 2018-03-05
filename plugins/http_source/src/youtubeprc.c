@@ -90,12 +90,12 @@ obtain_coding_type (youtube_prc_t * ap_prc, char * ap_info)
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (ap_prc);
   assert (ap_info);
-  if (memcmp (ap_info, "audio/webm", 10) == 0)
+  if (strncasecmp (ap_info, "audio/webm", 10) == 0)
     {
       /* The webm container */
       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingWEBM;
     }
-  else if (memcmp (ap_info, "audio/mp4", 9) == 0)
+  else if (strncasecmp (ap_info, "audio/mp4", 9) == 0)
     {
       /* This is .mp4 .m4a  */
       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingMP4;
@@ -290,8 +290,7 @@ obtain_audio_encoding_from_headers (youtube_prc_t * ap_prc,
           TIZ_TRACE (handleOf (ap_prc), "header name  : [%s]", name);
           TIZ_TRACE (handleOf (ap_prc), "header value : [%s]", p_info);
 
-          if (memcmp (name, "Content-Type", 12) == 0
-              || memcmp (name, "content-type", 12) == 0)
+          if (strncasecmp (name, "Content-Type", 12) == 0)
             {
               if (OMX_ErrorNone == obtain_coding_type (ap_prc, p_info))
                 {
@@ -299,7 +298,7 @@ obtain_audio_encoding_from_headers (youtube_prc_t * ap_prc,
                   (void) set_audio_coding_on_port (ap_prc);
                 }
             }
-          else if (memcmp (name, "Content-Length", 14) == 0)
+          else if (strncasecmp (name, "Content-Length", 14) == 0)
             {
               obtain_content_length (ap_prc, p_info);
             }
@@ -462,8 +461,8 @@ obtain_next_url (youtube_prc_t * ap_prc, int a_skip_value)
 
       /* Verify we are getting an http scheme */
       if (!p_next_url || !url_len
-          || (memcmp (p_next_url, "http://", 7) != 0
-              && memcmp (p_next_url, "https://", 8) != 0))
+          || (strncasecmp (p_next_url, "http://", 7) != 0
+              && strncasecmp (p_next_url, "https://", 8) != 0))
         {
           rc = OMX_ErrorContentURIError;
         }
@@ -471,7 +470,7 @@ obtain_next_url (youtube_prc_t * ap_prc, int a_skip_value)
         {
           strncpy ((char *) ap_prc->p_uri_param_->contentURI, p_next_url,
                    url_len);
-          ap_prc->p_uri_param_->contentURI[url_len] = '\000';
+          ap_prc->p_uri_param_->contentURI[url_len] = '\0';
 
           /* Song metadata is now available, update the IL client */
           rc = update_metadata (ap_prc);

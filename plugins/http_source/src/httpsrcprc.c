@@ -34,7 +34,6 @@
 #include <assert.h>
 #include <errno.h>
 #include <string.h>
-#include <ctype.h>
 
 #include <OMX_TizoniaExt.h>
 
@@ -476,7 +475,7 @@ obtain_audio_encoding_from_headers (httpsrc_prc_t * ap_prc,
         {
           char * p_info = tiz_mem_calloc (1, (p_end - p_value) + 1);
           memcpy (p_info, p_value, p_end - p_value);
-          p_info[(p_end - p_value)] = '\000';
+          p_info[(p_end - p_value)] = '\0';
           TIZ_TRACE (handleOf (ap_prc), "header name  : [%s]", name);
           TIZ_TRACE (handleOf (ap_prc), "header value : [%s]", p_info);
 
@@ -571,12 +570,9 @@ obtain_uri (httpsrc_prc_t * ap_prc)
       TIZ_NOTICE (handleOf (ap_prc), "URI [%s]",
                   ap_prc->p_uri_param_->contentURI);
 
-      {
-        /* Make a lower case URI */
-        char * p = (char *) ap_prc->p_uri_param_->contentURI;
-        for (; *p; ++p)
-          *p = tolower (*p);
-      }
+      /* Make URI lower case  */
+      tiz_str_util_to_lower ((char *) ap_prc->p_uri_param_->contentURI);
+
       /* Verify we are getting an http scheme */
       if (strncasecmp ((const char *) ap_prc->p_uri_param_->contentURI,
                        "http://", 7)
