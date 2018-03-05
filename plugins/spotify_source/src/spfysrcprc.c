@@ -1312,7 +1312,8 @@ play_token_lost (sp_session * sess)
 static void
 log_message (sp_session * sess, const char * msg)
 {
-  if (strstr (msg, "Request for file") || strstr (msg, "locked"))
+  if (strstr (msg, "Request for file") || strstr (msg, "locked")
+      || strstr (msg, "ChannelError"))
     {
       /* Skip these messages */
       return;
@@ -1342,8 +1343,8 @@ playlist_added (sp_playlistcontainer * pc, sp_playlist * pl, int position,
   assert (p_prc);
   sp_rc = sp_playlist_add_callbacks (pl, &(p_prc->sp_pl_cbacks_), p_prc);
   assert (SP_ERROR_OK == sp_rc);
-  TIZ_PRINTF_YEL ("[Spotify] : playlist added to container at position [%d]\n",
-                  position);
+  TIZ_PRINTF_DBG_YEL ("[Spotify] : playlist added to container at position [%d]\n",
+                      position);
 }
 
 /**
@@ -1364,7 +1365,7 @@ playlist_removed (sp_playlistcontainer * pc, sp_playlist * pl, int position,
   spfysrc_prc_t * p_prc = userdata;
   assert (p_prc);
   sp_playlist_remove_callbacks (pl, &(p_prc->sp_pl_cbacks_), NULL);
-  TIZ_PRINTF_YEL ("[Spotify] : playlist removed [%s] - position [%d]\n",
+  TIZ_PRINTF_DBG_YEL ("[Spotify] : playlist removed [%s] - position [%d]\n",
                   sp_playlist_name (pl), position);
   tiz_map_erase (p_prc->p_not_ready_playlists_, pl);
   tiz_map_erase (p_prc->p_ready_playlists_, pl);
@@ -1390,7 +1391,7 @@ container_loaded (sp_playlistcontainer * pc, void * userdata)
       int i = 0;
       sp_error sp_rc = SP_ERROR_OK;
 
-      TIZ_PRINTF_BLU ("[Spotify] : %d playlists\n", nplaylists);
+      TIZ_PRINTF_BLU ("[Spotify] : %d playlists found\n", nplaylists);
 
       p_prc->p_sp_playlist_ = NULL;
       for (i = 0; i < nplaylists; ++i)
@@ -1423,7 +1424,7 @@ tracks_added (sp_playlist * pl, sp_track * const * tracks, int num_tracks,
 
   if (pl == p_prc->p_sp_playlist_)
     {
-      TIZ_PRINTF_YEL ("[Spotify] : %d tracks added\n", num_tracks);
+      TIZ_PRINTF_DBG_YEL ("[Spotify] : %d tracks added\n", num_tracks);
       start_playback (p_prc);
     }
 }
@@ -1455,7 +1456,7 @@ tracks_removed (sp_playlist * pl, const int * tracks, int num_tracks,
             }
         }
       p_prc->track_index_ -= k;
-      TIZ_PRINTF_YEL ("[Spotify] : %d tracks have been removed\n", num_tracks);
+      TIZ_PRINTF_DBG_YEL ("[Spotify] : %d tracks have been removed\n", num_tracks);
       start_playback (p_prc);
     }
 }
@@ -1479,7 +1480,7 @@ tracks_moved (sp_playlist * pl, const int * tracks, int num_tracks,
 
   if (pl == p_prc->p_sp_playlist_)
     {
-      TIZ_PRINTF_YEL ("[Spotify] : %d tracks were moved around\n", num_tracks);
+      TIZ_PRINTF_DBG_YEL ("[Spotify] : %d tracks were moved around\n", num_tracks);
       start_playback (p_prc);
     }
 }
@@ -1499,7 +1500,7 @@ playlist_renamed (sp_playlist * pl, void * userdata)
 
   if (p_prc->p_sp_playlist_ == pl)
     {
-      TIZ_PRINTF_YEL ("[Spotify] : current playlist renamed to \"%s\"\n", name);
+      TIZ_PRINTF_DBG_YEL ("[Spotify] : current playlist renamed to \"%s\"\n", name);
       p_prc->p_sp_playlist_ = NULL;
       stop_spotify (p_prc);
     }
@@ -1532,12 +1533,11 @@ playlist_state_changed (sp_playlist * pl, void * userdata)
       /* Make sure this playlist is not found in the "not ready" list */
       tiz_map_erase (p_prc->p_not_ready_playlists_, pl);
 
-      if (OMX_ErrorNone == rc)
+      if (OMX_ErrorNone == rc && !p_prc->spotify_inited_)
         {
-          TIZ_PRINTF_BLU ("[Spotify] : '%s' [%d of %d] (%d tracks)\n",
+          TIZ_PRINTF_BLU ("[Spotify] : '%s' (%d tracks)\n",
                           sp_playlist_name (pl),
-                          tiz_map_size (p_prc->p_ready_playlists_),
-                          p_prc->nplaylists_, sp_playlist_num_tracks (pl));
+                          sp_playlist_num_tracks (pl));
         }
     }
   else
