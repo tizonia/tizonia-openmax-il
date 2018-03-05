@@ -21,7 +21,7 @@
  * @file   tizprogressdisplay.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Track progress display.
+ * @brief  Track progress display (based on boost::progress_display).
  *
  */
 
@@ -60,11 +60,11 @@ namespace tiz
         {
           if ((_count += increment) >= _next_tic_count)
           {
-            display_tic ();
+            add_tic ();
           }
           else
           {
-            update_time ();
+            refresh_tic ();
           }
         }
         return _count;
@@ -75,22 +75,18 @@ namespace tiz
         return operator+= (1);
       }
 
-      unsigned long count () const
-      {
-        return _count;
-      }
+      unsigned long count () const;
 
-      unsigned long expected_count () const
-      {
-        return _expected_count;
-      }
+      unsigned long expected_count () const;
 
     private:
       std::string calc_len (unsigned long count);
 
-      void display_tic ();
+      void add_tic ();
 
-      void update_time ();
+      void draw_tic ();
+
+      void refresh_tic ();
 
     private:
       std::ostream &m_os;      // may not be present in all imps
