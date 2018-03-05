@@ -29,6 +29,9 @@
 #ifndef TIZDIRBLEGRAPHOPS_HPP
 #define TIZDIRBLEGRAPHOPS_HPP
 
+#include <OMX_Audio.h>
+#include <OMX_TizoniaExt.h>
+
 #include "tizgraphops.hpp"
 
 namespace tiz
