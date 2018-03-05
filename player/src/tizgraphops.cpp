@@ -1152,17 +1152,19 @@ void graph::ops::store_last_track_duration(const char * p_value)
     unsigned long seconds = 0;
     for (size_t i = 0; i < strs.size (); i++)
     {
+      std::string section(strs[i]);
+      section.erase(remove_if(section.begin(), section.end(), ::isspace), section.end());
       unsigned long value = boost::lexical_cast< unsigned long > (
-          strs[i].substr (0, strs[i].size () - 1));
-      if (boost::ends_with (strs[i], "h"))
+          section.substr (0, section.size () - 1));
+      if (boost::ends_with (section, "h"))
       {
         seconds += (value * 3600);
       }
-      if (boost::ends_with (strs[i], "m"))
+      if (boost::ends_with (section, "m"))
       {
         seconds += (value * 60);
       }
-      if (boost::ends_with (strs[i], "s"))
+      if (boost::ends_with (section, "s"))
       {
         seconds += value;
       }
