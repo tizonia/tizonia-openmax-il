@@ -44,7 +44,7 @@ from fuzzywuzzy import process
 from fuzzywuzzy import fuzz
 
 # For use during debugging
-# import pprint
+import pprint
 
 logging.captureWarnings(True)
 logging.getLogger().setLevel(logging.DEBUG)
@@ -324,7 +324,7 @@ class tizgmusicproxy(object):
             if not len(track_hits):
                 print_wrn("[Google Play Music] '{0}' not found. "\
                           "Feeling lucky?." \
-                          .format(arg.encode('utf-8')))
+                          .format(to_ascii(arg)))
                 random.seed()
                 track_hits = random.sample(songs, MAX_TRACKS)
                 for hit in track_hits:
@@ -373,8 +373,8 @@ class tizgmusicproxy(object):
                     if arg.lower() != name.lower():
                         print_wrn("[Google Play Music] '{0}' not found. " \
                                   "Playing '{1}' instead." \
-                                  .format(arg.encode('utf-8'), \
-                                          artist.encode('utf-8')))
+                                  .format(to_ascii(arg), \
+                                          to_ascii(artist)))
 
                 if not artist:
                     # Play some random artist from the library
@@ -383,7 +383,7 @@ class tizgmusicproxy(object):
                     artist_dict = self.library[artist]
                     print_wrn("[Google Play Music] '{0}' not found. "\
                               "Feeling lucky?." \
-                              .format(arg.encode('utf-8')))
+                              .format(to_ascii(arg)))
             else:
                 artist = arg
                 artist_dict = self.library[arg]
@@ -425,7 +425,7 @@ class tizgmusicproxy(object):
                 album = random.choice(self.library[artist].keys())
                 print_wrn("[Google Play Music] '{0}' not found. "\
                           "Feeling lucky?." \
-                          .format(arg.encode('utf-8')))
+                          .format(to_ascii(arg)))
 
             if not album:
                 raise KeyError("Album not found : {0}".format(arg))
@@ -457,15 +457,13 @@ class tizgmusicproxy(object):
             playlist = None
             playlist_name = None
             for name, plist in self.playlists.items():
-                print_nfo("[Google Play Music] [Playlist] '{0}'." \
-                          .format(to_ascii(name)))
+                print_nfo("[Google Play Music] [Playlist] '{0}' ({1} tracks)." \
+                          .format(to_ascii(name), len(plist)))
             if arg not in self.playlists.keys():
                 playlist_dict = dict()
                 playlist_names = list()
                 for name, plist in self.playlists.iteritems():
-                    if fuzz.partial_ratio(arg, name) > 50:
-                        print_nfo("[Google Play Music] [Playlist -fuzz] '{0}'." \
-                                  .format(to_ascii(name)))
+                    if fuzz.ratio(arg, name) > 50:
                         playlist_dict[name] = plist
                         playlist_names.append(name)
 
@@ -476,27 +474,34 @@ class tizgmusicproxy(object):
                     playlist_name = playlist_names[0]
                     playlist = playlist_dict[playlist_name]
 
-                if playlist and playlist_name:
+                if playlist_name:
                     if arg.lower() != playlist_name.lower():
                         print_wrn("[Google Play Music] '{0}' not found. " \
                                   "Playing '{1}' instead." \
-                                  .format(arg.encode('utf-8'), \
+                                  .format(to_ascii(arg), \
                                           to_ascii(playlist_name)))
 
             else:
                 playlist_name = arg
                 playlist = self.playlists[arg]
 
-            random.seed()
-            x = 0
-            while (not playlist or not len(playlist)) and x < 3:
-                x += 1
-                # Play some random playlist from the library
-                playlist_name = random.choice(self.playlists.keys())
-                playlist = self.playlists[playlist_name]
-                print_wrn("[Google Play Music] '{0}' not found or found empty. "\
+            if (not playlist and len(self.playlists.keys()) > 0):
+                print_wrn("[Google Play Music] '{0}' not found (or is empty). "\
                           "Feeling lucky?." \
-                          .format(arg.encode('utf-8')))
+                          .format(to_ascii(arg)))
+                random.seed()
+                x = 0
+                playlists_copy = self.playlists.copy()
+                while (not playlist or not len(playlist)) \
+                      and x < 3 and len(playlists_copy):
+                    x += 1
+                    # Play some random playlist from the library
+                    playlist_name = random.choice(playlists_copy.keys())
+                    playlist = self.playlists[playlist_name]
+                    if not playlist or not len(playlist):
+                        del playlists_copy[playlist_name]
+                        print_wrn("[Google Play Music] '{0}' is empty. " \
+                                  .format(to_ascii(playlist_name)))
 
             if not len(playlist):
                 raise KeyError
@@ -506,7 +511,7 @@ class tizgmusicproxy(object):
                       .format(to_ascii(playlist_name)))
             self.__update_play_queue_order()
         except KeyError:
-            raise KeyError("Playlist not found or found empty : {0}".format(arg))
+            raise KeyError("Playlist not found or is empty : {0}".format(arg))
 
     def enqueue_podcast(self, arg):
         """Search Google Play Music for a podcast series and add its tracks to the
@@ -593,7 +598,7 @@ class tizgmusicproxy(object):
                     genre = random.choice(all_genres)
                     print_wrn("[Google Play Music] '{0}' not found. "\
                               "Feeling lucky?." \
-                              .format(arg.encode('utf-8')))
+                              .format(to_ascii(arg)))
 
                 genre_name = genre['name']
                 genre_id = genre['id']
@@ -606,7 +611,7 @@ class tizgmusicproxy(object):
                 if not tracks_added:
                     print_wrn("[Google Play Music] '{0}' No tracks found. "\
                               "Trying something else." \
-                              .format(genre_name.encode('utf-8')))
+                              .format(to_ascii(genre_name)))
                     del choices[genre_name]
                     choice_names.remove(genre_name)
                     choice_name = process.extractOne(arg, choice_names)[0]
@@ -737,7 +742,7 @@ class tizgmusicproxy(object):
                 track_hits = self.__gmusic.search("", max_results)['song_hits']
                 print_wrn("[Google Play Music] '{0}' not found. "\
                           "Feeling lucky?." \
-                          .format(arg.encode('utf-8')))
+                          .format(to_ascii(arg)))
 
             tracks = list()
             for hit in track_hits:
@@ -993,7 +998,7 @@ class tizgmusicproxy(object):
                 if arg.lower() != station_name.lower():
                     print_wrn("[Google Play Music] '{0}' not found. " \
                               "Playing '{1}' instead." \
-                              .format(arg.encode('utf-8'), station_name.encode('utf-8')))
+                              .format(to_ascii(arg), station_name.encode('utf-8')))
                 else:
                     print_wrn("[Google Play Music] Playing '{0}'." \
                               .format(station_name.encode('utf-8')))
@@ -1007,7 +1012,7 @@ class tizgmusicproxy(object):
         if not len(self.queue):
             print_wrn("[Google Play Music] '{0}' " \
                       "not found in the user's library. " \
-                      .format(arg.encode('utf-8')))
+                      .format(to_ascii(arg)))
 
     def __enqueue_station_unlimited(self, arg, max_results=MAX_TRACKS, quiet=False):
         """Search for a station and enqueue all of its tracks (Unlimited)
@@ -1016,7 +1021,7 @@ class tizgmusicproxy(object):
         if not quiet:
             print_msg("[Google Play Music] [Station search in "\
                       "Google Play Music] : '{0}'. " \
-                      .format(arg.encode('utf-8')))
+                      .format(to_ascii(arg)))
         try:
             station_name = arg
             station_id = None
@@ -1055,7 +1060,7 @@ class tizgmusicproxy(object):
                         print_wrn("[Google Play Music] [Station] : '{0}'." \
                                   .format(station_name.encode('utf-8')))
                     logging.info("Added %d tracks from %s to queue", \
-                                 tracks_added, arg.encode('utf-8'))
+                                 tracks_added, to_ascii(arg))
                     self.__update_play_queue_order()
 
         except KeyError:
@@ -1067,7 +1072,7 @@ class tizgmusicproxy(object):
         """
         print_msg("[Google Play Music] [Activity search in "\
                   "Google Play Music] : '{0}'. " \
-                  .format(to_ascii(arg.encode('utf-8'))))
+                  .format(to_ascii(to_ascii(arg))))
         try:
             situation_hits = self.__gmusic.search(arg)['situation_hits']
 
@@ -1077,7 +1082,7 @@ class tizgmusicproxy(object):
                 situation_hits = self.__gmusic.search("")['situation_hits']
                 print_wrn("[Google Play Music] '{0}' not found. "\
                           "Feeling lucky?." \
-                          .format(arg.encode('utf-8')))
+                          .format(to_ascii(arg)))
 
             # Try to find a "best result", if one exists
             situation_best_hit = next((hit for hit in situation_hits \
@@ -1136,7 +1141,7 @@ class tizgmusicproxy(object):
         """
         print_msg("[Google Play Music] [Podcast search in "\
                   "Google Play Music] : '{0}'. " \
-                  .format(arg.encode('utf-8')))
+                  .format(to_ascii(arg)))
         try:
             podcast_hits = self.__gmusic_search(arg, 'podcast', 10, quiet=False)
 
@@ -1188,12 +1193,14 @@ class tizgmusicproxy(object):
         """ Retrieve the user's playlists
 
         """
+        logging.info("__update_playlists : updating users playlists")
         plists = self.__gmusic.get_all_user_playlist_contents()
         for plist in plists:
             plist_name = plist.get('name')
             tracks = plist.get('tracks')
             if plist_name and tracks:
-                logging.info("playlist name : %s", to_ascii(plist_name))
+                logging.info("__update_playlists : playlist name : %s - num tracks %d", to_ascii(plist_name), \
+                             len(tracks))
                 tracks.sort(key=itemgetter('creationTimestamp'))
                 self.playlists[plist_name] = list()
                 for track in tracks:
@@ -1202,6 +1209,9 @@ class tizgmusicproxy(object):
                         song = self.song_map.get(song_id)
                         if song:
                             self.playlists[plist_name].append(song)
+            if not len(tracks):
+                # Append a null item
+                self.playlists[plist_name] = list()
 
     def __update_playlists_unlimited(self):
         """ Retrieve shared playlists (Unlimited)
