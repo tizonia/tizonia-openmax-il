@@ -75,7 +75,7 @@ declare -ar TIZ_TIZONIA_DEPS=( \
     libtag1-dev \
     libfishsound1-dev \
     libmediainfo-dev \
-    libcurl4-openssl-dev \
+    libcurl4-gnutls-dev \
     libpulse-dev \
     libmpg123-dev \
     libvorbis-dev \
