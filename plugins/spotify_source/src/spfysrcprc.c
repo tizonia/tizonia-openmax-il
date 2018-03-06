@@ -592,12 +592,12 @@ store_relevant_track_metadata (spfysrc_prc_t * ap_prc, const int a_num_tracks)
   (void) store_metadata_playlist (
     ap_prc, sp_playlist_name (ap_prc->p_sp_playlist_), a_num_tracks,
     sp_playlist_num_subscribers (ap_prc->p_sp_playlist_));
+  store_metadata_track_name (ap_prc, sp_track_name (ap_prc->p_sp_track_),
+                             ap_prc->track_index_, a_num_tracks);
   (void) store_metadata (ap_prc, "Artist", sp_artist_name (sp_track_artist (
                                              ap_prc->p_sp_track_, 0)));
   (void) store_metadata (ap_prc, "Album",
                          sp_album_name (sp_track_album (ap_prc->p_sp_track_)));
-  store_metadata_track_name (ap_prc, sp_track_name (ap_prc->p_sp_track_),
-                             ap_prc->track_index_, a_num_tracks);
   store_metadata_track_duration (ap_prc,
                                  sp_track_duration (ap_prc->p_sp_track_));
   store_metadata_preferred_bitrate (ap_prc);
