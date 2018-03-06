@@ -84,6 +84,7 @@ sudo apt-get -y install python-pip \
             pycountry \
             titlecase \
             pychromecast \
+            plexapi \
             fuzzywuzzy \
             eventlet
 

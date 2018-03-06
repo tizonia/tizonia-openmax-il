@@ -306,6 +306,14 @@ function install_python_deps {
     fi
 
     if [[ "$exit_status" -eq 0 ]] ; then
+        pip install --user plexapi
+        exit_status=$?
+        if [[ "$exit_status" -ne 0 ]] ; then
+            echo "Error while installing plexapi" >&2
+        fi
+    fi
+
+    if [[ "$exit_status" -eq 0 ]] ; then
         pip install --user fuzzywuzzy
         exit_status=$?
         if [[ "$exit_status" -ne 0 ]] ; then
