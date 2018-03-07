@@ -156,6 +156,8 @@ void graph::chromecastops::do_skip ()
   if (last_op_succeeded () && 0 != jump_)
   {
     assert (!handles_.empty ());
+    // This is to provide some separation between tracks infos on the console
+    std::cout <<  std::endl << std::endl;
     G_OPS_BAIL_IF_ERROR (util::apply_playlist_jump (handles_[0], jump_),
                          "Unable to skip in playlist");
     // Reset the jump value, to its default value
