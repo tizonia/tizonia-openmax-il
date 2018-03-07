@@ -2127,8 +2127,13 @@ int tiz::programopts::consume_plex_client_options (bool &done, std::string &msg)
       }
       else
       {
-        rc = call_handler (
-            option_handlers_map_.find ("plex-stream-chromecast"));
+        // TODO: Normal Plex stream URLs don't work on chromecast devices
+        //  rc = call_handler (
+        //              option_handlers_map_.find ("plex-stream-chromecast"));
+        rc = EXIT_FAILURE;
+        std::ostringstream oss;
+        oss << "The --cast option is currently not available with Plex.";
+        msg.assign (oss.str ());
       }
     }
   }
