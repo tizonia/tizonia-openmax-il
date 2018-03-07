@@ -58,7 +58,7 @@
 
 #define PAT_SIZE PATH_MAX
 
-static char delim[2] = {';', '\000'};
+static char delim[2] = {';', '\0'};
 static char pat[PAT_SIZE];
 
 typedef struct file_info file_info_t;

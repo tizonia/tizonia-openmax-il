@@ -140,9 +140,9 @@ spfysrc_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
     {
       memcpy (&(p_obj->spotifysession_), ap_struct,
               sizeof (OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE));
-      p_obj->spotifysession_.cUserName[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+      p_obj->spotifysession_.cUserName[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
       p_obj->spotifysession_.cUserPassword[OMX_MAX_STRINGNAME_SIZE - 1]
-        = '\000';
+        = '\0';
       TIZ_TRACE (ap_hdl, "Spotify User Name [%s]...",
                  p_obj->spotifysession_.cUserName);
     }
@@ -150,7 +150,7 @@ spfysrc_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
     {
       memcpy (&(p_obj->playlist_), ap_struct,
               sizeof (OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE));
-      p_obj->playlist_.cPlaylistName[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+      p_obj->playlist_.cPlaylistName[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
       TIZ_TRACE (ap_hdl, "Spotify playlist [%s]...",
                  p_obj->playlist_.cPlaylistName);
     }

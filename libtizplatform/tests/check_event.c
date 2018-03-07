@@ -76,7 +76,7 @@ check_event_io_cback (OMX_HANDLETYPE p_hdl, tiz_event_io_t * ap_ev_io, void *ap_
                         &len);
   fail_if (rcvfromrc < 0);
 
-  msg [rcvfromrc] = '\000';
+  msg [rcvfromrc] = '\0';
   TIZ_LOG (TIZ_PRIORITY_TRACE, "received : [%s]", msg);
 
   fail_if (strncmp(msg, CHECK_IO_MSG, strlen (msg) != 0));

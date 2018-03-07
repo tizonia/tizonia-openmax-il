@@ -119,7 +119,7 @@ cc_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
     {
       memcpy (&(p_obj->cc_session_), ap_struct,
               sizeof (OMX_TIZONIA_PARAM_CHROMECASTSESSIONTYPE));
-      p_obj->cc_session_.cNameOrIpAddr[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+      p_obj->cc_session_.cNameOrIpAddr[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
       TIZ_TRACE (ap_hdl, "Chromecast name of ip [%s]...",
                  p_obj->cc_session_.cNameOrIpAddr);
     }

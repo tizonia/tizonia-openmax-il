@@ -139,16 +139,16 @@ gmusic_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
     {
       memcpy (&(p_obj->session_), ap_struct,
               sizeof (OMX_TIZONIA_AUDIO_PARAM_GMUSICSESSIONTYPE));
-      p_obj->session_.cUserName[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
-      p_obj->session_.cUserPassword[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
-      p_obj->session_.cDeviceId[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+      p_obj->session_.cUserName[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
+      p_obj->session_.cUserPassword[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
+      p_obj->session_.cDeviceId[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
       TIZ_TRACE (ap_hdl, "Gmusic User Name [%s]...", p_obj->session_.cUserName);
     }
   else if (OMX_TizoniaIndexParamAudioGmusicPlaylist == a_index)
     {
       memcpy (&(p_obj->playlist_), ap_struct,
               sizeof (OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE));
-      p_obj->playlist_.cPlaylistName[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+      p_obj->playlist_.cPlaylistName[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
       TIZ_TRACE (ap_hdl, "Gmusic playlist [%s]...",
                  p_obj->playlist_.cPlaylistName);
     }

@@ -259,7 +259,7 @@ obtain_audio_encoding_from_headers (scloud_prc_t * ap_prc,
         {
           char * p_info = tiz_mem_calloc (1, (p_end - p_value) + 1);
           memcpy (p_info, p_value, p_end - p_value);
-          p_info[(p_end - p_value)] = '\000';
+          p_info[(p_end - p_value)] = '\0';
           TIZ_TRACE (handleOf (ap_prc), "header name  : [%s]", name);
           TIZ_TRACE (handleOf (ap_prc), "header value : [%s]", p_info);
 
@@ -407,7 +407,7 @@ obtain_next_url (scloud_prc_t * ap_prc, int a_skip_value)
         {
           strncpy ((char *) ap_prc->p_uri_param_->contentURI, p_next_url,
                    url_len);
-          ap_prc->p_uri_param_->contentURI[url_len] = '\000';
+          ap_prc->p_uri_param_->contentURI[url_len] = '\0';
 
           /* Song metadata is now available, update the IL client */
           rc = update_metadata (ap_prc);

@@ -1062,7 +1062,7 @@ static OMX_ERRORTYPE init_rm (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
           return rc;
         }
 
-      comp_name[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+      comp_name[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
 
       primgmt.nSize = (OMX_U32)sizeof(OMX_PRIORITYMGMTTYPE);
       primgmt.nVersion.nVersion = OMX_VERSION;

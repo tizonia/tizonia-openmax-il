@@ -197,7 +197,7 @@ uri_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
           if (p_obj->p_uri_)
             {
               strncpy (p_obj->p_uri_, (char *) p_uri->contentURI, uri_size);
-              p_uri->contentURI[uri_size - 1] = '\000';
+              p_uri->contentURI[uri_size - 1] = '\0';
             }
 
           TIZ_TRACE (ap_hdl, "Set URI [%s]...", p_obj->p_uri_);

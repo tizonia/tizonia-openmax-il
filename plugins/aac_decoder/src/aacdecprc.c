@@ -322,12 +322,12 @@ static void store_stream_metadata (aacdec_prc_t *ap_prc)
   (void)tiz_krn_clear_metadata (tiz_get_krn (handleOf (ap_prc)));
 
   snprintf (info, 99, "%lu Hz, %d ch", ap_prc->samplerate_, ap_prc->channels_);
-  info[99] = '\000';
+  info[99] = '\0';
   (void)store_metadata (ap_prc, "Audio Stream", info);
 
   snprintf (info, 99, "%s, %s, %s, %s", p_object_type, p_sbr, p_header_type,
             p_ps);
-  info[99] = '\000';
+  info[99] = '\0';
   (void)store_metadata (ap_prc, "AAC", info);
 }
 

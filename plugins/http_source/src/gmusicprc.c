@@ -406,7 +406,7 @@ obtain_next_url (gmusic_prc_t * ap_prc, int a_skip_value)
         {
           strncpy ((char *) ap_prc->p_uri_param_->contentURI, p_next_url,
                    url_len);
-          ap_prc->p_uri_param_->contentURI[url_len] = '\000';
+          ap_prc->p_uri_param_->contentURI[url_len] = '\0';
 
           /* Song metadata is now available, update the IL client */
           rc = update_metadata (ap_prc);

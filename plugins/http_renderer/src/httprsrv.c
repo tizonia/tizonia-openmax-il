@@ -656,7 +656,7 @@ srv_create_listener (httpr_server_t * ap_server, httpr_listener_t ** app_lstnr,
   p_lstnr->buf.p_data = (char *) tiz_mem_alloc (ICE_LISTENER_BUF_SIZE);
   rc = p_lstnr->buf.p_data ? OMX_ErrorNone : OMX_ErrorInsufficientResources;
   goto_end_on_omx_error (rc, p_hdl, "Unable to alloc the listener's buffer");
-  p_lstnr->buf.p_data[ICE_LISTENER_BUF_SIZE - 1] = '\000';
+  p_lstnr->buf.p_data[ICE_LISTENER_BUF_SIZE - 1] = '\0';
 
   rc = tiz_http_parser_init (&(p_lstnr->p_parser), ETIZHttpParserTypeRequest);
   goto_end_on_omx_error (rc, p_hdl, "Unable to init the http parser");
@@ -779,7 +779,7 @@ srv_send_http_error (httpr_server_t * ap_server, httpr_listener_t * ap_lstnr,
   assert (ap_lstnr->p_con);
   assert (ap_err_msg);
 
-  ap_lstnr->buf.p_data[ICE_LISTENER_BUF_SIZE - 1] = '\000';
+  ap_lstnr->buf.p_data[ICE_LISTENER_BUF_SIZE - 1] = '\0';
   resp_size = srv_build_http_negative_response (
     ap_lstnr->buf.p_data, ICE_LISTENER_BUF_SIZE - 1, a_error, "");
 
@@ -1860,23 +1860,23 @@ httpr_srv_set_mountpoint_settings (
 
   strncpy ((char *) p_mount->mount_name, (char *) ap_mount_name,
            OMX_MAX_STRINGNAME_SIZE);
-  p_mount->mount_name[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+  p_mount->mount_name[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
 
   strncpy ((char *) p_mount->station_name, (char *) ap_station_name,
            OMX_MAX_STRINGNAME_SIZE);
-  p_mount->station_name[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+  p_mount->station_name[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
 
   strncpy ((char *) p_mount->station_description,
            (char *) ap_station_description, OMX_MAX_STRINGNAME_SIZE);
-  p_mount->station_description[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+  p_mount->station_description[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
 
   strncpy ((char *) p_mount->station_genre, (char *) ap_station_genre,
            OMX_MAX_STRINGNAME_SIZE);
-  p_mount->station_genre[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+  p_mount->station_genre[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
 
   strncpy ((char *) p_mount->station_url, (char *) ap_station_url,
            OMX_MAX_STRINGNAME_SIZE);
-  p_mount->station_url[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+  p_mount->station_url[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
 
   p_mount->metadata_period = a_metadata_period;
   p_mount->initial_burst_size = a_burst_size;
@@ -1902,7 +1902,7 @@ httpr_srv_set_stream_title (httpr_server_t * ap_server,
 
   strncpy ((char *) p_mount->stream_title, (char *) ap_stream_title,
            OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE);
-  p_mount->stream_title[OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE - 1] = '\000';
+  p_mount->stream_title[OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE - 1] = '\0';
 
   if (srv_get_listeners_count (ap_server) > 0)
     {
