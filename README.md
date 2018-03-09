@@ -5,8 +5,8 @@
 # Tizonia
 
 * A command-line music streaming client/server for Linux.
-* With support for Spotify, Google Play Music (including Unlimited), YouTube,
-  SoundCloud, Dirble and Chromecast.
+* With support for Spotify (Premium), Google Play Music (free and paid tiers), YouTube,
+  SoundCloud, Dirble, Plex servers and Chromecast devices.
 * A multimedia framework based on [OpenMAX IL 1.2](https://www.khronos.org/news/press/khronos-group-releases-openmax-il-1.2-provisional-specification).
 
 ---
@@ -39,6 +39,11 @@
 
 # News
 
+:heavy_check_mark: [2017-03-09] Tizonia
+[v0.13.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.13.0). Added
+support for Plex servers. Various improvements and bug fixes in Google Music,
+SoundCloud, Dirble and Spotify.
+
 :heavy_check_mark: [2017-02-11] Tizonia
 [v0.12.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.12.0). Chromecast
 support is now available for Google Play Music, YouTube, SoundCloud, and Dirble
@@ -47,12 +52,6 @@ media to be included in a future release).
 
 :heavy_check_mark: [2017-12-28]
 [Snap Package](#snap-package) and [Docker Image](#docker-image) available.
-
-:heavy_check_mark: [2017-12-17] Tizonia
-[v0.11.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.11.0). Bug-fix release.
-
-:heavy_check_mark: [2017-10-22] Tizonia
-[v0.10.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.10.0). Bug-fix release.
 
 :heavy_check_mark: [2017-08-26] [tizonia-all](https://aur.archlinux.org/packages/tizonia-all/) and [tizonia-all-git](https://aur.archlinux.org/packages/tizonia-all-git/) packages submitted to the [Arch User Repository](https://aur.archlinux.org/)
 
@@ -136,23 +135,21 @@ Tizonia can also be run from a Docker container. A Docker image is available fro
 
 ## Configuration
 
-To use *Spotify*, *Google Play Music*, *SoundCloud*, and *Dirble*, introduce
+To use *Spotify*, *Google Play Music*, *SoundCloud*, *Dirble* and *Plex* introduce
 your credentials in Tizonia's config file (see instructions inside the file for
 more information):
 
 ```bash
 
-    $ mkdir -p $HOME/.config/tizonia
-    $ cp /etc/xdg/tizonia/tizonia.conf $HOME/.config/tizonia/tizonia.conf
+    ( Run tizonia once to create the configuration file, if one does not exist yet )
+
+    $ tizonia
 
     ( now edit $HOME/.config/tizonia/tizonia.conf )
 
-    ( NOTE: If you have installed the 'snap' package, use the following commands instead. )
+    ( NOTE: If Tizonia was installed from the 'snap' package, use this path instead )
+    ( $HOME/snap/tizonia/current/.config/tizonia )
 
-    $ mkdir -p $HOME/snap/tizonia/current/.config/tizonia
-    $ cp /var/lib/snapd/snap/tizonia/current/etc/xdg/tizonia/tizonia.conf $HOME/snap/tizonia/current/.config/tizonia
-
-    ( now edit $HOME/snap/tizonia/current/.config/tizonia )
 
 ```
 
@@ -171,7 +168,6 @@ To upgrade Tizonia, run 'apt-get' as usual, but also make sure the Python depend
 
 # Roadmap
 
-- Plex support.
 - Tidal support
 - Pandora support.
 - Support for YouTube live streams.
