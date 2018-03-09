@@ -1,5 +1,39 @@
 # Change Log
 
+## [v0.13.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.13.0) (2018-03-07)
+[Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.12.0...v0.13.0)
+
+**Improvements:**
+
+- libtizplatform: need API to configure connection timeout in tizurltransfer.h [\#453](https://github.com/tizonia/tizonia-openmax-il/issues/453)
+- dirble: m3u files are not parsed [\#451](https://github.com/tizonia/tizonia-openmax-il/issues/451)
+- soundcloud: improve the matching of search results [\#446](https://github.com/tizonia/tizonia-openmax-il/issues/446)
+- google music: improve the matching of search results [\#445](https://github.com/tizonia/tizonia-openmax-il/issues/445)
+- player: add progress display [\#444](https://github.com/tizonia/tizonia-openmax-il/issues/444)
+
+**Fixed bugs:**
+
+- Lots of ChannelError messages during Spotify playback [\#443](https://github.com/tizonia/tizonia-openmax-il/issues/443)
+- aac\_decoder: 'OMX\_ErrorInsuficientResources' is sometimes returned instead of 'OMX\_ErrorStreamCorruptFatal' [\#459](https://github.com/tizonia/tizonia-openmax-il/issues/459)
+- dirble: can't play radio stations - 'Content-Length' header comparison should be case-insensitive [\#458](https://github.com/tizonia/tizonia-openmax-il/issues/458)
+- dirble: error 'Unable to override decoder/renderer sampling rates' [\#457](https://github.com/tizonia/tizonia-openmax-il/issues/457)
+- dirble: buffer underruns in some radio stations \(specially with FlumotionHTTPServer\) [\#456](https://github.com/tizonia/tizonia-openmax-il/issues/456)
+- dirble: can't play radio stations if url contains mixed-case 'http' prefix [\#455](https://github.com/tizonia/tizonia-openmax-il/issues/455)
+- player: can't play radio stations if url contains mixed-case 'http' prefix [\#454](https://github.com/tizonia/tizonia-openmax-il/issues/454)
+- dirble: connection timeout is currently too long \(20 s\) [\#452](https://github.com/tizonia/tizonia-openmax-il/issues/452)
+- player: no local files played if the playlist contains unicode file names [\#449](https://github.com/tizonia/tizonia-openmax-il/issues/449)
+- soundcloud: UnicodeDecodeError 'ascii' codec can't decode byte 0xf0 in position 13 [\#432](https://github.com/tizonia/tizonia-openmax-il/issues/432)
+- Building tizonia on Ubuntu 17.10 Artful [\#421](https://github.com/tizonia/tizonia-openmax-il/issues/421)
+
+**Closed issues:**
+
+- Installer script doesn't copy tizonia.conf file [\#441](https://github.com/tizonia/tizonia-openmax-il/issues/441)
+- release v0.13.0 [\#460](https://github.com/tizonia/tizonia-openmax-il/issues/460)
+
+**Merged pull requests:**
+
+- Fixed path to default config file for standard install [\#448](https://github.com/tizonia/tizonia-openmax-il/pull/448) ([nlwstein](https://github.com/nlwstein))
+
 ## [v0.12.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.12.0) (2018-02-11)
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.11.0...v0.12.0)
 
@@ -108,6 +142,7 @@
 - player: the terminal is occasionally left in an inconsistent state when the application fails [\#369](https://github.com/tizonia/tizonia-openmax-il/issues/369)
 - Various warnings while building with gcc 7.1.1 \(Manjaro Linux\) [\#367](https://github.com/tizonia/tizonia-openmax-il/issues/367)
 - docs: doc builds fail due to Breathe defect [\#343](https://github.com/tizonia/tizonia-openmax-il/issues/343)
+- Issues with Google Music : --gmusic-playlist [\#328](https://github.com/tizonia/tizonia-openmax-il/issues/328)
 - tizonia: pulsearprc.c:592: init\_pulseaudio\_stream: Assertion `ap\_prc-\>p\_pa\_context\_' failed. Aborted \(core dumped\) [\#301](https://github.com/tizonia/tizonia-openmax-il/issues/301)
 
 **Closed issues:**
