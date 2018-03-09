@@ -1,3 +1,9 @@
+tizmpgdec (0.13.0-1) unstable; urgency=low
+
+  * New upstream release (Closes: #460)
+
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Fri, 09 Mar 2018 21:11:30 +0000
+
 tizmpgdec (0.12.0-1) unstable; urgency=low
 
   * New upstream release (Closes: #436)
