@@ -39,12 +39,12 @@
 
 # News
 
-:heavy_check_mark: [2017-03-09] Tizonia
+:heavy_check_mark: [2018-03-09] Tizonia
 [v0.13.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.13.0). Added
 support for Plex servers. Various improvements and bug fixes in Google Music,
 SoundCloud, Dirble and Spotify.
 
-:heavy_check_mark: [2017-02-11] Tizonia
+:heavy_check_mark: [2018-02-11] Tizonia
 [v0.12.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.12.0). Chromecast
 support is now available for Google Play Music, YouTube, SoundCloud, and Dirble
 playlists and standalone HTTP radio stations (casting of Spotify and local
