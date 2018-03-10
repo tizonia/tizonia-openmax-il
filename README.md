@@ -140,15 +140,14 @@ your credentials in Tizonia's config file (see instructions inside the file for
 more information):
 
 ```bash
+    ( On first use, Tizonia outputs its configuration file, if it is not there yet )
 
-    ( Run tizonia once to create the configuration file, if one does not exist yet )
-
-    $ tizonia
+    $ tizonia --help
 
     ( now edit $HOME/.config/tizonia/tizonia.conf )
 
     ( NOTE: If Tizonia was installed from the 'snap' package, use this path instead )
-    ( $HOME/snap/tizonia/current/.config/tizonia )
+    ( $HOME/snap/tizonia/current/.config/tizonia/tizonia.conf )
 
 
 ```
@@ -168,8 +167,8 @@ To upgrade Tizonia, run 'apt-get' as usual, but also make sure the Python depend
 
 # Roadmap
 
-- Tidal support
 - Pandora support.
+- Tidal support
 - Support for YouTube live streams.
 - REPL command-line interface.
 - OS X port.
