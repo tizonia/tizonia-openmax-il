@@ -414,7 +414,7 @@ void tiz::playapp::check_or_create_config_file ()
       if (!bf::exists (home_conf_dir))
       {
         boost::system::error_code ec;
-        bf::create_directory (home_conf_dir, ec);
+        bf::create_directories (home_conf_dir, ec);
         if (ec.value () != 0)
           {
             // Oops... if we can't create the home config dire, then we have no
