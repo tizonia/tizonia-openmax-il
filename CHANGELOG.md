@@ -1,6 +1,6 @@
 # Change Log
 
-## [v0.13.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.13.0) (2018-03-07)
+## [v0.13.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.13.0) (2018-03-11)
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.12.0...v0.13.0)
 
 **Improvements:**
@@ -10,6 +10,7 @@
 - soundcloud: improve the matching of search results [\#446](https://github.com/tizonia/tizonia-openmax-il/issues/446)
 - google music: improve the matching of search results [\#445](https://github.com/tizonia/tizonia-openmax-il/issues/445)
 - player: add progress display [\#444](https://github.com/tizonia/tizonia-openmax-il/issues/444)
+- Client request: Plex Media Server [\#387](https://github.com/tizonia/tizonia-openmax-il/issues/387)
 
 **Fixed bugs:**
 
@@ -27,7 +28,10 @@
 
 **Closed issues:**
 
+- There is no tizonia.conf file [\#447](https://github.com/tizonia/tizonia-openmax-il/issues/447)
+- Most CD ripper programs rip within a newly created folder representing the CD's name and artist, yet Tizonia appears to be oblivious to all nested folders in ~/Music. [\#442](https://github.com/tizonia/tizonia-openmax-il/issues/442)
 - Installer script doesn't copy tizonia.conf file [\#441](https://github.com/tizonia/tizonia-openmax-il/issues/441)
+- Unable to run on Solus OS [\#434](https://github.com/tizonia/tizonia-openmax-il/issues/434)
 - release v0.13.0 [\#460](https://github.com/tizonia/tizonia-openmax-il/issues/460)
 
 **Merged pull requests:**
