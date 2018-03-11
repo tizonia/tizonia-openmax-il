@@ -42,6 +42,9 @@ depends=(
     'python2-soundcloud-git'
     'python2-youtube-dl-git'
     'python2-pychromecast-git'
+    'python-plexapi'
+    'python2-fuzzywuzzy'
+    'python2-eventlet-git'
 )
 provides=('tizonia-all')
 conflicts=('tizonia-all')
