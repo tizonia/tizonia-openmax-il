@@ -69,23 +69,25 @@ combinations:
 
 | Ubuntu Trusty (14.04) | Ubuntu Xenial (16.04) | Ubuntu Bionic (18.04) | Debian Jessie (8) | Raspbian Jessie (8) | Debian Stretch (9) | Raspbian Stretch (9) |
 |        :---:          |        :---:          |        :---:          |        :---:      |       :---:         |        :---:       |        :---:         |
-|        amd64          |     amd64, armhf      |      Coming Soon      |    amd64, armhf   |       armhf         |     amd64, armhf   |        armhf         |
+|        amd64          |     amd64, armhf      |         amd64         |    amd64, armhf   |       armhf         |     amd64, armhf   |        armhf         |
 | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-trusty/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-trusty/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-xenial/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-xenial/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-bionic/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-bionic/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-jessie/_latestVersion)  | [ ![Download](https://api.bintray.com/packages/tizonia/raspbian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/raspbian/tizonia-jessie/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-stretch/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-stretch/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/raspbian/tizonia-stretch/images/download.svg) ](https://bintray.com/tizonia/raspbian/tizonia-stretch/_latestVersion) |
 
 > NOTE: Elementary OS and Linux Mint are supported on releases based on Ubuntu 'Trusty' or Ubuntu 'Xenial'.
 
-Please note that the **recommended** way to install Tizonia in a
-Debian-compatible system is running the following command, that installs the
-[latest](https://github.com/tizonia/tizonia-openmax-il/releases/latest) release
-along with all its dependencies.
+Please note that the **recommended** way to install Tizonia on a
+Debian-compatible system is by running the following command:
 
 ```bash
 
     $ curl -kL https://github.com/tizonia/tizonia-openmax-il/raw/master/tools/install.sh | bash
+
     # Or its shortened version:
+
     $ curl -kL https://goo.gl/Vu8qGR | bash
 
 ```
+> NOTE: This script installs the [latest](https://github.com/tizonia/tizonia-openmax-il/releases/latest)
+> release and all the dependencies.
 
 > NOTE: The usual disclaimers apply: trust no-one. You should have a look at
 > the installation script before running it on your system!.
@@ -97,7 +99,9 @@ along with all its dependencies.
 ```bash
 
     $ yaourt -S tizonia-all # for the latest stable release
+
     # or
+
     $ yaourt -S tizonia-all-git # for the bleeding edge
 
 ```
@@ -113,7 +117,7 @@ or
 
 To install, first visit [Install
 Snapd](https://docs.snapcraft.io/core/install?_ga=2.41936226.1106178805.1514500852-128158267.1514500852)
-to make sure that your Linux distro is supported. Follow the instructions there
+and make sure that your Linux distro is supported. Follow the instructions
 to get the 'snapd' service running on your system, and finally use this command
 to install Tizonia:
 
@@ -123,7 +127,7 @@ $ sudo snap install tizonia
 
 ```
 
-Tizonia's snapcraft.yaml file is hosted on this repository:
+Tizonia's snapcraft.yaml file is hosted in its own repository:
 
 - [tizonia-snap](https://github.com/tizonia/tizonia-snap/)
 
@@ -136,7 +140,7 @@ Tizonia can also be run from a Docker container. A Docker image is available fro
 ## Configuration
 
 To use *Spotify*, *Google Play Music*, *SoundCloud*, *Dirble* and *Plex* introduce
-your credentials in Tizonia's config file (see instructions inside the file for
+your credentials in Tizonia's config file (see instructions inside this file for
 more information):
 
 ```bash
