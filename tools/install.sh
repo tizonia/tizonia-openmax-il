@@ -98,22 +98,13 @@ if [[ "$?" -eq 0 ]]; then
     sudo apt-get -y install tizonia-all
 fi
 
-# Copy Tizonia's config file to the user's config directory
-if [[ "$?" -eq 0 ]]; then
-    TIZ_CONFIG_DIR="$HOME/.config/tizonia"
-    TIZ_CONFIG_FILE="$TIZ_CONFIG_DIR/tizonia.conf"
-    if [[ ! -e "$TIZ_CONFIG_FILE" ]]; then
-        mkdir -p "$TIZ_CONFIG_DIR"
-        cp /etc/xdg/tizonia/tizonia.conf "$TIZ_CONFIG_FILE"
-    fi
-fi
-
 # Simple test to verify that everything went well
+TIZ_CONFIG_FILE="$HOME/.config/tizonia/tizonia.conf"
 which tizonia > /dev/null
 if [[ "$?" -eq 0 ]]; then
     echo ; tizonia ; echo
     printf "Tizonia is now installed.\n\n"
-    printf "Please add Spotify, Google Music, Soundcloud, and Dirble credentials to : $TIZ_CONFIG_FILE\n"
+    printf "Please add Spotify, Google Music, Soundcloud, Dirble, and Plex credentials to : $TIZ_CONFIG_FILE\n"
 else
     echo "Oops. Something went wrong!"
     exit 1
