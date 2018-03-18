@@ -5,9 +5,9 @@
 # Tizonia
 
 * A command-line music streaming client/server for Linux.
-* With support for Spotify (Premium), Google Play Music (free and paid tiers), YouTube,
+* Support for Spotify (Premium), Google Play Music (free and paid tiers), YouTube,
   SoundCloud, Dirble, Plex servers and Chromecast devices.
-* A multimedia framework based on [OpenMAX IL 1.2](https://www.khronos.org/news/press/khronos-group-releases-openmax-il-1.2-provisional-specification).
+* The first open-source implementation of [OpenMAX IL 1.2](https://www.khronos.org/news/press/khronos-group-releases-openmax-il-1.2-provisional-specification).
 
 ---
 
