@@ -16,6 +16,7 @@ import os
 import subprocess
 import re
 import alabaster
+import zipfile
 from collections import OrderedDict
 from recommonmark.parser import CommonMarkParser
 
@@ -318,7 +319,11 @@ def run_doxygen(app):
 
         read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
         if read_the_docs_build:
-            retcode = subprocess.call("cd ../doxygen-src && doxygen doxyfile.rtd", shell=True)
+            zip = zipfile.ZipFile('../doxygen-src/xml.zip')
+            zip.extractall('../doxygen-src/')
+            zip.close()
+            # retcode = subprocess.call("cd ../doxygen-src && doxygen doxyfile.rtd", shell=True)
+            retcode = 0
         else:
             retcode = subprocess.call("cd .. && make", shell=True)
         if retcode < 0:
