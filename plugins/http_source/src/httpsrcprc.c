@@ -570,9 +570,6 @@ obtain_uri (httpsrc_prc_t * ap_prc)
       TIZ_NOTICE (handleOf (ap_prc), "URI [%s]",
                   ap_prc->p_uri_param_->contentURI);
 
-      /* Make URI lower case  */
-      tiz_str_util_to_lower ((char *) ap_prc->p_uri_param_->contentURI);
-
       /* Verify we are getting an http scheme */
       if (strncasecmp ((const char *) ap_prc->p_uri_param_->contentURI,
                        "http://", 7)
