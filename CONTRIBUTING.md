@@ -54,7 +54,5 @@ don't hesitate to ask.
 - The [Wiki](https://github.com/tizonia/tizonia-openmax-il/wiki) may also
 contain some useful information (although in need of an update).
 
-## Issue Labels
-
 [good-first-issues]:https://github.com/tizonia/tizonia-openmax-il/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22
 [help-wanted]:https://github.com/tizonia/tizonia-openmax-il/issues?q=os+x+label%3A%22help+wanted%22
