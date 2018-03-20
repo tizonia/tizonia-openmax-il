@@ -14,9 +14,8 @@ Overview
 .. toctree::
    :maxdepth: 2
 
-   overview/intro
+   overview/README
    overview/PROJECT
-   overview/installation
 
 Screenshots
 ===========

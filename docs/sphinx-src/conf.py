@@ -306,6 +306,7 @@ def run_doxygen(app):
 
         links = \
             [ \
+              [ 'README.md', 'overview/README.md' ] , \
               [ 'PROJECT.md', 'overview/PROJECT.md' ] , \
               [ 'BUILDING.md', 'development/BUILDING.md' ] , \
             ]
@@ -319,11 +320,7 @@ def run_doxygen(app):
 
         read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
         if read_the_docs_build:
-            zip = zipfile.ZipFile('../doxygen-src/xml.zip')
-            zip.extractall('../doxygen-src/')
-            zip.close()
-            # retcode = subprocess.call("cd ../doxygen-src && doxygen doxyfile.rtd", shell=True)
-            retcode = 0
+            retcode = subprocess.call("cd ../doxygen-src && doxygen doxyfile.rtd", shell=True)
         else:
             retcode = subprocess.call("cd .. && make", shell=True)
         if retcode < 0:
