@@ -16,6 +16,7 @@ import os
 import subprocess
 import re
 import alabaster
+import zipfile
 from collections import OrderedDict
 from recommonmark.parser import CommonMarkParser
 
@@ -305,6 +306,7 @@ def run_doxygen(app):
 
         links = \
             [ \
+              [ 'README.md', 'overview/README.md' ] , \
               [ 'PROJECT.md', 'overview/PROJECT.md' ] , \
               [ 'BUILDING.md', 'development/BUILDING.md' ] , \
             ]

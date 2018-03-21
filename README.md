@@ -2,7 +2,7 @@
     <img src="https://avatars2.githubusercontent.com/u/3161606?s=400&v=4" alt="Tizonia logo" title="The Tizonia Project" align="right" height="100" />
 </a>
 
-# Tizonia
+# The Tizonia Project
 
 * A command-line music streaming client/server for Linux.
 * Support for Spotify (Premium), Google Play Music (free and paid tiers), YouTube,
@@ -17,7 +17,6 @@
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
 
 - [News](#news)
 - [Installation](#installation)
@@ -28,34 +27,29 @@
   - [Configuration](#configuration)
   - [Upgrade](#upgrade)
 - [Roadmap](#roadmap)
-- [Project](#project)
-- [Building](#building)
-- [Documentation](#documentation)
-- [Changelog](#changelog)
-- [License](#license)
-- [More information](#more-information)
+- [Resources](#resources)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # News
 
-:heavy_check_mark: [2018-03-09] Tizonia
+- [2018-03-09] Tizonia
 [v0.13.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.13.0). Added
 support for Plex servers. Various improvements and bug fixes in Google Music,
 SoundCloud, Dirble and Spotify.
 
-:heavy_check_mark: [2018-02-11] Tizonia
+- [2018-02-11] Tizonia
 [v0.12.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.12.0). Chromecast
 support is now available for Google Play Music, YouTube, SoundCloud, and Dirble
 playlists and standalone HTTP radio stations (casting of Spotify and local
 media to be included in a future release).
 
-:heavy_check_mark: [2017-12-28]
+- [2017-12-28]
 [Snap Package](#snap-package) and [Docker Image](#docker-image) available.
 
-:heavy_check_mark: [2017-08-26] [tizonia-all](https://aur.archlinux.org/packages/tizonia-all/) and [tizonia-all-git](https://aur.archlinux.org/packages/tizonia-all-git/) packages submitted to the [Arch User Repository](https://aur.archlinux.org/)
+- [2017-08-26] [tizonia-all](https://aur.archlinux.org/packages/tizonia-all/) and [tizonia-all-git](https://aur.archlinux.org/packages/tizonia-all-git/) packages submitted to the [Arch User Repository](https://aur.archlinux.org/)
 
-:heavy_check_mark: [2017-05-04] [Summer of Code 2017: Add OpenMAX state tracker
+- [2017-05-04] [Summer of Code 2017: Add OpenMAX state tracker
 in Mesa/Gallium that uses
 Tizonia](https://summerofcode.withgoogle.com/projects/#4737166321123328) (X.Org
 Foundation project, with Gurkirpal Singh and Julien Isorce).
@@ -177,31 +171,23 @@ To upgrade Tizonia, run 'apt-get' as usual, but also make sure the Python depend
 - REPL command-line interface.
 - OS X port.
 
-# Project
+# Resources
 
-See [PROJECT.md](PROJECT.md) to learn more about this project.
+- See [PROJECT.md](PROJECT.md) to discover other facts about the project.
 
-# Building
+- See [CONTRIBUTING.md](CONTRIBUTING.md) to learn how to contribute to Tizonia.
 
-See [BUILDING.md](BUILDING.md) for instructions on how to build Tizonia from source.
+- See [BUILDING.md](BUILDING.md) for instructions on how to build Tizonia from source.
 
-# Documentation
+- See [docs.tizonia.org](http://docs.tizonia.org/) for the project's official documentation.
 
-See [docs.tizonia.org](http://docs.tizonia.org/) for the most up-to-date project documentaion.
+- The [Wiki](https://github.com/tizonia/tizonia-openmax-il/wiki) may also
+contain some useful information (although in need of an update).
 
-The [Wiki](https://github.com/tizonia/tizonia-openmax-il/wiki) may also contain
-some useful information (although in need of an update).
-
-# Changelog
-
-See [CHANGELOG.md](CHANGELOG.md) for details on what has gone into each
+- See [CHANGELOG.md](CHANGELOG.md) for details on what has gone into each
 release of the project.
 
-# License
+- Tizonia OpenMAX IL is released under the [GNU Lesser General Public
+License](COPYING.LESSER) version 3.
 
-Tizonia OpenMAX IL is released under the GNU Lesser General Public License
-version 3.
-
-# More information
-
-For more information, please visit the project web site at http://www.tizonia.org
+- Finally, please visit the project web site at http://www.tizonia.org
