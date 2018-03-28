@@ -176,6 +176,21 @@ int tiz_gmusic_play_playlist (tiz_gmusic_t *ap_gmusic, const char *ap_playlist,
                               const bool a_unlimited_search);
 
 /**
+ * Add the tracks of a free station to the playback queue.
+ *
+ * After calling this method, the various tiz_gmusic_get* methods can be
+ * used to interact with the playback queue.
+ *
+ * @ingroup libtizgmusic
+ *
+ * @param ap_gmusic The gmusic handle.
+ * @param ap_station The station name
+ *
+ * @return 0 on success
+ */
+int tiz_gmusic_play_free_station (tiz_gmusic_t *ap_gmusic, const char *ap_station);
+
+/**
  * Add the tracks of the specified station to the playback queue.
  *
  * After calling this method, the various tiz_gmusic_get* methods can be

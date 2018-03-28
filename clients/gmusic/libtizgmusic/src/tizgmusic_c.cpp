@@ -156,6 +156,14 @@ extern "C" int tiz_gmusic_play_playlist (tiz_gmusic_t *ap_gmusic,
   return ap_gmusic->p_proxy_->play_playlist (ap_playlist, a_unlimited_search);
 }
 
+extern "C" int tiz_gmusic_play_free_station (tiz_gmusic_t *ap_gmusic,
+                                             const char *ap_station)
+{
+  assert (ap_gmusic);
+  assert (ap_gmusic->p_proxy_);
+  return ap_gmusic->p_proxy_->play_free_station (ap_station);
+}
+
 extern "C" int tiz_gmusic_play_station (tiz_gmusic_t *ap_gmusic,
                                         const char *ap_station)
 {

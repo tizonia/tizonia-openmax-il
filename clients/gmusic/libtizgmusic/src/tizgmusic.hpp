@@ -61,6 +61,7 @@ public:
   int play_album (const std::string &album, const bool a_unlimited_search);
   int play_artist (const std::string &artist, const bool a_unlimited_search);
   int play_playlist (const std::string &playlist, const bool a_unlimited_search);
+  int play_free_station (const std::string &station);
   int play_station (const std::string &station);
   int play_genre (const std::string &genre);
   int play_situation (const std::string &situation);

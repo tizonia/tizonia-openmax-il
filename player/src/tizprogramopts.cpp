@@ -309,6 +309,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     gmusic_tracks_ (),
     gmusic_podcast_ (),
     gmusic_library_ (),
+    gmusic_free_station_ (),
     gmusic_feeling_lucky_station_ (),
     gmusic_playlist_container_ (),
     gmusic_playlist_type_ (OMX_AUDIO_GmusicPlaylistTypeUnknown),
@@ -728,6 +729,10 @@ const std::vector< std::string > &tiz::programopts::gmusic_playlist_container ()
   {
     gmusic_playlist_container_.push_back (gmusic_podcast_);
   }
+  else if (!gmusic_free_station_.empty ())
+  {
+    gmusic_playlist_container_.push_back (gmusic_free_station_);
+  }
   else if (!gmusic_promoted_.empty ())
   {
     // With gmusic promoted songs option, no playlist "name" is actually
@@ -783,6 +788,10 @@ tiz::programopts::gmusic_playlist_type ()
   else if (!gmusic_podcast_.empty ())
   {
     gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypePodcast;
+  }
+  else if (!gmusic_free_station_.empty ())
+  {
+    gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeFreeStation;
   }
   else if (!gmusic_promoted_.empty ())
   {
@@ -1280,6 +1289,9 @@ void tiz::programopts::init_gmusic_options ()
        "Search and play Google Play Music podcasts (only available in the US "
        "and Canada).")
       /* TIZ_CLASS_COMMENT: */
+      ("gmusic-station", po::value (&gmusic_free_station_),
+       "Search and play Google Play Music free stations.")
+      /* TIZ_CLASS_COMMENT: */
       ("gmusic-unlimited-station", po::value (&gmusic_station_),
        "Search and play Google Play Music Unlimited stations found in the "
        "user's library.")
@@ -1317,7 +1329,7 @@ void tiz::programopts::init_gmusic_options ()
       = boost::assign::list_of ("gmusic-user") ("gmusic-password") (
             "gmusic-device-id") ("gmusic-library") ("gmusic-tracks") (
             "gmusic-artist") ("gmusic-album") ("gmusic-playlist") (
-            "gmusic-podcast") ("gmusic-unlimited-station") (
+            "gmusic-podcast") ("gmusic-station") ("gmusic-unlimited-station") (
             "gmusic-unlimited-album") ("gmusic-unlimited-artist") (
             "gmusic-unlimited-tracks") ("gmusic-unlimited-playlist") (
             "gmusic-unlimited-genre") ("gmusic-unlimited-activity") (
@@ -1770,6 +1782,7 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
         = vm_.count ("gmusic-library") + vm_.count ("gmusic-tracks")
           + vm_.count ("gmusic-artist") + vm_.count ("gmusic-album")
           + vm_.count ("gmusic-playlist") + vm_.count ("gmusic-podcast")
+          + vm_.count ("gmusic-station")
           + vm_.count ("gmusic-unlimited-station")
           + vm_.count ("gmusic-unlimited-album")
           + vm_.count ("gmusic-unlimited-artist")
@@ -2288,7 +2301,8 @@ bool tiz::programopts::validate_gmusic_client_options () const
         + vm_.count ("gmusic-device-id") + vm_.count ("gmusic-library")
         + vm_.count ("gmusic-tracks") + vm_.count ("gmusic-artist")
         + vm_.count ("gmusic-album") + vm_.count ("gmusic-playlist")
-        + vm_.count ("gmusic-podcast") + vm_.count ("gmusic-unlimited-station")
+        + vm_.count ("gmusic-podcast") + vm_.count ("gmusic-station")
+        + vm_.count ("gmusic-unlimited-station")
         + vm_.count ("gmusic-unlimited-album")
         + vm_.count ("gmusic-unlimited-artist")
         + vm_.count ("gmusic-unlimited-tracks")

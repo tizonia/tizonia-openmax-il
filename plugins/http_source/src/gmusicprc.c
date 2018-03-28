@@ -652,6 +652,11 @@ enqueue_playlist_items (gmusic_prc_t * ap_prc)
             rc = tiz_gmusic_play_podcast (ap_prc->p_gmusic_, p_playlist);
           }
           break;
+        case OMX_AUDIO_GmusicPlaylistTypeFreeStation:
+          {
+            rc = tiz_gmusic_play_free_station (ap_prc->p_gmusic_, p_playlist);
+          }
+          break;
         default:
           {
             assert (0);

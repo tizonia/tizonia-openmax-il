@@ -44,7 +44,7 @@ from fuzzywuzzy import process
 from fuzzywuzzy import fuzz
 
 # For use during debugging
-import pprint
+from pprint import pprint
 
 logging.captureWarnings(True)
 logging.getLogger().setLevel(logging.DEBUG)
@@ -54,7 +54,7 @@ if os.environ.get('TIZONIA_GMUSICPROXY_DEBUG'):
 else:
     logging.getLogger().addHandler(logging.NullHandler())
 
-MAX_TRACKS = 200
+MAX_TRACKS = None
 
 class _Colors:
     """A trivial class that defines various ANSI color codes.
@@ -554,6 +554,44 @@ class tizgmusicproxy(object):
         except CallFailure:
             raise RuntimeError("Operation requires an Unlimited subscription.")
 
+    def enqueue_station(self, arg):
+        """Search for a free station using a given track, album or artist name and add
+        its tracks to the playback queue.
+
+        Available in the free tier.
+
+        """
+        try:
+            # First search for a station id
+            max_results = MAX_TRACKS
+            station_hits = self.__gmusic.search(arg, max_results)['station_hits']
+            if station_hits and len(station_hits):
+                station = station_hits[0]['station']
+                station_id = station['seed']['artistId']
+                theid = self.__gmusic.create_station(station['name'], artist_id=station_id)
+                station_info = self.__gmusic.get_station_info(theid)
+                session_token = station_info['sessionToken']
+                station_tracks = station_info['tracks']
+
+                if not station_tracks:
+                    raise KeyError
+
+                for track in station_tracks:
+                    track['sessionToken'] = session_token
+                    print_nfo("[Google Play Music] [Track] '{0}'." \
+                              .format((track['title']).encode('utf-8')))
+
+                tracks_added = self.__enqueue_tracks(station_tracks)
+                logging.info("Added %d tracks from %s to queue", \
+                             tracks_added, arg)
+                self.__update_play_queue_order()
+
+            if not len(self.queue):
+                raise KeyError
+
+        except KeyError:
+            raise KeyError("Station not found : {0}".format(arg))
+
     def enqueue_station_unlimited(self, arg):
         """Search the user's library for a station with a given name
         and add its tracks to the playback queue.
@@ -849,7 +887,7 @@ class tizgmusicproxy(object):
             if (self.queue_index < len(self.queue)) \
                and (self.queue_index >= 0):
                 next_song = self.queue[self.play_queue_order[self.queue_index]]
-                return self.__retrieve_track_url(next_song)
+                return self.__retrieve_track_url(next_song).encode('utf-8')
             else:
                 self.queue_index = -1
                 return self.next_url()
@@ -895,6 +933,8 @@ class tizgmusicproxy(object):
         """
         if song.get('episodeId'):
             song_url = self.__gmusic.get_podcast_episode_stream_url(song['episodeId'], self.__device_id)
+        elif song.get('wentryid'):
+            song_url = self.__gmusic.get_station_track_stream_url(song['id'], song['wentryid'], song['sessionToken'], self.__device_id)
         else:
             song_url = self.__gmusic.get_stream_url(song['id'], self.__device_id)
 
