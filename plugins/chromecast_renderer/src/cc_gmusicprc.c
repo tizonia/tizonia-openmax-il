@@ -109,6 +109,11 @@ enqueue_gm_playlist_items (cc_gmusic_prc_t * ap_prc)
             assert (0);
           }
           break;
+        case OMX_AUDIO_GmusicPlaylistTypeLibrary:
+          {
+            rc = tiz_gmusic_play_library (ap_prc->p_gm_);
+          }
+          break;
         case OMX_AUDIO_GmusicPlaylistTypeUser:
           {
             rc = tiz_gmusic_play_playlist (ap_prc->p_gm_, p_playlist,

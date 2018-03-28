@@ -304,6 +304,21 @@ class tizgmusicproxy(object):
         self.queue = list()
         self.queue_index = -1
 
+    def enqueue_library(self):
+        """ Add the user library to the playback queue.
+
+        """
+        try:
+            songs = self.__gmusic.get_all_songs()
+            tracks_added = self.__enqueue_tracks(songs)
+            logging.info("Added %d tracks to queue", \
+                         tracks_added)
+
+            self.__update_play_queue_order()
+
+        except KeyError:
+            raise KeyError("Library not found")
+
     def enqueue_tracks(self, arg):
         """ Search the user's library for tracks and add
         them to the playback queue.

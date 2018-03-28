@@ -335,6 +335,7 @@ typedef enum OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE {
     OMX_AUDIO_GmusicPlaylistTypePromotedTracks, /**< Promoted tracks playlist. */
     OMX_AUDIO_GmusicPlaylistTypeTracks, /**< Regular tracks search. */
     OMX_AUDIO_GmusicPlaylistTypePodcast, /**< Podcast search. */
+    OMX_AUDIO_GmusicPlaylistTypeLibrary, /**< A playlist containing all elements in the user's library. */
     OMX_AUDIO_GmusicPlaylistTypeKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
     OMX_AUDIO_GmusicPlaylistTypeVendorStartUnused = 0x7F000000, /**< Reserved region for introducing Vendor Extensions */
     OMX_AUDIO_GmusicPlaylistTypeMax = 0x7FFFFFFF

@@ -169,6 +169,13 @@ void tizgmusic::deinit ()
   // boost::python doesn't support Py_Finalize() yet!
 }
 
+int tizgmusic::play_library ()
+{
+  int rc = 0;
+  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_library")());
+  return rc;
+}
+
 int tizgmusic::play_tracks (const std::string &tracks, const bool a_unlimited_search)
 {
   int rc = 0;

@@ -113,6 +113,13 @@ extern "C" void tiz_gmusic_set_playback_mode (tiz_gmusic_t *ap_gmusic,
       static_cast< tizgmusic::playback_mode >(mode));
 }
 
+extern "C" int tiz_gmusic_play_library (tiz_gmusic_t *ap_gmusic)
+{
+  assert (ap_gmusic);
+  assert (ap_gmusic->p_proxy_);
+  return ap_gmusic->p_proxy_->play_library ();
+}
+
 extern "C" int tiz_gmusic_play_tracks (tiz_gmusic_t *ap_gmusic,
                                        const char *ap_tracks,
                                        const bool a_unlimited_search)
