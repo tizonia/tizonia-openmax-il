@@ -81,8 +81,11 @@ function build_project {
     local install_option=${1:-''}
     local buildlog=$(mktemp)
     local exit_status=0
-    local procs=$(nproc)
-    local jobcnt=$(( $procs + 1 ))
+    local mem=$(free -b | grep Mem | awk '{ print $2 }')
+    local bytes_per_job=5368709120 # 5GB, an estimate of how much mem is required per job
+    local memjobcnt=$(( mem / bytes_per_job ))
+    local cpujobcnt=$(nproc)
+    local jobcnt=$(( memjobcnt < cpujobcnt ? memjobcnt : cpujobcnt ))
     local bearcmd='bear'
     local bearopt='--append'
 
