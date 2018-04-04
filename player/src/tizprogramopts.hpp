@@ -238,6 +238,7 @@ namespace tiz
     std::string youtube_audio_search_;
     std::string youtube_audio_mix_search_;
     std::string youtube_audio_channel_uploads_;
+    std::string youtube_audio_channel_playlist_;
     std::vector< std::string > youtube_playlist_container_;
     OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE youtube_playlist_type_;
     std::string plex_base_url_;

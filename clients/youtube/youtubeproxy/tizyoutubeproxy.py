@@ -29,8 +29,10 @@ import logging
 import random
 import unicodedata
 import re
-from multiprocessing.dummy import Process, Queue
 import pafy
+from multiprocessing.dummy import Process, Queue
+from fuzzywuzzy import process
+from fuzzywuzzy import fuzz
 
 # For use during debugging
 # import pprint
@@ -498,22 +500,44 @@ class tizyoutubeproxy(object):
         except ValueError:
             raise ValueError(str("Channel not found : %s" % arg))
 
-    def enqueue_audio_channel_playlist(self, arg):
-        """Add all audio streams in a YouTube channel to the playback queue.
+    def enqueue_audio_channel_playlist(self, channel_name, playlist_name):
+        """Search a playlist within a channel and if found, adds all the audio streams
+        to the playback queue.
 
         :param arg: a YouTube playlist id
 
         """
-        logging.info('arg : %s', arg)
+        logging.info('args : %s - %s', channel_name, playlist_name)
         try:
             count = len(self.queue)
-
-            channel = pafy.get_channel(arg)
+            channel = pafy.get_channel(channel_name)
             if channel:
-                for yt_video in channel.uploads:
-                    self.add_to_playback_queue(video=yt_video, \
-                                               info=VideoInfo(ytid=yt_video.videoid, \
-                                                              title=yt_video.title))
+                pl_dict = dict()
+                pl_titles = list()
+                pl_name = ''
+                playlist = None
+                for pl in channel.playlists:
+                    if fuzz.ratio(playlist_name, pl.title) > 70:
+                        pl_dict[pl.title] = pl
+                        pl_titles.append(pl.title)
+
+                if len(pl_titles) > 1:
+                    pl_name = process.extractOne(playlist_name, pl_titles)[0]
+                    playlist = pl_dict[pl_name]
+                elif len(pl_titles) == 1:
+                    pl_name = pl_titles[0]
+                    playlist = pl_dict[pl_name]
+
+                if pl_name:
+                    if pl_name.lower() != playlist_name.lower():
+                        print_wrn("[YouTube] '{0}' not found. " \
+                                  "Playing '{1}' instead." \
+                                  .format(to_ascii(playlist_name), \
+                                          to_ascii(pl_name)))
+                    for yt_video in playlist:
+                        self.add_to_playback_queue(video=yt_video, \
+                                                   info=VideoInfo(ytid=yt_video.videoid, \
+                                                                  title=yt_video.title))
 
             if count == len(self.queue):
                 raise ValueError

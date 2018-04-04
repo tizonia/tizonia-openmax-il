@@ -35,6 +35,8 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/trim_all.hpp>
+#include <boost/algorithm/string/join.hpp>
 
 #include "tizyoutube.hpp"
 
@@ -226,6 +228,29 @@ int tizyoutube::play_audio_channel_uploads (const std::string &channel)
   int rc = 0;
   try_catch_wrapper (
       py_yt_proxy_.attr ("enqueue_audio_channel_uploads") (bp::object (channel)));
+  return rc;
+}
+
+int tizyoutube::play_audio_channel_playlist (
+    const std::string &channel_and_playlist)
+{
+  int rc = 0;
+  std::string ch_and_pl_trim = channel_and_playlist;
+  std::vector< std::string > strs;
+  boost::algorithm::trim_all (ch_and_pl_trim);
+  boost::split (strs, ch_and_pl_trim, boost::is_any_of (" "));
+  if (strs.size () <= 1)
+    {
+      rc = 1;
+    }
+  else
+    {
+      std::string channel = strs[0];
+      strs.erase (strs.begin ());
+      std::string playlist = boost::algorithm::join (strs, " ");
+      try_catch_wrapper (py_yt_proxy_.attr ("enqueue_audio_channel_playlist") (
+          bp::object (channel), bp::object (playlist)));
+    }
   return rc;
 }
 

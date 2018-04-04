@@ -185,6 +185,14 @@ extern "C" int tiz_youtube_play_audio_channel_uploads (tiz_youtube_t *ap_youtube
   return ap_youtube->p_proxy_->play_audio_channel_uploads (ap_channel);
 }
 
+extern "C" int tiz_youtube_play_audio_channel_playlist (tiz_youtube_t *ap_youtube,
+                                                  const char *ap_channel_and_playlist)
+{
+  assert (ap_youtube);
+  assert (ap_youtube->p_proxy_);
+  return ap_youtube->p_proxy_->play_audio_channel_playlist (ap_channel_and_playlist);
+}
+
 extern "C" const char *tiz_youtube_get_next_url (
     tiz_youtube_t *ap_youtube, const bool a_remove_current_url)
 {

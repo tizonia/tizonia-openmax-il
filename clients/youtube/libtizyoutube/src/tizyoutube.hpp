@@ -61,6 +61,7 @@ public:
   int play_audio_search (const std::string &search);
   int play_audio_mix_search (const std::string &search);
   int play_audio_channel_uploads (const std::string &channel);
+  int play_audio_channel_playlist (const std::string &channel_and_playlist);
 
   void set_playback_mode (const playback_mode mode);
   void clear_queue ();

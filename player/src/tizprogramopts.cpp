@@ -338,6 +338,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     youtube_audio_search_ (),
     youtube_audio_mix_search_ (),
     youtube_audio_channel_uploads_ (),
+    youtube_audio_channel_playlist_ (),
     youtube_playlist_container_ (),
     youtube_playlist_type_ (OMX_AUDIO_YoutubePlaylistTypeUnknown),
     plex_base_url_ (),
@@ -987,6 +988,10 @@ const std::vector< std::string >
   {
     youtube_playlist_container_.push_back (youtube_audio_channel_uploads_);
   }
+  else if (!youtube_audio_channel_playlist_.empty ())
+  {
+    youtube_playlist_container_.push_back (youtube_audio_channel_playlist_);
+  }
   else
   {
     assert (0);
@@ -1020,6 +1025,10 @@ tiz::programopts::youtube_playlist_type ()
   else if (!youtube_audio_channel_uploads_.empty ())
   {
     youtube_playlist_type_ = OMX_AUDIO_YoutubePlaylistTypeAudioChannelUploads;
+  }
+  else if (!youtube_audio_channel_playlist_.empty ())
+  {
+    youtube_playlist_type_ = OMX_AUDIO_YoutubePlaylistTypeAudioChannelPlaylist;
   }
   else
   {
@@ -1430,14 +1439,17 @@ void tiz::programopts::init_youtube_options ()
        "Play a YouTube mix from a search term.")
       /* TIZ_CLASS_COMMENT: */
       ("youtube-audio-channel-uploads", po::value (&youtube_audio_channel_uploads_),
-       "Play the videos uploaded to a YouTube channel (arg = channel url).");
+       "Play all videos uploaded to a YouTube channel (arg = channel url or name).")
+      /* TIZ_CLASS_COMMENT: */
+      ("youtube-audio-channel-playlist", po::value (&youtube_audio_channel_playlist_),
+       "Play a playlist from particular YouTube channel (NOTE: arg = '<channel-name[space]playlist-name').");
 
   register_consume_function (&tiz::programopts::consume_youtube_client_options);
   all_youtube_client_options_
       = boost::assign::list_of ("youtube-audio-stream") (
             "youtube-audio-playlist") ("youtube-audio-mix") (
             "youtube-audio-search") ("youtube-audio-mix-search") (
-            "youtube-audio-channel-uploads")
+            "youtube-audio-channel-uploads") ("youtube-audio-channel-playlist")
             .convert_to_container< std::vector< std::string > > ();
 }
 
@@ -2080,7 +2092,8 @@ int tiz::programopts::consume_youtube_client_options (bool &done,
                                       + vm_.count ("youtube-audio-mix")
                                       + vm_.count ("youtube-audio-search")
                                       + vm_.count ("youtube-audio-mix-search")
-                                      + vm_.count ("youtube-audio-channel-uploads");
+                                      + vm_.count ("youtube-audio-channel-uploads")
+                                      + vm_.count ("youtube-audio-channel-playlist");
 
     if (playlist_option_count > 1)
     {
@@ -2394,7 +2407,8 @@ bool tiz::programopts::validate_youtube_client_options () const
                                     + vm_.count ("youtube-audio-mix")
                                     + vm_.count ("youtube-audio-search")
                                     + vm_.count ("youtube-audio-mix-search")
-                                    + vm_.count ("youtube-audio-channel-uploads");
+                                    + vm_.count ("youtube-audio-channel-uploads")
+                                    + vm_.count ("youtube-audio-channel-playlist");
 
   std::vector< std::string > all_valid_options = all_youtube_client_options_;
   concat_option_lists (all_valid_options, all_global_options_);
