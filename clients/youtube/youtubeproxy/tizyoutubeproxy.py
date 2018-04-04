@@ -473,6 +473,56 @@ class tizyoutubeproxy(object):
         except ValueError:
             raise ValueError(str("Could not find any mixes : %s" % arg))
 
+    def enqueue_audio_channel_uploads(self, arg):
+        """Add all audio streams in a YouTube channel to the playback queue.
+
+        :param arg: a YouTube channel url
+
+        """
+        logging.info('arg : %s', arg)
+        try:
+            count = len(self.queue)
+
+            channel = pafy.get_channel(arg)
+            if channel:
+                for yt_video in channel.uploads:
+                    self.add_to_playback_queue(video=yt_video, \
+                                               info=VideoInfo(ytid=yt_video.videoid, \
+                                                              title=yt_video.title))
+
+            if count == len(self.queue):
+                raise ValueError
+
+            self.__update_play_queue_order()
+
+        except ValueError:
+            raise ValueError(str("Channel not found : %s" % arg))
+
+    def enqueue_audio_channel_playlist(self, arg):
+        """Add all audio streams in a YouTube channel to the playback queue.
+
+        :param arg: a YouTube playlist id
+
+        """
+        logging.info('arg : %s', arg)
+        try:
+            count = len(self.queue)
+
+            channel = pafy.get_channel(arg)
+            if channel:
+                for yt_video in channel.uploads:
+                    self.add_to_playback_queue(video=yt_video, \
+                                               info=VideoInfo(ytid=yt_video.videoid, \
+                                                              title=yt_video.title))
+
+            if count == len(self.queue):
+                raise ValueError
+
+            self.__update_play_queue_order()
+
+        except ValueError:
+            raise ValueError(str("Channel not found : %s" % arg))
+
     def current_audio_stream_title(self):
         """ Retrieve the current stream's title.
 

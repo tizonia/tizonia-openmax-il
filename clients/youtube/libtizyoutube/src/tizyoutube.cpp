@@ -221,6 +221,14 @@ int tizyoutube::play_audio_mix_search (const std::string &search)
   return rc;
 }
 
+int tizyoutube::play_audio_channel_uploads (const std::string &channel)
+{
+  int rc = 0;
+  try_catch_wrapper (
+      py_yt_proxy_.attr ("enqueue_audio_channel_uploads") (bp::object (channel)));
+  return rc;
+}
+
 const char *tizyoutube::get_next_url (const bool a_remove_current_url)
 {
   current_url_.clear ();

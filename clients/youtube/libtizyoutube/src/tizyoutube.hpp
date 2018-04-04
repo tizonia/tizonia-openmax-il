@@ -60,6 +60,7 @@ public:
   int play_audio_mix (const std::string &url_or_id);
   int play_audio_search (const std::string &search);
   int play_audio_mix_search (const std::string &search);
+  int play_audio_channel_uploads (const std::string &channel);
 
   void set_playback_mode (const playback_mode mode);
   void clear_queue ();
