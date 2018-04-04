@@ -44,7 +44,7 @@ from fuzzywuzzy import process
 from fuzzywuzzy import fuzz
 
 # For use during debugging
-from pprint import pprint
+# from pprint import pprint
 
 logging.captureWarnings(True)
 logging.getLogger().setLevel(logging.DEBUG)
@@ -565,13 +565,47 @@ class tizgmusicproxy(object):
             # First search for a station id
             max_results = MAX_TRACKS
             station_hits = self.__gmusic.search(arg, max_results)['station_hits']
+            station_name = ''
+            station_seed = None
+            station_id = ''
+            station_tracks = dict()
             if station_hits and len(station_hits):
-                station = station_hits[0]['station']
-                station_id = station['seed']['artistId']
-                theid = self.__gmusic.create_station(station['name'], artist_id=station_id)
-                station_info = self.__gmusic.get_station_info(theid)
-                session_token = station_info['sessionToken']
-                station_tracks = station_info['tracks']
+                station_seeds = dict()
+                station_names = list()
+                for hit in station_hits:
+                    station = hit['station']
+                    station_name = station['name']
+                    if fuzz.partial_ratio(arg, station_name) > 70:
+                        station_seeds[station_name] = station['seed']
+                        station_names.append(station_name)
+
+                #pprint (station_names)
+                if len(station_names) > 1:
+                    station_name = process.extractOne(arg, station_names)[0]
+                    station_seed = station_seeds[station_name]
+                elif len(station_names) == 1:
+                    station_name = station_names[0]
+                    station_seed = station_seeds[station_name]
+
+                #pprint(station_name)
+                #pprint(station_seed)
+                if station_seed:
+                    if station_seed['seedType'] == u'2':
+                        station_id = self.__gmusic.create_station(station_name,
+                                                                  track_id=station_seed['trackId'])
+                    if station_seed['seedType'] == u'3':
+                        station_id = self.__gmusic.create_station(station_name,
+                                                                  artist_id=station_seed['artistId'])
+                    if station_seed['seedType'] == u'4':
+                        station_id = self.__gmusic.create_station(station_name,
+                                                                  album_id=station_seed['albumId'])
+                    if station_seed['seedType'] == u'9':
+                        station_id = self.__gmusic.create_station(station_name,
+                                                                  curated_station_id=station_seed['curatedStationId'])
+                if station_id:
+                    station_info = self.__gmusic.get_station_info(station_id)
+                    session_token = station_info['sessionToken']
+                    station_tracks = station_info['tracks']
 
                 if not station_tracks:
                     raise KeyError
@@ -887,7 +921,11 @@ class tizgmusicproxy(object):
             if (self.queue_index < len(self.queue)) \
                and (self.queue_index >= 0):
                 next_song = self.queue[self.play_queue_order[self.queue_index]]
-                return self.__retrieve_track_url(next_song).encode('utf-8')
+                url = self.__retrieve_track_url(next_song)
+                if url:
+                    return url.encode('utf-8')
+                else:
+                    return self.next_url()
             else:
                 self.queue_index = -1
                 return self.next_url()
@@ -931,19 +969,22 @@ class tizgmusicproxy(object):
         """ Retrieve a song url
 
         """
-        if song.get('episodeId'):
-            song_url = self.__gmusic.get_podcast_episode_stream_url(song['episodeId'], self.__device_id)
-        elif song.get('wentryid'):
-            song_url = self.__gmusic.get_station_track_stream_url(song['id'], song['wentryid'], song['sessionToken'], self.__device_id)
-        else:
-            song_url = self.__gmusic.get_stream_url(song['id'], self.__device_id)
-
         try:
+            if song.get('episodeId'):
+                song_url = self.__gmusic.get_podcast_episode_stream_url(song['episodeId'], self.__device_id)
+            elif song.get('wentryid'):
+                song_url = self.__gmusic.get_station_track_stream_url(song['id'], song['wentryid'], song['sessionToken'], self.__device_id)
+            else:
+                song_url = self.__gmusic.get_stream_url(song['id'], self.__device_id)
+
             self.now_playing_song = song
             return song_url
+
         except AttributeError:
             logging.info("Could not retrieve the song url!")
             raise
+        except CallFailure:
+            logging.info("Could not retrieve the song url!")
 
     def __update_local_library(self):
         """ Retrieve the songs and albums from the user's library
