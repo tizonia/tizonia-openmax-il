@@ -467,8 +467,8 @@ class tizgmusicproxy(object):
         """
         try:
             self.__update_local_library()
-            self.__update_playlists()
             self.__update_playlists_unlimited()
+            self.__update_playlists()
             playlist = None
             playlist_name = None
             for name, plist in self.playlists.items():
@@ -579,7 +579,6 @@ class tizgmusicproxy(object):
                         station_seeds[station_name] = station['seed']
                         station_names.append(station_name)
 
-                #pprint (station_names)
                 if len(station_names) > 1:
                     station_name = process.extractOne(arg, station_names)[0]
                     station_seed = station_seeds[station_name]
@@ -587,8 +586,6 @@ class tizgmusicproxy(object):
                     station_name = station_names[0]
                     station_seed = station_seeds[station_name]
 
-                #pprint(station_name)
-                #pprint(station_seed)
                 if station_seed:
                     if station_seed['seedType'] == u'2':
                         station_id = self.__gmusic.create_station(station_name,
@@ -981,10 +978,10 @@ class tizgmusicproxy(object):
             return song_url
 
         except AttributeError:
-            logging.info("Could not retrieve the song url!")
+            logging.info("AttributeError: Could not retrieve the song url!")
             raise
         except CallFailure:
-            logging.info("Could not retrieve the song url!")
+            logging.info("CallFailure: Could not retrieve the song url!")
 
     def __update_local_library(self):
         """ Retrieve the songs and albums from the user's library
@@ -1294,7 +1291,7 @@ class tizgmusicproxy(object):
         for plist in plists:
             plist_name = plist.get('name')
             tracks = plist.get('tracks')
-            if plist_name and tracks:
+            if plist_name and len(tracks):
                 logging.info("__update_playlists : playlist name : %s - num tracks %d", to_ascii(plist_name), \
                              len(tracks))
                 tracks.sort(key=itemgetter('creationTimestamp'))
@@ -1305,6 +1302,11 @@ class tizgmusicproxy(object):
                         song = self.song_map.get(song_id)
                         if song:
                             self.playlists[plist_name].append(song)
+                        else:
+                            song = track['track']
+                            song['id'] = track['trackId']
+                            self.playlists[plist_name].append(song)
+
             if not len(tracks):
                 # Append a null item
                 self.playlists[plist_name] = list()
