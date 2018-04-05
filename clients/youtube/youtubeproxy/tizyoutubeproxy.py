@@ -35,8 +35,7 @@ from fuzzywuzzy import process
 from fuzzywuzzy import fuzz
 
 # For use during debugging
-# import pprint
-# from traceback import print_exception
+# from pprint import pprint
 
 ISO8601_TIMEDUR_EX = re.compile(r'PT((\d{1,3})H)?((\d{1,3})M)?((\d{1,2})S)?')
 
@@ -52,9 +51,13 @@ FORMAT = '[%(asctime)s] [%(levelname)5s] [%(thread)d] ' \
          '[%(module)s:%(funcName)s:%(lineno)d] - %(message)s'
 
 logging.captureWarnings(True)
-logging.getLogger().addHandler(logging.NullHandler())
 logging.basicConfig(format=FORMAT)
 logging.getLogger().setLevel(logging.DEBUG)
+
+if os.environ.get('TIZONIA_YOUTUBEPROXY_DEBUG'):
+    from traceback import print_exception
+else:
+    logging.getLogger().addHandler(logging.NullHandler())
 
 class _Colors:
     """A trivial class that defines various ANSI color codes.
@@ -148,8 +151,9 @@ def exception_handler(exception_type, exception, traceback):
     """
 
     print_err("[YouTube] (%s) : %s" % (exception_type.__name__, exception))
-    del traceback # unused
-    # print_exception(exception_type, exception, traceback)
+
+    if os.environ.get('TIZONIA_YOUTUBEPROXY_DEBUG'):
+        print_exception(exception_type, exception, traceback)
 
 sys.excepthook = exception_handler
 
@@ -517,7 +521,9 @@ class tizyoutubeproxy(object):
                 pl_name = ''
                 playlist = None
                 for pl in channel.playlists:
-                    if fuzz.ratio(playlist_name, pl.title) > 70:
+                    print_nfo("[YouTube] [Playlist] '{0}'." \
+                              .format(to_ascii(pl.title)))
+                    if fuzz.partial_ratio(playlist_name, pl.title) > 50:
                         pl_dict[pl.title] = pl
                         pl_titles.append(pl.title)
 
@@ -530,7 +536,7 @@ class tizyoutubeproxy(object):
 
                 if pl_name:
                     if pl_name.lower() != playlist_name.lower():
-                        print_wrn("[YouTube] '{0}' not found. " \
+                        print_wrn("[YouTube] Playlist '{0}' not found. " \
                                   "Playing '{1}' instead." \
                                   .format(to_ascii(playlist_name), \
                                           to_ascii(pl_name)))
@@ -545,7 +551,7 @@ class tizyoutubeproxy(object):
             self.__update_play_queue_order()
 
         except ValueError:
-            raise ValueError(str("Channel not found : %s" % arg))
+            raise ValueError(str("Channel not found : %s" % channel_name))
 
     def current_audio_stream_title(self):
         """ Retrieve the current stream's title.
