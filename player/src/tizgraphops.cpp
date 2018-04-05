@@ -710,6 +710,12 @@ bool graph::ops::is_tunnel_altered (const int tunnel_id,
   return tunnel_id == std::distance (handles_.begin (), handle_pos_iter);
 }
 
+bool graph::ops::is_skip_allowed () const
+{
+  // Default implementation. To be overriden by child classess if necessary.
+  return true;
+}
+
 OMX_ERRORTYPE
 graph::ops::internal_error () const
 {

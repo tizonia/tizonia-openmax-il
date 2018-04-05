@@ -165,6 +165,7 @@ namespace tiz
                                       const OMX_HANDLETYPE handle,
                                       const OMX_U32 port_id,
                                       const OMX_INDEXTYPE index_id) const;
+      virtual bool is_skip_allowed () const;
 
       OMX_ERRORTYPE internal_error () const;
       std::string internal_error_msg () const;

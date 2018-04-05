@@ -609,8 +609,9 @@ class tizgmusicproxy(object):
 
                 for track in station_tracks:
                     track['sessionToken'] = session_token
-                    print_nfo("[Google Play Music] [Track] '{0}'." \
-                              .format((track['title']).encode('utf-8')))
+                    print_nfo("[Google Play Music] [Track] '{0}' by '{1}'." \
+                              .format((track['title']).encode('utf-8'),
+                                      (track['artist']).encode('utf-8')))
 
                 tracks_added = self.__enqueue_tracks(station_tracks)
                 logging.info("Added %d tracks from %s to queue", \
