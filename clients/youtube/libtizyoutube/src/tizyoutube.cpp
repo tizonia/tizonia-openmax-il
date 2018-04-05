@@ -98,13 +98,19 @@ namespace
             "imp.find_module('youtube_dl')\n",
             py_global);
 
+        // Check the existence of the 'fuzzywuzzy' module
+        bp::object ignored2 = exec (
+            "import imp\n"
+            "imp.find_module('fuzzywuzzy')\n",
+            py_global);
+
         rc = 0;
       }
     catch (bp::error_already_set &e)
       {
         PyErr_PrintEx (0);
         std::cerr << std::string (
-            "\nPython modules 'pafy' or 'youtube-dl' not found."
+            "\nPython modules 'pafy' or 'youtube-dl' or 'fuzzywuzzy' not found."
             "\nPlease make sure these are installed correctly.\n");
       }
     catch (...)
