@@ -99,7 +99,7 @@ namespace
             py_global);
 
         // Check the existence of the 'fuzzywuzzy' module
-        bp::object ignored2 = exec (
+        bp::object ignored3 = exec (
             "import imp\n"
             "imp.find_module('fuzzywuzzy')\n",
             py_global);
