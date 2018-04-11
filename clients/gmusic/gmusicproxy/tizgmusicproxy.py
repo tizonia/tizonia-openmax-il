@@ -202,7 +202,7 @@ class tizgmusicproxy(object):
 
         """
         self.current_play_mode = getattr(self.play_modes, mode)
-        self.__update_play_queue_order()
+        self.__update_play_queue_order(print_queue=False)
 
     def current_song_title_and_artist(self):
         """ Retrieve the current track's title and artist name.
@@ -312,7 +312,7 @@ class tizgmusicproxy(object):
         try:
             songs = self.__gmusic.get_all_songs()
             self.__enqueue_tracks(songs)
-            self.__update_play_queue_order()
+            self.__update_play_queue_order(print_queue=False)
 
         except KeyError:
             raise KeyError("Library not found")
@@ -347,7 +347,6 @@ class tizgmusicproxy(object):
                 raise KeyError
 
             self.__enqueue_tracks(track_hits)
-            self.__print_play_queue()
             self.__update_play_queue_order()
 
         except KeyError:
@@ -401,7 +400,6 @@ class tizgmusicproxy(object):
             print_wrn("[Google Play Music] Playing '{0}'." \
                       .format(to_ascii(artist)))
 
-            self.__print_play_queue()
             self.__update_play_queue_order()
 
         except KeyError:
@@ -445,7 +443,6 @@ class tizgmusicproxy(object):
             print_wrn("[Google Play Music] Playing '{0} ({1})'." \
                       .format(to_ascii(album), to_ascii(artist)))
 
-            self.__print_play_queue()
             self.__update_play_queue_order()
 
         except KeyError:
@@ -518,7 +515,6 @@ class tizgmusicproxy(object):
             print_wrn("[Google Play Music] Playing '{0}'." \
                       .format(to_ascii(playlist_name)))
 
-            self.__print_play_queue()
             self.__update_play_queue_order()
 
         except KeyError:
@@ -543,7 +539,7 @@ class tizgmusicproxy(object):
 
             logging.info("Added %d episodes from '%s' to queue", \
                          len(self.queue), arg)
-            self.__update_play_queue_order()
+            self.__update_play_queue_order(print_queue=False)
 
         except KeyError:
             raise KeyError("Podcast not found : {0}".format(arg))
@@ -607,7 +603,6 @@ class tizgmusicproxy(object):
                     track['sessionToken'] = session_token
 
                 self.__enqueue_tracks(station_tracks)
-                self.__print_play_queue()
                 self.__update_play_queue_order()
 
             if not len(self.queue):
@@ -700,7 +695,6 @@ class tizgmusicproxy(object):
             print_wrn("[Google Play Music] Playing '{0}'." \
                       .format(to_ascii(genre['name'])))
 
-            self.__print_play_queue()
             self.__update_play_queue_order()
 
         except KeyError:
@@ -757,7 +751,6 @@ class tizgmusicproxy(object):
                 raise KeyError
 
             self.__enqueue_tracks(artist_tracks)
-            self.__print_play_queue()
             self.__update_play_queue_order()
 
         except KeyError:
@@ -786,7 +779,6 @@ class tizgmusicproxy(object):
                               (album['album']['artist']).encode('utf-8')))
 
             self.__enqueue_tracks(album_tracks)
-            self.__print_play_queue()
             self.__update_play_queue_order()
 
         except KeyError:
@@ -819,7 +811,6 @@ class tizgmusicproxy(object):
                 tracks.append(hit['track'])
 
             self.__enqueue_tracks(tracks)
-            self.__print_play_queue()
             self.__update_play_queue_order()
 
         except KeyError:
@@ -863,7 +854,7 @@ class tizgmusicproxy(object):
                 raise KeyError
 
             self.__enqueue_tracks(playlist_tracks)
-            self.__update_play_queue_order()
+            self.__update_play_queue_order(print_queue=False)
 
         except KeyError:
             raise KeyError("Playlist not found : {0}".format(arg))
@@ -929,7 +920,7 @@ class tizgmusicproxy(object):
         else:
             return ''
 
-    def __update_play_queue_order(self):
+    def __update_play_queue_order(self, print_queue=True):
         """ Update the queue playback order.
 
         A sequential order is applied if the current play mode is "NORMAL" or a
@@ -943,6 +934,10 @@ class tizgmusicproxy(object):
                 self.play_queue_order = range(total_tracks)
             if self.current_play_mode == self.play_modes.SHUFFLE:
                 random.shuffle(self.play_queue_order)
+
+            if print_queue:
+                self.__print_play_queue()
+
             print_nfo("[Google Play Music] [Tracks in queue] '{0}'." \
                       .format(total_tracks))
 
@@ -950,7 +945,8 @@ class tizgmusicproxy(object):
         """ Print the play queue in playback order.
 
         """
-        for track in self.queue:
+        for index in self.play_queue_order:
+            track = self.queue[index]
             print_nfo("[Google Play Music] [Track] '{0}' by '{1}'." \
                       .format(to_ascii(track['title']), to_ascii(track['artist'])))
 
@@ -1090,7 +1086,6 @@ class tizgmusicproxy(object):
 
                 logging.info("Added %d tracks from %s to queue", tracks_added, arg)
 
-                self.__print_play_queue()
                 self.__update_play_queue_order()
 
             else:
@@ -1149,7 +1144,6 @@ class tizgmusicproxy(object):
                                   .format(station_name.encode('utf-8')))
                     logging.info("Added %d tracks from %s to queue", \
                                  tracks_added, to_ascii(arg))
-                    self.__print_play_queue()
                     self.__update_play_queue_order()
 
         except KeyError:
