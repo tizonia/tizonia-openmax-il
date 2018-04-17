@@ -51,10 +51,10 @@ FORMAT = '[%(asctime)s] [%(levelname)5s] [%(thread)d] ' \
          '[%(module)s:%(funcName)s:%(lineno)d] - %(message)s'
 
 logging.captureWarnings(True)
-logging.basicConfig(format=FORMAT)
 logging.getLogger().setLevel(logging.DEBUG)
 
 if os.environ.get('TIZONIA_YOUTUBEPROXY_DEBUG'):
+    logging.basicConfig(format=FORMAT)
     from traceback import print_exception
 else:
     logging.getLogger().addHandler(logging.NullHandler())
