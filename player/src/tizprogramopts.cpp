@@ -1442,7 +1442,7 @@ void tiz::programopts::init_youtube_options ()
        "Play all videos uploaded to a YouTube channel (arg = channel url or name).")
       /* TIZ_CLASS_COMMENT: */
       ("youtube-audio-channel-playlist", po::value (&youtube_audio_channel_playlist_),
-       "Play a playlist from particular YouTube channel (NOTE: arg = '<channel-name[space]playlist-name').");
+       "Play a playlist from particular YouTube channel (arg = '<channel-name[space]playlist-name>').");
 
   register_consume_function (&tiz::programopts::consume_youtube_client_options);
   all_youtube_client_options_
