@@ -1,3 +1,9 @@
+tizchromecast (0.14.0-1) unstable; urgency=low
+
+  * New upstream release (Closes: #482)
+
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Wed, 18 Apr 2018 15:58:05 +0100
+
 tizchromecast (0.13.0-1) unstable; urgency=low
 
   * New upstream release (Closes: #460)
