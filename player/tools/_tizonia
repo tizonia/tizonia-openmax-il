@@ -25,18 +25,20 @@ _arguments -S -s \
   '--gmusic-device-id[Google Play Music device id (not required if provided via config file).]' \
   '--gmusic-album[Play an album from the users library.]' \
   '--gmusic-artist[Play tracks from the users library by artist.]' \
+  '--gmusic-library[Play all tracks from the users library.]' \
   '--gmusic-playlist[A playlist from the users library.]' \
   '--gmusic-podcast[Search and play Google Play Music podcasts.]' \
+  '--gmusic-station[Search and play Google Play Music free stations.]' \
   '--gmusic-tracks[Play tracks from the users library.]' \
   '--gmusic-unlimited-activity[Search and play Google Play Music Unlimited tracks by activity.]' \
   '--gmusic-unlimited-album[Search and play Google Play Music Unlimited tracks by album (best match only).]' \
   '--gmusic-unlimited-artist[Search and play Google Play Music Unlimited tracks by artist (best match only).]' \
   '--gmusic-unlimited-feeling-lucky-station[Play the users Google Play Music Unlimited Im Feeling Lucky station.]' \
   '--gmusic-unlimited-genre[Search and play Google Play Music Unlimited tracks by genre.]' \
-  '--gmusic-unlimited-station[Search and play Google Play Music Unlimited stations found in the users library.]' \
-  '--gmusic-unlimited-tracks[Search and play Google Play Music Unlimited tracks by name (50 first matches only).]' \
   '--gmusic-unlimited-playlist[Search and play Google Play Music Unlimited playlists.]' \
   '--gmusic-unlimited-promoted-tracks[Play Google Play Music Unlimited promoted tracks.]' \
+  '--gmusic-unlimited-station[Search and play Google Play Music Unlimited stations found in the users library.]' \
+  '--gmusic-unlimited-tracks[Search and play Google Play Music Unlimited tracks by name (50 first matches only).]' \
   '--soundcloud-oauth-token[SoundCloud user OAuth token (not required if provided via config file).]' \
   '--soundcloud-user-stream[Play the tracks currently listed in the users stream.]' \
   '--soundcloud-user-likes[Play the tracks liked by the user.]' \
@@ -50,11 +52,13 @@ _arguments -S -s \
   '--dirble-station[Dirble station search.]' \
   '--dirble-category[Dirble category search.]' \
   '--dirble-country[Dirble country search.]' \
-  '--youtube-audio-stream[Play a YouTube audio stream from a video url or video id.]' \
-  '--youtube-audio-playlist[Play a YouTube audio playlist from a playlist url or playlist id.]' \
   '--youtube-audio-mix[Play a YouTube mix from a video url or video id.]' \
-  '--youtube-audio-search[Search and play YouTube audio streams.]' \
   '--youtube-audio-mix-search[Play a YouTube mix from a search term.]' \
+  '--youtube-audio-playlist[Play a YouTube audio playlist from a playlist url or playlist id.]' \
+  '--youtube-audio-search[Search and play YouTube audio streams.]' \
+  '--youtube-audio-stream[Play a YouTube audio stream from a video url or video id.]' \
+  '--youtube-audio-channel-playlist[Play a playlist from particular YouTube channel.]' \
+  '--youtube-audio-channel-uploads[Play all videos uploaded to a YouTube channel.]' \
   '--plex-server-base-url[Plex server base URL (e.g. http://plexserver:32400. Not required if provided via config file).]' \
   '--plex-auth-token arg[Plex account authentication token (not required if provided via config file).]' \
   '--plex-audio-tracks[Search and play audio tracks from a Plex server.]' \
