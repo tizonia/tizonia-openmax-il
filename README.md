@@ -11,7 +11,7 @@
 
 ---
 
-[![Build Status](https://travis-ci.org/tizonia/tizonia-openmax-il.png)](https://travis-ci.org/tizonia/tizonia-openmax-il)  |  [![Coverity Scan Build Status](https://scan.coverity.com/projects/594/badge.svg)](https://scan.coverity.com/projects/594)  | [![Codecov](https://img.shields.io/codecov/c/github/tizonia/tizonia-openmax-il.svg)](https://codecov.io/gh/tizonia/tizonia-openmax-il) | [![GitHub commits](https://img.shields.io/github/commits-since/tizonia/tizonia-openmax-il/v0.13.0.svg)](https://github.com/tizonia/tizonia-openmax-il/compare/v0.13.0...master) | [![Codacy Badge](https://api.codacy.com/project/badge/Grade/b002a7f1ba464093b48fb7c9620f8ae7)](https://www.codacy.com/app/tizonia/tizonia-openmax-il?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=tizonia/tizonia-openmax-il&amp;utm_campaign=Badge_Grade) | [![license](https://img.shields.io/github/license/tizonia/tizonia-openmax-il.svg)](https://github.com/tizonia/tizonia-openmax-il/blob/master/COPYING.LESSER) | [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/1359/badge)](https://bestpractices.coreinfrastructure.org/projects/1359) | [![Gitter chat](https://badges.gitter.im/tizonia/tizonia-openmax-il.png)]
+[![Build Status](https://travis-ci.org/tizonia/tizonia-openmax-il.png)](https://travis-ci.org/tizonia/tizonia-openmax-il)  |  [![Coverity Scan Build Status](https://scan.coverity.com/projects/594/badge.svg)](https://scan.coverity.com/projects/594)  | [![Codecov](https://img.shields.io/codecov/c/github/tizonia/tizonia-openmax-il.svg)](https://codecov.io/gh/tizonia/tizonia-openmax-il) | [![GitHub commits](https://img.shields.io/github/commits-since/tizonia/tizonia-openmax-il/v0.14.0.svg)](https://github.com/tizonia/tizonia-openmax-il/compare/v0.14.0...master) | [![Codacy Badge](https://api.codacy.com/project/badge/Grade/b002a7f1ba464093b48fb7c9620f8ae7)](https://www.codacy.com/app/tizonia/tizonia-openmax-il?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=tizonia/tizonia-openmax-il&amp;utm_campaign=Badge_Grade) | [![license](https://img.shields.io/github/license/tizonia/tizonia-openmax-il.svg)](https://github.com/tizonia/tizonia-openmax-il/blob/master/COPYING.LESSER) | [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/1359/badge)](https://bestpractices.coreinfrastructure.org/projects/1359) | [![Gitter chat](https://badges.gitter.im/tizonia/tizonia-openmax-il.png)]
 
 <img src="https://github.com/tizonia/tizonia-openmax-il/blob/master/docs/animated-gifs/tizonia-usage-screencast.gif" width="440"/> <img src="https://github.com/tizonia/tizonia-openmax-il/blob/master/docs/animated-gifs/tizonia-usage-screencast2.gif" width="440"/>
 
@@ -32,6 +32,13 @@
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # News
+
+- [2018-04-20] Tizonia
+[v0.14.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.14.0). Added
+support for Google Play Music [stations for
+non-subscribers](https://support.google.com/googleplaymusic/answer/6250894?hl=en)
+and YouTube channels (uploads and playlists). Also added option to play the
+user's entire Google Play Music library.
 
 - [2018-03-09] Tizonia
 [v0.13.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.13.0). Added
@@ -87,8 +94,11 @@ Debian-compatible system is by running the following command:
 > the installation script before running it on your system!.
 
 ## Arch User Repository (AUR)
- - [tizonia-all (for the latest released version)](https://aur.archlinux.org/packages/tizonia-all/)
- - [tizonia-all-git (HEAD of master branch)](https://aur.archlinux.org/packages/tizonia-all-git/)
+
+> NOTE: AUR packages are a bit outdated (v0.12.0) due to some issues with some of Tizonia's AUR dependencies.
+
+- [tizonia-all (for the latest released version)](https://aur.archlinux.org/packages/tizonia-all/)
+- [tizonia-all-git (HEAD of master branch)](https://aur.archlinux.org/packages/tizonia-all-git/)
 
 ```bash
 
