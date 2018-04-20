@@ -87,9 +87,9 @@ declare -Ar TIZ_DISTRO_COMPONENTS=( \
 )
 
 declare -Ar TIZ_DISTRO_DEBOOTSTRAPOPTS=( \
-    [ubuntu]="--no-check-gpg --include=ca-certificates,git-core,binutils,curl" \
-    [debian]="--keyring=/usr/share/keyrings/debian-archive-keyring.gpg --no-check-gpg --include=ca-certificates,git-core,binutils,curl" \
-    [raspbian]="--no-check-gpg --include=ca-certificates,git-core,binutils,curl" \
+    [ubuntu]="--no-check-gpg --include=ca-certificates,git,binutils,curl" \
+    [debian]="--keyring=/usr/share/keyrings/debian-archive-keyring.gpg --no-check-gpg --include=ca-certificates,git,binutils,curl" \
+    [raspbian]="--no-check-gpg --include=ca-certificates,git,binutils,curl" \
 )
 
 ##################################################################
