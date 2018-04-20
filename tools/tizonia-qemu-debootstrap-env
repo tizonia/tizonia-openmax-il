@@ -53,6 +53,7 @@ declare -ar TIZ_SUPPORTED_RELEASES=( \
     ubuntu-bionic \
     debian-jessie \
     debian-stretch \
+    debian-buster \
     raspbian-jessie \
     raspbian-stretch \
 )

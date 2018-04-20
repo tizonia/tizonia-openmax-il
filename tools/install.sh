@@ -32,10 +32,10 @@ if echo "$RELIDS" | grep raspbian; then
         echo "Can't find a supported Raspbian distribution."
         exit 1
     fi
-elif echo "$RELIDS" | grep jessie; then
-  DISTRO="debian" ; RELEASE="jessie"
 elif echo "$RELIDS" | grep stretch; then
   DISTRO="debian" ; RELEASE="stretch"
+elif echo "$RELIDS" | grep buster; then
+  DISTRO="debian" ; RELEASE="buster"
 elif echo "$RELIDS" | grep -E 'trusty|freya|qiana|rebecca|rafaela|rosa|sarah'; then
   # NOTE: Elementary OS 'freya' is based on trusty
   # NOTE: LinuxMint 'qiana' 'rebecca' 'rafaela' 'rosa' 'sarah' are all based on trusty
