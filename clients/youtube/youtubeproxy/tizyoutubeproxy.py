@@ -149,8 +149,11 @@ def exception_handler(exception_type, exception, traceback):
     """A simple handler that prints the exception message.
 
     """
-
-    print_err("[YouTube] (%s) : %s" % (exception_type.__name__, exception))
+    if 'The uploader has not made this video available' in str(exception):
+        if os.environ.get('TIZONIA_YOUTUBEPROXY_DEBUG'):
+            print_err("[YouTube] (%s) : %s" % (exception_type.__name__, exception))
+    else:
+        print_err("[YouTube] (%s) : %s" % (exception_type.__name__, exception))
 
     if os.environ.get('TIZONIA_YOUTUBEPROXY_DEBUG'):
         print_exception(exception_type, exception, traceback)
@@ -287,11 +290,15 @@ def obtain_stream(inqueue, outqueue):
                 outqueue.put(stream)
                 audioFound = True
 
-            except IOError:
-                print_err("[YouTube] Could not retrieve the audio stream URL for '{}' " \
-                          "(Attempt {} of {})."\
-                          .format(to_ascii(stream['i'].ytid).encode("utf-8"),
-                                  x, STREAM_OBJECT_ACQUISITION_MAX_ATTEMPTS))
+            except IOError as e:
+                if 'The uploader has not made this video available' not in str(e):
+                    logging.error("[YouTube] Could not retrieve the audio stream URL for '{}' " \
+                                  "(Attempt {} of {})."\
+                                  .format(to_ascii(stream['i'].ytid).encode("utf-8"),
+                                          x, STREAM_OBJECT_ACQUISITION_MAX_ATTEMPTS))
+                else:
+                    break
+
 
 class VideoInfo(object):
     """ Class to represent a YouTube video in the queue.
@@ -702,7 +709,12 @@ class tizyoutubeproxy(object):
         except (KeyError, AttributeError):
             # TODO: We don't remove this for now
             # del self.queue[self.queue_index]
-            logging.info("exception")
+            logging.info("KeyError, or AttributeError exception")
+            return self.next_url()
+        except (IOError):
+            # Remove this video
+            del self.queue[self.queue_index]
+            logging.info("IOError exception")
             return self.next_url()
 
     def prev_url(self):
@@ -728,6 +740,11 @@ class tizyoutubeproxy(object):
             # del self.queue[self.queue_index]
             logging.info("exception")
             return self.prev_url()
+        except (IOError):
+            # Remove this video
+            del self.queue[self.queue_index]
+            logging.info("IOError exception")
+            return self.next_url()
 
     def __update_play_queue_order(self):
         """ Update the queue playback order.
