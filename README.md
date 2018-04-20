@@ -68,12 +68,12 @@ Foundation project, with Gurkirpal Singh and Julien Isorce).
 Available from [Bintray](https://bintray.com/tizonia), with the following distro/arch
 combinations:
 
-| Ubuntu Trusty (14.04) | Ubuntu Xenial (16.04) | Ubuntu Bionic (18.04) | Debian Jessie (8) | Raspbian Jessie (8) | Debian Stretch (9) | Raspbian Stretch (9) |
-|        :---:          |        :---:          |        :---:          |        :---:      |       :---:         |        :---:       |        :---:         |
-|        amd64          |     amd64, armhf      |         amd64         |        amd64      |       armhf         |     amd64, armhf   |        armhf         |
-| [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-trusty/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-trusty/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-xenial/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-xenial/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-bionic/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-bionic/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-jessie/_latestVersion)  | [ ![Download](https://api.bintray.com/packages/tizonia/raspbian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/raspbian/tizonia-jessie/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-stretch/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-stretch/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/raspbian/tizonia-stretch/images/download.svg) ](https://bintray.com/tizonia/raspbian/tizonia-stretch/_latestVersion) |
+| Ubuntu Xenial (16.04) | Ubuntu Bionic (18.04) | Debian Stretch (9) | Raspbian Stretch (9) | Debian Buster (10) |
+|        :---:          |        :---:          |        :---:       |        :---:         |       :---:        |
+|     amd64, armhf      |     amd64, armhf      |     amd64, armhf   |        armhf         |       amd64        |
+| [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-xenial/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-xenial/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-bionic/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-bionic/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-stretch/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-stretch/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/raspbian/tizonia-stretch/images/download.svg) ](https://bintray.com/tizonia/raspbian/tizonia-stretch/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-buster/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-buster/_latestVersion) |
 
-> NOTE: Elementary OS and Linux Mint are supported on releases based on Ubuntu 'Trusty' or Ubuntu 'Xenial'.
+> NOTE: Elementary OS and Linux Mint are (or will be) supported on releases based on Ubuntu 'Xenial' or 'Bionic'.
 
 Please note that the **recommended** way to install Tizonia on a
 Debian-compatible system is by running the following command:
