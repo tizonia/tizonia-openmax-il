@@ -41,6 +41,11 @@ gmusic-album() {
     eval tizonia "$(tiz-grab-env-options)" --gmusic-album=\""$@"\"
 }
 
+# Tizonia's Google Play Music entire library playback
+gmusic-library() {
+    eval tizonia "$(tiz-grab-env-options)" --gmusic-library
+}
+
 # Tizonia's Google Play Music playlist search
 gmusic-playlist() {
     tiz-check-empty-params "$@" || return
@@ -51,6 +56,12 @@ gmusic-playlist() {
 gmusic-podcast() {
     tiz-check-empty-params "$@" || return
     eval tizonia "$(tiz-grab-env-options)" --gmusic-podcast=\""$@"\"
+}
+
+# Tizonia's Google Play Music free station search
+gmusic-station() {
+    tiz-check-empty-params "$@" || return
+    eval tizonia "$(tiz-grab-env-options)" --gmusic-station=\""$@"\"
 }
 
 # Tizonia's Google Play Music song search
@@ -180,6 +191,18 @@ youtube-playlist() {
 youtube-mix-search() {
     tiz-check-empty-params "$@" || return
     eval tizonia "$(tiz-grab-env-options)" --youtube-audio-mix-search=\""$@"\"
+}
+
+# Tizonia's YouTube audio channel playlist playback (arg = '<channel-name[space]playlist-name>')
+youtube-channel-playlist() {
+    tiz-check-empty-params "$@" || return
+    eval tizonia "$(tiz-grab-env-options)" --youtube-audio-channel-playlist=\""$@"\"
+}
+
+# Tizonia's YouTube audio channel uploads playback (arg = 'channel url or name')
+youtube-channel-uploads() {
+    tiz-check-empty-params "$@" || return
+    eval tizonia "$(tiz-grab-env-options)" --youtube-audio-channel-uploads=\""$@"\"
 }
 
 # Tizonia's Plex server music tracks search

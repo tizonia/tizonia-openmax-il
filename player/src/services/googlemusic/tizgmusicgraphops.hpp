@@ -60,6 +60,7 @@ namespace tiz
                                   const OMX_ERRORTYPE error,
                                   const OMX_U32 port,
                                   const OMX_PTR p_eventdata = NULL);
+      bool is_skip_allowed () const;
 
     private:
       OMX_ERRORTYPE switch_tunnel (

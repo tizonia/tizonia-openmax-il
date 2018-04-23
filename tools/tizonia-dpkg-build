@@ -43,6 +43,7 @@ declare -ar TIZ_SUPPORTED_RELEASES=( \
     ubuntu-bionic \
     debian-jessie \
     debian-stretch \
+    debian-buster \
     raspbian-jessie \
     raspbian-stretch \
 )
@@ -1130,7 +1131,9 @@ function main {
     obtain_distro_id_and_codename
     if [[ "$DISTRO_ID" == "raspbian" || "$DISTRO_ID" == "debian" ]]; then
         local version_id=$(cat /etc/*-release | grep -E '^VERSION_ID=' | cut -d'=' -f2)
-        if [[ "$version_id" == "\"9\"" ]]; then
+        if [[ "$version_id" == "\"10\"" ]]; then
+            DISTRO_CODENAME="buster"
+        elif [[ "$version_id" == "\"9\"" ]]; then
             DISTRO_CODENAME="stretch"
         elif [[ "$version_id" == "\"8\"" ]]; then
             DISTRO_CODENAME="jessie"

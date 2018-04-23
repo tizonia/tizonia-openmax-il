@@ -42,10 +42,14 @@ eventlet.monkey_patch()
 # For use during debugging
 # import pprint
 
+FORMAT = '[%(asctime)s] [%(levelname)5s] [%(thread)d] ' \
+         '[%(module)s:%(funcName)s:%(lineno)d] - %(message)s'
+
 logging.captureWarnings(True)
 logging.getLogger().setLevel(logging.DEBUG)
 
 if os.environ.get('TIZONIA_DIRBLEPROXY_DEBUG'):
+    logging.basicConfig(format=FORMAT)
     from traceback import print_exception
 else:
     logging.getLogger().addHandler(logging.NullHandler())

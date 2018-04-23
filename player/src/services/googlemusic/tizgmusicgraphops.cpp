@@ -468,6 +468,19 @@ void graph::gmusicops::do_record_fatal_error (const OMX_HANDLETYPE handle,
   }
 }
 
+bool graph::gmusicops::is_skip_allowed () const
+{
+  tizgmusicconfig_ptr_t gmusic_config
+      = boost::dynamic_pointer_cast< gmusicconfig > (config_);
+  if (gmusic_config
+      && gmusic_config->get_playlist_type ()
+             == OMX_AUDIO_GmusicPlaylistTypeFreeStation)
+  {
+    return false;
+  }
+  return true;
+}
+
 void graph::gmusicops::do_reconfigure_first_tunnel ()
 {
   // Retrieve the mp3 settings from the gmusic source component

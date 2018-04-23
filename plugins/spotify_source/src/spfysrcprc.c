@@ -171,6 +171,24 @@ concat (const char * s1, const char * s2)
 }
 
 static char *
+get_cache_prefix ()
+{
+#define TMPDIR "/var/tmp"
+  char * p_prefix = NULL;
+  char * p_env_str = NULL;
+
+  if ((p_env_str = getenv ("SNAP_USER_COMMON")))
+    {
+      p_prefix = concat (p_env_str, "/tizonia-");
+    }
+  else
+    {
+      p_prefix = concat (TMPDIR, "/tizonia-");
+    }
+  return p_prefix;
+}
+
+static char *
 get_cache_location (char * user)
 {
   uid_t uid = geteuid ();
@@ -179,10 +197,12 @@ get_cache_location (char * user)
     {
       char * p_pw_name_dash = concat (pw->pw_name, "-spotify-");
       char * p_pw_name_dash_user = concat (p_pw_name_dash, user);
+      char * p_cache_prefix = get_cache_prefix();
       char * p_cache_location
-        = concat ("/var/tmp/tizonia-", p_pw_name_dash_user);
+        = concat (p_cache_prefix, p_pw_name_dash_user);
       tiz_mem_free ((void *) p_pw_name_dash);
       tiz_mem_free ((void *) p_pw_name_dash_user);
+      tiz_mem_free ((void *) p_cache_prefix);
       return p_cache_location;
     }
   return user;
@@ -1755,6 +1775,9 @@ spfysrc_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
   p_prc->sp_config_.settings_location = p_prc->sp_config_.cache_location;
   goto_end_on_sp_error (
     sp_session_create (&(p_prc->sp_config_), &(p_prc->p_sp_session_)));
+
+  TIZ_PRINTF_BLU ("[Spotify] : Spotify cache location: '%s'\n",
+                  p_prc->sp_config_.cache_location);
 
   /* Initiate the login */
   goto_end_on_sp_error (sp_session_login (

@@ -351,6 +351,22 @@ namespace tiz
       }
     };
 
+    struct is_skip_allowed
+    {
+      template < class EVT, class FSM, class SourceState, class TargetState >
+      bool operator()(EVT const& evt, FSM& fsm, SourceState&, TargetState&)
+      {
+        bool rc = false;
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+        {
+          rc = (*(fsm.pp_ops_))->is_skip_allowed ();
+        }
+        G_GUARD_LOG (rc);
+        return rc;
+      }
+    };
+
+
   }  // namespace graph
 }  // namespace tiz
 

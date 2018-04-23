@@ -1,5 +1,33 @@
 # Change Log
 
+## [v0.14.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.14.0) (2018-04-20)
+[Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.13.0...v0.14.0)
+
+**Improvements:**
+
+- YouTube Channels support - channel playlist search [\#476](https://github.com/tizonia/tizonia-openmax-il/issues/476)
+- YouTube Channels support - channel uploads [\#475](https://github.com/tizonia/tizonia-openmax-il/issues/475)
+- Debian Testing/Buster \(10\) not available [\#474](https://github.com/tizonia/tizonia-openmax-il/issues/474)
+- google music: support for free radio stations [\#473](https://github.com/tizonia/tizonia-openmax-il/issues/473)
+- google music: add option to play the entire user library [\#470](https://github.com/tizonia/tizonia-openmax-il/issues/470)
+
+**Fixed bugs:**
+
+- RSS Feed in official Website is broken [\#480](https://github.com/tizonia/tizonia-openmax-il/issues/480)
+- segmentation fault with snap and spotify [\#479](https://github.com/tizonia/tizonia-openmax-il/issues/479)
+- google music: Playlist shows 0 tracks in Tizonia, has tracks on Google Play web interface [\#478](https://github.com/tizonia/tizonia-openmax-il/issues/478)
+- httprsrv.c:857:3: note: ‘snprintf’ output between 11 and 138 bytes into a destination of size 128 [\#477](https://github.com/tizonia/tizonia-openmax-il/issues/477)
+- google music: tiz\_urltrans\_on\_buffers\_ready: assertion [\#472](https://github.com/tizonia/tizonia-openmax-il/issues/472)
+- player: symbol lookup error: lib/tizonia0-plugins12/libtizhttpsrc.so.0.0.13: undefined symbol: tiz\_str\_util\_to\_lower [\#464](https://github.com/tizonia/tizonia-openmax-il/issues/464)
+- Google Music: track downloading is interrupted seemingly randomly [\#349](https://github.com/tizonia/tizonia-openmax-il/issues/349)
+
+**Closed issues:**
+
+- python modules \_soundcloud\_ and \_fuzzywuzzy\_ were missing [\#469](https://github.com/tizonia/tizonia-openmax-il/issues/469)
+- how to fix "FATAL. Could not init OpenMAX IL : OMX\_ErrorInsufficientResources" [\#466](https://github.com/tizonia/tizonia-openmax-il/issues/466)
+- Bionic install from repository: libspotify12 missing [\#465](https://github.com/tizonia/tizonia-openmax-il/issues/465)
+- release v0.14.0 [\#482](https://github.com/tizonia/tizonia-openmax-il/issues/482)
+
 ## [v0.13.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.13.0) (2018-03-11)
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.12.0...v0.13.0)
 

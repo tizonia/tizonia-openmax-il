@@ -326,15 +326,17 @@ typedef struct OMX_TIZONIA_PLAYLISTSKIPTYPE {
 
 typedef enum OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE {
     OMX_AUDIO_GmusicPlaylistTypeUnknown = 0, /**< Playlist type unknown (Default). */
-    OMX_AUDIO_GmusicPlaylistTypeUser, /**< User-defined playlist. */
-    OMX_AUDIO_GmusicPlaylistTypeArtist, /**< Artist playlist. */
-    OMX_AUDIO_GmusicPlaylistTypeAlbum, /**< Album playlist. */
-    OMX_AUDIO_GmusicPlaylistTypeStation, /**< Station playlist. */
-    OMX_AUDIO_GmusicPlaylistTypeGenre, /**< Genre playlist. */
-    OMX_AUDIO_GmusicPlaylistTypeSituation, /**< Situation playlist. */
+    OMX_AUDIO_GmusicPlaylistTypeUser, /**< User-defined playlist search. */
+    OMX_AUDIO_GmusicPlaylistTypeArtist, /**< Artist search. */
+    OMX_AUDIO_GmusicPlaylistTypeAlbum, /**< Album search. */
+    OMX_AUDIO_GmusicPlaylistTypeStation, /**< Station search (unlimited). */
+    OMX_AUDIO_GmusicPlaylistTypeGenre, /**< Genre search (unlimited). */
+    OMX_AUDIO_GmusicPlaylistTypeSituation, /**< Situation search (unlimited). */
     OMX_AUDIO_GmusicPlaylistTypePromotedTracks, /**< Promoted tracks playlist. */
     OMX_AUDIO_GmusicPlaylistTypeTracks, /**< Regular tracks search. */
     OMX_AUDIO_GmusicPlaylistTypePodcast, /**< Podcast search. */
+    OMX_AUDIO_GmusicPlaylistTypeLibrary, /**< A playlist containing all elements in the user's library. */
+    OMX_AUDIO_GmusicPlaylistTypeFreeStation, /**< A station search (free tier). */
     OMX_AUDIO_GmusicPlaylistTypeKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
     OMX_AUDIO_GmusicPlaylistTypeVendorStartUnused = 0x7F000000, /**< Reserved region for introducing Vendor Extensions */
     OMX_AUDIO_GmusicPlaylistTypeMax = 0x7FFFFFFF
@@ -435,6 +437,8 @@ typedef enum OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE {
     OMX_AUDIO_YoutubePlaylistTypeAudioMix, /**< Audio playback from a youtube mix associated to a url or video id. */
     OMX_AUDIO_YoutubePlaylistTypeAudioSearch, /**< Audio playback from a youtube search. */
     OMX_AUDIO_YoutubePlaylistTypeAudioMixSearch, /**< Audio playback from a youtube mix associated to a search term. */
+    OMX_AUDIO_YoutubePlaylistTypeAudioChannelUploads, /**< Audio playback from a youtube channel url or name. */
+    OMX_AUDIO_YoutubePlaylistTypeAudioChannelPlaylist, /**< Audio playback from a youtube channel url or name and playlist name. */
     OMX_AUDIO_YoutubePlaylistTypeKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
     OMX_AUDIO_YoutubePlaylistTypeVendorStartUnused = 0x7F000000, /**< Reserved region for introducing Vendor Extensions */
     OMX_AUDIO_YoutubePlaylistTypeMax = 0x7FFFFFFF

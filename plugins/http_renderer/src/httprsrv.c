@@ -805,10 +805,10 @@ srv_build_http_positive_response (httpr_server_t * ap_server, char * ap_buf,
   char status_buffer[80];
   char contenttype_buffer[80];
   char icybr_buffer[80];
-  char icyname_buffer[OMX_MAX_STRINGNAME_SIZE];
-  char icydescription_buffer[OMX_MAX_STRINGNAME_SIZE];
-  char icygenre_buffer[OMX_MAX_STRINGNAME_SIZE];
-  char icyurl_buffer[OMX_MAX_STRINGNAME_SIZE];
+  char icyname_buffer[OMX_MAX_STRINGNAME_SIZE * 2];
+  char icydescription_buffer[OMX_MAX_STRINGNAME_SIZE * 2];
+  char icygenre_buffer[OMX_MAX_STRINGNAME_SIZE * 2];
+  char icyurl_buffer[OMX_MAX_STRINGNAME_SIZE * 2];
   char icypub_buffer[80];
   char iceaudioinfo_buffer[80];
   char icymetaint_buffer[80];

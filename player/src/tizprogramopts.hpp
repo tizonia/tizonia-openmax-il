@@ -208,6 +208,8 @@ namespace tiz
     std::string gmusic_promoted_;
     std::string gmusic_tracks_;
     std::string gmusic_podcast_;
+    std::string gmusic_library_;
+    std::string gmusic_free_station_;
     std::string gmusic_feeling_lucky_station_;
     std::vector< std::string > gmusic_playlist_container_;
     OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE gmusic_playlist_type_;
@@ -235,6 +237,8 @@ namespace tiz
     std::string youtube_audio_mix_;
     std::string youtube_audio_search_;
     std::string youtube_audio_mix_search_;
+    std::string youtube_audio_channel_uploads_;
+    std::string youtube_audio_channel_playlist_;
     std::vector< std::string > youtube_playlist_container_;
     OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE youtube_playlist_type_;
     std::string plex_base_url_;

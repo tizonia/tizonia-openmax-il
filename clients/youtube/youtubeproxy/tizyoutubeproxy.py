@@ -29,12 +29,13 @@ import logging
 import random
 import unicodedata
 import re
-from multiprocessing.dummy import Process, Queue
 import pafy
+from multiprocessing.dummy import Process, Queue
+from fuzzywuzzy import process
+from fuzzywuzzy import fuzz
 
 # For use during debugging
-# import pprint
-# from traceback import print_exception
+# from pprint import pprint
 
 ISO8601_TIMEDUR_EX = re.compile(r'PT((\d{1,3})H)?((\d{1,3})M)?((\d{1,2})S)?')
 
@@ -50,9 +51,13 @@ FORMAT = '[%(asctime)s] [%(levelname)5s] [%(thread)d] ' \
          '[%(module)s:%(funcName)s:%(lineno)d] - %(message)s'
 
 logging.captureWarnings(True)
-logging.getLogger().addHandler(logging.NullHandler())
-logging.basicConfig(format=FORMAT)
 logging.getLogger().setLevel(logging.DEBUG)
+
+if os.environ.get('TIZONIA_YOUTUBEPROXY_DEBUG'):
+    logging.basicConfig(format=FORMAT)
+    from traceback import print_exception
+else:
+    logging.getLogger().addHandler(logging.NullHandler())
 
 class _Colors:
     """A trivial class that defines various ANSI color codes.
@@ -144,10 +149,14 @@ def exception_handler(exception_type, exception, traceback):
     """A simple handler that prints the exception message.
 
     """
+    if 'The uploader has not made this video available' in str(exception):
+        if os.environ.get('TIZONIA_YOUTUBEPROXY_DEBUG'):
+            print_err("[YouTube] (%s) : %s" % (exception_type.__name__, exception))
+    else:
+        print_err("[YouTube] (%s) : %s" % (exception_type.__name__, exception))
 
-    print_err("[YouTube] (%s) : %s" % (exception_type.__name__, exception))
-    del traceback # unused
-    # print_exception(exception_type, exception, traceback)
+    if os.environ.get('TIZONIA_YOUTUBEPROXY_DEBUG'):
+        print_exception(exception_type, exception, traceback)
 
 sys.excepthook = exception_handler
 
@@ -281,11 +290,15 @@ def obtain_stream(inqueue, outqueue):
                 outqueue.put(stream)
                 audioFound = True
 
-            except IOError:
-                print_err("[YouTube] Could not retrieve the audio stream URL for '{}' " \
-                          "(Attempt {} of {})."\
-                          .format(to_ascii(stream['i'].ytid).encode("utf-8"),
-                                  x, STREAM_OBJECT_ACQUISITION_MAX_ATTEMPTS))
+            except IOError as e:
+                if 'The uploader has not made this video available' not in str(e):
+                    logging.error("[YouTube] Could not retrieve the audio stream URL for '{}' " \
+                                  "(Attempt {} of {})."\
+                                  .format(to_ascii(stream['i'].ytid).encode("utf-8"),
+                                          x, STREAM_OBJECT_ACQUISITION_MAX_ATTEMPTS))
+                else:
+                    break
+
 
 class VideoInfo(object):
     """ Class to represent a YouTube video in the queue.
@@ -473,6 +486,80 @@ class tizyoutubeproxy(object):
         except ValueError:
             raise ValueError(str("Could not find any mixes : %s" % arg))
 
+    def enqueue_audio_channel_uploads(self, arg):
+        """Add all audio streams in a YouTube channel to the playback queue.
+
+        :param arg: a YouTube channel url
+
+        """
+        logging.info('arg : %s', arg)
+        try:
+            count = len(self.queue)
+
+            channel = pafy.get_channel(arg)
+            if channel:
+                for yt_video in channel.uploads:
+                    self.add_to_playback_queue(video=yt_video, \
+                                               info=VideoInfo(ytid=yt_video.videoid, \
+                                                              title=yt_video.title))
+
+            if count == len(self.queue):
+                raise ValueError
+
+            self.__update_play_queue_order()
+
+        except ValueError:
+            raise ValueError(str("Channel not found : %s" % arg))
+
+    def enqueue_audio_channel_playlist(self, channel_name, playlist_name):
+        """Search a playlist within a channel and if found, adds all the audio streams
+        to the playback queue.
+
+        :param arg: a YouTube playlist id
+
+        """
+        logging.info('args : %s - %s', channel_name, playlist_name)
+        try:
+            count = len(self.queue)
+            channel = pafy.get_channel(channel_name)
+            if channel:
+                pl_dict = dict()
+                pl_titles = list()
+                pl_name = ''
+                playlist = None
+                for pl in channel.playlists:
+                    print_nfo("[YouTube] [Playlist] '{0}'." \
+                              .format(to_ascii(pl.title)))
+                    if fuzz.partial_ratio(playlist_name, pl.title) > 50:
+                        pl_dict[pl.title] = pl
+                        pl_titles.append(pl.title)
+
+                if len(pl_titles) > 1:
+                    pl_name = process.extractOne(playlist_name, pl_titles)[0]
+                    playlist = pl_dict[pl_name]
+                elif len(pl_titles) == 1:
+                    pl_name = pl_titles[0]
+                    playlist = pl_dict[pl_name]
+
+                if pl_name:
+                    if pl_name.lower() != playlist_name.lower():
+                        print_wrn("[YouTube] Playlist '{0}' not found. " \
+                                  "Playing '{1}' instead." \
+                                  .format(to_ascii(playlist_name), \
+                                          to_ascii(pl_name)))
+                    for yt_video in playlist:
+                        self.add_to_playback_queue(video=yt_video, \
+                                                   info=VideoInfo(ytid=yt_video.videoid, \
+                                                                  title=yt_video.title))
+
+            if count == len(self.queue):
+                raise ValueError
+
+            self.__update_play_queue_order()
+
+        except ValueError:
+            raise ValueError(str("Channel not found : %s" % channel_name))
+
     def current_audio_stream_title(self):
         """ Retrieve the current stream's title.
 
@@ -622,7 +709,12 @@ class tizyoutubeproxy(object):
         except (KeyError, AttributeError):
             # TODO: We don't remove this for now
             # del self.queue[self.queue_index]
-            logging.info("exception")
+            logging.info("KeyError, or AttributeError exception")
+            return self.next_url()
+        except (IOError):
+            # Remove this video
+            del self.queue[self.queue_index]
+            logging.info("IOError exception")
             return self.next_url()
 
     def prev_url(self):
@@ -648,6 +740,11 @@ class tizyoutubeproxy(object):
             # del self.queue[self.queue_index]
             logging.info("exception")
             return self.prev_url()
+        except (IOError):
+            # Remove this video
+            del self.queue[self.queue_index]
+            logging.info("IOError exception")
+            return self.next_url()
 
     def __update_play_queue_order(self):
         """ Update the queue playback order.

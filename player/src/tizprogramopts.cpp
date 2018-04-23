@@ -308,6 +308,8 @@ tiz::programopts::programopts (int argc, char *argv[])
     gmusic_promoted_ (),
     gmusic_tracks_ (),
     gmusic_podcast_ (),
+    gmusic_library_ (),
+    gmusic_free_station_ (),
     gmusic_feeling_lucky_station_ (),
     gmusic_playlist_container_ (),
     gmusic_playlist_type_ (OMX_AUDIO_GmusicPlaylistTypeUnknown),
@@ -335,6 +337,8 @@ tiz::programopts::programopts (int argc, char *argv[])
     youtube_audio_mix_ (),
     youtube_audio_search_ (),
     youtube_audio_mix_search_ (),
+    youtube_audio_channel_uploads_ (),
+    youtube_audio_channel_playlist_ (),
     youtube_playlist_container_ (),
     youtube_playlist_type_ (OMX_AUDIO_YoutubePlaylistTypeUnknown),
     plex_base_url_ (),
@@ -689,7 +693,13 @@ const std::string &tiz::programopts::gmusic_device_id () const
 const std::vector< std::string > &tiz::programopts::gmusic_playlist_container ()
 {
   gmusic_playlist_container_.clear ();
-  if (!gmusic_tracks_.empty ())
+  if (!gmusic_library_.empty ())
+  {
+    // With gmusic library option, no playlist "name" is actually
+    // required. But this helps keeping track of what is in the container.
+    gmusic_playlist_container_.push_back (gmusic_library_);
+  }
+  else if (!gmusic_tracks_.empty ())
   {
     gmusic_playlist_container_.push_back (gmusic_tracks_);
   }
@@ -721,6 +731,10 @@ const std::vector< std::string > &tiz::programopts::gmusic_playlist_container ()
   {
     gmusic_playlist_container_.push_back (gmusic_podcast_);
   }
+  else if (!gmusic_free_station_.empty ())
+  {
+    gmusic_playlist_container_.push_back (gmusic_free_station_);
+  }
   else if (!gmusic_promoted_.empty ())
   {
     // With gmusic promoted songs option, no playlist "name" is actually
@@ -741,7 +755,15 @@ const std::vector< std::string > &tiz::programopts::gmusic_playlist_container ()
 OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE
 tiz::programopts::gmusic_playlist_type ()
 {
-  if (!gmusic_artist_.empty ())
+  if (!gmusic_library_.empty ())
+  {
+    gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeLibrary;
+  }
+  else if (!gmusic_tracks_.empty ())
+  {
+    gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeTracks;
+  }
+  else if (!gmusic_artist_.empty ())
   {
     gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeArtist;
   }
@@ -769,13 +791,13 @@ tiz::programopts::gmusic_playlist_type ()
   {
     gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypePodcast;
   }
+  else if (!gmusic_free_station_.empty ())
+  {
+    gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeFreeStation;
+  }
   else if (!gmusic_promoted_.empty ())
   {
     gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypePromotedTracks;
-  }
-  else if (!gmusic_tracks_.empty ())
-  {
-    gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeTracks;
   }
   else
   {
@@ -962,6 +984,14 @@ const std::vector< std::string >
   {
     youtube_playlist_container_.push_back (youtube_audio_mix_search_);
   }
+  else if (!youtube_audio_channel_uploads_.empty ())
+  {
+    youtube_playlist_container_.push_back (youtube_audio_channel_uploads_);
+  }
+  else if (!youtube_audio_channel_playlist_.empty ())
+  {
+    youtube_playlist_container_.push_back (youtube_audio_channel_playlist_);
+  }
   else
   {
     assert (0);
@@ -991,6 +1021,14 @@ tiz::programopts::youtube_playlist_type ()
   else if (!youtube_audio_mix_search_.empty ())
   {
     youtube_playlist_type_ = OMX_AUDIO_YoutubePlaylistTypeAudioMixSearch;
+  }
+  else if (!youtube_audio_channel_uploads_.empty ())
+  {
+    youtube_playlist_type_ = OMX_AUDIO_YoutubePlaylistTypeAudioChannelUploads;
+  }
+  else if (!youtube_audio_channel_playlist_.empty ())
+  {
+    youtube_playlist_type_ = OMX_AUDIO_YoutubePlaylistTypeAudioChannelPlaylist;
   }
   else
   {
@@ -1250,6 +1288,9 @@ void tiz::programopts::init_gmusic_options ()
        "Google Play Music device id (not required if provided via config "
        "file).")
       /* TIZ_CLASS_COMMENT: */
+      ("gmusic-library",
+       "Play all tracks from the user's library.")
+      /* TIZ_CLASS_COMMENT: */
       ("gmusic-tracks", po::value (&gmusic_tracks_),
        "Play tracks from the user's library by track name.")
       /* TIZ_CLASS_COMMENT: */
@@ -1265,6 +1306,9 @@ void tiz::programopts::init_gmusic_options ()
       ("gmusic-podcast", po::value (&gmusic_podcast_),
        "Search and play Google Play Music podcasts (only available in the US "
        "and Canada).")
+      /* TIZ_CLASS_COMMENT: */
+      ("gmusic-station", po::value (&gmusic_free_station_),
+       "Search and play Google Play Music free stations.")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-unlimited-station", po::value (&gmusic_station_),
        "Search and play Google Play Music Unlimited stations found in the "
@@ -1301,12 +1345,12 @@ void tiz::programopts::init_gmusic_options ()
   register_consume_function (&tiz::programopts::consume_gmusic_client_options);
   all_gmusic_client_options_
       = boost::assign::list_of ("gmusic-user") ("gmusic-password") (
-            "gmusic-device-id") ("gmusic-tracks") ("gmusic-artist") (
-            "gmusic-album") ("gmusic-playlist") ("gmusic-podcast") (
-            "gmusic-unlimited-station") ("gmusic-unlimited-album") (
-            "gmusic-unlimited-artist") ("gmusic-unlimited-tracks") (
-            "gmusic-unlimited-playlist") ("gmusic-unlimited-genre") (
-            "gmusic-unlimited-activity") (
+            "gmusic-device-id") ("gmusic-library") ("gmusic-tracks") (
+            "gmusic-artist") ("gmusic-album") ("gmusic-playlist") (
+            "gmusic-podcast") ("gmusic-station") ("gmusic-unlimited-station") (
+            "gmusic-unlimited-album") ("gmusic-unlimited-artist") (
+            "gmusic-unlimited-tracks") ("gmusic-unlimited-playlist") (
+            "gmusic-unlimited-genre") ("gmusic-unlimited-activity") (
             "gmusic-unlimited-feeling-lucky-station") (
             "gmusic-unlimited-promoted-tracks")
             .convert_to_container< std::vector< std::string > > ();
@@ -1392,13 +1436,20 @@ void tiz::programopts::init_youtube_options ()
        "Search and play YouTube audio streams.")
       /* TIZ_CLASS_COMMENT: */
       ("youtube-audio-mix-search", po::value (&youtube_audio_mix_search_),
-       "Play a YouTube mix from a search term.");
+       "Play a YouTube mix from a search term.")
+      /* TIZ_CLASS_COMMENT: */
+      ("youtube-audio-channel-uploads", po::value (&youtube_audio_channel_uploads_),
+       "Play all videos uploaded to a YouTube channel (arg = channel url or name).")
+      /* TIZ_CLASS_COMMENT: */
+      ("youtube-audio-channel-playlist", po::value (&youtube_audio_channel_playlist_),
+       "Play a playlist from particular YouTube channel (arg = '<channel-name[space]playlist-name>').");
 
   register_consume_function (&tiz::programopts::consume_youtube_client_options);
   all_youtube_client_options_
       = boost::assign::list_of ("youtube-audio-stream") (
             "youtube-audio-playlist") ("youtube-audio-mix") (
-            "youtube-audio-search") ("youtube-audio-mix-search")
+            "youtube-audio-search") ("youtube-audio-mix-search") (
+            "youtube-audio-channel-uploads") ("youtube-audio-channel-playlist")
             .convert_to_container< std::vector< std::string > > ();
 }
 
@@ -1753,9 +1804,10 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
     done = true;
 
     const int playlist_option_count
-        = vm_.count ("gmusic-tracks") + vm_.count ("gmusic-artist")
-          + vm_.count ("gmusic-album") + vm_.count ("gmusic-playlist")
-          + vm_.count ("gmusic-podcast")
+        = vm_.count ("gmusic-library") + vm_.count ("gmusic-tracks")
+          + vm_.count ("gmusic-artist") + vm_.count ("gmusic-album")
+          + vm_.count ("gmusic-playlist") + vm_.count ("gmusic-podcast")
+          + vm_.count ("gmusic-station")
           + vm_.count ("gmusic-unlimited-station")
           + vm_.count ("gmusic-unlimited-album")
           + vm_.count ("gmusic-unlimited-artist")
@@ -1778,6 +1830,14 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
     {
       retrieve_config_from_rc_file ("tizonia", "gmusic.device_id",
                                     gmusic_device_id_);
+    }
+
+    if (vm_.count ("gmusic-library"))
+    {
+      // This is not going to be used by the client code, but will help
+      // in gmusic_playlist_type() to decide which playlist type value is
+      // returned.
+      gmusic_library_.assign ("Google Play Music full library playback");
     }
 
     if (vm_.count ("gmusic-unlimited-promoted-tracks"))
@@ -2031,7 +2091,9 @@ int tiz::programopts::consume_youtube_client_options (bool &done,
                                       + vm_.count ("youtube-audio-playlist")
                                       + vm_.count ("youtube-audio-mix")
                                       + vm_.count ("youtube-audio-search")
-                                      + vm_.count ("youtube-audio-mix-search");
+                                      + vm_.count ("youtube-audio-mix-search")
+                                      + vm_.count ("youtube-audio-channel-uploads")
+                                      + vm_.count ("youtube-audio-channel-playlist");
 
     if (playlist_option_count > 1)
     {
@@ -2263,9 +2325,10 @@ bool tiz::programopts::validate_gmusic_client_options () const
   bool outcome = false;
   unsigned int gmusic_opts_count
       = vm_.count ("gmusic-user") + vm_.count ("gmusic-password")
-        + vm_.count ("gmusic-device-id") + vm_.count ("gmusic-tracks")
-        + vm_.count ("gmusic-artist") + vm_.count ("gmusic-album")
-        + vm_.count ("gmusic-playlist") + vm_.count ("gmusic-podcast")
+        + vm_.count ("gmusic-device-id") + vm_.count ("gmusic-library")
+        + vm_.count ("gmusic-tracks") + vm_.count ("gmusic-artist")
+        + vm_.count ("gmusic-album") + vm_.count ("gmusic-playlist")
+        + vm_.count ("gmusic-podcast") + vm_.count ("gmusic-station")
         + vm_.count ("gmusic-unlimited-station")
         + vm_.count ("gmusic-unlimited-album")
         + vm_.count ("gmusic-unlimited-artist")
@@ -2343,7 +2406,9 @@ bool tiz::programopts::validate_youtube_client_options () const
                                     + vm_.count ("youtube-audio-playlist")
                                     + vm_.count ("youtube-audio-mix")
                                     + vm_.count ("youtube-audio-search")
-                                    + vm_.count ("youtube-audio-mix-search");
+                                    + vm_.count ("youtube-audio-mix-search")
+                                    + vm_.count ("youtube-audio-channel-uploads")
+                                    + vm_.count ("youtube-audio-channel-playlist");
 
   std::vector< std::string > all_valid_options = all_youtube_client_options_;
   concat_option_lists (all_valid_options, all_global_options_);

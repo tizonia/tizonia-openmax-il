@@ -1254,7 +1254,9 @@ tiz_urltrans_on_buffers_ready (tiz_urltrans_t * ap_trans)
         }
     }
   URLTRANS_LOG_API_END (ap_trans);
-  ASSERT_ASYNC_EVENTS (ap_trans);
+  /* This assertion is apparently not needed. See
+     https://github.com/tizonia/tizonia-openmax-il/issues/472 */
+  /* ASSERT_ASYNC_EVENTS (ap_trans); */
   return rc;
 }
 

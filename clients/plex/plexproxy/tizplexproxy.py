@@ -45,6 +45,7 @@ logging.captureWarnings(True)
 logging.getLogger().setLevel(logging.DEBUG)
 
 if os.environ.get('TIZONIA_PLEXPROXY_DEBUG'):
+    logging.basicConfig(format=FORMAT)
     from traceback import print_exception
 else:
     logging.getLogger().addHandler(logging.NullHandler())
