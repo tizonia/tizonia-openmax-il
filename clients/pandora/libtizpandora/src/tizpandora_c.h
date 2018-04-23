@@ -21,7 +21,7 @@
  * @file   tizpandora_c.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia - Simple Pandora audio client library (c wrapper)
+ * @brief  Tizonia - Simple Pandora client library (c wrapper)
  *
  *
  */
@@ -36,10 +36,10 @@ extern "C" {
 #include <stdbool.h>
 
 /**
- * @defgroup libtizpandora 'libtizpandora' : Tizonia's Pandora audio client
+ * @defgroup libtizpandora 'libtizpandora' : Tizonia's Pandora client
  * library
  *
- * A C library to access audio from a Pandora server.
+ * A C library to access audio streams from Pandora.
  *
  * @ingroup Tizonia
  */
@@ -92,7 +92,7 @@ void tiz_pandora_clear_queue (tiz_pandora_t *ap_pandora);
  *
  * @param ap_pandora The tiz_pandora handle.
  */
-const char *tiz_pandora_get_current_audio_track_index (tiz_pandora_t *ap_pandora);
+const char *tiz_pandora_get_current_track_index (tiz_pandora_t *ap_pandora);
 
 /**
  * Retrieve the current length of playback queue.
@@ -124,7 +124,7 @@ void tiz_pandora_set_playback_mode (tiz_pandora_t *ap_pandora,
                                  const tiz_pandora_playback_mode_t mode);
 
 /**
- * Add a Pandora audio stream to the playback queue.
+ * Add a Pandora stream to the playback queue.
  *
  * After calling this method, the various tiz_pandora_get* methods can be
  * used to interact with the playback queue.
@@ -136,10 +136,10 @@ void tiz_pandora_set_playback_mode (tiz_pandora_t *ap_pandora,
  *
  * @return 0 on success
  */
-int tiz_pandora_play_audio_tracks (tiz_pandora_t *ap_pandora, const char *ap_track_name);
+int tiz_pandora_play_tracks (tiz_pandora_t *ap_pandora, const char *ap_track_name);
 
 /**
- * Add a Pandora audio stream to the playback queue.
+ * Add a Pandora stream to the playback queue.
  *
  * After calling this method, the various tiz_pandora_get* methods can be
  * used to interact with the playback queue.
@@ -151,11 +151,11 @@ int tiz_pandora_play_audio_tracks (tiz_pandora_t *ap_pandora, const char *ap_tra
  *
  * @return 0 on success
  */
-int tiz_pandora_play_audio_artist (tiz_pandora_t *ap_pandora,
+int tiz_pandora_play_artist (tiz_pandora_t *ap_pandora,
                                 const char *ap_artist_name);
 
 /**
- * Add all the audio streams of a Pandora playlist to the playback queue.
+ * Add all the streams of a Pandora playlist to the playback queue.
  *
  * After calling this method, the various tiz_pandora_get* methods can be
  * used to interact with the playback queue.
@@ -167,10 +167,10 @@ int tiz_pandora_play_audio_artist (tiz_pandora_t *ap_pandora,
  *
  * @return 0 on success
  */
-int tiz_pandora_play_audio_album (tiz_pandora_t *ap_pandora, const char *ap_album);
+int tiz_pandora_play_album (tiz_pandora_t *ap_pandora, const char *ap_album);
 
 /**
- * Add all the audio streams of a Pandora playlist to the playback queue.
+ * Add all the streams of a Pandora playlist to the playback queue.
  *
  * After calling this method, the various tiz_pandora_get* methods can be
  * used to interact with the playback queue.
@@ -182,7 +182,7 @@ int tiz_pandora_play_audio_album (tiz_pandora_t *ap_pandora, const char *ap_albu
  *
  * @return 0 on success
  */
-int tiz_pandora_play_audio_playlist (tiz_pandora_t *ap_pandora, const char *ap_playlist);
+int tiz_pandora_play_playlist (tiz_pandora_t *ap_pandora, const char *ap_playlist);
 
 /**
  * Retrieve the next stream url
@@ -219,85 +219,85 @@ const char *tiz_pandora_get_prev_url (tiz_pandora_t *ap_pandora,
                                    const bool a_remove_current_url);
 
 /**
- * Retrieve the current audio track's title.
+ * Retrieve the current track's title.
  *
  * @ingroup libtizpandora
  *
  * @param ap_pandora The tiz_pandora handle.
  */
-const char *tiz_pandora_get_current_audio_track_title (tiz_pandora_t *ap_pandora);
+const char *tiz_pandora_get_current_track_title (tiz_pandora_t *ap_pandora);
 
 /**
- * Retrieve the current audio track's artist.
+ * Retrieve the current track's artist.
  *
  * @ingroup libtizpandora
  *
  * @param ap_pandora The tiz_pandora handle.
  */
-const char *tiz_pandora_get_current_audio_track_artist (tiz_pandora_t *ap_pandora);
+const char *tiz_pandora_get_current_track_artist (tiz_pandora_t *ap_pandora);
 
 /**
- * Retrieve the current audio track's album.
+ * Retrieve the current track's album.
  *
  * @ingroup libtizpandora
  *
  * @param ap_pandora The tiz_pandora handle.
  */
-const char *tiz_pandora_get_current_audio_track_album (tiz_pandora_t *ap_pandora);
+const char *tiz_pandora_get_current_track_album (tiz_pandora_t *ap_pandora);
 
 /**
- * Retrieve the current audio track's publication year.
+ * Retrieve the current track's publication year.
  *
  * @ingroup libtizpandora
  *
  * @param ap_pandora The tiz_pandora handle.
  */
-const char *tiz_pandora_get_current_audio_track_year (tiz_pandora_t *ap_pandora);
+const char *tiz_pandora_get_current_track_year (tiz_pandora_t *ap_pandora);
 
 /**
- * Retrieve the current audio track's file size.
+ * Retrieve the current track's file size.
  *
  * @ingroup libtizpandora
  *
  * @param ap_pandora The tiz_pandora handle.
  */
-const char *tiz_pandora_get_current_audio_track_file_size (tiz_pandora_t *ap_pandora);
+const char *tiz_pandora_get_current_track_file_size (tiz_pandora_t *ap_pandora);
 
 /**
- * Retrieve the current audio track's file size (as int).
+ * Retrieve the current track's file size (as int).
  *
  * @ingroup libtizpandora
  *
  * @param ap_pandora The tiz_pandora handle.
  */
-int tiz_pandora_get_current_audio_track_file_size_as_int (tiz_pandora_t *ap_pandora);
+int tiz_pandora_get_current_track_file_size_as_int (tiz_pandora_t *ap_pandora);
 
 /**
- * Retrieve the current audio track's duration.
+ * Retrieve the current track's duration.
  *
  * @ingroup libtizpandora
  *
  * @param ap_pandora The tiz_pandora handle.
  */
-const char *tiz_pandora_get_current_audio_track_duration (tiz_pandora_t *ap_pandora);
+const char *tiz_pandora_get_current_track_duration (tiz_pandora_t *ap_pandora);
 
 /**
- * Retrieve the current audio track's bitrate.
+ * Retrieve the current track's bitrate.
  *
  * @ingroup libtizpandora
  *
  * @param ap_pandora The tiz_pandora handle.
  */
-const char *tiz_pandora_get_current_audio_track_bitrate (tiz_pandora_t *ap_pandora);
+const char *tiz_pandora_get_current_track_bitrate (tiz_pandora_t *ap_pandora);
 
 /**
- * Retrieve the current audio track's codec id.
+ * Retrieve the current track's codec id.
  *
  * @ingroup libtizpandora
  *
  * @param ap_pandora The tiz_pandora handle.
  */
-const char *tiz_pandora_get_current_audio_track_codec (tiz_pandora_t *ap_pandora);
+const char *tiz_pandora_get_current_track_codec (tiz_pandora_t *ap_pandora);
 
 /**
  * Retrieve the current track's album art.
@@ -306,7 +306,7 @@ const char *tiz_pandora_get_current_audio_track_codec (tiz_pandora_t *ap_pandora
  *
  * @param ap_pandora The pandora handle.
  */
-const char *tiz_pandora_get_current_audio_track_album_art (tiz_pandora_t *ap_pandora);
+const char *tiz_pandora_get_current_track_album_art (tiz_pandora_t *ap_pandora);
 
 /**
  * Destroy the tiz_pandora handle.

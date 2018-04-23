@@ -21,7 +21,7 @@
  * @file   tizpandora_c.cpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia - Simple Pandora audio client library (c wrapper)
+ * @brief  Tizonia - Simple Pandora client library (c wrapper)
  *
  */
 
@@ -107,12 +107,12 @@ extern "C" void tiz_pandora_clear_queue (tiz_pandora_t *ap_pandora)
   ap_pandora->p_proxy_->clear_queue ();
 }
 
-extern "C" const char *tiz_pandora_get_current_audio_track_index (
+extern "C" const char *tiz_pandora_get_current_track_index (
     tiz_pandora_t *ap_pandora)
 {
   assert (ap_pandora);
   assert (ap_pandora->p_proxy_);
-  return ap_pandora->p_proxy_->get_current_audio_track_index ();
+  return ap_pandora->p_proxy_->get_current_track_index ();
 }
 
 extern "C" const char *tiz_pandora_get_current_queue_length (tiz_pandora_t *ap_pandora)
@@ -138,36 +138,36 @@ extern "C" void tiz_pandora_set_playback_mode (tiz_pandora_t *ap_pandora,
       static_cast< tizpandora::playback_mode > (mode));
 }
 
-extern "C" int tiz_pandora_play_audio_tracks (tiz_pandora_t *ap_pandora,
+extern "C" int tiz_pandora_play_tracks (tiz_pandora_t *ap_pandora,
                                            const char *ap_tracks)
 {
   assert (ap_pandora);
   assert (ap_pandora->p_proxy_);
-  return ap_pandora->p_proxy_->play_audio_tracks (ap_tracks);
+  return ap_pandora->p_proxy_->play_tracks (ap_tracks);
 }
 
-extern "C" int tiz_pandora_play_audio_artist (tiz_pandora_t *ap_pandora,
+extern "C" int tiz_pandora_play_artist (tiz_pandora_t *ap_pandora,
                                            const char *ap_artist)
 {
   assert (ap_pandora);
   assert (ap_pandora->p_proxy_);
-  return ap_pandora->p_proxy_->play_audio_artist (ap_artist);
+  return ap_pandora->p_proxy_->play_artist (ap_artist);
 }
 
-extern "C" int tiz_pandora_play_audio_album (tiz_pandora_t *ap_pandora,
+extern "C" int tiz_pandora_play_album (tiz_pandora_t *ap_pandora,
                                           const char *ap_album)
 {
   assert (ap_pandora);
   assert (ap_pandora->p_proxy_);
-  return ap_pandora->p_proxy_->play_audio_album (ap_album);
+  return ap_pandora->p_proxy_->play_album (ap_album);
 }
 
-extern "C" int tiz_pandora_play_audio_playlist (tiz_pandora_t *ap_pandora,
+extern "C" int tiz_pandora_play_playlist (tiz_pandora_t *ap_pandora,
                                              const char *ap_url_or_id)
 {
   assert (ap_pandora);
   assert (ap_pandora->p_proxy_);
-  return ap_pandora->p_proxy_->play_audio_playlist (ap_url_or_id);
+  return ap_pandora->p_proxy_->play_playlist (ap_url_or_id);
 }
 
 extern "C" const char *tiz_pandora_get_next_url (tiz_pandora_t *ap_pandora,
@@ -186,84 +186,84 @@ extern "C" const char *tiz_pandora_get_prev_url (tiz_pandora_t *ap_pandora,
   return ap_pandora->p_proxy_->get_prev_url (a_remove_current_url);
 }
 
-extern "C" const char *tiz_pandora_get_current_audio_track_title (
+extern "C" const char *tiz_pandora_get_current_track_title (
     tiz_pandora_t *ap_pandora)
 {
   assert (ap_pandora);
   assert (ap_pandora->p_proxy_);
-  return ap_pandora->p_proxy_->get_current_audio_track_title ();
+  return ap_pandora->p_proxy_->get_current_track_title ();
 }
 
-extern "C" const char *tiz_pandora_get_current_audio_track_artist (
+extern "C" const char *tiz_pandora_get_current_track_artist (
     tiz_pandora_t *ap_pandora)
 {
   assert (ap_pandora);
   assert (ap_pandora->p_proxy_);
-  return ap_pandora->p_proxy_->get_current_audio_track_artist ();
+  return ap_pandora->p_proxy_->get_current_track_artist ();
 }
 
-extern "C" const char *tiz_pandora_get_current_audio_track_album (
+extern "C" const char *tiz_pandora_get_current_track_album (
     tiz_pandora_t *ap_pandora)
 {
   assert (ap_pandora);
   assert (ap_pandora->p_proxy_);
-  return ap_pandora->p_proxy_->get_current_audio_track_album ();
+  return ap_pandora->p_proxy_->get_current_track_album ();
 }
 
-extern "C" const char *tiz_pandora_get_current_audio_track_year (
+extern "C" const char *tiz_pandora_get_current_track_year (
     tiz_pandora_t *ap_pandora)
 {
   assert (ap_pandora);
   assert (ap_pandora->p_proxy_);
-  return ap_pandora->p_proxy_->get_current_audio_track_year ();
+  return ap_pandora->p_proxy_->get_current_track_year ();
 }
 
-extern "C" const char *tiz_pandora_get_current_audio_track_file_size (
+extern "C" const char *tiz_pandora_get_current_track_file_size (
     tiz_pandora_t *ap_pandora)
 {
   assert (ap_pandora);
   assert (ap_pandora->p_proxy_);
-  return ap_pandora->p_proxy_->get_current_audio_track_file_size ();
+  return ap_pandora->p_proxy_->get_current_track_file_size ();
 }
 
-extern "C" int tiz_pandora_get_current_audio_track_file_size_as_int (
+extern "C" int tiz_pandora_get_current_track_file_size_as_int (
     tiz_pandora_t *ap_pandora)
 {
   assert (ap_pandora);
   assert (ap_pandora->p_proxy_);
-  return ap_pandora->p_proxy_->get_current_audio_track_file_size_as_int ();
+  return ap_pandora->p_proxy_->get_current_track_file_size_as_int ();
 }
 
-extern "C" const char *tiz_pandora_get_current_audio_track_duration (
+extern "C" const char *tiz_pandora_get_current_track_duration (
     tiz_pandora_t *ap_pandora)
 {
   assert (ap_pandora);
   assert (ap_pandora->p_proxy_);
-  return ap_pandora->p_proxy_->get_current_audio_track_duration ();
+  return ap_pandora->p_proxy_->get_current_track_duration ();
 }
 
-extern "C" const char *tiz_pandora_get_current_audio_track_bitrate (
+extern "C" const char *tiz_pandora_get_current_track_bitrate (
     tiz_pandora_t *ap_pandora)
 {
   assert (ap_pandora);
   assert (ap_pandora->p_proxy_);
-  return ap_pandora->p_proxy_->get_current_audio_track_bitrate ();
+  return ap_pandora->p_proxy_->get_current_track_bitrate ();
 }
 
-extern "C" const char *tiz_pandora_get_current_audio_track_codec (
+extern "C" const char *tiz_pandora_get_current_track_codec (
     tiz_pandora_t *ap_pandora)
 {
   assert (ap_pandora);
   assert (ap_pandora->p_proxy_);
-  return ap_pandora->p_proxy_->get_current_audio_track_codec ();
+  return ap_pandora->p_proxy_->get_current_track_codec ();
 }
 
-extern "C" const char *tiz_pandora_get_current_audio_track_album_art (
+extern "C" const char *tiz_pandora_get_current_track_album_art (
     tiz_pandora_t *ap_pandora)
 {
   assert (ap_pandora);
   assert (ap_pandora->p_proxy_);
-  return ap_pandora->p_proxy_->get_current_audio_track_album_art ();
+  return ap_pandora->p_proxy_->get_current_track_album_art ();
 }
 
 extern "C" void tiz_pandora_destroy (tiz_pandora_t *ap_pandora)
