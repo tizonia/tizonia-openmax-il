@@ -37,6 +37,7 @@ for proj in "${TIZ_PYTHON_PROJECTS[@]}"; do
     cd $proj_dir
     mkdir tmp && mv *.deb tmp && cd tmp && ar -x *.deb && mkdir data && mv data.tar.xz data && mkdir control && mv control.tar.xz control \
         && cd data && tar xf data.tar.xz && rm data.tar.xz && tar zcvf data.tar.gz * && mv data.tar.gz ../ && cd ../ \
-        && cd control && tar xf control.tar.xz && rm control.tar.xz && tar zcvf control.tar.gz * && mv control.tar.gz ../ && cd ../
+        && cd control && tar xf control.tar.xz && rm control.tar.xz && tar zcvf control.tar.gz * && mv control.tar.gz ../ && cd ../ \
+        && rm *.xz
     ar r python-"$proj"_"$TIZONIA_RELEASE_VERSION"-1_all.deb debian-binary data.tar.gz control.tar.gz && mv *.deb ../ && cd ../ && rm -rf tmp
 done
