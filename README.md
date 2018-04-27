@@ -95,10 +95,10 @@ Debian-compatible system is by running the following command:
 
 ## Arch User Repository (AUR)
 
-> NOTE: AUR packages are a bit outdated (v0.12.0) due to some issues with some of Tizonia's AUR dependencies.
-
 - [tizonia-all (for the latest released version)](https://aur.archlinux.org/packages/tizonia-all/)
 - [tizonia-all-git (HEAD of master branch)](https://aur.archlinux.org/packages/tizonia-all-git/)
+
+> NOTE [24/03/2018]: AUR packages are now updated and tracking v0.14.0.
 
 ```bash
 

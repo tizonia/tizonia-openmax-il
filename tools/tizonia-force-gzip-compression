@@ -1,0 +1,32 @@
+#!/bin/bash
+#
+# Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#
+# Bintray does not support xz compression currently. This script patches Debian
+# rules files to force gzip compression of debian control.tar and data.tar
+# files. To be used during Ubuntu Bionic and Debian Buster releases.
+#
+
+TAB="$(printf '\t')"
+for file in $(find . -type f \( -path "./tools/*" -prune \) -o \( -name 'rules' \) -print); do
+tee -a $file << END
+
+override_dh_builddeb:
+${TAB}# Bintray does not support xz currently.
+${TAB}dh_builddeb -- -Zgzip
+END
+done
