@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -139,9 +139,9 @@ scloud_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
     {
       memcpy (&(p_obj->session_), ap_struct,
               sizeof (OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDSESSIONTYPE));
-      p_obj->session_.cUserName[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
-      p_obj->session_.cUserPassword[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
-      p_obj->session_.cUserOauthToken[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+      p_obj->session_.cUserName[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
+      p_obj->session_.cUserPassword[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
+      p_obj->session_.cUserOauthToken[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
       TIZ_TRACE (ap_hdl, "SoundCloud User's OAuth Token [%s]...",
                  p_obj->session_.cUserOauthToken);
     }
@@ -149,7 +149,7 @@ scloud_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
     {
       memcpy (&(p_obj->playlist_), ap_struct,
               sizeof (OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDPLAYLISTTYPE));
-      p_obj->playlist_.cPlaylistName[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+      p_obj->playlist_.cPlaylistName[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
       TIZ_TRACE (ap_hdl, "SoundCloud playlist [%s]...",
                  p_obj->playlist_.cPlaylistName);
     }

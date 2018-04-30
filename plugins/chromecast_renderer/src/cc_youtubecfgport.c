@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -134,14 +134,14 @@ cc_youtube_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
     {
       memcpy (&(p_obj->session_), ap_struct,
               sizeof (OMX_TIZONIA_AUDIO_PARAM_YOUTUBESESSIONTYPE));
-      p_obj->session_.cApiKey[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+      p_obj->session_.cApiKey[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
       TIZ_TRACE (ap_hdl, "Youtube Api Key [%s]...", p_obj->session_.cApiKey);
     }
   else if (OMX_TizoniaIndexParamAudioYoutubePlaylist == a_index)
     {
       memcpy (&(p_obj->playlist_), ap_struct,
               sizeof (OMX_TIZONIA_AUDIO_PARAM_YOUTUBEPLAYLISTTYPE));
-      p_obj->playlist_.cPlaylistName[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+      p_obj->playlist_.cPlaylistName[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
       TIZ_TRACE (ap_hdl, "Youtube playlist [%s]...",
                  p_obj->playlist_.cPlaylistName);
     }
@@ -173,10 +173,10 @@ cc_youtube_cfgport_class_ctor (void * ap_obj, va_list * app)
 void *
 cc_youtube_cfgport_class_init (void * ap_tos, void * ap_hdl)
 {
-  void * tizconfigport = tiz_get_type (ap_hdl, "tizconfigport");
+  void * cc_cfgport = tiz_get_type (ap_hdl, "cc_cfgport");
   void * cc_youtubecfgport_class
-    = factory_new (classOf (tizconfigport), "cc_youtubecfgport_class",
-                   classOf (tizconfigport), sizeof (cc_youtube_cfgport_class_t),
+    = factory_new (classOf (cc_cfgport), "cc_youtubecfgport_class",
+                   classOf (cc_cfgport), sizeof (cc_youtube_cfgport_class_t),
                    ap_tos, ap_hdl, ctor, cc_youtube_cfgport_class_ctor, 0);
   return cc_youtubecfgport_class;
 }
@@ -184,13 +184,13 @@ cc_youtube_cfgport_class_init (void * ap_tos, void * ap_hdl)
 void *
 cc_youtube_cfgport_init (void * ap_tos, void * ap_hdl)
 {
-  void * tizconfigport = tiz_get_type (ap_hdl, "tizconfigport");
+  void * cc_cfgport = tiz_get_type (ap_hdl, "cc_cfgport");
   void * cc_youtubecfgport_class
     = tiz_get_type (ap_hdl, "cc_youtubecfgport_class");
   TIZ_LOG_CLASS (cc_youtubecfgport_class);
   void * cc_youtubecfgport = factory_new
     /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-    (cc_youtubecfgport_class, "cc_youtubecfgport", tizconfigport,
+    (cc_youtubecfgport_class, "cc_youtubecfgport", cc_cfgport,
      sizeof (cc_youtube_cfgport_t),
      /* TIZ_CLASS_COMMENT: class constructor */
      ap_tos, ap_hdl,

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -113,6 +113,43 @@ tiz_sem_wait (tiz_sem_t * app_sem)
     }
 
   return OMX_ErrorNone;
+}
+
+OMX_ERRORTYPE
+tiz_sem_timedwait (tiz_sem_t * app_sem, OMX_U32 a_millis)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  sem_t * p_sem;
+  int error = 0;
+  OMX_U32 timeout_us;
+  struct timespec timeout;
+  struct timeval now;
+
+  assert (app_sem);
+  assert (*app_sem);
+
+  p_sem = *app_sem;
+
+  gettimeofday (&now, NULL);
+  timeout_us = now.tv_usec + 1000 * a_millis;
+  timeout.tv_sec = now.tv_sec + timeout_us / 1000000;
+  timeout.tv_nsec = (timeout_us % 1000000) * 1000;
+
+  if (SEM_SUCCESS != sem_timedwait (p_sem, &timeout))
+    {
+      if (ETIMEDOUT == error)
+        {
+          TIZ_LOG (TIZ_PRIORITY_NOTICE, "The wait time specified has passed");
+          rc = OMX_ErrorTimeout;
+        }
+      else
+        {
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "OMX_ErrorUndefined : %s", strerror (errno));
+          rc = OMX_ErrorUndefined;
+        }
+    }
+
+  return rc;
 }
 
 OMX_ERRORTYPE
@@ -364,6 +401,7 @@ OMX_ERRORTYPE
 tiz_cond_timedwait (tiz_cond_t * app_cond, tiz_mutex_t * app_mutex,
                     OMX_U32 a_millis)
 {
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
   pthread_cond_t * p_cond;
   pthread_mutex_t * p_mutex;
   int error = 0;
@@ -387,11 +425,20 @@ tiz_cond_timedwait (tiz_cond_t * app_cond, tiz_mutex_t * app_mutex,
   if (PTHREAD_SUCCESS
       != (error = pthread_cond_timedwait (p_cond, p_mutex, &timeout)))
     {
-      TIZ_LOG (TIZ_PRIORITY_ERROR, "OMX_ErrorUndefined : %s", strerror (error));
-      return OMX_ErrorUndefined;
+      if (ETIMEDOUT == error)
+        {
+          TIZ_LOG (TIZ_PRIORITY_NOTICE, "The wait time specified has passed");
+          rc = OMX_ErrorTimeout;
+        }
+      else
+        {
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "OMX_ErrorUndefined : %s",
+                   strerror (error));
+          rc = OMX_ErrorUndefined;
+        }
     }
 
-  return OMX_ErrorNone;
+  return rc;
 }
 
 OMX_ERRORTYPE

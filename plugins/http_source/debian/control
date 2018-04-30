@@ -9,7 +9,8 @@ Build-Depends: debhelper (>= 8.0.0),
                libtizgmusic-dev,
                libtizsoundcloud-dev,
                libtizdirble-dev,
-               libtizyoutube-dev
+               libtizyoutube-dev,
+               libtizplex-dev
 Standards-Version: 3.9.4
 Section: libs
 Homepage: http://tizonia.org
@@ -27,7 +28,8 @@ Depends: libtizhttpsrc0 (= ${binary:Version}),
          libtizgmusic-dev,
          libtizsoundcloud-dev,
          libtizdirble-dev,
-         libtizyoutube-dev
+         libtizyoutube-dev,
+         libtizplex-dev
 Description: Tizonia's OpenMAX IL HTTP audio source library, development files
  Tizonia's OpenMAX IL HTTP audio source library.
  .

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -68,15 +68,16 @@ void *tizrmproxy::register_client (
 
   tiz_uuid_str (&(uuid_vec[0]), uuid_str);
 
-  if (true == rv.second)
+  if (rv.second)
     {
 
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "'%s' : Registered with uuid [%s]...",
+      TIZ_LOG (TIZ_PRIORITY_NOTICE,
+               "'%s' : Successfully registered client with uuid [%s]...",
                ap_cname, uuid_str);
-      return (void *)&(rv.first->first);
+      return (void *) &(rv.first->first);
     }
 
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "Could not register client with uuid [%s]...",
+  TIZ_LOG (TIZ_PRIORITY_ERROR, "Unable to register the client with uuid [%s]...",
            uuid_str);
 
   return NULL;

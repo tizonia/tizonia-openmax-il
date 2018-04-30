@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -147,7 +147,8 @@ namespace tiz
         bmf::Row < tg::executing                , tg::skip_evt              , bmf::none               , bmf::ActionSequence_<
                                                                                                           boost::mpl::vector<
                                                                                                             tg::do_store_skip,
-                                                                                                            tg::do_skip> >          , bmf::none                    >,
+                                                                                                            tg::do_skip>
+                                                                                                          >                         , bmf::none                    >,
         bmf::Row < tg::executing                , tg::omx_eos_evt           , bmf::none               , tg::do_skip                 , tg::is_last_eos              >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < tg::exe2pause                , tg::omx_trans_evt         , tg::pause               , tg::do_ack_paused           , tg::is_trans_complete        >,
@@ -160,7 +161,7 @@ namespace tiz
                                                                                                             tg::do_pause2idle > >                                  >,
         bmf::Row < tg::pause                    , tg::unload_evt            , tg::pause2idle          , tg::do_pause2idle                                          >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
-        bmf::Row < tg::pause2exe                , tg::omx_trans_evt         , tg::executing           , tg::do_ack_unpaused         , tg::is_trans_complete        >,
+        bmf::Row < tg::pause2exe                , tg::omx_trans_evt         , tg::executing           , tg::do_ack_resumed         , tg::is_trans_complete        >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < tg::pause2idle               , tg::omx_trans_evt         , tg::idle2loaded         , tg::do_idle2loaded          , tg::is_trans_complete        >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
@@ -169,7 +170,7 @@ namespace tiz
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < tg::idle2loaded              , tg::omx_trans_evt         , tg::unloaded            , tg::do_destroy_graph        , tg::is_trans_complete        >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
-        bmf::Row < tg::AllOk                    , tg::unload_evt            , tg::unloaded            , bmf::none                                                  >,
+        bmf::Row < tg::AllOk                    , tg::omx_index_setting_evt , bmf::none               , tg::do_retrieve_metadata                                   >,
         bmf::Row < tg::AllOk                    , tg::omx_err_evt           , bmf::none               , bmf::none                   , bmf::euml::Not_<
                                                                                                                                         tg::is_fatal_error >       >,
         bmf::Row < tg::AllOk                    , tg::omx_err_evt           , tg::unloaded            , boost::msm::front::ActionSequence_<

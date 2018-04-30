@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -374,8 +374,6 @@ graph::spotifyops::set_channels_and_rate_on_renderer (
   tiz::graph::util::dump_graph_info (coding_type_str.c_str (),
                                      "Connected",
                                      playlist_->get_current_uri ().c_str ());
-  do_retrieve_metadata ();
-
   return OMX_ErrorNone;
 }
 
@@ -438,9 +436,10 @@ graph::spotifyops::is_fatal_error (const OMX_ERRORTYPE error) const
 
 void graph::spotifyops::do_record_fatal_error (const OMX_HANDLETYPE handle,
                                                const OMX_ERRORTYPE error,
-                                               const OMX_U32 port)
+                                               const OMX_U32 port,
+                                               const OMX_PTR p_eventdata /* = NULL */)
 {
-  tiz::graph::ops::do_record_fatal_error (handle, error, port);
+  tiz::graph::ops::do_record_fatal_error (handle, error, port, p_eventdata);
   if (error == OMX_ErrorContentURIError)
     {
       error_msg_.append ("\n [Playlist not found]");

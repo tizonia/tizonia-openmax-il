@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -140,11 +140,11 @@ httpr_mp3port_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
     {
       memcpy (&(p_obj->mountpoint_), ap_struct,
               sizeof (OMX_TIZONIA_ICECASTMOUNTPOINTTYPE));
-      p_obj->mountpoint_.cStationName[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+      p_obj->mountpoint_.cStationName[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
       p_obj->mountpoint_.cStationDescription[OMX_MAX_STRINGNAME_SIZE - 1]
-        = '\000';
-      p_obj->mountpoint_.cStationGenre[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
-      p_obj->mountpoint_.cStationUrl[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+        = '\0';
+      p_obj->mountpoint_.cStationGenre[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
+      p_obj->mountpoint_.cStationUrl[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
       TIZ_TRACE (ap_hdl, "Station Name [%s]...",
                  p_obj->mountpoint_.cStationName);
     }
@@ -194,12 +194,12 @@ httpr_mp3port_GetConfig (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
             {
               strncpy ((char *) p_metadata->cStreamTitle,
                        p_obj->p_stream_title_, stream_title_len);
-              p_metadata->cStreamTitle[stream_title_len] = '\000';
+              p_metadata->cStreamTitle[stream_title_len] = '\0';
             }
         }
       else
         {
-          p_metadata->cStreamTitle[0] = '\000';
+          p_metadata->cStreamTitle[0] = '\0';
         }
     }
   else
@@ -245,7 +245,7 @@ httpr_mp3port_SetConfig (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
             {
               strncpy (p_obj->p_stream_title_,
                        (char *) p_metadata->cStreamTitle, stream_title_len);
-              p_obj->p_stream_title_[stream_title_len] = '\000';
+              p_obj->p_stream_title_[stream_title_len] = '\0';
             }
 
           TIZ_TRACE (ap_hdl, "stream_title_len [%d] Stream title [%s]...",

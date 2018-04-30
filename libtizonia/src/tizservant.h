@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -98,6 +98,10 @@ tiz_srv_issue_event (const void * ap_obj, OMX_EVENTTYPE a_event,
 
 void
 tiz_srv_issue_err_event (const void * ap_obj, OMX_ERRORTYPE a_error);
+
+void
+tiz_srv_issue_err_event_with_data (const void * ap_obj, OMX_ERRORTYPE a_error,
+                                   OMX_STRING ap_msg);
 
 void
 tiz_srv_issue_cmd_event (const void * ap_obj, OMX_COMMANDTYPE a_cmd,

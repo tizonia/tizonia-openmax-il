@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -259,16 +259,16 @@ store_stream_metadata (mp3d_prc_t * ap_prc, struct mad_header * Header)
       (ap_prc->frame_.header.bitrate ? ap_prc->frame_.header.bitrate / 1000
                                      : 0),
       Header->samplerate);
-    info[99] = '\000';
+    info[99] = '\0';
     (void) store_metadata (ap_prc, "Audio Stream", info);
 
     snprintf (info, 99, "%s, %s CRC", Layer,
               Header->flags & MAD_FLAG_PROTECTION ? "with" : "w/o");
-    info[99] = '\000';
+    info[99] = '\0';
     (void) store_metadata (ap_prc, "MPEG Layer", info);
 
     snprintf (info, 99, "%s, %s emphasis", Mode, Emphasis);
-    info[99] = '\000';
+    info[99] = '\0';
     (void) store_metadata (ap_prc, "Mode", info);
   }
 

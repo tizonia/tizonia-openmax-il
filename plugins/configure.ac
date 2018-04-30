@@ -1,4 +1,4 @@
-# Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+# Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
 #
 # This file is part of Tizonia
 #
@@ -16,7 +16,7 @@
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
 AC_PREREQ([2.67])
-AC_INIT([tizonia-plugins], [0.11.0], [juan.rubio@aratelia.com])
+AC_INIT([tizonia-plugins], [0.14.0], [juan.rubio@aratelia.com])
 AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
 AC_CONFIG_SRCDIR([config.h.in])

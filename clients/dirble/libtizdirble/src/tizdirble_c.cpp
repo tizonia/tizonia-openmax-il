@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -193,6 +193,22 @@ extern "C" const char *tiz_dirble_get_current_station_website (
   assert (ap_dirble);
   assert (ap_dirble->p_proxy_);
   return ap_dirble->p_proxy_->get_current_station_website ();
+}
+
+extern "C" const char *tiz_dirble_get_current_station_stream_url (
+    tiz_dirble_t *ap_dirble)
+{
+  assert (ap_dirble);
+  assert (ap_dirble->p_proxy_);
+  return ap_dirble->p_proxy_->get_current_station_stream_url ();
+}
+
+extern "C" const char *tiz_dirble_get_current_station_bitrate (
+    tiz_dirble_t *ap_dirble)
+{
+  assert (ap_dirble);
+  assert (ap_dirble->p_proxy_);
+  return ap_dirble->p_proxy_->get_current_station_bitrate ();
 }
 
 extern "C" void tiz_dirble_destroy (tiz_dirble_t *ap_dirble)

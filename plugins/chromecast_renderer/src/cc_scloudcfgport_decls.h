@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -36,13 +36,13 @@ extern "C" {
 #include <OMX_Types.h>
 #include <OMX_TizoniaExt.h>
 
-#include <tizconfigport_decls.h>
+#include "cc_cfgport_decls.h"
 
 typedef struct cc_scloud_cfgport cc_scloud_cfgport_t;
 struct cc_scloud_cfgport
 {
   /* Object */
-  const tiz_configport_t _;
+  const cc_cfgport_t _;
   OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDSESSIONTYPE session_;
   OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDPLAYLISTTYPE playlist_;
 };
@@ -51,7 +51,7 @@ typedef struct cc_scloud_cfgport_class cc_scloud_cfgport_class_t;
 struct cc_scloud_cfgport_class
 {
   /* Class */
-  const tiz_configport_class_t _;
+  const cc_cfgport_class_t _;
   /* NOTE: Class methods might be added in the future */
 };
 

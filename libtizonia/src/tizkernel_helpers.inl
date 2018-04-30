@@ -1,6 +1,6 @@
 /* -*-Mode: c; -*- */
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -1062,7 +1062,7 @@ static OMX_ERRORTYPE init_rm (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
           return rc;
         }
 
-      comp_name[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+      comp_name[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
 
       primgmt.nSize = (OMX_U32)sizeof(OMX_PRIORITYMGMTTYPE);
       primgmt.nVersion.nVersion = OMX_VERSION;

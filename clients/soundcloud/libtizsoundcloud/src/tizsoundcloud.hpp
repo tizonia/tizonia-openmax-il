@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -76,6 +76,7 @@ public:
   const char * get_current_track_permalink ();
   const char * get_current_track_license ();
   const char * get_current_track_likes ();
+  const char * get_current_track_user_avatar ();
 
 private:
   int get_current_track ();
@@ -90,6 +91,7 @@ private:
   std::string current_track_permalink_;
   std::string current_track_license_;
   std::string current_track_likes_;
+  std::string current_track_user_avatar_;
   boost::python::object py_main_;
   boost::python::object py_global_;
   boost::python::object py_gm_proxy_;

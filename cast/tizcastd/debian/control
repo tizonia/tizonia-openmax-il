@@ -1,0 +1,42 @@
+Source: tizcastd
+Section: sound
+Priority: optional
+Maintainer: Juan A. Rubio <juan.rubio@aratelia.com>
+Build-Depends: debhelper (>= 8.0.0),
+               dh-autoreconf,
+               libtizdbus-c++-dev,
+               tizilheaders,
+               libtizplatform-dev,
+               libdbus-1-dev
+Standards-Version: 3.9.4
+Homepage: http://tizonia.org
+Vcs-Git: git://github.com/tizonia/tizonia-openmax-il.git
+Vcs-Browser: https://github.com/tizonia/tizonia-openmax-il
+
+Package: tizcastd
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Tizonia's Chromecast management daemon
+ A daemon server to interface with Chromecast devices.
+
+Package: tizcastd-dbg
+Section: debug
+Priority: extra
+Architecture: any
+Depends: tizcastd (= ${binary:Version}), ${misc:Depends}
+Description: Tizonia's Chromecast management daemon
+ A daemon server to interface with Chromecast devices.
+ .
+ This package contains the debugging symbols.
+
+Package: tizcastd-dev
+Section: libdevel
+Architecture: any
+Depends: tizcastd (= ${binary:Version}),
+         tizilheaders,
+         libtizplatform-dev,
+         libtizdbus-c++-dev
+Description: Tizonia's Chromecast manager, development files
+ Tizonia's Chromecast management daemon.
+ .
+ This package contains the development headers.

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -42,6 +42,7 @@ extern "C" {
 #define ARATELIA_SCLOUD_SOURCE_DEFAULT_ROLE "audio_source.http.scloud"
 #define ARATELIA_DIRBLE_SOURCE_DEFAULT_ROLE "audio_source.http.dirble"
 #define ARATELIA_YOUTUBE_SOURCE_DEFAULT_ROLE "audio_source.http.youtube"
+#define ARATELIA_PLEX_SOURCE_DEFAULT_ROLE "audio_source.http.plex"
 #define ARATELIA_HTTP_SOURCE_COMPONENT_NAME "OMX.Aratelia.audio_source.http"
 /* With libtizonia, port indexes must start at index 0 */
 #define ARATELIA_HTTP_SOURCE_PORT_INDEX 0
@@ -55,7 +56,7 @@ extern "C" {
 #define ARATELIA_HTTP_SOURCE_DEFAULT_VOLUME_VALUE 75
 #define ARATELIA_HTTP_SOURCE_DEFAULT_RECONNECT_TIMEOUT 3.0F
 #define ARATELIA_HTTP_SOURCE_DEFAULT_BIT_RATE_KBITS 128
-#define ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS 10
+#define ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS 20
 
 #ifdef __cplusplus
 }

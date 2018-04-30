@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -76,7 +76,7 @@ START_TEST (test_chromecast)
     }
 
   fprintf (stderr, "\n\n\ntest_chromecast:load [%d] = before \n", pid);
-  rc = tiz_chromecast_load (p_chromecast, URL, CONTENT_TYPE, TITLE);
+  rc = tiz_chromecast_load_url (p_chromecast, URL, CONTENT_TYPE, TITLE);
   fprintf (stderr, "test_chromecast:load [%d] = %d \n", pid, rc);
   ck_assert (0 == rc);
 

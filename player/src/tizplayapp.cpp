@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -29,22 +29,27 @@
 #include <config.h>
 #endif
 
-#include <sys/types.h>
-#include <netinet/in.h>
 #include <arpa/inet.h>
-#include <net/if.h>
-#include <ifaddrs.h>
 #include <errno.h>
+#include <ifaddrs.h>
+#include <limits.h>
+#include <net/if.h>
 #include <netdb.h>
+#include <netinet/in.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 #include <termios.h>
 #include <unistd.h>
-#include <limits.h>
+#include <string.h>
+
+#include <cstdlib>
 
 #include <boost/algorithm/string/join.hpp>
+#include <boost/system/error_code.hpp>
+#include <boost/filesystem.hpp>
 #include <boost/foreach.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/version.hpp>
@@ -75,6 +80,8 @@
 #include <services/spotify/tizspotifyconfig.hpp>
 #include <services/spotify/tizspotifymgr.hpp>
 #endif
+#include <services/plex/tizplexconfig.hpp>
+#include <services/plex/tizplexmgr.hpp>
 #include <services/youtube/tizyoutubeconfig.hpp>
 #include <services/youtube/tizyoutubemgr.hpp>
 
@@ -85,6 +92,8 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.play.app"
 #endif
 
+namespace bf = boost::filesystem;
+
 #define APP_NAME "tizonia"
 
 namespace
@@ -92,7 +101,7 @@ namespace
   const int TIZ_MAX_BITRATE_MODES = 2;
   bool gb_daemon_mode = false;
   bool gb_termios_inited = false;
-  struct termios old_term = (const struct termios) { 0 };
+  struct termios old_term = (const struct termios){ 0 };
   struct termios new_term;
 
   enum ETIZPlayUserInput
@@ -117,10 +126,10 @@ namespace
   void player_reset_termios (void)
   {
     if (gb_termios_inited)
-      {
-        gb_termios_inited = false;
-        tcsetattr (0, TCSANOW, &old_term);
-      }
+    {
+      gb_termios_inited = false;
+      tcsetattr (0, TCSANOW, &old_term);
+    }
   }
 
   char getch_ (int echo)
@@ -158,7 +167,7 @@ namespace
 
   void player_sig_term_hdlr (int sig)
   {
-    TIZ_PRINTF_BLU ("\n%s exiting (Ctrl-C).\n", APP_NAME);
+    TIZ_PRINTF_BLU ("\n\n%s exiting (Ctrl-C).\n", APP_NAME);
     player_exit_success ();
   }
 
@@ -167,9 +176,8 @@ namespace
     raise (SIGSTOP);
   }
 
-  bool get_host_name_and_ip (std::string &host_name,
-                               std::string &ip_address,
-                               std::string &error_msg)
+  bool get_host_name_and_ip (std::string &host_name, std::string &ip_address,
+                             std::string &error_msg)
   {
     bool outcome = true;  // we'll assume everything will be OK, or else,
                           // early-return in case it is not.
@@ -364,7 +372,7 @@ namespace
       }
       else
       {
-        TIZ_PRINTF_BLU ("\n%s exiting (Quit).\n\n", APP_NAME);
+        TIZ_PRINTF_BLU ("\n\n%s exiting (Quit).\n\n", APP_NAME);
         player_exit_success ();
       }
     }
@@ -383,8 +391,90 @@ tiz::playapp::~playapp ()
 
 int tiz::playapp::run ()
 {
+  check_or_create_config_file ();
   set_option_handlers ();
   return popts_.consume ();
+}
+
+void tiz::playapp::check_or_create_config_file ()
+{
+  const std::string home_dir (std::getenv ("HOME"));
+  if (!home_dir.empty ())
+  {
+    const std::string home_conf_dir (home_dir + "/.config/tizonia");
+    const std::string home_conf_file (home_conf_dir + "/tizonia.conf");
+
+    if (!bf::exists (home_conf_file))
+    {
+      // Canonical locations of tizonia.conf
+      const std::string etc_conf_file ("/etc/tizonia/tizonia.conf"); // OLD location
+      const std::string etc_xdg_conf_file ("/etc/xdg/tizonia/tizonia.conf"); // NEW location
+
+      // STEP 1: Create $HOME/.config/tizonia, if it doesn't exist
+      if (!bf::exists (home_conf_dir))
+      {
+        boost::system::error_code ec;
+        bf::create_directories (home_conf_dir, ec);
+        if (ec.value () != 0)
+          {
+            // Oops... if we can't create the home config dire, then we have no
+            // business to do here. EARLY RETURN!!
+            return;
+          }
+      }
+
+      // STEP 2: See if tizonia.conf can be found under the SNAP directory
+      const char *p_snap_env = std::getenv ("SNAP");
+      if (p_snap_env)
+      {
+        const std::string snap_dir (p_snap_env);
+        if (!snap_dir.empty ())
+        {
+          const std::string snap_conf_file_path (snap_dir + etc_xdg_conf_file);
+          boost::system::error_code ec;
+          bf::copy_file (snap_conf_file_path, home_conf_file, ec);
+        }
+      }
+
+      // STEP 3: See if we can find tizonia.conf under one of $XDG_CONFIG_DIRS
+      if (!bf::exists (home_conf_file))
+      {
+        char *p_env_str = std::getenv ("XDG_CONFIG_DIRS");
+        if (p_env_str)
+        {
+          char *pch = NULL;
+          pch = strtok (p_env_str, ":");
+          while (pch != NULL && !bf::exists (home_conf_file))
+          {
+            boost::system::error_code ec;
+            std::string xdg_file(pch);
+            xdg_file.append(etc_xdg_conf_file);
+            printf ("xdg_file : %s\n", xdg_file.c_str());
+            bf::copy_file (xdg_file, home_conf_file, ec);
+            if (ec.value () == 0)
+            {
+              break;
+            }
+            pch = strtok (NULL, ":");
+          }
+        }
+      }
+
+      // STEP 4: Try to find tizonia.conf under /etc/xdg
+      if (!bf::exists (home_conf_file))
+      {
+        boost::system::error_code ec;
+        bf::copy_file (etc_xdg_conf_file, home_conf_file, ec);
+      }
+
+      // STEP 5: Last chance. Try to find tizonia.conf under /etc
+      if (!bf::exists (home_conf_file))
+      {
+        boost::system::error_code ec;
+        bf::copy_file (etc_conf_file, home_conf_file, ec);
+      }
+    }  // if (!bf::exists (home_conf_file))
+  }    // if (!home_dir.empty())
 }
 
 void tiz::playapp::set_option_handlers ()
@@ -422,13 +512,36 @@ void tiz::playapp::set_option_handlers ()
   // Dirble internet radio directory streaming client program options
   popts_.set_option_handler ("dirble-stream",
                              boost::bind (&tiz::playapp::dirble_stream, this));
-  // Youtube audio streaming client program options
+  // YouTube audio streaming client program options
   popts_.set_option_handler ("youtube-stream",
                              boost::bind (&tiz::playapp::youtube_stream, this));
+  // Plex audio streaming client program options
+  popts_.set_option_handler ("plex-stream",
+                             boost::bind (&tiz::playapp::plex_stream, this));
+  // HTTP music streaming on Chromecast device
+  popts_.set_option_handler (
+      "http-stream-chromecast",
+      boost::bind (&tiz::playapp::http_stream_chromecast, this));
   // Google music streaming on Chromecast device
   popts_.set_option_handler (
       "gmusic-stream-chromecast",
       boost::bind (&tiz::playapp::gmusic_stream_chromecast, this));
+  // Soudcloud audio streaming on Chromecast device
+  popts_.set_option_handler (
+      "scloud-stream-chromecast",
+      boost::bind (&tiz::playapp::scloud_stream_chromecast, this));
+  // Dirble audio streaming on Chromecast device
+  popts_.set_option_handler (
+      "dirble-stream-chromecast",
+      boost::bind (&tiz::playapp::dirble_stream_chromecast, this));
+  // YouTube audio streaming on Chromecast device
+  popts_.set_option_handler (
+      "youtube-stream-chromecast",
+      boost::bind (&tiz::playapp::youtube_stream_chromecast, this));
+  // Plex audio streaming on Chromecast device
+  popts_.set_option_handler (
+      "plex-stream-chromecast",
+      boost::bind (&tiz::playapp::plex_stream_chromecast, this));
 }
 
 OMX_ERRORTYPE
@@ -691,25 +804,24 @@ tiz::playapp::serve_stream ()
   (void)daemonize_if_requested ();
 
   // Retrieve the hostname and ip address
-  if (!get_host_name_and_ip(hostname, ip_address, error_msg))
-    {
-      TIZ_PRINTF_RED ("%s.\n", error_msg.c_str ());
-      player_exit_failure ();
-    }
+  if (!get_host_name_and_ip (hostname, ip_address, error_msg))
+  {
+    TIZ_PRINTF_RED ("%s.\n", error_msg.c_str ());
+    player_exit_failure ();
+  }
 
-    fprintf (stdout,
-             "[%s]: Server streaming on http://%s:%ld\n",
-             station_name.c_str (), hostname.c_str (), port);
+  fprintf (stdout, "[%s]: Server streaming on http://%s:%ld\n",
+           station_name.c_str (), hostname.c_str (), port);
 
-    fprintf (stdout, "[%s]: Streaming media with sampling rates [%s].\n",
-             station_name.c_str (),
-             sampling_rates.empty () ? "ANY" : sampling_rates.c_str ());
+  fprintf (stdout, "[%s]: Streaming media with sampling rates [%s].\n",
+           station_name.c_str (),
+           sampling_rates.empty () ? "ANY" : sampling_rates.c_str ());
 
-    if (!bitrate_list.empty () || bitrate_list.size () == TIZ_MAX_BITRATE_MODES)
-    {
-      fprintf (stdout, "[%s]: Streaming media with bitrate modes [%s].\n",
-               station_name.c_str (), bitrates.c_str ());
-    }
+  if (!bitrate_list.empty () || bitrate_list.size () == TIZ_MAX_BITRATE_MODES)
+  {
+    fprintf (stdout, "[%s]: Streaming media with bitrate modes [%s].\n",
+             station_name.c_str (), bitrates.c_str ());
+  }
   fprintf (stdout, "\n");
 
   tizplaylist_ptr_t playlist
@@ -1021,6 +1133,92 @@ tiz::playapp::youtube_stream ()
 }
 
 OMX_ERRORTYPE
+tiz::playapp::plex_stream ()
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  const bool shuffle = popts_.shuffle ();
+  const std::string base_url (popts_.plex_base_url ());
+  const std::string token (popts_.plex_token ());
+  const uri_lst_t &uri_list = popts_.plex_playlist_container ();
+  const OMX_TIZONIA_AUDIO_PLEXPLAYLISTTYPE playlist_type
+      = popts_.plex_playlist_type ();
+
+  print_banner ();
+
+  // daemon support
+  (void)daemonize_if_requested ();
+
+  tizplaylist_ptr_t playlist
+      = boost::make_shared< tiz::playlist > (tiz::playlist (uri_list, shuffle));
+
+  assert (playlist);
+  playlist->set_loop_playback (true);
+
+  tizgraphconfig_ptr_t config = boost::make_shared< tiz::graph::plexconfig > (
+      playlist, base_url, token, playlist_type);
+
+  // Instantiate the streaming client manager
+  tiz::graphmgr::mgr_ptr_t p_mgr
+      = boost::make_shared< tiz::graphmgr::plexmgr > (config);
+
+  // TODO: Check return codes
+  p_mgr->init (playlist, graphmgr_termination_cback ());
+  p_mgr->start ();
+
+  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr))
+  {
+  }
+
+  p_mgr->quit ();
+  p_mgr->deinit ();
+
+  return rc;
+}
+
+OMX_ERRORTYPE
+tiz::playapp::http_stream_chromecast ()
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  const bool shuffle = popts_.shuffle ();
+  const uri_lst_t &uri_list = popts_.uri_list ();
+  const std::string cc_name_or_ip (popts_.chromecast_name_or_ip ());
+
+  (void)daemonize_if_requested ();
+  print_banner ();
+
+  tizplaylist_ptr_t playlist
+      = boost::make_shared< tiz::playlist > (tiz::playlist (uri_list, shuffle));
+
+  assert (playlist);
+  playlist->set_loop_playback (true);
+
+  tizgraphconfig_ptr_t service_config
+      = boost::make_shared< tiz::graph::config > (playlist);
+
+  tizgraphconfig_ptr_t config
+      = boost::make_shared< tiz::graph::chromecastconfig > (
+          cc_name_or_ip, service_config,
+          tiz::graph::chromecastconfig::ConfigHttpStreaming);
+
+  // Instantiate the chromecast client manager
+  tiz::graphmgr::mgr_ptr_t p_mgr
+      = boost::make_shared< tiz::graphmgr::chromecastmgr > (config);
+
+  // TODO: Check return codes
+  p_mgr->init (playlist, graphmgr_termination_cback ());
+  p_mgr->start ();
+
+  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr))
+  {
+  }
+
+  p_mgr->quit ();
+  p_mgr->deinit ();
+
+  return rc;
+}
+
+OMX_ERRORTYPE
 tiz::playapp::gmusic_stream_chromecast ()
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
@@ -1032,7 +1230,7 @@ tiz::playapp::gmusic_stream_chromecast ()
   const OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE playlist_type
       = popts_.gmusic_playlist_type ();
   const bool is_unlimited_search = popts_.gmusic_is_unlimited_search ();
-  const std::string cc_name_or_ip (popts_.chromecast ());
+  const std::string cc_name_or_ip (popts_.chromecast_name_or_ip ());
 
   print_banner ();
 
@@ -1059,9 +1257,205 @@ tiz::playapp::gmusic_stream_chromecast ()
           playlist, user, pass, device_id, playlist_type, is_unlimited_search);
 
   tizgraphconfig_ptr_t config
-      = boost::make_shared< tiz::graph::chromecastconfig > (cc_name_or_ip,
-                                                            service_config,
-                                                            tiz::graph::chromecastconfig::ConfigGoogleMusic);
+      = boost::make_shared< tiz::graph::chromecastconfig > (
+          cc_name_or_ip, service_config,
+          tiz::graph::chromecastconfig::ConfigGoogleMusic);
+
+  // Instantiate the chromecast client manager
+  tiz::graphmgr::mgr_ptr_t p_mgr
+      = boost::make_shared< tiz::graphmgr::chromecastmgr > (config);
+
+  // TODO: Check return codes
+  p_mgr->init (playlist, graphmgr_termination_cback ());
+  p_mgr->start ();
+
+  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr))
+  {
+  }
+
+  p_mgr->quit ();
+  p_mgr->deinit ();
+
+  return rc;
+}
+
+OMX_ERRORTYPE
+tiz::playapp::scloud_stream_chromecast ()
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  const bool shuffle = popts_.shuffle ();
+  const std::string token (popts_.scloud_oauth_token ());
+  const uri_lst_t &uri_list = popts_.scloud_playlist_container ();
+  const OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE playlist_type
+      = popts_.scloud_playlist_type ();
+  const std::string cc_name_or_ip (popts_.chromecast_name_or_ip ());
+
+  print_banner ();
+
+  // daemon support
+  (void)daemonize_if_requested ();
+
+  tizplaylist_ptr_t playlist
+      = boost::make_shared< tiz::playlist > (tiz::playlist (uri_list, shuffle));
+
+  assert (playlist);
+  playlist->set_loop_playback (true);
+
+  tizgraphconfig_ptr_t service_config
+      = boost::make_shared< tiz::graph::scloudconfig > (playlist, token,
+                                                        playlist_type);
+
+  tizgraphconfig_ptr_t config
+      = boost::make_shared< tiz::graph::chromecastconfig > (
+          cc_name_or_ip, service_config,
+          tiz::graph::chromecastconfig::ConfigSoundCloud);
+
+  // Instantiate the chromecast client manager
+  tiz::graphmgr::mgr_ptr_t p_mgr
+      = boost::make_shared< tiz::graphmgr::chromecastmgr > (config);
+
+  // TODO: Check return codes
+  p_mgr->init (playlist, graphmgr_termination_cback ());
+  p_mgr->start ();
+
+  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr))
+  {
+  }
+
+  p_mgr->quit ();
+  p_mgr->deinit ();
+
+  return rc;
+}
+
+OMX_ERRORTYPE
+tiz::playapp::dirble_stream_chromecast ()
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  const bool shuffle = popts_.shuffle ();
+  const std::string api_key (popts_.dirble_api_key ());
+  const uri_lst_t &uri_list = popts_.dirble_playlist_container ();
+  const OMX_TIZONIA_AUDIO_DIRBLEPLAYLISTTYPE playlist_type
+      = popts_.dirble_playlist_type ();
+  const std::string cc_name_or_ip (popts_.chromecast_name_or_ip ());
+
+  print_banner ();
+
+  // daemon support
+  (void)daemonize_if_requested ();
+
+  tizplaylist_ptr_t playlist
+      = boost::make_shared< tiz::playlist > (tiz::playlist (uri_list, shuffle));
+
+  assert (playlist);
+  playlist->set_loop_playback (true);
+
+  tizgraphconfig_ptr_t service_config
+      = boost::make_shared< tiz::graph::dirbleconfig > (playlist, api_key,
+                                                        playlist_type);
+
+  tizgraphconfig_ptr_t config
+      = boost::make_shared< tiz::graph::chromecastconfig > (
+          cc_name_or_ip, service_config,
+          tiz::graph::chromecastconfig::ConfigDirble);
+
+  // Instantiate the chromecast client manager
+  tiz::graphmgr::mgr_ptr_t p_mgr
+      = boost::make_shared< tiz::graphmgr::chromecastmgr > (config);
+
+  // TODO: Check return codes
+  p_mgr->init (playlist, graphmgr_termination_cback ());
+  p_mgr->start ();
+
+  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr))
+  {
+  }
+
+  p_mgr->quit ();
+  p_mgr->deinit ();
+
+  return rc;
+}
+
+OMX_ERRORTYPE
+tiz::playapp::youtube_stream_chromecast ()
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  const bool shuffle = popts_.shuffle ();
+  const std::string cc_name_or_ip (popts_.chromecast_name_or_ip ());
+  const uri_lst_t &uri_list = popts_.youtube_playlist_container ();
+  const OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE playlist_type
+      = popts_.youtube_playlist_type ();
+
+  print_banner ();
+
+  // daemon support
+  (void)daemonize_if_requested ();
+
+  tizplaylist_ptr_t playlist
+      = boost::make_shared< tiz::playlist > (tiz::playlist (uri_list, shuffle));
+
+  assert (playlist);
+  playlist->set_loop_playback (true);
+
+  tizgraphconfig_ptr_t service_config
+      = boost::make_shared< tiz::graph::youtubeconfig > (playlist,
+                                                         playlist_type);
+
+  tizgraphconfig_ptr_t config
+      = boost::make_shared< tiz::graph::chromecastconfig > (
+          cc_name_or_ip, service_config,
+          tiz::graph::chromecastconfig::ConfigYouTube);
+
+  // Instantiate the chromecast client manager
+  tiz::graphmgr::mgr_ptr_t p_mgr
+      = boost::make_shared< tiz::graphmgr::chromecastmgr > (config);
+
+  // TODO: Check return codes
+  p_mgr->init (playlist, graphmgr_termination_cback ());
+  p_mgr->start ();
+
+  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr))
+  {
+  }
+
+  p_mgr->quit ();
+  p_mgr->deinit ();
+
+  return rc;
+}
+
+OMX_ERRORTYPE
+tiz::playapp::plex_stream_chromecast ()
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  const bool shuffle = popts_.shuffle ();
+  const std::string base_url (popts_.plex_base_url ());
+  const std::string token (popts_.plex_token ());
+  const uri_lst_t &uri_list = popts_.plex_playlist_container ();
+  const OMX_TIZONIA_AUDIO_PLEXPLAYLISTTYPE playlist_type
+      = popts_.plex_playlist_type ();
+  const std::string cc_name_or_ip (popts_.chromecast_name_or_ip ());
+
+  print_banner ();
+
+  // daemon support
+  (void)daemonize_if_requested ();
+
+  tizplaylist_ptr_t playlist
+      = boost::make_shared< tiz::playlist > (tiz::playlist (uri_list, shuffle));
+
+  assert (playlist);
+  playlist->set_loop_playback (true);
+
+  tizgraphconfig_ptr_t service_config
+      = boost::make_shared< tiz::graph::plexconfig > (playlist, base_url, token,
+                                                      playlist_type);
+
+  tizgraphconfig_ptr_t config
+      = boost::make_shared< tiz::graph::chromecastconfig > (
+          cc_name_or_ip, service_config,
+          tiz::graph::chromecastconfig::ConfigPlex);
 
   // Instantiate the chromecast client manager
   tiz::graphmgr::mgr_ptr_t p_mgr

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -139,9 +139,9 @@ cc_scloud_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
     {
       memcpy (&(p_obj->session_), ap_struct,
               sizeof (OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDSESSIONTYPE));
-      p_obj->session_.cUserName[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
-      p_obj->session_.cUserPassword[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
-      p_obj->session_.cUserOauthToken[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+      p_obj->session_.cUserName[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
+      p_obj->session_.cUserPassword[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
+      p_obj->session_.cUserOauthToken[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
       TIZ_TRACE (ap_hdl, "SoundCloud User's OAuth Token [%s]...",
                  p_obj->session_.cUserOauthToken);
     }
@@ -149,7 +149,7 @@ cc_scloud_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
     {
       memcpy (&(p_obj->playlist_), ap_struct,
               sizeof (OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDPLAYLISTTYPE));
-      p_obj->playlist_.cPlaylistName[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+      p_obj->playlist_.cPlaylistName[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
       TIZ_TRACE (ap_hdl, "SoundCloud playlist [%s]...",
                  p_obj->playlist_.cPlaylistName);
     }
@@ -181,10 +181,10 @@ cc_scloud_cfgport_class_ctor (void * ap_obj, va_list * app)
 void *
 cc_scloud_cfgport_class_init (void * ap_tos, void * ap_hdl)
 {
-  void * tizconfigport = tiz_get_type (ap_hdl, "tizconfigport");
+  void * cc_cfgport = tiz_get_type (ap_hdl, "cc_cfgport");
   void * cc_scloudcfgport_class
-    = factory_new (classOf (tizconfigport), "cc_scloudcfgport_class",
-                   classOf (tizconfigport), sizeof (cc_scloud_cfgport_class_t),
+    = factory_new (classOf (cc_cfgport), "cc_scloudcfgport_class",
+                   classOf (cc_cfgport), sizeof (cc_scloud_cfgport_class_t),
                    ap_tos, ap_hdl, ctor, cc_scloud_cfgport_class_ctor, 0);
   return cc_scloudcfgport_class;
 }
@@ -192,13 +192,13 @@ cc_scloud_cfgport_class_init (void * ap_tos, void * ap_hdl)
 void *
 cc_scloud_cfgport_init (void * ap_tos, void * ap_hdl)
 {
-  void * tizconfigport = tiz_get_type (ap_hdl, "tizconfigport");
+  void * cc_cfgport = tiz_get_type (ap_hdl, "cc_cfgport");
   void * cc_scloudcfgport_class
     = tiz_get_type (ap_hdl, "cc_scloudcfgport_class");
   TIZ_LOG_CLASS (cc_scloudcfgport_class);
   void * cc_scloudcfgport = factory_new
     /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-    (cc_scloudcfgport_class, "cc_scloudcfgport", tizconfigport,
+    (cc_scloudcfgport_class, "cc_scloudcfgport", cc_cfgport,
      sizeof (cc_scloud_cfgport_t),
      /* TIZ_CLASS_COMMENT: class constructor */
      ap_tos, ap_hdl,

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -111,6 +111,7 @@ struct tiz_srv_class
                        OMX_U32 a_data1, OMX_U32 a_data2,
                        /*@null@*/ OMX_PTR ap_eventdata);
   void (*issue_err_event) (const void * ap_obj, OMX_ERRORTYPE a_error);
+  void (*issue_err_event_with_data) (const void * ap_obj, OMX_ERRORTYPE a_error, OMX_STRING ap_msg);
   void (*issue_cmd_event) (const void * ap_obj, OMX_COMMANDTYPE a_cmd,
                            OMX_U32 a_pid, OMX_ERRORTYPE a_error);
   void (*issue_trans_event) (const void * ap_obj, OMX_STATETYPE a_state,

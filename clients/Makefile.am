@@ -1,4 +1,4 @@
-# Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+# Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
 #
 # This file is part of Tizonia
 #
@@ -15,4 +15,4 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-SUBDIRS = gmusic soundcloud dirble youtube chromecast
+SUBDIRS = gmusic soundcloud dirble youtube plex chromecast

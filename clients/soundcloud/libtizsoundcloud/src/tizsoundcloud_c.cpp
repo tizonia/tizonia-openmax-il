@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -247,6 +247,14 @@ extern "C" const char *tiz_scloud_get_current_track_likes (
   assert (ap_scloud);
   assert (ap_scloud->p_proxy_);
   return ap_scloud->p_proxy_->get_current_track_likes ();
+}
+
+extern "C" const char *tiz_scloud_get_current_track_user_avatar (
+    tiz_scloud_t *ap_scloud)
+{
+  assert (ap_scloud);
+  assert (ap_scloud->p_proxy_);
+  return ap_scloud->p_proxy_->get_current_track_user_avatar ();
 }
 
 extern "C" void tiz_scloud_destroy (tiz_scloud_t *ap_scloud)

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -506,7 +506,8 @@ namespace tiz
                     ::updating_graph_exit>      , tg::graph_updated_evt     , tg::executing           , bmf::ActionSequence_<
                                                                                                           boost::mpl::vector<
                                                                                                             tg::do_retrieve_metadata,
-                                                                                                            tg::do_ack_execd> >     , tg::last_op_succeeded        >,
+                                                                                                            tg::do_ack_execd,
+                                                                                                            tg::do_start_progress_display> >     , tg::last_op_succeeded        >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < tg::executing                , tg::omx_err_evt           , tg::exe2idle            , bmf::ActionSequence_<
                                                                                                           boost::mpl::vector<
@@ -524,8 +525,13 @@ namespace tiz
         bmf::Row < tg::executing                , tg::omx_err_evt           , skipping                , bmf::none                   , tg::is_error<OMX_ErrorFormatNotDetected> >,
         bmf::Row < tg::executing                , tg::skip_evt              , skipping                , tg::do_store_skip           , bmf::none                    >,
         bmf::Row < tg::executing                , tg::omx_eos_evt           , skipping                , bmf::none                   , tg::is_last_eos              >,
+        bmf::Row < tg::executing                , tg::timer_evt             , bmf::none               , tg::do_increase_progress_display                           >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
-        bmf::Row < tg::exe2pause                , tg::omx_trans_evt         , tg::pause               , tg::do_ack_paused           , tg::is_trans_complete        >,
+        bmf::Row < tg::exe2pause                , tg::omx_trans_evt         , tg::pause               , bmf::ActionSequence_<
+                                                                                                          boost::mpl::vector<
+                                                                                                            tg::do_ack_paused,
+                                                                                                            tg::do_pause_progress_display >
+                                                                                                          >                         , tg::is_trans_complete        >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < tg::pause                    , tg::execute_evt           , tg::pause2exe           , tg::do_pause2exe                                           >,
         bmf::Row < tg::pause                    , tg::pause_evt             , tg::pause2exe           , tg::do_pause2exe                                           >,
@@ -535,7 +541,11 @@ namespace tiz
                                                                                                             tg::do_pause2idle > >                                  >,
         bmf::Row < tg::pause                    , tg::unload_evt            , tg::pause2idle          , tg::do_pause2idle                                          >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
-        bmf::Row < tg::pause2exe                , tg::omx_trans_evt         , tg::executing           , tg::do_ack_unpaused         , tg::is_trans_complete        >,
+        bmf::Row < tg::pause2exe                , tg::omx_trans_evt         , tg::executing           , bmf::ActionSequence_<
+                                                                                                          boost::mpl::vector<
+                                                                                                            tg::do_ack_resumed,
+                                                                                                            tg::do_resume_progress_display >
+                                                                                                          >                         , tg::is_trans_complete        >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < tg::pause2idle               , tg::omx_trans_evt         , tg::idle2loaded         , tg::do_idle2loaded          , tg::is_trans_complete        >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
@@ -573,7 +583,7 @@ namespace tiz
         bmf::Row < skipping
                    ::exit_pt
                    <skipping_
-                    ::skip_exit>                , tg::skipped_evt           , auto_detecting_0        , bmf::none                   , bmf::euml::Not_<
+                    ::skip_exit>                , tg::skipped_evt           , auto_detecting_0        , do_stop_progress_display    , bmf::euml::Not_<
                                                                                                                                         tg::is_end_of_play >       >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < tg::exe2idle                 , tg::omx_err_evt           , bmf::none               , bmf::none                   , tg::is_error<OMX_ErrorStreamCorruptFatal> >,

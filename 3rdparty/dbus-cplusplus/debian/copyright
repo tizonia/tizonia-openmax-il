@@ -52,7 +52,7 @@ License: LGPL-2.1
  LGPL-2.1".
 
 Files: debian/*
-Copyright: 2017 Juan A. Rubio <juan.rubio@aratelia.com>
+Copyright: 2018 Juan A. Rubio <juan.rubio@aratelia.com>
 License: GPL-2+
  This package is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by

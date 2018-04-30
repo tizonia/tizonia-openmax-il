@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -350,6 +350,22 @@ namespace tiz
         return rc;
       }
     };
+
+    struct is_skip_allowed
+    {
+      template < class EVT, class FSM, class SourceState, class TargetState >
+      bool operator()(EVT const& evt, FSM& fsm, SourceState&, TargetState&)
+      {
+        bool rc = false;
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+        {
+          rc = (*(fsm.pp_ops_))->is_skip_allowed ();
+        }
+        G_GUARD_LOG (rc);
+        return rc;
+      }
+    };
+
 
   }  // namespace graph
 }  // namespace tiz

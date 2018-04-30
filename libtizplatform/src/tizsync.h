@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -103,6 +103,16 @@ tiz_sem_destroy (tiz_sem_t * ap_sem);
  */
 OMX_ERRORTYPE
 tiz_sem_wait (tiz_sem_t * ap_sem);
+
+/**
+ * Wait for a semaphore being posted, for a limited amount of time.
+ *
+ * @ingroup tizsync
+ *
+ * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
+ */
+OMX_ERRORTYPE
+tiz_sem_timedwait (tiz_sem_t * ap_sem, OMX_U32 a_millis);
 
 /**
  * Post semaphore.

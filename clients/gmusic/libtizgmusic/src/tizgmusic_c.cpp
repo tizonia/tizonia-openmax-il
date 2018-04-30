@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -113,6 +113,13 @@ extern "C" void tiz_gmusic_set_playback_mode (tiz_gmusic_t *ap_gmusic,
       static_cast< tizgmusic::playback_mode >(mode));
 }
 
+extern "C" int tiz_gmusic_play_library (tiz_gmusic_t *ap_gmusic)
+{
+  assert (ap_gmusic);
+  assert (ap_gmusic->p_proxy_);
+  return ap_gmusic->p_proxy_->play_library ();
+}
+
 extern "C" int tiz_gmusic_play_tracks (tiz_gmusic_t *ap_gmusic,
                                        const char *ap_tracks,
                                        const bool a_unlimited_search)
@@ -147,6 +154,14 @@ extern "C" int tiz_gmusic_play_playlist (tiz_gmusic_t *ap_gmusic,
   assert (ap_gmusic);
   assert (ap_gmusic->p_proxy_);
   return ap_gmusic->p_proxy_->play_playlist (ap_playlist, a_unlimited_search);
+}
+
+extern "C" int tiz_gmusic_play_free_station (tiz_gmusic_t *ap_gmusic,
+                                             const char *ap_station)
+{
+  assert (ap_gmusic);
+  assert (ap_gmusic->p_proxy_);
+  return ap_gmusic->p_proxy_->play_free_station (ap_station);
 }
 
 extern "C" int tiz_gmusic_play_station (tiz_gmusic_t *ap_gmusic,
@@ -263,6 +278,22 @@ extern "C" const char *tiz_gmusic_get_current_song_year (
   assert (ap_gmusic);
   assert (ap_gmusic->p_proxy_);
   return ap_gmusic->p_proxy_->get_current_song_year ();
+}
+
+extern "C" const char *tiz_gmusic_get_current_song_genre (
+    tiz_gmusic_t *ap_gmusic)
+{
+  assert (ap_gmusic);
+  assert (ap_gmusic->p_proxy_);
+  return ap_gmusic->p_proxy_->get_current_song_genre ();
+}
+
+extern "C" const char *tiz_gmusic_get_current_song_album_art (
+    tiz_gmusic_t *ap_gmusic)
+{
+  assert (ap_gmusic);
+  assert (ap_gmusic->p_proxy_);
+  return ap_gmusic->p_proxy_->get_current_song_album_art ();
 }
 
 extern "C" void tiz_gmusic_destroy (tiz_gmusic_t *ap_gmusic)

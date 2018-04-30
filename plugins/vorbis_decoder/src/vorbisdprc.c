@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -275,7 +275,7 @@ store_stream_metadata (vorbisd_prc_t * ap_prc)
 
     snprintf (info, 99, "%d Ch, %d Hz", ap_prc->fsinfo_.channels,
               ap_prc->fsinfo_.samplerate);
-    info[99] = '\000';
+    info[99] = '\0';
     (void) store_metadata (ap_prc, "Vorbis Stream", info);
   }
 

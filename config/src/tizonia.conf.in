@@ -94,6 +94,7 @@ mpris-enabled = false
 #
 # soundcloud.oauth_token = X-XXXXXX-XXXXXXXX-XXXXXXXXXXXXXX
 
+
 # Dirble configuration
 # -------------------------------------------------------------------------
 # To avoid passing this information on the command line, uncomment and
@@ -102,4 +103,16 @@ mpris-enabled = false
 # To obtain your Dirble API key, go to https://dirble.com/developer/
 #
 # dirble.api_key = xxxxxxxxxxxxxx
+
+
+# Plex configuration
+# -------------------------------------------------------------------------
+# To avoid passing this information on the command line, uncomment and
+# configure your Plex server and account auth token here.
+#
+# To find how to obtain a Plex user authentication token, see:
+# https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/
+#
+# plex.base_url = xxxxxxxxxxxxxx (e.g. http://plexserver:32400)
+# plex.auth_token = xxxxxxxxxxxxxx (e.g. SrPEojhap3H5Qj2DmjhX)
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -220,7 +220,7 @@ namespace tiz
       OMX_ERRORTYPE graph_execd ();
       OMX_ERRORTYPE graph_stopped ();
       OMX_ERRORTYPE graph_paused ();
-      OMX_ERRORTYPE graph_unpaused ();
+      OMX_ERRORTYPE graph_resumed ();
       OMX_ERRORTYPE graph_metadata (const track_metadata_map_t &metadata);
       OMX_ERRORTYPE graph_volume (const int volume);
       OMX_ERRORTYPE graph_unloaded ();

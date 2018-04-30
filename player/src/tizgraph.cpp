@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -37,6 +37,7 @@
 #include <OMX_Core.h>
 #include <OMX_Component.h>
 
+#include "tizprogressdisplay.hpp"
 #include "tizgraphmgr.hpp"
 #include "tizgraphcmd.hpp"
 #include "tizgraphfsm.hpp"
@@ -93,7 +94,9 @@ graph::graph::graph (const std::string &graph_name)
     thread_ (0),
     mutex_ (),
     sem_ (),
-    p_queue_ (NULL)
+    p_queue_ (NULL),
+    p_ev_timer_ (NULL),
+    p_progress_(NULL)
 {
 }
 
@@ -249,7 +252,7 @@ void graph::graph::omx_evt (const omx_event_info &evt_info)
     {
       post_cmd (new tiz::graph::cmd (tiz::graph::omx_err_evt (
           evt_info.component_, static_cast< OMX_ERRORTYPE >(evt_info.ndata1_),
-          evt_info.ndata2_)));
+          evt_info.ndata2_, evt_info.pEventData_)));
     }
     else if (evt_info.event_ == OMX_EventPortSettingsChanged)
     {
@@ -288,6 +291,15 @@ void graph::graph::set_manager (tiz::graphmgr::mgr *ap_mgr)
   p_mgr_ = ap_mgr;
 }
 
+void graph::graph::timer_cback (void *ap_graph, tiz_event_timer_t *ap_ev_timer,
+                                void *ap_arg1, const uint32_t a_id)
+{
+  tiz::graph::graph *p_graph = static_cast<tiz::graph::graph *>(ap_graph);
+  assert(ap_graph);
+  (void)p_graph->post_cmd (
+      new tiz::graph::cmd (tiz::graph::timer_evt (ap_arg1, a_id)));
+}
+
 void graph::graph::graph_loaded ()
 {
   if (p_mgr_)
@@ -320,11 +332,11 @@ void graph::graph::graph_paused ()
   }
 }
 
-void graph::graph::graph_unpaused ()
+void graph::graph::graph_resumed ()
 {
   if (p_mgr_)
   {
-    p_mgr_->graph_unpaused ();
+    p_mgr_->graph_resumed ();
   }
 }
 
@@ -369,6 +381,65 @@ void graph::graph::graph_error (const OMX_ERRORTYPE error,
   }
 }
 
+void graph::graph::progress_display_start(unsigned long duration)
+{
+  uint32_t id = 0;
+  if (!p_progress_)
+    {
+      p_progress_ = new tiz::graph::progress_display(duration);
+      assert (p_ev_timer_);
+      (void)tiz_event_timer_set (p_ev_timer_, 1.0, 1.0);
+      (void)tiz_event_timer_start (p_ev_timer_, id);
+    }
+  else
+    {
+      p_progress_->restart(duration);
+      (void)tiz_event_timer_restart (p_ev_timer_, id);
+    }
+  ++(*p_progress_);
+}
+
+void graph::graph::progress_display_increase()
+{
+  if (p_progress_)
+    {
+      ++(*p_progress_);
+    }
+}
+
+void graph::graph::progress_display_pause()
+{
+  if (p_ev_timer_)
+  {
+    (void)tiz_event_timer_stop (p_ev_timer_);
+  }
+}
+
+void graph::graph::progress_display_resume()
+{
+  if (p_ev_timer_)
+  {
+    uint32_t id = 0;
+    (void)tiz_event_timer_restart (p_ev_timer_, id);
+  }
+}
+
+void graph::graph::progress_display_stop ()
+{
+  if (p_ev_timer_)
+  {
+    (void)tiz_event_timer_stop (p_ev_timer_);
+  }
+
+  if (p_progress_)
+  {
+    // Make sure we finish with a nice and full progress display
+    (*p_progress_) += (p_progress_->expected_count () - p_progress_->count ());
+    delete p_progress_;
+    p_progress_ = NULL;
+  }
+}
+
 std::string graph::graph::get_graph_name () const
 {
   return graph_name_;
@@ -380,6 +451,8 @@ graph::graph::init_cmd_queue ()
   tiz_check_omx_ret_oom (tiz_mutex_init (&mutex_));
   tiz_check_omx_ret_oom (tiz_sem_init (&sem_, 0));
   tiz_check_omx_ret_oom (tiz_queue_init (&p_queue_, TIZ_GRAPH_QUEUE_MAX_ITEMS));
+  tiz_check_omx_ret_oom (tiz_event_timer_init (
+      &p_ev_timer_, this, tiz::graph::graph::timer_cback, NULL));
   return OMX_ErrorNone;
 }
 

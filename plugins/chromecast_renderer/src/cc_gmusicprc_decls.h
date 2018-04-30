@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -20,7 +20,7 @@
  * @file   cc_gmusicprc_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Google Music client - processor declarations
+ * @brief  Google Music Chromecast renderer - processor declarations
  *
  *
  */
@@ -36,36 +36,28 @@ extern "C" {
 
 #include <OMX_Core.h>
 
-#include <tizprc_decls.h>
 #include <tizgmusic_c.h>
-#include <tizchromecast_c.h>
 
 #include <tizplatform.h>
+
+#include "cc_prc_decls.h"
+#include "cc_prc.h"
 
 typedef struct cc_gmusic_prc cc_gmusic_prc_t;
 struct cc_gmusic_prc
 {
   /* Object */
-  const tiz_prc_t _;
+  const cc_prc_t _;
   OMX_TIZONIA_AUDIO_PARAM_GMUSICSESSIONTYPE gm_session_;
-  OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE playlist_;
-  OMX_TIZONIA_PLAYLISTSKIPTYPE playlist_skip_;
-  OMX_TIZONIA_PARAM_CHROMECASTSESSIONTYPE cc_session_;
-  OMX_PARAM_CONTENTURITYPE * p_uri_param_;
-  OMX_BUFFERHEADERTYPE * p_inhdr_;
+  OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE gm_playlist_;
   tiz_gmusic_t * p_gm_;
-  tiz_chromecast_t * p_cc_;
-  bool eos_;
-  bool port_disabled_;
-  bool uri_changed_;
-  OMX_U32 bytes_before_eos_;
 };
 
 typedef struct cc_gmusic_prc_class cc_gmusic_prc_class_t;
 struct cc_gmusic_prc_class
 {
   /* Class */
-  const tiz_prc_class_t _;
+  const cc_prc_class_t _;
   /* NOTE: Class methods might be added in the future */
 };
 

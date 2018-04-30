@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -478,6 +478,10 @@ void tiz::probe::probe_stream ()
 
     mi.Close ();
   }
+  else
+  {
+    TIZ_LOG (TIZ_PRIORITY_NOTICE, "Unable to open media file : %s", uri_.c_str());
+  }
 }
 
 void tiz::probe::set_mp2_codec_info (const OMX_U32 samplerate,
@@ -925,9 +929,10 @@ void tiz::probe::dump_stream_metadata ()
   std::string the_artist = artist ().empty () ? get_stream_genre () : artist ();
 
   TIZ_PRINTF_YEL ("   %s, %s\n", the_title.c_str (), the_artist.c_str ());
-  TIZ_PRINTF_CYN ("     Duration : %s\n", stream_length ().c_str ());
-  TIZ_PRINTF_CYN ("     Size : %.2g MiB\n",
-      ((float)boost::filesystem::file_size (uri_.c_str ()) / (1024 * 1024)));
+  if (!track ().empty () && track ().compare ("0") != 0)
+  {
+    TIZ_PRINTF_CYN ("     Track # : %s\n", track ().c_str ());
+  }
   if (!album ().empty ())
   {
     TIZ_PRINTF_CYN ("     Album : %s\n", album ().c_str ());
@@ -936,10 +941,9 @@ void tiz::probe::dump_stream_metadata ()
   {
     TIZ_PRINTF_CYN ("     Year : %s\n", year ().c_str ());
   }
-  if (!track ().empty () && track ().compare ("0") != 0)
-  {
-    TIZ_PRINTF_CYN ("     Track # : %s\n", track ().c_str ());
-  }
+  TIZ_PRINTF_CYN ("     Duration : %s\n", stream_length ().c_str ());
+  TIZ_PRINTF_CYN ("     Size : %.2g MiB\n",
+      ((float)boost::filesystem::file_size (uri_.c_str ()) / (1024 * 1024)));
   if (!genre ().empty ())
   {
     TIZ_PRINTF_CYN ("     Genre : %s\n", genre ().c_str ());

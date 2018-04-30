@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -213,6 +213,15 @@ namespace tiz
       static OMX_ERRORTYPE set_youtube_playlist (
           const OMX_HANDLETYPE handle, const std::string &playlist,
           const OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE playlist_type,
+          const bool shuffle);
+
+      static OMX_ERRORTYPE set_plex_session (const OMX_HANDLETYPE handle,
+                                               const std::string &base_url,
+                                               const std::string &token);
+
+      static OMX_ERRORTYPE set_plex_playlist (
+          const OMX_HANDLETYPE handle, const std::string &playlist,
+          const OMX_TIZONIA_AUDIO_PLEXPLAYLISTTYPE playlist_type,
           const bool shuffle);
 
       static OMX_ERRORTYPE enable_port_format_auto_detection (

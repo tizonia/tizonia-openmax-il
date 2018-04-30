@@ -1,4 +1,4 @@
-# Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+# Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
 #
 # This file is part of Tizonia
 #
@@ -21,10 +21,12 @@ libtizchromecastrnd_LTLIBRARIES = libtizchromecastrnd.la
 
 noinst_HEADERS = \
 	chromecastrnd.h \
-	chromecastrndport.h \
-	chromecastrndport_decls.h \
-	chromecastrndprc.h \
-	chromecastrndprc_decls.h \
+	cc_prc.h \
+	cc_prc_decls.h \
+	cc_cfgport.h \
+	cc_cfgport_decls.h \
+	cc_httpprc.h \
+	cc_httpprc_decls.h \
 	cc_gmusicprc.h \
 	cc_gmusicprc_decls.h \
 	cc_gmusiccfgport.h \
@@ -40,12 +42,17 @@ noinst_HEADERS = \
 	cc_youtubeprc.h \
 	cc_youtubeprc_decls.h \
 	cc_youtubecfgport.h \
-	cc_youtubecfgport_decls.h
+	cc_youtubecfgport_decls.h \
+	cc_plexprc.h \
+	cc_plexprc_decls.h \
+	cc_plexcfgport.h \
+	cc_plexcfgport_decls.h
 
 libtizchromecastrnd_la_SOURCES = \
 	chromecastrnd.c \
-	chromecastrndport.c \
-	chromecastrndprc.c \
+	cc_prc.c \
+	cc_cfgport.c \
+	cc_httpprc.c \
 	cc_gmusicprc.c \
 	cc_gmusiccfgport.c \
 	cc_scloudprc.c \
@@ -53,7 +60,9 @@ libtizchromecastrnd_la_SOURCES = \
 	cc_dirbleprc.c \
 	cc_dirblecfgport.c \
 	cc_youtubeprc.c \
-	cc_youtubecfgport.c
+	cc_youtubecfgport.c \
+	cc_plexprc.c \
+	cc_plexcfgport.c
 
 libtizchromecastrnd_la_CFLAGS = \
 	@TIZILHEADERS_CFLAGS@ \
@@ -63,7 +72,9 @@ libtizchromecastrnd_la_CFLAGS = \
 	@TIZSOUNDCLOUD_CFLAGS@ \
 	@TIZDIRBLE_CFLAGS@ \
 	@TIZYOUTUBE_CFLAGS@ \
-	@TIZCHROMECAST_CFLAGS@
+	@TIZPLEX_CFLAGS@ \
+	@TIZCASTCLIENT_CFLAGS@ \
+	@TIZCASTD_CFLAGS@
 
 libtizchromecastrnd_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@
 
@@ -74,4 +85,5 @@ libtizchromecastrnd_la_LIBADD = \
 	@TIZSOUNDCLOUD_LIBS@ \
 	@TIZDIRBLE_LIBS@ \
 	@TIZYOUTUBE_LIBS@ \
-	@TIZCHROMECAST_LIBS@
+	@TIZPLEX_LIBS@ \
+	@TIZCASTCLIENT_LIBS@

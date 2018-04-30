@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -95,7 +95,7 @@ void graphmgr::cmd::inject (fsm& machine) const
                               else INJECT_EVENT (graph_execd_evt)
                                 else INJECT_EVENT (graph_stopped_evt)
                                   else INJECT_EVENT (graph_paused_evt)
-                                    else INJECT_EVENT (graph_unpaused_evt)
+                                    else INJECT_EVENT (graph_resumed_evt)
                                       else INJECT_EVENT (graph_metadata_evt)
                                         else INJECT_EVENT (graph_volume_evt)
                                           else INJECT_EVENT (graph_unlded_evt)

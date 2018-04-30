@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -134,14 +134,14 @@ dirble_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
     {
       memcpy (&(p_obj->session_), ap_struct,
               sizeof (OMX_TIZONIA_AUDIO_PARAM_DIRBLESESSIONTYPE));
-      p_obj->session_.cApiKey[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+      p_obj->session_.cApiKey[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
       TIZ_TRACE (ap_hdl, "Dirble Api Key [%s]...", p_obj->session_.cApiKey);
     }
   else if (OMX_TizoniaIndexParamAudioDirblePlaylist == a_index)
     {
       memcpy (&(p_obj->playlist_), ap_struct,
               sizeof (OMX_TIZONIA_AUDIO_PARAM_DIRBLEPLAYLISTTYPE));
-      p_obj->playlist_.cPlaylistName[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+      p_obj->playlist_.cPlaylistName[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
       TIZ_TRACE (ap_hdl, "Dirble playlist [%s]...",
                  p_obj->playlist_.cPlaylistName);
     }

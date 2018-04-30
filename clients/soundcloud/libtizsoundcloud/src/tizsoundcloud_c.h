@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -300,6 +300,15 @@ const char *tiz_scloud_get_current_track_license (tiz_scloud_t *ap_scloud);
  * @param ap_scloud The soundcloud handle.
  */
 const char *tiz_scloud_get_current_track_likes (tiz_scloud_t *ap_scloud);
+
+/**
+ * Retrieve the avatar of the user associated to the current track.
+ *
+ * @ingroup libtizsoundcloud
+ *
+ * @param ap_scloud The soundcloud handle.
+ */
+const char *tiz_scloud_get_current_track_user_avatar (tiz_scloud_t *ap_scloud);
 
 /**
  * Destroy the soundcloud handle.

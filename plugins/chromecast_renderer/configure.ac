@@ -1,4 +1,4 @@
-# Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+# Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
 #
 # This file is part of Tizonia
 #
@@ -16,7 +16,7 @@
 # along with Tizonia.  If not, see <chromecast://www.gnu.org/licenses/>.
 
 AC_PREREQ([2.67])
-AC_INIT([tizchromecastrnd], [0.11.0], [juan.rubio@aratelia.com])
+AC_INIT([tizchromecastrnd], [0.14.0], [juan.rubio@aratelia.com])
 AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
 AC_CONFIG_SRCDIR([config.h.in])
@@ -43,7 +43,7 @@ AC_CONFIG_MACRO_DIR([m4])
 #     then set AGE to 0.                                                       #
 #                                                                              #
 ################################################################################
-SHARED_VERSION_INFO="0:11:0"
+SHARED_VERSION_INFO="0:14:0"
 SHLIB_VERSION_ARG=""
 
 AC_SUBST(SHLIB_VERSION_ARG)
@@ -133,15 +133,35 @@ AS_IF([test "x$tiz_found_youtube_headers" == "xyes"],
 	[PKG_CHECK_MODULES([TIZYOUTUBE], [libtizyoutube >= 0.1.0])],
 	[AC_MSG_NOTICE([Not using pkg-config to find TIZYOUTUBE cflags and libs])])
 
-AC_CHECK_HEADERS([tizonia/tizchromecast_c.h],
-	[tiz_found_chromecast_headers=yes; break;])
-AS_IF([test "x$tiz_found_chromecast_headers" != "xyes"],
-	[AC_SUBST([TIZCHROMECAST_CFLAGS], ['-I$(top_srcdir)/../../clients/chromecast/libtizchromecast/tizonia'])
-	AC_SUBST([TIZCHROMECAST_LIBS], ['$(top_builddir)/../../clients/chromecast/libtizchromecast/tizonia/libtizchromecast.la'])],
-	[AC_MSG_NOTICE([Not substituting TIZCHROMECAST cflags and libs with local paths])])
-AS_IF([test "x$tiz_found_chromecast_headers" == "xyes"],
-	[PKG_CHECK_MODULES([TIZCHROMECAST], [libtizchromecast >= 0.1.0])],
-	[AC_MSG_NOTICE([Not using pkg-config to find TIZCHROMECAST cflags and libs])])
+AC_CHECK_HEADERS([tizonia/tizplex_c.h],
+	[tiz_found_plex_headers=yes; break;])
+AS_IF([test "x$tiz_found_plex_headers" != "xyes"],
+	[AC_SUBST([TIZPLEX_CFLAGS], ['-I$(top_srcdir)/../../clients/plex/libtizplex/tizonia'])
+	AC_SUBST([TIZPLEX_LIBS], ['$(top_builddir)/../../clients/plex/libtizplex/tizonia/libtizplex.la'])],
+	[AC_MSG_NOTICE([Not substituting TIZPLEX cflags and libs with local paths])])
+AS_IF([test "x$tiz_found_plex_headers" == "xyes"],
+	[PKG_CHECK_MODULES([TIZPLEX], [libtizplex >= 0.1.0])],
+	[AC_MSG_NOTICE([Not using pkg-config to find TIZPLEX cflags and libs])])
+
+AC_CHECK_HEADERS([tizonia/tizcastclienttypes.h],
+	[tiz_found_castclient_headers=yes; break;])
+AS_IF([test "x$tiz_found_castclient_headers" != "xyes"],
+	[AC_SUBST([TIZCASTCLIENT_CFLAGS], ['-I$(top_srcdir)/../../cast/libtizcastclient/tizonia'])
+	AC_SUBST([TIZCASTCLIENT_LIBS], ['$(top_builddir)/../../cast/libtizcastclient/tizonia/libtizcastclient.la'])],
+	[AC_MSG_NOTICE([Not substituting TIZCASTCLIENT cflags and libs with local paths])])
+AS_IF([test "x$tiz_found_castclient_headers" == "xyes"],
+	[PKG_CHECK_MODULES([TIZCASTCLIENT], [libtizcastclient >= 0.12.0])],
+	[AC_MSG_NOTICE([Not using pkg-config to find TIZCASTCLIENT cflags and libs])])
+
+AC_CHECK_HEADERS([tizonia/tizcasttypes.h],
+	[tiz_found_castd_headers=yes; break;])
+AS_IF([test "x$tiz_found_castd_headers" != "xyes"],
+	[AC_SUBST([TIZCASTD_CFLAGS], ['-I$(top_srcdir)/../../cast/tizcastd/tizonia'])
+	AC_SUBST([TIZCASTD_LIBS], ['not-used'])],
+	[AC_MSG_NOTICE([Not substituting TIZCASTD cflags and libs with local paths])])
+AS_IF([test "x$tiz_found_castd_headers" == "xyes"],
+	[PKG_CHECK_MODULES([TIZCASTD], [tizcastd >= 0.1.0])],
+	[AC_MSG_NOTICE([Not using pkg-config to find TIZCASTD cflags and libs])])
 
 # Define location of plugin directory
 AS_AC_EXPAND(PLUGINDIR, ${libdir}/tizonia0-plugins12)

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -55,6 +55,7 @@ namespace tiz
     class cmd;
     class cbackhandler;
     class ops;
+    class progress_display;
 
     class graph
     {
@@ -85,6 +86,9 @@ namespace tiz
       void omx_evt (const omx_event_info &evt);
       void set_manager (tiz::graphmgr::mgr *ap_mgr);
 
+      static void timer_cback (void *ap_graph, tiz_event_timer_t *ap_ev_timer,
+                               void *ap_arg1, const uint32_t a_id);
+
     protected:
       virtual ops *do_init () = 0;
       virtual bool dispatch_cmd (const tiz::graph::cmd *p_cmd) = 0;
@@ -94,12 +98,18 @@ namespace tiz
       void graph_execd ();
       void graph_stopped ();
       void graph_paused ();
-      void graph_unpaused ();
+      void graph_resumed ();
       void graph_metadata (const track_metadata_map_t &metadata);
       void graph_volume (const int volume);
       void graph_unloaded ();
       void graph_end_of_play ();
       void graph_error (const OMX_ERRORTYPE error, const std::string &msg);
+
+      void progress_display_start(unsigned long duration);
+      void progress_display_increase();
+      void progress_display_pause();
+      void progress_display_resume();
+      void progress_display_stop();
 
       std::string get_graph_name () const;
 
@@ -119,6 +129,8 @@ namespace tiz
       tiz_mutex_t mutex_;
       tiz_sem_t sem_;
       tiz_queue_t *p_queue_;
+      tiz_event_timer *p_ev_timer_;
+      progress_display *p_progress_;
     };
   }  // namespace graph
 }  // namespace tiz

@@ -1,5 +1,5 @@
 /**
-  * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+  * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
   *
   * This file is part of Tizonia
   *
@@ -171,6 +171,24 @@ concat (const char * s1, const char * s2)
 }
 
 static char *
+get_cache_prefix ()
+{
+#define TMPDIR "/var/tmp"
+  char * p_prefix = NULL;
+  char * p_env_str = NULL;
+
+  if ((p_env_str = getenv ("SNAP_USER_COMMON")))
+    {
+      p_prefix = concat (p_env_str, "/tizonia-");
+    }
+  else
+    {
+      p_prefix = concat (TMPDIR, "/tizonia-");
+    }
+  return p_prefix;
+}
+
+static char *
 get_cache_location (char * user)
 {
   uid_t uid = geteuid ();
@@ -179,10 +197,12 @@ get_cache_location (char * user)
     {
       char * p_pw_name_dash = concat (pw->pw_name, "-spotify-");
       char * p_pw_name_dash_user = concat (p_pw_name_dash, user);
+      char * p_cache_prefix = get_cache_prefix();
       char * p_cache_location
-        = concat ("/var/tmp/tizonia-", p_pw_name_dash_user);
+        = concat (p_cache_prefix, p_pw_name_dash_user);
       tiz_mem_free ((void *) p_pw_name_dash);
       tiz_mem_free ((void *) p_pw_name_dash_user);
+      tiz_mem_free ((void *) p_cache_prefix);
       return p_cache_location;
     }
   return user;
@@ -592,12 +612,12 @@ store_relevant_track_metadata (spfysrc_prc_t * ap_prc, const int a_num_tracks)
   (void) store_metadata_playlist (
     ap_prc, sp_playlist_name (ap_prc->p_sp_playlist_), a_num_tracks,
     sp_playlist_num_subscribers (ap_prc->p_sp_playlist_));
+  store_metadata_track_name (ap_prc, sp_track_name (ap_prc->p_sp_track_),
+                             ap_prc->track_index_, a_num_tracks);
   (void) store_metadata (ap_prc, "Artist", sp_artist_name (sp_track_artist (
                                              ap_prc->p_sp_track_, 0)));
   (void) store_metadata (ap_prc, "Album",
                          sp_album_name (sp_track_album (ap_prc->p_sp_track_)));
-  store_metadata_track_name (ap_prc, sp_track_name (ap_prc->p_sp_track_),
-                             ap_prc->track_index_, a_num_tracks);
   store_metadata_track_duration (ap_prc,
                                  sp_track_duration (ap_prc->p_sp_track_));
   store_metadata_preferred_bitrate (ap_prc);
@@ -1312,7 +1332,8 @@ play_token_lost (sp_session * sess)
 static void
 log_message (sp_session * sess, const char * msg)
 {
-  if (strstr (msg, "Request for file") || strstr (msg, "locked"))
+  if (strstr (msg, "Request for file") || strstr (msg, "locked")
+      || strstr (msg, "ChannelError"))
     {
       /* Skip these messages */
       return;
@@ -1342,8 +1363,8 @@ playlist_added (sp_playlistcontainer * pc, sp_playlist * pl, int position,
   assert (p_prc);
   sp_rc = sp_playlist_add_callbacks (pl, &(p_prc->sp_pl_cbacks_), p_prc);
   assert (SP_ERROR_OK == sp_rc);
-  TIZ_PRINTF_YEL ("[Spotify] : playlist added to container at position [%d]\n",
-                  position);
+  TIZ_PRINTF_DBG_YEL ("[Spotify] : playlist added to container at position [%d]\n",
+                      position);
 }
 
 /**
@@ -1364,7 +1385,7 @@ playlist_removed (sp_playlistcontainer * pc, sp_playlist * pl, int position,
   spfysrc_prc_t * p_prc = userdata;
   assert (p_prc);
   sp_playlist_remove_callbacks (pl, &(p_prc->sp_pl_cbacks_), NULL);
-  TIZ_PRINTF_YEL ("[Spotify] : playlist removed [%s] - position [%d]\n",
+  TIZ_PRINTF_DBG_YEL ("[Spotify] : playlist removed [%s] - position [%d]\n",
                   sp_playlist_name (pl), position);
   tiz_map_erase (p_prc->p_not_ready_playlists_, pl);
   tiz_map_erase (p_prc->p_ready_playlists_, pl);
@@ -1390,7 +1411,7 @@ container_loaded (sp_playlistcontainer * pc, void * userdata)
       int i = 0;
       sp_error sp_rc = SP_ERROR_OK;
 
-      TIZ_PRINTF_BLU ("[Spotify] : %d playlists\n", nplaylists);
+      TIZ_PRINTF_BLU ("[Spotify] : %d playlists found\n", nplaylists);
 
       p_prc->p_sp_playlist_ = NULL;
       for (i = 0; i < nplaylists; ++i)
@@ -1423,7 +1444,7 @@ tracks_added (sp_playlist * pl, sp_track * const * tracks, int num_tracks,
 
   if (pl == p_prc->p_sp_playlist_)
     {
-      TIZ_PRINTF_YEL ("[Spotify] : %d tracks added\n", num_tracks);
+      TIZ_PRINTF_DBG_YEL ("[Spotify] : %d tracks added\n", num_tracks);
       start_playback (p_prc);
     }
 }
@@ -1455,7 +1476,7 @@ tracks_removed (sp_playlist * pl, const int * tracks, int num_tracks,
             }
         }
       p_prc->track_index_ -= k;
-      TIZ_PRINTF_YEL ("[Spotify] : %d tracks have been removed\n", num_tracks);
+      TIZ_PRINTF_DBG_YEL ("[Spotify] : %d tracks have been removed\n", num_tracks);
       start_playback (p_prc);
     }
 }
@@ -1479,7 +1500,7 @@ tracks_moved (sp_playlist * pl, const int * tracks, int num_tracks,
 
   if (pl == p_prc->p_sp_playlist_)
     {
-      TIZ_PRINTF_YEL ("[Spotify] : %d tracks were moved around\n", num_tracks);
+      TIZ_PRINTF_DBG_YEL ("[Spotify] : %d tracks were moved around\n", num_tracks);
       start_playback (p_prc);
     }
 }
@@ -1499,7 +1520,7 @@ playlist_renamed (sp_playlist * pl, void * userdata)
 
   if (p_prc->p_sp_playlist_ == pl)
     {
-      TIZ_PRINTF_YEL ("[Spotify] : current playlist renamed to \"%s\"\n", name);
+      TIZ_PRINTF_DBG_YEL ("[Spotify] : current playlist renamed to \"%s\"\n", name);
       p_prc->p_sp_playlist_ = NULL;
       stop_spotify (p_prc);
     }
@@ -1532,12 +1553,11 @@ playlist_state_changed (sp_playlist * pl, void * userdata)
       /* Make sure this playlist is not found in the "not ready" list */
       tiz_map_erase (p_prc->p_not_ready_playlists_, pl);
 
-      if (OMX_ErrorNone == rc)
+      if (OMX_ErrorNone == rc && !p_prc->spotify_inited_)
         {
-          TIZ_PRINTF_BLU ("[Spotify] : '%s' [%d of %d] (%d tracks)\n",
+          TIZ_PRINTF_BLU ("[Spotify] : '%s' (%d tracks)\n",
                           sp_playlist_name (pl),
-                          tiz_map_size (p_prc->p_ready_playlists_),
-                          p_prc->nplaylists_, sp_playlist_num_tracks (pl));
+                          sp_playlist_num_tracks (pl));
         }
     }
   else
@@ -1755,6 +1775,9 @@ spfysrc_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
   p_prc->sp_config_.settings_location = p_prc->sp_config_.cache_location;
   goto_end_on_sp_error (
     sp_session_create (&(p_prc->sp_config_), &(p_prc->p_sp_session_)));
+
+  TIZ_PRINTF_BLU ("[Spotify] : Spotify cache location: '%s'\n",
+                  p_prc->sp_config_.cache_location);
 
   /* Initiate the login */
   goto_end_on_sp_error (sp_session_login (

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -169,7 +169,7 @@ void graph::gmusicops::do_loaded2idle ()
     G_OPS_BAIL_IF_ERROR (
         util::transition_all (decoder_and_renderer_handles, OMX_StateIdle,
                               OMX_StateLoaded),
-        "Unable to transition deoder and renderer from Loaded->Idle");
+        "Unable to transition decoder and renderer from Loaded->Idle");
     clear_expected_transitions ();
     add_expected_transition (handles_[1], OMX_StateIdle);
     add_expected_transition (handles_[2], OMX_StateIdle);
@@ -458,13 +458,27 @@ bool graph::gmusicops::is_fatal_error (const OMX_ERRORTYPE error) const
 
 void graph::gmusicops::do_record_fatal_error (const OMX_HANDLETYPE handle,
                                               const OMX_ERRORTYPE error,
-                                              const OMX_U32 port)
+                                              const OMX_U32 port,
+                                              const OMX_PTR p_eventdata /* = NULL */)
 {
-  tiz::graph::ops::do_record_fatal_error (handle, error, port);
+  tiz::graph::ops::do_record_fatal_error (handle, error, port, p_eventdata);
   if (error == OMX_ErrorContentURIError)
   {
     error_msg_.append ("\n [Playlist not found]");
   }
+}
+
+bool graph::gmusicops::is_skip_allowed () const
+{
+  tizgmusicconfig_ptr_t gmusic_config
+      = boost::dynamic_pointer_cast< gmusicconfig > (config_);
+  if (gmusic_config
+      && gmusic_config->get_playlist_type ()
+             == OMX_AUDIO_GmusicPlaylistTypeFreeStation)
+  {
+    return false;
+  }
+  return true;
 }
 
 void graph::gmusicops::do_reconfigure_first_tunnel ()

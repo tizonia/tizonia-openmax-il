@@ -1,0 +1,107 @@
+<?xml version="1.0" ?>
+
+<!-- Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio -->
+
+<!-- This file is part of Tizonia -->
+
+<!-- Tizonia is free software: you can redistribute it and/or modify it under the -->
+<!-- terms of the GNU Lesser General Public License as published by the Free -->
+<!-- Software Foundation, either version 3 of the License, or (at your option) -->
+<!-- any later version. -->
+
+<!-- Tizonia is distributed in the hope that it will be useful, but WITHOUT ANY -->
+<!-- WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS -->
+<!-- FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for -->
+<!-- more details. -->
+
+<!-- You should have received a copy of the GNU Lesser General Public License -->
+<!-- along with Tizonia.  If not, see <http://www.gnu.org/licenses/>. -->
+
+<node name="/com/aratelia/tiz/tizcastd">
+
+  <interface name="com.aratelia.tiz.tizcastif">
+
+    <property name="version" type="i" access="read"/>
+
+    <method name="connect">
+      <arg type="ay" name="uuid" direction="in"/>
+      <arg type="s" name="name_or_ip" direction="in"/>
+      <arg type="i" name="retcode" direction="out"/>
+    </method>
+
+    <method name="disconnect">
+      <arg type="ay" name="uuid" direction="in"/>
+      <arg type="i" name="retcode" direction="out"/>
+    </method>
+
+    <method name="load_url">
+      <arg type="ay" name="uuid" direction="in"/>
+      <arg type="s" name="url" direction="in"/>
+      <arg type="s" name="mime_type" direction="in"/>
+      <arg type="s" name="title" direction="in"/>
+      <arg type="s" name="album_art" direction="in"/>
+      <arg type="i" name="retcode" direction="out"/>
+    </method>
+
+    <method name="play">
+      <arg type="ay" name="uuid" direction="in"/>
+      <arg type="i" name="retcode" direction="out"/>
+    </method>
+
+    <method name="stop">
+      <arg type="ay" name="uuid" direction="in"/>
+      <arg type="i" name="retcode" direction="out"/>
+    </method>
+
+    <method name="pause">
+      <arg type="ay" name="uuid" direction="in"/>
+      <arg type="i" name="retcode" direction="out"/>
+    </method>
+
+    <method name="volume_set">
+      <arg type="ay" name="uuid" direction="in"/>
+      <arg type="i" name="volume" direction="in"/>
+      <arg type="i" name="retcode" direction="out"/>
+    </method>
+
+    <method name="volume_up">
+      <arg type="ay" name="uuid" direction="in"/>
+      <arg type="i" name="retcode" direction="out"/>
+    </method>
+
+    <method name="volume_down">
+      <arg type="ay" name="uuid" direction="in"/>
+      <arg type="i" name="retcode" direction="out"/>
+    </method>
+
+    <method name="mute">
+      <arg type="ay" name="uuid" direction="in"/>
+      <arg type="i" name="retcode" direction="out"/>
+    </method>
+
+    <method name="unmute">
+      <arg type="ay" name="uuid" direction="in"/>
+      <arg type="i" name="retcode" direction="out"/>
+    </method>
+
+    <signal name="cast_status">
+      <arg type="ay" name="uuid"/>
+      <arg type="u" name="status"/>
+      <arg type="i" name="volume"/>
+    </signal>
+
+    <signal name="media_status">
+      <arg type="ay" name="uuid"/>
+      <arg type="u" name="status"/>
+      <arg type="i" name="volume"/>
+    </signal>
+
+    <signal name="error_status">
+      <arg type="ay" name="uuid"/>
+      <arg type="u" name="status"/>
+      <arg type="s" name="error_msg"/>
+    </signal>
+
+  </interface>
+
+</node>

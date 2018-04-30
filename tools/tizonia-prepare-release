@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+# Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -58,20 +58,20 @@
 source tizonia-common.inc
 
 # Constants
-readonly TIZONIA_OLD_PACKAGE_VER="0.10.0"
+readonly TIZONIA_OLD_PACKAGE_VER="0.13.0"
 readonly TIZONIA_NEW_PACKAGE_VER="$TIZONIA_RELEASE_VERSION"
 
-readonly TIZONIA_PLUGIN_OLD_SHLIB_VER="0:10:0"
-readonly TIZONIA_PLUGIN_NEW_SHLIB_VER="0:11:0"
+readonly TIZONIA_PLUGIN_OLD_SHLIB_VER="0:13:0"
+readonly TIZONIA_PLUGIN_NEW_SHLIB_VER="0:14:0"
 
-readonly TIZONIA_OLD_SHLIB_VER="0:10:0"
-readonly TIZONIA_NEW_SHLIB_VER="0:11:0"
+readonly TIZONIA_OLD_SHLIB_VER="0:13:0"
+readonly TIZONIA_NEW_SHLIB_VER="0:14:0"
 
-readonly TIZONIA_PYTHON_OLD_MODULE_VER="0.10.0"
-readonly TIZONIA_PYTHON_NEW_MODULE_VER="0.11.0"
+readonly TIZONIA_PYTHON_OLD_MODULE_VER="0.13.0"
+readonly TIZONIA_PYTHON_NEW_MODULE_VER="$TIZONIA_RELEASE_VERSION"
 
 readonly TIZONIA_DEBIAN_CHANGELOG_VER="$TIZONIA_NEW_PACKAGE_VER"
-readonly TIZONIA_DEBIAN_CHANGELOG_CLOSING_BUG="419"
+readonly TIZONIA_DEBIAN_CHANGELOG_CLOSING_BUG="482"
 
 # Program dependencies
 declare -ar TIZONIA_PREPARE_RELEASE_DEPS=( \

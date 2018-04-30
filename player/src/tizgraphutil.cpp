@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -136,8 +136,9 @@ graph::util::verify_role (const std::string &comp, const std::string &comp_role,
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
   std::vector< std::string > roles;
-  if (OMX_ErrorNoMore == (error = tiz::omxutil::roles_of_comp (
-                              (OMX_STRING)comp.c_str (), roles)))
+  if (OMX_ErrorNoMore
+      == (error
+          = tiz::omxutil::roles_of_comp ((OMX_STRING)comp.c_str (), roles)))
   {
     bool found = false;
     role_position = 0;
@@ -260,7 +261,7 @@ graph::util::set_role (const OMX_HANDLETYPE handle,
   TIZ_INIT_OMX_STRUCT (roletype);
   strncpy ((char *)roletype.cRole, comp_role.c_str (),
            OMX_MAX_STRINGNAME_SIZE - 1);
-  roletype.cRole[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+  roletype.cRole[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
   tiz_check_omx (OMX_SetParameter (handle, OMX_IndexParamStandardComponentRole,
                                    &roletype));
 
@@ -624,8 +625,9 @@ graph::util::set_content_uri (const OMX_HANDLETYPE handle,
   const long pathname_max = tiz_pathname_max (uri.c_str ());
   const int uri_len = uri.length ();
 
-  if (NULL == (p_uritype = (OMX_PARAM_CONTENTURITYPE *)tiz_mem_calloc (
-                   1, sizeof (OMX_PARAM_CONTENTURITYPE) + uri_len + 1))
+  if (NULL
+          == (p_uritype = (OMX_PARAM_CONTENTURITYPE *)tiz_mem_calloc (
+                  1, sizeof (OMX_PARAM_CONTENTURITYPE) + uri_len + 1))
       || (pathname_max > 0 && uri_len > pathname_max))
   {
     rc = OMX_ErrorInsufficientResources;
@@ -763,9 +765,10 @@ OMX_ERRORTYPE graph::util::set_chromecast_name_or_ip (
       static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamChromecastSession),
       &sessiontype));
   tiz::graph::util::copy_omx_string (sessiontype.cNameOrIpAddr, name_or_ip);
-  return OMX_SetParameter (handle, static_cast< OMX_INDEXTYPE > (
-                                       OMX_TizoniaIndexParamChromecastSession),
-                           &sessiontype);
+  return OMX_SetParameter (
+      handle,
+      static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamChromecastSession),
+      &sessiontype);
 }
 
 OMX_ERRORTYPE graph::util::set_gmusic_user_and_device_id (
@@ -782,9 +785,10 @@ OMX_ERRORTYPE graph::util::set_gmusic_user_and_device_id (
   tiz::graph::util::copy_omx_string (sessiontype.cUserName, user);
   tiz::graph::util::copy_omx_string (sessiontype.cUserPassword, pass);
   tiz::graph::util::copy_omx_string (sessiontype.cDeviceId, device_id);
-  return OMX_SetParameter (handle, static_cast< OMX_INDEXTYPE > (
-                                       OMX_TizoniaIndexParamAudioGmusicSession),
-                           &sessiontype);
+  return OMX_SetParameter (
+      handle,
+      static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioGmusicSession),
+      &sessiontype);
 }
 
 OMX_ERRORTYPE graph::util::set_gmusic_playlist (
@@ -818,10 +822,11 @@ graph::util::set_scloud_oauth_token (const OMX_HANDLETYPE handle,
   // Set the SoundCloud user and pass
   OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDSESSIONTYPE sessiontype;
   TIZ_INIT_OMX_STRUCT (sessiontype);
-  tiz_check_omx (OMX_GetParameter (
-      handle, static_cast< OMX_INDEXTYPE > (
-                  OMX_TizoniaIndexParamAudioSoundCloudSession),
-      &sessiontype));
+  tiz_check_omx (
+      OMX_GetParameter (handle,
+                        static_cast< OMX_INDEXTYPE > (
+                            OMX_TizoniaIndexParamAudioSoundCloudSession),
+                        &sessiontype));
   tiz::graph::util::copy_omx_string (sessiontype.cUserOauthToken, oauth_token);
   return OMX_SetParameter (handle,
                            static_cast< OMX_INDEXTYPE > (
@@ -838,10 +843,11 @@ graph::util::set_scloud_playlist (
   // Set the SoundCloud playlist
   OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDPLAYLISTTYPE playlisttype;
   TIZ_INIT_OMX_STRUCT (playlisttype);
-  tiz_check_omx (OMX_GetParameter (
-      handle, static_cast< OMX_INDEXTYPE > (
-                  OMX_TizoniaIndexParamAudioSoundCloudPlaylist),
-      &playlisttype));
+  tiz_check_omx (
+      OMX_GetParameter (handle,
+                        static_cast< OMX_INDEXTYPE > (
+                            OMX_TizoniaIndexParamAudioSoundCloudPlaylist),
+                        &playlisttype));
   tiz::graph::util::copy_omx_string (playlisttype.cPlaylistName, playlist);
 
   playlisttype.ePlaylistType = playlist_type;
@@ -865,9 +871,10 @@ graph::util::set_dirble_api_key (const OMX_HANDLETYPE handle,
       static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioDirbleSession),
       &sessiontype));
   tiz::graph::util::copy_omx_string (sessiontype.cApiKey, api_key);
-  return OMX_SetParameter (handle, static_cast< OMX_INDEXTYPE > (
-                                       OMX_TizoniaIndexParamAudioDirbleSession),
-                           &sessiontype);
+  return OMX_SetParameter (
+      handle,
+      static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioDirbleSession),
+      &sessiontype);
 }
 
 OMX_ERRORTYPE
@@ -915,6 +922,49 @@ graph::util::set_youtube_playlist (
   return OMX_SetParameter (
       handle,
       static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioYoutubePlaylist),
+      &playlisttype);
+}
+
+OMX_ERRORTYPE
+graph::util::set_plex_session (const OMX_HANDLETYPE handle,
+                               const std::string &base_url,
+                               const std::string &token)
+{
+  // Set the Plex user and pass
+  OMX_TIZONIA_AUDIO_PARAM_PLEXSESSIONTYPE sessiontype;
+  TIZ_INIT_OMX_STRUCT (sessiontype);
+  tiz_check_omx (OMX_GetParameter (
+      handle,
+      static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioPlexSession),
+      &sessiontype));
+  tiz::graph::util::copy_omx_string (sessiontype.cBaseUrl, base_url);
+  tiz::graph::util::copy_omx_string (sessiontype.cAuthToken, token);
+  return OMX_SetParameter (
+      handle,
+      static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioPlexSession),
+      &sessiontype);
+}
+
+OMX_ERRORTYPE
+graph::util::set_plex_playlist (
+    const OMX_HANDLETYPE handle, const std::string &playlist,
+    const OMX_TIZONIA_AUDIO_PLEXPLAYLISTTYPE playlist_type, const bool shuffle)
+{
+  // Set the Plex playlist
+  OMX_TIZONIA_AUDIO_PARAM_PLEXPLAYLISTTYPE playlisttype;
+  TIZ_INIT_OMX_STRUCT (playlisttype);
+  tiz_check_omx (OMX_GetParameter (
+      handle,
+      static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioPlexPlaylist),
+      &playlisttype));
+  tiz::graph::util::copy_omx_string (playlisttype.cPlaylistName, playlist);
+
+  playlisttype.ePlaylistType = playlist_type;
+  playlisttype.bShuffle = shuffle ? OMX_TRUE : OMX_FALSE;
+
+  return OMX_SetParameter (
+      handle,
+      static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioPlexPlaylist),
       &playlisttype);
 }
 
@@ -1025,7 +1075,7 @@ bool graph::util::is_mpris_enabled ()
 void graph::util::copy_omx_string (
     OMX_U8 *p_dest, const std::string &omx_string,
     const size_t max_length /*  = OMX_MAX_STRINGNAME_SIZE */
-    )
+)
 {
   const size_t len = omx_string.length ();
   const size_t to_copy = MIN (len, max_length - 1);

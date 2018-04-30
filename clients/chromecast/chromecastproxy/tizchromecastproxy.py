@@ -1,4 +1,4 @@
-# Copyright (C) 2017 Aratelia Limited - Juan A. Rubio
+# Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
 #
 # This file is part of Tizonia
 #
@@ -22,7 +22,9 @@ Access a Chromecast device to initiate and manage audio streaming sessions..
 """
 
 from __future__ import unicode_literals
+from __future__ import division
 
+import select
 import sys
 import logging
 import unicodedata
@@ -30,9 +32,18 @@ import pychromecast
 from pychromecast.controllers.media import (
     STREAM_TYPE_UNKNOWN,
     STREAM_TYPE_BUFFERED,
-    STREAM_TYPE_LIVE)
+    STREAM_TYPE_LIVE,
+    MEDIA_PLAYER_STATE_PLAYING,
+    MEDIA_PLAYER_STATE_BUFFERING,
+    MEDIA_PLAYER_STATE_PAUSED,
+    MEDIA_PLAYER_STATE_IDLE,
+    MEDIA_PLAYER_STATE_UNKNOWN
+)
 from pychromecast.error import (
     PyChromecastError)
+from pychromecast.config import (
+    APP_MEDIA_RECEIVER
+)
 
 # For use during debugging
 import pprint
@@ -90,12 +101,12 @@ def print_err(msg=""):
     pretty_print(_Colors.FAIL + msg + _Colors.ENDC)
 
 def exception_handler(exception_type, exception, traceback):
-    """A simple exception handler that prints the excetion message.
+    """A simple handler that prints the exception message.
 
     """
 
     print_err("[Chromecast] (%s) : %s" % (exception_type.__name__, exception))
-    #del traceback # unused
+    # del traceback # unused
     print_exception(exception_type, exception, traceback)
 
 sys.excepthook = exception_handler
@@ -114,39 +125,51 @@ class tizchromecastproxy(object):
 
     """
     def __init__(self, name_or_ip):
-        self.cast = pychromecast.Chromecast(name_or_ip)
-        self.cast.wait()
+        self.name_or_ip = name_or_ip
+        self.active = False
+        self.cast = None
         self.cast_status_listener = None
         self.media_status_listener = None
-        self.cast.register_status_listener(self)
-        self.cast.media_controller.register_status_listener(self)
 
     def activate(self, cast_status_listener, media_status_listener):
+        self.cast = pychromecast.Chromecast(self.name_or_ip, blocking=False)
         self.cast_status_listener = cast_status_listener
         self.media_status_listener = media_status_listener
-        self.cast.play_media(
-            DEFAULT_THUMB, pychromecast.STREAM_TYPE_BUFFERED)
+        self.cast.register_status_listener(self)
+        self.cast.media_controller.register_status_listener(self)
+        print_nfo("[Chromecast] [{0}] [Activating]" \
+                  .format(to_ascii(self.name_or_ip)))
+        self.cast.start_app(APP_MEDIA_RECEIVER)
+        self.active = True
 
     def deactivate(self):
+        self.active = False
         self.cast.quit_app()
+
+    def poll_socket(self, polltime_ms):
+        polltime_s = polltime_ms / 1000;
+        can_read, _, _ = select.select([self.cast.socket_client.get_socket()], [], [], polltime_s)
+        if can_read:
+            # Received something on the socket, gets handled with run_once()
+            self.cast.socket_client.run_once()
 
     def media_load(self, url, content_type, title=None,
                    thumb=DEFAULT_THUMB,
                    current_time=0, autoplay=True,
-                   stream_type=STREAM_TYPE_LIVE):
+                   stream_type=STREAM_TYPE_UNKNOWN):
+        print_nfo("[Chromecast] [{0}] [Loading stream]" \
+                  .format(to_ascii(self.name_or_ip)))
         logging.info("proxy : Loading a new stream")
         mc = self.cast.media_controller
         st = mc.status
         try:
-            if st.player_is_playing:
-                mc.stop()
+            if not thumb or thumb == '':
+                thum = DEFAULT_THUMB;
             mc.play_media(url, content_type, title,
                           thumb, current_time, autoplay,
                           stream_type)
         except Exception as exception:
             print_err('Unable to load stream')
-        else:
-            mc.block_until_active()
 
     def media_play(self):
         self.cast.media_controller.play()
@@ -156,6 +179,13 @@ class tizchromecastproxy(object):
 
     def media_stop(self):
         self.cast.media_controller.stop()
+
+    def media_vol(self, volume):
+        vol = volume / 100
+        try:
+            self.cast.set_volume(vol)
+        except PyChromecastError:
+            pass
 
     def media_vol_up(self):
         vol = round(self.cast.status.volume_level, 1)
@@ -189,10 +219,22 @@ class tizchromecastproxy(object):
         """
 
         # CastStatus(is_active_input=None, is_stand_by=None, volume_level=0.8999999761581421, volume_muted=False, app_id=u'CC1AD845', display_name=u'Default Media Receiver', namespaces=[u'urn:x-cast:com.google.cast.debugoverlay', u'urn:x-cast:com.google.cast.broadcast', u'urn:x-cast:com.google.cast.media'], session_id=u'2f63312e-4777-454f-acc7-8be72572c7c8', transport_id=u'2f63312e-4777-454f-acc7-8be72572c7c8', status_text=u'Now Casting: Tizonia Audio Stream')
+        if not self.active:
+            return
         if status:
             logging.info("new_cast_status: %r" % (status,))
             try:
-                self.cast_status_listener(to_ascii(status.status_text))
+                if not status.app_id:
+                    self.cast_status_listener(to_ascii(u'UNKNOWN'), \
+                                              status.volume_level)
+                elif status.app_id == APP_MEDIA_RECEIVER \
+                     and status.status_text == u'Ready To Cast':
+                    self.cast_status_listener(to_ascii(u'READY_TO_CAST'), \
+                                              status.volume_level)
+                elif status.app_id == APP_MEDIA_RECEIVER \
+                     and u'Now Casting' in status.status_text:
+                    self.cast_status_listener(to_ascii(u'NOW_CASTING'), \
+                                              status.volume_level)
             except Exception as exception:
                 logging.info('Unable to deliver cast status callback %s', \
                              exception)
@@ -204,10 +246,13 @@ class tizchromecastproxy(object):
 
         # <MediaStatus {'player_state': u'BUFFERING', 'volume_level': 1, 'images': [MediaImage(url=u'https://avatars0.githubusercontent.com/u/3161606?v=3&s=400', height=None, width=None)], 'media_custom_data': {}, 'duration': None, 'current_time': 0, 'playback_rate': 1, 'title': u'Tizonia Audio Stream', 'media_session_id': 4, 'volume_muted': False, 'supports_skip_forward': False, 'track': None, 'season': None, 'idle_reason': None, 'stream_type': u'LIVE', 'supports_stream_mute': True, 'supports_stream_volume': True, 'content_type': u'audio/mpeg', 'metadata_type': None, 'subtitle_tracks': {}, 'album_name': None, 'series_title': None, 'album_artist': None, 'media_metadata': {u'images': [{u'url': u'https://avatars0.githubusercontent.com/u/3161606?v=3&s=400'}], u'thumb': u'https://avatars0.githubusercontent.com/u/3161606?v=3&s=400', u'title': u'Tizonia Audio Stream'}, 'episode': None, 'artist': None, 'supported_media_commands': 15, 'supports_seek': True, 'current_subtitle_tracks': [], 'content_id': u'http://streams.radiobob.de/bob-acdc/mp3-192/dirble/', 'supports_skip_backward': False, 'supports_pause': True}>
 
+        if not self.active:
+            return
         if status:
             logging.info("new_media_status: %r" % (status,))
             try:
-                self.media_status_listener(to_ascii(status.player_state))
+                self.media_status_listener(to_ascii(status.player_state), \
+                                           status.volume_level)
             except Exception as exception:
                 logging.info('Unable to deliver media status callback %s', \
                              exception)

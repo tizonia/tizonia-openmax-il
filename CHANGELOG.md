@@ -1,10 +1,103 @@
 # Change Log
 
+## [v0.14.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.14.0) (2018-04-20)
+[Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.13.0...v0.14.0)
+
+**Improvements:**
+
+- YouTube Channels support - channel playlist search [\#476](https://github.com/tizonia/tizonia-openmax-il/issues/476)
+- YouTube Channels support - channel uploads [\#475](https://github.com/tizonia/tizonia-openmax-il/issues/475)
+- Debian Testing/Buster \(10\) not available [\#474](https://github.com/tizonia/tizonia-openmax-il/issues/474)
+- google music: support for free radio stations [\#473](https://github.com/tizonia/tizonia-openmax-il/issues/473)
+- google music: add option to play the entire user library [\#470](https://github.com/tizonia/tizonia-openmax-il/issues/470)
+
+**Fixed bugs:**
+
+- RSS Feed in official Website is broken [\#480](https://github.com/tizonia/tizonia-openmax-il/issues/480)
+- segmentation fault with snap and spotify [\#479](https://github.com/tizonia/tizonia-openmax-il/issues/479)
+- google music: Playlist shows 0 tracks in Tizonia, has tracks on Google Play web interface [\#478](https://github.com/tizonia/tizonia-openmax-il/issues/478)
+- httprsrv.c:857:3: note: ‘snprintf’ output between 11 and 138 bytes into a destination of size 128 [\#477](https://github.com/tizonia/tizonia-openmax-il/issues/477)
+- google music: tiz\_urltrans\_on\_buffers\_ready: assertion [\#472](https://github.com/tizonia/tizonia-openmax-il/issues/472)
+- player: symbol lookup error: lib/tizonia0-plugins12/libtizhttpsrc.so.0.0.13: undefined symbol: tiz\_str\_util\_to\_lower [\#464](https://github.com/tizonia/tizonia-openmax-il/issues/464)
+- Google Music: track downloading is interrupted seemingly randomly [\#349](https://github.com/tizonia/tizonia-openmax-il/issues/349)
+
+**Closed issues:**
+
+- python modules \_soundcloud\_ and \_fuzzywuzzy\_ were missing [\#469](https://github.com/tizonia/tizonia-openmax-il/issues/469)
+- how to fix "FATAL. Could not init OpenMAX IL : OMX\_ErrorInsufficientResources" [\#466](https://github.com/tizonia/tizonia-openmax-il/issues/466)
+- Bionic install from repository: libspotify12 missing [\#465](https://github.com/tizonia/tizonia-openmax-il/issues/465)
+- release v0.14.0 [\#482](https://github.com/tizonia/tizonia-openmax-il/issues/482)
+
+## [v0.13.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.13.0) (2018-03-11)
+[Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.12.0...v0.13.0)
+
+**Improvements:**
+
+- libtizplatform: need API to configure connection timeout in tizurltransfer.h [\#453](https://github.com/tizonia/tizonia-openmax-il/issues/453)
+- dirble: m3u files are not parsed [\#451](https://github.com/tizonia/tizonia-openmax-il/issues/451)
+- soundcloud: improve the matching of search results [\#446](https://github.com/tizonia/tizonia-openmax-il/issues/446)
+- google music: improve the matching of search results [\#445](https://github.com/tizonia/tizonia-openmax-il/issues/445)
+- player: add progress display [\#444](https://github.com/tizonia/tizonia-openmax-il/issues/444)
+- Client request: Plex Media Server [\#387](https://github.com/tizonia/tizonia-openmax-il/issues/387)
+
+**Fixed bugs:**
+
+- Lots of ChannelError messages during Spotify playback [\#443](https://github.com/tizonia/tizonia-openmax-il/issues/443)
+- aac\_decoder: 'OMX\_ErrorInsuficientResources' is sometimes returned instead of 'OMX\_ErrorStreamCorruptFatal' [\#459](https://github.com/tizonia/tizonia-openmax-il/issues/459)
+- dirble: can't play radio stations - 'Content-Length' header comparison should be case-insensitive [\#458](https://github.com/tizonia/tizonia-openmax-il/issues/458)
+- dirble: error 'Unable to override decoder/renderer sampling rates' [\#457](https://github.com/tizonia/tizonia-openmax-il/issues/457)
+- dirble: buffer underruns in some radio stations \(specially with FlumotionHTTPServer\) [\#456](https://github.com/tizonia/tizonia-openmax-il/issues/456)
+- dirble: can't play radio stations if url contains mixed-case 'http' prefix [\#455](https://github.com/tizonia/tizonia-openmax-il/issues/455)
+- player: can't play radio stations if url contains mixed-case 'http' prefix [\#454](https://github.com/tizonia/tizonia-openmax-il/issues/454)
+- dirble: connection timeout is currently too long \(20 s\) [\#452](https://github.com/tizonia/tizonia-openmax-il/issues/452)
+- player: no local files played if the playlist contains unicode file names [\#449](https://github.com/tizonia/tizonia-openmax-il/issues/449)
+- soundcloud: UnicodeDecodeError 'ascii' codec can't decode byte 0xf0 in position 13 [\#432](https://github.com/tizonia/tizonia-openmax-il/issues/432)
+- Building tizonia on Ubuntu 17.10 Artful [\#421](https://github.com/tizonia/tizonia-openmax-il/issues/421)
+
+**Closed issues:**
+
+- There is no tizonia.conf file [\#447](https://github.com/tizonia/tizonia-openmax-il/issues/447)
+- Most CD ripper programs rip within a newly created folder representing the CD's name and artist, yet Tizonia appears to be oblivious to all nested folders in ~/Music. [\#442](https://github.com/tizonia/tizonia-openmax-il/issues/442)
+- Installer script doesn't copy tizonia.conf file [\#441](https://github.com/tizonia/tizonia-openmax-il/issues/441)
+- Unable to run on Solus OS [\#434](https://github.com/tizonia/tizonia-openmax-il/issues/434)
+- release v0.13.0 [\#460](https://github.com/tizonia/tizonia-openmax-il/issues/460)
+
+**Merged pull requests:**
+
+- Fixed path to default config file for standard install [\#448](https://github.com/tizonia/tizonia-openmax-il/pull/448) ([nlwstein](https://github.com/nlwstein))
+
+## [v0.12.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.12.0) (2018-02-11)
+[Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.11.0...v0.12.0)
+
+**Improvements:**
+
+- snap: move snapcraft.yaml to its own repo [\#431](https://github.com/tizonia/tizonia-openmax-il/issues/431)
+- libtizplatform: allow expansion of environment variables in tizonia configuration file [\#429](https://github.com/tizonia/tizonia-openmax-il/issues/429)
+- tizonia-config: Default configuration files should be installed to $sysconfdir/xdg/subdir/filename with $sysconfdir defaulting to /etc. [\#427](https://github.com/tizonia/tizonia-openmax-il/issues/427)
+- build system: update ax\_boost\*.m4 macros with latest version from autoconf-archive [\#426](https://github.com/tizonia/tizonia-openmax-il/issues/426)
+- build system: Tizonia snap package [\#309](https://github.com/tizonia/tizonia-openmax-il/issues/309)
+- clients: add a 'tizchromecastproxy' Python module [\#298](https://github.com/tizonia/tizonia-openmax-il/issues/298)
+- Chromecast support [\#296](https://github.com/tizonia/tizonia-openmax-il/issues/296)
+
+**Fixed bugs:**
+
+- Use of deprecated gethostbyname\(\) [\#425](https://github.com/tizonia/tizonia-openmax-il/issues/425)
+
+**Closed issues:**
+
+- Spotify playlist fails [\#435](https://github.com/tizonia/tizonia-openmax-il/issues/435)
+- release v0.12.0  [\#436](https://github.com/tizonia/tizonia-openmax-il/issues/436)
+
+**Merged pull requests:**
+
+- Make aac\_decoder optional [\#422](https://github.com/tizonia/tizonia-openmax-il/pull/422) ([luigino](https://github.com/luigino))
+
 ## [v0.11.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.11.0) (2017-12-17)
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.10.0...v0.11.0)
 
 **Improvements:**
 
+- libtizplatform: use $XDG\_CONFIG\_HOME and $XDG\_CONFIG\_DIRS to locate tizonia.conf [\#428](https://github.com/tizonia/tizonia-openmax-il/issues/428)
 - 3rdparty: embed pkgw/dbus-cplusplus [\#413](https://github.com/tizonia/tizonia-openmax-il/issues/413)
 - http\_source: youtubeprc - increase the amount of data emitted by the output port [\#411](https://github.com/tizonia/tizonia-openmax-il/issues/411)
 - webm\_demuxer: catch up internal nestegg with kinetiknz/nestegg master [\#405](https://github.com/tizonia/tizonia-openmax-il/issues/405)
@@ -13,6 +106,7 @@
 - tizonia-player: bash completion file distributed in debian package [\#385](https://github.com/tizonia/tizonia-openmax-il/issues/385)
 - tizonia-player: zsh completion file distributed in debian package [\#384](https://github.com/tizonia/tizonia-openmax-il/issues/384)
 - tizonia-player: bash completion file [\#307](https://github.com/tizonia/tizonia-openmax-il/issues/307)
+- clients: add a 'libtizchromecast' binding library [\#297](https://github.com/tizonia/tizonia-openmax-il/issues/297)
 
 **Fixed bugs:**
 
@@ -80,6 +174,7 @@
 - player: the terminal is occasionally left in an inconsistent state when the application fails [\#369](https://github.com/tizonia/tizonia-openmax-il/issues/369)
 - Various warnings while building with gcc 7.1.1 \(Manjaro Linux\) [\#367](https://github.com/tizonia/tizonia-openmax-il/issues/367)
 - docs: doc builds fail due to Breathe defect [\#343](https://github.com/tizonia/tizonia-openmax-il/issues/343)
+- Issues with Google Music : --gmusic-playlist [\#328](https://github.com/tizonia/tizonia-openmax-il/issues/328)
 - tizonia: pulsearprc.c:592: init\_pulseaudio\_stream: Assertion `ap\_prc-\>p\_pa\_context\_' failed. Aborted \(core dumped\) [\#301](https://github.com/tizonia/tizonia-openmax-il/issues/301)
 
 **Closed issues:**

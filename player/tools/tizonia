@@ -1,4 +1,4 @@
-# Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+# Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,18 +24,19 @@ _tizonia()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
 
-    global="--help --version --recurse --shuffle --daemon --chromecast --comp-list --roles-of-comp --comps-of-role"
+    global="--help --version --recurse --shuffle --daemon --cast --comp-list --roles-of-comp --comps-of-role"
     omx="--comp-list --roles-of-comp --comps-of-role"
     server="--server --port --station-name --station-genre --no-icy-metadata --bitrate-modes --sampling-rates"
     client="--station-id"
     spotify="--spotify-user --spotify-password --spotify-playlist"
-    gmusic="--gmusic-user --gmusic-password --gmusic-device-id --gmusic-tracks --gmusic-artist --gmusic-album --gmusic-playlist --gmusic-podcast --gmusic-unlimited-station --gmusic-unlimited-album --gmusic-unlimited-artist --gmusic-unlimited-tracks --gmusic-unlimited-playlist --gmusic-unlimited-genre --gmusic-unlimited-activity --gmusic-unlimited-feeling-lucky-station --gmusic-unlimited-promoted-tracks"
+    gmusic="--gmusic-user --gmusic-password --gmusic-device-id --gmusic-album --gmusic-artist --gmusic-library --gmusic-playlist --gmusic-podcast --gmusic-station --gmusic-tracks --gmusic-unlimited-station --gmusic-unlimited-album --gmusic-unlimited-artist --gmusic-unlimited-tracks --gmusic-unlimited-playlist --gmusic-unlimited-genre --gmusic-unlimited-activity --gmusic-unlimited-feeling-lucky-station --gmusic-unlimited-promoted-tracks"
     scloud="--soundcloud-oauth-token --soundcloud-user-stream --soundcloud-user-likes --soundcloud-user-playlist --soundcloud-creator --soundcloud-tracks --soundcloud-playlists --soundcloud-genres --soundcloud-tags"
     dirble="--dirble-api-key --dirble-popular-stations --dirble-station --dirble-category --dirble-country"
-    youtube="--youtube-audio-stream --youtube-audio-playlist --youtube-audio-mix --youtube-audio-search --youtube-audio-mix-search"
+    youtube="--youtube-audio-stream --youtube-audio-playlist --youtube-audio-mix --youtube-audio-search --youtube-audio-mix-search --youtube-audio-channel-playlist --youtube-audio-channel-uploads"
+    plex="--plex-server-base-url --plex-auth-token arg --plex-audio-tracks --plex-audio-artist --plex-audio-album --plex-audio-playlist"
 
     diropts="--recurse"
-    opts="${global} ${omx} ${server} ${client} ${spotify} ${gmusic} ${scloud} ${dirble} ${youtube}"
+    opts="${global} ${omx} ${server} ${client} ${spotify} ${gmusic} ${scloud} ${dirble} ${youtube} ${plex}"
 
     helpkeyword="help"
     helpopts="global openmax server client spotify googlemusic soundcloud dirble youtube keyboard config examples"

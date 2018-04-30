@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -220,7 +220,7 @@ store_stream_metadata (opusd_prc_t * ap_prc)
     (void) tiz_krn_clear_metadata (tiz_get_krn (handleOf (ap_prc)));
 
     snprintf (info, 99, "%d Ch, %d Hz", ap_prc->channels_, ap_prc->rate_);
-    info[99] = '\000';
+    info[99] = '\0';
     (void) store_metadata (ap_prc, "Opus Stream", info);
   }
 

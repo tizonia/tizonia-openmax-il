@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -201,6 +201,41 @@ int tiz_youtube_play_audio_search (tiz_youtube_t *ap_youtube,
  */
 int tiz_youtube_play_audio_mix_search (tiz_youtube_t *ap_youtube,
                                        const char *ap_search);
+
+/**
+ * Retrieve all video uploads from a YouTube channel and add all the
+ * audio streams to the playback queue.
+ *
+ * After calling this method, the various tiz_youtube_get* methods can be
+ * used to interact with the playback queue.
+ *
+ * @ingroup libtizyoutube
+ *
+ * @param ap_youtube The tiz_youtube handle.
+ * @param ap_channel A channel url.
+ *
+ * @return 0 on success
+ */
+int tiz_youtube_play_audio_channel_uploads (tiz_youtube_t *ap_youtube,
+                                            const char *ap_channel);
+
+/**
+ * Retrieve all video uploads from a YouTube channel and add all the
+ * audio streams to the playback queue.
+ *
+ * After calling this method, the various tiz_youtube_get* methods can be
+ * used to interact with the playback queue.
+ *
+ * @ingroup libtizyoutube
+ *
+ * @param ap_youtube The tiz_youtube handle.
+ * @param ap_channel_and_playlist The channel and playlist names, separated by
+ * a space character.
+ *
+ * @return 0 on success
+ */
+int tiz_youtube_play_audio_channel_playlist (tiz_youtube_t *ap_youtube,
+                                            const char *ap_channel_and_playlist);
 
 /**
  * Retrieve the next stream url

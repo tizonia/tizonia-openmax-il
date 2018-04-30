@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -243,16 +243,18 @@ namespace tiz
     struct omx_err_evt
     {
       omx_err_evt (const OMX_HANDLETYPE handle, const OMX_ERRORTYPE error,
-                   const OMX_U32 port
-                   = OMX_ALL)  // OMX_ALL here means "no port id"
+                   const OMX_U32 port = OMX_ALL, // OMX_ALL here means "no port id"
+                   const OMX_PTR p_eventdata = NULL)
           : handle_ (handle),
             error_ (error),
-            port_ (port)
+            port_ (port),
+            p_eventdata_ (p_eventdata)
       {
       }
       OMX_HANDLETYPE handle_;
       OMX_ERRORTYPE error_;
       OMX_U32 port_;
+      const OMX_PTR p_eventdata_;
     };
 
     // NOTE: This is an internal error (some internal operation failed)
@@ -318,6 +320,15 @@ namespace tiz
       }
     };
 
+    struct timer_evt
+    {
+      timer_evt (void *ap_arg1, const unsigned int a_id)
+        : p_arg1_ (ap_arg1), id_ (a_id)
+      {
+      }
+      void * p_arg1_;
+      unsigned int id_;
+    };
   }  // namespace graph
 }  // namespace tiz
 

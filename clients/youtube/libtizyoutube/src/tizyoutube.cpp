@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -29,8 +29,14 @@
 #include <config.h>
 #endif
 
-#include <boost/lexical_cast.hpp>
+
 #include <iostream>
+#include <vector>
+#include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/trim_all.hpp>
+#include <boost/algorithm/string/join.hpp>
 
 #include "tizyoutube.hpp"
 
@@ -74,28 +80,37 @@ namespace
 
     try
       {
-        // Import the Google Play Music proxy module
+        // Import Tizonia YouTube proxy module
         bp::object py_main = bp::import ("__main__");
 
         // Retrieve the main module's namespace
         bp::object py_global = py_main.attr ("__dict__");
 
+        // Check the existence of the 'pafy' module
         bp::object ignored = exec (
             "import imp\n"
             "imp.find_module('pafy')\n",
             py_global);
 
+        // Check the existence of the 'youtube_dl' module
         bp::object ignored2 = exec (
             "import imp\n"
             "imp.find_module('youtube_dl')\n",
             py_global);
+
+        // Check the existence of the 'fuzzywuzzy' module
+        bp::object ignored3 = exec (
+            "import imp\n"
+            "imp.find_module('fuzzywuzzy')\n",
+            py_global);
+
         rc = 0;
       }
     catch (bp::error_already_set &e)
       {
         PyErr_PrintEx (0);
         std::cerr << std::string (
-            "\nPython modules 'pafy and/or 'youtube-dl' not found."
+            "\nPython modules 'pafy' or 'youtube-dl' or 'fuzzywuzzy' not found."
             "\nPlease make sure these are installed correctly.\n");
       }
     catch (...)
@@ -211,6 +226,37 @@ int tizyoutube::play_audio_mix_search (const std::string &search)
   int rc = 0;
   try_catch_wrapper (
       py_yt_proxy_.attr ("enqueue_audio_mix_search") (bp::object (search)));
+  return rc;
+}
+
+int tizyoutube::play_audio_channel_uploads (const std::string &channel)
+{
+  int rc = 0;
+  try_catch_wrapper (
+      py_yt_proxy_.attr ("enqueue_audio_channel_uploads") (bp::object (channel)));
+  return rc;
+}
+
+int tizyoutube::play_audio_channel_playlist (
+    const std::string &channel_and_playlist)
+{
+  int rc = 0;
+  std::string ch_and_pl_trim = channel_and_playlist;
+  std::vector< std::string > strs;
+  boost::algorithm::trim_all (ch_and_pl_trim);
+  boost::split (strs, ch_and_pl_trim, boost::is_any_of (" "));
+  if (strs.size () <= 1)
+    {
+      rc = 1;
+    }
+  else
+    {
+      std::string channel = strs[0];
+      strs.erase (strs.begin ());
+      std::string playlist = boost::algorithm::join (strs, " ");
+      try_catch_wrapper (py_yt_proxy_.attr ("enqueue_audio_channel_playlist") (
+          bp::object (channel), bp::object (playlist)));
+    }
   return rc;
 }
 
@@ -430,7 +476,46 @@ int tizyoutube::get_current_stream ()
       py_yt_proxy_.attr ("current_audio_stream_duration") ());
   if (p_duration)
     {
-      current_stream_duration_.assign (p_duration);
+      std::string value;
+      value.assign (p_duration);
+      std::vector< std::string > strs;
+      boost::split (strs, value, boost::is_any_of (":"));
+      std::reverse(strs.begin(), strs.end());
+      size_t num_non_empty = 0;
+      for (size_t i = 0; i < strs.size (); ++i)
+        {
+          if (0 == i)
+            {
+              ++num_non_empty;
+              strs[i].append ("s");
+            }
+          if (1 == i)
+            {
+              ++num_non_empty;
+              strs[i].append ("m");
+            }
+          if (2 == i)
+            {
+              if (0 == boost::lexical_cast< unsigned long > (strs[i]))
+                {
+                  strs[i].clear ();
+                }
+              else
+                {
+                  ++num_non_empty;
+                  strs[i].append ("h");
+                }
+            }
+        }
+
+      for (size_t i = 0; i < num_non_empty; ++i)
+        {
+          current_stream_duration_ =  strs[i] + current_stream_duration_;
+          if ((num_non_empty - 1) != i)
+            {
+              current_stream_duration_ = ":" + current_stream_duration_;
+            }
+        }
     }
 
   const char *p_bitrate = bp::extract< char const * > (

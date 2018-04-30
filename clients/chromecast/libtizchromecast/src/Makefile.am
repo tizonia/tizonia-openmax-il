@@ -1,4 +1,4 @@
-# Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+# Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
 #
 # This file is part of Tizonia
 #
@@ -22,12 +22,18 @@ libtizchromecast_includedir = $(includedir)/tizonia
 noinst_HEADERS =
 
 libtizchromecast_include_HEADERS = \
+	tizchromecastctxtypes.h \
+	tizchromecastctx_c.h \
+	tizchromecast_c.h \
+	tizchromecastctx.hpp \
 	tizchromecast.hpp \
-	tizchromecast_c.h
+	tizchromecasttypes.h
 
 libtizchromecast_la_SOURCES = \
-	tizchromecast.cpp \
-	tizchromecast_c.cpp
+	tizchromecastctx_c.cpp \
+	tizchromecast_c.cpp \
+	tizchromecastctx.cpp \
+	tizchromecast.cpp
 
 libtizchromecast_la_CPPFLAGS = \
 	@PYTHON_CPPFLAGS@ \

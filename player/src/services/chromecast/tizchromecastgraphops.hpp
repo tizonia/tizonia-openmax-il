@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -51,18 +51,19 @@ namespace tiz
       void do_configure ();
       void do_skip ();
       void do_retrieve_metadata ();
-
+      OMX_ERRORTYPE dump_metadata_item (const OMX_U32 index,
+                                        const int comp_index,
+                                        const bool use_first_as_heading = true);
       bool is_fatal_error (const OMX_ERRORTYPE error) const;
-      void do_record_fatal_error (const OMX_HANDLETYPE handle,
-                                  const OMX_ERRORTYPE error,
-                                  const OMX_U32 port);
 
     private:
       void do_configure_chromecast ();
+      void do_configure_http ();
       void do_configure_gmusic ();
       void do_configure_scloud ();
       void do_configure_dirble ();
       void do_configure_youtube ();
+      void do_configure_plex ();
 
       OMX_ERRORTYPE get_encoding_type_from_chromecast_source ();
 

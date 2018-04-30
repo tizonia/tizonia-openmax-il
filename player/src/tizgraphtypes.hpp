@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -64,6 +64,7 @@ namespace tiz
     class scloudconfig;
     class dirbleconfig;
     class youtubeconfig;
+    class plexconfig;
     class chromecastconfig;
     struct omx_event_info;
   }
@@ -79,6 +80,7 @@ typedef boost::shared_ptr< tiz::graph::gmusicconfig > tizgmusicconfig_ptr_t;
 typedef boost::shared_ptr< tiz::graph::scloudconfig > tizscloudconfig_ptr_t;
 typedef boost::shared_ptr< tiz::graph::dirbleconfig > tizdirbleconfig_ptr_t;
 typedef boost::shared_ptr< tiz::graph::youtubeconfig > tizyoutubeconfig_ptr_t;
+typedef boost::shared_ptr< tiz::graph::plexconfig > tizplexconfig_ptr_t;
 typedef boost::shared_ptr< tiz::graph::chromecastconfig > tizchromecastconfig_ptr_t;
 typedef tiz::playlist tizplaylist_t;
 typedef boost::shared_ptr< tiz::playlist > tizplaylist_ptr_t;

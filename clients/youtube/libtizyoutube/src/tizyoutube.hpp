@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -60,6 +60,8 @@ public:
   int play_audio_mix (const std::string &url_or_id);
   int play_audio_search (const std::string &search);
   int play_audio_mix_search (const std::string &search);
+  int play_audio_channel_uploads (const std::string &channel);
+  int play_audio_channel_playlist (const std::string &channel_and_playlist);
 
   void set_playback_mode (const playback_mode mode);
   void clear_queue ();

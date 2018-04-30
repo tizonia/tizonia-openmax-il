@@ -1,4 +1,4 @@
-# Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+# Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
 #
 # This file is part of Tizonia
 #
@@ -63,6 +63,7 @@ noinst_HEADERS = \
 	tizgraphmgrcaps.hpp \
 	tizplaybackstatus.hpp \
 	tizplaybackevents.hpp \
+	tizprogressdisplay.hpp \
 	decoders/tizdecgraphmgr.hpp \
 	decoders/tizdecgraph.hpp \
 	decoders/tizmp3graph.hpp \
@@ -104,6 +105,10 @@ noinst_HEADERS = \
 	services/youtube/tizyoutubegraphops.hpp \
 	services/youtube/tizyoutubeconfig.hpp \
 	services/youtube/tizyoutubemgr.hpp \
+	services/plex/tizplexgraph.hpp \
+	services/plex/tizplexgraphops.hpp \
+	services/plex/tizplexconfig.hpp \
+	services/plex/tizplexmgr.hpp \
 	mpris/tizmpriscbacks.hpp \
 	mpris/tizmprisprops.hpp \
 	mpris/tizmprisif.hpp \
@@ -170,11 +175,15 @@ tizonia_SOURCES = \
 	services/youtube/tizyoutubegraphfsm.cpp \
 	services/youtube/tizyoutubegraphops.cpp \
 	services/youtube/tizyoutubemgr.cpp \
+	services/plex/tizplexgraph.cpp \
+	services/plex/tizplexgraphops.cpp \
+	services/plex/tizplexmgr.cpp \
 	services/chromecast/tizchromecastgraph.cpp \
 	services/chromecast/tizchromecastgraphfsm.cpp \
 	services/chromecast/tizchromecastgraphops.cpp \
 	services/chromecast/tizchromecastmgr.cpp \
 	tizplaybackevents.cpp \
+	tizprogressdisplay.cpp \
 	mpris/tizmprismgr.cpp \
 	mpris/tizmprisprops.cpp \
 	mpris/tizmprisif.cpp
@@ -190,6 +199,7 @@ tizonia_CPPFLAGS = \
 	-I$(top_srcdir)/src/services/dirble \
 	-I$(top_srcdir)/src/services/soundcloud \
 	-I$(top_srcdir)/src/services/youtube \
+	-I$(top_srcdir)/src/services/plex \
 	-I/usr/include/taglib \
 	@LIBMEDIAINFO_CFLAGS@ \
 	@TIZDBUSCPLUSPLUS_CFLAGS@ \

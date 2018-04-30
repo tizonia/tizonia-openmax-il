@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+# Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -45,12 +45,19 @@ declare -Ar TIZ_PROJECT_DIRS=( \
     [tizdirble]="clients/dirble/libtizdirble" \
     [tizyoutubeproxy]="clients/youtube/youtubeproxy" \
     [tizyoutube]="clients/youtube/libtizyoutube" \
+    [tizplexproxy]="clients/plex/plexproxy" \
+    [tizplex]="clients/plex/libtizplex" \
+    [tizchromecastproxy]="clients/chromecast/chromecastproxy" \
+    [tizchromecast]="clients/chromecast/libtizchromecast" \
     [tizplatform]="libtizplatform" \
+    [tizcastd]="cast/tizcastd" \
+    [tizcastclient]="cast/libtizcastclient" \
     [tizrmd]="rm/tizrmd" \
     [tizrmproxy]="rm/libtizrmproxy" \
     [tizcore]="libtizcore" \
     [tizonia]="libtizonia" \
     [tizaacdec]="plugins/aac_decoder" \
+    [tizchromecastrnd]="plugins/chromecast_renderer" \
     [tizfr]="plugins/file_reader" \
     [tizfw]="plugins/file_writer" \
     [tizflacdec]="plugins/flac_decoder" \
@@ -88,12 +95,19 @@ readonly TIZ_PROJECTS_ORDERED=( \
     tizdirble \
     tizyoutubeproxy \
     tizyoutube \
+    tizplexproxy \
+    tizplex \
+    tizchromecastproxy \
+    tizchromecast \
     tizplatform \
+    tizcastd \
+    tizcastclient \
     tizrmd \
     tizrmproxy \
     tizcore \
     tizonia \
     tizaacdec \
+    tizchromecastrnd \
     tizfr \
     tizfw \
     tizflacdec \
@@ -206,7 +220,7 @@ function print_dashes {
 #   None
 ##################################################################
 function print_banner_and_license {
-    pretty_print "$BLU" "$1. Copyright (C) 2017 Juan A. Rubio"
+    pretty_print "$BLU" "$1. Copyright (C) 2018 Juan A. Rubio"
     pretty_print "$BLU" "This software is part of the Tizonia project <http://tizonia.org>."
 
     echo

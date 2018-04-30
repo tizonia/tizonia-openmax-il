@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -56,10 +56,12 @@ public:
   void stop ();
   void deinit ();
 
+  int play_library ();
   int play_tracks (const std::string &tracks, const bool a_unlimited_search);
   int play_album (const std::string &album, const bool a_unlimited_search);
   int play_artist (const std::string &artist, const bool a_unlimited_search);
   int play_playlist (const std::string &playlist, const bool a_unlimited_search);
+  int play_free_station (const std::string &station);
   int play_station (const std::string &station);
   int play_genre (const std::string &genre);
   int play_situation (const std::string &situation);
@@ -78,6 +80,8 @@ public:
   const char * get_current_song_track_number ();
   const char * get_current_song_tracks_in_album ();
   const char * get_current_song_year ();
+  const char * get_current_song_genre ();
+  const char * get_current_song_album_art ();
 
 private:
   int get_current_song ();
@@ -94,6 +98,8 @@ private:
   std::string current_track_num_;
   std::string current_song_tracks_total_;
   std::string current_song_year_;
+  std::string current_song_genre_;
+  std::string current_song_album_art_;
   boost::python::object py_main_;
   boost::python::object py_global_;
   boost::python::object py_gm_proxy_;

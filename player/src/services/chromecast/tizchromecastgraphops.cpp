@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -29,11 +29,12 @@
 #include <config.h>
 #endif
 
+#include <ctype.h>
+
 #include <algorithm>
 
 #include <boost/assert.hpp>
 #include <boost/bind.hpp>
-#include <boost/make_shared.hpp>
 
 #include <OMX_Component.h>
 #include <OMX_Core.h>
@@ -49,6 +50,7 @@
 #include <tizprobe.hpp>
 #include <tizscloudconfig.hpp>
 #include <tizyoutubeconfig.hpp>
+#include <tizplexconfig.hpp>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -89,7 +91,13 @@ void graph::chromecastops::do_load ()
   const cc_cfg_t::service_config_type_t config_type
       = cc_config_->get_service_config_type ();
 
-  if (config_type == cc_cfg_t::ConfigGoogleMusic)
+  if (config_type == cc_cfg_t::ConfigHttpStreaming)
+  {
+    role_lst_.push_back ("audio_renderer.chromecast");
+    config_service_func_
+        = boost::bind (&tiz::graph::chromecastops::do_configure_http, this);
+  }
+  else if (config_type == cc_cfg_t::ConfigGoogleMusic)
   {
     role_lst_.push_back ("audio_renderer.chromecast.gmusic");
     config_service_func_
@@ -112,6 +120,12 @@ void graph::chromecastops::do_load ()
     role_lst_.push_back ("audio_renderer.chromecast.youtube");
     config_service_func_
         = boost::bind (&tiz::graph::chromecastops::do_configure_youtube, this);
+  }
+  else if (config_type == cc_cfg_t::ConfigPlex)
+  {
+    role_lst_.push_back ("audio_renderer.chromecast.plex");
+    config_service_func_
+        = boost::bind (&tiz::graph::chromecastops::do_configure_plex, this);
   }
   else
   {
@@ -142,6 +156,8 @@ void graph::chromecastops::do_skip ()
   if (last_op_succeeded () && 0 != jump_)
   {
     assert (!handles_.empty ());
+    // This is to provide some separation between tracks infos on the console
+    std::cout <<  std::endl << std::endl;
     G_OPS_BAIL_IF_ERROR (util::apply_playlist_jump (handles_[0], jump_),
                          "Unable to skip in playlist");
     // Reset the jump value, to its default value
@@ -154,18 +170,72 @@ void graph::chromecastops::do_retrieve_metadata ()
   OMX_U32 index = 0;
   const int chromecast_index = 0;
   // Extract metadata from the chromecast source
-  while (OMX_ErrorNone == dump_metadata_item (index++, chromecast_index))
+  while (OMX_ErrorNone
+      == dump_metadata_item (index++, chromecast_index))
   {
   };
+}
 
-  // TODO
-  // Now print renderer metadata
-  //   TIZ_PRINTF_MAG (
-  //       "     %ld Ch, %g KHz, %lu:%s:%s \n", renderer_pcmtype_.nChannels,
-  //       ((float)renderer_pcmtype_.nSamplingRate) / 1000,
-  //       renderer_pcmtype_.nBitPerSample,
-  //       renderer_pcmtype_.eNumData == OMX_NumericalDataSigned ? "s" : "u",
-  //       renderer_pcmtype_.eEndian == OMX_EndianBig ? "b" : "l");
+OMX_ERRORTYPE
+graph::chromecastops::dump_metadata_item (
+    const OMX_U32 index, const int comp_index,
+    const bool use_first_as_heading /* = true */)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  OMX_CONFIG_METADATAITEMTYPE *p_meta = NULL;
+  size_t metadata_len = 0;
+  size_t value_len = 0;
+
+  (void)use_first_as_heading;
+
+  value_len = OMX_MAX_STRINGNAME_SIZE;
+  metadata_len = sizeof (OMX_CONFIG_METADATAITEMTYPE) + value_len;
+
+  if (NULL
+      == (p_meta
+          = (OMX_CONFIG_METADATAITEMTYPE *)tiz_mem_calloc (1, metadata_len)))
+  {
+    rc = OMX_ErrorInsufficientResources;
+  }
+  else
+  {
+    p_meta->nSize = metadata_len;
+    p_meta->nVersion.nVersion = OMX_VERSION;
+    p_meta->eScopeMode = OMX_MetadataScopeAllLevels;
+    p_meta->nScopeSpecifier = 0;
+    p_meta->nMetadataItemIndex = index;
+    p_meta->eSearchMode = OMX_MetadataSearchValueSizeByIndex;
+    p_meta->eKeyCharset = OMX_MetadataCharsetASCII;
+    p_meta->eValueCharset = OMX_MetadataCharsetASCII;
+    p_meta->nKeySizeUsed = 0;
+    p_meta->nValue[0] = '\0';
+    p_meta->nValueMaxSize = OMX_MAX_STRINGNAME_SIZE;
+    p_meta->nValueSizeUsed = 0;
+
+    rc = OMX_GetConfig (handles_[comp_index], OMX_IndexConfigMetadataItem,
+                        p_meta);
+    if (OMX_ErrorNone == rc
+        && strnlen ((const char *)p_meta->nKey, OMX_MAX_STRINGNAME_SIZE)
+        && strnlen ((const char *)p_meta->nValue, OMX_MAX_STRINGNAME_SIZE))
+    {
+      if (isspace (p_meta->nKey[0]) && isspace (p_meta->nKey[1]))
+      {
+        TIZ_PRINTF_GRN ("   %s : %s\n", p_meta->nKey, p_meta->nValue);
+      }
+      else if (0 == index && use_first_as_heading)
+      {
+        TIZ_PRINTF_YEL ("   %s : %s\n", p_meta->nKey, p_meta->nValue);
+      }
+      else
+      {
+        TIZ_PRINTF_CYN ("     %s : %s\n", p_meta->nKey, p_meta->nValue);
+      }
+    }
+
+    tiz_mem_free (p_meta);
+    p_meta = NULL;
+  }
+  return rc;
 }
 
 bool graph::chromecastops::is_fatal_error (const OMX_ERRORTYPE error) const
@@ -185,23 +255,26 @@ bool graph::chromecastops::is_fatal_error (const OMX_ERRORTYPE error) const
   return rc;
 }
 
-void graph::chromecastops::do_record_fatal_error (const OMX_HANDLETYPE handle,
-                                                  const OMX_ERRORTYPE error,
-                                                  const OMX_U32 port)
-{
-  tiz::graph::ops::do_record_fatal_error (handle, error, port);
-  if (error == OMX_ErrorContentURIError)
-  {
-    error_msg_.append ("\n [Playlist not found]");
-  }
-}
-
 void graph::chromecastops::do_configure_chromecast ()
 {
   assert (cc_config_);
   G_OPS_BAIL_IF_ERROR (tiz::graph::util::set_chromecast_name_or_ip (
                            handles_[0], cc_config_->get_name_or_ip ()),
                        "Unable to set OMX_TizoniaIndexParamChromecastSession");
+}
+
+void graph::chromecastops::do_configure_http ()
+{
+  assert (cc_config_);
+  tizgraphconfig_ptr_t config
+      = cc_config_->get_service_config ();
+
+  assert (config);
+  tizplaylist_ptr_t playlist = config_->get_playlist ();
+
+  G_OPS_BAIL_IF_ERROR (
+      util::set_content_uri (handles_[0], playlist_->get_current_uri ()),
+      "Unable to set OMX_IndexParamContentURI");
 }
 
 void graph::chromecastops::do_configure_gmusic ()
@@ -278,6 +351,26 @@ void graph::chromecastops::do_configure_youtube ()
           handles_[0], playlist_->get_current_uri (),
           youtube_config->get_playlist_type (), playlist_->shuffle ()),
       "Unable to set OMX_TizoniaIndexParamAudioYoutubePlaylist");
+}
+
+void graph::chromecastops::do_configure_plex ()
+{
+  assert (cc_config_);
+  tizplexconfig_ptr_t plex_config
+      = boost::dynamic_pointer_cast< plexconfig > (
+          cc_config_->get_service_config ());
+  assert (plex_config);
+
+  G_OPS_BAIL_IF_ERROR (
+      tiz::graph::util::set_plex_session (
+          handles_[0], plex_config->get_base_url (), plex_config->get_token ()),
+      "Unable to set OMX_TizoniaIndexParamAudioPlexSession");
+
+  G_OPS_BAIL_IF_ERROR (
+      tiz::graph::util::set_plex_playlist (
+          handles_[0], playlist_->get_current_uri (),
+          plex_config->get_playlist_type (), playlist_->shuffle ()),
+      "Unable to set OMX_TizoniaIndexParamAudioPlexPlaylist");
 }
 
 OMX_ERRORTYPE graph::chromecastops::get_encoding_type_from_chromecast_source ()

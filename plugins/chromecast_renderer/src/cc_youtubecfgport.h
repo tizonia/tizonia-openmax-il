@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -21,7 +21,7 @@
  * @file   cc_youtubecfgport.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  A specialised config port class for the Youtube renderer component
+ * @brief  A specialised config port class for the YouTube renderer component
  *
  *
  */

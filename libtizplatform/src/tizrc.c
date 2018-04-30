@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -58,7 +58,7 @@
 
 #define PAT_SIZE PATH_MAX
 
-static char delim[2] = {';', '\000'};
+static char delim[2] = {';', '\0'};
 static char pat[PAT_SIZE];
 
 typedef struct file_info file_info_t;

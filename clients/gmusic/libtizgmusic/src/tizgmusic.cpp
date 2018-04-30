@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -80,19 +80,26 @@ namespace
         // Retrieve the main module's namespace
         bp::object py_global = py_main.attr ("__dict__");
 
+        // Check the existence of the 'gmusicapi' module
         bp::object ignored = exec (
             "import imp\n"
             "imp.find_module('gmusicapi')\n",
             py_global);
+
+        // Check the existence of the 'fuzzywuzzy' module
+        bp::object ignored2 = exec (
+            "import imp\n"
+            "imp.find_module('fuzzywuzzy')\n",
+            py_global);
+
         rc = 0;
       }
     catch (bp::error_already_set &e)
       {
         PyErr_PrintEx (0);
         std::cerr << std::string (
-            "\nPython module 'gmusicapi' could not be found."
-            "\nPlease make sure this is installed correctly.\n"
-            "(e.g. 'pip install gmusicapi').\n");
+            "\nPython modules 'gmusicapi' or 'fuzzywuzzy' not found."
+            "\nPlease make sure these are installed correctly.\n");
       }
     catch (...)
       {
@@ -162,6 +169,13 @@ void tizgmusic::deinit ()
   // boost::python doesn't support Py_Finalize() yet!
 }
 
+int tizgmusic::play_library ()
+{
+  int rc = 0;
+  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_library")());
+  return rc;
+}
+
 int tizgmusic::play_tracks (const std::string &tracks, const bool a_unlimited_search)
 {
   int rc = 0;
@@ -219,6 +233,13 @@ int tizgmusic::play_playlist (const std::string &playlist, const bool a_unlimite
     {
       try_catch_wrapper (py_gm_proxy_.attr ("enqueue_playlist")(bp::object (playlist)));
     }
+  return rc;
+}
+
+int tizgmusic::play_free_station (const std::string &station)
+{
+  int rc = 0;
+  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_station")(bp::object (station)));
   return rc;
 }
 
@@ -335,9 +356,17 @@ const char *tizgmusic::get_current_song_tracks_in_album ()
 
 const char *tizgmusic::get_current_song_year ()
 {
-  return current_song_year_.empty ()
-             ? NULL
-             : current_song_year_.c_str ();
+  return current_song_year_.empty () ? NULL : current_song_year_.c_str ();
+}
+
+const char *tizgmusic::get_current_song_genre ()
+{
+  return current_song_genre_.empty () ? NULL : current_song_genre_.c_str ();
+}
+
+const char *tizgmusic::get_current_song_album_art ()
+{
+  return current_song_album_art_.empty () ? NULL : current_song_album_art_.c_str ();
 }
 
 void tizgmusic::clear_queue ()
@@ -376,6 +405,8 @@ int tizgmusic::get_current_song ()
   int rc = 1;
   current_artist_.clear ();
   current_title_.clear ();
+  current_song_genre_.clear ();
+  current_song_album_art_.clear ();
 
   const bp::tuple &info1 = bp::extract< bp::tuple >(
       py_gm_proxy_.attr ("current_song_title_and_artist")());
@@ -445,6 +476,20 @@ int tizgmusic::get_current_song ()
 
   const int song_year = bp::extract< int >(py_gm_proxy_.attr ("current_song_year")());
   current_song_year_.assign (boost::lexical_cast< std::string >(song_year));
+
+  const char *p_genre = bp::extract< char const * >(
+      py_gm_proxy_.attr ("current_song_genre")());
+  if (p_genre)
+    {
+      current_song_genre_.assign (p_genre);
+    }
+
+  const char *p_album_art = bp::extract< char const * >(
+      py_gm_proxy_.attr ("current_song_album_art")());
+  if (p_album_art)
+    {
+      current_song_album_art_.assign (p_album_art);
+    }
 
   if (p_artist || p_title)
     {

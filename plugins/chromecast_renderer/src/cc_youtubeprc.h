@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -21,7 +21,7 @@
  * @file   cc_youtubeprc.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Youtube chromecast renderer - processor class
+ * @brief  YouTube Chromecast renderer - processor class
  *
  *
  */

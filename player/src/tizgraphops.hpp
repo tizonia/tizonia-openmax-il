@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -121,7 +121,7 @@ namespace tiz
       virtual void do_ack_execd ();
       virtual void do_ack_stopped ();
       virtual void do_ack_paused ();
-      virtual void do_ack_unpaused ();
+      virtual void do_ack_resumed ();
       virtual void do_ack_metadata ();
       virtual void do_ack_volume ();
       virtual void do_exe2pause ();
@@ -150,7 +150,13 @@ namespace tiz
       virtual void do_reset_internal_error ();
       virtual void do_record_fatal_error (const OMX_HANDLETYPE handle,
                                           const OMX_ERRORTYPE error,
-                                          const OMX_U32 port);
+                                          const OMX_U32 port,
+                                          const OMX_PTR p_eventdata = NULL);
+      virtual void do_start_progress_display();
+      virtual void do_increase_progress_display(void *ap_arg1, const unsigned int a_id);
+      virtual void do_pause_progress_display();
+      virtual void do_resume_progress_display();
+      virtual void do_stop_progress_display();
 
       virtual bool is_port_settings_evt_required () const;
       virtual bool is_disabled_evt_required () const;
@@ -159,6 +165,7 @@ namespace tiz
                                       const OMX_HANDLETYPE handle,
                                       const OMX_U32 port_id,
                                       const OMX_INDEXTYPE index_id) const;
+      virtual bool is_skip_allowed () const;
 
       OMX_ERRORTYPE internal_error () const;
       std::string internal_error_msg () const;
@@ -223,6 +230,8 @@ namespace tiz
                                                 const bool use_first_as_heading
                                                 = true);
 
+      virtual void store_last_track_duration(const char * p_value);
+
       cbackhandler &get_cback_handler () const;
 
     protected:
@@ -240,6 +249,7 @@ namespace tiz
       OMX_STATETYPE destination_state_;
       track_metadata_map_t metadata_;
       int volume_;
+      unsigned long duration_;
       OMX_ERRORTYPE error_code_;
       std::string error_msg_;
     };

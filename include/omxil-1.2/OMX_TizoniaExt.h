@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -75,6 +75,8 @@
 #define OMX_TizoniaIndexParamAudioDeezerSession      OMX_IndexVendorStartUnused + 19 /**< reference: OMX_TIZONIA_AUDIO_PARAM_DEEZERSESSIONTYPE */
 #define OMX_TizoniaIndexParamAudioDeezerPlaylist     OMX_IndexVendorStartUnused + 20 /**< reference: OMX_TIZONIA_AUDIO_PARAM_DEEZERPLAYLISTTYPE */
 #define OMX_TizoniaIndexParamChromecastSession       OMX_IndexVendorStartUnused + 21 /**< reference: OMX_TIZONIA_PARAM_CHROMECASTSESSIONTYPE */
+#define OMX_TizoniaIndexParamAudioPlexSession        OMX_IndexVendorStartUnused + 22 /**< reference: OMX_TIZONIA_AUDIO_PARAM_PLEXSESSIONTYPE */
+#define OMX_TizoniaIndexParamAudioPlexPlaylist       OMX_IndexVendorStartUnused + 23 /**< reference: OMX_TIZONIA_AUDIO_PARAM_PLEXPLAYLISTTYPE */
 
 /**
  * OMX_AUDIO_CODINGTYPE extensions
@@ -324,15 +326,17 @@ typedef struct OMX_TIZONIA_PLAYLISTSKIPTYPE {
 
 typedef enum OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE {
     OMX_AUDIO_GmusicPlaylistTypeUnknown = 0, /**< Playlist type unknown (Default). */
-    OMX_AUDIO_GmusicPlaylistTypeUser, /**< User-defined playlist. */
-    OMX_AUDIO_GmusicPlaylistTypeArtist, /**< Artist playlist. */
-    OMX_AUDIO_GmusicPlaylistTypeAlbum, /**< Album playlist. */
-    OMX_AUDIO_GmusicPlaylistTypeStation, /**< Station playlist. */
-    OMX_AUDIO_GmusicPlaylistTypeGenre, /**< Genre playlist. */
-    OMX_AUDIO_GmusicPlaylistTypeSituation, /**< Situation playlist. */
+    OMX_AUDIO_GmusicPlaylistTypeUser, /**< User-defined playlist search. */
+    OMX_AUDIO_GmusicPlaylistTypeArtist, /**< Artist search. */
+    OMX_AUDIO_GmusicPlaylistTypeAlbum, /**< Album search. */
+    OMX_AUDIO_GmusicPlaylistTypeStation, /**< Station search (unlimited). */
+    OMX_AUDIO_GmusicPlaylistTypeGenre, /**< Genre search (unlimited). */
+    OMX_AUDIO_GmusicPlaylistTypeSituation, /**< Situation search (unlimited). */
     OMX_AUDIO_GmusicPlaylistTypePromotedTracks, /**< Promoted tracks playlist. */
     OMX_AUDIO_GmusicPlaylistTypeTracks, /**< Regular tracks search. */
     OMX_AUDIO_GmusicPlaylistTypePodcast, /**< Podcast search. */
+    OMX_AUDIO_GmusicPlaylistTypeLibrary, /**< A playlist containing all elements in the user's library. */
+    OMX_AUDIO_GmusicPlaylistTypeFreeStation, /**< A station search (free tier). */
     OMX_AUDIO_GmusicPlaylistTypeKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
     OMX_AUDIO_GmusicPlaylistTypeVendorStartUnused = 0x7F000000, /**< Reserved region for introducing Vendor Extensions */
     OMX_AUDIO_GmusicPlaylistTypeMax = 0x7FFFFFFF
@@ -433,6 +437,8 @@ typedef enum OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE {
     OMX_AUDIO_YoutubePlaylistTypeAudioMix, /**< Audio playback from a youtube mix associated to a url or video id. */
     OMX_AUDIO_YoutubePlaylistTypeAudioSearch, /**< Audio playback from a youtube search. */
     OMX_AUDIO_YoutubePlaylistTypeAudioMixSearch, /**< Audio playback from a youtube mix associated to a search term. */
+    OMX_AUDIO_YoutubePlaylistTypeAudioChannelUploads, /**< Audio playback from a youtube channel url or name. */
+    OMX_AUDIO_YoutubePlaylistTypeAudioChannelPlaylist, /**< Audio playback from a youtube channel url or name and playlist name. */
     OMX_AUDIO_YoutubePlaylistTypeKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
     OMX_AUDIO_YoutubePlaylistTypeVendorStartUnused = 0x7F000000, /**< Reserved region for introducing Vendor Extensions */
     OMX_AUDIO_YoutubePlaylistTypeMax = 0x7FFFFFFF
@@ -496,5 +502,35 @@ typedef struct OMX_TIZONIA_PARAM_CHROMECASTSESSIONTYPE {
     OMX_VERSIONTYPE nVersion;
     OMX_U8 cNameOrIpAddr[OMX_MAX_STRINGNAME_SIZE];
 } OMX_TIZONIA_PARAM_CHROMECASTSESSIONTYPE;
+
+/**
+ * Plex source component
+ *
+ */
+typedef enum OMX_TIZONIA_AUDIO_PLEXPLAYLISTTYPE {
+    OMX_AUDIO_PlexPlaylistTypeUnknown = 0, /**< Playlist type unknown (Default). */
+    OMX_AUDIO_PlexPlaylistTypeAudioTracks, /**< Audio search and playback from a plex track search. */
+    OMX_AUDIO_PlexPlaylistTypeAudioArtist, /**< Audio search and playback from a plex artist search. */
+    OMX_AUDIO_PlexPlaylistTypeAudioAlbum, /**< Audio search and playback from a plex album search. */
+    OMX_AUDIO_PlexPlaylistTypeAudioPlaylist, /**< Audio playback from a plex playlist. */
+    OMX_AUDIO_PlexPlaylistTypeKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
+    OMX_AUDIO_PlexPlaylistTypeVendorStartUnused = 0x7F000000, /**< Reserved region for introducing Vendor Extensions */
+    OMX_AUDIO_PlexPlaylistTypeMax = 0x7FFFFFFF
+} OMX_TIZONIA_AUDIO_PLEXPLAYLISTTYPE;
+
+typedef struct OMX_TIZONIA_AUDIO_PARAM_PLEXSESSIONTYPE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_U8 cBaseUrl[OMX_MAX_STRINGNAME_SIZE];
+    OMX_U8 cAuthToken[OMX_MAX_STRINGNAME_SIZE];
+} OMX_TIZONIA_AUDIO_PARAM_PLEXSESSIONTYPE;
+
+typedef struct OMX_TIZONIA_AUDIO_PARAM_PLEXPLAYLISTTYPE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_TIZONIA_AUDIO_PLEXPLAYLISTTYPE ePlaylistType;
+    OMX_BOOL bShuffle;            /**< Default: OMX_FALSE */
+    OMX_U8 cPlaylistName[OMX_MAX_STRINGNAME_SIZE];
+} OMX_TIZONIA_AUDIO_PARAM_PLEXPLAYLISTTYPE;
 
 #endif /* OMX_TizoniaExt_h */

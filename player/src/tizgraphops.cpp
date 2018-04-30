@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -32,9 +32,12 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <vector>
 #include <algorithm>
 
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/mem_fn.hpp>
 #include <boost/lexical_cast.hpp>
@@ -76,6 +79,7 @@ graph::ops::ops (graph *p_graph, const omx_comp_name_lst_t &comp_lst,
     destination_state_ (OMX_StateMax),
     metadata_ (),
     volume_ (80),
+    duration_ (0),
     error_code_ (OMX_ErrorNone),
     error_msg_ ()
 {
@@ -321,11 +325,11 @@ void graph::ops::do_ack_paused ()
   }
 }
 
-void graph::ops::do_ack_unpaused ()
+void graph::ops::do_ack_resumed ()
 {
   if (last_op_succeeded () && p_graph_)
   {
-    p_graph_->graph_unpaused ();
+    p_graph_->graph_resumed ();
   }
 }
 
@@ -601,19 +605,74 @@ void graph::ops::do_reset_internal_error ()
 
 void graph::ops::do_record_fatal_error (const OMX_HANDLETYPE handle,
                                         const OMX_ERRORTYPE error,
-                                        const OMX_U32 port)
+                                        const OMX_U32 port,
+                                        const OMX_PTR p_eventdata /* = NULL */)
 {
   std::string msg ("[");
   msg.append (handle2name (handle));
   if (port != OMX_ALL)
   {
     msg.append (":port:");
-    msg.append (boost::lexical_cast< std::string >(port));
+    msg.append (boost::lexical_cast< std::string > (port));
   }
   msg.append ("]\n [");
-  msg.append (std::string (tiz_err_to_str (error)));
+  if (p_eventdata
+      && strnlen ((const OMX_STRING)p_eventdata, OMX_MAX_STRINGNAME_SIZE)
+             < OMX_MAX_STRINGNAME_SIZE)
+  {
+    msg.append (std::string ((const OMX_STRING)p_eventdata));
+  }
+  else
+  {
+    msg.append (std::string (tiz_err_to_str (error)));
+  }
   msg.append ("]");
   record_error (error, msg);
+}
+
+void
+graph::ops::do_start_progress_display()
+{
+  if (last_op_succeeded () && p_graph_)
+  {
+    p_graph_->progress_display_start (duration_);
+  }
+}
+
+void
+graph::ops::do_increase_progress_display(void *ap_arg1, const unsigned int a_id)
+{
+  if (last_op_succeeded () && p_graph_)
+  {
+    p_graph_->progress_display_increase ();
+  }
+}
+
+void
+graph::ops::do_pause_progress_display()
+{
+  if (last_op_succeeded () && p_graph_)
+  {
+    p_graph_->progress_display_pause ();
+  }
+}
+
+void
+graph::ops::do_resume_progress_display()
+{
+  if (last_op_succeeded () && p_graph_)
+  {
+    p_graph_->progress_display_resume ();
+  }
+}
+
+void
+graph::ops::do_stop_progress_display()
+{
+  if (last_op_succeeded () && p_graph_)
+  {
+    p_graph_->progress_display_stop ();
+  }
 }
 
 bool graph::ops::is_port_settings_evt_required () const
@@ -649,6 +708,12 @@ bool graph::ops::is_tunnel_altered (const int tunnel_id,
   (void)port_id;
   (void)index_id;
   return tunnel_id == std::distance (handles_.begin (), handle_pos_iter);
+}
+
+bool graph::ops::is_skip_allowed () const
+{
+  // Default implementation. To be overriden by child classess if necessary.
+  return true;
 }
 
 OMX_ERRORTYPE
@@ -923,7 +988,7 @@ graph::ops::probe_stream (const OMX_PORTDOMAINTYPE omx_domain,
     {
       // The current uri is not what we expected. So skip it and erase it from
       // the playlist so that we don't attempt the playback again.
-      tiz::graph::util::dump_graph_info ("Unknown/unexpected format", "skip",
+      tiz::graph::util::dump_graph_info ("Unknown/unexpected format", "skipping",
                                          uri);
       playlist_->erase_uri (playlist_->current_index ());
       playlist_->set_index (playlist_->current_index () - 1);
@@ -945,6 +1010,7 @@ graph::ops::probe_stream (const OMX_PORTDOMAINTYPE omx_domain,
         tiz::graph::util::dump_graph_info (graph_id.c_str (),
                                            graph_action.c_str (), uri);
         probe_ptr_->dump_stream_metadata ();
+        store_last_track_duration (probe_ptr_->stream_length ().c_str());
         boost::bind (boost::mem_fn (stream_info_dump_f), probe_ptr_)();
 
         metadata_ = boost::assign::map_list_of ("trackid", "1")
@@ -1066,6 +1132,12 @@ graph::ops::dump_metadata_item (const OMX_U32 index, const int comp_index,
       else
         {
           TIZ_PRINTF_CYN ("     %s : %s\n", p_meta->nKey, p_meta->nValue);
+          std::string key;
+          key.assign ((const char*)p_meta->nKey);
+          if (boost::starts_with (key, "Duration"))
+            {
+              store_last_track_duration ((const char*)p_meta->nValue);
+            }
         }
     }
 
@@ -1073,6 +1145,38 @@ graph::ops::dump_metadata_item (const OMX_U32 index, const int comp_index,
     p_meta = NULL;
   }
   return rc;
+}
+
+void graph::ops::store_last_track_duration(const char * p_value)
+{
+  if (p_value)
+  {
+    std::string value;
+    value.assign (p_value);
+    std::vector< std::string > strs;
+    boost::split (strs, value, boost::is_any_of (":"));
+    unsigned long seconds = 0;
+    for (size_t i = 0; i < strs.size (); i++)
+    {
+      std::string section(strs[i]);
+      section.erase(remove_if(section.begin(), section.end(), ::isspace), section.end());
+      unsigned long value = boost::lexical_cast< unsigned long > (
+          section.substr (0, section.size () - 1));
+      if (boost::ends_with (section, "h"))
+      {
+        seconds += (value * 3600);
+      }
+      if (boost::ends_with (section, "m"))
+      {
+        seconds += (value * 60);
+      }
+      if (boost::ends_with (section, "s"))
+      {
+        seconds += value;
+      }
+    }
+    duration_ = seconds;
+  }
 }
 
 graph::cbackhandler &graph::ops::get_cback_handler () const

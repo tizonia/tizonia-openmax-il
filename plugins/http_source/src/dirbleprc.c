@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -93,39 +93,39 @@ obtain_coding_type (dirble_prc_t * ap_prc, char * ap_info)
 
   TIZ_TRACE (handleOf (ap_prc), "encoding type  : [%s]", ap_info);
 
-  if (memcmp (ap_info, "audio/mpeg", 10) == 0
-      || memcmp (ap_info, "audio/mpg", 9) == 0
-      || memcmp (ap_info, "audio/mp3", 9) == 0)
+  if (strncasecmp (ap_info, "audio/mpeg", 10) == 0
+      || strncasecmp (ap_info, "audio/mpg", 9) == 0
+      || strncasecmp (ap_info, "audio/mp3", 9) == 0)
     {
       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingMP3;
     }
-  else if (memcmp (ap_info, "audio/aac", 9) == 0
-           || memcmp (ap_info, "audio/aacp", 10) == 0)
+  else if (strncasecmp (ap_info, "audio/aac", 9) == 0
+           || strncasecmp (ap_info, "audio/aacp", 10) == 0)
     {
       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingAAC;
     }
-  else if (memcmp (ap_info, "audio/vorbis", 12) == 0)
+  else if (strncasecmp (ap_info, "audio/vorbis", 12) == 0)
     {
       /* This is vorbis without container */
       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingVORBIS;
     }
-  else if (memcmp (ap_info, "audio/speex", 11) == 0)
+  else if (strncasecmp (ap_info, "audio/speex", 11) == 0)
     {
       /* This is speex without container */
       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingSPEEX;
     }
-  else if (memcmp (ap_info, "audio/flac", 10) == 0)
+  else if (strncasecmp (ap_info, "audio/flac", 10) == 0)
     {
       /* This is flac without container */
       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingFLAC;
     }
-  else if (memcmp (ap_info, "audio/opus", 10) == 0)
+  else if (strncasecmp (ap_info, "audio/opus", 10) == 0)
     {
       /* This is opus without container */
       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingOPUS;
     }
-  else if (memcmp (ap_info, "application/ogg", 15) == 0
-           || memcmp (ap_info, "audio/ogg", 9) == 0)
+  else if (strncasecmp (ap_info, "application/ogg", 15) == 0
+           || strncasecmp (ap_info, "audio/ogg", 9) == 0)
     {
       /* This is for audio with ogg container (may be FLAC, Vorbis, Opus,
          etc). We'll have to identify the actual codec when the first bytes
@@ -275,12 +275,11 @@ obtain_audio_encoding_from_headers (dirble_prc_t * ap_prc,
         {
           char * p_info = tiz_mem_calloc (1, (p_end - p_value) + 1);
           memcpy (p_info, p_value, p_end - p_value);
-          p_info[(p_end - p_value)] = '\000';
+          p_info[(p_end - p_value)] = '\0';
           TIZ_TRACE (handleOf (ap_prc), "header name  : [%s]", name);
           TIZ_TRACE (handleOf (ap_prc), "header value : [%s]", p_info);
 
-          if (memcmp (name, "Content-Type", 12) == 0
-              || memcmp (name, "content-type", 12) == 0)
+          if (strncasecmp (name, "content-type", 12) == 0)
             {
               if (OMX_ErrorNone == obtain_coding_type (ap_prc, p_info))
                 {
@@ -416,8 +415,8 @@ obtain_next_url (dirble_prc_t * ap_prc, int a_skip_value)
 
       /* Verify we are getting an http scheme */
       if (!p_next_url || !url_len
-          || (memcmp (p_next_url, "http://", 7) != 0
-              && memcmp (p_next_url, "https://", 8) != 0))
+          || (strncasecmp (p_next_url, "http://", 7) != 0
+              && strncasecmp (p_next_url, "https://", 8) != 0))
         {
           rc = OMX_ErrorContentURIError;
         }
@@ -425,7 +424,7 @@ obtain_next_url (dirble_prc_t * ap_prc, int a_skip_value)
         {
           strncpy ((char *) ap_prc->p_uri_param_->contentURI, p_next_url,
                    url_len);
-          ap_prc->p_uri_param_->contentURI[url_len] = '\000';
+          ap_prc->p_uri_param_->contentURI[url_len] = '\0';
 
           /* Song metadata is now available, update the IL client */
           rc = update_metadata (ap_prc);
@@ -463,8 +462,12 @@ buffer_filled (OMX_BUFFERHEADERTYPE * ap_hdr, void * ap_arg)
   assert (p_prc);
   assert (ap_hdr);
   assert (p_prc->p_outhdr_ == ap_hdr);
-  ap_hdr->nOffset = 0;
-  (void) release_buffer (p_prc);
+  if (ARATELIA_HTTP_SOURCE_PORT_MIN_BUF_SIZE <= ap_hdr->nFilledLen
+      || p_prc->connection_closed_ || p_prc->first_buffer_delivered_)
+    {
+      (void) release_buffer (p_prc);
+      p_prc->first_buffer_delivered_ = true;
+    }
 }
 
 static OMX_BUFFERHEADERTYPE *
@@ -560,6 +563,9 @@ connection_lost (OMX_PTR ap_arg)
       /* Signal the client */
       tiz_srv_issue_err_event ((OMX_PTR) p_prc, OMX_ErrorFormatNotDetected);
     }
+
+  p_prc->connection_closed_ = true;
+
   /* Return false to indicate that there is no need to start the automatic
      reconnection procedure */
   return false;
@@ -681,6 +687,8 @@ dirble_prc_ctor (void * ap_obj, va_list * app)
   p_prc->bitrate_ = ARATELIA_HTTP_SOURCE_DEFAULT_BIT_RATE_KBITS;
   update_cache_size (p_prc);
   p_prc->remove_current_url_ = false;
+  p_prc->connection_closed_ = false;
+  p_prc->first_buffer_delivered_ = false;
   return p_prc;
 }
 
@@ -728,6 +736,10 @@ dirble_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
                            ARATELIA_HTTP_SOURCE_PORT_MIN_BUF_SIZE,
                            ARATELIA_HTTP_SOURCE_DEFAULT_RECONNECT_TIMEOUT,
                            buffer_cbacks, info_cbacks, io_cbacks, timer_cbacks);
+    if (OMX_ErrorNone == rc)
+      {
+        tiz_urltrans_set_connect_timeout(p_prc->p_trans_, 3L);
+      }
   }
   return rc;
 }
@@ -764,6 +776,8 @@ dirble_prc_transfer_and_process (void * ap_prc, OMX_U32 a_pid)
   assert (p_prc);
   if (p_prc->auto_detect_on_)
     {
+      p_prc->connection_closed_ = false;
+      p_prc->first_buffer_delivered_ = false;
       rc = tiz_urltrans_start (p_prc->p_trans_);
     }
   return rc;
@@ -866,7 +880,7 @@ dirble_prc_port_enable (const void * ap_prc, OMX_U32 a_pid)
       else
         {
           p_prc->uri_changed_ = false;
-          /*           rc = tiz_urltrans_start (p_prc->p_trans_); */
+          /* rc = tiz_urltrans_start (p_prc->p_trans_); */
         }
     }
   return rc;
@@ -904,6 +918,8 @@ dirble_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
       prepare_for_port_auto_detection (p_prc);
 
       /* Re-start the transfer */
+      p_prc->connection_closed_ = false;
+      p_prc->first_buffer_delivered_ = false;
       tiz_urltrans_start (p_prc->p_trans_);
     }
   return rc;

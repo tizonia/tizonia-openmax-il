@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -42,6 +42,7 @@ extern "C" {
 #define ARATELIA_SCLOUD_SOURCE_DEFAULT_ROLE "audio_renderer.chromecast.scloud"
 #define ARATELIA_DIRBLE_SOURCE_DEFAULT_ROLE "audio_renderer.chromecast.dirble"
 #define ARATELIA_YOUTUBE_SOURCE_DEFAULT_ROLE "audio_renderer.chromecast.youtube"
+#define ARATELIA_PLEX_SOURCE_DEFAULT_ROLE "audio_renderer.chromecast.plex"
 #define ARATELIA_CHROMECAST_RENDERER_COMPONENT_NAME \
   "OMX.Aratelia.audio_renderer.chromecast"
 /* With libtizonia, port indexes must start at index 0 */
@@ -53,7 +54,7 @@ extern "C" {
 #define ARATELIA_CHROMECAST_RENDERER_PORT_SUPPLIERPREF OMX_BufferSupplyInput
 #define ARATELIA_CHROMECAST_RENDERER_MAX_VOLUME_VALUE 100
 #define ARATELIA_CHROMECAST_RENDERER_MIN_VOLUME_VALUE 0
-#define ARATELIA_CHROMECAST_RENDERER_DEFAULT_VOLUME_VALUE 75
+#define ARATELIA_CHROMECAST_RENDERER_DEFAULT_VOLUME_VALUE 20
 #define ARATELIA_CHROMECAST_RENDERER_DEFAULT_RECONNECT_TIMEOUT 3.0F
 #define ARATELIA_CHROMECAST_RENDERER_DEFAULT_BIT_RATE_KBITS 128
 #define ARATELIA_CHROMECAST_RENDERER_DEFAULT_CACHE_SECONDS 10

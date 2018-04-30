@@ -17,7 +17,7 @@ Package: tizrmd
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Tizonia's resource manager daemon
- A server that controls the Tizonia OpenMAX IL resources.
+ A daemon server to control Tizonia OpenMAX IL resources.
 
 Package: tizrmd-dbg
 Section: debug
@@ -25,7 +25,7 @@ Priority: extra
 Architecture: any
 Depends: tizrmd (= ${binary:Version}), ${misc:Depends}
 Description: Tizonia's resource manager daemon
- A server that controls the Tizonia OpenMAX IL resources.
+ A daemon server to control Tizonia OpenMAX IL resources.
  .
  This package contains the debugging symbols.
 
@@ -35,9 +35,8 @@ Architecture: any
 Depends: tizrmd (= ${binary:Version}),
          tizilheaders,
          libtizplatform-dev,
-         libtizdbus-c++-dev,
-         check
-Description: Tizonia's platform library, development files
+         libtizdbus-c++-dev
+Description: Tizonia's resource manager, development files
  Tizonia's resource manager daemon.
  .
  This package contains the development headers.

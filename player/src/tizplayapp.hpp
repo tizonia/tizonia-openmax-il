@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -47,6 +47,7 @@ namespace tiz
     int run ();
 
   private:
+    void check_or_create_config_file ();
     void set_option_handlers ();
 
     OMX_ERRORTYPE daemonize_if_requested () const;
@@ -63,7 +64,13 @@ namespace tiz
     OMX_ERRORTYPE scloud_stream ();
     OMX_ERRORTYPE dirble_stream ();
     OMX_ERRORTYPE youtube_stream ();
+    OMX_ERRORTYPE plex_stream ();
+    OMX_ERRORTYPE http_stream_chromecast ();
     OMX_ERRORTYPE gmusic_stream_chromecast ();
+    OMX_ERRORTYPE scloud_stream_chromecast ();
+    OMX_ERRORTYPE dirble_stream_chromecast ();
+    OMX_ERRORTYPE youtube_stream_chromecast ();
+    OMX_ERRORTYPE plex_stream_chromecast ();
 
     void print_banner () const;
 

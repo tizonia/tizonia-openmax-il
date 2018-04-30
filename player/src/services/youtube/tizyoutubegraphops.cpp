@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -717,9 +717,10 @@ bool graph::youtubeops::is_fatal_error (const OMX_ERRORTYPE error) const
 
 void graph::youtubeops::do_record_fatal_error (const OMX_HANDLETYPE handle,
                                                const OMX_ERRORTYPE error,
-                                               const OMX_U32 port)
+                                               const OMX_U32 port,
+                                               const OMX_PTR p_eventdata /* = NULL */)
 {
-  tiz::graph::ops::do_record_fatal_error (handle, error, port);
+  tiz::graph::ops::do_record_fatal_error (handle, error, port, p_eventdata);
   if (error == OMX_ErrorContentURIError)
   {
     error_msg_.append ("\n [Playlist not found]");

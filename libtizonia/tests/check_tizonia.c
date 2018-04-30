@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -2043,7 +2043,7 @@ tiz_suite (void)
   (void) test_tizonia_command_cancellation_loaded_to_idle_with_tunneled_supplied_buffers;
 /*   (void) test_tizonia_command_cancellation_loaded_to_idle_no_buffers_port_disabled_unblocks_transition; */
   (void) test_tizonia_command_cancellation_loaded_to_idle_with_buffers_port_disabled_cant_unblock_transition;
-/*   (void) test_tizonia_command_cancellation_disabled_to_enabled_no_buffers; */
+  (void) test_tizonia_command_cancellation_disabled_to_enabled_no_buffers;
   (void) test_tizonia_command_cancellation_disabled_to_enabled_with_tunneled_supplied_buffers;
 
   tcase_add_test (tc_tizonia, test_tizonia_getstate);
@@ -2064,8 +2064,9 @@ tiz_suite (void)
   /* TEST DISABLED */
   /*   tcase_add_test (tc_tizonia, */
   /*                   test_tizonia_command_cancellation_loaded_to_idle_with_buffers_port_disabled_cant_unblock_transition); */
-  tcase_add_test (tc_tizonia,
-                  test_tizonia_command_cancellation_disabled_to_enabled_no_buffers);
+  /* TEST DISABLED */
+  /*   tcase_add_test (tc_tizonia, */
+  /*                   test_tizonia_command_cancellation_disabled_to_enabled_no_buffers); */
   /* TEST DISABLED */
   /*   tcase_add_test (tc_tizonia, */
   /*                   test_tizonia_command_cancellation_disabled_to_enabled_with_tunneled_supplied_buffers); */

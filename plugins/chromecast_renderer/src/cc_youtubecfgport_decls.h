@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -21,7 +21,7 @@
  * @file   cc_youtubecfgport_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  A specialised config port class for the Youtube renderer component
+ * @brief  A specialised config port class for the YouTube renderer component
  *
  *
  */
@@ -36,13 +36,13 @@ extern "C" {
 #include <OMX_TizoniaExt.h>
 #include <OMX_Types.h>
 
-#include <tizconfigport_decls.h>
+#include "cc_cfgport_decls.h"
 
 typedef struct cc_youtube_cfgport cc_youtube_cfgport_t;
 struct cc_youtube_cfgport
 {
   /* Object */
-  const tiz_configport_t _;
+  const cc_cfgport_t _;
   OMX_TIZONIA_AUDIO_PARAM_YOUTUBESESSIONTYPE session_;
   OMX_TIZONIA_AUDIO_PARAM_YOUTUBEPLAYLISTTYPE playlist_;
 };
@@ -51,7 +51,7 @@ typedef struct cc_youtube_cfgport_class cc_youtube_cfgport_class_t;
 struct cc_youtube_cfgport_class
 {
   /* Class */
-  const tiz_configport_class_t _;
+  const cc_cfgport_class_t _;
   /* NOTE: Class methods might be added in the future */
 };
 

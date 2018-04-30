@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+# Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -32,10 +32,10 @@ if echo "$RELIDS" | grep raspbian; then
         echo "Can't find a supported Raspbian distribution."
         exit 1
     fi
-elif echo "$RELIDS" | grep jessie; then
-  DISTRO="debian" ; RELEASE="jessie"
 elif echo "$RELIDS" | grep stretch; then
   DISTRO="debian" ; RELEASE="stretch"
+elif echo "$RELIDS" | grep buster; then
+  DISTRO="debian" ; RELEASE="buster"
 elif echo "$RELIDS" | grep -E 'trusty|freya|qiana|rebecca|rafaela|rosa|sarah'; then
   # NOTE: Elementary OS 'freya' is based on trusty
   # NOTE: LinuxMint 'qiana' 'rebecca' 'rafaela' 'rosa' 'sarah' are all based on trusty
@@ -82,7 +82,11 @@ sudo apt-get -y install python-pip \
             youtube-dl \
             pafy \
             pycountry \
-            titlecase
+            titlecase \
+            pychromecast \
+            plexapi \
+            fuzzywuzzy \
+            eventlet
 
 # Install 'libspotify'
 if [[ "$?" -eq 0 ]]; then
@@ -94,22 +98,13 @@ if [[ "$?" -eq 0 ]]; then
     sudo apt-get -y install tizonia-all
 fi
 
-# Copy Tizonia's config file to the user's config directory
-if [[ "$?" -eq 0 ]]; then
-    TIZ_CONFIG_DIR="$HOME/.config/tizonia"
-    TIZ_CONFIG_FILE="$TIZ_CONFIG_DIR/tizonia.conf"
-    if [[ ! -e "$TIZ_CONFIG_FILE" ]]; then
-        mkdir -p "$TIZ_CONFIG_DIR"
-        cp /etc/tizonia/tizonia.conf "$TIZ_CONFIG_FILE"
-    fi
-fi
-
 # Simple test to verify that everything went well
+TIZ_CONFIG_FILE="$HOME/.config/tizonia/tizonia.conf"
 which tizonia > /dev/null
 if [[ "$?" -eq 0 ]]; then
     echo ; tizonia ; echo
     printf "Tizonia is now installed.\n\n"
-    printf "Please add Spotify, Google Music, Soundcloud, and Dirble credentials to : $TIZ_CONFIG_FILE\n"
+    printf "Please add Spotify, Google Music, Soundcloud, Dirble, and Plex credentials to : $TIZ_CONFIG_FILE\n"
 else
     echo "Oops. Something went wrong!"
     exit 1

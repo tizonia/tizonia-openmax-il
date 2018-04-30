@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -305,7 +305,8 @@ namespace tiz
                                   ::conf_exit>, configured_evt , executing               , boost::msm::front::ActionSequence_<
                                                                                              boost::mpl::vector<
                                                                                                do_retrieve_metadata,
-                                                                                               do_ack_execd> >                            >,
+                                                                                               do_ack_execd,
+                                                                                               do_start_progress_display> >               >,
         boost::msm::front::Row < configuring
                                  ::exit_pt
                                  <configuring_
@@ -329,6 +330,7 @@ namespace tiz
         boost::msm::front::Row < executing   , omx_err_evt     , skipping                , boost::msm::front::none                        >,
         boost::msm::front::Row < executing   , omx_err_evt     , skipping                , do_record_fatal_error   , is_fatal_error       >,
         boost::msm::front::Row < executing   , omx_eos_evt     , skipping                , boost::msm::front::none , is_last_eos          >,
+        boost::msm::front::Row < executing   , timer_evt       , boost::msm::front::none , do_increase_progress_display                   >,
         //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
         boost::msm::front::Row < skipping
                                  ::exit_pt
@@ -349,10 +351,14 @@ namespace tiz
         boost::msm::front::Row < skipping
                                  ::exit_pt
                                  <skipping_
-                                  ::skip_exit>, skipped_evt    , configuring             , boost::msm::front::none , boost::msm::front::euml::Not_<
+                                  ::skip_exit>, skipped_evt    , configuring             , do_stop_progress_display , boost::msm::front::euml::Not_<
                                                                                                                        is_end_of_play>   >,
         //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
-        boost::msm::front::Row < exe2pause   , omx_trans_evt   , pause                   , do_ack_paused           , is_trans_complete    >,
+        boost::msm::front::Row < exe2pause   , omx_trans_evt   , pause                   , boost::msm::front::ActionSequence_<
+                                                                                             boost::mpl::vector<
+                                                                                               do_ack_paused,
+                                                                                               do_pause_progress_display
+                                                                                               > >                 , is_trans_complete    >,
         //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
         boost::msm::front::Row < pause       , execute_evt     , pause2exe               , do_pause2exe                               >,
         boost::msm::front::Row < pause       , pause_evt       , pause2exe               , do_pause2exe                               >,
@@ -362,14 +368,19 @@ namespace tiz
                                                                                                do_pause2idle > >                      >,
         boost::msm::front::Row < pause       , unload_evt      , pause2idle              , do_pause2idle                              >,
         //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
-        boost::msm::front::Row < pause2exe   , omx_trans_evt   , executing               , do_ack_unpaused         , is_trans_complete    >,
+        boost::msm::front::Row < pause2exe   , omx_trans_evt   , executing               , boost::msm::front::ActionSequence_<
+                                                                                             boost::mpl::vector<
+                                                                                               do_ack_resumed,
+                                                                                               do_resume_progress_display >
+                                                                                               >                   , is_trans_complete    >,
         //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
         boost::msm::front::Row < pause2idle  , omx_trans_evt   , idle2loaded             , do_idle2loaded      , is_trans_complete    >,
         boost::msm::front::Row < pause2idle  , omx_trans_evt   , idle                    , boost::msm::front::ActionSequence_<
                                                                                              boost::mpl::vector<
                                                                                                do_record_destination <
                                                                                                  OMX_StateMax >,
-                                                                                               do_ack_stopped > >  , bmf::euml::And_<
+                                                                                               do_ack_stopped,
+                                                                                               do_stop_progress_display> >  , bmf::euml::And_<
                                                                                                                        is_trans_complete,
                                                                                                                        is_destination_state <
                                                                                                                          OMX_StateIdle > > >,
@@ -379,7 +390,8 @@ namespace tiz
                                                                                              boost::mpl::vector<
                                                                                                do_record_destination <
                                                                                                  OMX_StateMax >,
-                                                                                               do_ack_stopped > >  , bmf::euml::And_<
+                                                                                               do_ack_stopped,
+                                                                                               do_stop_progress_display> >  , bmf::euml::And_<
                                                                                                                        is_destination_state <
                                                                                                                          OMX_StateIdle >,
                                                                                                                          is_trans_complete > >,
@@ -387,7 +399,8 @@ namespace tiz
         boost::msm::front::Row < idle        , execute_evt     , executing               , boost::msm::front::ActionSequence_<
                                                                                              boost::mpl::vector<
                                                                                                do_ack_execd,
-                                                                                               do_idle2exe > >                        >,
+                                                                                               do_idle2exe,
+                                                                                               do_start_progress_display> >                        >,
         boost::msm::front::Row < idle        , unload_evt      , idle2loaded             , do_idle2loaded                             >,
         //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
         boost::msm::front::Row < idle2loaded , omx_trans_evt   , unloaded                , boost::msm::front::ActionSequence_<

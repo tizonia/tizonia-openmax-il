@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -62,8 +62,8 @@ graph::dirbleops::dirbleops (graph *p_graph,
     encoding_ (OMX_AUDIO_CodingAutoDetect),
     inital_graph_load_ (false)
 {
-  TIZ_INIT_OMX_PORT_STRUCT (decoder_mp3type_, 0);
   TIZ_INIT_OMX_PORT_STRUCT (renderer_pcmtype_, 0);
+  TIZ_INIT_OMX_PORT_STRUCT (decoder_mp3type_, 0);
 }
 
 void graph::dirbleops::do_enable_auto_detection (const int handle_id,
@@ -466,32 +466,57 @@ OMX_ERRORTYPE
 graph::dirbleops::set_channels_and_rate_on_decoder (const OMX_U32 channels,
                                                     const OMX_U32 sampling_rate)
 {
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
   const OMX_HANDLETYPE handle = handles_[1];  // decoder's handle
   const OMX_U32 port_id = 0;                  // decoder's input port
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "channels = [%d] sampling_rate = [%d]", channels,
            sampling_rate);
 
-  // Retrieve the mp3 settings from the decoder component
-  TIZ_INIT_OMX_PORT_STRUCT (decoder_mp3type_, port_id);
-  tiz_check_omx (
-      OMX_GetParameter (handle, OMX_IndexParamAudioMp3, &decoder_mp3type_));
+  switch (encoding_)
+  {
+    case OMX_AUDIO_CodingMP3:
+    {
+      tiz::graph::util::set_channels_and_rate_on_audio_port<
+        OMX_AUDIO_PARAM_MP3TYPE > (handle, port_id, OMX_IndexParamAudioMp3,
+                                   channels, sampling_rate);
+    }
+    break;
+    case OMX_AUDIO_CodingAAC:
+    {
+      tiz::graph::util::set_channels_and_rate_on_audio_port<
+        OMX_AUDIO_PARAM_AACPROFILETYPE > (handle, port_id, OMX_IndexParamAudioAac,
+                                          channels, sampling_rate);
+    }
+    break;
+    case OMX_AUDIO_CodingVORBIS:
+    {
+      // TODO
+    }
+    break;
+    default:
+    {
+      if (OMX_AUDIO_CodingOPUS == encoding_)
+      {
+        // TODO
+      }
+      else if (OMX_AUDIO_CodingFLAC == encoding_)
+      {
+        // TODO
+      }
+      else
+      {
+        TIZ_LOG (
+            TIZ_PRIORITY_ERROR,
+            "[OMX_ErrorFormatNotDetected] : Unhandled encoding type [%d]...",
+            encoding_);
+        rc = OMX_ErrorFormatNotDetected;
+      }
+    }
+    break;
+  };
 
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "channels = [%d] sampling_rate = [%d]", channels,
-           sampling_rate);
-
-  // Now assign the actual settings to the pcmtype structure
-  decoder_mp3type_.nChannels = channels;
-  decoder_mp3type_.nSampleRate = sampling_rate;
-
-  // Set the new mp3 settings
-  tiz_check_omx (
-      OMX_SetParameter (handle, OMX_IndexParamAudioMp3, &decoder_mp3type_));
-
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "channels = [%d] sampling_rate = [%d]", channels,
-           sampling_rate);
-
-  return OMX_ErrorNone;
+  return rc;
 }
 
 OMX_ERRORTYPE
@@ -553,9 +578,10 @@ bool graph::dirbleops::is_fatal_error (const OMX_ERRORTYPE error) const
 
 void graph::dirbleops::do_record_fatal_error (const OMX_HANDLETYPE handle,
                                               const OMX_ERRORTYPE error,
-                                              const OMX_U32 port)
+                                              const OMX_U32 port,
+                                              const OMX_PTR p_eventdata /* = NULL */)
 {
-  tiz::graph::ops::do_record_fatal_error (handle, error, port);
+  tiz::graph::ops::do_record_fatal_error (handle, error, port, p_eventdata);
   if (error == OMX_ErrorContentURIError)
   {
     error_msg_.append ("\n [Playlist not found]");

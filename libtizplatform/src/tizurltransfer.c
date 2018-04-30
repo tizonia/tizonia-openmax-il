@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -178,6 +178,7 @@ struct tiz_urltrans
   OMX_STRING p_comp_name_;                 /* not owned */
   OMX_PARAM_CONTENTURITYPE * p_uri_param_; /* not owned */
   size_t store_bytes_;
+  long connect_timeout_;
   double reconnect_timeout_;
   tiz_urltrans_buffer_cbacks_t buffer_cbacks_;
   tiz_urltrans_info_cbacks_t info_cbacks_;
@@ -349,8 +350,8 @@ start_curl (tiz_urltrans_t * ap_trans)
   bail_on_curl_error (
     curl_easy_setopt (ap_trans->p_curl_, CURLOPT_NOPROGRESS, 1));
 
-  bail_on_curl_error (
-    curl_easy_setopt (ap_trans->p_curl_, CURLOPT_CONNECTTIMEOUT, 20));
+  bail_on_curl_error (curl_easy_setopt (
+    ap_trans->p_curl_, CURLOPT_CONNECTTIMEOUT, ap_trans->connect_timeout_));
   bail_on_curl_error (
     curl_easy_setopt (ap_trans->p_curl_, CURLOPT_SSL_VERIFYHOST, 0));
   bail_on_curl_error (
@@ -1000,7 +1001,7 @@ allocate_curl_resources (tiz_urltrans_t * ap_trans)
                   ap_trans->p_http_ok_aliases_, "ICY 200 OK")));
   /* and this is to not ask the server for Icy metadata, for now */
   bail_on_oom ((ap_trans->p_http_headers_ = curl_slist_append (
-                  ap_trans->p_http_headers_, "Icy-MetaData: 0")));
+                  ap_trans->p_http_headers_, "Icy-MetaData:0")));
 
   /* all ok */
   rc = OMX_ErrorNone;
@@ -1062,6 +1063,7 @@ tiz_urltrans_init (tiz_urltrans_ptr_t * app_trans, void * ap_parent,
           p_trans->p_comp_name_ = ap_comp_name; /* Not owned */
           p_trans->p_uri_param_ = ap_uri_param; /* Not owned */
           p_trans->store_bytes_ = a_store_bytes;
+          p_trans->connect_timeout_ = 5L; /* default: 5 seconds */
           p_trans->reconnect_timeout_ = a_reconnect_timeout;
 
           p_trans->buffer_cbacks_ = a_buffer_cbacks;
@@ -1139,6 +1141,14 @@ end:
 
   URLTRANS_LOG_API_END (ap_trans);
   return;
+}
+
+void
+tiz_urltrans_set_connect_timeout (tiz_urltrans_t * ap_trans,
+                                  const long a_connect_timeout)
+{
+  assert (ap_trans);
+  ap_trans->connect_timeout_ = a_connect_timeout;
 }
 
 void
@@ -1244,7 +1254,9 @@ tiz_urltrans_on_buffers_ready (tiz_urltrans_t * ap_trans)
         }
     }
   URLTRANS_LOG_API_END (ap_trans);
-  ASSERT_ASYNC_EVENTS (ap_trans);
+  /* This assertion is apparently not needed. See
+     https://github.com/tizonia/tizonia-openmax-il/issues/472 */
+  /* ASSERT_ASYNC_EVENTS (ap_trans); */
   return rc;
 }
 
@@ -1339,4 +1351,15 @@ tiz_urltrans_on_timer_ready (tiz_urltrans_t * ap_trans,
   URLTRANS_LOG_API_END (ap_trans);
   ASSERT_ASYNC_EVENTS (ap_trans);
   return rc;
+}
+
+OMX_U32
+tiz_urltrans_bytes_available (tiz_urltrans_t * ap_trans)
+{
+  assert (ap_trans);
+  if (ap_trans->p_store_)
+    {
+      return tiz_buffer_available (ap_trans->p_store_);
+    }
+  return 0;
 }

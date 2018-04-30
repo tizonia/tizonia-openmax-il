@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -107,6 +107,7 @@ namespace tiz
                                                    else INJECT_EVENT (graph_updated_evt)
                                                      else INJECT_EVENT (graph_reconfigured_evt)
                                                        else INJECT_EVENT (tunnel_reconfigured_evt)
+                                                         else INJECT_EVENT (timer_evt)
                                                          else
                                                            {
                                                              assert (0);

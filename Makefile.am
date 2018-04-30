@@ -1,4 +1,4 @@
-# Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+# Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
 #
 # This file is part of Tizonia
 #
@@ -25,39 +25,7 @@
 # SUBDIRS = config include libtizplatform rm libtizcore libtizonia plugins tizonia docs
 
 if ENABLE_PLAYER
-SUBDIRS= 3rdparty include clients libtizplatform rm libtizcore libtizonia plugins player config
+SUBDIRS= 3rdparty config include clients libtizplatform cast rm libtizcore libtizonia plugins player
 else
-SUBDIRS= 3rdparty include clients libtizplatform rm libtizcore libtizonia plugins config
+SUBDIRS= 3rdparty include clients libtizplatform cast rm libtizcore libtizonia plugins config
 endif
-
-
-# NOTE: A cscope target is included in automake since api 1.12
-
-#CLEANFILES = cscope.in.out cscope.out cscope.po.out
-
-#.PHONY: cscope
-#cscope:
-#	cscope -b -q -R -Iinclude/omxil-1.2 -slibtizonia -slibtizcore -slibtizplatform -srm -splugins -stizonia;
-
-# '-nut’ = '--no-tabs’
-#    Use spaces instead of tabs.
-# '-sc’ = '--start-left-side-of-comments’
-#    Put the '*’ character at the left of comments.
-# '-pmt’ = '--preserve-mtime’
-#    Preserve access and modification times on output files.
-#  '-l79' = '--line-lengthn'
-#    Set maximum line length for non-comment lines to 79.
-
-
-# NOTE: The indent target is disabled for now. Currently experimenting with clang-format for C++.
-
-# .PHONY: indent
-# indent:
-# 	find . -path ./include -prune \
-# 	-o -path "*tests*" -prune \
-# 	-o -path ./docs -prune \
-# 	-o -iname "config.h" -prune \
-# 	-o -iname "utarray.h" -prune \
-# 	-o -iname "*.[ch]" \
-# 	-exec indent --gnu-style -pmt -sc -nut -l79 "{}" \;
-

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -56,6 +56,8 @@ struct httpsrc_prc
   bool auto_detect_on_;
   int bitrate_;
   int cache_bytes_;
+  bool connection_closed_;
+  bool first_buffer_delivered_;
 };
 
 typedef struct httpsrc_prc_class httpsrc_prc_class_t;

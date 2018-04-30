@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -543,6 +543,24 @@ tiz_srv_issue_err_event (const void * ap_obj, OMX_ERRORTYPE a_error)
   const tiz_srv_class_t * class = classOf (ap_obj);
   assert (class->issue_err_event);
   class->issue_err_event (ap_obj, a_error);
+}
+
+static void
+srv_issue_err_event_with_data (const void * ap_obj, OMX_ERRORTYPE a_error,
+                               OMX_STRING ap_msg)
+{
+  TIZ_ERROR (handleOf (ap_obj), "[OMX_EventError] [%s]",
+             tiz_err_to_str (a_error));
+  srv_issue_event (ap_obj, OMX_EventError, a_error, 0, ap_msg);
+}
+
+void
+tiz_srv_issue_err_event_with_data (const void * ap_obj, OMX_ERRORTYPE a_error,
+                                   OMX_STRING ap_msg)
+{
+  const tiz_srv_class_t * class = classOf (ap_obj);
+  assert (class->issue_err_event);
+  class->issue_err_event_with_data (ap_obj, a_error, ap_msg);
 }
 
 static void
@@ -1201,6 +1219,10 @@ srv_class_ctor (void * ap_obj, va_list * app)
         {
           *(voidf *) &p_srv->issue_err_event = method;
         }
+      else if (selector == (voidf) tiz_srv_issue_err_event_with_data)
+        {
+          *(voidf *) &p_srv->issue_err_event_with_data = method;
+        }
       else if (selector == (voidf) tiz_srv_issue_cmd_event)
         {
           *(voidf *) &p_srv->issue_cmd_event = method;
@@ -1359,6 +1381,8 @@ tiz_srv_init (void * ap_tos, void * ap_hdl)
      tiz_srv_issue_event, srv_issue_event,
      /* TIZ_CLASS_COMMENT: */
      tiz_srv_issue_err_event, srv_issue_err_event,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_issue_err_event_with_data, srv_issue_err_event_with_data,
      /* TIZ_CLASS_COMMENT: */
      tiz_srv_issue_cmd_event, srv_issue_cmd_event,
      /* TIZ_CLASS_COMMENT: */

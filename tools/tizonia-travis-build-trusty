@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+# Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -52,6 +52,7 @@ declare -ar SKEMA_EXEMPT_SUITES=( \
     'Vp8Playback' \
     'WebmVp8Playback' \
     'Mp3StreamingClientPortAutoDetect' \
+    'Mp4AacDemux' \
 )
 
 # A list of skema test suites that should be executed without the --quiet flag
@@ -301,6 +302,30 @@ function install_python_deps {
         exit_status=$?
         if [[ "$exit_status" -ne 0 ]] ; then
             echo "Error while installing titlecase" >&2
+        fi
+    fi
+
+    if [[ "$exit_status" -eq 0 ]] ; then
+        pip install --user plexapi
+        exit_status=$?
+        if [[ "$exit_status" -ne 0 ]] ; then
+            echo "Error while installing plexapi" >&2
+        fi
+    fi
+
+    if [[ "$exit_status" -eq 0 ]] ; then
+        pip install --user fuzzywuzzy
+        exit_status=$?
+        if [[ "$exit_status" -ne 0 ]] ; then
+            echo "Error while installing fuzzywuzzy" >&2
+        fi
+    fi
+
+    if [[ "$exit_status" -eq 0 ]] ; then
+        pip install --user eventlet
+        exit_status=$?
+        if [[ "$exit_status" -ne 0 ]] ; then
+            echo "Error while installing eventlet" >&2
         fi
     fi
 

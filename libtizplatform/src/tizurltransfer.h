@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -300,6 +300,10 @@ tiz_urltrans_set_uri (tiz_urltrans_t * ap_trans,
                       OMX_PARAM_CONTENTURITYPE * ap_uri_param);
 
 void
+tiz_urltrans_set_connect_timeout (tiz_urltrans_t * ap_trans,
+                                  const long a_connect_timeout);
+
+void
 tiz_urltrans_set_internal_buffer_size (tiz_urltrans_t * ap_trans,
                                        const int a_nbytes);
 
@@ -328,6 +332,9 @@ tiz_urltrans_on_io_ready (tiz_urltrans_t * ap_trans, tiz_event_io_t * ap_ev_io,
 OMX_ERRORTYPE
 tiz_urltrans_on_timer_ready (tiz_urltrans_t * ap_trans,
                              tiz_event_timer_t * ap_ev_timer);
+
+OMX_U32
+tiz_urltrans_bytes_available (tiz_urltrans_t * ap_trans);
 
 #ifdef __cplusplus
 }

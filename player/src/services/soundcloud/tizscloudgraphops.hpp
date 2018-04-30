@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -58,7 +58,8 @@ namespace tiz
       bool is_fatal_error (const OMX_ERRORTYPE error) const;
       void do_record_fatal_error (const OMX_HANDLETYPE handle,
                                   const OMX_ERRORTYPE error,
-                                  const OMX_U32 port);
+                                  const OMX_U32 port,
+                                  const OMX_PTR p_eventdata = NULL);
 
     private:
       OMX_ERRORTYPE switch_tunnel (
@@ -68,10 +69,13 @@ namespace tiz
       // re-implemented from the base class
       bool probe_stream_hook ();
       OMX_ERRORTYPE get_encoding_type_from_scloud_source ();
+      OMX_ERRORTYPE override_decoder_and_renderer_sampling_rates();
       OMX_ERRORTYPE apply_pcm_codec_info_from_decoder ();
       OMX_ERRORTYPE get_channels_and_rate_from_decoder (
           OMX_U32 &channels, OMX_U32 &sampling_rate,
           std::string &encoding_str) const;
+      OMX_ERRORTYPE set_channels_and_rate_on_decoder (
+          const OMX_U32 channels, const OMX_U32 sampling_rate);
       OMX_ERRORTYPE set_channels_and_rate_on_renderer (
           const OMX_U32 channels, const OMX_U32 sampling_rate,
           const std::string encoding_str);
@@ -82,6 +86,7 @@ namespace tiz
     private:
       OMX_AUDIO_CODINGTYPE encoding_;
       OMX_AUDIO_PARAM_PCMMODETYPE renderer_pcmtype_;
+      OMX_AUDIO_PARAM_MP3TYPE decoder_mp3type_;
     };
   }  // namespace graph
 }  // namespace tiz

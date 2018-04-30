@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2017 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -78,6 +78,7 @@ tiz_audio_coding_to_str (OMX_AUDIO_CODINGTYPE a_cod);
 
 void
 tiz_util_reset_eos_flag (OMX_BUFFERHEADERTYPE * p_hdr);
+
 void
 tiz_util_set_eos_flag (OMX_BUFFERHEADERTYPE * p_hdr);
 
