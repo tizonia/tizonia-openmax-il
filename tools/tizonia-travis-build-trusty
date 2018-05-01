@@ -193,6 +193,7 @@ function install_deps {
         libflac-dev \
         liboggz2-dev \
         libsndfile1-dev \
+        libmp4v2-dev \
         python-dev \
         python-setuptools \
         python-pip \
