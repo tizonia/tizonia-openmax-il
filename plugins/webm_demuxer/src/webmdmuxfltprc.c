@@ -772,6 +772,7 @@ reset_nestegg_members (webmdmuxflt_prc_t * ap_prc)
   ap_prc->ne_chunk_ = 0;
   ap_prc->ne_read_err_ = 0;
   ap_prc->ne_last_read_len_ = 0;
+  ap_prc->ne_failed_init_count_ = 0;
 }
 
 static void
@@ -789,7 +790,6 @@ reset_stream_parameters (webmdmuxflt_prc_t * ap_prc)
 
   dealloc_nestegg (ap_prc);
   reset_nestegg_members (ap_prc);
-  ap_prc->ne_failed_init_count_ = 0;
 
   tiz_buffer_clear (ap_prc->p_webm_store_);
   tiz_buffer_clear (ap_prc->p_aud_store_);
