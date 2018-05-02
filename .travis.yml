@@ -21,7 +21,7 @@
 #
 
 sudo: required
-dist: trusty
+dist: xenial
 language: c
 compiler:
   - gcc
