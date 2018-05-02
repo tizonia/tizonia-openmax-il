@@ -146,7 +146,9 @@ mp4_get_audio_info (MP4FileHandle mp4File, MP4TrackId trackId,
         }
         // fall through
         default:
-            for (uint8_t i = 0; i < numMpegAudioTypes; i++) {
+            {
+            uint8_t i;
+            for (i = 0; i < numMpegAudioTypes; i++) {
                 if (type == mpegAudioTypes[i]) {
                     typeName = mpegAudioNames[i];
                     foundType = true;
@@ -167,6 +169,7 @@ mp4_get_audio_info (MP4FileHandle mp4File, MP4TrackId trackId,
                       }
                     break;
                 }
+            }
             }
         }
     } else {
