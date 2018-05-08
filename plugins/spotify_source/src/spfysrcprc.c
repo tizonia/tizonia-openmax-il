@@ -46,6 +46,7 @@
 #include <tizkernel.h>
 #include <tizscheduler.h>
 
+#include "levenshtein.h"
 #include "spfysrc.h"
 #include "spfysrcprc.h"
 #include "spfysrcprc_decls.h"
@@ -137,6 +138,29 @@ not_ready_playlist_map_free_func (OMX_PTR ap_key, OMX_PTR ap_value)
   /* Nothing to delete */
 }
 
+static OMX_S32
+doc_ids_map_compare_func (OMX_PTR ap_key1, OMX_PTR ap_key2)
+{
+  const DocumentID * p_doc_id1 = ap_key1;
+  const DocumentID * p_doc_id2 = ap_key2;
+  if (*p_doc_id1 < *p_doc_id2)
+    {
+      return -1;
+    }
+  else if (*p_doc_id1 > *p_doc_id2)
+    {
+      return 1;
+    }
+  return 0;
+}
+
+static void
+doc_ids_map_free_func (OMX_PTR ap_key, OMX_PTR ap_value)
+{
+  DocumentID * p_doc_id = ap_key;
+  tiz_mem_free (p_doc_id);
+}
+
 static unsigned int
 rand_interval (unsigned int min, unsigned int max)
 {
@@ -197,9 +221,8 @@ get_cache_location (char * user)
     {
       char * p_pw_name_dash = concat (pw->pw_name, "-spotify-");
       char * p_pw_name_dash_user = concat (p_pw_name_dash, user);
-      char * p_cache_prefix = get_cache_prefix();
-      char * p_cache_location
-        = concat (p_cache_prefix, p_pw_name_dash_user);
+      char * p_cache_prefix = get_cache_prefix ();
+      char * p_cache_location = concat (p_cache_prefix, p_pw_name_dash_user);
       tiz_mem_free ((void *) p_pw_name_dash);
       tiz_mem_free ((void *) p_pw_name_dash_user);
       tiz_mem_free ((void *) p_cache_prefix);
@@ -209,28 +232,11 @@ get_cache_location (char * user)
 }
 
 static bool
-playlist_name_partial_match (spfysrc_prc_t * ap_prc, const char * ap_pl_name)
-{
-  bool outcome = false;
-  assert (ap_prc);
-  assert (ap_pl_name);
-
-  if (strcasestr (ap_pl_name, (const char *) ap_prc->playlist_.cPlaylistName))
-    {
-      outcome = true;
-    }
-  TIZ_DEBUG (handleOf (ap_prc), "PARTIAL MATCH [%s] vs [%s] ? [%s]", ap_pl_name,
-             ap_prc->playlist_.cPlaylistName, (outcome ? "YES" : "NO"));
-  return outcome;
-}
-
-static bool
 playlist_name_exact_match (spfysrc_prc_t * ap_prc, const char * ap_pl_name)
 {
   bool outcome = false;
   assert (ap_prc);
   assert (ap_pl_name);
-
   if (!strncasecmp (ap_pl_name, (const char *) ap_prc->playlist_.cPlaylistName,
                     SPFYSRC_MAX_STRING_SIZE))
     {
@@ -241,23 +247,68 @@ playlist_name_exact_match (spfysrc_prc_t * ap_prc, const char * ap_pl_name)
   return outcome;
 }
 
-static bool
-playlist_name_match (spfysrc_prc_t * ap_prc, const char * ap_pl_name,
-                     bool * p_exact)
+static void
+playlist_name_verify_match (spfysrc_prc_t * ap_prc, sp_playlist * ap_pl,
+                            const char * ap_pl_name, bool * ap_exact)
 {
-  bool outcome = false;
   assert (ap_prc);
+  assert (ap_pl);
   assert (ap_pl_name);
-  assert (p_exact);
+  assert (ap_exact);
 
-  outcome = *p_exact = playlist_name_exact_match (ap_prc, ap_pl_name);
-  if (!outcome)
+  *ap_exact = false;
+
+  /* Exact match? */
+  *ap_exact = playlist_name_exact_match (ap_prc, ap_pl_name);
+
+  if (!(*ap_exact))
     {
-      outcome = playlist_name_partial_match (ap_prc, ap_pl_name);
+      /* Store the playlist title to be matched once we are done receiving
+       * playlists */
+      DocumentID * p_doc_id = tiz_mem_calloc (1, sizeof (DocumentID));
+      if (p_doc_id)
+        {
+          *p_doc_id = ap_prc->col_doc_id_;
+          {
+            ColWord name = col_word_new ("name");
+            ColDocument doc = col_document_new (*p_doc_id);
+            OMX_U32 playlist_count
+              = (OMX_U32) tiz_map_size (ap_prc->p_not_ready_playlists_);
+            col_document_add_text (doc, name, ap_pl_name);
+            col_corpus_add_document (ap_prc->col_corpus_, doc);
+            (void) tiz_map_insert (ap_prc->p_doc_ids_, p_doc_id, ap_pl,
+                                   (OMX_U32 *) (&playlist_count));
+            ++(ap_prc->col_doc_id_);
+            /* Clean up */
+            col_word_delete (name);
+            col_document_delete (doc);
+          }
+        }
     }
-  TIZ_DEBUG (handleOf (ap_prc), "MATCH [%s] ? [%s]", ap_pl_name,
-             (outcome ? "YES" : "NO"));
-  return outcome;
+}
+
+static sp_playlist *
+playlist_name_find_best_match (spfysrc_prc_t * ap_prc)
+{
+  DocumentID doc_id = INVALID_DOCID;
+  ColMatcher matcher = col_matcher_new ();
+  ColMatchResults matches = col_match_results_new ();
+
+  assert (ap_prc);
+  assert (ap_prc->col_corpus_);
+  assert (ap_prc->p_doc_ids_);
+
+  col_matcher_index (matcher, ap_prc->col_corpus_);
+  matches = col_matcher_match (matcher,
+                               (const char *) ap_prc->playlist_.cPlaylistName);
+  doc_id = col_match_results_get_id (matches, 0);
+
+  col_matcher_delete (matcher);
+  col_match_results_delete (matches);
+
+  return (doc_id != INVALID_DOCID
+            ? tiz_map_value_at (ap_prc->p_doc_ids_, doc_id)
+            : NULL);
 }
 
 static void
@@ -502,8 +553,9 @@ store_metadata (spfysrc_prc_t * ap_prc, const char * ap_key,
   info_len = strnlen (ap_value, SPFYSRC_MAX_STRING_SIZE - 1) + 1;
   metadata_len = sizeof (OMX_CONFIG_METADATAITEMTYPE) + info_len;
 
-  if (NULL == (p_meta = (OMX_CONFIG_METADATAITEMTYPE *) tiz_mem_calloc (
-                 1, metadata_len)))
+  if (NULL
+      == (p_meta
+          = (OMX_CONFIG_METADATAITEMTYPE *) tiz_mem_calloc (1, metadata_len)))
     {
       rc = OMX_ErrorInsufficientResources;
     }
@@ -614,8 +666,9 @@ store_relevant_track_metadata (spfysrc_prc_t * ap_prc, const int a_num_tracks)
     sp_playlist_num_subscribers (ap_prc->p_sp_playlist_));
   store_metadata_track_name (ap_prc, sp_track_name (ap_prc->p_sp_track_),
                              ap_prc->track_index_, a_num_tracks);
-  (void) store_metadata (ap_prc, "Artist", sp_artist_name (sp_track_artist (
-                                             ap_prc->p_sp_track_, 0)));
+  (void) store_metadata (
+    ap_prc, "Artist",
+    sp_artist_name (sp_track_artist (ap_prc->p_sp_track_, 0)));
   (void) store_metadata (ap_prc, "Album",
                          sp_album_name (sp_track_album (ap_prc->p_sp_track_)));
   store_metadata_track_duration (ap_prc,
@@ -1363,8 +1416,8 @@ playlist_added (sp_playlistcontainer * pc, sp_playlist * pl, int position,
   assert (p_prc);
   sp_rc = sp_playlist_add_callbacks (pl, &(p_prc->sp_pl_cbacks_), p_prc);
   assert (SP_ERROR_OK == sp_rc);
-  TIZ_PRINTF_DBG_YEL ("[Spotify] : playlist added to container at position [%d]\n",
-                      position);
+  TIZ_PRINTF_DBG_YEL (
+    "[Spotify] : playlist added to container at position [%d]\n", position);
 }
 
 /**
@@ -1386,7 +1439,7 @@ playlist_removed (sp_playlistcontainer * pc, sp_playlist * pl, int position,
   assert (p_prc);
   sp_playlist_remove_callbacks (pl, &(p_prc->sp_pl_cbacks_), NULL);
   TIZ_PRINTF_DBG_YEL ("[Spotify] : playlist removed [%s] - position [%d]\n",
-                  sp_playlist_name (pl), position);
+                      sp_playlist_name (pl), position);
   tiz_map_erase (p_prc->p_not_ready_playlists_, pl);
   tiz_map_erase (p_prc->p_ready_playlists_, pl);
   p_prc->nplaylists_ = sp_playlistcontainer_num_playlists (pc);
@@ -1476,7 +1529,8 @@ tracks_removed (sp_playlist * pl, const int * tracks, int num_tracks,
             }
         }
       p_prc->track_index_ -= k;
-      TIZ_PRINTF_DBG_YEL ("[Spotify] : %d tracks have been removed\n", num_tracks);
+      TIZ_PRINTF_DBG_YEL ("[Spotify] : %d tracks have been removed\n",
+                          num_tracks);
       start_playback (p_prc);
     }
 }
@@ -1500,7 +1554,8 @@ tracks_moved (sp_playlist * pl, const int * tracks, int num_tracks,
 
   if (pl == p_prc->p_sp_playlist_)
     {
-      TIZ_PRINTF_DBG_YEL ("[Spotify] : %d tracks were moved around\n", num_tracks);
+      TIZ_PRINTF_DBG_YEL ("[Spotify] : %d tracks were moved around\n",
+                          num_tracks);
       start_playback (p_prc);
     }
 }
@@ -1520,7 +1575,8 @@ playlist_renamed (sp_playlist * pl, void * userdata)
 
   if (p_prc->p_sp_playlist_ == pl)
     {
-      TIZ_PRINTF_DBG_YEL ("[Spotify] : current playlist renamed to \"%s\"\n", name);
+      TIZ_PRINTF_DBG_YEL ("[Spotify] : current playlist renamed to \"%s\"\n",
+                          name);
       p_prc->p_sp_playlist_ = NULL;
       stop_spotify (p_prc);
     }
@@ -1556,8 +1612,7 @@ playlist_state_changed (sp_playlist * pl, void * userdata)
       if (OMX_ErrorNone == rc && !p_prc->spotify_inited_)
         {
           TIZ_PRINTF_BLU ("[Spotify] : '%s' (%d tracks)\n",
-                          sp_playlist_name (pl),
-                          sp_playlist_num_tracks (pl));
+                          sp_playlist_name (pl), sp_playlist_num_tracks (pl));
         }
     }
   else
@@ -1589,27 +1644,19 @@ playlist_state_changed (sp_playlist * pl, void * userdata)
       }
     }
 
-  if (playlist_name_match (p_prc, sp_playlist_name (pl), &exact_match))
+  playlist_name_verify_match (p_prc, pl, sp_playlist_name (pl), &exact_match);
+  if (exact_match)
     {
-      if (exact_match)
-        {
-          TIZ_DEBUG (handleOf (p_prc), "Found exact match : %s",
-                     sp_playlist_name (pl));
-          p_prc->p_sp_playlist_ = pl;
-        }
-      else if (!p_prc->p_sp_tentative_playlist_)
-        {
-          TIZ_DEBUG (handleOf (p_prc), "Found partial match : %s",
-                     sp_playlist_name (pl));
-          p_prc->p_sp_tentative_playlist_ = pl;
-        }
+      TIZ_DEBUG (handleOf (p_prc), "Found exact match : %s",
+                 sp_playlist_name (pl));
+      p_prc->p_sp_playlist_ = pl;
     }
 
   TIZ_DEBUG (handleOf (p_prc), "playlists count [%d] [%d] [%d]",
              p_prc->nplaylists_, tiz_map_size (p_prc->p_ready_playlists_),
              tiz_map_size (p_prc->p_not_ready_playlists_));
 
-  /* Start playing the list when either is true:*/
+  /* Start playing the list when one of these is true:*/
   /*   a) there is playlist that matched the search term */
   /*   b) the playlist metadata update process has finished, and the ready and */
   /*      not-ready playlist count equals the total number of playlists in the */
@@ -1622,12 +1669,12 @@ playlist_state_changed (sp_playlist * pl, void * userdata)
                     == (tiz_map_size (p_prc->p_ready_playlists_)
                         + tiz_map_size (p_prc->p_not_ready_playlists_))))))
     {
-      TIZ_DEBUG (handleOf (p_prc), "p_sp_playlist [%p] tentative [%p]",
-                 p_prc->p_sp_playlist_, p_prc->p_sp_tentative_playlist_);
+      if (!p_prc->p_sp_playlist_)
+        {
+          p_prc->p_sp_playlist_ = playlist_name_find_best_match (p_prc);
+        }
+      TIZ_DEBUG (handleOf (p_prc), "p_sp_playlist [%p]", p_prc->p_sp_playlist_);
 
-      p_prc->p_sp_playlist_ = p_prc->p_sp_playlist_
-                                ? p_prc->p_sp_playlist_
-                                : p_prc->p_sp_tentative_playlist_;
       if (!p_prc->p_sp_playlist_ && tiz_map_size (p_prc->p_ready_playlists_))
         {
           /* Choose a random playlist */
@@ -1725,11 +1772,14 @@ spfysrc_prc_ctor (void * ap_obj, va_list * app)
   p_prc->sp_pl_cbacks_.playlist_state_changed = &playlist_state_changed;
 
   p_prc->p_sp_playlist_ = NULL;
-  p_prc->p_sp_tentative_playlist_ = NULL;
   p_prc->p_sp_track_ = NULL;
   p_prc->remove_tracks_ = false;
   p_prc->keep_processing_sp_events_ = false;
   p_prc->next_timeout_ = 0;
+
+  p_prc->col_corpus_ = NULL;
+  p_prc->col_doc_id_ = 0;
+  p_prc->p_doc_ids_ = NULL;
 
   return p_prc;
 }
@@ -1766,8 +1816,11 @@ spfysrc_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
   tiz_check_omx (tiz_map_init (&(p_prc->p_not_ready_playlists_),
                                not_ready_playlist_map_compare_func,
                                not_ready_playlist_map_free_func, NULL));
+  tiz_check_omx (tiz_map_init (&(p_prc->p_doc_ids_), doc_ids_map_compare_func,
+                               doc_ids_map_free_func, NULL));
   assert (p_prc->p_ready_playlists_);
   assert (p_prc->p_not_ready_playlists_);
+  assert (p_prc->p_doc_ids_);
 
   /* Create a spotify session */
   p_prc->sp_config_.cache_location
@@ -1787,6 +1840,11 @@ spfysrc_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
                by libspotify */
     NULL));
 
+  if (!(p_prc->col_corpus_ = col_corpus_new ()))
+    {
+      goto end;
+    }
+
   /* All OK */
   rc = OMX_ErrorNone;
 
@@ -1800,6 +1858,12 @@ spfysrc_prc_deallocate_resources (void * ap_prc)
 {
   spfysrc_prc_t * p_prc = ap_prc;
   assert (p_prc);
+
+  if (p_prc->col_corpus_)
+    {
+      col_corpus_delete (p_prc->col_corpus_);
+      p_prc->col_corpus_ = NULL;
+    }
 
   if (p_prc->p_ev_timer_)
     {
@@ -1826,6 +1890,16 @@ spfysrc_prc_deallocate_resources (void * ap_prc)
         }
       tiz_map_destroy (p_prc->p_not_ready_playlists_);
       p_prc->p_not_ready_playlists_ = NULL;
+    }
+
+  if (p_prc->p_doc_ids_)
+    {
+      while (!tiz_map_empty (p_prc->p_doc_ids_))
+        {
+          tiz_map_erase_at (p_prc->p_doc_ids_, 0);
+        }
+      tiz_map_destroy (p_prc->p_doc_ids_);
+      p_prc->p_doc_ids_ = NULL;
     }
 
   tiz_shuffle_lst_destroy (p_prc->p_shuffle_lst_);
