@@ -194,6 +194,7 @@ function install_deps {
         liboggz2-dev \
         libsndfile1-dev \
         libmp4v2-dev \
+        libcolumbus1-dev \
         python-dev \
         python-setuptools \
         python-pip \

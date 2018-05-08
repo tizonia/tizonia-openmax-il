@@ -89,6 +89,7 @@ declare -ar TIZ_TIZONIA_DEPS=( \
     libffi-dev \
     libssl-dev \
     libmp4v2-dev \
+    libcolumbus1-dev \
     libspotify12 \
     libspotify-dev \
     libexpat1-dev \
