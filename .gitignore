@@ -157,6 +157,12 @@ clients/youtube/libtizyoutube/src/Makefile
 clients/youtube/libtizyoutube/tests/Makefile
 clients/youtube/libtizyoutube/tizonia
 clients/youtube/youtubeproxy/Makefile
+clients/plex/Makefile
+clients/plex/libtizplex/Makefile
+clients/plex/libtizplex/src/Makefile
+clients/plex/libtizplex/tests/Makefile
+clients/plex/libtizplex/tizonia
+clients/plex/plexproxy/Makefile
 compile_commands.json
 config/Makefile
 config/src/Makefile
