@@ -60,6 +60,8 @@ struct spfysrc_prc
   int max_cache_bytes_;
   tiz_buffer_t * p_store_; /* The component's pcm buffer */
   tiz_event_timer_t * p_ev_timer_;
+  tiz_event_timer_t * p_playlist_state_timer_;
+  bool playlist_state_timer_stopped_;
   tiz_shuffle_lst_t * p_shuffle_lst_;
   OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE session_;
   OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE playlist_;
