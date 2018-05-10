@@ -57,7 +57,7 @@
 
 #define SPFYSRC_MIN_QUEUE_UNUSED_SPACES 5
 #define SPFYSRC_MAX_STRING_SIZE 2 * OMX_MAX_STRINGNAME_SIZE
-#define SPFYSRC_PLAYLIST_STATE_MAX_WAIT_TIME_SECONDS 20
+#define SPFYSRC_MAX_WAIT_TIME_SECONDS 25
 
 /* This macro assumes the existence of an "ap_prc" local variable */
 #define goto_end_on_sp_error(expr)                         \
@@ -335,13 +335,6 @@ playlist_name_find_best_match (spfysrc_prc_t * ap_prc)
   if (col_match_results_size (matches) > 0)
     {
       doc_id = col_match_results_get_id (matches, 0);
-      TIZ_PRINTF_YEL (
-        "doc_id [%u] pl [%s]\n", doc_id,
-        sp_playlist_name (tiz_map_value_at (ap_prc->p_doc_ids_, doc_id)));
-    }
-  else
-    {
-      TIZ_PRINTF_YEL ("asdasd\n");
     }
 
   col_matcher_delete (matcher);
@@ -976,9 +969,9 @@ start_spotify_session_timer (spfysrc_prc_t * ap_prc)
   assert (ap_prc);
   if (ap_prc->p_playlist_state_timer_)
     {
-      (void) tiz_srv_timer_watcher_start (
-        ap_prc, ap_prc->p_playlist_state_timer_,
-        SPFYSRC_PLAYLIST_STATE_MAX_WAIT_TIME_SECONDS, 0);
+      (void) tiz_srv_timer_watcher_start (ap_prc,
+                                          ap_prc->p_playlist_state_timer_,
+                                          SPFYSRC_MAX_WAIT_TIME_SECONDS, 0);
       assert (ap_prc->playlist_state_timer_stopped_ == true);
       ap_prc->playlist_state_timer_stopped_ = false;
     }
@@ -999,7 +992,7 @@ static void
 stop_spotify_playlist_state_timer (spfysrc_prc_t * ap_prc)
 {
   assert (ap_prc);
-  if (ap_prc->p_playlist_state_timer_)
+  if (ap_prc->p_playlist_state_timer_ && !ap_prc->playlist_state_timer_stopped_)
     {
       (void) tiz_srv_timer_watcher_stop (ap_prc,
                                          ap_prc->p_playlist_state_timer_);
@@ -1204,8 +1197,11 @@ logged_in (sp_session * sess, sp_error error)
                                                   p_prc);
       assert (SP_ERROR_OK == sp_rc);
 
-      TIZ_PRINTF_BLU ("[Spotify] : '%s' logged in\n",
-                      sp_user_display_name (sp_session_user (sess)));
+      TIZ_PRINTF_BLU (
+        "[Spotify] : '%s' logged in - waiting for container load (%d "
+        "seconds)\n",
+        sp_user_display_name (sp_session_user (sess)),
+        SPFYSRC_MAX_WAIT_TIME_SECONDS);
     }
 
   /* TODO */
@@ -1758,6 +1754,18 @@ playlist_state_changed (sp_playlist * pl, void * userdata)
     {
       if (!p_prc->p_sp_playlist_)
         {
+          if (p_prc->playlist_state_timer_stopped_)
+            {
+              TIZ_PRINTF_MAG (
+                "[Spotify] : Playlist status updates - %d second guard period "
+                "is up.\n",
+                SPFYSRC_MAX_WAIT_TIME_SECONDS);
+            }
+          else
+            {
+              stop_spotify_playlist_state_timer (p_prc);
+            }
+
           p_prc->p_sp_playlist_ = playlist_name_find_best_match (p_prc);
           if (p_prc->p_sp_playlist_)
             {
