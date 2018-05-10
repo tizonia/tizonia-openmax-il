@@ -964,7 +964,21 @@ pause_spotify (spfysrc_prc_t * ap_prc)
 }
 
 static void
-start_spotify_session_timer (spfysrc_prc_t * ap_prc)
+start_spotify_container_load_timer (spfysrc_prc_t * ap_prc)
+{
+  assert (ap_prc);
+  if (ap_prc->p_container_load_timer_)
+    {
+      (void) tiz_srv_timer_watcher_start (ap_prc,
+                                          ap_prc->p_container_load_timer_,
+                                          SPFYSRC_MAX_WAIT_TIME_SECONDS, 0);
+      assert (ap_prc->container_load_timer_stopped_ == true);
+      ap_prc->container_load_timer_stopped_ = false;
+    }
+}
+
+static void
+start_spotify_playlist_state_timer (spfysrc_prc_t * ap_prc)
 {
   assert (ap_prc);
   if (ap_prc->p_playlist_state_timer_)
@@ -981,10 +995,22 @@ static void
 stop_spotify_session_timer (spfysrc_prc_t * ap_prc)
 {
   assert (ap_prc);
-  if (ap_prc->next_timeout_ && ap_prc->p_ev_timer_)
+  if (ap_prc->next_timeout_ && ap_prc->p_session_timer_)
     {
-      (void) tiz_srv_timer_watcher_stop (ap_prc, ap_prc->p_ev_timer_);
+      (void) tiz_srv_timer_watcher_stop (ap_prc, ap_prc->p_session_timer_);
       ap_prc->next_timeout_ = 0;
+    }
+}
+
+static void
+stop_spotify_container_load_timer (spfysrc_prc_t * ap_prc)
+{
+  assert (ap_prc);
+  if (ap_prc->p_container_load_timer_ && !ap_prc->container_load_timer_stopped_)
+    {
+      (void) tiz_srv_timer_watcher_stop (ap_prc,
+                                         ap_prc->p_container_load_timer_);
+      ap_prc->container_load_timer_stopped_ = true;
     }
 }
 
@@ -1090,7 +1116,7 @@ process_spotify_session_events (spfysrc_prc_t * ap_prc)
         }
       while (0 == ap_prc->next_timeout_);
 
-      rc = tiz_srv_timer_watcher_start (ap_prc, ap_prc->p_ev_timer_,
+      rc = tiz_srv_timer_watcher_start (ap_prc, ap_prc->p_session_timer_,
                                         ap_prc->next_timeout_ / 1000, 0);
     }
   return rc;
@@ -1202,6 +1228,7 @@ logged_in (sp_session * sess, sp_error error)
         "seconds)\n",
         sp_user_display_name (sp_session_user (sess)),
         SPFYSRC_MAX_WAIT_TIME_SECONDS);
+      start_spotify_container_load_timer (p_prc);
     }
 
   /* TODO */
@@ -1523,6 +1550,8 @@ container_loaded (sp_playlistcontainer * pc, void * userdata)
   const int nplaylists = sp_playlistcontainer_num_playlists (pc);
   assert (p_prc);
 
+  stop_spotify_container_load_timer (p_prc);
+
   if (nplaylists != p_prc->nplaylists_)
     {
       int i = 0;
@@ -1668,9 +1697,9 @@ playlist_state_changed (sp_playlist * pl, void * userdata)
         = (OMX_U32) tiz_map_size (p_prc->p_ready_playlists_);
 
       /* Start the playlist wait time as soon as there is one ready playlist */
-      if (ready_playlists_count == 1)
+      if (1 == ready_playlists_count)
         {
-          start_spotify_session_timer (p_prc);
+          start_spotify_playlist_state_timer (p_prc);
         }
 
       /* Record that this playlist is ready for playback */
@@ -1784,7 +1813,7 @@ playlist_state_changed (sp_playlist * pl, void * userdata)
           p_prc->p_sp_playlist_
             = tiz_map_value_at (p_prc->p_ready_playlists_, r);
           TIZ_PRINTF_RED (
-            "[Spotify] : 'Playlist '%s' not found. Feeling lucky?\n",
+            "[Spotify] : Playlist '%s' not found. Feeling lucky?\n",
             (const char *) p_prc->playlist_.cPlaylistName);
         }
 
@@ -1820,7 +1849,9 @@ spfysrc_prc_ctor (void * ap_obj, va_list * app)
   p_prc->min_cache_bytes_ = 0;
   p_prc->max_cache_bytes_ = 0;
   p_prc->p_store_ = NULL;
-  p_prc->p_ev_timer_ = NULL;
+  p_prc->p_session_timer_ = NULL;
+  p_prc->p_container_load_timer_ = NULL;
+  p_prc->container_load_timer_stopped_ = true;
   p_prc->p_playlist_state_timer_ = NULL;
   p_prc->playlist_state_timer_stopped_ = true;
   p_prc->p_shuffle_lst_ = NULL;
@@ -1908,7 +1939,8 @@ spfysrc_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
 
   assert (p_prc);
-  assert (NULL == p_prc->p_ev_timer_);
+  assert (NULL == p_prc->p_session_timer_);
+  assert (NULL == p_prc->p_container_load_timer_);
   assert (NULL == p_prc->p_playlist_state_timer_);
   assert (NULL == p_prc->p_uri_param_);
   assert (NULL == p_prc->p_shuffle_lst_);
@@ -1916,7 +1948,10 @@ spfysrc_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
   tiz_check_omx (allocate_temp_data_store (p_prc));
   tiz_check_omx (retrieve_session_configuration (p_prc));
   tiz_check_omx (retrieve_playlist (p_prc));
-  tiz_check_omx (tiz_srv_timer_watcher_init (p_prc, &(p_prc->p_ev_timer_)));
+  tiz_check_omx (
+    tiz_srv_timer_watcher_init (p_prc, &(p_prc->p_session_timer_)));
+  tiz_check_omx (
+    tiz_srv_timer_watcher_init (p_prc, &(p_prc->p_container_load_timer_)));
   tiz_check_omx (
     tiz_srv_timer_watcher_init (p_prc, &(p_prc->p_playlist_state_timer_)));
   tiz_check_omx (tiz_map_init (&(p_prc->p_ready_playlists_),
@@ -1974,11 +2009,18 @@ spfysrc_prc_deallocate_resources (void * ap_prc)
       p_prc->col_corpus_ = NULL;
     }
 
-  if (p_prc->p_ev_timer_)
+  if (p_prc->p_session_timer_)
     {
       stop_spotify_session_timer (p_prc);
-      tiz_srv_timer_watcher_destroy (p_prc, p_prc->p_ev_timer_);
-      p_prc->p_ev_timer_ = NULL;
+      tiz_srv_timer_watcher_destroy (p_prc, p_prc->p_session_timer_);
+      p_prc->p_session_timer_ = NULL;
+    }
+
+  if (p_prc->p_container_load_timer_)
+    {
+      stop_spotify_container_load_timer (p_prc);
+      tiz_srv_timer_watcher_destroy (p_prc, p_prc->p_container_load_timer_);
+      p_prc->p_container_load_timer_ = NULL;
     }
 
   if (p_prc->p_playlist_state_timer_)
@@ -2094,9 +2136,16 @@ spfysrc_prc_timer_ready (void * ap_prc, tiz_event_timer_t * ap_ev_timer,
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (p_prc);
   p_prc->next_timeout_ = 0;
-  if (ap_ev_timer == p_prc->p_ev_timer_ && !p_prc->stopping_)
+  if (ap_ev_timer == p_prc->p_session_timer_ && !p_prc->stopping_)
     {
       rc = process_spotify_session_events (p_prc);
+    }
+  if (ap_ev_timer == p_prc->p_container_load_timer_)
+    {
+      stop_spotify_container_load_timer (p_prc);
+      /* This will be enough to stop execution */
+      TIZ_PRINTF_RED ("[Spotify] : Spotify response taking too long.\n");
+      rc = OMX_ErrorInsufficientResources;
     }
   if (ap_ev_timer == p_prc->p_playlist_state_timer_)
     {
