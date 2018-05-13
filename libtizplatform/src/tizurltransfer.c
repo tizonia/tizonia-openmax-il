@@ -63,6 +63,8 @@ static int
 curl_timer_cback (CURLM * multi, long timeout_ms, void * userp);
 static inline OMX_ERRORTYPE
 stop_io_watcher (tiz_urltrans_t * ap_trans);
+static void
+report_connection_lost_event (tiz_urltrans_t * ap_trans);
 
 /* These macros assume the existence of an "ap_trans" local variable */
 #define bail_on_curl_error(expr)                                           \
@@ -585,6 +587,10 @@ resume_curl (tiz_urltrans_t * ap_trans)
             curl_multi_socket_all (ap_trans->p_curl_multi_, &running_handles));
         }
       tiz_check_omx (kickstart_curl_socket (ap_trans, &running_handles));
+      if (!running_handles)
+        {
+          report_connection_lost_event (ap_trans);
+        }
     }
   return OMX_ErrorNone;
 }
