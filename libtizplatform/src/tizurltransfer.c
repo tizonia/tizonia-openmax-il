@@ -205,6 +205,7 @@ struct tiz_urltrans
   httpsrc_curl_state_id_t curl_state_;
   unsigned int curl_version_;
   char curl_err[CURL_ERROR_SIZE];
+  bool handshake_error_found;
 };
 
 /*@observer@*/ const char *
@@ -787,10 +788,17 @@ curl_debug_cback (CURL * p_curl, curl_infotype type, char * buf, size_t nbytes,
   if (CURLINFO_TEXT == type || CURLINFO_HEADER_IN == type
       || CURLINFO_HEADER_OUT == type)
     {
+      tiz_urltrans_t * p_trans = userdata;
       char * p_info = tiz_mem_calloc (1, nbytes + 1);
       memcpy (p_info, buf, nbytes);
       TIZ_LOG (TIZ_PRIORITY_TRACE, "libcurl : [%s]", p_info);
       TIZ_PRINTF_DBG_RED ("libcurl : [%s]\n", p_info);
+#define GNUTLS_ERR "gnutls_handshake() failed: An unexpected TLS packet was received"
+      if (0 == strncasecmp(GNUTLS_ERR, p_info, 64))
+        {
+          p_trans->handshake_error_found = true;
+          TIZ_LOG (TIZ_PRIORITY_TRACE, "libcurl : [found handshake error!!]");
+        }
       tiz_mem_free (p_info);
     }
   return 0;
@@ -1095,6 +1103,7 @@ tiz_urltrans_init (tiz_urltrans_ptr_t * app_trans, void * ap_parent,
           p_trans->p_http_headers_ = NULL;
           p_trans->curl_state_ = ECurlStateStopped;
           p_trans->curl_version_ = 0;
+          p_trans->handshake_error_found = false;
 
           rc = allocate_temp_data_store (p_trans);
           goto_end_on_omx_error (rc, "Unable to alloc the data store");
@@ -1368,4 +1377,15 @@ tiz_urltrans_bytes_available (tiz_urltrans_t * ap_trans)
       return tiz_buffer_available (ap_trans->p_store_);
     }
   return 0;
+}
+
+bool
+tiz_urltrans_handshake_error_found (tiz_urltrans_t * ap_trans)
+{
+  assert (ap_trans);
+  if (ap_trans->handshake_error_found)
+    {
+      return true;
+    }
+  return false;
 }

@@ -336,6 +336,9 @@ tiz_urltrans_on_timer_ready (tiz_urltrans_t * ap_trans,
 OMX_U32
 tiz_urltrans_bytes_available (tiz_urltrans_t * ap_trans);
 
+bool
+tiz_urltrans_handshake_error_found (tiz_urltrans_t * ap_trans);
+
 #ifdef __cplusplus
 }
 #endif
