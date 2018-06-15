@@ -11,4 +11,4 @@ Depends: ${misc:Depends}, ${python:Depends}
 Description: Tizonia Spotify proxy
  Tizonia's Spotify proxy.
  .
- This package contains Tizonia's Spotify proxy Python module.
+ This package contains Tizonia's Spotify Web API proxy Python module.
