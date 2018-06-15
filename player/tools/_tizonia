@@ -19,7 +19,11 @@ _arguments -S -s \
   '(-C)--comps-of-role[Display the OpenMAX IL components that implement the role.]' \
   '--spotify-user[Spotify user name.]' \
   '--spotify-password[Spotify user password.]' \
-  '--spotify-playlist[A Spotify playlist from the users library.]' \
+  '--spotify-owner[The owner of the playlist (optional, may be used in conjunction with --spotify-playlist).]' \
+  '--spotify-tracks[Search and play from Spotify by track name.]' \
+  '--spotify-artist[Search and play from Spotify by artist name.]' \
+  '--spotify-album[Search and play from Spotify by album name.]' \
+  '--spotify-playlist[Search and play public playlists (owner is assumed current user, unless --spotify-owner is provided).]' \
   '--gmusic-user[Google Play Music user name (not required if provided via config file).]' \
   '--gmusic-password[Google Play Music users password (not required if provided via config file).]' \
   '--gmusic-device-id[Google Play Music device id (not required if provided via config file).]' \

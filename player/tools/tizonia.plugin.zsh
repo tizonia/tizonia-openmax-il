@@ -17,6 +17,24 @@ tiz-check-empty-params () {
     return 0
 }
 
+# Tizonia's Spotify tracks playback
+spotify-tracks() {
+    tiz-check-empty-params "$@" || return
+    eval tizonia "$(tiz-grab-env-options)" --spotify-tracks=\""$@"\"
+}
+
+# Tizonia's Spotify artist search
+spotify-artist() {
+    tiz-check-empty-params "$@" || return
+    eval tizonia "$(tiz-grab-env-options)" --spotify-artist=\""$@"\"
+}
+
+# Tizonia's Spotify album search
+spotify-album() {
+    tiz-check-empty-params "$@" || return
+    eval tizonia "$(tiz-grab-env-options)" --spotify-album=\""$@"\"
+}
+
 # Tizonia's Spotify playlist playback
 spotify-playlist() {
     tiz-check-empty-params "$@" || return

@@ -28,7 +28,7 @@ _tizonia()
     omx="--comp-list --roles-of-comp --comps-of-role"
     server="--server --port --station-name --station-genre --no-icy-metadata --bitrate-modes --sampling-rates"
     client="--station-id"
-    spotify="--spotify-user --spotify-password --spotify-playlist"
+    spotify="--spotify-user --spotify-password --spotify-owner --spotify-tracks --spotify-artist --spotify-album --spotify-playlist"
     gmusic="--gmusic-user --gmusic-password --gmusic-device-id --gmusic-album --gmusic-artist --gmusic-library --gmusic-playlist --gmusic-podcast --gmusic-station --gmusic-tracks --gmusic-unlimited-station --gmusic-unlimited-album --gmusic-unlimited-artist --gmusic-unlimited-tracks --gmusic-unlimited-playlist --gmusic-unlimited-genre --gmusic-unlimited-activity --gmusic-unlimited-feeling-lucky-station --gmusic-unlimited-promoted-tracks"
     scloud="--soundcloud-oauth-token --soundcloud-user-stream --soundcloud-user-likes --soundcloud-user-playlist --soundcloud-creator --soundcloud-tracks --soundcloud-playlists --soundcloud-genres --soundcloud-tags"
     dirble="--dirble-api-key --dirble-popular-stations --dirble-station --dirble-category --dirble-country"
