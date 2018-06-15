@@ -817,16 +817,17 @@ gmusic_prc_io_ready (void * ap_prc, tiz_event_io_t * ap_ev_io, int a_fd,
                      int a_events)
 {
   gmusic_prc_t * p_prc = ap_prc;
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  /*   OMX_ERRORTYPE rc = OMX_ErrorNone; */
   assert (p_prc);
-  rc = tiz_urltrans_on_io_ready (p_prc->p_trans_, ap_ev_io, a_fd, a_events);
-  if (p_prc->connection_closed_ && tiz_urltrans_handshake_error_found(p_prc->p_trans_))
-    {
-      tiz_urltrans_set_uri (p_prc->p_trans_, p_prc->p_uri_param_);
-      p_prc->connection_closed_ = false;
-      rc = tiz_urltrans_start (p_prc->p_trans_);
-    }
-  return rc;
+   return tiz_urltrans_on_io_ready (p_prc->p_trans_, ap_ev_io, a_fd, a_events);
+/*   rc = tiz_urltrans_on_io_ready (p_prc->p_trans_, ap_ev_io, a_fd, a_events); */
+/*   if (p_prc->connection_closed_ && tiz_urltrans_handshake_error_found(p_prc->p_trans_)) */
+/*     { */
+/*       tiz_urltrans_set_uri (p_prc->p_trans_, p_prc->p_uri_param_); */
+/*       p_prc->connection_closed_ = false; */
+/*       rc = tiz_urltrans_start (p_prc->p_trans_); */
+/*     } */
+/*   return rc; */
 }
 
 static OMX_ERRORTYPE
