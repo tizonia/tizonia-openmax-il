@@ -43,8 +43,13 @@ namespace tiz
 
     public:
       spotifyconfig (const tizplaylist_ptr_t &playlist, const std::string &user,
-                      const std::string &pass)
-        : config (playlist), user_ (user), pass_ (pass)
+                     const std::string &pass,
+                     const OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE playlist_type)
+        : config (playlist),
+          user_ (user),
+          pass_ (pass),
+          playlist_type_ (playlist_type)
+
       {
       }
 
@@ -62,9 +67,15 @@ namespace tiz
         return pass_;
       }
 
+      OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE get_playlist_type () const
+      {
+        return playlist_type_;
+      }
+
     protected:
       const std::string user_;
       const std::string pass_;
+      const OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE playlist_type_;
     };
   }  // namespace graph
 }  // namespace tiz

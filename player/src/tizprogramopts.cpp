@@ -294,8 +294,12 @@ tiz::programopts::programopts (int argc, char *argv[])
     uri_list_ (),
     spotify_user_ (),
     spotify_pass_ (),
+    spotify_tracks_ (),
+    spotify_artist_ (),
+    spotify_album_ (),
     spotify_playlist_ (),
     spotify_playlist_container_ (),
+    spotify_playlist_type_(OMX_AUDIO_SpotifyPlaylistTypeUnknown),
     gmusic_user_ (),
     gmusic_pass_ (),
     gmusic_device_id_ (),
@@ -671,8 +675,50 @@ const std::vector< std::string >
     &tiz::programopts::spotify_playlist_container ()
 {
   spotify_playlist_container_.clear ();
-  spotify_playlist_container_.push_back (spotify_playlist_);
+  if (!spotify_tracks_.empty ())
+  {
+    spotify_playlist_container_.push_back (spotify_tracks_);
+  }
+  else if (!spotify_artist_.empty ())
+  {
+    spotify_playlist_container_.push_back (spotify_artist_);
+  }
+  else if (!spotify_album_.empty ())
+  {
+    spotify_playlist_container_.push_back (spotify_album_);
+  }
+  else if (!spotify_playlist_.empty ())
+  {
+    spotify_playlist_container_.push_back (spotify_playlist_);
+  }
+    else
+  {
+    assert (0);
+  }
   return spotify_playlist_container_;
+}
+
+OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE
+tiz::programopts::spotify_playlist_type ()
+{
+  if (!spotify_tracks_.empty ())
+  {
+    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeTracks;
+  }
+  else if (!spotify_artist_.empty ())
+  {
+    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeArtist;
+  }
+  else if (!spotify_album_.empty ())
+  {
+    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeAlbum;
+  }
+  else if (!spotify_playlist_.empty ())
+  {
+    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypePlaylist;
+  }
+
+  return spotify_playlist_type_;
 }
 
 const std::string &tiz::programopts::gmusic_user () const
@@ -1262,11 +1308,21 @@ void tiz::programopts::init_spotify_options ()
       ("spotify-password", po::value (&spotify_pass_),
        "Spotify user password  (not required if provided via config file).")
       /* TIZ_CLASS_COMMENT: */
+      ("spotify-tracks", po::value (&spotify_tracks_),
+       "Search and play from Spotify by track name.")
+      /* TIZ_CLASS_COMMENT: */
+      ("spotify-artist", po::value (&spotify_artist_),
+       "Search and play from Spotify by artist name.")
+      /* TIZ_CLASS_COMMENT: */
+      ("spotify-album", po::value (&spotify_album_),
+       "Search and play from Spotify by album name.")
+      /* TIZ_CLASS_COMMENT: */
       ("spotify-playlist", po::value (&spotify_playlist_),
        "A playlist from the user's library.");
   register_consume_function (&tiz::programopts::consume_spotify_client_options);
   all_spotify_client_options_
       = boost::assign::list_of ("spotify-user") ("spotify-password") (
+            "spotify-tracks") ("spotify-artist") ("spotify-album") (
             "spotify-playlist")
             .convert_to_container< std::vector< std::string > > ();
 #endif
@@ -1742,6 +1798,10 @@ int tiz::programopts::consume_spotify_client_options (bool &done,
   {
     done = true;
 
+    const int playlist_option_count
+        = vm_.count ("spotify-tracks") + vm_.count ("spotify-artist")
+          + vm_.count ("spotify-album") + vm_.count ("spotify-playlist");
+
     if (spotify_user_.empty ())
     {
       retrieve_config_from_rc_file ("tizonia", "spotify.user", spotify_user_);
@@ -1759,14 +1819,21 @@ int tiz::programopts::consume_spotify_client_options (bool &done,
       oss << "Need to provide a Spotify user name.";
       msg.assign (oss.str ());
     }
-    else if (!vm_.count ("spotify-playlist"))
+    else if (playlist_option_count > 1)
+    {
+      rc = EXIT_FAILURE;
+      std::ostringstream oss;
+      oss << "Only one playlist type must be specified.";
+      msg.assign (oss.str ());
+    }
+    else if (!playlist_option_count)
     {
       rc = EXIT_FAILURE;
       std::ostringstream oss;
       oss << "A playlist must be specified.";
       msg.assign (oss.str ());
     }
-    else if (spotify_playlist_.empty ())
+    else if (OMX_AUDIO_SpotifyPlaylistTypeUnknown == spotify_playlist_type ())
     {
       rc = EXIT_FAILURE;
       std::ostringstream oss;
@@ -2306,7 +2373,9 @@ bool tiz::programopts::validate_spotify_client_options () const
   bool outcome = false;
   unsigned int spotify_opts_count
       = vm_.count ("spotify-user") + vm_.count ("spotify-password")
-        + vm_.count ("spotify-playlist") + vm_.count ("log-directory");
+        + vm_.count ("spotify-tracks") + vm_.count ("spotify-artist")
+        + vm_.count ("spotify-album") + vm_.count ("spotify-playlist")
+        + vm_.count ("log-directory");
 
   std::vector< std::string > all_valid_options = all_spotify_client_options_;
   concat_option_lists (all_valid_options, all_global_options_);

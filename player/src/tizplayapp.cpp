@@ -903,6 +903,8 @@ tiz::playapp::spotify_stream ()
   const std::string user (popts_.spotify_user ());
   std::string pass (popts_.spotify_password ());
   const uri_lst_t &uri_list = popts_.spotify_playlist_container ();
+  const OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE playlist_type
+      = popts_.spotify_playlist_type ();
 
   print_banner ();
 
@@ -925,7 +927,8 @@ tiz::playapp::spotify_stream ()
   playlist->set_loop_playback (true);
 
   tizgraphconfig_ptr_t config
-      = boost::make_shared< tiz::graph::spotifyconfig > (playlist, user, pass);
+      = boost::make_shared< tiz::graph::spotifyconfig > (playlist, user, pass,
+                                                         playlist_type);
 
   // Instantiate the streaming client manager
   tiz::graphmgr::mgr_ptr_t p_mgr
