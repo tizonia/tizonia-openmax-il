@@ -1853,7 +1853,7 @@ int tiz::programopts::consume_spotify_client_options (bool &done,
     {
       rc = EXIT_FAILURE;
       std::ostringstream oss;
-      oss << "The --spotify-owner option may only be used in conjunction with --spotify=playlist.";
+      oss << "The --spotify-owner option can only be used in conjunction with --spotify=playlist.";
       msg.assign (oss.str ());
     }
     else if (OMX_AUDIO_SpotifyPlaylistTypeUnknown == spotify_playlist_type ())
