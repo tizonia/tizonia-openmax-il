@@ -78,6 +78,7 @@ spfysrc_cfgport_ctor (void * ap_obj, va_list * app)
   snprintf ((char *) p_obj->playlist_.cPlaylistName,
             sizeof (p_obj->playlist_.cPlaylistName), "playlist");
   p_obj->playlist_.bShuffle = OMX_FALSE;
+  p_obj->playlist_.ePlaylistType = OMX_AUDIO_SpotifyPlaylistTypeUnknown;
 
   return p_obj;
 }
