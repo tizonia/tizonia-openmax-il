@@ -294,6 +294,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     uri_list_ (),
     spotify_user_ (),
     spotify_pass_ (),
+    spotify_owner_ (),
     spotify_tracks_ (),
     spotify_artist_ (),
     spotify_album_ (),
@@ -669,6 +670,11 @@ const std::string &tiz::programopts::spotify_user () const
 const std::string &tiz::programopts::spotify_password () const
 {
   return spotify_pass_;
+}
+
+const std::string &tiz::programopts::spotify_owner () const
+{
+  return spotify_owner_;
 }
 
 const std::vector< std::string >
@@ -1308,6 +1314,10 @@ void tiz::programopts::init_spotify_options ()
       ("spotify-password", po::value (&spotify_pass_),
        "Spotify user password  (not required if provided via config file).")
       /* TIZ_CLASS_COMMENT: */
+      ("spotify-owner", po::value (&spotify_owner_),
+       "The owner of the playlist  (optional: may be used in conjunction with "
+       "--spotify-playlist).")
+      /* TIZ_CLASS_COMMENT: */
       ("spotify-tracks", po::value (&spotify_tracks_),
        "Search and play from Spotify by track name.")
       /* TIZ_CLASS_COMMENT: */
@@ -1318,12 +1328,13 @@ void tiz::programopts::init_spotify_options ()
        "Search and play from Spotify by album name.")
       /* TIZ_CLASS_COMMENT: */
       ("spotify-playlist", po::value (&spotify_playlist_),
-       "A playlist from the user's library.");
+       "Search and play public playlists (owner is assumed current user, "
+       "unless --spotify-owner is provided).");
   register_consume_function (&tiz::programopts::consume_spotify_client_options);
   all_spotify_client_options_
       = boost::assign::list_of ("spotify-user") ("spotify-password") (
-            "spotify-tracks") ("spotify-artist") ("spotify-album") (
-            "spotify-playlist")
+            "spotify-owner") ("spotify-tracks") ("spotify-artist") (
+            "spotify-album") ("spotify-playlist")
             .convert_to_container< std::vector< std::string > > ();
 #endif
 }
@@ -1811,6 +1822,10 @@ int tiz::programopts::consume_spotify_client_options (bool &done,
       retrieve_config_from_rc_file ("tizonia", "spotify.password",
                                     spotify_pass_);
     }
+    if (spotify_owner_.empty ())
+    {
+      spotify_owner_ = spotify_user_;
+    }
 
     if (spotify_user_.empty ())
     {
@@ -1831,6 +1846,14 @@ int tiz::programopts::consume_spotify_client_options (bool &done,
       rc = EXIT_FAILURE;
       std::ostringstream oss;
       oss << "A playlist must be specified.";
+      msg.assign (oss.str ());
+    }
+    else if (OMX_AUDIO_SpotifyPlaylistTypePlaylist != spotify_playlist_type ()
+             && vm_.count ("spotify-owner"))
+    {
+      rc = EXIT_FAILURE;
+      std::ostringstream oss;
+      oss << "The --spotify-owner option may only be used in conjunction with --spotify=playlist.";
       msg.assign (oss.str ());
     }
     else if (OMX_AUDIO_SpotifyPlaylistTypeUnknown == spotify_playlist_type ())
@@ -2373,9 +2396,9 @@ bool tiz::programopts::validate_spotify_client_options () const
   bool outcome = false;
   unsigned int spotify_opts_count
       = vm_.count ("spotify-user") + vm_.count ("spotify-password")
-        + vm_.count ("spotify-tracks") + vm_.count ("spotify-artist")
-        + vm_.count ("spotify-album") + vm_.count ("spotify-playlist")
-        + vm_.count ("log-directory");
+        + vm_.count ("spotify-owner") + vm_.count ("spotify-tracks")
+        + vm_.count ("spotify-artist") + vm_.count ("spotify-album")
+        + vm_.count ("spotify-playlist") + vm_.count ("log-directory");
 
   std::vector< std::string > all_valid_options = all_spotify_client_options_;
   concat_option_lists (all_valid_options, all_global_options_);

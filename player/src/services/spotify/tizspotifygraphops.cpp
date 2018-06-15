@@ -101,7 +101,8 @@ void graph::spotifyops::do_configure_comp (const int comp_id)
 
     G_OPS_BAIL_IF_ERROR (
         set_spotify_playlist (handles_[0], playlist_->get_current_uri (),
-                              spotify_config->get_playlist_type ()),
+                              spotify_config->get_playlist_type (),
+                              spotify_config->get_playlist_owner ()),
         "Unable to set OMX_TizoniaIndexParamAudioSpotifyPlaylist");
   }
 }
@@ -401,7 +402,8 @@ graph::spotifyops::set_spotify_user_and_pass (const OMX_HANDLETYPE handle,
 OMX_ERRORTYPE
 graph::spotifyops::set_spotify_playlist (
     const OMX_HANDLETYPE handle, const std::string &playlist,
-    const OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE playlist_type)
+    const OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE playlist_type,
+    const std::string &owner)
 {
   // Set the Spotify playlist
   OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE param_pltype;
@@ -411,6 +413,7 @@ graph::spotifyops::set_spotify_playlist (
       static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioSpotifyPlaylist),
       &param_pltype));
   tiz::graph::util::copy_omx_string (param_pltype.cPlaylistName, playlist);
+  tiz::graph::util::copy_omx_string (param_pltype.cPlaylistOwner, owner);
   TIZ_LOG (TIZ_PRIORITY_DEBUG, "[%s] ", param_pltype.cPlaylistName);
   param_pltype.bShuffle = playlist_->shuffle ();
   param_pltype.ePlaylistType = playlist_type;

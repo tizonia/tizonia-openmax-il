@@ -69,7 +69,8 @@ namespace tiz
                                                const std::string &pass);
       OMX_ERRORTYPE set_spotify_playlist (
           const OMX_HANDLETYPE handle, const std::string &playlist,
-          const OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE playlist_type);
+          const OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE playlist_type,
+          const std::string &owner);
 
     private:
       // re-implemented from the base class

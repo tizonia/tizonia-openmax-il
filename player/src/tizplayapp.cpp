@@ -901,6 +901,7 @@ tiz::playapp::spotify_stream ()
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   const bool shuffle = popts_.shuffle ();
   const std::string user (popts_.spotify_user ());
+  const std::string owner (popts_.spotify_owner ());
   std::string pass (popts_.spotify_password ());
   const uri_lst_t &uri_list = popts_.spotify_playlist_container ();
   const OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE playlist_type
@@ -928,7 +929,7 @@ tiz::playapp::spotify_stream ()
 
   tizgraphconfig_ptr_t config
       = boost::make_shared< tiz::graph::spotifyconfig > (playlist, user, pass,
-                                                         playlist_type);
+                                                         playlist_type, owner);
 
   // Instantiate the streaming client manager
   tiz::graphmgr::mgr_ptr_t p_mgr
