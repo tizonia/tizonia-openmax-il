@@ -17,7 +17,7 @@
 """@package tizspotifyproxy
 Simple Spotify API proxy/wrapper.
 
-Access Spotify servers to retrieve audio track URLs and create a playback queue.
+Access Spotify servers to retrieve audio track URIs and create a playback queue.
 
 """
 
@@ -133,7 +133,7 @@ class TrackInfo(object):
         self.album = track['album']['name'] if track.get('album') else album_name;
         self.release_date = track['album']['release_date'] if track.get('album') else 'n/a';
         self.duration = track['duration_ms'] / 1000 if track['duration_ms'] else 0;
-        self.url = track['uri']
+        self.uri = track['uri']
         self.thumb_url = track['album']['images'][0]['url'] if track.get('album') else None;
 
 class tizspotifyproxy(object):
@@ -176,7 +176,6 @@ class tizspotifyproxy(object):
                   .format(arg.encode('utf-8')))
         try:
             count = len(self.queue)
-
             results = self._spotify.search(arg, limit=20, offset=0, type='track')
             tracks = results['tracks']
             for i, track in enumerate(tracks['items']):
@@ -203,7 +202,6 @@ class tizspotifyproxy(object):
                   .format(arg.encode('utf-8')))
         try:
             count = len(self.queue)
-
             results = self._spotify.search(arg, limit=10, offset=0, type='artist')
             artists = results['artists']
             for i, artist in enumerate(artists['items']):
@@ -253,9 +251,6 @@ class tizspotifyproxy(object):
                   .format(arg.encode('utf-8')))
         try:
             count = len(self.queue)
-            album = None
-            album_name = ''
-
             results = self._spotify.search(arg, limit=10, offset=0, type='album')
             albums = results['albums']
             for i, album in enumerate(albums['items']):
@@ -273,15 +268,15 @@ class tizspotifyproxy(object):
         except ValueError:
             raise ValueError(str("Album not found : %s" % arg))
 
-    def enqueue_playlist(self, arg):
+    def enqueue_playlist(self, arg, owner):
         """Add all audio tracks in a Spotify playlist to the playback queue.
 
         :param arg: a playlist search term
 
         """
         logging.info('arg : %s', arg)
-        print_msg("[Spotify] [Playlist search] '{0}'." \
-                  .format(arg.encode('utf-8')))
+        print_msg("[Spotify] [Playlist search] '{0}' (owner: {1})." \
+                  .format(arg.encode('utf-8'), owner.encode('utf-8')))
         try:
             count = len(self.queue)
             playlist = None
@@ -289,7 +284,7 @@ class tizspotifyproxy(object):
             playlist_dict = dict()
             playlist_names = list()
             playlist_count = 0
-            playlists = self._spotify.user_playlists('spotify')
+            playlists = self._spotify.user_playlists(owner)
             while playlists:
                 for i, plist in enumerate(playlists['items']):
                     playlist_count+=1
@@ -327,7 +322,7 @@ class tizspotifyproxy(object):
                               .format(to_ascii(arg), \
                                       to_ascii(playlist_name)))
 
-                results = self._spotify.user_playlist('spotify', playlist['id'],
+                results = self._spotify.user_playlist(owner, playlist['id'],
                                                       fields="tracks,next")
                 tracks = results['tracks']
                 while tracks:
@@ -336,7 +331,7 @@ class tizspotifyproxy(object):
                         track_info = TrackInfo(track)
                         self.add_to_playback_queue(track_info)
                     if tracks['next']:
-                        tracks = sp.next(tracks)
+                        tracks = self._spotify.next(tracks)
                     else:
                         tracks = None
 
@@ -423,8 +418,8 @@ class tizspotifyproxy(object):
         self.queue = list()
         self.queue_index = -1
 
-    def remove_current_url(self):
-        """Remove the currently active url from the playback queue.
+    def remove_current_uri(self):
+        """Remove the currently active uri from the playback queue.
 
         """
         logging.info("")
@@ -438,8 +433,8 @@ class tizspotifyproxy(object):
                 self.queue_index = 0
             self.__update_play_queue_order()
 
-    def next_url(self):
-        """ Retrieve the url of the next track in the playback queue.
+    def next_uri(self):
+        """ Retrieve the uri of the next track in the playback queue.
 
         """
         logging.info("")
@@ -450,20 +445,20 @@ class tizspotifyproxy(object):
                    and (self.queue_index >= 0):
                     next_track = self.queue[self.play_queue_order \
                                             [self.queue_index]]
-                    return self.__retrieve_track_url(next_track)
+                    return self.__retrieve_track_uri(next_track)
                 else:
                     self.queue_index = -1
-                    return self.next_url()
+                    return self.next_uri()
             else:
                 return ''
         except (KeyError, AttributeError):
             # TODO: We don't remove this for now
             # del self.queue[self.queue_index]
             logging.info("exception")
-            return self.next_url()
+            return self.next_uri()
 
-    def prev_url(self):
-        """ Retrieve the url of the previous track in the playback queue.
+    def prev_uri(self):
+        """ Retrieve the uri of the previous track in the playback queue.
 
         """
         logging.info("")
@@ -474,17 +469,17 @@ class tizspotifyproxy(object):
                    and (self.queue_index >= 0):
                     prev_track = self.queue[self.play_queue_order \
                                             [self.queue_index]]
-                    return self.__retrieve_track_url(prev_track)
+                    return self.__retrieve_track_uri(prev_track)
                 else:
                     self.queue_index = len(self.queue)
-                    return self.prev_url()
+                    return self.prev_uri()
             else:
                 return ''
         except (KeyError, AttributeError):
             # TODO: We don't remove this for now
             # del self.queue[self.queue_index]
             logging.info("exception")
-            return self.prev_url()
+            return self.prev_uri()
 
     def __update_play_queue_order(self):
         """ Update the queue playback order.
@@ -503,16 +498,16 @@ class tizspotifyproxy(object):
             print_nfo("[Spotify] [Tracks in queue] '{0}'." \
                       .format(total_tracks))
 
-    def __retrieve_track_url(self, track):
-        """ Retrieve a track url
+    def __retrieve_track_uri(self, track):
+        """ Retrieve a track uri
 
         """
         try:
             self.now_playing_track = track
-            return track.url.encode("utf-8")
+            return track.uri.encode("utf-8")
 
         except AttributeError:
-            logging.info("Could not retrieve the track url!")
+            logging.info("Could not retrieve the track uri!")
             raise
 
     def add_to_playback_queue(self, track):

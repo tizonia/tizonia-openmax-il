@@ -58,7 +58,7 @@ public:
   int play_tracks (const std::string &tracks);
   int play_artist (const std::string &artist);
   int play_album (const std::string &album);
-  int play_playlist (const std::string &playlist);
+  int play_playlist (const std::string &playlist, const std::string &owner);
 
   void set_playback_mode (const playback_mode mode);
   void clear_queue ();
@@ -67,8 +67,8 @@ public:
   int get_current_queue_length_as_int ();
   const char *get_current_queue_progress ();
 
-  const char *get_next_url (const bool a_remove_current_url);
-  const char *get_prev_url (const bool a_remove_current_url);
+  const char *get_next_uri (const bool a_remove_current_uri);
+  const char *get_prev_uri (const bool a_remove_current_uri);
 
   const char *get_current_track_title ();
   const char *get_current_track_artist ();
@@ -81,7 +81,7 @@ private:
   int get_current_track ();
 
 private:
-  std::string current_url_;
+  std::string current_uri_;
   std::string current_track_index_;
   std::string current_queue_length_;
   int current_queue_length_as_int_;

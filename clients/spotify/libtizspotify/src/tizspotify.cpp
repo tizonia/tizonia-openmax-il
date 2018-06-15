@@ -127,7 +127,7 @@ namespace
 }  // namespace
 
 tizspotify::tizspotify ()
-  : current_url_ (),
+  : current_uri_ (),
     current_track_index_ (),
     current_queue_length_ (),
     current_queue_length_as_int_ (0),
@@ -198,29 +198,30 @@ int tizspotify::play_album (const std::string &album)
   return rc;
 }
 
-int tizspotify::play_playlist (const std::string &playlist)
+int tizspotify::play_playlist (const std::string &playlist,
+                               const std::string &owner)
 {
   int rc = 0;
-  try_catch_wrapper (
-      py_spotify_proxy_.attr ("enqueue_playlist") (bp::object (playlist)));
+  try_catch_wrapper (py_spotify_proxy_.attr ("enqueue_playlist") (
+      bp::object (playlist), bp::object (owner)));
   return rc;
 }
 
-const char *tizspotify::get_next_url (const bool a_remove_current_url)
+const char *tizspotify::get_next_uri (const bool a_remove_current_uri)
 {
-  current_url_.clear ();
+  current_uri_.clear ();
   try
     {
-      if (a_remove_current_url)
+      if (a_remove_current_uri)
         {
-          py_spotify_proxy_.attr ("remove_current_url") ();
+          py_spotify_proxy_.attr ("remove_current_uri") ();
         }
-      const char *p_next_url = bp::extract< char const * > (
-          py_spotify_proxy_.attr ("next_url") ());
-      current_url_.assign (p_next_url);
-      if (!p_next_url || get_current_track ())
+      const char *p_next_uri = bp::extract< char const * > (
+          py_spotify_proxy_.attr ("next_uri") ());
+      current_uri_.assign (p_next_uri);
+      if (!p_next_uri || get_current_track ())
         {
-          current_url_.clear ();
+          current_uri_.clear ();
         }
     }
   catch (bp::error_already_set &e)
@@ -230,24 +231,24 @@ const char *tizspotify::get_next_url (const bool a_remove_current_url)
   catch (...)
     {
     }
-  return current_url_.empty () ? NULL : current_url_.c_str ();
+  return current_uri_.empty () ? NULL : current_uri_.c_str ();
 }
 
-const char *tizspotify::get_prev_url (const bool a_remove_current_url)
+const char *tizspotify::get_prev_uri (const bool a_remove_current_uri)
 {
-  current_url_.clear ();
+  current_uri_.clear ();
   try
     {
-      if (a_remove_current_url)
+      if (a_remove_current_uri)
         {
-          py_spotify_proxy_.attr ("remove_current_url") ();
+          py_spotify_proxy_.attr ("remove_current_uri") ();
         }
-      const char *p_prev_url = bp::extract< char const * > (
-          py_spotify_proxy_.attr ("prev_url") ());
-      current_url_.assign (p_prev_url);
-      if (!p_prev_url || get_current_track ())
+      const char *p_prev_uri = bp::extract< char const * > (
+          py_spotify_proxy_.attr ("prev_uri") ());
+      current_uri_.assign (p_prev_uri);
+      if (!p_prev_uri || get_current_track ())
         {
-          current_url_.clear ();
+          current_uri_.clear ();
         }
     }
   catch (bp::error_already_set &e)
@@ -257,7 +258,7 @@ const char *tizspotify::get_prev_url (const bool a_remove_current_url)
   catch (...)
     {
     }
-  return current_url_.empty () ? NULL : current_url_.c_str ();
+  return current_uri_.empty () ? NULL : current_uri_.c_str ();
 }
 
 void tizspotify::clear_queue ()

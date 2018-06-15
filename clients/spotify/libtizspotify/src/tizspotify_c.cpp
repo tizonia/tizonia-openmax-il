@@ -113,29 +113,32 @@ extern "C" const char *tiz_spotify_get_current_track_index (
   return ap_spotify->p_proxy_->get_current_track_index ();
 }
 
-extern "C" const char *tiz_spotify_get_current_queue_length (tiz_spotify_t *ap_spotify)
+extern "C" const char *tiz_spotify_get_current_queue_length (
+    tiz_spotify_t *ap_spotify)
 {
   assert (ap_spotify);
   assert (ap_spotify->p_proxy_);
   return ap_spotify->p_proxy_->get_current_queue_length ();
 }
 
-extern "C" int tiz_spotify_get_current_queue_length_as_int (tiz_spotify_t *ap_spotify)
+extern "C" int tiz_spotify_get_current_queue_length_as_int (
+    tiz_spotify_t *ap_spotify)
 {
   assert (ap_spotify);
   assert (ap_spotify->p_proxy_);
   return ap_spotify->p_proxy_->get_current_queue_length_as_int ();
 }
 
-extern "C" const char *tiz_spotify_get_current_queue_progress (tiz_spotify_t *ap_spotify)
+extern "C" const char *tiz_spotify_get_current_queue_progress (
+    tiz_spotify_t *ap_spotify)
 {
   assert (ap_spotify);
   assert (ap_spotify->p_proxy_);
   return ap_spotify->p_proxy_->get_current_queue_progress ();
 }
 
-extern "C" void tiz_spotify_set_playback_mode (tiz_spotify_t *ap_spotify,
-                                            const tiz_spotify_playback_mode_t mode)
+extern "C" void tiz_spotify_set_playback_mode (
+    tiz_spotify_t *ap_spotify, const tiz_spotify_playback_mode_t mode)
 {
   assert (ap_spotify);
   assert (ap_spotify->p_proxy_);
@@ -144,7 +147,7 @@ extern "C" void tiz_spotify_set_playback_mode (tiz_spotify_t *ap_spotify,
 }
 
 extern "C" int tiz_spotify_play_tracks (tiz_spotify_t *ap_spotify,
-                                           const char *ap_tracks)
+                                        const char *ap_tracks)
 {
   assert (ap_spotify);
   assert (ap_spotify->p_proxy_);
@@ -152,7 +155,7 @@ extern "C" int tiz_spotify_play_tracks (tiz_spotify_t *ap_spotify,
 }
 
 extern "C" int tiz_spotify_play_artist (tiz_spotify_t *ap_spotify,
-                                           const char *ap_artist)
+                                        const char *ap_artist)
 {
   assert (ap_spotify);
   assert (ap_spotify->p_proxy_);
@@ -160,7 +163,7 @@ extern "C" int tiz_spotify_play_artist (tiz_spotify_t *ap_spotify,
 }
 
 extern "C" int tiz_spotify_play_album (tiz_spotify_t *ap_spotify,
-                                          const char *ap_album)
+                                       const char *ap_album)
 {
   assert (ap_spotify);
   assert (ap_spotify->p_proxy_);
@@ -168,27 +171,28 @@ extern "C" int tiz_spotify_play_album (tiz_spotify_t *ap_spotify,
 }
 
 extern "C" int tiz_spotify_play_playlist (tiz_spotify_t *ap_spotify,
-                                             const char *ap_url_or_id)
+                                          const char *ap_playlist,
+                                          const char *ap_owner)
 {
   assert (ap_spotify);
   assert (ap_spotify->p_proxy_);
-  return ap_spotify->p_proxy_->play_playlist (ap_url_or_id);
+  return ap_spotify->p_proxy_->play_playlist (ap_playlist, ap_owner);
 }
 
-extern "C" const char *tiz_spotify_get_next_url (tiz_spotify_t *ap_spotify,
-                                              const bool a_remove_current_url)
+extern "C" const char *tiz_spotify_get_next_uri (
+    tiz_spotify_t *ap_spotify, const bool a_remove_current_uri)
 {
   assert (ap_spotify);
   assert (ap_spotify->p_proxy_);
-  return ap_spotify->p_proxy_->get_next_url (a_remove_current_url);
+  return ap_spotify->p_proxy_->get_next_uri (a_remove_current_uri);
 }
 
-extern "C" const char *tiz_spotify_get_prev_url (tiz_spotify_t *ap_spotify,
-                                              const bool a_remove_current_url)
+extern "C" const char *tiz_spotify_get_prev_uri (
+    tiz_spotify_t *ap_spotify, const bool a_remove_current_uri)
 {
   assert (ap_spotify);
   assert (ap_spotify->p_proxy_);
-  return ap_spotify->p_proxy_->get_prev_url (a_remove_current_url);
+  return ap_spotify->p_proxy_->get_prev_uri (a_remove_current_uri);
 }
 
 extern "C" const char *tiz_spotify_get_current_track_title (
