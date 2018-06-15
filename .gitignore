@@ -163,6 +163,12 @@ clients/plex/libtizplex/src/Makefile
 clients/plex/libtizplex/tests/Makefile
 clients/plex/libtizplex/tizonia
 clients/plex/plexproxy/Makefile
+clients/spotify/Makefile
+clients/spotify/libtizspotify/Makefile
+clients/spotify/libtizspotify/src/Makefile
+clients/spotify/libtizspotify/tests/Makefile
+clients/spotify/libtizspotify/tizonia
+clients/spotify/spotifyproxy/Makefile
 compile_commands.json
 config/Makefile
 config/src/Makefile
