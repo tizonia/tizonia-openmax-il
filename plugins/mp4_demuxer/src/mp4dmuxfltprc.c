@@ -210,12 +210,12 @@ mp4_close_cback (void * handle)
   return 0;
 }
 
-static int64_t
-mp4_get_size (void * handle)
-{
-  TIZ_TRACE(handleOf(gp_prc), "FILE_SIZE");
-  return FILE_SIZE;
-}
+/* static int64_t */
+/* mp4_get_size (void * handle) */
+/* { */
+/*   TIZ_TRACE(handleOf(gp_prc), "FILE_SIZE"); */
+/*   return FILE_SIZE; */
+/* } */
 
 static void
 propagate_eos_if_required (mp4dmuxflt_prc_t * ap_prc,
@@ -659,9 +659,12 @@ alloc_mp4v2 (mp4dmuxflt_prc_t * ap_prc)
   TIZ_TRACE(handleOf(ap_prc), "");
   if (!MP4_IS_VALID_FILE_HANDLE (ap_prc->mp4v2_hdl_))
     {
+/*       const MP4FileProvider provider */
+/*         = {mp4_open_cback, mp4_seek_cback, mp4_read_cback, mp4_write_cback, */
+/*            mp4_close_cback, mp4_get_size}; */
       const MP4FileProvider provider
         = {mp4_open_cback, mp4_seek_cback, mp4_read_cback, mp4_write_cback,
-           mp4_close_cback, mp4_get_size};
+           mp4_close_cback};
       ap_prc->mp4v2_hdl_ = MP4ReadProvider ("Tizonia", &provider);
       TIZ_TRACE(handleOf(ap_prc), "MP4ReadProvider");
       if (!MP4_IS_VALID_FILE_HANDLE (ap_prc->mp4v2_hdl_))
