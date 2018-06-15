@@ -318,6 +318,8 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE {
     OMX_U8 cPlaylistName[OMX_MAX_STRINGNAME_SIZE];
     OMX_U8 bShuffle;            /**< Default: OMX_FALSE */
     OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE ePlaylistType;
+    OMX_U8 cPlaylistOwner[OMX_MAX_STRINGNAME_SIZE]; /**< Spotify user that owns this list. If empty, the
+                                                       user of the currently active session is assumed. */
 } OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE;
 
 /**
