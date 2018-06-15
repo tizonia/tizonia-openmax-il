@@ -86,7 +86,8 @@ sudo apt-get -y install python-pip \
             pychromecast \
             plexapi \
             fuzzywuzzy \
-            eventlet
+            eventlet \
+    && sudo -H pip2 install git+https://github.com/plamere/spotipy.git --upgrade
 
 # Install 'libspotify'
 if [[ "$?" -eq 0 ]]; then
