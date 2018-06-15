@@ -1171,6 +1171,7 @@ enqueue_playlist_items (spfysrc_prc_t * ap_prc)
 
   {
     const char * p_playlist = (const char *) ap_prc->playlist_.cPlaylistName;
+    const char * p_owner = (const char *) ap_prc->playlist_.cPlaylistOwner;
     const OMX_BOOL shuffle = ap_prc->playlist_.bShuffle;
 
     tiz_spotify_set_playback_mode (
@@ -1203,7 +1204,7 @@ enqueue_playlist_items (spfysrc_prc_t * ap_prc)
           break;
         case OMX_AUDIO_SpotifyPlaylistTypePlaylist:
           {
-            rc = tiz_spotify_play_playlist (ap_prc->p_spfy_web_, p_playlist);
+            rc = tiz_spotify_play_playlist (ap_prc->p_spfy_web_, p_playlist, p_owner);
           }
           break;
         default:
@@ -1241,8 +1242,8 @@ obtain_next_url (spfysrc_prc_t * ap_prc, int a_skip_value)
     const bool need_url_removed = false;
     const char * p_next_url
       = a_skip_value > 0
-          ? tiz_spotify_get_next_url (ap_prc->p_spfy_web_, need_url_removed)
-          : tiz_spotify_get_prev_url (ap_prc->p_spfy_web_, need_url_removed);
+          ? tiz_spotify_get_next_uri (ap_prc->p_spfy_web_, need_url_removed)
+          : tiz_spotify_get_prev_uri (ap_prc->p_spfy_web_, need_url_removed);
     tiz_check_null_ret_oom (p_next_url);
 
     {

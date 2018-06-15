@@ -79,6 +79,8 @@ spfysrc_cfgport_ctor (void * ap_obj, va_list * app)
             sizeof (p_obj->playlist_.cPlaylistName), "playlist");
   p_obj->playlist_.bShuffle = OMX_FALSE;
   p_obj->playlist_.ePlaylistType = OMX_AUDIO_SpotifyPlaylistTypeUnknown;
+  snprintf ((char *) p_obj->playlist_.cPlaylistOwner,
+            sizeof (p_obj->playlist_.cPlaylistOwner), "owner");
 
   return p_obj;
 }
@@ -152,8 +154,10 @@ spfysrc_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
       memcpy (&(p_obj->playlist_), ap_struct,
               sizeof (OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE));
       p_obj->playlist_.cPlaylistName[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
-      TIZ_TRACE (ap_hdl, "Spotify playlist [%s]...",
-                 p_obj->playlist_.cPlaylistName);
+      p_obj->playlist_.cPlaylistOwner[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
+      TIZ_TRACE (ap_hdl, "Spotify playlist [%s] owner [%s]...",
+                 p_obj->playlist_.cPlaylistName,
+                 p_obj->playlist_.cPlaylistOwner);
     }
   else
     {
