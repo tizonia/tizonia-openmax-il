@@ -1,0 +1,11 @@
+tizspotify (0.14.0-1) unstable; urgency=low
+
+  * New upstream release (Closes: #482)
+
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Wed, 18 Apr 2018 15:58:04 +0100
+
+tizspotify (0.13.0-1) unstable; urgency=low
+
+  * Initial release (Closes: #460)
+
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Fri, 09 Mar 2018 21:11:28 +0000
