@@ -7,8 +7,7 @@ Build-Depends: debhelper (>= 8.0.0),
                libtizplatform-dev,
                libtizonia-dev,
                libtizspotify-dev,
-               libspotify-dev,
-               libcolumbus1-dev
+               libspotify-dev
 Standards-Version: 3.9.4
 Section: libs
 Homepage: http://tizonia.org
@@ -24,8 +23,7 @@ Depends: libtizspotifysrc0 (= ${binary:Version}),
          libtizplatform-dev,
          libtizonia-dev,
          libtizspotify-dev,
-         libspotify-dev,
-         libcolumbus1-dev
+         libspotify-dev
 Description: Tizonia's OpenMAX IL Spotify streaming client library, development files
  Tizonia's OpenMAX IL Spotify streaming client library.
  .

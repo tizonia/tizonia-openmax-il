@@ -64,7 +64,6 @@ PKG_PROG_PKG_CONFIG()
 
 # Checks for libraries.
 PKG_CHECK_MODULES([SPOTIFY], [libspotify >= 12.1.51])
-PKG_CHECK_MODULES([COLUMBUS], [libcolumbus >= 1.1.0])
 
 AC_CHECK_HEADERS([tizonia/OMX_Core.h tizonia/OMX_Component.h],
 	[tiz_found_omx_headers=yes; break;])

@@ -116,29 +116,6 @@ struct spfy_music_delivery_data
   int num_frames;
 };
 
-static OMX_S32
-doc_ids_map_compare_func (OMX_PTR ap_key1, OMX_PTR ap_key2)
-{
-  const DocumentID * p_doc_id1 = ap_key1;
-  const DocumentID * p_doc_id2 = ap_key2;
-  if (*p_doc_id1 < *p_doc_id2)
-    {
-      return -1;
-    }
-  else if (*p_doc_id1 > *p_doc_id2)
-    {
-      return 1;
-    }
-  return 0;
-}
-
-static void
-doc_ids_map_free_func (OMX_PTR ap_key, OMX_PTR ap_value)
-{
-  DocumentID * p_doc_id = ap_key;
-  tiz_mem_free (p_doc_id);
-}
-
 static char *
 concat (const char * s1, const char * s2)
 {
@@ -1358,10 +1335,6 @@ spfysrc_prc_ctor (void * ap_obj, va_list * app)
   p_prc->keep_processing_sp_events_ = false;
   p_prc->next_timeout_ = 0;
 
-  p_prc->col_corpus_ = NULL;
-  p_prc->col_doc_id_ = 0;
-  p_prc->p_doc_ids_ = NULL;
-
   return p_prc;
 }
 
@@ -1392,9 +1365,6 @@ spfysrc_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
   tiz_check_omx (retrieve_playlist (p_prc));
   tiz_check_omx (
     tiz_srv_timer_watcher_init (p_prc, &(p_prc->p_session_timer_)));
-  tiz_check_omx (tiz_map_init (&(p_prc->p_doc_ids_), doc_ids_map_compare_func,
-                               doc_ids_map_free_func, NULL));
-  assert (p_prc->p_doc_ids_);
 
   /* Instantiate the spotify web api proxy */
   on_spotifyweb_error_ret_omx_oom (tiz_spotify_init (&(p_prc->p_spfy_web_)));
@@ -1420,11 +1390,6 @@ spfysrc_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
                by libspotify */
     NULL));
 
-  if (!(p_prc->col_corpus_ = col_corpus_new ()))
-    {
-      goto end;
-    }
-
   /* All OK */
   rc = OMX_ErrorNone;
 
@@ -1439,12 +1404,6 @@ spfysrc_prc_deallocate_resources (void * ap_prc)
   spfysrc_prc_t * p_prc = ap_prc;
   assert (p_prc);
 
-  if (p_prc->col_corpus_)
-    {
-      col_corpus_delete (p_prc->col_corpus_);
-      p_prc->col_corpus_ = NULL;
-    }
-
   if (p_prc->p_spfy_web_)
     {
       tiz_spotify_destroy (p_prc->p_spfy_web_);
@@ -1456,16 +1415,6 @@ spfysrc_prc_deallocate_resources (void * ap_prc)
       stop_spotify_session_timer (p_prc);
       tiz_srv_timer_watcher_destroy (p_prc, p_prc->p_session_timer_);
       p_prc->p_session_timer_ = NULL;
-    }
-
-  if (p_prc->p_doc_ids_)
-    {
-      while (!tiz_map_empty (p_prc->p_doc_ids_))
-        {
-          tiz_map_erase_at (p_prc->p_doc_ids_, 0);
-        }
-      tiz_map_destroy (p_prc->p_doc_ids_);
-      p_prc->p_doc_ids_ = NULL;
     }
 
   (void) sp_session_release (p_prc->p_sp_session_);

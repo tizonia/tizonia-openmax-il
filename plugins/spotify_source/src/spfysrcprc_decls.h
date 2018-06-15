@@ -35,7 +35,6 @@ extern "C" {
 #include <stdbool.h>
 
 #include <libspotify/api.h>
-#include <columbus.h>
 
 #include <OMX_Core.h>
 
@@ -77,17 +76,10 @@ struct spfysrc_prc
   sp_session_callbacks sp_cbacks_;             /* The session callbacks */
   sp_track * p_sp_track_;          /* Handle to the current track */
   sp_link * p_sp_link_;            /* Handle to the current track link */
-  tiz_spotify_t * p_spfy_web_;
+  tiz_spotify_t * p_spfy_web_;     /* Tizonia's Spotify web api object */
   bool keep_processing_sp_events_; /* callback called from libspotify thread to
                                     * ask us to reiterate the main loop */
   int next_timeout_;               /* Remove tracks flag */
-
-  ColCorpus col_corpus_;
-  DocumentID col_doc_id_;       /* This is the next columbus doc id to be
-                                 * assigned to the next playlist arrived */
-  tiz_map_t * p_doc_ids_;              /* A map containing the columbus doc id
-                                          of each playlist received that is
-                                          ready for playback */
 };
 
 typedef struct spfysrc_prc_class spfysrc_prc_class_t;
