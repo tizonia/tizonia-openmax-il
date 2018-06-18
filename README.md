@@ -39,7 +39,7 @@ Spotify support to overcome playlist search problems that arised in
 libspotify. Now [spotipy](https://github.com/plamere/spotipy) is being used to
 retrieve track, artist, album, and playlist metadata from Spotify.
 
-[v0.14.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.14.0). Added
+- [v0.14.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.14.0). Added
 support for Google Play Music [stations for
 non-subscribers](https://support.google.com/googleplaymusic/answer/6250894?hl=en)
 and YouTube channels (uploads and playlists). Also added option to play the
@@ -165,14 +165,14 @@ more information):
 
 ## Upgrade
 
-To upgrade Tizonia, run 'apt-get' as usual, but also make sure the Python dependencies are up-to-date.
+To upgrade Tizonia, run 'apt-get' as usual, but also make sure the various Python dependencies are up-to-date.
 
 ```bash
 
     $ sudo apt-get update && sudo apt-get upgrade
 
     # (Note that new versions of some of these Python packages are released frequently)
-    $ sudo -H pip install --upgrade gmusicapi soundcloud youtube-dl pafy pycountry titlecase pychromecast plexapi fuzzywuzzy eventlet
+    $ sudo -H pip install --upgrade gmusicapi soundcloud youtube-dl pafy pycountry titlecase pychromecast plexapi fuzzywuzzy eventlet && sudo -H pip install git+https://github.com/plamere/spotipy.git --upgrade
 
 ```
 
