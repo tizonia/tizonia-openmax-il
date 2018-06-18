@@ -39,7 +39,8 @@ Spotify support to overcome playlist search problems that arised in
 libspotify. Now [spotipy](https://github.com/plamere/spotipy) is being used to
 retrieve track, artist, album, and playlist metadata from Spotify.
 
-- [v0.14.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.14.0). Added
+- [2018-04-20] Tizonia
+[v0.14.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.14.0). Added
 support for Google Play Music [stations for
 non-subscribers](https://support.google.com/googleplaymusic/answer/6250894?hl=en)
 and YouTube channels (uploads and playlists). Also added option to play the
