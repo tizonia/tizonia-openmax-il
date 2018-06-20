@@ -5,7 +5,8 @@ Build-Depends: debhelper (>= 8.0.0),
                dh-autoreconf,
                tizilheaders,
                libtizplatform-dev,
-               libtizonia-dev
+               libtizonia-dev,
+               libmp4v2-dev
 Standards-Version: 3.9.4
 Section: libs
 Homepage: http://tizonia.org
@@ -19,7 +20,8 @@ Depends: libtizmp4dmux0 (= ${binary:Version}),
          ${misc:Depends},
          tizilheaders,
          libtizplatform-dev,
-         libtizonia-dev
+         libtizonia-dev,
+         libmp4v2-dev
 Description: Tizonia's OpenMAX IL MP4 demuxer library, development files
  Tizonia's OpenMAX IL MP4 demuxer library.
  .
