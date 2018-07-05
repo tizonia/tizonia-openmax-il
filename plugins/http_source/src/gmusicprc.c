@@ -192,8 +192,9 @@ store_metadata (gmusic_prc_t * ap_prc, const char * ap_header_name,
       info_len = strnlen (ap_header_info, OMX_MAX_STRINGNAME_SIZE - 1) + 1;
       metadata_len = sizeof (OMX_CONFIG_METADATAITEMTYPE) + info_len;
 
-      if (NULL == (p_meta = (OMX_CONFIG_METADATAITEMTYPE *) tiz_mem_calloc (
-                     1, metadata_len)))
+      if (NULL
+          == (p_meta = (OMX_CONFIG_METADATAITEMTYPE *) tiz_mem_calloc (
+                1, metadata_len)))
         {
           rc = OMX_ErrorInsufficientResources;
         }
@@ -349,8 +350,7 @@ update_metadata (gmusic_prc_t * ap_prc)
       = tiz_gmusic_get_current_song_tracks_in_album (ap_prc->p_gmusic_);
     if (p_total_tracks && strncmp (p_total_tracks, "0", 2) != 0)
       {
-        tiz_check_omx (
-          store_metadata (ap_prc, "Total tracks", p_total_tracks));
+        tiz_check_omx (store_metadata (ap_prc, "Total tracks", p_total_tracks));
       }
   }
 
@@ -421,9 +421,15 @@ static OMX_ERRORTYPE
 release_buffer (gmusic_prc_t * ap_prc)
 {
   assert (ap_prc);
-
+  TIZ_DEBUG (handleOf (ap_prc), "ap_prc->p_outhdr_ = [%p]", ap_prc->p_outhdr_);
   if (ap_prc->p_outhdr_)
     {
+      TIZ_DEBUG (
+        handleOf (ap_prc),
+        "ap_prc->bytes_before_eos_  [%u] > ap_prc->p_outhdr_->nFilledLen [%u]",
+        ap_prc->bytes_before_eos_, ap_prc->p_outhdr_->nFilledLen,
+        (ap_prc->bytes_before_eos_ > ap_prc->p_outhdr_->nFilledLen ? "YES"
+                                                                   : "NO"));
       if (ap_prc->bytes_before_eos_ > ap_prc->p_outhdr_->nFilledLen)
         {
           ap_prc->bytes_before_eos_ -= ap_prc->p_outhdr_->nFilledLen;
@@ -436,12 +442,13 @@ release_buffer (gmusic_prc_t * ap_prc)
 
       if (ap_prc->eos_)
         {
+          TIZ_DEBUG (handleOf (ap_prc), "eos");
           ap_prc->eos_ = false;
           ap_prc->p_outhdr_->nFlags |= OMX_BUFFERFLAG_EOS;
         }
-      tiz_check_omx (tiz_krn_release_buffer (
-        tiz_get_krn (handleOf (ap_prc)), ARATELIA_HTTP_SOURCE_PORT_INDEX,
-        ap_prc->p_outhdr_));
+      tiz_check_omx (tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_prc)),
+                                             ARATELIA_HTTP_SOURCE_PORT_INDEX,
+                                             ap_prc->p_outhdr_));
       ap_prc->p_outhdr_ = NULL;
     }
   return OMX_ErrorNone;
@@ -531,11 +538,10 @@ connection_lost (OMX_PTR ap_arg)
 {
   gmusic_prc_t * p_prc = ap_arg;
   assert (p_prc);
-  TIZ_PRINTF_DBG_RED ("connection_lost - bytes_before_eos_ [%d]\n",
-                      p_prc->bytes_before_eos_);
-
   p_prc->connection_closed_ = true;
   p_prc->bytes_before_eos_ = tiz_urltrans_bytes_available (p_prc->p_trans_);
+  TIZ_DEBUG (handleOf (p_prc), "connection_lost - bytes_before_eos_ [%d]",
+             p_prc->bytes_before_eos_);
   /* Return false to indicate that there is no need to start the automatic
      reconnection procedure */
   return false;
@@ -816,18 +822,22 @@ static OMX_ERRORTYPE
 gmusic_prc_io_ready (void * ap_prc, tiz_event_io_t * ap_ev_io, int a_fd,
                      int a_events)
 {
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
   gmusic_prc_t * p_prc = ap_prc;
-  /*   OMX_ERRORTYPE rc = OMX_ErrorNone; */
   assert (p_prc);
-   return tiz_urltrans_on_io_ready (p_prc->p_trans_, ap_ev_io, a_fd, a_events);
-/*   rc = tiz_urltrans_on_io_ready (p_prc->p_trans_, ap_ev_io, a_fd, a_events); */
-/*   if (p_prc->connection_closed_ && tiz_urltrans_handshake_error_found(p_prc->p_trans_)) */
-/*     { */
-/*       tiz_urltrans_set_uri (p_prc->p_trans_, p_prc->p_uri_param_); */
-/*       p_prc->connection_closed_ = false; */
-/*       rc = tiz_urltrans_start (p_prc->p_trans_); */
-/*     } */
-/*   return rc; */
+  rc = tiz_urltrans_on_io_ready (p_prc->p_trans_, ap_ev_io, a_fd, a_events);
+  /* This is a workaround for the 'gnutls_handshake() failed: An unexpected TLS
+     packet was received' error. Notify the IL client with
+     OMX_ErrorDynamicResourcesUnavailable. The IL client will try to skip to
+     the next song, which seems to remove the problem. */
+  if (p_prc->connection_closed_
+      && tiz_urltrans_handshake_error_found (p_prc->p_trans_))
+    {
+      tiz_srv_issue_err_event_with_data ((OMX_PTR) p_prc,
+                                         OMX_ErrorDynamicResourcesUnavailable,
+                                         ARATELIA_HTTP_SOURCE_PORT_INDEX);
+    }
+  return rc;
 }
 
 static OMX_ERRORTYPE
