@@ -498,6 +498,7 @@ namespace tiz
         bmf::Row < tg::executing                , tg::skip_evt              , skipping                , tg::do_store_skip           , tg::is_skip_allowed          >,
         bmf::Row < tg::executing                , tg::omx_eos_evt           , bmf::none               , tg::do_skip                 , tg::is_last_eos              >,
         bmf::Row < tg::executing                , tg::omx_eos_evt           , bmf::none               , bmf::none                   , tg::is_first_eos             >,
+        bmf::Row < tg::executing                , tg::omx_err_evt           , skipping                , bmf::none                   , tg::is_error<OMX_ErrorDynamicResourcesUnavailable> >,
         bmf::Row < tg::executing                , tg::omx_err_evt           , skipping                , bmf::none                   , tg::is_error<OMX_ErrorFormatNotDetected> >,
         bmf::Row < tg::executing                , tg::timer_evt             , bmf::none               , tg::do_increase_progress_display                           >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
