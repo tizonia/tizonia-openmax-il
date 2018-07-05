@@ -1188,6 +1188,7 @@ tiz_urltrans_start (tiz_urltrans_t * ap_trans)
       int running_handles = 0;
       tiz_check_omx (start_curl (ap_trans));
       assert (ap_trans->p_curl_multi_);
+      ap_trans->handshake_error_found = false;
       /* Kickstart curl to get one or more callbacks called. */
       tiz_check_omx (kickstart_curl_socket (ap_trans, &running_handles));
     }
@@ -1383,6 +1384,8 @@ bool
 tiz_urltrans_handshake_error_found (tiz_urltrans_t * ap_trans)
 {
   assert (ap_trans);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "handshake_error_found : [%s]",
+           (ap_trans->handshake_error_found ? "YES" : "NO"));
   if (ap_trans->handshake_error_found)
     {
       return true;
