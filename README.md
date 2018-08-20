@@ -25,13 +25,16 @@
   - [Snap Package](#snap-package)
   - [Docker Image](#docker-image)
   - [Configuration](#configuration)
-  - [Upgrade](#upgrade)
+  - [Upgrade (Debian / Ubuntu / Raspbian)](#upgrade-debian--ubuntu--raspbian)
 - [Roadmap](#roadmap)
 - [Resources](#resources)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # News
+
+> NOTE: Please remember to also visit Tizonia's website at http://www.tizonia.org
+> for more info on the latest releases.
 
 - [2018-06-15] Tizonia
 [v0.15.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.15.0). Reworked
