@@ -101,7 +101,6 @@ declare -ar TIZ_TIZONIA_DEPS=( \
     python-bs4 \
     python-oauth2client \
     python-dateutil \
-    python-mutagen \
     python-crypto \
     python-requests \
     curl \

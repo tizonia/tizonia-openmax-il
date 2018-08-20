@@ -164,18 +164,27 @@ more information):
 
 ```
 
-## Upgrade
+## Upgrade (Debian / Ubuntu / Raspbian)
 
-To upgrade Tizonia, run 'apt-get' as usual, but also make sure the various Python dependencies are up-to-date.
+To upgrade, simply re-run the install script. This is the most convienent way
+of upgrading the software and all its dependencies.
+
+If you prefer to do it manually, it is a two-step process. Run 'apt-get' as
+usual to upgrade the Debian packages, but also make sure the various Python
+dependencies are up-to-date, as follows:
 
 ```bash
 
+    # Step1: This will update Tizonia's Debian packages
     $ sudo apt-get update && sudo apt-get upgrade
 
-    # (Note that new versions of some of these Python packages are released frequently)
+    # Step2: Tizonia's Python dependencies
+    # (Note that new versions of some of these Python packages are released frequently,
+    # so you should do this frequently, even if there isn't a new Tizonia release)
     $ sudo -H pip install --upgrade gmusicapi soundcloud youtube-dl pafy pycountry titlecase pychromecast plexapi fuzzywuzzy eventlet && sudo -H pip install git+https://github.com/plamere/spotipy.git --upgrade
 
 ```
+
 
 # Roadmap
 
