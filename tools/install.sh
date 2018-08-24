@@ -42,11 +42,13 @@ elif echo "$RELIDS" | grep -E 'trusty|freya|qiana|rebecca|rafaela|rosa|sarah'; t
   DISTRO="ubuntu" ; RELEASE="trusty"
 elif echo "$RELIDS" | grep vivid; then
   DISTRO="ubuntu" ; RELEASE="vivid"
-elif echo "$RELIDS" | grep -E 'xenial|loki|sarah|serena'; then
+elif echo "$RELIDS" | grep -E 'xenial|loki|sarah|serena|sonya|sylvia'; then
   # NOTE: Elementary OS 'loki' is based on xenial
-  # Linux Mint 'sarah' and 'serena' are based on xenial
+  # NOTE: Linux Mint 'sarah', 'serena', 'sonya' and 'sylvia' are based on xenial
   DISTRO="ubuntu" ; RELEASE="xenial"
-elif echo "$RELIDS" | grep -E 'bionic'; then
+elif echo "$RELIDS" | grep -E 'bionic|juno|tara'; then
+  # NOTE: Elementary OS 'juno' is based on bionic
+  # NOTE: Linux Mint 'tara' is based on bionic
   DISTRO="ubuntu" ; RELEASE="bionic"
 else
   echo "Can't find a supported Debian or Ubuntu-based distribution."
