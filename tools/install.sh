@@ -36,9 +36,9 @@ elif echo "$RELIDS" | grep stretch; then
   DISTRO="debian" ; RELEASE="stretch"
 elif echo "$RELIDS" | grep buster; then
   DISTRO="debian" ; RELEASE="buster"
-elif echo "$RELIDS" | grep -E 'trusty|freya|qiana|rebecca|rafaela|rosa|sarah'; then
+elif echo "$RELIDS" | grep -E 'trusty|freya|qiana|rebecca|rafaela|rosa'; then
   # NOTE: Elementary OS 'freya' is based on trusty
-  # NOTE: LinuxMint 'qiana' 'rebecca' 'rafaela' 'rosa' 'sarah' are all based on trusty
+  # NOTE: LinuxMint 'qiana' 'rebecca' 'rafaela' 'rosa' are all based on trusty
   DISTRO="ubuntu" ; RELEASE="trusty"
 elif echo "$RELIDS" | grep vivid; then
   DISTRO="ubuntu" ; RELEASE="vivid"
