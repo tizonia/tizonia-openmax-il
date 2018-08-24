@@ -58,7 +58,7 @@ fi
 # Let's make sure these packages are already installed before trying to install
 # anything else.  Some of these packages are needed to make sure that Tizonia's
 # Python dependencies are correctly installed from PIP.
-sudo apt-get -y --force-yes install python-dev curl apt-transport-https libffi-dev libssl-dev libxml2-dev libxslt1-dev
+sudo apt-get -y --force-yes install build-essential git curl python-dev apt-transport-https libffi-dev libssl-dev libxml2-dev libxslt1-dev
 
 # Add Mopidy's archive to APT's sources.list (required to install 'libspotify')
 grep -q "apt.mopidy.com" /etc/apt/sources.list
