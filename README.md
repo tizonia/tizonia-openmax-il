@@ -193,13 +193,13 @@ dependencies are up-to-date, as follows:
 
 Roughly in priority order:
 
-- Pandora support (#340).
-- RPC interface / headless support (#488).
-- Airsonic/Subsonic support (#496).
-- Deezer support (#498)
-- Tidal support (#440)
-- OS X port (#316).
-- Support for YouTube live streams (#391).
+- Pandora support ([#340](https://github.com/tizonia/tizonia-openmax-il/issues/340)).
+- RPC interface / headless support ([#488](https://github.com/tizonia/tizonia-openmax-il/issues/488)).
+- Airsonic/Subsonic support ([#496](https://github.com/tizonia/tizonia-openmax-il/issues/496)).
+- Deezer support ([#498](https://github.com/tizonia/tizonia-openmax-il/issues/498))
+- Tidal support ([#440](https://github.com/tizonia/tizonia-openmax-il/issues/440))
+- OS X port ([#316](https://github.com/tizonia/tizonia-openmax-il/issues/316)).
+- Support for YouTube live streams ([#391](https://github.com/tizonia/tizonia-openmax-il/issues/391)).
 - REPL command-line interface.
 
 # Resources
