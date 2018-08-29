@@ -34,7 +34,8 @@ if echo "$RELIDS" | grep raspbian; then
     fi
 elif echo "$RELIDS" | grep stretch; then
   DISTRO="debian" ; RELEASE="stretch"
-elif echo "$RELIDS" | grep buster; then
+elif echo "$RELIDS" | grep -E 'buster|kali-rolling'; then
+  # NOTE: Kali Linux is based on Debian Testing, which is currently codenamed 'Buster'
   DISTRO="debian" ; RELEASE="buster"
 elif echo "$RELIDS" | grep -E 'trusty|freya|qiana|rebecca|rafaela|rosa'; then
   # NOTE: Elementary OS 'freya' is based on trusty
@@ -70,6 +71,7 @@ fi
 # Add Tizonia's archive to APT's sources.list
 grep -q "dl.bintray.com/tizonia" /etc/apt/sources.list
 if [[ "$?" -eq 1 ]]; then
+    echo "Setting up Tizonia's Bintray archive for $DISTRO:$RELEASE"
     curl -k 'https://bintray.com/user/downloadSubjectPublicKey?username=tizonia' | sudo apt-key add -
     echo "deb https://dl.bintray.com/tizonia/$DISTRO $RELEASE main" | sudo tee -a /etc/apt/sources.list
 fi
