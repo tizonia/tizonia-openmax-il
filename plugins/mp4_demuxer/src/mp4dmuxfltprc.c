@@ -32,6 +32,10 @@
 #endif
 
 #include <assert.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <unistd.h>
+#include <limits.h>
 #include <string.h>
 #include <stdarg.h>
 #include <alloca.h>
@@ -454,24 +458,44 @@ prepare_port_auto_detection (mp4dmuxflt_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
+get_temp_file(mp4dmuxflt_prc_t * ap_prc)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  assert(ap_prc);
+
+  static char template[] = "/tmp/tizonia-mp4dmux-XXXXXX";
+  if (!ap_prc->tmp_fd_1_)
+    {
+      char fname[PATH_MAX];
+      strcpy(fname, template);
+      if ((ap_prc->tmp_fd_1_ = mkstemp (fname)) == -1)
+        {
+          TIZ_ERROR (handleOf (ap_prc), "Error creating temp file (%s)",
+                     strerror (errno));
+          rc = OMX_ErrorInsufficientResources;
+        }
+    }
+  return rc;
+}
+
+static OMX_ERRORTYPE
 store_data (mp4dmuxflt_prc_t * ap_prc)
 {
   bool rc = OMX_ErrorNone;
   assert (ap_prc);
-  TIZ_TRACE(handleOf(ap_prc), "");
 
   OMX_BUFFERHEADERTYPE * p_in = get_mp4_hdr (ap_prc);
-
   if (p_in)
     {
-      int pushed = 0;
-      TIZ_TRACE (handleOf (ap_prc), "avail [%d] incoming [%d]",
-                 tiz_buffer_available (ap_prc->p_mp4_store_),
-                 p_in->nFilledLen - p_in->nOffset);
-      pushed = tiz_buffer_push (
-        ap_prc->p_mp4_store_, p_in->pBuffer + p_in->nOffset, p_in->nFilledLen);
-      tiz_check_true_ret_val ((pushed == p_in->nFilledLen),
-                              OMX_ErrorInsufficientResources);
+      const void *p_buf = p_in->pBuffer + p_in->nOffset;
+      const size_t count = p_in->nFilledLen;
+      tiz_check_omx (get_temp_file (ap_prc));
+      if (write (ap_prc->tmp_fd_1_, p_buf, count) != count)
+        {
+          TIZ_ERROR (handleOf (ap_prc),
+                     "Error writing to temp file (%s)",
+                     strerror (errno));
+        }
       rc = release_input_header (ap_prc);
     }
   return rc;
@@ -974,6 +998,8 @@ mp4dmuxflt_prc_ctor (void * ap_prc, va_list * app)
   mp4dmuxflt_prc_t * p_prc
     = super_ctor (typeOf (ap_prc, "mp4dmuxfltprc"), ap_prc, app);
   assert (p_prc);
+  p_prc->tmp_fd_1_ = -1;
+  p_prc->tmp_fd_2_ = -1;
   p_prc->mp4v2_hdl_ = MP4_INVALID_FILE_HANDLE;
   p_prc->mp4v2_inited_ = false;
   p_prc->mp4v2_duration_ = 0;
@@ -1060,7 +1086,7 @@ mp4dmuxflt_prc_buffers_ready (const void * ap_prc)
 
   tiz_check_omx (store_data (p_prc));
 
-  if (!p_prc->mp4v2_inited_ && tiz_buffer_available (p_prc->p_mp4_store_) >= FILE_SIZE)
+  if (!p_prc->mp4v2_inited_)
     {
       rc = alloc_mp4v2 (p_prc);
       if (OMX_ErrorNotReady == rc)

@@ -50,6 +50,8 @@ struct mp4dmuxflt_prc
 {
   /* Object */
   const tiz_filter_prc_t _;
+  int tmp_fd_1_;
+  int tmp_fd_2_;
   MP4FileHandle mp4v2_hdl_;
   bool mp4v2_inited_;
   uint64_t mp4v2_duration_;
