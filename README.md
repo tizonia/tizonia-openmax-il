@@ -25,13 +25,16 @@
   - [Snap Package](#snap-package)
   - [Docker Image](#docker-image)
   - [Configuration](#configuration)
-  - [Upgrade](#upgrade)
+  - [Upgrade (Debian / Ubuntu / Raspbian)](#upgrade-debian--ubuntu--raspbian)
 - [Roadmap](#roadmap)
 - [Resources](#resources)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # News
+
+> NOTE: Please remember to also visit Tizonia's website at http://www.tizonia.org
+> for more info on the latest releases.
 
 - [2018-06-15] Tizonia
 [v0.15.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.15.0). Reworked
@@ -79,7 +82,7 @@ combinations:
 |     amd64, armhf      |     amd64, armhf      |     amd64, armhf   |        armhf         |       amd64        |
 | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-xenial/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-xenial/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-bionic/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-bionic/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-stretch/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-stretch/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/raspbian/tizonia-stretch/images/download.svg) ](https://bintray.com/tizonia/raspbian/tizonia-stretch/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-buster/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-buster/_latestVersion) |
 
-> NOTE: Elementary OS and Linux Mint are (or will be) supported on releases based on Ubuntu 'Xenial' or 'Bionic'.
+> NOTE: Elementary OS, Linux Mint, Kali Linux are supported on releases based on Ubuntu 'Xenial' or 'Bionic' and Debian 'Buster'.
 
 Please note that the **recommended** way to install Tizonia on a
 Debian-compatible system is by running the following command:
@@ -188,11 +191,16 @@ dependencies are up-to-date, as follows:
 
 # Roadmap
 
-- Pandora support.
-- Tidal support
-- Support for YouTube live streams.
+Roughly in priority order:
+
+- Pandora support ([#340](https://github.com/tizonia/tizonia-openmax-il/issues/340)).
+- RPC interface / headless support ([#488](https://github.com/tizonia/tizonia-openmax-il/issues/488)).
+- Airsonic/Subsonic support ([#496](https://github.com/tizonia/tizonia-openmax-il/issues/496)).
+- Deezer support ([#498](https://github.com/tizonia/tizonia-openmax-il/issues/498))
+- Tidal support ([#440](https://github.com/tizonia/tizonia-openmax-il/issues/440))
+- OS X port ([#316](https://github.com/tizonia/tizonia-openmax-il/issues/316)).
+- Support for YouTube live streams ([#391](https://github.com/tizonia/tizonia-openmax-il/issues/391)).
 - REPL command-line interface.
-- OS X port.
 
 # Resources
 
