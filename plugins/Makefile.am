@@ -25,7 +25,6 @@ REQUIRED_SUBDIRS = \
 	mp3_decoder \
 	mp3_encoder \
 	mp3_metadata \
-	mp4_demuxer \
 	mpeg_audio_decoder \
 	ogg_demuxer \
 	ogg_muxer \
