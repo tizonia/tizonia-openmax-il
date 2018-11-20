@@ -375,12 +375,13 @@ deliver_codec_metadata (webmdmuxflt_prc_t * ap_prc, const OMX_U32 a_pid)
           && (p_hdr = tiz_filter_prc_get_header (ap_prc, a_pid)))
         {
           size_t headerlen = 0;
+          size_t nbytes_to_copy = 0;
           size_t * p_headerlen = tiz_vector_at (p_header_lengths, (OMX_S32) 0);
           assert (p_headerlen);
           headerlen = *p_headerlen;
 
           /* Copy the data into the omx buffer */
-          size_t nbytes_to_copy = MIN (TIZ_OMX_BUF_AVAIL (p_hdr), headerlen);
+          nbytes_to_copy = MIN (TIZ_OMX_BUF_AVAIL (p_hdr), headerlen);
           memcpy (TIZ_OMX_BUF_PTR (p_hdr) + p_hdr->nFilledLen,
                   tiz_buffer_get (p_out_store), nbytes_to_copy);
           tiz_buffer_advance (p_out_store, nbytes_to_copy);

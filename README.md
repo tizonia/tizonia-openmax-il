@@ -11,7 +11,7 @@
 
 ---
 
-[![Build Status](https://travis-ci.org/tizonia/tizonia-openmax-il.png)](https://travis-ci.org/tizonia/tizonia-openmax-il)  |  [![Coverity Scan Build Status](https://scan.coverity.com/projects/594/badge.svg)](https://scan.coverity.com/projects/594)  | [![Codecov](https://img.shields.io/codecov/c/github/tizonia/tizonia-openmax-il.svg)](https://codecov.io/gh/tizonia/tizonia-openmax-il) | [![GitHub commits](https://img.shields.io/github/commits-since/tizonia/tizonia-openmax-il/v0.14.0.svg)](https://github.com/tizonia/tizonia-openmax-il/compare/v0.14.0...master) | [![Codacy Badge](https://api.codacy.com/project/badge/Grade/b002a7f1ba464093b48fb7c9620f8ae7)](https://www.codacy.com/app/tizonia/tizonia-openmax-il?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=tizonia/tizonia-openmax-il&amp;utm_campaign=Badge_Grade) | [![license](https://img.shields.io/github/license/tizonia/tizonia-openmax-il.svg)](https://github.com/tizonia/tizonia-openmax-il/blob/master/COPYING.LESSER) | [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/1359/badge)](https://bestpractices.coreinfrastructure.org/projects/1359) | [![Gitter chat](https://badges.gitter.im/tizonia/tizonia-openmax-il.png)]
+[![Build Status](https://travis-ci.org/tizonia/tizonia-openmax-il.png)](https://travis-ci.org/tizonia/tizonia-openmax-il)  |  [![Coverity Scan Build Status](https://scan.coverity.com/projects/594/badge.svg)](https://scan.coverity.com/projects/594)  | [![Codecov](https://img.shields.io/codecov/c/github/tizonia/tizonia-openmax-il.svg)](https://codecov.io/gh/tizonia/tizonia-openmax-il) | [![GitHub commits](https://img.shields.io/github/commits-since/tizonia/tizonia-openmax-il/v0.15.0.svg)](https://github.com/tizonia/tizonia-openmax-il/compare/v0.15.0...master) | [![Codacy Badge](https://api.codacy.com/project/badge/Grade/b002a7f1ba464093b48fb7c9620f8ae7)](https://www.codacy.com/app/tizonia/tizonia-openmax-il?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=tizonia/tizonia-openmax-il&amp;utm_campaign=Badge_Grade) | [![license](https://img.shields.io/github/license/tizonia/tizonia-openmax-il.svg)](https://github.com/tizonia/tizonia-openmax-il/blob/master/COPYING.LESSER) | [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/1359/badge)](https://bestpractices.coreinfrastructure.org/projects/1359) | [![Gitter chat](https://badges.gitter.im/tizonia/tizonia-openmax-il.png)]
 
 <img src="https://github.com/tizonia/tizonia-openmax-il/blob/master/docs/animated-gifs/tizonia-usage-screencast.gif" width="440"/> <img src="https://github.com/tizonia/tizonia-openmax-il/blob/master/docs/animated-gifs/tizonia-usage-screencast2.gif" width="440"/>
 
@@ -25,13 +25,22 @@
   - [Snap Package](#snap-package)
   - [Docker Image](#docker-image)
   - [Configuration](#configuration)
-  - [Upgrade](#upgrade)
+  - [Upgrade (Debian / Ubuntu / Raspbian)](#upgrade-debian--ubuntu--raspbian)
 - [Roadmap](#roadmap)
 - [Resources](#resources)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # News
+
+> NOTE: Please remember to also visit Tizonia's website at http://www.tizonia.org
+> for more info on the latest releases.
+
+- [2018-06-15] Tizonia
+[v0.15.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.15.0). Reworked
+Spotify support to overcome playlist search problems that arised in
+libspotify. Now [spotipy](https://github.com/plamere/spotipy) is being used to
+retrieve track, artist, album, and playlist metadata from Spotify.
 
 - [2018-04-20] Tizonia
 [v0.14.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.14.0). Added
@@ -73,7 +82,7 @@ combinations:
 |     amd64, armhf      |     amd64, armhf      |     amd64, armhf   |        armhf         |       amd64        |
 | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-xenial/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-xenial/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-bionic/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-bionic/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-stretch/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-stretch/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/raspbian/tizonia-stretch/images/download.svg) ](https://bintray.com/tizonia/raspbian/tizonia-stretch/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-buster/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-buster/_latestVersion) |
 
-> NOTE: Elementary OS and Linux Mint are (or will be) supported on releases based on Ubuntu 'Xenial' or 'Bionic'.
+> NOTE: Elementary OS, Linux Mint, Kali Linux are supported on releases based on Ubuntu 'Xenial' or 'Bionic' and Debian 'Buster'.
 
 Please note that the **recommended** way to install Tizonia on a
 Debian-compatible system is by running the following command:
@@ -97,8 +106,6 @@ Debian-compatible system is by running the following command:
 
 - [tizonia-all (for the latest released version)](https://aur.archlinux.org/packages/tizonia-all/)
 - [tizonia-all-git (HEAD of master branch)](https://aur.archlinux.org/packages/tizonia-all-git/)
-
-> NOTE [24/03/2018]: AUR packages are now updated and tracking v0.14.0.
 
 ```bash
 
@@ -160,26 +167,40 @@ more information):
 
 ```
 
-## Upgrade
+## Upgrade (Debian / Ubuntu / Raspbian)
 
-To upgrade Tizonia, run 'apt-get' as usual, but also make sure the Python dependencies are up-to-date.
+To upgrade, simply re-run the install script. This is the most convienent way
+of upgrading the software and all its dependencies.
+
+If you prefer to do it manually, it is a two-step process. Run 'apt-get' as
+usual to upgrade the Debian packages, but also make sure the various Python
+dependencies are up-to-date, as follows:
 
 ```bash
 
+    # Step1: This will update Tizonia's Debian packages
     $ sudo apt-get update && sudo apt-get upgrade
 
-    # (Note that new versions of some of these Python packages are released frequently)
-    $ sudo -H pip install --upgrade gmusicapi soundcloud youtube-dl pafy pycountry titlecase pychromecast plexapi fuzzywuzzy eventlet
+    # Step2: Tizonia's Python dependencies
+    # (Note that new versions of some of these Python packages are released frequently,
+    # so you should do this frequently, even if there isn't a new Tizonia release)
+    $ sudo -H pip install --upgrade gmusicapi soundcloud youtube-dl pafy pycountry titlecase pychromecast plexapi fuzzywuzzy eventlet && sudo -H pip install git+https://github.com/plamere/spotipy.git --upgrade
 
 ```
 
+
 # Roadmap
 
-- Pandora support.
-- Tidal support
-- Support for YouTube live streams.
+Roughly in priority order:
+
+- Pandora support ([#340](https://github.com/tizonia/tizonia-openmax-il/issues/340)).
+- RPC interface / headless support ([#488](https://github.com/tizonia/tizonia-openmax-il/issues/488)).
+- Airsonic/Subsonic support ([#496](https://github.com/tizonia/tizonia-openmax-il/issues/496)).
+- Deezer support ([#498](https://github.com/tizonia/tizonia-openmax-il/issues/498))
+- Tidal support ([#440](https://github.com/tizonia/tizonia-openmax-il/issues/440))
+- OS X port ([#316](https://github.com/tizonia/tizonia-openmax-il/issues/316)).
+- Support for YouTube live streams ([#391](https://github.com/tizonia/tizonia-openmax-il/issues/391)).
 - REPL command-line interface.
-- OS X port.
 
 # Resources
 

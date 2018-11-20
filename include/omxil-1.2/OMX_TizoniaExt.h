@@ -270,6 +270,17 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_MP2TYPE {
  *
  */
 
+typedef enum OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE {
+    OMX_AUDIO_SpotifyPlaylistTypeUnknown = 0, /**< Playlist type unknown (Default). */
+    OMX_AUDIO_SpotifyPlaylistTypeTracks, /**< Regular tracks search. */
+    OMX_AUDIO_SpotifyPlaylistTypeArtist, /**< Artist search. */
+    OMX_AUDIO_SpotifyPlaylistTypeAlbum, /**< Album search. */
+    OMX_AUDIO_SpotifyPlaylistTypePlaylist, /**< Playlist search. */
+    OMX_AUDIO_SpotifyPlaylistTypeKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
+    OMX_AUDIO_SpotifyPlaylistTypeVendorStartUnused = 0x7F000000, /**< Reserved region for introducing Vendor Extensions */
+    OMX_AUDIO_SpotifyPlaylistTypeMax = 0x7FFFFFFF
+} OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE;
+
 typedef enum OMX_TIZONIA_AUDIO_SPOTIFYCONNECTIONTYPE {
     OMX_AUDIO_SpotifyConnectionUnknown = 0, /**< Connection type unknown (Default) */
     OMX_AUDIO_SpotifyConnectionNone, /**< No connection */
@@ -306,6 +317,9 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE {
     OMX_VERSIONTYPE nVersion;
     OMX_U8 cPlaylistName[OMX_MAX_STRINGNAME_SIZE];
     OMX_U8 bShuffle;            /**< Default: OMX_FALSE */
+    OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE ePlaylistType;
+    OMX_U8 cPlaylistOwner[OMX_MAX_STRINGNAME_SIZE]; /**< Spotify user that owns this list. If empty, the
+                                                       user of the currently active session is assumed. */
 } OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE;
 
 /**

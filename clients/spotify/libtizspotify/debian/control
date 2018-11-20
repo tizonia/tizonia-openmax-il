@@ -1,0 +1,37 @@
+Source: tizspotify
+Priority: optional
+Maintainer: Juan A. Rubio <juan.rubio@aratelia.com>
+Build-Depends: debhelper (>= 8.0.0), dh-autoreconf
+Standards-Version: 3.9.4
+Section: libs
+Homepage: http://tizonia.org
+Vcs-Git: git://github.com/tizonia/tizonia-openmax-il.git
+Vcs-Browser: https://github.com/tizonia/tizonia-openmax-il
+
+Package: libtizspotify-dev
+Section: libdevel
+Architecture: any
+Depends: libtizspotify0 (= ${binary:Version})
+Description: Tizonia's Spotify Web API client library, development files
+ Tizonia's Spotify Web API client library.
+ .
+ This package contains the development library libtizspotify.
+
+Package: libtizspotify0
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Tizonia's Spotify Web API client library, run-time library
+ Tizonia's Spotify Web API client library.
+ .
+ This package contains the runtime library libtizspotify.
+
+Package: libtizspotify0-dbg
+Section: debug
+Priority: extra
+Architecture: any
+Depends: libtizspotify0 (= ${binary:Version}), ${misc:Depends}
+Description: Tizonia's Spotify Web API client library, debug symbols
+ Tizonia's Spotify Web API client library.
+ .
+ This package contains the detached debug symbols for libtizspotify.

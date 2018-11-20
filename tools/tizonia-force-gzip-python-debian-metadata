@@ -30,6 +30,7 @@ readonly TIZ_PYTHON_PROJECTS=( \
     tizyoutubeproxy \
     tizchromecastproxy \
     tizplexproxy \
+    tizspotifyproxy \
 )
 
 for proj in "${TIZ_PYTHON_PROJECTS[@]}"; do

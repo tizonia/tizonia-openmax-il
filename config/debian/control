@@ -28,12 +28,14 @@ Depends: tizilheaders,
     python-tizyoutubeproxy,
     python-tizplexproxy,
     python-tizchromecastproxy,
+    python-tizspotifyproxy,
     libtizgmusic0,
     libtizsoundcloud0,
     libtizdirble0,
     libtizyoutube0,
     libtizplex0,
     libtizchromecast0,
+    libtizspotify0,
     libtizplatform0,
     tizcastd,
     libtizcastclient0,
@@ -51,6 +53,7 @@ Depends: tizilheaders,
     libtizmp3dec0,
     libtizmp3enc0,
     libtizmp3meta0,
+    libtizmp4dmux0,
     libtizmpgdec0,
     libtizoggdmux0,
     libtizwebmdmux0,
@@ -67,6 +70,7 @@ Depends: tizilheaders,
     tizonia-config
 Description: Tizonia command-line music player (metapackage)
  A command-line music player and streaming server with support
- for Spotify and Google Play Music.
+ for Spotify, Google Play Music, YouTube, SoundCloud, Dirble,
+ Plex servers and Chromecast devices.
  .
  This is a metapackage that depends on all Tizonia libraries.

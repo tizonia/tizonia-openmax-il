@@ -1,5 +1,31 @@
 # Change Log
 
+## [v0.15.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.15.0) (2018-06-15)
+[Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.14.0...v0.15.0)
+
+**Improvements:**
+
+- player: improved Spotify search capabilities \(tracks, artist, album, and playlists\) [\#495](https://github.com/tizonia/tizonia-openmax-il/issues/495)
+- spotify\_source: use Spotify Web APIs for search functions [\#494](https://github.com/tizonia/tizonia-openmax-il/issues/494)
+- clients: Spotify Web API client library [\#493](https://github.com/tizonia/tizonia-openmax-il/issues/493)
+- clients: Spotify Web API proxy/wrapper Python module [\#492](https://github.com/tizonia/tizonia-openmax-il/issues/492)
+- Spotify Playlists with Single Quotes in Name Can't Be Found [\#486](https://github.com/tizonia/tizonia-openmax-il/issues/486)
+- spotify: unable to play some playlists [\#471](https://github.com/tizonia/tizonia-openmax-il/issues/471)
+
+**Fixed bugs:**
+
+- Spotify: tizonia stalls when trying to open a playlist [\#490](https://github.com/tizonia/tizonia-openmax-il/issues/490)
+- Google Music: playback stops at the end of a song and playlist stalls [\#489](https://github.com/tizonia/tizonia-openmax-il/issues/489)
+- player: Spotify playlist search stalls sometimes [\#487](https://github.com/tizonia/tizonia-openmax-il/issues/487)
+- Spotify Playlists with Single Quotes in Name Can't Be Found [\#486](https://github.com/tizonia/tizonia-openmax-il/issues/486)
+- AUR install depends on python2-eventlet-git which fails to build, instead of python2-eventlet which is in the default repository [\#484](https://github.com/tizonia/tizonia-openmax-il/issues/484)
+- spotify: unable to play some playlists [\#471](https://github.com/tizonia/tizonia-openmax-il/issues/471)
+- player: 'segmentation fault' while trying to get metadata of a track [\#433](https://github.com/tizonia/tizonia-openmax-il/issues/433)
+
+**Closed issues:**
+
+- release v0.15.0 [\#497](https://github.com/tizonia/tizonia-openmax-il/issues/497)
+
 ## [v0.14.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.14.0) (2018-04-20)
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.13.0...v0.14.0)
 

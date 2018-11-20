@@ -34,27 +34,32 @@ if echo "$RELIDS" | grep raspbian; then
     fi
 elif echo "$RELIDS" | grep stretch; then
   DISTRO="debian" ; RELEASE="stretch"
-elif echo "$RELIDS" | grep buster; then
+elif echo "$RELIDS" | grep -E 'buster|kali-rolling'; then
+  # NOTE: Kali Linux is based on Debian Testing, which is currently codenamed 'Buster'
   DISTRO="debian" ; RELEASE="buster"
-elif echo "$RELIDS" | grep -E 'trusty|freya|qiana|rebecca|rafaela|rosa|sarah'; then
+elif echo "$RELIDS" | grep -E 'trusty|freya|qiana|rebecca|rafaela|rosa'; then
   # NOTE: Elementary OS 'freya' is based on trusty
-  # NOTE: LinuxMint 'qiana' 'rebecca' 'rafaela' 'rosa' 'sarah' are all based on trusty
+  # NOTE: LinuxMint 'qiana' 'rebecca' 'rafaela' 'rosa' are all based on trusty
   DISTRO="ubuntu" ; RELEASE="trusty"
 elif echo "$RELIDS" | grep vivid; then
   DISTRO="ubuntu" ; RELEASE="vivid"
-elif echo "$RELIDS" | grep -E 'xenial|loki|sarah|serena'; then
+elif echo "$RELIDS" | grep -E 'xenial|loki|sarah|serena|sonya|sylvia'; then
   # NOTE: Elementary OS 'loki' is based on xenial
-  # Linux Mint 'sarah' and 'serena' are based on xenial
+  # NOTE: Linux Mint 'sarah', 'serena', 'sonya' and 'sylvia' are based on xenial
   DISTRO="ubuntu" ; RELEASE="xenial"
-elif echo "$RELIDS" | grep -E 'bionic'; then
+elif echo "$RELIDS" | grep -E 'bionic|juno|tara'; then
+  # NOTE: Elementary OS 'juno' is based on bionic
+  # NOTE: Linux Mint 'tara' is based on bionic
   DISTRO="ubuntu" ; RELEASE="bionic"
 else
   echo "Can't find a supported Debian or Ubuntu-based distribution."
   exit 1
 fi
 
-# Let's make sure these packages are already installed before trying to install anything else.
-sudo apt-get -y --force-yes install python-dev curl apt-transport-https libffi-dev libssl-dev
+# Let's make sure these packages are already installed before trying to install
+# anything else.  Some of these packages are needed to make sure that Tizonia's
+# Python dependencies are correctly installed from PIP.
+sudo apt-get -y --force-yes install build-essential git curl python-dev apt-transport-https libffi-dev libssl-dev libxml2-dev libxslt1-dev
 
 # Add Mopidy's archive to APT's sources.list (required to install 'libspotify')
 grep -q "apt.mopidy.com" /etc/apt/sources.list
@@ -66,6 +71,7 @@ fi
 # Add Tizonia's archive to APT's sources.list
 grep -q "dl.bintray.com/tizonia" /etc/apt/sources.list
 if [[ "$?" -eq 1 ]]; then
+    echo "Setting up Tizonia's Bintray archive for $DISTRO:$RELEASE"
     curl -k 'https://bintray.com/user/downloadSubjectPublicKey?username=tizonia' | sudo apt-key add -
     echo "deb https://dl.bintray.com/tizonia/$DISTRO $RELEASE main" | sudo tee -a /etc/apt/sources.list
 fi
@@ -86,7 +92,8 @@ sudo apt-get -y install python-pip \
             pychromecast \
             plexapi \
             fuzzywuzzy \
-            eventlet
+            eventlet \
+    && sudo -H pip2 install git+https://github.com/plamere/spotipy.git --upgrade
 
 # Install 'libspotify'
 if [[ "$?" -eq 0 ]]; then

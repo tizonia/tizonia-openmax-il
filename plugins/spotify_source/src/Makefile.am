@@ -15,9 +15,9 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-libtizspotifydir = $(plugindir)
+libtizspotifysrcdir = $(plugindir)
 
-libtizspotify_LTLIBRARIES = libtizspotify.la
+libtizspotifysrc_LTLIBRARIES = libtizspotifysrc.la
 
 noinst_HEADERS = \
 	spfysrc.h \
@@ -26,24 +26,27 @@ noinst_HEADERS = \
 	spfysrcprc.h \
 	spfysrcprc_decls.h
 
-libtizspotify_la_SOURCES = \
+libtizspotifysrc_la_SOURCES = \
 	appkey.c \
 	spfysrc.c \
 	spfysrccfgport.c \
 	spfysrcprc.c
 
-libtizspotify_la_CFLAGS = \
+libtizspotifysrc_la_CFLAGS = \
 	@TIZILHEADERS_CFLAGS@ \
 	@TIZPLATFORM_CFLAGS@ \
 	@TIZONIA_CFLAGS@ \
+	@TIZSPOTIFY_CFLAGS@ \
 	@SPOTIFY_CFLAGS@
 
-libtizspotify_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@
+libtizspotifysrc_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@
 
-libtizspotify_la_LIBADD = \
+libtizspotifysrc_la_LIBADD = \
 	@TIZPLATFORM_LIBS@ \
 	@TIZONIA_LIBS@ \
-	@SPOTIFY_LIBS@
+	@SPOTIFY_LIBS@ \
+	@TIZSPOTIFY_LIBS@
+
 
 
 

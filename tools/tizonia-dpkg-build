@@ -88,6 +88,7 @@ declare -ar TIZ_TIZONIA_DEPS=( \
     libsndfile1-dev \
     libffi-dev \
     libssl-dev \
+    libmp4v2-dev \
     libspotify12 \
     libspotify-dev \
     libexpat1-dev \
@@ -100,7 +101,6 @@ declare -ar TIZ_TIZONIA_DEPS=( \
     python-bs4 \
     python-oauth2client \
     python-dateutil \
-    python-mutagen \
     python-crypto \
     python-requests \
     curl \
@@ -148,6 +148,7 @@ readonly TIZ_PYTHON_PROJECTS=( \
     tizyoutubeproxy \
     tizplexproxy \
     tizchromecastproxy \
+    tizspotifyproxy \
 )
 
 # dpkg-dev package is required to have dpkg-architecture available
@@ -177,6 +178,8 @@ declare -Ar TIZ_PROJECT_DIST_CMD=( \
     [tizplex]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizchromecastproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
     [tizchromecast]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
+    [tizspotifyproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
+    [tizspotify]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizplatform]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizcastd]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizcastclient]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
@@ -194,6 +197,7 @@ declare -Ar TIZ_PROJECT_DIST_CMD=( \
     [tizmp3dec]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizmp3enc]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizmp3meta]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
+    [tizmp4dmux]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizmpgdec]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizoggdmux]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizopusdec]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
@@ -228,6 +232,8 @@ declare -Ar TIZ_PROJECT_DH_MAKE_CMD=( \
     [tizplex]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizchromecastproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
     [tizchromecast]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
+    [tizspotifyproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
+    [tizspotify]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizplatform]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizcastd]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizcastclient]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
@@ -245,6 +251,7 @@ declare -Ar TIZ_PROJECT_DH_MAKE_CMD=( \
     [tizmp3dec]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizmp3enc]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizmp3meta]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
+    [tizmp4dmux]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizmpgdec]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizoggdmux]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizopusdec]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
@@ -276,6 +283,8 @@ declare -Ar TIZ_PROJECT_MAIN_PKG=( \
     [tizplex]="libtizplex0" \
     [tizchromecastproxy]="python-tizchromecastproxy" \
     [tizchromecast]="libtizchromecast0" \
+    [tizspotifyproxy]="python-tizspotifyproxy" \
+    [tizspotify]="libtizspotify0" \
     [tizplatform]="libtizplatform0" \
     [tizcastd]="tizcastd" \
     [tizcastclient]="libtizcastclient0" \
@@ -293,6 +302,7 @@ declare -Ar TIZ_PROJECT_MAIN_PKG=( \
     [tizmp3dec]="libtizmp3dec0" \
     [tizmp3enc]="libtizmp3enc0" \
     [tizmp3meta]="libtizmp3meta0" \
+    [tizmp4dmux]="libtizmp4dmux0" \
     [tizmpgdec]="libtizmpgdec0" \
     [tizoggdmux]="libtizoggdmux0" \
     [tizopusdec]="libtizopusdec0" \

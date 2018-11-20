@@ -16,7 +16,7 @@
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
 AC_PREREQ([2.67])
-AC_INIT([tizspotifysrc], [0.14.0], [juan.rubio@aratelia.com])
+AC_INIT([tizspotifysrc], [0.15.0], [juan.rubio@aratelia.com])
 AC_USE_SYSTEM_EXTENSIONS
 AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
@@ -44,7 +44,7 @@ AC_CONFIG_MACRO_DIR([m4])
 #     then set AGE to 0.                                                       #
 #                                                                              #
 ################################################################################
-SHARED_VERSION_INFO="0:14:0"
+SHARED_VERSION_INFO="0:15:0"
 SHLIB_VERSION_ARG=""
 
 AC_SUBST(SHLIB_VERSION_ARG)
@@ -94,6 +94,16 @@ AS_IF([test "x$tiz_found_tizonia_headers" != "xyes"],
 AS_IF([test "x$tiz_found_tizonia_headers" == "xyes"],
 	[PKG_CHECK_MODULES([TIZONIA], [libtizonia >= 0.1.0])],
 	[AC_MSG_NOTICE([Not using pkg-config to find TIZONIA cflags and libs])])
+
+AC_CHECK_HEADERS([tizonia/tizspotify_c.h],
+	[tiz_found_spotify_headers=yes; break;])
+AS_IF([test "x$tiz_found_spotify_headers" != "xyes"],
+	[AC_SUBST([TIZSPOTIFY_CFLAGS], ['-I$(top_srcdir)/../../clients/spotify/libtizspotify/tizonia'])
+	AC_SUBST([TIZSPOTIFY_LIBS], ['$(top_builddir)/../../clients/spotify/libtizspotify/tizonia/libtizspotify.la'])],
+	[AC_MSG_NOTICE([Not substituting TIZSPOTIFY cflags and libs with local paths])])
+AS_IF([test "x$tiz_found_spotify_headers" == "xyes"],
+	[PKG_CHECK_MODULES([TIZSPOTIFY], [libtizspotify >= 0.1.0])],
+	[AC_MSG_NOTICE([Not using pkg-config to find TIZSPOTIFY cflags and libs])])
 
 # Define location of plugin directory
 AS_AC_EXPAND(PLUGINDIR, ${libdir}/tizonia0-plugins12)

@@ -51,6 +51,7 @@ namespace
       const std::map< std::string, std::string > &meta)
   {
     std::map< std::string, Tiz::DBus::Variant > dbus_meta;
+    TIZ_PRINTF_DBG_BLU ("meta items [%u]\n", meta.size());
     typedef std::map< std::string, std::string >::value_type dbus_meta_t;
     BOOST_FOREACH (dbus_meta_t val, meta)
     {
@@ -62,7 +63,7 @@ namespace
       value.append ("/1");
       Tiz::DBus::Path path (value);
       it << path;
-      TIZ_LOG (TIZ_PRIORITY_DEBUG, "key [%s] val [%s]", key.c_str (), value.c_str ());
+      TIZ_PRINTF_DBG_BLU ("key [%s] val [%s]\n", key.c_str (), value.c_str ());
       dbus_meta.insert (std::make_pair (key, Tiz::DBus::Variant (it)));
     }
     return dbus_meta;
@@ -183,7 +184,7 @@ void control::mprisif::UpdatePlayerProps (
   LoopStatus = props.loop_status_;
   Rate = props.rate_;
   Shuffle = props.shuffle_;
-  // Metadata = toDbusMetadata (props.metadata_);
+  Metadata = toDbusMetadata (props.metadata_);
   Volume = props.volume_;
   Position = props.position_;
   MinimumRate = props.minimum_rate_;

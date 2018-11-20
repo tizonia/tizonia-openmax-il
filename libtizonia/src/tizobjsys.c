@@ -75,10 +75,11 @@
 #include "tizbinaryport.h"
 #include "tizdemuxerport.h"
 #include "tizmuxerport.h"
-#include "tizwebmport.h"
+#include "tizmp4port.h"
 #include "tizoggport.h"
 #include "tizuricfgport.h"
 #include "tizdemuxercfgport.h"
+#include "tizwebmport.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -177,6 +178,8 @@ enum tiz_os_type
   ETIZUricfgport,
   ETIZDemuxercfgport_class,
   ETIZDemuxercfgport,
+  ETIZMp4port_class,
+  ETIZMp4port,
 };
 
 #define TIZ_OS_BASE_TYPE_END ETIZConfigport
@@ -264,6 +267,8 @@ static const tiz_os_type_init_f tiz_os_type_to_fnt_tbl[] = {
   tiz_uricfgport_init,
   tiz_demuxercfgport_class_init,
   tiz_demuxercfgport_init,
+  tiz_mp4port_class_init,
+  tiz_mp4port_init,
 };
 
 typedef struct tiz_os_type_str tiz_os_type_str_t;
@@ -356,6 +361,8 @@ static tiz_os_type_str_t tiz_os_type_to_str_tbl[] = {
   {ETIZUricfgport, "tizuricfgport"},
   {ETIZDemuxercfgport_class, "tizdemuxercfgport_class"},
   {ETIZDemuxercfgport, "tizdemuxercfgport"},
+  {ETIZMp4port_class, "tizmp4port_class"},
+  {ETIZMp4port, "tizmp4port"},
 };
 
 static /*@null@ */ void *

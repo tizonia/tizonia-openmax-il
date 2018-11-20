@@ -63,6 +63,8 @@ static int
 curl_timer_cback (CURLM * multi, long timeout_ms, void * userp);
 static inline OMX_ERRORTYPE
 stop_io_watcher (tiz_urltrans_t * ap_trans);
+static void
+report_connection_lost_event (tiz_urltrans_t * ap_trans);
 
 /* These macros assume the existence of an "ap_trans" local variable */
 #define bail_on_curl_error(expr)                                           \
@@ -203,6 +205,7 @@ struct tiz_urltrans
   httpsrc_curl_state_id_t curl_state_;
   unsigned int curl_version_;
   char curl_err[CURL_ERROR_SIZE];
+  bool handshake_error_found;
 };
 
 /*@observer@*/ const char *
@@ -585,6 +588,10 @@ resume_curl (tiz_urltrans_t * ap_trans)
             curl_multi_socket_all (ap_trans->p_curl_multi_, &running_handles));
         }
       tiz_check_omx (kickstart_curl_socket (ap_trans, &running_handles));
+      if (!running_handles)
+        {
+          report_connection_lost_event (ap_trans);
+        }
     }
   return OMX_ErrorNone;
 }
@@ -781,10 +788,17 @@ curl_debug_cback (CURL * p_curl, curl_infotype type, char * buf, size_t nbytes,
   if (CURLINFO_TEXT == type || CURLINFO_HEADER_IN == type
       || CURLINFO_HEADER_OUT == type)
     {
+      tiz_urltrans_t * p_trans = userdata;
       char * p_info = tiz_mem_calloc (1, nbytes + 1);
       memcpy (p_info, buf, nbytes);
       TIZ_LOG (TIZ_PRIORITY_TRACE, "libcurl : [%s]", p_info);
       TIZ_PRINTF_DBG_RED ("libcurl : [%s]\n", p_info);
+#define GNUTLS_ERR "gnutls_handshake() failed: An unexpected TLS packet was received"
+      if (0 == strncasecmp(GNUTLS_ERR, p_info, 64))
+        {
+          p_trans->handshake_error_found = true;
+          TIZ_LOG (TIZ_PRIORITY_TRACE, "libcurl : [found handshake error!!]");
+        }
       tiz_mem_free (p_info);
     }
   return 0;
@@ -1089,6 +1103,7 @@ tiz_urltrans_init (tiz_urltrans_ptr_t * app_trans, void * ap_parent,
           p_trans->p_http_headers_ = NULL;
           p_trans->curl_state_ = ECurlStateStopped;
           p_trans->curl_version_ = 0;
+          p_trans->handshake_error_found = false;
 
           rc = allocate_temp_data_store (p_trans);
           goto_end_on_omx_error (rc, "Unable to alloc the data store");
@@ -1173,6 +1188,7 @@ tiz_urltrans_start (tiz_urltrans_t * ap_trans)
       int running_handles = 0;
       tiz_check_omx (start_curl (ap_trans));
       assert (ap_trans->p_curl_multi_);
+      ap_trans->handshake_error_found = false;
       /* Kickstart curl to get one or more callbacks called. */
       tiz_check_omx (kickstart_curl_socket (ap_trans, &running_handles));
     }
@@ -1362,4 +1378,17 @@ tiz_urltrans_bytes_available (tiz_urltrans_t * ap_trans)
       return tiz_buffer_available (ap_trans->p_store_);
     }
   return 0;
+}
+
+bool
+tiz_urltrans_handshake_error_found (tiz_urltrans_t * ap_trans)
+{
+  assert (ap_trans);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "handshake_error_found : [%s]",
+           (ap_trans->handshake_error_found ? "YES" : "NO"));
+  if (ap_trans->handshake_error_found)
+    {
+      return true;
+    }
+  return false;
 }
