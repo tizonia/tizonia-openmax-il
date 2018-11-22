@@ -625,13 +625,9 @@ class tizgmusicproxy(object):
 
         """
         try:
-            # First try to find a suitable station in the user's library
-            self.__enqueue_user_station_unlimited(arg)
-
-            if not len(self.queue):
-                # If no suitable station is found in the user's library, then
-                # search google play unlimited for a potential match.
-                self.__enqueue_station_unlimited(arg)
+            # If no suitable station is found in the user's library, then
+            # search google play unlimited for a potential match.
+            self.__enqueue_station_unlimited(arg)
 
             if not len(self.queue):
                 raise KeyError
@@ -1037,69 +1033,6 @@ class tizgmusicproxy(object):
             station_name = station['name']
             logging.info("station name : %s", to_ascii(station_name))
             self.stations[station_name] = station['id']
-
-    def __enqueue_user_station_unlimited(self, arg):
-        """ Enqueue a user station (Unlimited)
-
-        """
-        print_msg("[Google Play Music] [Station search "\
-                  "in user's library] : '{0}'. " \
-                  .format(self.__email))
-        self.__update_stations_unlimited()
-        station_name = ''
-        station_id = None
-        if arg not in self.stations.keys():
-            station_dict = dict()
-            station_names = list()
-            for name, st_id in self.stations.iteritems():
-                print_nfo("[Google Play Music] [Station] '{0}'." \
-                          .format(to_ascii(name)))
-                if fuzz.partial_ratio(arg, name) > 90:
-                    station_dict[name] = st_id
-                    station_names.append(name)
-
-            if len(station_names) > 1:
-                station_name = process.extractOne(arg, station_names)[0]
-                station_id = station_dict[station_name]
-            elif len(station_names) == 1:
-                station_name = station_names[0]
-                station_id = station_dict[station_name]
-
-        else:
-            station_id = self.stations[arg]
-            station_name = arg
-
-        num_tracks = MAX_TRACKS
-        tracks = list()
-        if station_id:
-            try:
-                tracks = self.__gmusic.get_station_tracks('IFL', \
-                                                          num_tracks)
-            except KeyError:
-                raise RuntimeError("Operation requires an "
-                                   "Unlimited subscription.")
-            tracks_added = self.__enqueue_tracks(tracks)
-            if tracks_added:
-                if arg.lower() != station_name.lower():
-                    print_wrn("[Google Play Music] '{0}' not found. " \
-                              "Playing '{1}' instead." \
-                              .format(to_ascii(arg), station_name.encode('utf-8')))
-                else:
-                    print_wrn("[Google Play Music] Playing '{0}'." \
-                              .format(station_name.encode('utf-8')))
-
-                logging.info("Added %d tracks from %s to queue", tracks_added, arg)
-
-                self.__update_play_queue_order()
-
-            else:
-                print_wrn("[Google Play Music] '{0}' has no tracks. " \
-                          .format(station_name))
-
-        if not len(self.queue):
-            print_wrn("[Google Play Music] '{0}' " \
-                      "not found in the user's library. " \
-                      .format(to_ascii(arg)))
 
     def __enqueue_station_unlimited(self, arg, max_results=MAX_TRACKS, quiet=False):
         """Search for a station and enqueue all of its tracks (Unlimited)
