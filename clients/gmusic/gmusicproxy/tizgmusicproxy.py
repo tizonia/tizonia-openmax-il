@@ -59,7 +59,7 @@ else:
     logging.getLogger().addHandler(logging.NullHandler())
 
 MAX_TRACKS_NONE = None
-MAX_TRACKS = 1000
+MAX_TRACKS = 100
 
 class _Colors:
     """A trivial class that defines various ANSI color codes.
@@ -559,7 +559,7 @@ class tizgmusicproxy(object):
         """
         try:
             # First search for a station id
-            max_results = MAX_TRACKS_NONE
+            max_results = MAX_TRACKS
             station_hits = self.__gmusic.search(arg, max_results)['station_hits']
             station_name = ''
             station_seed = None
@@ -1069,7 +1069,7 @@ class tizgmusicproxy(object):
             station_id = self.stations[arg]
             station_name = arg
 
-        num_tracks = MAX_TRACKS_NONE
+        num_tracks = MAX_TRACKS
         tracks = list()
         if station_id:
             try:
@@ -1101,7 +1101,7 @@ class tizgmusicproxy(object):
                       "not found in the user's library. " \
                       .format(to_ascii(arg)))
 
-    def __enqueue_station_unlimited(self, arg, max_results=MAX_TRACKS_NONE, quiet=False):
+    def __enqueue_station_unlimited(self, arg, max_results=MAX_TRACKS, quiet=False):
         """Search for a station and enqueue all of its tracks (Unlimited)
 
         """
@@ -1326,7 +1326,7 @@ class tizgmusicproxy(object):
                 except IndexError:
                     pass
 
-    def __gmusic_search(self, query, query_type, max_results=MAX_TRACKS_NONE, quiet=False):
+    def __gmusic_search(self, query, query_type, max_results=MAX_TRACKS, quiet=False):
         """ Search Google Play (Unlimited)
 
         """
