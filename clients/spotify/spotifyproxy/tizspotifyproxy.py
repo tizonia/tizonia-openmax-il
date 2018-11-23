@@ -127,7 +127,6 @@ class TrackInfo(object):
 
     def __init__(self, track, album_name=None):
         """ class members. """
-        #pprint (track)
         self.title = track['name']
         self.artist = track['artists'][0]['name']
         self.album = track['album']['name'] if track.get('album') else album_name;
@@ -153,7 +152,6 @@ class tizspotifyproxy(object):
         self.current_play_mode = self.play_modes.NORMAL
         self.now_playing_track = None
         credentials = SpotifyClientCredentials(client_id=self.SPOTIPY_CLIENT_ID, client_secret=self.SPOTIPY_CLIENT_SECRET)
-        #credentials = SpotifyClientCredentials()
         self._spotify = spotipy.Spotify(client_credentials_manager=credentials)
 
     def set_play_mode(self, mode):
@@ -171,24 +169,25 @@ class tizspotifyproxy(object):
         :param arg: a search string
 
         """
-        logging.info('arg : %s', arg)
-        print_msg("[Spotify] [Track search] '{0}'." \
-                  .format(arg.encode('utf-8')))
+        arg_dec = arg.decode('utf-8')
+        logging.info('arg : %s', arg_dec)
+        print_msg("[Spotify] [Track search] '{0}'.".format(arg_dec))
         try:
             count = len(self.queue)
-            results = self._spotify.search(arg, limit=20, offset=0, type='track')
+            results = self._spotify.search(arg_dec, limit=20, offset=0, type='track')
             tracks = results['tracks']
             for i, track in enumerate(tracks['items']):
                 track_info = TrackInfo(track)
                 self.add_to_playback_queue(track_info)
 
             if count == len(self.queue):
+                logging.info('no tracks found arg : %s', arg_dec)
                 raise ValueError
 
             self.__update_play_queue_order()
 
         except ValueError:
-            raise ValueError(str("Track not found : %s" % arg))
+            raise ValueError(str("Track not found : %s" % to_ascii(arg_dec)))
 
     def enqueue_artist(self, arg):
         """Obtain an artist from Spotify and add all the artist's audio tracks
@@ -197,18 +196,17 @@ class tizspotifyproxy(object):
         :param arg: an artist search term
 
         """
-        logging.info('arg : %s', arg)
-        print_msg("[Spotify] [Artist search] '{0}'." \
-                  .format(arg.encode('utf-8')))
+        arg_dec = arg.decode('utf-8')
+        logging.info('arg : %s', arg_dec)
+        print_msg("[Spotify] [Artist search] '{0}'.".format(arg_dec))
         try:
             count = len(self.queue)
-            results = self._spotify.search(arg, limit=10, offset=0, type='artist')
+            results = self._spotify.search(arg_dec, limit=10, offset=0, type='artist')
             artists = results['artists']
             for i, artist in enumerate(artists['items']):
-                print_wrn("[Spotify] [Artist's top tracks] '{0}'." \
-                          .format(artist['name'].encode('utf-8')))
+#                 print_wrn("[Spotify] [Artist's top tracks] '{0}'." \
+#                           .format(artist['name']))
 
-                # enqueue top tracks
                 track_results = self._spotify.artist_top_tracks(artist['id'])
                 tracks = track_results['tracks']
                 for i, track in enumerate(tracks):
@@ -218,10 +216,9 @@ class tizspotifyproxy(object):
                 # now enqueue albums
                 try:
                     album_results = self._spotify.artist_albums(artist['id'], limit=30)
-                    album_results = album_results['items']
-                    for i, album in enumerate(album_results):
-                        print_wrn("[Spotify] [Album] '{0}'." \
-                                  .format(album['name'].encode('utf-8')))
+                    album_items = album_results['items']
+                    for i, album in enumerate(album_items):
+                        print_wrn("[Spotify] [Album] '{0}'.".format(album['name']))
                         tracks = self._spotify.album_tracks(album['id'], limit=50, offset=0)
                         for j, track in enumerate(tracks['items']):
                             track_info = TrackInfo(track, album['name'])
@@ -232,12 +229,13 @@ class tizspotifyproxy(object):
                 break
 
             if count == len(self.queue):
+                logging.info('not tracks found arg : %s', arg_dec)
                 raise ValueError
 
             self.__update_play_queue_order()
 
         except ValueError:
-            raise ValueError(str("Artist not found : %s" % arg))
+            raise ValueError(str("Artist not found : %s" % to_ascii(arg_dec)))
 
     def enqueue_album(self, arg):
         """Obtain an album from Spotify and add all its tracks to the playback
@@ -246,12 +244,12 @@ class tizspotifyproxy(object):
         :param arg: an album search term
 
         """
-        logging.info('arg : %s', arg)
-        print_msg("[Spotify] [Album search] '{0}'." \
-                  .format(arg.encode('utf-8')))
+        arg_dec = arg.decode('utf-8')
+        logging.info('arg : %s', arg_dec)
+        print_msg("[Spotify] [Album search] '{0}'.".format(arg_dec))
         try:
             count = len(self.queue)
-            results = self._spotify.search(arg, limit=10, offset=0, type='album')
+            results = self._spotify.search(arg_dec, limit=10, offset=0, type='album')
             albums = results['albums']
             for i, album in enumerate(albums['items']):
                 tracks = self._spotify.album_tracks(album['id'], limit=50, offset=0)
@@ -266,7 +264,7 @@ class tizspotifyproxy(object):
             self.__update_play_queue_order()
 
         except ValueError:
-            raise ValueError(str("Album not found : %s" % arg))
+            raise ValueError(str("Album not found : %s" % to_ascii(arg_dec)))
 
     def enqueue_playlist(self, arg, owner):
         """Add all audio tracks in a Spotify playlist to the playback queue.
@@ -274,9 +272,10 @@ class tizspotifyproxy(object):
         :param arg: a playlist search term
 
         """
-        logging.info('arg : %s', arg)
+        arg_dec = arg.decode('utf-8')
+        logging.info('arg : %s', arg_dec)
         print_msg("[Spotify] [Playlist search] '{0}' (owner: {1})." \
-                  .format(arg.encode('utf-8'), owner.encode('utf-8')))
+                  .format(arg_dec, owner.decode('utf-8')))
         try:
             count = len(self.queue)
             playlist = None
@@ -291,11 +290,11 @@ class tizspotifyproxy(object):
                     print_nfo("[Spotify] [Playlist {0}] '{1}' ({2} tracks)." \
                               .format(playlist_count, to_ascii(plist['name']), plist['tracks']['total']))
                     name = plist['name']
-                    if arg.lower() == name.lower():
+                    if arg_dec.lower() == name.lower():
                         playlist_name = name
                         playlist = plist
                         break
-                    if fuzz.partial_ratio(arg, name) > 50:
+                    if fuzz.partial_ratio(arg_dec, name) > 50:
                         playlist_dict[name] = plist
                         playlist_names.append(name)
 
@@ -316,11 +315,10 @@ class tizspotifyproxy(object):
                     playlist = playlist_dict[playlist_name]
 
             if playlist_name:
-                if arg.lower() != playlist_name.lower():
+                if arg_dec.lower() != playlist_name.lower():
                     print_wrn("[Spotify] '{0}' not found. " \
                               "Playing '{1}' instead." \
-                              .format(to_ascii(arg), \
-                                      to_ascii(playlist_name)))
+                              .format(arg_dec, playlist_name))
 
                 results = self._spotify.user_playlist(owner, playlist['id'],
                                                       fields="tracks,next")
@@ -341,7 +339,7 @@ class tizspotifyproxy(object):
             self.__update_play_queue_order()
 
         except (ValueError):
-            raise ValueError(str("Playlist not found or no audio tracks in playlist : %s" % arg))
+            raise ValueError(str("Playlist not found or no audio tracks in playlist : %s" % to_ascii(arg_dec)))
 
     def current_track_title(self):
         """ Retrieve the current track's title.
