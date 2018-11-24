@@ -531,24 +531,31 @@ void tiz::programopts::print_usage_config () const
   print_license ();
   printf ("Configuration file: 'tizonia.conf'\n\n");
   printf (
-      "Tizonia finds its config file in one of these locations (in this "
-      "order):\n");
+      "Tizonia creates its config file in one of the following locations when it\n"
+      "first starts (add your user credentials here):\n");
   printf (
-      "1.                  A file pointed by the $TIZONIA_RC_FILE environment "
-      "variable.\n");
-  printf ("2.                  $HOME/.config/tizonia/tizonia.conf\n");
+      "    - Debian or AUR packages: $HOME/.config/tizonia/tizonia.conf\n"
+      "    - Snap package: $HOME/snap/tizonia/current/.config/tizonia/tizonia.conf\n");
   printf (
-      "3.                  A directory in $XDG_CONFIG_DIRS + "
-      "/tizonia/tizonia.conf\n");
-  printf ("4.                  /etc/tizonia/tizonia.conf\n\n");
-  printf (
-      "An example configuration file can be found in "
-      "/etc/xdg/tizonia/tizonia.conf or \n"
-      "/snap/tizonia/current/etc/xdg/tizonia/tizonia.conf.\n");
-  printf (
-      "Copy this file to $HOME/.config/tizonia/tizonia.conf and introduce "
-      "there\n");
-  printf ("the credentials for the various services.\n");
+      "\nExample configuration files may also be found at \n"
+      "    - /etc/xdg/tizonia/tizonia.conf or \n"
+      "    - /snap/tizonia/current/etc/xdg/tizonia/tizonia.conf.\n");
+
+//
+//  TODO: Think about how the following information could be provided to the
+//  user, since it is probably more for a developer or power user.
+//
+//   printf (
+//       "Tizonia finds its config file in one of these locations (in this "
+//       "order):\n");
+//   printf (
+//       "1.   A file pointed by the $TIZONIA_RC_FILE environment "
+//       "variable.\n");
+//   printf ("2.   $HOME/.config/tizonia/tizonia.conf\n");
+//   printf (
+//       "3.   A directory in $XDG_CONFIG_DIRS + "
+//       "/tizonia/tizonia.conf\n");
+//   printf ("4.                  /etc/tizonia/tizonia.conf\n\n");
 }
 
 void tiz::programopts::print_usage_examples () const
