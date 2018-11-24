@@ -1156,10 +1156,10 @@ log_message (sp_session * sess, const char * msg)
   if (strstr (msg, "Request for file") || strstr (msg, "locked")
       || strstr (msg, "ChannelError") || strstr (msg, "handleApErrorCode"))
     {
-      /* Skip these messages */
+      TIZ_PRINTF_DBG_RED ("[Spotify] : %s", msg);
       return;
     }
-  TIZ_PRINTF_MAG ("[Spotify] : %s", msg);
+  TIZ_PRINTF_DBG_MAG ("[Spotify] : %s", msg);
 }
 
 static OMX_ERRORTYPE
