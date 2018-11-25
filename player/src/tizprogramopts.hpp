@@ -199,7 +199,9 @@ namespace tiz
     std::string spotify_owner_;
     std::string spotify_tracks_;
     std::string spotify_artist_;
+    std::string spotify_artist_id_;
     std::string spotify_album_;
+    std::string spotify_album_id_;
     std::string spotify_playlist_;
     std::vector< std::string > spotify_playlist_container_;
     OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE spotify_playlist_type_;
