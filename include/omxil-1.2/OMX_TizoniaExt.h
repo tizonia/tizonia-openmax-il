@@ -276,6 +276,10 @@ typedef enum OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE {
     OMX_AUDIO_SpotifyPlaylistTypeArtist, /**< Artist search. */
     OMX_AUDIO_SpotifyPlaylistTypeAlbum, /**< Album search. */
     OMX_AUDIO_SpotifyPlaylistTypePlaylist, /**< Playlist search. */
+    OMX_AUDIO_SpotifyPlaylistTypeTrackId, /**< Track search by Spotify ID, URI or URL. */
+    OMX_AUDIO_SpotifyPlaylistTypeArtistId, /**< Artist search by Spotify ID, URI or URL. */
+    OMX_AUDIO_SpotifyPlaylistTypeAlbumId, /**< Album search by Spotify ID, URI or URL. */
+    OMX_AUDIO_SpotifyPlaylistTypePlaylistId, /**< Playlist search by Spotify ID, URI or URL. */
     OMX_AUDIO_SpotifyPlaylistTypeKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
     OMX_AUDIO_SpotifyPlaylistTypeVendorStartUnused = 0x7F000000, /**< Reserved region for introducing Vendor Extensions */
     OMX_AUDIO_SpotifyPlaylistTypeMax = 0x7FFFFFFF
