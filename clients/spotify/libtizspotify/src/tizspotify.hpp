@@ -57,7 +57,9 @@ public:
 
   int play_tracks (const std::string &tracks);
   int play_artist (const std::string &artist);
+  int play_artist_id (const std::string &artist_id);
   int play_album (const std::string &album);
+  int play_album_id (const std::string &album_id);
   int play_playlist (const std::string &playlist, const std::string &owner);
 
   void set_playback_mode (const playback_mode mode);
