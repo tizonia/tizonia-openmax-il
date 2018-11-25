@@ -204,8 +204,8 @@ class tizspotifyproxy(object):
             results = self._spotify.search(arg_dec, limit=10, offset=0, type='artist')
             artists = results['artists']
             for i, artist in enumerate(artists['items']):
-#                 print_wrn("[Spotify] [Artist's top tracks] '{0}'." \
-#                           .format(artist['name']))
+                print_wrn("[Spotify] [Artist top tracks] '{0}'." \
+                          .format(artist['name']))
 
                 track_results = self._spotify.artist_top_tracks(artist['id'])
                 tracks = track_results['tracks']
@@ -252,6 +252,7 @@ class tizspotifyproxy(object):
             results = self._spotify.search(arg_dec, limit=10, offset=0, type='album')
             albums = results['albums']
             for i, album in enumerate(albums['items']):
+                print_wrn("[Spotify] [Album] '{0}'.".format(album['name']))
                 tracks = self._spotify.album_tracks(album['id'], limit=50, offset=0)
                 for j, track in enumerate(tracks['items']):
                     track_info = TrackInfo(track, album['name'])
