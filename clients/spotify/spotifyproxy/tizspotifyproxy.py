@@ -200,10 +200,39 @@ class tizspotifyproxy(object):
         logging.info('arg : %s', arg_dec)
         print_msg("[Spotify] [Artist search] '{0}'.".format(arg_dec))
         try:
+            artist_obj = None
+            artist_name = None
+            artist_dict = dict()
+            artist_names = list()
             count = len(self.queue)
-            results = self._spotify.search(arg_dec, limit=10, offset=0, type='artist')
+            results = self._spotify.search(arg_dec, limit=20, offset=0, type='artist')
             artists = results['artists']
             for i, artist in enumerate(artists['items']):
+                name = artist['name']
+                print_wrn("[Spotify] [Artist] '{0}'.".format(name))
+                if arg_dec.lower() == name.lower():
+                    artist_name = name
+                    artist_obj = artist
+                    break
+                if fuzz.partial_ratio(arg_dec, name) > 50:
+                    artist_dict[name] = artist_obj
+                    artist_names.append(name)
+
+            if not artist_name:
+                if results.get('next'):
+                    results = self._spotify.next(results)
+                else:
+                    results = None
+
+            if not artist_name:
+                if len(artist_names) > 1:
+                    artist_name = process.extractOne(arg, artist_names)[0]
+                    artist = artist_dict[artist_name]
+                elif len(artist_names) == 1:
+                    artist_name = artist_names[0]
+                    artist = artist_dict[artist_name]
+
+            if artist_name:
                 print_wrn("[Spotify] [Artist top tracks] '{0}'." \
                           .format(artist['name']))
 
@@ -225,8 +254,6 @@ class tizspotifyproxy(object):
                             self.add_to_playback_queue(track_info)
                 except:
                     pass
-
-                break
 
             if count == len(self.queue):
                 logging.info('not tracks found arg : %s', arg_dec)
