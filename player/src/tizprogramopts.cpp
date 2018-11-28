@@ -296,11 +296,13 @@ tiz::programopts::programopts (int argc, char *argv[])
     spotify_pass_ (),
     spotify_owner_ (),
     spotify_tracks_ (),
+    spotify_track_id_ (),
     spotify_artist_ (),
     spotify_artist_id_ (),
     spotify_album_ (),
     spotify_album_id_ (),
     spotify_playlist_ (),
+    spotify_playlist_id_ (),
     spotify_playlist_container_ (),
     spotify_playlist_type_(OMX_AUDIO_SpotifyPlaylistTypeUnknown),
     gmusic_user_ (),
@@ -698,23 +700,31 @@ const std::vector< std::string >
   {
     spotify_playlist_container_.push_back (spotify_artist_);
   }
-  else if (!spotify_artist_id_.empty ())
-  {
-    spotify_playlist_container_.push_back (spotify_artist_id_);
-  }
   else if (!spotify_album_.empty ())
   {
     spotify_playlist_container_.push_back (spotify_album_);
-  }
-  else if (!spotify_album_id_.empty ())
-  {
-    spotify_playlist_container_.push_back (spotify_album_id_);
   }
   else if (!spotify_playlist_.empty ())
   {
     spotify_playlist_container_.push_back (spotify_playlist_);
   }
-    else
+  else if (!spotify_track_id_.empty ())
+  {
+    spotify_playlist_container_.push_back (spotify_track_id_);
+  }
+  else if (!spotify_artist_id_.empty ())
+  {
+    spotify_playlist_container_.push_back (spotify_artist_id_);
+  }
+  else if (!spotify_album_id_.empty ())
+  {
+    spotify_playlist_container_.push_back (spotify_album_id_);
+  }
+  else if (!spotify_playlist_id_.empty ())
+  {
+    spotify_playlist_container_.push_back (spotify_playlist_id_);
+  }
+  else
   {
     assert (0);
   }
@@ -732,21 +742,29 @@ tiz::programopts::spotify_playlist_type ()
   {
     spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeArtist;
   }
-  else if (!spotify_artist_id_.empty ())
-  {
-    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeArtistId;
-  }
   else if (!spotify_album_.empty ())
   {
     spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeAlbum;
+  }
+  else if (!spotify_playlist_.empty ())
+  {
+    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypePlaylist;
+  }
+  else if (!spotify_track_id_.empty ())
+  {
+    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeTrackId;
+  }
+  else if (!spotify_artist_id_.empty ())
+  {
+    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeArtistId;
   }
   else if (!spotify_album_id_.empty ())
   {
     spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeAlbumId;
   }
-  else if (!spotify_playlist_.empty ())
+  else if (!spotify_playlist_id_.empty ())
   {
-    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypePlaylist;
+    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypePlaylistId;
   }
 
   return spotify_playlist_type_;
@@ -1353,20 +1371,28 @@ void tiz::programopts::init_spotify_options ()
        "Search and play from Spotify by album name.")
       /* TIZ_CLASS_COMMENT: */
       ("spotify-playlist", po::value (&spotify_playlist_),
-       "Search and play public playlists (owner is assumed current user, "
+       "Search and play public playlists (owner is assumed the current user, "
        "unless --spotify-owner is provided).")
       /* TIZ_CLASS_COMMENT: */
+      ("spotify-track-id", po::value (&spotify_track_id_),
+       "Play from Spotify by track id, URI or URL.")
+      /* TIZ_CLASS_COMMENT: */
       ("spotify-artist-id", po::value (&spotify_artist_id_),
-       "Play from Spotify by artist id.")
+       "Play from Spotify by artist id, URI or URL.")
       /* TIZ_CLASS_COMMENT: */
       ("spotify-album-id", po::value (&spotify_album_id_),
-       "Play from Spotify by album id.");
+       "Play from Spotify by album id, URI or URL.")
+      /* TIZ_CLASS_COMMENT: */
+      ("spotify-playlist-id", po::value (&spotify_playlist_id_),
+       "Play public playlists from Spotify by id, URI or URL "
+       "(owner is assumed the current user, "
+       "unless --spotify-owner is provided).");
   register_consume_function (&tiz::programopts::consume_spotify_client_options);
   all_spotify_client_options_
       = boost::assign::list_of ("spotify-user") ("spotify-password") (
             "spotify-owner") ("spotify-tracks") ("spotify-artist") (
-            "spotify-album") ("spotify-playlist") ("spotify-artist-id") (
-            "spotify-album-id")
+            "spotify-album") ("spotify-playlist") ("spotify-track-id") (
+            "spotify-artist-id") ("spotify-album-id") ("spotify-playlist-id")
             .convert_to_container< std::vector< std::string > > ();
 #endif
 }
@@ -1844,7 +1870,8 @@ int tiz::programopts::consume_spotify_client_options (bool &done,
     const int playlist_option_count
         = vm_.count ("spotify-tracks") + vm_.count ("spotify-artist")
           + vm_.count ("spotify-album") + vm_.count ("spotify-playlist")
-          + vm_.count ("spotify-artist-id") + vm_.count ("spotify-album-id");
+          + vm_.count ("spotify-track-id") + vm_.count ("spotify-artist-id")
+          + vm_.count ("spotify-album-id") + vm_.count ("spotify-playlist-id");
 
     if (spotify_user_.empty ())
     {
@@ -1882,11 +1909,13 @@ int tiz::programopts::consume_spotify_client_options (bool &done,
       msg.assign (oss.str ());
     }
     else if (OMX_AUDIO_SpotifyPlaylistTypePlaylist != spotify_playlist_type ()
+             && OMX_AUDIO_SpotifyPlaylistTypePlaylistId != spotify_playlist_type ()
              && vm_.count ("spotify-owner"))
     {
       rc = EXIT_FAILURE;
       std::ostringstream oss;
-      oss << "The --spotify-owner option can only be used in conjunction with --spotify=playlist.";
+      oss << "The --spotify-owner option can only be used in conjunction with\n"
+          << " --spotify-playlist and --spotify-playlist-id";
       msg.assign (oss.str ());
     }
     else if (OMX_AUDIO_SpotifyPlaylistTypeUnknown == spotify_playlist_type ())
@@ -2431,8 +2460,9 @@ bool tiz::programopts::validate_spotify_client_options () const
       = vm_.count ("spotify-user") + vm_.count ("spotify-password")
         + vm_.count ("spotify-owner") + vm_.count ("spotify-tracks")
         + vm_.count ("spotify-artist") + vm_.count ("spotify-album")
-        + vm_.count ("spotify-playlist") + vm_.count ("spotify-artist-id")
-        + vm_.count ("spotify-album-id") + vm_.count ("log-directory");
+        + vm_.count ("spotify-playlist") + vm_.count ("spotify-track-id")
+        + vm_.count ("spotify-artist-id") + vm_.count ("spotify-album-id")
+        + vm_.count ("spotify-playlist-id") + vm_.count ("log-directory");
 
   std::vector< std::string > all_valid_options = all_spotify_client_options_;
   concat_option_lists (all_valid_options, all_global_options_);
