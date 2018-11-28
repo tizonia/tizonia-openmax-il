@@ -199,31 +199,8 @@ class tizspotifyproxy(object):
         logging.info('arg : %s', arg_dec)
         print_msg("[Spotify] [Artist search] '{0}'.".format(arg_dec))
         try:
-            artist = None
-            artist_name = None
-            artist_dict = dict()
-            artist_names = list()
             count = len(self.queue)
-            results = self._spotify.search(arg_dec, limit=20, offset=0, type='artist')
-            artists = results['artists']
-            for i, art in enumerate(artists['items']):
-                name = art['name']
-                print_wrn("[Spotify] [Artist] '{0}'.".format(name))
-                if arg_dec.lower() == name.lower():
-                    artist_name = name
-                    artist = art
-                    break
-                if fuzz.partial_ratio(arg_dec, name) > 50:
-                    artist_dict[name] = art
-                    artist_names.append(name)
-
-            if not artist_name:
-                if len(artist_names) > 1:
-                    artist_name = process.extractOne(arg, artist_names)[0]
-                    artist = artist_dict[artist_name]
-                elif len(artist_names) == 1:
-                    artist_name = artist_names[0]
-                    artist = artist_dict[artist_name]
+            artist = self.__search_artists(arg_dec)
 
             if artist:
                 self.__enqueue_artist(artist)
@@ -238,8 +215,8 @@ class tizspotifyproxy(object):
             raise ValueError(str("Artist not found : %s" % to_ascii(arg_dec)))
 
     def enqueue_related_artists(self, arg):
-        """Obtain an artist from Spotify and add all the artist's audio tracks
-        to the playback queue.
+        """Search Spotify for an artist and add top tracks from a set of related
+        artists.
 
         :param arg: an artist search term
 
@@ -247,30 +224,8 @@ class tizspotifyproxy(object):
         arg_dec = arg.decode('utf-8')
         logging.info('arg : %s', arg_dec)
         try:
-            artist = None
-            artist_name = None
-            artist_dict = dict()
-            artist_names = list()
             count = len(self.queue)
-            results = self._spotify.search(arg_dec, limit=20, offset=0, type='artist')
-            artists = results['artists']
-            for i, art in enumerate(artists['items']):
-                name = art['name']
-                if arg_dec.lower() == name.lower():
-                    artist_name = name
-                    artist = art
-                    break
-                if fuzz.partial_ratio(arg_dec, name) > 50:
-                    artist_dict[name] = art
-                    artist_names.append(name)
-
-            if not artist_name:
-                if len(artist_names) > 1:
-                    artist_name = process.extractOne(arg, artist_names)[0]
-                    artist = artist_dict[artist_name]
-                elif len(artist_names) == 1:
-                    artist_name = artist_names[0]
-                    artist = artist_dict[artist_name]
+            artist = self.__search_artists(arg_dec)
 
             if artist:
                 self.__enqueue_related_artists(artist)
@@ -323,49 +278,35 @@ class tizspotifyproxy(object):
                   .format(arg_dec, owner.decode('utf-8')))
         try:
             count = len(self.queue)
-            playlist = None
-            playlist_name = None
-            playlist_dict = dict()
-            playlist_names = list()
-            playlist_count = 0
-            playlists = self._spotify.user_playlists(owner)
-            while playlists:
-                for i, plist in enumerate(playlists['items']):
-                    playlist_count+=1
-                    print_nfo("[Spotify] [Playlist {0}] '{1}' ({2} tracks)." \
-                              .format(playlist_count, to_ascii(plist['name']), plist['tracks']['total']))
-                    name = plist['name']
-                    if arg_dec.lower() == name.lower():
-                        playlist_name = name
-                        playlist = plist
-                        break
-                    if fuzz.partial_ratio(arg_dec, name) > 50:
-                        playlist_dict[name] = plist
-                        playlist_names.append(name)
 
-                if not playlist_name:
-                    if playlists['next']:
-                        playlists = self._spotify.next(playlists)
-                    else:
-                        playlists = None
-                else:
-                    break
-
-            if not playlist_name:
-                if len(playlist_names) > 1:
-                    playlist_name = process.extractOne(arg, playlist_names)[0]
-                    playlist = playlist_dict[playlist_name]
-                elif len(playlist_names) == 1:
-                    playlist_name = playlist_names[0]
-                    playlist = playlist_dict[playlist_name]
-
-            if playlist_name:
-                if arg_dec.lower() != playlist_name.lower():
-                    print_wrn("[Spotify] '{0}' not found. " \
-                              "Playing '{1}' instead." \
-                              .format(arg_dec, playlist_name))
-
+            playlist = self.__search_playlist(arg_dec, owner, is_featured=False)
+            if playlist:
                 results = self._spotify.user_playlist(owner, playlist['id'],
+                                                      fields="tracks,next")
+                self.__enqueue_playlist(results)
+
+            if count == len(self.queue):
+                raise ValueError
+
+            self.__update_play_queue_order()
+
+        except (ValueError):
+            raise ValueError(str("Playlist not found or no audio tracks in playlist : %s" % to_ascii(arg_dec)))
+
+    def enqueue_featured_playlist(self, arg):
+        """Add all audio tracks in a Spotify featured playlist to the playback queue.
+
+        :param arg: a playlist search term
+
+        """
+        arg_dec = arg.decode('utf-8')
+        logging.info('arg : %s', arg_dec)
+        print_msg("[Spotify] [Featured playlist search] '{0}'.".format(arg_dec))
+        try:
+            count = len(self.queue)
+            playlist = self.__search_playlist(arg_dec, owner=None, is_featured=True)
+            if playlist:
+                results = self._spotify.user_playlist(playlist['owner']['id'], playlist['id'],
                                                       fields="tracks,next")
                 self.__enqueue_playlist(results)
 
@@ -707,6 +648,96 @@ class tizspotifyproxy(object):
                     tracks = self._spotify.next(tracks)
                 else:
                     tracks = None
+
+    def __search_artists(self, arg):
+        """ Add an artist tracks to the playback queue.
+
+        :param artist: a artist object
+
+        """
+        artist = None
+        if arg:
+            artist_name = None
+            artist_dict = dict()
+            artist_names = list()
+            results = self._spotify.search(arg, limit=20, offset=0, type='artist')
+            artists = results['artists']
+            for i, art in enumerate(artists['items']):
+                name = art['name']
+                print_wrn("[Spotify] [Artist] '{0}'.".format(name))
+                if arg.lower() == name.lower():
+                    artist_name = name
+                    artist = art
+                    break
+                if fuzz.partial_ratio(arg, name) > 50:
+                    artist_dict[name] = art
+                    artist_names.append(name)
+
+            if not artist_name:
+                if len(artist_names) > 1:
+                    artist_name = process.extractOne(arg, artist_names)[0]
+                    artist = artist_dict[artist_name]
+                elif len(artist_names) == 1:
+                    artist_name = artist_names[0]
+                    artist = artist_dict[artist_name]
+
+        return artist
+
+    def __search_playlist(self, arg, owner=None, is_featured=False):
+        """ Add an artist tracks to the playback queue.
+
+        :param artist: a artist object
+
+        """
+        playlist = None
+        if arg:
+            playlists = None
+            playlist_name = None
+            playlist_dict = dict()
+            playlist_names = list()
+            playlist_count = 0
+            if is_featured:
+                featured_playlists = self._spotify.featured_playlists()
+                if featured_playlists:
+                    playlists = featured_playlists['playlists']
+            else:
+                playlists = self._spotify.user_playlists(owner)
+            while playlists:
+                for i, plist in enumerate(playlists['items']):
+                    playlist_count+=1
+                    print_nfo("[Spotify] [Playlist {0}] '{1}' ({2} tracks)." \
+                              .format(playlist_count, to_ascii(plist['name']), plist['tracks']['total']))
+                    name = plist['name']
+                    if arg.lower() == name.lower():
+                        playlist_name = name
+                        playlist = plist
+                        break
+                    if fuzz.partial_ratio(arg, name) > 50:
+                        playlist_dict[name] = plist
+                        playlist_names.append(name)
+
+                if not playlist_name:
+                    if playlists['next']:
+                        playlists = self._spotify.next(playlists)
+                    else:
+                        playlists = None
+                else:
+                    break
+
+            if not playlist_name:
+                if len(playlist_names) > 1:
+                    playlist_name = process.extractOne(arg, playlist_names)[0]
+                    playlist = playlist_dict[playlist_name]
+                elif len(playlist_names) == 1:
+                    playlist_name = playlist_names[0]
+                    playlist = playlist_dict[playlist_name]
+
+            if playlist_name:
+                if arg.lower() != playlist_name.lower():
+                    print_wrn("[Spotify] '{0}' not found. " \
+                              "Playing '{1}' instead." \
+                              .format(arg, playlist_name))
+        return playlist
 
     def __update_play_queue_order(self):
         """ Update the queue playback order.
