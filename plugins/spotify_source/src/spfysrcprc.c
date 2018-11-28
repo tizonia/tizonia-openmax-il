@@ -1229,6 +1229,11 @@ enqueue_playlist_items (spfysrc_prc_t * ap_prc)
                                                   p_playlist, p_owner);
           }
           break;
+        case OMX_AUDIO_SpotifyPlaylistTypeRelatedArtists:
+          {
+            rc = tiz_spotify_play_related_artists (ap_prc->p_spfy_web_, p_playlist);
+          }
+          break;
         default:
           {
             assert (0);
