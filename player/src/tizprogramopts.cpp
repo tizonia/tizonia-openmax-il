@@ -296,13 +296,14 @@ tiz::programopts::programopts (int argc, char *argv[])
     spotify_pass_ (),
     spotify_owner_ (),
     spotify_tracks_ (),
-    spotify_track_id_ (),
     spotify_artist_ (),
-    spotify_artist_id_ (),
     spotify_album_ (),
-    spotify_album_id_ (),
     spotify_playlist_ (),
+    spotify_track_id_ (),
+    spotify_artist_id_ (),
+    spotify_album_id_ (),
     spotify_playlist_id_ (),
+    spotify_related_artists_(),
     spotify_playlist_container_ (),
     spotify_playlist_type_(OMX_AUDIO_SpotifyPlaylistTypeUnknown),
     gmusic_user_ (),
@@ -724,6 +725,10 @@ const std::vector< std::string >
   {
     spotify_playlist_container_.push_back (spotify_playlist_id_);
   }
+  else if (!spotify_related_artists_.empty ())
+  {
+    spotify_playlist_container_.push_back (spotify_related_artists_);
+  }
   else
   {
     assert (0);
@@ -765,6 +770,10 @@ tiz::programopts::spotify_playlist_type ()
   else if (!spotify_playlist_id_.empty ())
   {
     spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypePlaylistId;
+  }
+  else if (!spotify_related_artists_.empty ())
+  {
+    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeRelatedArtists;
   }
 
   return spotify_playlist_type_;
@@ -1386,13 +1395,19 @@ void tiz::programopts::init_spotify_options ()
       ("spotify-playlist-id", po::value (&spotify_playlist_id_),
        "Play public playlists from Spotify by id, URI or URL "
        "(owner is assumed the current user, "
-       "unless --spotify-owner is provided).");
+       "unless --spotify-owner is provided).")
+      /* TIZ_CLASS_COMMENT: */
+      ("spotify-related-artists", po::value (&spotify_related_artists_),
+       "Search and play from Spotify the top songs from "
+       "a selection of related artists.");
+
   register_consume_function (&tiz::programopts::consume_spotify_client_options);
   all_spotify_client_options_
       = boost::assign::list_of ("spotify-user") ("spotify-password") (
             "spotify-owner") ("spotify-tracks") ("spotify-artist") (
             "spotify-album") ("spotify-playlist") ("spotify-track-id") (
-            "spotify-artist-id") ("spotify-album-id") ("spotify-playlist-id")
+            "spotify-artist-id") ("spotify-album-id") ("spotify-playlist-id") (
+            "spotify-related-artists")
             .convert_to_container< std::vector< std::string > > ();
 #endif
 }
@@ -1871,7 +1886,8 @@ int tiz::programopts::consume_spotify_client_options (bool &done,
         = vm_.count ("spotify-tracks") + vm_.count ("spotify-artist")
           + vm_.count ("spotify-album") + vm_.count ("spotify-playlist")
           + vm_.count ("spotify-track-id") + vm_.count ("spotify-artist-id")
-          + vm_.count ("spotify-album-id") + vm_.count ("spotify-playlist-id");
+          + vm_.count ("spotify-album-id") + vm_.count ("spotify-playlist-id")
+          + vm_.count ("spotify-related-artists");
 
     if (spotify_user_.empty ())
     {
@@ -2462,7 +2478,8 @@ bool tiz::programopts::validate_spotify_client_options () const
         + vm_.count ("spotify-artist") + vm_.count ("spotify-album")
         + vm_.count ("spotify-playlist") + vm_.count ("spotify-track-id")
         + vm_.count ("spotify-artist-id") + vm_.count ("spotify-album-id")
-        + vm_.count ("spotify-playlist-id") + vm_.count ("log-directory");
+        + vm_.count ("spotify-playlist-id") + vm_.count ("spotify-related-artists")
+        + vm_.count ("log-directory");
 
   std::vector< std::string > all_valid_options = all_spotify_client_options_;
   concat_option_lists (all_valid_options, all_global_options_);
