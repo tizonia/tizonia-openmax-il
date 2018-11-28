@@ -166,6 +166,55 @@ extern "C"
                                const char *ap_artist_name);
 
   /**
+   * Search Spotify for an album and add all its tracks to the playback queue.
+   *
+   * After calling this method, the various tiz_spotify_get* methods can be
+   * used to interact with the playback queue.
+   *
+   * @ingroup libtizspotify
+   *
+   * @param ap_spotify The tiz_spotify handle.
+   * @param ap_album An album name or search term.
+   *
+   * @return 0 on success
+   */
+  int tiz_spotify_play_album (tiz_spotify_t *ap_spotify, const char *ap_album);
+
+  /**
+   * Search Spotify for a playlist and add all its tracks to the playback queue.
+   *
+   * After calling this method, the various tiz_spotify_get* methods can be
+   * used to interact with the playback queue.
+   *
+   * @ingroup libtizspotify
+   *
+   * @param ap_spotify The tiz_spotify handle.
+   * @param ap_playlist A playlist name or search term.
+   * @param ap_owner The Spotify username of the owner of the playlist.
+   *
+   * @return 0 on success
+   */
+  int tiz_spotify_play_playlist (tiz_spotify_t *ap_spotify,
+                                 const char *ap_playlist, const char *ap_owner);
+
+  /**
+   * Add a track to the playback queue using a Spotify track ID,
+   * URI, or URL.
+   *
+   * After calling this method, the various tiz_spotify_get* methods can be
+   * used to interact with the playback queue.
+   *
+   * @ingroup libtizspotify
+   *
+   * @param ap_spotify The tiz_spotify handle.
+   * @param ap_track_id A Spotify track ID, URI, or URL.
+   *
+   * @return 0 on success
+   */
+  int tiz_spotify_play_track_by_id (tiz_spotify_t *ap_spotify,
+                                    const char *ap_track_id);
+
+  /**
    * Add an artist's tracks to the playback queue using a Spotify artist ID,
    * URI, or URL.
    *
@@ -181,21 +230,6 @@ extern "C"
    */
   int tiz_spotify_play_artist_by_id (tiz_spotify_t *ap_spotify,
                                      const char *ap_artist_id);
-
-  /**
-   * Search Spotify for an album and add all its tracks to the playback queue.
-   *
-   * After calling this method, the various tiz_spotify_get* methods can be
-   * used to interact with the playback queue.
-   *
-   * @ingroup libtizspotify
-   *
-   * @param ap_spotify The tiz_spotify handle.
-   * @param ap_album An album name or search term.
-   *
-   * @return 0 on success
-   */
-  int tiz_spotify_play_album (tiz_spotify_t *ap_spotify, const char *ap_album);
 
   /**
    * Add an album tracks to the playback queue using a Spotify album ID,
@@ -215,7 +249,8 @@ extern "C"
                                     const char *ap_album_id);
 
   /**
-   * Searh Spotify for a playlist and add all its tracks to the playback queue.
+   * Add a playlist tracks to the playback queue using a Spotify playlist ID,
+   * URI, or URL.
    *
    * After calling this method, the various tiz_spotify_get* methods can be
    * used to interact with the playback queue.
@@ -223,13 +258,14 @@ extern "C"
    * @ingroup libtizspotify
    *
    * @param ap_spotify The tiz_spotify handle.
-   * @param ap_playlist A playlist name or search term.
+   * @param ap_playlist_id A Spotify playlist ID, URI, or URL.
    * @param ap_owner The Spotify username of the owner of the playlist.
    *
    * @return 0 on success
    */
-  int tiz_spotify_play_playlist (tiz_spotify_t *ap_spotify,
-                                 const char *ap_playlist, const char *ap_owner);
+  int tiz_spotify_play_playlist_by_id (tiz_spotify_t *ap_spotify,
+                                       const char *ap_playlist_id,
+                                       const char *ap_owner);
 
   /**
    * Retrieve the next stream uri.

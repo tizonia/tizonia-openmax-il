@@ -190,19 +190,36 @@ int tizspotify::play_artist (const std::string &artist)
   return rc;
 }
 
-int tizspotify::play_artist_id (const std::string &artist_id)
-{
-  int rc = 0;
-  try_catch_wrapper (
-      py_spotify_proxy_.attr ("enqueue_artist_id") (bp::object (artist_id)));
-  return rc;
-}
-
 int tizspotify::play_album (const std::string &album)
 {
   int rc = 0;
   try_catch_wrapper (
       py_spotify_proxy_.attr ("enqueue_album") (bp::object (album)));
+  return rc;
+}
+
+int tizspotify::play_playlist (const std::string &playlist,
+                               const std::string &owner)
+{
+  int rc = 0;
+  try_catch_wrapper (py_spotify_proxy_.attr ("enqueue_playlist") (
+      bp::object (playlist), bp::object (owner)));
+  return rc;
+}
+
+int tizspotify::play_track_id (const std::string &track_id)
+{
+  int rc = 0;
+  try_catch_wrapper (
+      py_spotify_proxy_.attr ("enqueue_track_id") (bp::object (track_id)));
+  return rc;
+}
+
+int tizspotify::play_artist_id (const std::string &artist_id)
+{
+  int rc = 0;
+  try_catch_wrapper (
+      py_spotify_proxy_.attr ("enqueue_artist_id") (bp::object (artist_id)));
   return rc;
 }
 
@@ -214,12 +231,12 @@ int tizspotify::play_album_id (const std::string &album_id)
   return rc;
 }
 
-int tizspotify::play_playlist (const std::string &playlist,
-                               const std::string &owner)
+int tizspotify::play_playlist_id (const std::string &playlist_id,
+                                  const std::string &owner)
 {
   int rc = 0;
-  try_catch_wrapper (py_spotify_proxy_.attr ("enqueue_playlist") (
-      bp::object (playlist), bp::object (owner)));
+  try_catch_wrapper (py_spotify_proxy_.attr ("enqueue_playlist_id") (
+      bp::object (playlist_id), bp::object (owner)));
   return rc;
 }
 

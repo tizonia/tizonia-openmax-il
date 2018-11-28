@@ -162,20 +162,37 @@ extern "C" int tiz_spotify_play_artist (tiz_spotify_t *ap_spotify,
   return ap_spotify->p_proxy_->play_artist (ap_artist);
 }
 
-extern "C" int tiz_spotify_play_artist_by_id (tiz_spotify_t *ap_spotify,
-                                              const char *ap_artist_id)
-{
-  assert (ap_spotify);
-  assert (ap_spotify->p_proxy_);
-  return ap_spotify->p_proxy_->play_artist_id (ap_artist_id);
-}
-
 extern "C" int tiz_spotify_play_album (tiz_spotify_t *ap_spotify,
                                        const char *ap_album)
 {
   assert (ap_spotify);
   assert (ap_spotify->p_proxy_);
   return ap_spotify->p_proxy_->play_album (ap_album);
+}
+
+extern "C" int tiz_spotify_play_playlist (tiz_spotify_t *ap_spotify,
+                                          const char *ap_playlist,
+                                          const char *ap_owner)
+{
+  assert (ap_spotify);
+  assert (ap_spotify->p_proxy_);
+  return ap_spotify->p_proxy_->play_playlist (ap_playlist, ap_owner);
+}
+
+extern "C" int tiz_spotify_play_track_by_id (tiz_spotify_t *ap_spotify,
+                                              const char *ap_track_id)
+{
+  assert (ap_spotify);
+  assert (ap_spotify->p_proxy_);
+  return ap_spotify->p_proxy_->play_track_id (ap_track_id);
+}
+
+extern "C" int tiz_spotify_play_artist_by_id (tiz_spotify_t *ap_spotify,
+                                              const char *ap_artist_id)
+{
+  assert (ap_spotify);
+  assert (ap_spotify->p_proxy_);
+  return ap_spotify->p_proxy_->play_artist_id (ap_artist_id);
 }
 
 extern "C" int tiz_spotify_play_album_by_id (tiz_spotify_t *ap_spotify,
@@ -186,13 +203,13 @@ extern "C" int tiz_spotify_play_album_by_id (tiz_spotify_t *ap_spotify,
   return ap_spotify->p_proxy_->play_album_id (ap_album_id);
 }
 
-extern "C" int tiz_spotify_play_playlist (tiz_spotify_t *ap_spotify,
-                                          const char *ap_playlist,
-                                          const char *ap_owner)
+extern "C" int tiz_spotify_play_playlist_by_id (tiz_spotify_t *ap_spotify,
+                                                const char *ap_playlist_id,
+                                                const char *ap_owner)
 {
   assert (ap_spotify);
   assert (ap_spotify->p_proxy_);
-  return ap_spotify->p_proxy_->play_playlist (ap_playlist, ap_owner);
+  return ap_spotify->p_proxy_->play_playlist_id (ap_playlist_id, ap_owner);
 }
 
 extern "C" const char *tiz_spotify_get_next_uri (
