@@ -248,6 +248,14 @@ int tizspotify::play_related_artists (const std::string &artist)
   return rc;
 }
 
+int tizspotify::play_featured_playlist (const std::string &playlist)
+{
+  int rc = 0;
+  try_catch_wrapper (py_spotify_proxy_.attr ("enqueue_featured_playlist") (
+      bp::object (playlist)));
+  return rc;
+}
+
 const char *tizspotify::get_next_uri (const bool a_remove_current_uri)
 {
   current_uri_.clear ();

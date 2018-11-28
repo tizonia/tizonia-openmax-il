@@ -285,6 +285,23 @@ extern "C"
                                         const char *ap_artist_name);
 
   /**
+   * Search Spotify for a featured playlist and add its top tracks to the
+   * playback queue.
+   *
+   * After calling this method, the various tiz_spotify_get* methods can be
+   * used to interact with the playback queue.
+   *
+   * @ingroup libtizspotify
+   *
+   * @param ap_spotify The tiz_spotify handle.
+   * @param ap_playlist_name A playlist name or search term.
+   *
+   * @return 0 on success
+   */
+  int tiz_spotify_play_featured_playlist (tiz_spotify_t *ap_spotify,
+                                          const char *ap_playlist_name);
+
+  /**
    * Retrieve the next stream uri.
    *
    * The playback queue pointer moves one position forwards.
