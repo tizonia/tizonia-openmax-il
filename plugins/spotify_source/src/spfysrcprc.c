@@ -1234,6 +1234,11 @@ enqueue_playlist_items (spfysrc_prc_t * ap_prc)
             rc = tiz_spotify_play_related_artists (ap_prc->p_spfy_web_, p_playlist);
           }
           break;
+        case OMX_AUDIO_SpotifyPlaylistTypeFeaturedPlaylist:
+          {
+            rc = tiz_spotify_play_featured_playlist (ap_prc->p_spfy_web_, p_playlist);
+          }
+          break;
         default:
           {
             assert (0);
