@@ -268,6 +268,23 @@ extern "C"
                                        const char *ap_owner);
 
   /**
+   * Search Spotify for artists related to a given artist and add their top
+   * tracks to the playback queue.
+   *
+   * After calling this method, the various tiz_spotify_get* methods can be
+   * used to interact with the playback queue.
+   *
+   * @ingroup libtizspotify
+   *
+   * @param ap_spotify The tiz_spotify handle.
+   * @param ap_artist_name An artist name or search term.
+   *
+   * @return 0 on success
+   */
+  int tiz_spotify_play_related_artists (tiz_spotify_t *ap_spotify,
+                                        const char *ap_artist_name);
+
+  /**
    * Retrieve the next stream uri.
    *
    * The playback queue pointer moves one position forwards.

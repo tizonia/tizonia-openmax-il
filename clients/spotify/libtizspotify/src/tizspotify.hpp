@@ -64,6 +64,7 @@ public:
   int play_album_id (const std::string &album_id);
   int play_playlist_id (const std::string &playlist_id,
                         const std::string &owner);
+  int play_related_artists (const std::string &artist);
 
   void set_playback_mode (const playback_mode mode);
   void clear_queue ();
