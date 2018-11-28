@@ -1204,7 +1204,13 @@ enqueue_playlist_items (spfysrc_prc_t * ap_prc)
           break;
         case OMX_AUDIO_SpotifyPlaylistTypePlaylist:
           {
-            rc = tiz_spotify_play_playlist (ap_prc->p_spfy_web_, p_playlist, p_owner);
+            rc = tiz_spotify_play_playlist (ap_prc->p_spfy_web_, p_playlist,
+                                            p_owner);
+          }
+          break;
+        case OMX_AUDIO_SpotifyPlaylistTypeTrackId:
+          {
+            rc = tiz_spotify_play_track_by_id (ap_prc->p_spfy_web_, p_playlist);
           }
           break;
         case OMX_AUDIO_SpotifyPlaylistTypeArtistId:
@@ -1215,6 +1221,12 @@ enqueue_playlist_items (spfysrc_prc_t * ap_prc)
         case OMX_AUDIO_SpotifyPlaylistTypeAlbumId:
           {
             rc = tiz_spotify_play_album_by_id (ap_prc->p_spfy_web_, p_playlist);
+          }
+          break;
+        case OMX_AUDIO_SpotifyPlaylistTypePlaylistId:
+          {
+            rc = tiz_spotify_play_playlist_by_id (ap_prc->p_spfy_web_,
+                                                  p_playlist, p_owner);
           }
           break;
         default:
