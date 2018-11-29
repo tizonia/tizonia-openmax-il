@@ -304,6 +304,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     spotify_album_id_ (),
     spotify_playlist_id_ (),
     spotify_related_artists_(),
+    spotify_featured_playlist_(),
     spotify_playlist_container_ (),
     spotify_playlist_type_(OMX_AUDIO_SpotifyPlaylistTypeUnknown),
     gmusic_user_ (),
@@ -729,6 +730,10 @@ const std::vector< std::string >
   {
     spotify_playlist_container_.push_back (spotify_related_artists_);
   }
+  else if (!spotify_featured_playlist_.empty ())
+  {
+    spotify_playlist_container_.push_back (spotify_featured_playlist_);
+  }
   else
   {
     assert (0);
@@ -774,6 +779,10 @@ tiz::programopts::spotify_playlist_type ()
   else if (!spotify_related_artists_.empty ())
   {
     spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeRelatedArtists;
+  }
+  else if (!spotify_featured_playlist_.empty ())
+  {
+    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeFeaturedPlaylist;
   }
 
   return spotify_playlist_type_;
@@ -1399,7 +1408,10 @@ void tiz::programopts::init_spotify_options ()
       /* TIZ_CLASS_COMMENT: */
       ("spotify-related-artists", po::value (&spotify_related_artists_),
        "Search and play from Spotify the top songs from "
-       "a selection of related artists.");
+       "a selection of related artists.")
+      /* TIZ_CLASS_COMMENT: */
+      ("spotify-featured-playlist", po::value (&spotify_featured_playlist_),
+       "Search and play a featured playlist from Spotify.");
 
   register_consume_function (&tiz::programopts::consume_spotify_client_options);
   all_spotify_client_options_
@@ -1407,7 +1419,7 @@ void tiz::programopts::init_spotify_options ()
             "spotify-owner") ("spotify-tracks") ("spotify-artist") (
             "spotify-album") ("spotify-playlist") ("spotify-track-id") (
             "spotify-artist-id") ("spotify-album-id") ("spotify-playlist-id") (
-            "spotify-related-artists")
+            "spotify-related-artists") ("spotify-featured-playlist")
             .convert_to_container< std::vector< std::string > > ();
 #endif
 }
@@ -1887,7 +1899,8 @@ int tiz::programopts::consume_spotify_client_options (bool &done,
           + vm_.count ("spotify-album") + vm_.count ("spotify-playlist")
           + vm_.count ("spotify-track-id") + vm_.count ("spotify-artist-id")
           + vm_.count ("spotify-album-id") + vm_.count ("spotify-playlist-id")
-          + vm_.count ("spotify-related-artists");
+          + vm_.count ("spotify-related-artists")
+          + vm_.count ("spotify-featured-playlist");
 
     if (spotify_user_.empty ())
     {
@@ -2478,8 +2491,9 @@ bool tiz::programopts::validate_spotify_client_options () const
         + vm_.count ("spotify-artist") + vm_.count ("spotify-album")
         + vm_.count ("spotify-playlist") + vm_.count ("spotify-track-id")
         + vm_.count ("spotify-artist-id") + vm_.count ("spotify-album-id")
-        + vm_.count ("spotify-playlist-id") + vm_.count ("spotify-related-artists")
-        + vm_.count ("log-directory");
+        + vm_.count ("spotify-playlist-id")
+        + vm_.count ("spotify-related-artists")
+        + vm_.count ("spotify-featured-playlist") + vm_.count ("log-directory");
 
   std::vector< std::string > all_valid_options = all_spotify_client_options_;
   concat_option_lists (all_valid_options, all_global_options_);
