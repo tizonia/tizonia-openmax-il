@@ -214,31 +214,6 @@ class tizspotifyproxy(object):
         except ValueError:
             raise ValueError(str("Artist not found : %s" % to_ascii(arg_dec)))
 
-    def enqueue_related_artists(self, arg):
-        """Search Spotify for an artist and add top tracks from a set of related
-        artists.
-
-        :param arg: an artist search term
-
-        """
-        arg_dec = arg.decode('utf-8')
-        logging.info('arg : %s', arg_dec)
-        try:
-            count = len(self.queue)
-            artist = self.__search_artists(arg_dec)
-
-            if artist:
-                self.__enqueue_related_artists(artist)
-
-            if count == len(self.queue):
-                logging.info('not tracks found arg : %s', arg_dec)
-                raise ValueError
-
-            self.__update_play_queue_order()
-
-        except ValueError:
-            raise ValueError(str("Artist not found : %s" % to_ascii(arg_dec)))
-
     def enqueue_album(self, arg):
         """Obtain an album from Spotify and add all its tracks to the playback
         queue.
@@ -293,6 +268,31 @@ class tizspotifyproxy(object):
         except (ValueError):
             raise ValueError(str("Playlist not found or no audio tracks in playlist : %s" % to_ascii(arg_dec)))
 
+    def enqueue_related_artists(self, arg):
+        """Search Spotify for an artist and add top tracks from a set of related
+        artists.
+
+        :param arg: an artist search term
+
+        """
+        arg_dec = arg.decode('utf-8')
+        logging.info('arg : %s', arg_dec)
+        try:
+            count = len(self.queue)
+            artist = self.__search_artists(arg_dec)
+
+            if artist:
+                self.__enqueue_related_artists(artist)
+
+            if count == len(self.queue):
+                logging.info('not tracks found arg : %s', arg_dec)
+                raise ValueError
+
+            self.__update_play_queue_order()
+
+        except ValueError:
+            raise ValueError(str("Artist not found : %s" % to_ascii(arg_dec)))
+
     def enqueue_featured_playlist(self, arg):
         """Add all audio tracks in a Spotify featured playlist to the playback queue.
 
@@ -317,6 +317,58 @@ class tizspotifyproxy(object):
 
         except (ValueError):
             raise ValueError(str("Playlist not found or no audio tracks in playlist : %s" % to_ascii(arg_dec)))
+
+    def enqueue_new_releases(self, arg):
+        """Obtain a newly released album from Spotify and add all its tracks to the
+        playback queue.
+
+        :param arg: an album search term
+
+        """
+        arg_dec = arg.decode('utf-8')
+        logging.info('arg : %s', arg_dec)
+        print_msg("[Spotify] [New Releases search] '{0}'.".format(arg_dec))
+        try:
+            count = len(self.queue)
+            album = None
+            album_name = None
+            album_dict = dict()
+            album_names = list()
+            results = self._spotify.new_releases()
+            albums = results['albums']
+            for i, alb in enumerate(albums['items']):
+                name = alb['name']
+                print_nfo("[Spotify] [Album] '{0}'.".format(name))
+                if arg_dec.lower() == name.lower():
+                    album_name = name
+                    album = alb
+                    break
+                if fuzz.partial_ratio(arg_dec, name) > 50:
+                    album_dict[name] = alb
+                    album_names.append(name)
+
+            if not album_name:
+                if len(album_names) > 1:
+                    album_name = process.extractOne(arg_dec, album_names)[0]
+                    album = album_dict[album_name]
+                elif len(album_names) == 1:
+                    album_name = album_names[0]
+                    album = album_dict[album_name]
+
+            if album:
+                if arg_dec.lower() != album_name.lower():
+                    print_wrn("[Spotify] '{0}' not found. " \
+                              "Playing '{1}' instead." \
+                              .format(arg_dec, album_name))
+                self.__enqueue_album(album)
+
+            if count == len(self.queue):
+                raise ValueError
+
+            self.__update_play_queue_order()
+
+        except ValueError:
+            raise ValueError(str("Album not found : %s" % to_ascii(arg_dec)))
 
     def enqueue_track_id(self, id):
         """Add an audio track to the playback queue.
