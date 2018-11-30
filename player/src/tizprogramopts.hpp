@@ -207,6 +207,7 @@ namespace tiz
     std::string spotify_playlist_id_;
     std::string spotify_related_artists_;
     std::string spotify_featured_playlist_;
+    std::string spotify_new_releases_;
     std::vector< std::string > spotify_playlist_container_;
     OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE spotify_playlist_type_;
     std::string gmusic_user_;
