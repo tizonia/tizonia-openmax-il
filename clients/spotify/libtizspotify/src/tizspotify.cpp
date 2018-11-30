@@ -256,6 +256,14 @@ int tizspotify::play_featured_playlist (const std::string &playlist)
   return rc;
 }
 
+int tizspotify::play_new_releases (const std::string &album)
+{
+  int rc = 0;
+  try_catch_wrapper (py_spotify_proxy_.attr ("enqueue_new_releases") (
+      bp::object (album)));
+  return rc;
+}
+
 const char *tizspotify::get_next_uri (const bool a_remove_current_uri)
 {
   current_uri_.clear ();

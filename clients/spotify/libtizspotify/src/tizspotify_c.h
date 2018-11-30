@@ -302,6 +302,23 @@ extern "C"
                                           const char *ap_playlist_name);
 
   /**
+   * Search Spotify for a newly released album and add its top tracks to the
+   * playback queue.
+   *
+   * After calling this method, the various tiz_spotify_get* methods can be
+   * used to interact with the playback queue.
+   *
+   * @ingroup libtizspotify
+   *
+   * @param ap_spotify The tiz_spotify handle.
+   * @param ap_album_name A album name or search term.
+   *
+   * @return 0 on success
+   */
+  int tiz_spotify_play_new_releases (tiz_spotify_t *ap_spotify,
+                                     const char *ap_album_name);
+
+  /**
    * Retrieve the next stream uri.
    *
    * The playback queue pointer moves one position forwards.

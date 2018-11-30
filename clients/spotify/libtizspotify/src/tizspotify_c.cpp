@@ -228,6 +228,14 @@ extern "C" int tiz_spotify_play_featured_playlist (tiz_spotify_t *ap_spotify,
   return ap_spotify->p_proxy_->play_featured_playlist (ap_playlist_name);
 }
 
+extern "C" int tiz_spotify_play_new_releases (tiz_spotify_t *ap_spotify,
+                                              const char *ap_album_name)
+{
+  assert (ap_spotify);
+  assert (ap_spotify->p_proxy_);
+  return ap_spotify->p_proxy_->play_new_releases (ap_album_name);
+}
+
 extern "C" const char *tiz_spotify_get_next_uri (
     tiz_spotify_t *ap_spotify, const bool a_remove_current_uri)
 {
