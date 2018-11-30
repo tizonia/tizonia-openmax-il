@@ -904,7 +904,7 @@ logged_in (sp_session * sess, sp_error error)
   if (SP_ERROR_OK == error)
     {
       sp_error sp_rc = SP_ERROR_OK;
-      TIZ_PRINTF_BLU ("[Spotify] : '%s' logged in.\n",
+      TIZ_PRINTF_BLU ("[Spotify] [User ] '%s' logged in.\n",
                       sp_user_display_name (sp_session_user (sess)));
 
       set_spotify_session_options (p_prc);
@@ -1151,6 +1151,20 @@ play_token_lost (sp_session * sess)
 }
 
 static void
+login_failed_handler (OMX_PTR ap_prc, tiz_event_pluggable_t * ap_event)
+{
+  spfysrc_prc_t * p_prc = ap_prc;
+  assert (p_prc);
+  assert (ap_event);
+
+  TIZ_PRINTF_RED ("[Spotify] [FATAL] Login attempt failed. "
+                  "Please check the username and password.");
+  (void) tiz_srv_issue_err_event ((OMX_PTR) ap_prc,
+                                  OMX_ErrorInsufficientResources);
+  tiz_mem_free (ap_event);
+}
+
+static void
 log_message (sp_session * sess, const char * msg)
 {
   if (strstr (msg, "Request for file") || strstr (msg, "locked")
@@ -1159,7 +1173,13 @@ log_message (sp_session * sess, const char * msg)
       TIZ_PRINTF_DBG_RED ("[Spotify] : %s", msg);
       return;
     }
-  TIZ_PRINTF_MAG ("[Spotify] : %s", msg);
+  if (strstr (msg, "no such user"))
+    {
+      TIZ_PRINTF_MAG ("[Spotify] [ERROR] %s", msg);
+      post_spotify_event (sp_session_userdata (sess), login_failed_handler, sess);
+      return;
+    }
+  TIZ_PRINTF_DBG_MAG ("[Spotify] : %s", msg);
 }
 
 static OMX_ERRORTYPE
@@ -1417,7 +1437,7 @@ spfysrc_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
   goto_end_on_sp_error (
     sp_session_create (&(p_prc->sp_config_), &(p_prc->p_sp_session_)));
 
-  TIZ_PRINTF_BLU ("[Spotify] : Spotify cache location: '%s'\n",
+  TIZ_PRINTF_BLU ("[Spotify] [Cache]: '%s'\n",
                   p_prc->sp_config_.cache_location);
 
   /* Initiate the spotify session */
