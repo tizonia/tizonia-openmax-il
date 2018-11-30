@@ -789,6 +789,10 @@ class tizspotifyproxy(object):
                     print_wrn("[Spotify] '{0}' not found. " \
                               "Playing '{1}' instead." \
                               .format(arg, playlist_name))
+                else:
+                    print_wrn("[Spotify] [Playlist] Playing '{0}'." \
+                              .format(playlist_name))
+
         return playlist
 
     def __update_play_queue_order(self):
