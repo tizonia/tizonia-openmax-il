@@ -1136,6 +1136,21 @@ end_of_track (sp_session * sess)
   post_spotify_event (sp_session_userdata (sess), end_of_track_handler, sess);
 }
 
+static void
+play_token_lost_handler (OMX_PTR ap_prc, tiz_event_pluggable_t * ap_event)
+{
+  spfysrc_prc_t * p_prc = ap_prc;
+  assert (p_prc);
+  assert (ap_event);
+
+  TIZ_PRINTF_RED ("[Spotify] [Token] The play token has been lost\n");
+  stop_spotify (p_prc);
+  process_spotify_event (p_prc, end_of_track_handler,
+                         p_prc->p_sp_session_);
+
+  tiz_mem_free (ap_event);
+}
+
 /**
  * Notification that some other connection has started playing on this account.
  * Playback has been stopped.
@@ -1144,10 +1159,7 @@ end_of_track (sp_session * sess)
 static void
 play_token_lost (sp_session * sess)
 {
-  spfysrc_prc_t * p_prc = sp_session_userdata (sess);
-  assert (p_prc);
-  TIZ_PRINTF_RED ("[Spotify] : The play token has been lost\n");
-  stop_spotify (p_prc);
+  post_spotify_event (sp_session_userdata (sess), play_token_lost_handler, sess);
 }
 
 static void
