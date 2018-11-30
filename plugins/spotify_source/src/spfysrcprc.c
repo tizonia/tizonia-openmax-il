@@ -1159,7 +1159,7 @@ log_message (sp_session * sess, const char * msg)
       TIZ_PRINTF_DBG_RED ("[Spotify] : %s", msg);
       return;
     }
-  TIZ_PRINTF_DBG_MAG ("[Spotify] : %s", msg);
+  TIZ_PRINTF_MAG ("[Spotify] : %s", msg);
 }
 
 static OMX_ERRORTYPE
@@ -1237,6 +1237,11 @@ enqueue_playlist_items (spfysrc_prc_t * ap_prc)
         case OMX_AUDIO_SpotifyPlaylistTypeFeaturedPlaylist:
           {
             rc = tiz_spotify_play_featured_playlist (ap_prc->p_spfy_web_, p_playlist);
+          }
+          break;
+        case OMX_AUDIO_SpotifyPlaylistTypeNewReleases:
+          {
+            rc = tiz_spotify_play_new_releases (ap_prc->p_spfy_web_, p_playlist);
           }
           break;
         default:
