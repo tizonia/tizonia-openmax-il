@@ -371,9 +371,37 @@ store_metadata_track_name (spfysrc_prc_t * ap_prc, const char * a_track_name)
 {
   char name_str[SPFYSRC_MAX_STRING_SIZE];
   assert (a_track_name);
-  snprintf (name_str, SPFYSRC_MAX_STRING_SIZE - 1, "%s (%s)", a_track_name,
+  snprintf (name_str, SPFYSRC_MAX_STRING_SIZE - 1, "%s  [%s]  (%s)", a_track_name,
+            tiz_spotify_get_current_track_uri (ap_prc->p_spfy_web_),
             tiz_spotify_get_current_queue_progress (ap_prc->p_spfy_web_));
   (void) store_metadata (ap_prc, "Track", name_str);
+}
+
+static void
+store_metadata_artist (spfysrc_prc_t * ap_prc, const char * a_artist_name)
+{
+  char artist_str[SPFYSRC_MAX_STRING_SIZE];
+  assert (a_artist_name);
+  snprintf (artist_str, SPFYSRC_MAX_STRING_SIZE - 1, "%s  [%s]", a_artist_name,
+            tiz_spotify_get_current_track_artist_uri (ap_prc->p_spfy_web_));
+  (void) store_metadata (ap_prc, "Artist", artist_str);
+}
+
+static void
+store_metadata_album (spfysrc_prc_t * ap_prc, const char * a_album_name)
+{
+  char album_str[SPFYSRC_MAX_STRING_SIZE];
+  assert (a_album_name);
+  if (tiz_spotify_get_current_track_album_uri (ap_prc->p_spfy_web_))
+    {
+      snprintf (album_str, SPFYSRC_MAX_STRING_SIZE - 1, "%s  [%s]", a_album_name,
+                tiz_spotify_get_current_track_album_uri (ap_prc->p_spfy_web_));
+    }
+  else
+    {
+      snprintf (album_str, SPFYSRC_MAX_STRING_SIZE - 1, "%s", a_album_name);
+    }
+  (void) store_metadata (ap_prc, "Album", album_str);
 }
 
 static void
@@ -430,11 +458,8 @@ store_relevant_track_metadata (spfysrc_prc_t * ap_prc)
   assert (ap_prc);
   (void) tiz_krn_clear_metadata (tiz_get_krn (handleOf (ap_prc)));
   store_metadata_track_name (ap_prc, sp_track_name (ap_prc->p_sp_track_));
-  (void) store_metadata (
-    ap_prc, "Artist",
-    sp_artist_name (sp_track_artist (ap_prc->p_sp_track_, 0)));
-  (void) store_metadata (ap_prc, "Album",
-                         sp_album_name (sp_track_album (ap_prc->p_sp_track_)));
+  store_metadata_artist (ap_prc, sp_artist_name (sp_track_artist (ap_prc->p_sp_track_, 0)));
+  store_metadata_album (ap_prc, sp_album_name (sp_track_album (ap_prc->p_sp_track_)));
   (void) store_metadata (
     ap_prc, "Release Date",
     tiz_spotify_get_current_track_release_date (ap_prc->p_spfy_web_));
