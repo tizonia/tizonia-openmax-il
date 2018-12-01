@@ -129,8 +129,11 @@ class TrackInfo(object):
         """ class members. """
         self.title = track['name']
         self.artist = track['artists'][0]['name']
+        self.artist_uri = track['artists'][0]['uri']
         self.album = track['album']['name'] if track.get('album') else album_name;
-        self.release_date = track['album']['release_date'] if track.get('album') else 'n/a';
+        self.album_uri = track['album']['uri'] if track.get('album') and track.get('album').get('uri') else '';
+        self.release_date = track['album']['release_date'] if track.get('album') \
+            and track.get('album').get('release_date') else 'n/a';
         self.duration = track['duration_ms'] / 1000 if track['duration_ms'] else 0;
         self.uri = track['uri']
         self.thumb_url = track['album']['images'][0]['url'] if track.get('album') else None;
@@ -528,6 +531,36 @@ class tizspotifyproxy(object):
         if track:
             album_art = to_ascii(track.thumb_url).encode("utf-8")
         return album_art
+
+    def current_track_uri(self):
+        """ Retrieve the Spotify URI of the current track.
+
+        """
+        track = self.now_playing_track
+        spotify_uri = ''
+        if track:
+            spotify_uri = to_ascii(track.uri).encode("utf-8")
+        return spotify_uri
+
+    def current_track_artist_uri(self):
+        """ Retrieve the current track's artist URI.
+
+        """
+        track = self.now_playing_track
+        artist_uri = ''
+        if track:
+            artist_uri = to_ascii(track.artist_uri).encode("utf-8")
+        return artist_uri
+
+    def current_track_album_uri(self):
+        """ Retrieve the current track's album URI.
+
+        """
+        track = self.now_playing_track
+        album_uri = ''
+        if track:
+            album_uri = to_ascii(track.album_uri).encode("utf-8")
+        return album_uri
 
     def current_track_queue_index_and_queue_length(self):
         """ Retrieve index in the queue (starting from 1) of the current track and the
