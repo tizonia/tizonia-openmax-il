@@ -84,6 +84,9 @@ public:
   const char *get_current_track_release_date ();
   const char *get_current_track_duration ();
   const char *get_current_track_album_art ();
+  const char *get_current_track_uri ();
+  const char *get_current_track_artist_uri ();
+  const char *get_current_track_album_uri ();
 
 private:
   int get_current_track ();
@@ -99,6 +102,9 @@ private:
   std::string current_track_release_date_;
   std::string current_track_duration_;
   std::string current_track_album_art_;
+  std::string current_track_uri_;
+  std::string current_track_artist_uri_;
+  std::string current_track_album_uri_;
   std::string current_queue_progress_;
   boost::python::object py_main_;
   boost::python::object py_global_;

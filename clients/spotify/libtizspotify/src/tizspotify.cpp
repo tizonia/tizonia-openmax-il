@@ -137,6 +137,9 @@ tizspotify::tizspotify ()
     current_track_release_date_ (),
     current_track_duration_ (),
     current_track_album_art_ (),
+    current_track_uri_ (),
+    current_track_artist_uri_ (),
+    current_track_album_uri_ (),
     current_queue_progress_ ()
 {
 }
@@ -408,6 +411,21 @@ const char *tizspotify::get_current_track_album_art ()
                                            : current_track_album_art_.c_str ();
 }
 
+const char *tizspotify::get_current_track_uri ()
+{
+  return current_track_uri_.empty () ? NULL : current_track_uri_.c_str ();
+}
+
+const char *tizspotify::get_current_track_artist_uri ()
+{
+  return current_track_artist_uri_.empty () ? NULL : current_track_artist_uri_.c_str ();
+}
+
+const char *tizspotify::get_current_track_album_uri ()
+{
+  return current_track_album_uri_.empty () ? NULL : current_track_album_uri_.c_str ();
+}
+
 int tizspotify::get_current_track ()
 {
   int rc = 0;
@@ -419,6 +437,9 @@ int tizspotify::get_current_track ()
   current_track_release_date_.clear ();
   current_track_duration_.clear ();
   current_track_album_art_.clear ();
+  current_track_uri_.clear ();
+  current_track_artist_uri_.clear ();
+  current_track_album_uri_.clear ();
 
   const bp::tuple &queue_info = bp::extract< bp::tuple > (
       py_spotify_proxy_.attr ("current_track_queue_index_and_queue_length") ());
@@ -500,6 +521,27 @@ int tizspotify::get_current_track ()
   if (p_album_art)
     {
       current_track_album_art_.assign (p_album_art);
+    }
+
+  const char *p_uri = bp::extract< char const * > (
+      py_spotify_proxy_.attr ("current_track_uri") ());
+  if (p_uri)
+    {
+      current_track_uri_.assign (p_uri);
+    }
+
+  const char *p_artist_uri = bp::extract< char const * > (
+      py_spotify_proxy_.attr ("current_track_artist_uri") ());
+  if (p_artist_uri)
+    {
+      current_track_artist_uri_.assign (p_artist_uri);
+    }
+
+  const char *p_album_uri = bp::extract< char const * > (
+      py_spotify_proxy_.attr ("current_track_album_uri") ());
+  if (p_album_uri)
+    {
+      current_track_album_uri_.assign (p_album_uri);
     }
 
   return rc;

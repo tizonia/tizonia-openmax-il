@@ -410,6 +410,34 @@ extern "C"
       tiz_spotify_t *ap_spotify);
 
   /**
+   * Retrieve the Spotify URI of the current track.
+   *
+   * @ingroup libtizspotify
+   *
+   * @param ap_spotify The spotify handle.
+   */
+  const char *tiz_spotify_get_current_track_uri (
+      tiz_spotify_t *ap_spotify);
+
+  /**
+   * Retrieve the current track's artist URI.
+   *
+   * @ingroup libtizspotify
+   *
+   * @param ap_spotify The tiz_spotify handle.
+   */
+  const char *tiz_spotify_get_current_track_artist_uri (tiz_spotify_t *ap_spotify);
+
+  /**
+   * Retrieve the current track's album URI.
+   *
+   * @ingroup libtizspotify
+   *
+   * @param ap_spotify The tiz_spotify handle.
+   */
+  const char *tiz_spotify_get_current_track_album_uri (tiz_spotify_t *ap_spotify);
+
+  /**
    * Destroy the tiz_spotify handle.
    *
    * @ingroup libtizspotify

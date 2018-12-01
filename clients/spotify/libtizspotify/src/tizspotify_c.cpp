@@ -300,6 +300,30 @@ extern "C" const char *tiz_spotify_get_current_track_album_art (
   return ap_spotify->p_proxy_->get_current_track_album_art ();
 }
 
+extern "C" const char *tiz_spotify_get_current_track_uri (
+    tiz_spotify_t *ap_spotify)
+{
+  assert (ap_spotify);
+  assert (ap_spotify->p_proxy_);
+  return ap_spotify->p_proxy_->get_current_track_uri ();
+}
+
+extern "C" const char *tiz_spotify_get_current_track_artist_uri (
+    tiz_spotify_t *ap_spotify)
+{
+  assert (ap_spotify);
+  assert (ap_spotify->p_proxy_);
+  return ap_spotify->p_proxy_->get_current_track_artist_uri ();
+}
+
+extern "C" const char *tiz_spotify_get_current_track_album_uri (
+    tiz_spotify_t *ap_spotify)
+{
+  assert (ap_spotify);
+  assert (ap_spotify->p_proxy_);
+  return ap_spotify->p_proxy_->get_current_track_album_uri ();
+}
+
 extern "C" void tiz_spotify_destroy (tiz_spotify_t *ap_spotify)
 {
   if (ap_spotify)
