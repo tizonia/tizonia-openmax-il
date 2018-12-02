@@ -905,7 +905,7 @@ start_playback (spfysrc_prc_t * ap_prc)
             }
           else
             {
-              TIZ_PRINTF_RED ("[Spotify] :  '%s' not available\n",
+              TIZ_PRINTF_RED ("[Spotify] [INFO] '%s' not available\n",
                               sp_track_name (ap_prc->p_sp_track_));
 
               /* Let's process a fake end of track event */
@@ -1299,6 +1299,21 @@ enqueue_playlist_items (spfysrc_prc_t * ap_prc)
         case OMX_AUDIO_SpotifyPlaylistTypeNewReleases:
           {
             rc = tiz_spotify_play_new_releases (ap_prc->p_spfy_web_, p_playlist);
+          }
+          break;
+        case OMX_AUDIO_SpotifyPlaylistTypeRecommendationsByTrackId:
+          {
+            rc = tiz_spotify_play_recommendations_by_track_id (ap_prc->p_spfy_web_, p_playlist);
+          }
+          break;
+        case OMX_AUDIO_SpotifyPlaylistTypeRecommendationsByArtistId:
+          {
+            rc = tiz_spotify_play_recommendations_by_artist_id (ap_prc->p_spfy_web_, p_playlist);
+          }
+          break;
+        case OMX_AUDIO_SpotifyPlaylistTypeRecommendationsByGenre:
+          {
+            rc = tiz_spotify_play_recommendations_by_genre (ap_prc->p_spfy_web_, p_playlist);
           }
           break;
         default:
