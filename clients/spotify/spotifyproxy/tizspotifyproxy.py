@@ -127,6 +127,7 @@ class TrackInfo(object):
 
     def __init__(self, track, album_name=None):
         """ class members. """
+        logging.info("TrackInfo")
         self.title = track['name']
         self.artist = track['artists'][0]['name']
         self.artist_uri = track['artists'][0]['uri']
@@ -136,7 +137,8 @@ class TrackInfo(object):
             and track.get('album').get('release_date') else 'n/a';
         self.duration = track['duration_ms'] / 1000 if track['duration_ms'] else 0;
         self.uri = track['uri']
-        self.thumb_url = track['album']['images'][0]['url'] if track.get('album').get('images') else None;
+        self.thumb_url = track['album']['images'][0]['url'] if track.get('album') and track.get('album').get('images') else None;
+        logging.info("TrackInfo end")
 
 class tizspotifyproxy(object):
     """A class that accesses Spotify servers, retrieves track URLs and creates and
@@ -814,12 +816,13 @@ class tizspotifyproxy(object):
         :param album: a album object
 
         """
+        logging.info("__enqueue_album")
         if album:
             album_name = album['name']
             print_wrn("[Spotify] [Album] '{0}'.".format(album_name))
             try:
-                tracks = self._spotify.album_tracks(album['id'], limit=50, offset=0)
-                for j, track in enumerate(tracks['items']):
+                results = self._spotify.album_tracks(album['id'], limit=50, offset=0)
+                for track in results['items']:
                     track_info = TrackInfo(track, album_name)
                     self.add_to_playback_queue(track_info)
             except:
