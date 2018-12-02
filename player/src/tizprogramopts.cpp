@@ -306,6 +306,9 @@ tiz::programopts::programopts (int argc, char *argv[])
     spotify_related_artists_(),
     spotify_featured_playlist_(),
     spotify_new_releases_(),
+    spotify_recommendations_by_track_id_(),
+    spotify_recommendations_by_artist_id_(),
+    spotify_recommendations_by_genre_(),
     spotify_playlist_container_ (),
     spotify_playlist_type_(OMX_AUDIO_SpotifyPlaylistTypeUnknown),
     gmusic_user_ (),
@@ -739,6 +742,18 @@ const std::vector< std::string >
   {
     spotify_playlist_container_.push_back (spotify_new_releases_);
   }
+  else if (!spotify_recommendations_by_track_id_.empty ())
+  {
+    spotify_playlist_container_.push_back (spotify_recommendations_by_track_id_);
+  }
+  else if (!spotify_recommendations_by_artist_id_.empty ())
+  {
+    spotify_playlist_container_.push_back (spotify_recommendations_by_artist_id_);
+  }
+  else if (!spotify_recommendations_by_genre_.empty ())
+  {
+    spotify_playlist_container_.push_back (spotify_recommendations_by_genre_);
+  }
   else
   {
     assert (0);
@@ -792,6 +807,18 @@ tiz::programopts::spotify_playlist_type ()
   else if (!spotify_new_releases_.empty ())
   {
     spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeNewReleases;
+  }
+  else if (!spotify_recommendations_by_track_id_.empty ())
+  {
+    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeRecommendationsByTrackId;
+  }
+  else if (!spotify_recommendations_by_artist_id_.empty ())
+  {
+    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeRecommendationsByArtistId;
+  }
+  else if (!spotify_recommendations_by_genre_.empty ())
+  {
+    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeRecommendationsByGenre;
   }
 
   return spotify_playlist_type_;
@@ -1386,7 +1413,7 @@ void tiz::programopts::init_spotify_options ()
       /* TIZ_CLASS_COMMENT: */
       ("spotify-owner", po::value (&spotify_owner_),
        "The owner of the playlist  (optional: may be used in conjunction with "
-       "--spotify-playlist).")
+       "--spotify-playlist or --spotify-playlist-id).")
       /* TIZ_CLASS_COMMENT: */
       ("spotify-tracks", po::value (&spotify_tracks_),
        "Search and play from Spotify by track name.")
@@ -1402,16 +1429,16 @@ void tiz::programopts::init_spotify_options ()
        "unless --spotify-owner is provided).")
       /* TIZ_CLASS_COMMENT: */
       ("spotify-track-id", po::value (&spotify_track_id_),
-       "Play from Spotify by track id, URI or URL.")
+       "Play from Spotify by track ID, URI or URL.")
       /* TIZ_CLASS_COMMENT: */
       ("spotify-artist-id", po::value (&spotify_artist_id_),
-       "Play from Spotify by artist id, URI or URL.")
+       "Play from Spotify by artist ID, URI or URL.")
       /* TIZ_CLASS_COMMENT: */
       ("spotify-album-id", po::value (&spotify_album_id_),
-       "Play from Spotify by album id, URI or URL.")
+       "Play from Spotify by album ID, URI or URL.")
       /* TIZ_CLASS_COMMENT: */
       ("spotify-playlist-id", po::value (&spotify_playlist_id_),
-       "Play public playlists from Spotify by id, URI or URL "
+       "Play public playlists from Spotify by ID, URI or URL "
        "(owner is assumed the current user, "
        "unless --spotify-owner is provided).")
       /* TIZ_CLASS_COMMENT: */
@@ -1423,7 +1450,19 @@ void tiz::programopts::init_spotify_options ()
        "Search and play a featured playlist from Spotify.")
       /* TIZ_CLASS_COMMENT: */
       ("spotify-new-releases", po::value (&spotify_new_releases_),
-       "Search and play a newly released album from Spotify.");
+       "Search and play a newly released album from Spotify.")
+      /* TIZ_CLASS_COMMENT: */
+      ("spotify-recommendations-by-track-id",
+       po::value (&spotify_recommendations_by_track_id_),
+       "Play Spotify recommendations by track ID, URI or URL")
+      /* TIZ_CLASS_COMMENT: */
+      ("spotify-recommendations-by-artist-id",
+       po::value (&spotify_recommendations_by_artist_id_),
+       "Play Spotify recommendations by artist ID, URI or URL.")
+      /* TIZ_CLASS_COMMENT: */
+      ("spotify-recommendations-by-genre",
+       po::value (&spotify_recommendations_by_genre_),
+       "Play Spotify recommendations by genre name.");
 
   register_consume_function (&tiz::programopts::consume_spotify_client_options);
   all_spotify_client_options_
@@ -1432,7 +1471,9 @@ void tiz::programopts::init_spotify_options ()
             "spotify-album") ("spotify-playlist") ("spotify-track-id") (
             "spotify-artist-id") ("spotify-album-id") ("spotify-playlist-id") (
             "spotify-related-artists") ("spotify-featured-playlist") (
-            "spotify-new-releases")
+            "spotify-new-releases") ("spotify-recommendations-by-track-id") (
+            "spotify-recommendations-by-artist-id") (
+            "spotify-recommendations-by-genre")
             .convert_to_container< std::vector< std::string > > ();
 #endif
 }
@@ -1914,7 +1955,10 @@ int tiz::programopts::consume_spotify_client_options (bool &done,
           + vm_.count ("spotify-album-id") + vm_.count ("spotify-playlist-id")
           + vm_.count ("spotify-related-artists")
           + vm_.count ("spotify-featured-playlist")
-          + vm_.count ("spotify-new-releases");
+          + vm_.count ("spotify-new-releases")
+          + vm_.count ("spotify-recommendations-by-track-id")
+          + vm_.count ("spotify-recommendations-by-artist-id")
+          + vm_.count ("spotify-recommendations-by-genre");
 
     if (spotify_user_.empty ())
     {
@@ -2508,7 +2552,11 @@ bool tiz::programopts::validate_spotify_client_options () const
         + vm_.count ("spotify-playlist-id")
         + vm_.count ("spotify-related-artists")
         + vm_.count ("spotify-featured-playlist")
-        + vm_.count ("spotify-new-releases") + vm_.count ("log-directory");
+        + vm_.count ("spotify-new-releases")
+        + vm_.count ("spotify-recommendations-by-track-id")
+        + vm_.count ("spotify-recommendations-by-artist-id")
+        + vm_.count ("spotify-recommendations-by-genre")
+        + vm_.count ("log-directory");
 
   std::vector< std::string > all_valid_options = all_spotify_client_options_;
   concat_option_lists (all_valid_options, all_global_options_);
