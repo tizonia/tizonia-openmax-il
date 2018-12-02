@@ -929,18 +929,13 @@ logged_in (sp_session * sess, sp_error error)
   if (SP_ERROR_OK == error)
     {
       sp_error sp_rc = SP_ERROR_OK;
-      TIZ_PRINTF_BLU ("[Spotify] [User ] '%s' logged in.\n",
+      TIZ_PRINTF_BLU ("[Spotify] [Login] '%s' logged in.\n",
                       sp_user_display_name (sp_session_user (sess)));
 
       set_spotify_session_options (p_prc);
-      /*       sp_rc = kickoff_spotify_search (p_prc, sess); */
       start_playback (p_prc);
-      /*       TIZ_PRINTF_BLU ("[Spotify (search error)] : '%d'.\n", sp_rc); */
       (void) sp_rc;
     }
-
-  /* TODO */
-  /* log login errors */
 }
 
 static void
