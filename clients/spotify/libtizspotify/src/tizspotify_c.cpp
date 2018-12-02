@@ -180,7 +180,7 @@ extern "C" int tiz_spotify_play_playlist (tiz_spotify_t *ap_spotify,
 }
 
 extern "C" int tiz_spotify_play_track_by_id (tiz_spotify_t *ap_spotify,
-                                              const char *ap_track_id)
+                                             const char *ap_track_id)
 {
   assert (ap_spotify);
   assert (ap_spotify->p_proxy_);
@@ -234,6 +234,30 @@ extern "C" int tiz_spotify_play_new_releases (tiz_spotify_t *ap_spotify,
   assert (ap_spotify);
   assert (ap_spotify->p_proxy_);
   return ap_spotify->p_proxy_->play_new_releases (ap_album_name);
+}
+
+extern "C" int tiz_spotify_play_recommendations_by_track_id (
+    tiz_spotify_t *ap_spotify, const char *ap_track_id)
+{
+  assert (ap_spotify);
+  assert (ap_spotify->p_proxy_);
+  return ap_spotify->p_proxy_->play_recommendations_by_track_id (ap_track_id);
+}
+
+extern "C" int tiz_spotify_play_recommendations_by_artist_id (
+    tiz_spotify_t *ap_spotify, const char *ap_artist_id)
+{
+  assert (ap_spotify);
+  assert (ap_spotify->p_proxy_);
+  return ap_spotify->p_proxy_->play_recommendations_by_artist_id (ap_artist_id);
+}
+
+extern "C" int tiz_spotify_play_recommendations_by_genre (
+    tiz_spotify_t *ap_spotify, const char *ap_genre)
+{
+  assert (ap_spotify);
+  assert (ap_spotify->p_proxy_);
+  return ap_spotify->p_proxy_->play_recommendations_by_genre (ap_genre);
 }
 
 extern "C" const char *tiz_spotify_get_next_uri (

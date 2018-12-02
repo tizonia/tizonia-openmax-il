@@ -267,6 +267,30 @@ int tizspotify::play_new_releases (const std::string &album)
   return rc;
 }
 
+int tizspotify::play_recommendations_by_track_id (const std::string &track_id)
+{
+  int rc = 0;
+  try_catch_wrapper (py_spotify_proxy_.attr ("enqueue_recommendations_by_track_id") (
+      bp::object (track_id)));
+  return rc;
+}
+
+int tizspotify::play_recommendations_by_artist_id (const std::string &artist_id)
+{
+  int rc = 0;
+  try_catch_wrapper (py_spotify_proxy_.attr ("enqueue_recommendations_by_artist_id") (
+      bp::object (artist_id)));
+  return rc;
+}
+
+int tizspotify::play_recommendations_by_genre (const std::string &genre)
+{
+  int rc = 0;
+  try_catch_wrapper (py_spotify_proxy_.attr ("enqueue_recommendations_by_genre") (
+      bp::object (genre)));
+  return rc;
+}
+
 const char *tizspotify::get_next_uri (const bool a_remove_current_uri)
 {
   current_uri_.clear ();

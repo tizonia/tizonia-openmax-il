@@ -319,7 +319,58 @@ extern "C"
                                      const char *ap_album_name);
 
   /**
-   * Retrieve the next stream uri.
+   * Find Spotify recommendations by track ID, URI, or URL and add tracks to
+   * the playback queue.
+   *
+   * After calling this method, the various tiz_spotify_get* methods can be
+   * used to interact with the playback queue.
+   *
+   * @ingroup libtizspotify
+   *
+   * @param ap_spotify The tiz_spotify handle.
+   * @param ap_track_id A Spotify track ID, URI, or URL.
+   *
+   * @return 0 on success
+   */
+  int tiz_spotify_play_recommendations_by_track_id (tiz_spotify_t *ap_spotify,
+                                                    const char *ap_track_id);
+
+  /**
+   * Find Spotify recommendations by artist ID, URI, or URL and add artists to
+   * the playback queue.
+   *
+   * After calling this method, the various tiz_spotify_get* methods can be
+   * used to interact with the playback queue.
+   *
+   * @ingroup libtizspotify
+   *
+   * @param ap_spotify The tiz_spotify handle.
+   * @param ap_artist_id A Spotify artist ID, URI, or URL.
+   *
+   * @return 0 on success
+   */
+  int tiz_spotify_play_recommendations_by_artist_id (tiz_spotify_t *ap_spotify,
+                                                     const char *ap_artist_id);
+
+  /**
+   * Find Spotify recommendations by genre and add artists to the playback
+   * queue.
+   *
+   * After calling this method, the various tiz_spotify_get* methods can be
+   * used to interact with the playback queue.
+   *
+   * @ingroup libtizspotify
+   *
+   * @param ap_spotify The tiz_spotify handle.
+   * @param ap_artist_id A genre name or search term.
+   *
+   * @return 0 on success
+   */
+  int tiz_spotify_play_recommendations_by_genre (tiz_spotify_t *ap_spotify,
+                                                 const char *ap_genre);
+
+  /**
+   * Retrieve the next stream url.
    *
    * The playback queue pointer moves one position forwards.
    *
@@ -336,7 +387,7 @@ extern "C"
                                         const bool a_remove_current_uri);
 
   /**
-   * Retrieve the previous stream uri.
+   * Retrieve the previous stream url.
    *
    * The playback queue pointer moves one position backwards.
    *
