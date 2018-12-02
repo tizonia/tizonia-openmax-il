@@ -136,7 +136,7 @@ class TrackInfo(object):
             and track.get('album').get('release_date') else 'n/a';
         self.duration = track['duration_ms'] / 1000 if track['duration_ms'] else 0;
         self.uri = track['uri']
-        self.thumb_url = track['album']['images'][0]['url'] if track.get('album') else None;
+        self.thumb_url = track['album']['images'][0]['url'] if track.get('album').get('images') else None;
 
 class tizspotifyproxy(object):
     """A class that accesses Spotify servers, retrieves track URLs and creates and
@@ -470,6 +470,115 @@ class tizspotifyproxy(object):
 
         except ValueError:
             raise ValueError(str("Playlist not found : %s" % to_ascii(id)))
+
+    def enqueue_recommendations_by_track_id(self, id):
+        """Obtain Spotify recommendations by track id and add tracks to the playback
+        queue.
+
+        :param id: a Spotify track ID, URI, or URL
+
+        """
+        logging.info('id : %s', id)
+        print_msg("[Spotify] [Recomendations by track id] '{0}'.".format(id))
+        try:
+            count = len(self.queue)
+            track_seed = list()
+            track_seed.append(id)
+            tracks = self._spotify.recommendations(seed_artists=None,
+                                                   seed_genres=None,
+                                                   seed_tracks=track_seed, limit=100)
+            if tracks:
+                for track in tracks['tracks']:
+                    self.__enqueue_track(track)
+
+            if count == len(self.queue):
+                logging.info('no tracks found with track id : %s', id)
+                raise ValueError
+
+            self.__update_play_queue_order()
+
+        except ValueError:
+            raise ValueError(str("Track not found : %s" % to_ascii(id)))
+
+    def enqueue_recommendations_by_artist_id(self, id):
+        """Obtain Spotify recommendations by artist id and add tracks to the playback
+        queue.
+
+        :param id: a Spotify artist ID, URI, or URL
+
+        """
+        logging.info('id : %s', id)
+        print_msg("[Spotify] [Recomendations by artist id] '{0}'.".format(id))
+        try:
+            count = len(self.queue)
+            artist_seed = list()
+            artist_seed.append(id)
+            tracks = self._spotify.recommendations(seed_artists=artist_seed,
+                                                   seed_genres=None,
+                                                   seed_tracks=None, limit=100)
+            if tracks:
+                for track in tracks['tracks']:
+                    self.__enqueue_track(track)
+
+            if count == len(self.queue):
+                logging.info('not tracks found with artist id : %s', id)
+                raise ValueError
+
+            self.__update_play_queue_order()
+
+        except ValueError:
+            raise ValueError(str("Artist not found : %s" % to_ascii(id)))
+
+    def enqueue_recommendations_by_genre(self, arg):
+        """Obtain Spotify recommendations by genre and add tracks to the playback
+        queue.
+
+        :param id: a genre name or search term
+
+        """
+        arg_dec = arg.decode('utf-8')
+        logging.info('id : %s', arg_dec)
+        print_msg("[Spotify] [Recomendations by genre] '{0}'.".format(arg_dec))
+        try:
+            count = len(self.queue)
+            genre_seed = list()
+            genre_name = None
+            genre_names = list()
+            results = self._spotify.recommendation_genre_seeds()
+            tracks = None
+            for gen in results['genres']:
+                print_nfo("[Spotify] [Genre] '{0}'." \
+                          .format(to_ascii(gen)))
+                if arg_dec.lower() == gen.lower():
+                    genre_name = gen
+                    break
+                if fuzz.partial_ratio(arg_dec, gen) > 50:
+                    genre_names.append(gen)
+
+            if not genre_name:
+                if len(genre_names) > 1:
+                    genre_name = process.extractOne(arg_dec, genre_names)[0]
+                elif len(genre_names) == 1:
+                    genre_name = genre_names[0]
+
+            if genre_name:
+                genre_seed.append(genre_name)
+                print_wrn("[Spotify] [Genre] Playing '{0}'.".format(genre_name))
+                tracks = self._spotify.recommendations(seed_artists=None,
+                                                       seed_genres=genre_seed,
+                                                       seed_tracks=None, limit=100)
+            if tracks:
+                for track in tracks['tracks']:
+                    self.__enqueue_track(track)
+
+            if count == len(self.queue):
+                logging.info('not tracks found with genre : %s', arg_dec)
+                raise ValueError
+
+            self.__update_play_queue_order()
+
+        except ValueError:
+            raise ValueError(str("Genre not found : %s" % to_ascii(arg_dec)))
 
     def current_track_title(self):
         """ Retrieve the current track's title.
