@@ -2095,7 +2095,6 @@ int tiz::programopts::consume_spotify_client_options (bool &done,
   }
   TIZ_PRINTF_DBG_RED ("spotify ; rc = [%s]\n",
                       rc == EXIT_SUCCESS ? "SUCCESS" : "FAILURE");
-  assert(0);
   return rc;
 }
 
