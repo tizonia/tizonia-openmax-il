@@ -62,7 +62,6 @@ default-audio-renderer = OMX.Aratelia.audio_renderer.pulseaudio.pcm
 #
 mpris-enabled = false
 
-
 # Spotify configuration
 # -------------------------------------------------------------------------
 # To avoid passing this information on the command line, uncomment
@@ -70,7 +69,8 @@ mpris-enabled = false
 #
 # spotify.user     = user
 # spotify.password = pass
-
+# spotify.recover_lost_token = false (set to true to continue playback after
+#                                     the token has been [spuriously?] lost)
 
 # Google Play Music configuration
 # -------------------------------------------------------------------------
