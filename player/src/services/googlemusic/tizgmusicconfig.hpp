@@ -47,12 +47,14 @@ namespace tiz
       gmusicconfig (const tizplaylist_ptr_t &playlist, const std::string &user,
                     const std::string &pass, const std::string &device_id,
                     const OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE playlist_type,
+                    const std::string &additional_keywords,
                     const bool is_unlimited_search = false)
         : config (playlist),
           user_ (user),
           pass_ (pass),
           device_id_ (device_id),
           playlist_type_ (playlist_type),
+          additional_keywords_(additional_keywords),
           is_unlimited_search_ (is_unlimited_search)
       {
       }
@@ -81,6 +83,11 @@ namespace tiz
         return playlist_type_;
       }
 
+      std::string get_additional_keywords () const
+      {
+        return additional_keywords_;
+      }
+
       bool is_unlimited_search () const
       {
         return is_unlimited_search_;
@@ -91,6 +98,7 @@ namespace tiz
       const std::string pass_;
       const std::string device_id_;
       const OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE playlist_type_;
+      const std::string additional_keywords_;
       bool is_unlimited_search_;
     };
   }  // namespace graph

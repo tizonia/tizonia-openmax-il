@@ -192,7 +192,8 @@ namespace tiz
       static OMX_ERRORTYPE set_gmusic_playlist (
           const OMX_HANDLETYPE handle, const std::string &playlist,
           const OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE playlist_type,
-          const bool shuffle, const bool unlimited);
+          const std::string &additional_keywords, const bool unlimited,
+          const bool shuffle);
 
       static OMX_ERRORTYPE set_scloud_oauth_token (
           const OMX_HANDLETYPE handle, const std::string &oauth_token);

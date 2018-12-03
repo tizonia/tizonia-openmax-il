@@ -326,6 +326,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     gmusic_library_ (),
     gmusic_free_station_ (),
     gmusic_feeling_lucky_station_ (),
+    gmusic_additional_keywords_ (),
     gmusic_playlist_container_ (),
     gmusic_playlist_type_ (OMX_AUDIO_GmusicPlaylistTypeUnknown),
     gmusic_is_unlimited_search_ (false),
@@ -956,6 +957,12 @@ tiz::programopts::gmusic_playlist_type ()
   return gmusic_playlist_type_;
 }
 
+const std::string &
+tiz::programopts::gmusic_additional_keywords () const
+{
+  return gmusic_additional_keywords_;
+}
+
 bool tiz::programopts::gmusic_is_unlimited_search () const
 {
   return gmusic_is_unlimited_search_;
@@ -1494,6 +1501,10 @@ void tiz::programopts::init_gmusic_options ()
        "Google Play Music device id (not required if provided via config "
        "file).")
       /* TIZ_CLASS_COMMENT: */
+      ("gmusic-additional-keywords", po::value (&gmusic_additional_keywords_),
+       "Additional search keywords (this is optional: may be used in conjunction with "
+       "--gmusic-unlimited-activity).")
+      /* TIZ_CLASS_COMMENT: */
       ("gmusic-library",
        "Play all tracks from the user's library.")
       /* TIZ_CLASS_COMMENT: */
@@ -1551,9 +1562,10 @@ void tiz::programopts::init_gmusic_options ()
   register_consume_function (&tiz::programopts::consume_gmusic_client_options);
   all_gmusic_client_options_
       = boost::assign::list_of ("gmusic-user") ("gmusic-password") (
-            "gmusic-device-id") ("gmusic-library") ("gmusic-tracks") (
-            "gmusic-artist") ("gmusic-album") ("gmusic-playlist") (
-            "gmusic-podcast") ("gmusic-station") ("gmusic-unlimited-station") (
+            "gmusic-device-id") ("gmusic-additional-keywords") (
+            "gmusic-library") ("gmusic-tracks") ("gmusic-artist") (
+            "gmusic-album") ("gmusic-playlist") ("gmusic-podcast") (
+            "gmusic-station") ("gmusic-unlimited-station") (
             "gmusic-unlimited-album") ("gmusic-unlimited-artist") (
             "gmusic-unlimited-tracks") ("gmusic-unlimited-playlist") (
             "gmusic-unlimited-genre") ("gmusic-unlimited-activity") (
@@ -2131,6 +2143,15 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
       oss << "A playlist must be specified.";
       msg.assign (oss.str ());
     }
+    else if (OMX_AUDIO_GmusicPlaylistTypeSituation != gmusic_playlist_type ()
+             && vm_.count ("gmusic-additional-keywords"))
+    {
+      rc = EXIT_FAILURE;
+      std::ostringstream oss;
+      oss << "The --gmusic-additional-keywords option can only be used in conjunction with\n"
+          << " --gmusic-unlimited-activity";
+      msg.assign (oss.str ());
+    }
     else if (OMX_AUDIO_GmusicPlaylistTypeUnknown == gmusic_playlist_type ())
     {
       rc = EXIT_FAILURE;
@@ -2575,7 +2596,8 @@ bool tiz::programopts::validate_gmusic_client_options () const
   bool outcome = false;
   unsigned int gmusic_opts_count
       = vm_.count ("gmusic-user") + vm_.count ("gmusic-password")
-        + vm_.count ("gmusic-device-id") + vm_.count ("gmusic-library")
+        + vm_.count ("gmusic-device-id") + vm_.count ("gmusic-additional-keywords")
+        + vm_.count ("gmusic-library")
         + vm_.count ("gmusic-tracks") + vm_.count ("gmusic-artist")
         + vm_.count ("gmusic-album") + vm_.count ("gmusic-playlist")
         + vm_.count ("gmusic-podcast") + vm_.count ("gmusic-station")

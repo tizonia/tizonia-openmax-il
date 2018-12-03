@@ -964,6 +964,7 @@ tiz::playapp::gmusic_stream ()
   const std::string user (popts_.gmusic_user ());
   std::string pass (popts_.gmusic_password ());
   std::string device_id (popts_.gmusic_device_id ());
+  std::string additional_keywords (popts_.gmusic_additional_keywords ());
   const uri_lst_t &uri_list = popts_.gmusic_playlist_container ();
   const OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE playlist_type
       = popts_.gmusic_playlist_type ();
@@ -990,7 +991,8 @@ tiz::playapp::gmusic_stream ()
   playlist->set_loop_playback (true);
 
   tizgraphconfig_ptr_t config = boost::make_shared< tiz::graph::gmusicconfig > (
-      playlist, user, pass, device_id, playlist_type, is_unlimited_search);
+      playlist, user, pass, device_id, playlist_type, additional_keywords,
+      is_unlimited_search);
 
   // Instantiate the streaming client manager
   tiz::graphmgr::mgr_ptr_t p_mgr
@@ -1230,6 +1232,7 @@ tiz::playapp::gmusic_stream_chromecast ()
   const std::string user (popts_.gmusic_user ());
   std::string pass (popts_.gmusic_password ());
   std::string device_id (popts_.gmusic_device_id ());
+  std::string additional_keywords (popts_.gmusic_additional_keywords ());
   const uri_lst_t &uri_list = popts_.gmusic_playlist_container ();
   const OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE playlist_type
       = popts_.gmusic_playlist_type ();
@@ -1258,7 +1261,8 @@ tiz::playapp::gmusic_stream_chromecast ()
 
   tizgraphconfig_ptr_t service_config
       = boost::make_shared< tiz::graph::gmusicconfig > (
-          playlist, user, pass, device_id, playlist_type, is_unlimited_search);
+          playlist, user, pass, device_id, playlist_type, additional_keywords,
+          is_unlimited_search);
 
   tizgraphconfig_ptr_t config
       = boost::make_shared< tiz::graph::chromecastconfig > (

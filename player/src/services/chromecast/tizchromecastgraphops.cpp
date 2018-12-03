@@ -294,8 +294,9 @@ void graph::chromecastops::do_configure_gmusic ()
   G_OPS_BAIL_IF_ERROR (
       tiz::graph::util::set_gmusic_playlist (
           handles_[0], playlist_->get_current_uri (),
-          gmusic_config->get_playlist_type (), playlist_->shuffle (),
-          gmusic_config->is_unlimited_search ()),
+          gmusic_config->get_playlist_type (),
+          gmusic_config->get_additional_keywords (),
+          gmusic_config->is_unlimited_search (), playlist_->shuffle ()),
       "Unable to set OMX_TizoniaIndexParamAudioGmusicPlaylist");
 }
 

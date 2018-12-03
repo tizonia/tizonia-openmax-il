@@ -794,7 +794,8 @@ OMX_ERRORTYPE graph::util::set_gmusic_user_and_device_id (
 OMX_ERRORTYPE graph::util::set_gmusic_playlist (
     const OMX_HANDLETYPE handle, const std::string &playlist,
     const OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE playlist_type,
-    const bool shuffle, const bool unlimited)
+    const std::string &additional_keywords, const bool unlimited,
+    const bool shuffle)
 {
   // Set the Google Play Music playlist
   OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE playlisttype;
@@ -808,6 +809,8 @@ OMX_ERRORTYPE graph::util::set_gmusic_playlist (
   playlisttype.ePlaylistType = playlist_type;
   playlisttype.bShuffle = shuffle ? OMX_TRUE : OMX_FALSE;
   playlisttype.bUnlimitedSearch = unlimited ? OMX_TRUE : OMX_FALSE;
+  tiz::graph::util::copy_omx_string (playlisttype.cAdditionalKeywords,
+                                     additional_keywords);
 
   return OMX_SetParameter (
       handle,
