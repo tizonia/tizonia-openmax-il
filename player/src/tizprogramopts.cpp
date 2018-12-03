@@ -211,7 +211,7 @@ namespace
     return outcome;
   }
 
-  void retrieve_config_from_rc_file (const char *rc_section, const char *rc_key,
+  void retrieve_string_from_rc_file (const char *rc_section, const char *rc_key,
                                      std::string &container)
   {
     assert (rc_section);
@@ -221,6 +221,31 @@ namespace
     {
       container.assign (p_key);
     }
+  }
+
+  bool retrieve_bool_from_rc_file_if_found (const char *rc_section, const char *rc_key,
+                                            bool &flag)
+  {
+    bool is_found = false;
+    assert (rc_section);
+    assert (rc_key);
+    const char *p_key = tiz_rcfile_get_value (rc_section, rc_key);
+    if (p_key)
+    {
+      std::string key;
+      key.assign(p_key);
+      if (0 == key.compare("true"))
+        {
+          flag = true;
+          is_found = true;
+        }
+      else if (0 == key.compare("false"))
+        {
+          flag = false;
+          is_found = true;
+        }
+    }
+    return is_found;
   }
 
 // Workaround for 'implicit_option' behavioral change introduced in boost
@@ -295,6 +320,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     spotify_user_ (),
     spotify_pass_ (),
     spotify_owner_ (),
+    spotify_recover_lost_token_(false),
     spotify_tracks_ (),
     spotify_artist_ (),
     spotify_album_ (),
@@ -693,6 +719,11 @@ const std::string &tiz::programopts::spotify_password () const
 const std::string &tiz::programopts::spotify_owner () const
 {
   return spotify_owner_;
+}
+
+bool tiz::programopts::spotify_recover_lost_token () const
+{
+  return spotify_recover_lost_token_;
 }
 
 const std::vector< std::string >
@@ -1422,6 +1453,11 @@ void tiz::programopts::init_spotify_options ()
        "The owner of the playlist  (this is optional: use in conjunction with "
        "--spotify-playlist or --spotify-playlist-id).")
       /* TIZ_CLASS_COMMENT: */
+      ("spotify-recover-lost-token",
+       po::bool_switch (&spotify_recover_lost_token_)->default_value (false),
+       "Allow Tizonia to recover the play token and keep playing after a "
+       "spurious token loss (default: false).")
+      /* TIZ_CLASS_COMMENT: */
       ("spotify-tracks", po::value (&spotify_tracks_),
        "Search and play from Spotify by track name.")
       /* TIZ_CLASS_COMMENT: */
@@ -1474,11 +1510,12 @@ void tiz::programopts::init_spotify_options ()
   register_consume_function (&tiz::programopts::consume_spotify_client_options);
   all_spotify_client_options_
       = boost::assign::list_of ("spotify-user") ("spotify-password") (
-            "spotify-owner") ("spotify-tracks") ("spotify-artist") (
-            "spotify-album") ("spotify-playlist") ("spotify-track-id") (
-            "spotify-artist-id") ("spotify-album-id") ("spotify-playlist-id") (
-            "spotify-related-artists") ("spotify-featured-playlist") (
-            "spotify-new-releases") ("spotify-recommendations-by-track-id") (
+            "spotify-owner") ("spotify-recover-lost-token") ("spotify-tracks") (
+            "spotify-artist") ("spotify-album") ("spotify-playlist") (
+            "spotify-track-id") ("spotify-artist-id") ("spotify-album-id") (
+            "spotify-playlist-id") ("spotify-related-artists") (
+            "spotify-featured-playlist") ("spotify-new-releases") (
+            "spotify-recommendations-by-track-id") (
             "spotify-recommendations-by-artist-id") (
             "spotify-recommendations-by-genre")
             .convert_to_container< std::vector< std::string > > ();
@@ -1974,11 +2011,11 @@ int tiz::programopts::consume_spotify_client_options (bool &done,
 
     if (spotify_user_.empty ())
     {
-      retrieve_config_from_rc_file ("tizonia", "spotify.user", spotify_user_);
+      retrieve_string_from_rc_file ("tizonia", "spotify.user", spotify_user_);
     }
     if (spotify_pass_.empty ())
     {
-      retrieve_config_from_rc_file ("tizonia", "spotify.password",
+      retrieve_string_from_rc_file ("tizonia", "spotify.password",
                                     spotify_pass_);
     }
     if (spotify_owner_.empty ())
@@ -1986,6 +2023,23 @@ int tiz::programopts::consume_spotify_client_options (bool &done,
       spotify_owner_ = spotify_user_;
     }
 
+    // This is to find out if the spotify-recover-lost-token flag has  been
+    // provided on the command line, and the retrieve from the config file.
+    // See https://stackoverflow.com/questions/32150230/boost-program-options-bool-always-true
+    bool recover_token_option_provided
+        = (std::find (all_given_options_.begin (), all_given_options_.end (),
+                      std::string ("spotify-recover-lost-token"))
+           != all_given_options_.end ());
+    if (!recover_token_option_provided)
+    {
+      if (!retrieve_bool_from_rc_file_if_found ("tizonia", "spotify.recover_lost_token",
+                                                spotify_recover_lost_token_))
+        {
+          // Just make sure we always default this to false when the flag is
+          // not configured in tizonia.conf.
+          spotify_recover_lost_token_ = false;
+        }
+    }
     if (spotify_user_.empty ())
     {
       rc = EXIT_FAILURE;
@@ -2041,6 +2095,7 @@ int tiz::programopts::consume_spotify_client_options (bool &done,
   }
   TIZ_PRINTF_DBG_RED ("spotify ; rc = [%s]\n",
                       rc == EXIT_SUCCESS ? "SUCCESS" : "FAILURE");
+  assert(0);
   return rc;
 }
 
@@ -2071,15 +2126,15 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
 
     if (gmusic_user_.empty ())
     {
-      retrieve_config_from_rc_file ("tizonia", "gmusic.user", gmusic_user_);
+      retrieve_string_from_rc_file ("tizonia", "gmusic.user", gmusic_user_);
     }
     if (gmusic_pass_.empty ())
     {
-      retrieve_config_from_rc_file ("tizonia", "gmusic.password", gmusic_pass_);
+      retrieve_string_from_rc_file ("tizonia", "gmusic.password", gmusic_pass_);
     }
     if (gmusic_device_id_.empty ())
     {
-      retrieve_config_from_rc_file ("tizonia", "gmusic.device_id",
+      retrieve_string_from_rc_file ("tizonia", "gmusic.device_id",
                                     gmusic_device_id_);
     }
 
@@ -2197,7 +2252,7 @@ int tiz::programopts::consume_scloud_client_options (bool &done,
 
     if (scloud_oauth_token_.empty ())
     {
-      retrieve_config_from_rc_file ("tizonia", "soundcloud.oauth_token",
+      retrieve_string_from_rc_file ("tizonia", "soundcloud.oauth_token",
                                     scloud_oauth_token_);
     }
 
@@ -2279,7 +2334,7 @@ int tiz::programopts::consume_dirble_client_options (bool &done,
 
     if (dirble_api_key_.empty ())
     {
-      retrieve_config_from_rc_file ("tizonia", "dirble.api_key",
+      retrieve_string_from_rc_file ("tizonia", "dirble.api_key",
                                     dirble_api_key_);
     }
 
@@ -2410,13 +2465,13 @@ int tiz::programopts::consume_plex_client_options (bool &done, std::string &msg)
 
     if (plex_base_url_.empty ())
     {
-      retrieve_config_from_rc_file ("tizonia", "plex.base_url",
+      retrieve_string_from_rc_file ("tizonia", "plex.base_url",
                                     plex_base_url_);
     }
 
     if (plex_token_.empty ())
     {
-      retrieve_config_from_rc_file ("tizonia", "plex.auth_token",
+      retrieve_string_from_rc_file ("tizonia", "plex.auth_token",
                                     plex_token_);
     }
 
@@ -2566,11 +2621,11 @@ bool tiz::programopts::validate_spotify_client_options () const
   bool outcome = false;
   unsigned int spotify_opts_count
       = vm_.count ("spotify-user") + vm_.count ("spotify-password")
-        + vm_.count ("spotify-owner") + vm_.count ("spotify-tracks")
-        + vm_.count ("spotify-artist") + vm_.count ("spotify-album")
-        + vm_.count ("spotify-playlist") + vm_.count ("spotify-track-id")
-        + vm_.count ("spotify-artist-id") + vm_.count ("spotify-album-id")
-        + vm_.count ("spotify-playlist-id")
+        + vm_.count ("spotify-owner") + vm_.count ("spotify-recover-lost-token")
+        + vm_.count ("spotify-tracks") + vm_.count ("spotify-artist")
+        + vm_.count ("spotify-album") + vm_.count ("spotify-playlist")
+        + vm_.count ("spotify-track-id") + vm_.count ("spotify-artist-id")
+        + vm_.count ("spotify-album-id") + vm_.count ("spotify-playlist-id")
         + vm_.count ("spotify-related-artists")
         + vm_.count ("spotify-featured-playlist")
         + vm_.count ("spotify-new-releases")

@@ -903,6 +903,7 @@ tiz::playapp::spotify_stream ()
   const std::string user (popts_.spotify_user ());
   const std::string owner (popts_.spotify_owner ());
   std::string pass (popts_.spotify_password ());
+  const bool recover_lost_token = popts_.spotify_recover_lost_token ();
   const uri_lst_t &uri_list = popts_.spotify_playlist_container ();
   const OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE playlist_type
       = popts_.spotify_playlist_type ();
@@ -929,7 +930,8 @@ tiz::playapp::spotify_stream ()
 
   tizgraphconfig_ptr_t config
       = boost::make_shared< tiz::graph::spotifyconfig > (playlist, user, pass,
-                                                         playlist_type, owner);
+                                                         playlist_type, owner,
+                                                         recover_lost_token);
 
   // Instantiate the streaming client manager
   tiz::graphmgr::mgr_ptr_t p_mgr

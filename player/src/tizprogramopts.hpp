@@ -78,6 +78,7 @@ namespace tiz
     const std::string &spotify_user () const;
     const std::string &spotify_password () const;
     const std::string &spotify_owner () const;
+    bool spotify_recover_lost_token () const;
     const std::vector< std::string > &spotify_playlist_container ();
     OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE spotify_playlist_type ();
     const std::string &gmusic_user () const;
@@ -198,6 +199,7 @@ namespace tiz
     std::string spotify_user_;
     std::string spotify_pass_;
     std::string spotify_owner_;
+    bool spotify_recover_lost_token_;
     std::string spotify_tracks_;
     std::string spotify_artist_;
     std::string spotify_album_;

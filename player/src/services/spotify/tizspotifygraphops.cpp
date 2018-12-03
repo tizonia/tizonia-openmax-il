@@ -94,9 +94,9 @@ void graph::spotifyops::do_configure_comp (const int comp_id)
     assert (spotify_config);
 
     G_OPS_BAIL_IF_ERROR (
-        set_spotify_user_and_pass (handles_[0],
-                                   spotify_config->get_user_name (),
-                                   spotify_config->get_user_pass ()),
+        set_spotify_session (handles_[0], spotify_config->get_user_name (),
+                             spotify_config->get_user_pass (),
+                             spotify_config->get_recover_lost_token ()),
         "Unable to set OMX_TizoniaIndexParamAudioSpotifySession");
 
     G_OPS_BAIL_IF_ERROR (
@@ -380,22 +380,25 @@ graph::spotifyops::set_channels_and_rate_on_renderer (
 }
 
 OMX_ERRORTYPE
-graph::spotifyops::set_spotify_user_and_pass (const OMX_HANDLETYPE handle,
-                                              const std::string &user,
-                                              const std::string &pass)
+graph::spotifyops::set_spotify_session (const OMX_HANDLETYPE handle,
+                                        const std::string &user,
+                                        const std::string &pass,
+                                        const bool recover_lost_token)
 {
   // Set the Spotify user and pass
   OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE sessiontype;
   TIZ_INIT_OMX_STRUCT (sessiontype);
   tiz_check_omx (OMX_GetParameter (
       handle,
-      static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioSpotifySession),
+      static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioSpotifySession),
       &sessiontype));
   tiz::graph::util::copy_omx_string (sessiontype.cUserName, user);
   tiz::graph::util::copy_omx_string (sessiontype.cUserPassword, pass);
+  sessiontype.bRememberCredentials = OMX_TRUE; // default value
+  sessiontype.bRecoverLostToken = (recover_lost_token ? OMX_TRUE : OMX_FALSE);
   return OMX_SetParameter (
       handle,
-      static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioSpotifySession),
+      static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioSpotifySession),
       &sessiontype);
 }
 
