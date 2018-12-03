@@ -838,16 +838,17 @@ class tizgmusicproxy(object):
             else:
                 raise KeyError
 
-            print_wrn("[Google Play Music] Playing '{0}'." \
-                      .format(playlist['name']).encode('utf-8'))
+            print_wrn("[Google Play Music] Playing '{0} by {1}'." \
+                      .format(playlist['name'].encode('utf-8'),
+                              playlist['ownerName'].encode('utf-8')))
 
             for item in playlist_contents:
-                print_nfo("[Google Play Music] [Track] '{} by {} (Album: {}, {})'." \
-                          .format((item['track']['title']).encode('utf-8'),
-                                  (item['track']['artist']).encode('utf-8'),
-                                  (item['track']['album']).encode('utf-8'),
-                                  (item['track']['year'])))
                 track = item['track']
+                print_nfo("[Google Play Music] [Track] '{} by {} (Album: {}, {})'." \
+                          .format((track['title']).encode('utf-8'),
+                                  (track['artist']).encode('utf-8'),
+                                  (track['album']).encode('utf-8'),
+                                  (track['year'])))
                 playlist_tracks.append(track)
 
             if not playlist_tracks:
@@ -1362,8 +1363,19 @@ class tizgmusicproxy(object):
                     if query_type == "album":
                         print_nfo("[Google Play Music] [{0}] '{1} ({2})'." \
                                   .format(query_type.capitalize(),
-                                          (name).encode('utf-8'),
+                                          name.encode('utf-8'),
                                           hit['album']['artist'].encode('utf-8')))
+                    elif query_type == "playlist":
+                        playlist = hit['playlist']
+                        if playlist.get('ownerName'):
+                            print_nfo("[Google Play Music] [{0}] '{1}' by '{2}'." \
+                                      .format(query_type.capitalize(),
+                                              name.encode('utf-8'),
+                                              playlist['ownerName'].encode('utf-8')))
+                        else:
+                            print_nfo("[Google Play Music] [{0}] '{1}'." \
+                                      .format(query_type.capitalize(),
+                                              name.encode('utf-8')))
                     else:
                         print_nfo("[Google Play Music] [{0}] '{1}'." \
                                   .format(query_type.capitalize(),
