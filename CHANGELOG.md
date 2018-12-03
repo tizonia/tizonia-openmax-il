@@ -1,5 +1,45 @@
 # Change Log
 
+## [v0.16.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.16.0) (2018-12-03)
+[Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.15.0...v0.16.0)
+
+**Improvements:**
+
+- Spotify: add options to play Spotify recommendations using a track id, artist id, or genre name as seeds [\#536](https://github.com/tizonia/tizonia-openmax-il/issues/536)
+- Spotify: URIs for track, artist, and album displayed on terminal [\#535](https://github.com/tizonia/tizonia-openmax-il/issues/535)
+- Spotify: add option to force playing the next song after token is lost [\#534](https://github.com/tizonia/tizonia-openmax-il/issues/534)
+- Spotify: add option to play an album from Spotify's new releases list [\#532](https://github.com/tizonia/tizonia-openmax-il/issues/532)
+- Spotify: add option to search and play a featured playlist [\#529](https://github.com/tizonia/tizonia-openmax-il/issues/529)
+- Spotify: add option to play top tracks from a number of similar artists [\#528](https://github.com/tizonia/tizonia-openmax-il/issues/528)
+- Spotify: add options for playback by Spotify ID, URI, or URL [\#527](https://github.com/tizonia/tizonia-openmax-il/issues/527)
+- Spotify: add fuzzy search capability to --spotify-artist [\#526](https://github.com/tizonia/tizonia-openmax-il/issues/526)
+- Spotify: hide spotify debug messages [\#525](https://github.com/tizonia/tizonia-openmax-il/issues/525)
+- Kali Linux support [\#510](https://github.com/tizonia/tizonia-openmax-il/issues/510)
+
+**Fixed bugs:**
+
+- Spotify: tizonia does not exit when the Spotify login attempt fails [\#533](https://github.com/tizonia/tizonia-openmax-il/issues/533)
+- Spotify: --spotify-artist 'Mötley Crüe' returns Artist not found [\#524](https://github.com/tizonia/tizonia-openmax-il/issues/524)
+- '--help config': information provided is outdated \(and confuses people\) [\#523](https://github.com/tizonia/tizonia-openmax-il/issues/523)
+- Google Music: '--gmusic-unlimited-station': random station playing [\#522](https://github.com/tizonia/tizonia-openmax-il/issues/522)
+- Using --gmusic-playlist exits with error 'maximum recursion depth exceeded in cmp' [\#519](https://github.com/tizonia/tizonia-openmax-il/issues/519)
+- --gmusic-unlimited-playlist doesn't work \(key not found\) whereas --gmusic-playlist does \(and finds the list\) [\#515](https://github.com/tizonia/tizonia-openmax-il/issues/515)
+- Linux Mint 18 Sarah: installation issue via install.sh script [\#508](https://github.com/tizonia/tizonia-openmax-il/issues/508)
+- --gmusic-unlimited-activity plays same playlist for activity every time [\#507](https://github.com/tizonia/tizonia-openmax-il/issues/507)
+- Google Music: playback stops at the end of a song with 'gnutls\_handshake\(\) failed: An unexpected TLS packet was received.' [\#500](https://github.com/tizonia/tizonia-openmax-il/issues/500)
+
+**Closed issues:**
+
+- Why so many dependencies?! [\#530](https://github.com/tizonia/tizonia-openmax-il/issues/530)
+- Updating Instructions threw an unhandled exception, seems like a syntax error [\#520](https://github.com/tizonia/tizonia-openmax-il/issues/520)
+- Tizonia Snap exits with OMX\_ErrorInsufficientResources error [\#513](https://github.com/tizonia/tizonia-openmax-il/issues/513)
+- Tizonia can't find my Spotify playlists [\#506](https://github.com/tizonia/tizonia-openmax-il/issues/506)
+- googlemusic settings help [\#505](https://github.com/tizonia/tizonia-openmax-il/issues/505)
+- tizonia-all-git not found in AUR [\#504](https://github.com/tizonia/tizonia-openmax-il/issues/504)
+- Gmusic-Unlimited Aratelia.audio\_source.http:port0 OMX\_ErrorInsufficientResources [\#503](https://github.com/tizonia/tizonia-openmax-il/issues/503)
+- OMX\_ErrorInsufficientResources [\#501](https://github.com/tizonia/tizonia-openmax-il/issues/501)
+- release v0.16.0 [\#537](https://github.com/tizonia/tizonia-openmax-il/issues/537)
+
 ## [v0.15.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.15.0) (2018-06-15)
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.14.0...v0.15.0)
 
