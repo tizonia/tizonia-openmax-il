@@ -257,10 +257,12 @@ int tizgmusic::play_genre (const std::string &genre)
   return rc;
 }
 
-int tizgmusic::play_situation (const std::string &situation)
+int tizgmusic::play_situation (const std::string &situation,
+                               const std::string &additional_keywords)
 {
   int rc = 0;
-  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_situation_unlimited")(bp::object (situation)));
+  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_situation_unlimited") (
+      bp::object (situation), bp::object (additional_keywords)));
   return rc;
 }
 
