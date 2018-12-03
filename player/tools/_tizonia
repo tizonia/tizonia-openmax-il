@@ -20,6 +20,7 @@ _arguments -S -s \
   '--spotify-user[Spotify user name.]' \
   '--spotify-password[Spotify user password.]' \
   '--spotify-owner[The owner of the playlist (optional, may be used in conjunction with --spotify-playlist).]' \
+  '--spotify-recover-lost-token[Allow Tizonia to recover the play token and keep playing after a spurious token loss (default: false).]' \
   '--spotify-tracks[Search and play from Spotify by track name.]' \
   '--spotify-artist[Search and play from Spotify by artist name.]' \
   '--spotify-album[Search and play from Spotify by album name.]' \
