@@ -589,6 +589,7 @@ enqueue_playlist_items (gmusic_prc_t * ap_prc)
 
   {
     const char * p_playlist = (const char *) ap_prc->playlist_.cPlaylistName;
+    const char * p_additional_keywords = (const char *) ap_prc->playlist_.cAdditionalKeywords;
     const OMX_BOOL is_unlimited_search = ap_prc->playlist_.bUnlimitedSearch;
     const OMX_BOOL shuffle = ap_prc->playlist_.bShuffle;
 
@@ -639,7 +640,8 @@ enqueue_playlist_items (gmusic_prc_t * ap_prc)
           break;
         case OMX_AUDIO_GmusicPlaylistTypeSituation:
           {
-            rc = tiz_gmusic_play_situation (ap_prc->p_gmusic_, p_playlist);
+            rc = tiz_gmusic_play_situation (ap_prc->p_gmusic_, p_playlist,
+                                            p_additional_keywords);
           }
           break;
         case OMX_AUDIO_GmusicPlaylistTypePromotedTracks:
