@@ -1419,7 +1419,7 @@ void tiz::programopts::init_spotify_options ()
        "Spotify user password  (not required if provided via config file).")
       /* TIZ_CLASS_COMMENT: */
       ("spotify-owner", po::value (&spotify_owner_),
-       "The owner of the playlist  (optional: may be used in conjunction with "
+       "The owner of the playlist  (this is optional: use in conjunction with "
        "--spotify-playlist or --spotify-playlist-id).")
       /* TIZ_CLASS_COMMENT: */
       ("spotify-tracks", po::value (&spotify_tracks_),
@@ -1502,7 +1502,7 @@ void tiz::programopts::init_gmusic_options ()
        "file).")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-additional-keywords", po::value (&gmusic_additional_keywords_),
-       "Additional search keywords (this is optional: may be used in conjunction with "
+       "Additional search keywords (this is optional: use in conjunction with"
        "--gmusic-unlimited-activity).")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-library",
