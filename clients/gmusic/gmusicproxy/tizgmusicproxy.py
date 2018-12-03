@@ -838,9 +838,10 @@ class tizgmusicproxy(object):
             else:
                 raise KeyError
 
-            print_wrn("[Google Play Music] Playing '{0} by {1}'." \
+            print_wrn("[Google Play Music] Playing '{0}' by '{1}'." \
                       .format(playlist['name'].encode('utf-8'),
-                              playlist['ownerName'].encode('utf-8')))
+                              playlist['ownerName'].encode('utf-8') \
+                              if playlist.get('ownerName') else 'n/a'))
 
             for item in playlist_contents:
                 track = item['track']
