@@ -702,7 +702,7 @@ class tizgmusicproxy(object):
         except CallFailure:
             raise RuntimeError("Operation requires an Unlimited subscription.")
 
-    def enqueue_situation_unlimited(self, arg):
+    def enqueue_situation_unlimited(self, arg, additional_keywords):
         """Search Unlimited for a situation (a.k.a. activity) with a given name and add its
         tracks to the playback queue.
 
@@ -714,7 +714,7 @@ class tizgmusicproxy(object):
 
         try:
 
-            self.__enqueue_situation_unlimited(arg)
+            self.__enqueue_situation_unlimited(arg, additional_keywords)
 
             if not len(self.queue):
                 raise KeyError
@@ -1086,74 +1086,142 @@ class tizgmusicproxy(object):
         except KeyError:
             raise KeyError("Station not found : {0}".format(arg))
 
-    def __enqueue_situation_unlimited(self, arg):
+    def __enqueue_situation_unlimited(self, arg, additional_keywords):
         """Search for a situation and enqueue all of its tracks (Unlimited)
 
         """
         print_msg("[Google Play Music] [Activity search in "\
                   "Google Play Music] : '{0}'. " \
                   .format(to_ascii(to_ascii(arg))))
+        if (additional_keywords):
+            print_msg("[Google Play Music] [Activity search in "\
+                      "Google Play Music] : 'Additional keywords : {0}'. " \
+                      .format(to_ascii(additional_keywords)))
         try:
-            situation_hits = self.__gmusic.search(arg)['situation_hits']
-
-            # If the search didn't return results, just do another search with
-            # an empty string
-            if not len(situation_hits):
-                situation_hits = self.__gmusic.search("")['situation_hits']
-                print_wrn("[Google Play Music] '{0}' not found. "\
-                          "Feeling lucky?." \
-                          .format(to_ascii(arg)))
-
-            # Try to find a "best result", if one exists
-            situation_best_hit = next((hit for hit in situation_hits \
-                                       if 'best_result' in hit.keys() \
-                                       and hit['best_result'] == True), None)
-
             situation = None
             situation_title = ''
-            situation_desc = ''
+            situation_desc = None
             situation_id = None
 
+            results = self.__gmusic.search(arg)
+#             situation_hits = results['situation_hits']
+
+#             for hit in situation_hits:
+#                 pprint (hit)
+#                 situation = hit['situation']
+#                 situation_title = situation['title'] if situation.get('title') else ''
+#                 situation_desc = situation['description'] if situation.get('description') else 'None'
+#                 if situation_desc:
+#                     print_nfo("[Google Play Music] [{0}] '{1} : {2}'." \
+#                               .format(arg.encode('utf-8'), situation_title.encode('utf-8'),
+#                                       situation_desc.encode('utf-8')))
+
+# {u'cluster': [{u'category': u'1', u'id': u'search_situation', u'type': u'7'}],
+#  u'situation': {u'description': u'We\u2019ll play you great songs that the whole office can enjoy.',
+#                 u'id': u'Nba3ghyph5zhpclslcakv6ffxwm',
+#                 u'imageUrl': u'http://lh3.googleusercontent.com/rDxm2lzeuxsFLoT0W4cSEMv20aiUjFU6dLTnmGLTtD-Lz0kSrN_cJH1zMGB_rHkmhr6aGTV0kQ',
+#                 u'title': u'Office radio',
+#                 u'wideImageUrl': u'http://lh3.googleusercontent.com/Ma7Uy3T6rMSHADWneS4ybErNlkNu1AV0jAl9gZpkj6Ms52ivGsGA6caCjiIdlDC9DgKi1VWZ2GI=s1080'},
+#  u'type': u'7'}
+# [Google Play Music] [office radio] 'Office radio : We’ll play you great songs that the whole office can enjoy.'.
+# {u'cluster': [{u'category': u'1', u'id': u'search_situation', u'type': u'7'}],
+#  u'situation': {u'description': u'We\u2019ll play you some spacious, mind freeing music to help you concentrate and focus.',
+#                 u'id': u'Nlhbc6nnqlrrm2hsgsrffcmwoea',
+#                 u'imageUrl': u'http://lh3.googleusercontent.com/kAXyBVLZzefY_VxtRqKgP4mqi3y_arnBnTj_YbAtRrhUh5t0RljrOcekzEBh2qtCBmx6fOOV',
+#                 u'title': u'Deep focus',
+#                 u'wideImageUrl': u'http://lh3.googleusercontent.com/sNGG9qdeQ1aYc_0Cq3XrICPT-Rqnjt4wYOOMYWvwJOov_ZciPZfruOMhHkQmJdqEvD_veDUdaTM=s1080'},
+#  u'type': u'7'}
+# [Google Play Music] [office radio] 'Deep focus : We’ll play you some spacious, mind freeing music to help you concentrate and focus.'.
+
+            situation_hits = results['station_hits']
             # If there is no best result, then get a selection of tracks from
             # each situation. At least we'll play some music.
-            if not situation_best_hit and len(situation_hits):
+            if len(situation_hits):
                 situation_dict = dict()
                 situation_titles = list()
                 for hit in situation_hits:
-                    situation = hit['situation']
-                    situation_title = situation['title']
-                    situation_desc = situation['description']
-                    print_nfo("[Google Play Music] [Activity] '{0} : {1}'." \
-                              .format(situation['title'].encode('utf-8'),
-                                      situation_desc.encode('utf-8')))
-                    if fuzz.partial_ratio(arg, situation_title) > 50:
-                        situation_titles.append(situation_title)
-                        situation_dict[situation_title] = situation
+                    if hit and hit.get('station'):
+                        situation = hit['station']
+                        situation_title = situation['name'] if situation.get('name') else ''
+                        situation_desc = situation['description'] if situation.get('description') else None
+                        if situation_desc:
+                            if not additional_keywords:
+                                print_nfo("[Google Play Music] [{0}] '{1} : {2}'." \
+                                          .format(arg.encode('utf-8'),
+                                                  situation_title.encode('utf-8'),
+                                                  situation_desc.encode('utf-8')))
+                            else:
+                                print_nfo("[Google Play Music] [{0} - {1}] '{2} : {3}'." \
+                                          .format(arg.encode('utf-8'),
+                                                  additional_keywords.encode('utf-8') \
+                                                  if additional_keywords else '(no keywords)',
+                                                  situation_title.encode('utf-8'),
+                                                  situation_desc.encode('utf-8')))
+                            if fuzz.partial_ratio(additional_keywords, situation_title) > 50:
+                                situation_titles.append(situation_title)
+                                situation_dict[situation_title] = situation
 
                 if len(situation_titles) > 1:
-                    situation_title = process.extractOne(arg, situation_titles)[0]
+                    situation_title = process.extractOne(additional_keywords, situation_titles)[0]
                     situation = situation_dict[situation_title]
-                    situation_id = situation['id']
                 elif len(situation_titles) == 1:
                     situation_title = situation_titles[0]
                     situation = situation_dict[situation_title]
-                    situation_id = situation['id']
-            else:
-                situation = situation_best_hit['situation']
-                situation_title = situation['title']
-                situation_id = situation['id']
 
             if situation:
                 print_wrn("[Google Play Music] Playing '{0}'." \
                           .format(to_ascii(situation_title)))
-                self.__enqueue_station_unlimited(situation_title + " " + \
-                                                 situation_desc, MAX_TRACKS, True)
+                self.__enqueue_station_unlimited_v2(situation)
 
             if not situation:
                 raise KeyError
 
         except KeyError:
-           raise KeyError("Activity not found : {0}".format(arg))
+           raise KeyError("Activity not found : {0} - {1}".format(arg, additional_keywords))
+
+    def __enqueue_station_unlimited_v2(self, station):
+        """Enqueue all tracks of a given station (Unlimited)
+
+        """
+        try:
+            station_id = None
+            if station:
+                station_name = station['name']
+                seed = station['seed']
+                seed_type = seed['seedType']
+                track_id = seed['trackId'] if seed_type == u'2' else None
+                artist_id = seed['artistId'] if seed_type == u'3' else None
+                album_id = seed['albumId'] if seed_type == u'4' else None
+                genre_id = seed['genreId'] if seed_type == u'5' else None
+                playlist_token = seed['playlistShareToken'] if seed_type == u'8' else None
+                curated_station_id = seed['curatedStationId'] if seed_type == u'9' else None
+                num_tracks = MAX_TRACKS
+                tracks = list()
+                try:
+                    station_id \
+                        = self.__gmusic.create_station(station_name, \
+                                                       track_id, \
+                                                       artist_id, \
+                                                       album_id, \
+                                                       genre_id, \
+                                                       playlist_token, \
+                                                       curated_station_id)
+                    tracks \
+                        = self.__gmusic.get_station_tracks(station_id, \
+                                                           num_tracks)
+                except KeyError:
+                    raise RuntimeError("Operation requires an "
+                                       "Unlimited subscription.")
+                tracks_added = self.__enqueue_tracks(tracks)
+                if tracks_added:
+                    print_wrn("[Google Play Music] [Station] : '{0}'." \
+                              .format(station_name.encode('utf-8')))
+                    logging.info("Added %d tracks from %s to queue", \
+                                 tracks_added, to_ascii(station_name))
+                    self.__update_play_queue_order()
+
+        except KeyError:
+            raise KeyError("Station not found")
 
     def __enqueue_podcast(self, arg):
         """Search for a podcast series and enqueue all of its tracks.
