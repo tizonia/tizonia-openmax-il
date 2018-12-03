@@ -1163,11 +1163,25 @@ play_token_lost_handler (OMX_PTR ap_prc, tiz_event_pluggable_t * ap_event)
   assert (p_prc);
   assert (ap_event);
 
-  TIZ_PRINTF_RED ("[Spotify] [Token] The play token has been lost\n");
-  stop_spotify (p_prc);
-  process_spotify_event (p_prc, end_of_track_handler,
-                         p_prc->p_sp_session_);
-
+  if (p_prc)
+    {
+      if (p_prc->session_.bRecoverLostToken)
+        {
+          /* The user wants to continue listening to music on this device */
+          process_spotify_event (p_prc, end_of_track_handler,
+                                 p_prc->p_sp_session_);
+        }
+      else
+        {
+          stop_spotify (p_prc);
+          TIZ_PRINTF_RED ("\n[Spotify] [FATAL] The play token has been lost\n");
+          TIZ_PRINTF_YEL ("To force recovery of the token when it gets lost, add the\n");
+          TIZ_PRINTF_YEL ("'--spotify-recover-lost-token' command-line flag\n");
+          TIZ_PRINTF_YEL ("or add 'spotify.recover_lost_token = true' in 'tizonia.conf'\n");
+          (void) tiz_srv_issue_err_event ((OMX_PTR) ap_prc,
+                                          OMX_ErrorInsufficientResources);
+        }
+    }
   tiz_mem_free (ap_event);
 }
 
