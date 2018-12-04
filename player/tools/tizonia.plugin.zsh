@@ -41,6 +41,66 @@ spotify-playlist() {
     eval tizonia "$(tiz-grab-env-options)" --spotify-playlist=\""$@"\"
 }
 
+# Tizonia's Spotify playback by track id
+spotify-tracks-id() {
+    tiz-check-empty-params "$@" || return
+    eval tizonia "$(tiz-grab-env-options)" --spotify-track-id=\""$@"\"
+}
+
+# Tizonia's Spotify Spotify playback by artist id
+spotify-artist-id() {
+    tiz-check-empty-params "$@" || return
+    eval tizonia "$(tiz-grab-env-options)" --spotify-artist-id=\""$@"\"
+}
+
+# Tizonia's Spotify playback by album id
+spotify-album-id() {
+    tiz-check-empty-params "$@" || return
+    eval tizonia "$(tiz-grab-env-options)" --spotify-album-id=\""$@"\"
+}
+
+# Tizonia's Spotify playback by playlist id
+spotify-playlist-id() {
+    tiz-check-empty-params "$@" || return
+    eval tizonia "$(tiz-grab-env-options)" --spotify-playlist-id=\""$@"\"
+}
+
+# Tizonia's Spotify related artist search
+spotify-related-artists() {
+    tiz-check-empty-params "$@" || return
+    eval tizonia "$(tiz-grab-env-options)" --spotify-related-artists=\""$@"\"
+}
+
+# Tizonia's Spotify featured playlist search
+spotify-featured-playlist() {
+    tiz-check-empty-params "$@" || return
+    eval tizonia "$(tiz-grab-env-options)" --spotify-featured-playlist=\""$@"\"
+}
+
+# Tizonia's Spotify new releases search
+spotify-new-releases() {
+    tiz-check-empty-params "$@" || return
+    eval tizonia "$(tiz-grab-env-options)" --spotify-new-releases=\""$@"\"
+}
+
+# Tizonia's Spotify recommendations by track id
+spotify-recommendations-by-track-id() {
+    tiz-check-empty-params "$@" || return
+    eval tizonia "$(tiz-grab-env-options)" --spotify-recommendations-by-track-id=\""$@"\"
+}
+
+# Tizonia's Spotify recommendations by artist id
+spotify-recommendations-by-artist-id() {
+    tiz-check-empty-params "$@" || return
+    eval tizonia "$(tiz-grab-env-options)" --spotify-recommendations-by-artist-id=\""$@"\"
+}
+
+# Tizonia's Spotify recommendations by genre
+spotify-recommendations-by-genre() {
+    tiz-check-empty-params "$@" || return
+    eval tizonia "$(tiz-grab-env-options)" --spotify-recommendations-by-genre=\""$@"\"
+}
+
 # Tizonia's Google Play Music track search
 gmusic-tracks() {
     tiz-check-empty-params "$@" || return

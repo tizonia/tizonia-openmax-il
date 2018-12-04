@@ -64,9 +64,10 @@ namespace tiz
     private:
       OMX_ERRORTYPE switch_tunnel (
           const int tunnel_id, const OMX_COMMANDTYPE to_disabled_or_enabled);
-      OMX_ERRORTYPE set_spotify_user_and_pass (const OMX_HANDLETYPE handle,
-                                               const std::string &user,
-                                               const std::string &pass);
+      OMX_ERRORTYPE set_spotify_session (const OMX_HANDLETYPE handle,
+                                         const std::string &user,
+                                         const std::string &pass,
+                                         const bool recover_lost_token);
       OMX_ERRORTYPE set_spotify_playlist (
           const OMX_HANDLETYPE handle, const std::string &playlist,
           const OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE playlist_type,

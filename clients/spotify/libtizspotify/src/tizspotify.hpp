@@ -59,6 +59,17 @@ public:
   int play_artist (const std::string &artist);
   int play_album (const std::string &album);
   int play_playlist (const std::string &playlist, const std::string &owner);
+  int play_track_id (const std::string &track_id);
+  int play_artist_id (const std::string &artist_id);
+  int play_album_id (const std::string &album_id);
+  int play_playlist_id (const std::string &playlist_id,
+                        const std::string &owner);
+  int play_related_artists (const std::string &artist);
+  int play_featured_playlist (const std::string &playlist);
+  int play_new_releases (const std::string &album);
+  int play_recommendations_by_track_id (const std::string &track_id);
+  int play_recommendations_by_artist_id (const std::string &artist_id);
+  int play_recommendations_by_genre (const std::string &genre);
 
   void set_playback_mode (const playback_mode mode);
   void clear_queue ();
@@ -76,6 +87,9 @@ public:
   const char *get_current_track_release_date ();
   const char *get_current_track_duration ();
   const char *get_current_track_album_art ();
+  const char *get_current_track_uri ();
+  const char *get_current_track_artist_uri ();
+  const char *get_current_track_album_uri ();
 
 private:
   int get_current_track ();
@@ -91,6 +105,9 @@ private:
   std::string current_track_release_date_;
   std::string current_track_duration_;
   std::string current_track_album_art_;
+  std::string current_track_uri_;
+  std::string current_track_artist_uri_;
+  std::string current_track_album_uri_;
   std::string current_queue_progress_;
   boost::python::object py_main_;
   boost::python::object py_global_;

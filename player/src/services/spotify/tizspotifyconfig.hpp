@@ -45,12 +45,14 @@ namespace tiz
       spotifyconfig (const tizplaylist_ptr_t &playlist, const std::string &user,
                      const std::string &pass,
                      const OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE playlist_type,
-                     const std::string &owner)
+                     const std::string &owner,
+                     const bool recover_lost_token)
         : config (playlist),
           user_ (user),
           pass_ (pass),
           playlist_type_ (playlist_type),
-          owner_ (owner)
+          owner_ (owner),
+          recover_lost_token_ (recover_lost_token)
       {
       }
 
@@ -78,11 +80,17 @@ namespace tiz
         return owner_;
       }
 
+      bool get_recover_lost_token () const
+      {
+        return recover_lost_token_;
+      }
+
     protected:
       const std::string user_;
       const std::string pass_;
       const OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE playlist_type_;
       const std::string owner_;
+      const bool recover_lost_token_;
     };
   }  // namespace graph
 }  // namespace tiz

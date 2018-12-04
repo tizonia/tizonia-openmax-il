@@ -276,6 +276,16 @@ typedef enum OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE {
     OMX_AUDIO_SpotifyPlaylistTypeArtist, /**< Artist search. */
     OMX_AUDIO_SpotifyPlaylistTypeAlbum, /**< Album search. */
     OMX_AUDIO_SpotifyPlaylistTypePlaylist, /**< Playlist search. */
+    OMX_AUDIO_SpotifyPlaylistTypeTrackId, /**< Track search by Spotify ID, URI or URL. */
+    OMX_AUDIO_SpotifyPlaylistTypeArtistId, /**< Artist search by Spotify ID, URI or URL. */
+    OMX_AUDIO_SpotifyPlaylistTypeAlbumId, /**< Album search by Spotify ID, URI or URL. */
+    OMX_AUDIO_SpotifyPlaylistTypePlaylistId, /**< Playlist search by Spotify ID, URI or URL. */
+    OMX_AUDIO_SpotifyPlaylistTypeRelatedArtists, /**< Related artists search. */
+    OMX_AUDIO_SpotifyPlaylistTypeFeaturedPlaylist, /**< Featured playlist search. */
+    OMX_AUDIO_SpotifyPlaylistTypeNewReleases, /**< New releases album search. */
+    OMX_AUDIO_SpotifyPlaylistTypeRecommendationsByTrackId, /**< Find recommendations by track ID, URI or URL. */
+    OMX_AUDIO_SpotifyPlaylistTypeRecommendationsByArtistId, /**< Find recommendations by artist ID, URI or URL. */
+    OMX_AUDIO_SpotifyPlaylistTypeRecommendationsByGenre, /**< Find recommendations by genre name. */
     OMX_AUDIO_SpotifyPlaylistTypeKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
     OMX_AUDIO_SpotifyPlaylistTypeVendorStartUnused = 0x7F000000, /**< Reserved region for introducing Vendor Extensions */
     OMX_AUDIO_SpotifyPlaylistTypeMax = 0x7FFFFFFF
@@ -308,6 +318,7 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE {
     OMX_U8 cUserName[OMX_MAX_STRINGNAME_SIZE];
     OMX_U8 cUserPassword[OMX_MAX_STRINGNAME_SIZE];
     OMX_BOOL bRememberCredentials; /**< default: OMX_TRUE */
+    OMX_BOOL bRecoverLostToken; /**< default: OMX_FALSE */
     OMX_TIZONIA_AUDIO_SPOTIFYBITRATETYPE ePreferredBitRate;  /**< 96, 160, or 320 kbps; default: 320 */
     OMX_TIZONIA_AUDIO_SPOTIFYCONNECTIONTYPE eConnectionType; /**< Default: Connection type unknown */
 } OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE;
@@ -371,6 +382,7 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE {
     OMX_BOOL bShuffle;            /**< Default: OMX_FALSE */
     OMX_BOOL bUnlimitedSearch;    /**< Default: OMX_FALSE */
     OMX_U8 cPlaylistName[OMX_MAX_STRINGNAME_SIZE];
+    OMX_U8 cAdditionalKeywords[OMX_MAX_STRINGNAME_SIZE];
 } OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE;
 
 

@@ -181,11 +181,13 @@ extern "C" int tiz_gmusic_play_genre (tiz_gmusic_t *ap_gmusic,
 }
 
 extern "C" int tiz_gmusic_play_situation (tiz_gmusic_t *ap_gmusic,
-                                      const char *ap_situation)
+                                          const char *ap_situation,
+                                          const char *ap_additional_keywords)
 {
   assert (ap_gmusic);
   assert (ap_gmusic->p_proxy_);
-  return ap_gmusic->p_proxy_->play_situation (ap_situation);
+  return ap_gmusic->p_proxy_->play_situation (ap_situation,
+                                              ap_additional_keywords);
 }
 
 extern "C" int tiz_gmusic_play_podcast (tiz_gmusic_t *ap_gmusic,

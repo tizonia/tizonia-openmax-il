@@ -78,6 +78,7 @@ namespace tiz
     const std::string &spotify_user () const;
     const std::string &spotify_password () const;
     const std::string &spotify_owner () const;
+    bool spotify_recover_lost_token () const;
     const std::vector< std::string > &spotify_playlist_container ();
     OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE spotify_playlist_type ();
     const std::string &gmusic_user () const;
@@ -85,6 +86,7 @@ namespace tiz
     const std::string &gmusic_device_id () const;
     const std::vector< std::string > &gmusic_playlist_container ();
     OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE gmusic_playlist_type ();
+    const std::string &gmusic_additional_keywords () const;
     bool gmusic_is_unlimited_search () const;
     const std::string &scloud_oauth_token () const;
     const std::vector< std::string > &scloud_playlist_container ();
@@ -197,10 +199,21 @@ namespace tiz
     std::string spotify_user_;
     std::string spotify_pass_;
     std::string spotify_owner_;
+    bool spotify_recover_lost_token_;
     std::string spotify_tracks_;
     std::string spotify_artist_;
     std::string spotify_album_;
     std::string spotify_playlist_;
+    std::string spotify_track_id_;
+    std::string spotify_artist_id_;
+    std::string spotify_album_id_;
+    std::string spotify_playlist_id_;
+    std::string spotify_related_artists_;
+    std::string spotify_featured_playlist_;
+    std::string spotify_new_releases_;
+    std::string spotify_recommendations_by_track_id_;
+    std::string spotify_recommendations_by_artist_id_;
+    std::string spotify_recommendations_by_genre_;
     std::vector< std::string > spotify_playlist_container_;
     OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE spotify_playlist_type_;
     std::string gmusic_user_;
@@ -218,6 +231,7 @@ namespace tiz
     std::string gmusic_library_;
     std::string gmusic_free_station_;
     std::string gmusic_feeling_lucky_station_;
+    std::string gmusic_additional_keywords_;
     std::vector< std::string > gmusic_playlist_container_;
     OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE gmusic_playlist_type_;
     bool gmusic_is_unlimited_search_;

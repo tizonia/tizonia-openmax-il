@@ -1,3 +1,9 @@
+tizspotifysrc (0.16.0-1) unstable; urgency=low
+
+  * New upstream release (Closes: #537)
+
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Mon, 03 Dec 2018 22:08:39 +0000
+
 tizspotifysrc (0.15.0-1) unstable; urgency=low
 
   * New upstream release (Closes: #497)

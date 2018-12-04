@@ -74,6 +74,8 @@ gmusic_cfgport_ctor (void * ap_obj, va_list * app)
   TIZ_INIT_OMX_STRUCT (p_obj->playlist_);
   snprintf ((char *) p_obj->playlist_.cPlaylistName,
             sizeof (p_obj->playlist_.cPlaylistName), "playlist");
+  snprintf ((char *) p_obj->playlist_.cAdditionalKeywords,
+            sizeof (p_obj->playlist_.cAdditionalKeywords), "");
   p_obj->playlist_.ePlaylistType = OMX_AUDIO_GmusicPlaylistTypeUnknown;
   p_obj->playlist_.bShuffle = OMX_FALSE;
   p_obj->playlist_.bUnlimitedSearch = OMX_FALSE;
@@ -151,6 +153,9 @@ gmusic_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
       p_obj->playlist_.cPlaylistName[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
       TIZ_TRACE (ap_hdl, "Gmusic playlist [%s]...",
                  p_obj->playlist_.cPlaylistName);
+      p_obj->playlist_.cAdditionalKeywords[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
+      TIZ_TRACE (ap_hdl, "Gmusic AdditionalKeywords [%s]...",
+                 p_obj->playlist_.cAdditionalKeywords);
     }
   else
     {

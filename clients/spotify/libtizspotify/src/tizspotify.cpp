@@ -137,6 +137,9 @@ tizspotify::tizspotify ()
     current_track_release_date_ (),
     current_track_duration_ (),
     current_track_album_art_ (),
+    current_track_uri_ (),
+    current_track_artist_uri_ (),
+    current_track_album_uri_ (),
     current_queue_progress_ ()
 {
 }
@@ -204,6 +207,87 @@ int tizspotify::play_playlist (const std::string &playlist,
   int rc = 0;
   try_catch_wrapper (py_spotify_proxy_.attr ("enqueue_playlist") (
       bp::object (playlist), bp::object (owner)));
+  return rc;
+}
+
+int tizspotify::play_track_id (const std::string &track_id)
+{
+  int rc = 0;
+  try_catch_wrapper (
+      py_spotify_proxy_.attr ("enqueue_track_id") (bp::object (track_id)));
+  return rc;
+}
+
+int tizspotify::play_artist_id (const std::string &artist_id)
+{
+  int rc = 0;
+  try_catch_wrapper (
+      py_spotify_proxy_.attr ("enqueue_artist_id") (bp::object (artist_id)));
+  return rc;
+}
+
+int tizspotify::play_album_id (const std::string &album_id)
+{
+  int rc = 0;
+  try_catch_wrapper (
+      py_spotify_proxy_.attr ("enqueue_album_id") (bp::object (album_id)));
+  return rc;
+}
+
+int tizspotify::play_playlist_id (const std::string &playlist_id,
+                                  const std::string &owner)
+{
+  int rc = 0;
+  try_catch_wrapper (py_spotify_proxy_.attr ("enqueue_playlist_id") (
+      bp::object (playlist_id), bp::object (owner)));
+  return rc;
+}
+
+int tizspotify::play_related_artists (const std::string &artist)
+{
+  int rc = 0;
+  try_catch_wrapper (
+      py_spotify_proxy_.attr ("enqueue_related_artists") (bp::object (artist)));
+  return rc;
+}
+
+int tizspotify::play_featured_playlist (const std::string &playlist)
+{
+  int rc = 0;
+  try_catch_wrapper (py_spotify_proxy_.attr ("enqueue_featured_playlist") (
+      bp::object (playlist)));
+  return rc;
+}
+
+int tizspotify::play_new_releases (const std::string &album)
+{
+  int rc = 0;
+  try_catch_wrapper (py_spotify_proxy_.attr ("enqueue_new_releases") (
+      bp::object (album)));
+  return rc;
+}
+
+int tizspotify::play_recommendations_by_track_id (const std::string &track_id)
+{
+  int rc = 0;
+  try_catch_wrapper (py_spotify_proxy_.attr ("enqueue_recommendations_by_track_id") (
+      bp::object (track_id)));
+  return rc;
+}
+
+int tizspotify::play_recommendations_by_artist_id (const std::string &artist_id)
+{
+  int rc = 0;
+  try_catch_wrapper (py_spotify_proxy_.attr ("enqueue_recommendations_by_artist_id") (
+      bp::object (artist_id)));
+  return rc;
+}
+
+int tizspotify::play_recommendations_by_genre (const std::string &genre)
+{
+  int rc = 0;
+  try_catch_wrapper (py_spotify_proxy_.attr ("enqueue_recommendations_by_genre") (
+      bp::object (genre)));
   return rc;
 }
 
@@ -351,6 +435,21 @@ const char *tizspotify::get_current_track_album_art ()
                                            : current_track_album_art_.c_str ();
 }
 
+const char *tizspotify::get_current_track_uri ()
+{
+  return current_track_uri_.empty () ? NULL : current_track_uri_.c_str ();
+}
+
+const char *tizspotify::get_current_track_artist_uri ()
+{
+  return current_track_artist_uri_.empty () ? NULL : current_track_artist_uri_.c_str ();
+}
+
+const char *tizspotify::get_current_track_album_uri ()
+{
+  return current_track_album_uri_.empty () ? NULL : current_track_album_uri_.c_str ();
+}
+
 int tizspotify::get_current_track ()
 {
   int rc = 0;
@@ -362,6 +461,9 @@ int tizspotify::get_current_track ()
   current_track_release_date_.clear ();
   current_track_duration_.clear ();
   current_track_album_art_.clear ();
+  current_track_uri_.clear ();
+  current_track_artist_uri_.clear ();
+  current_track_album_uri_.clear ();
 
   const bp::tuple &queue_info = bp::extract< bp::tuple > (
       py_spotify_proxy_.attr ("current_track_queue_index_and_queue_length") ());
@@ -443,6 +545,27 @@ int tizspotify::get_current_track ()
   if (p_album_art)
     {
       current_track_album_art_.assign (p_album_art);
+    }
+
+  const char *p_uri = bp::extract< char const * > (
+      py_spotify_proxy_.attr ("current_track_uri") ());
+  if (p_uri)
+    {
+      current_track_uri_.assign (p_uri);
+    }
+
+  const char *p_artist_uri = bp::extract< char const * > (
+      py_spotify_proxy_.attr ("current_track_artist_uri") ());
+  if (p_artist_uri)
+    {
+      current_track_artist_uri_.assign (p_artist_uri);
+    }
+
+  const char *p_album_uri = bp::extract< char const * > (
+      py_spotify_proxy_.attr ("current_track_album_uri") ());
+  if (p_album_uri)
+    {
+      current_track_album_uri_.assign (p_album_uri);
     }
 
   return rc;

@@ -20,10 +20,21 @@ _arguments -S -s \
   '--spotify-user[Spotify user name.]' \
   '--spotify-password[Spotify user password.]' \
   '--spotify-owner[The owner of the playlist (optional, may be used in conjunction with --spotify-playlist).]' \
+  '--spotify-recover-lost-token[Allow Tizonia to recover the play token and keep playing after a spurious token loss (default: false).]' \
   '--spotify-tracks[Search and play from Spotify by track name.]' \
   '--spotify-artist[Search and play from Spotify by artist name.]' \
   '--spotify-album[Search and play from Spotify by album name.]' \
   '--spotify-playlist[Search and play public playlists (owner is assumed current user, unless --spotify-owner is provided).]' \
+  '--spotify-track-id[Play from Spotify by track ID, URI or URL.]' \
+  '--spotify-artist-id[Play from Spotify by artist ID, URI or URL.]' \
+  '--spotify-album-id[Play from Spotify by album ID, URI or URL.]' \
+  '--spotify-playlist-id[Play public playlists from Spotify by ID, URI or URL.]' \
+  '--spotify-related-artists[Search and play from Spotify the top songs from a selection of related artists.]' \
+  '--spotify-featured-playlist[Search and play a featured playlist from Spotify.]' \
+  '--spotify-new-releases[Search and play a newly released album from Spotify.]' \
+  '--spotify-recommendations-by-track-id[Play Spotify recommendations by track ID, URI or URL.]' \
+  '--spotify-recommendations-by-artist-id[Play Spotify recommendations by artist ID, URI or URL.]' \
+  '--spotify-recommendations-by-genre[Play Spotify recommendations by genre name.]' \
   '--gmusic-user[Google Play Music user name (not required if provided via config file).]' \
   '--gmusic-password[Google Play Music users password (not required if provided via config file).]' \
   '--gmusic-device-id[Google Play Music device id (not required if provided via config file).]' \
