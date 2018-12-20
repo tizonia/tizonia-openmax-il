@@ -1125,7 +1125,7 @@ class tizgmusicproxy(object):
 #                 u'title': u'Office radio',
 #                 u'wideImageUrl': u'http://lh3.googleusercontent.com/Ma7Uy3T6rMSHADWneS4ybErNlkNu1AV0jAl9gZpkj6Ms52ivGsGA6caCjiIdlDC9DgKi1VWZ2GI=s1080'},
 #  u'type': u'7'}
-# [Google Play Music] [office radio] 'Office radio : We’ll play you great songs that the whole office can enjoy.'.
+# [Google Play Music] [office radio] 'Office radio : We will play you great songs that the whole office can enjoy.'.
 # {u'cluster': [{u'category': u'1', u'id': u'search_situation', u'type': u'7'}],
 #  u'situation': {u'description': u'We\u2019ll play you some spacious, mind freeing music to help you concentrate and focus.',
 #                 u'id': u'Nlhbc6nnqlrrm2hsgsrffcmwoea',
@@ -1133,7 +1133,7 @@ class tizgmusicproxy(object):
 #                 u'title': u'Deep focus',
 #                 u'wideImageUrl': u'http://lh3.googleusercontent.com/sNGG9qdeQ1aYc_0Cq3XrICPT-Rqnjt4wYOOMYWvwJOov_ZciPZfruOMhHkQmJdqEvD_veDUdaTM=s1080'},
 #  u'type': u'7'}
-# [Google Play Music] [office radio] 'Deep focus : We’ll play you some spacious, mind freeing music to help you concentrate and focus.'.
+# [Google Play Music] [office radio] 'Deep focus : We will play you some spacious, mind freeing music to help you concentrate and focus.'.
 
             situation_hits = results['station_hits']
             # If there is no best result, then get a selection of tracks from
