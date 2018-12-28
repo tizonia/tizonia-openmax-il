@@ -194,12 +194,11 @@ class tizsoundcloudproxy(object):
         """
         try:
             logging.info("enqueue_user_likes")
-            likes_resource = self.__api.get('/e1/me/likes', limit=100)
+            likes_resource = self.__api.get('/me/favorites', limit=100)
             count = 0
             for resource in likes_resource:
                 like = resource.fields()
-                track = like.get('track')
-                if track and track['streamable']:
+                if like and like['streamable']:
                     self.queue.append(track)
                     count += 1
                 playlist = like.get('playlist')
