@@ -199,7 +199,7 @@ class tizsoundcloudproxy(object):
             for resource in likes_resource:
                 like = resource.fields()
                 if like and like['streamable']:
-                    self.queue.append(track)
+                    self.queue.append(like)
                     count += 1
                 playlist = like.get('playlist')
                 if playlist:
