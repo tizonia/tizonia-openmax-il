@@ -444,8 +444,9 @@ analyze_pattern (FILE * ap_file, char * ap_str, keyval_t ** app_last_kv,
     }
   else if (strstr (ap_str, "="))
     {
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "key-value pair : [%s]", ap_str);
-      return extractkeyval (ap_file, ap_str, app_last_kv, ap_tiz_rcfile);
+      char * str = trimwhitespace (ap_str);
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "key-value pair : [%s]", str);
+      return extractkeyval (ap_file, str, app_last_kv, ap_tiz_rcfile);
     }
 
   return 0;
