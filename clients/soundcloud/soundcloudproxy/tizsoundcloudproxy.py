@@ -161,24 +161,25 @@ class tizsoundcloudproxy(object):
         """
         try:
             logging.info("enqueue_user_stream")
-            stream_resource = self.__api.get('/e1/me/stream', offset=0)
+            stream_resource = self.__api.get('/me/activities', offset=0)
             count = 0
             stream = stream_resource.fields()
             for data in stream.get('collection'):
-                kind = data.get('type')
+                item = data.get('origin')
+                kind = item.get('kind')
                 # multiple types of track with same data
                 if 'track' in kind:
-                    track = data.get('track')
-                    if track['streamable']:
-                        self.queue.append(track)
+                    if item['streamable']:
+                        self.queue.append(item)
                         count += 1
                 if kind == 'playlist':
-                    tracks = data.get('playlist').get('tracks')
-                    if isinstance(tracks, collections.Iterable):
-                        for track in tracks:
-                            if track['streamable']:
-                                self.queue.append(track)
-                                count += 1
+                    playlist_tracks_uri = '/playlists/' + str(item.get("id")) + '/tracks'
+                    tracks_resource = self.__api.get(playlist_tracks_uri, offset=0)
+                    for resource in tracks_resource:
+                        track = resource.fields()
+                        if track['streamable']:
+                            self.queue.append(track)
+                            count += 1
             if count == 0:
                 raise KeyError
             logging.info("Added {0} stream tracks to queue" \
