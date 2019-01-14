@@ -110,13 +110,17 @@ Debian-compatible system is by running the following command:
 - [tizonia-all-git (HEAD of master branch)](https://aur.archlinux.org/packages/tizonia-all-git/)
 
 ```bash
+    
+    # for the latest stable release
+    $ git clone https://aur.archlinux.org/tizonia-all.git
+    $ cd tizonia-all
+    $ makepkg -si
 
-    $ yaourt -S tizonia-all # for the latest stable release
-
-    # or
-
-    $ yaourt -S tizonia-all-git # for the bleeding edge
-
+    # or for the bleeding edge
+    $ git clone https://aur.archlinux.org/tizonia-all-git.git
+    $ cd tizonia-all
+    $ makepkg -si
+    
 ```
 
 ## Snap Package
