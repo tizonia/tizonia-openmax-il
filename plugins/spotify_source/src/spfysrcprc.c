@@ -116,6 +116,13 @@ struct spfy_music_delivery_data
   int num_frames;
 };
 
+typedef struct spfy_login_failure_data spfy_login_failure_data_t;
+struct spfy_login_failure_data
+{
+  sp_session * p_sess;
+  sp_error login_error;
+};
+
 static char *
 concat (const char * s1, const char * s2)
 {
@@ -916,6 +923,63 @@ start_playback (spfysrc_prc_t * ap_prc)
     }
 }
 
+static void
+login_failure_handler (OMX_PTR ap_prc, tiz_event_pluggable_t * ap_event)
+{
+  spfysrc_prc_t * p_prc = ap_prc;
+  assert (p_prc);
+  assert (ap_event);
+
+  if (ap_event->p_data)
+    {
+      spfy_login_failure_data_t * p_data = ap_event->p_data;
+      switch (p_data->login_error)
+        {
+        case SP_ERROR_CLIENT_TOO_OLD:
+          {
+            TIZ_PRINTF_RED ("[Spotify] [FATAL] Login attempt failed. "
+                            "Client too old.");
+          }
+          break;
+        case SP_ERROR_UNABLE_TO_CONTACT_SERVER:
+          {
+            TIZ_PRINTF_RED ("[Spotify] [FATAL] Login attempt failed. "
+                            "Unable to contact server.");
+          }
+          break;
+        case SP_ERROR_BAD_USERNAME_OR_PASSWORD:
+          {
+            TIZ_PRINTF_RED ("[Spotify] [FATAL] Login attempt failed. "
+                            "Bad user name or password.");
+          }
+          break;
+        case SP_ERROR_USER_BANNED:
+          {
+            TIZ_PRINTF_RED ("[Spotify] [FATAL] Login attempt failed. "
+                            "User banned.");
+          }
+          break;
+        case SP_ERROR_USER_NEEDS_PREMIUM:
+          {
+            TIZ_PRINTF_RED ("[Spotify] [FATAL] Login attempt failed. "
+                            "User needs premium.");
+          }
+          break;
+        case SP_ERROR_OTHER_TRANSIENT:
+        case SP_ERROR_OTHER_PERMANENT:
+        default:
+          {
+            TIZ_PRINTF_RED ("[Spotify] [FATAL] Login attempt failed.");
+          }
+          break;
+        };
+      tiz_mem_free (ap_event->p_data);
+    }
+  (void) tiz_srv_issue_err_event ((OMX_PTR) ap_prc,
+                                  OMX_ErrorInsufficientResources);
+  tiz_mem_free (ap_event);
+}
+
 /**
  * This callback is called when an attempt to login has succeeded or failed.
  *
@@ -935,6 +999,17 @@ logged_in (sp_session * sess, sp_error error)
       set_spotify_session_options (p_prc);
       start_playback (p_prc);
       (void) sp_rc;
+    }
+  else if (SP_ERROR_BAD_USERNAME_OR_PASSWORD == error)
+    {
+      spfy_login_failure_data_t * p_data
+        = tiz_mem_calloc (1, sizeof (spfy_login_failure_data_t));
+      if (p_data)
+        {
+          p_data->p_sess = sess;
+          p_data->login_error = error;
+          post_spotify_event (sp_session_userdata (sess), login_failure_handler, p_data);
+        }
     }
 }
 
@@ -1197,32 +1272,12 @@ play_token_lost (sp_session * sess)
 }
 
 static void
-login_failed_handler (OMX_PTR ap_prc, tiz_event_pluggable_t * ap_event)
-{
-  spfysrc_prc_t * p_prc = ap_prc;
-  assert (p_prc);
-  assert (ap_event);
-
-  TIZ_PRINTF_RED ("[Spotify] [FATAL] Login attempt failed. "
-                  "Please check the username and password.");
-  (void) tiz_srv_issue_err_event ((OMX_PTR) ap_prc,
-                                  OMX_ErrorInsufficientResources);
-  tiz_mem_free (ap_event);
-}
-
-static void
 log_message (sp_session * sess, const char * msg)
 {
   if (strstr (msg, "Request for file") || strstr (msg, "locked")
       || strstr (msg, "ChannelError") || strstr (msg, "handleApErrorCode"))
     {
       TIZ_PRINTF_DBG_RED ("[Spotify] : %s", msg);
-      return;
-    }
-  if (strstr (msg, "no such user"))
-    {
-      TIZ_PRINTF_MAG ("[Spotify] [ERROR] %s", msg);
-      post_spotify_event (sp_session_userdata (sess), login_failed_handler, sess);
       return;
     }
   TIZ_PRINTF_DBG_MAG ("[Spotify] : %s", msg);
