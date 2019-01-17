@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
+# Copyright (C) 2011-2019 Aratelia Limited - Juan A. Rubio
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -222,7 +222,7 @@ function print_dashes {
 #   None
 ##################################################################
 function print_banner_and_license {
-    pretty_print "$BLU" "$1. Copyright (C) 2018 Juan A. Rubio"
+    pretty_print "$BLU" "$1. Copyright (C) 2019 Juan A. Rubio"
     pretty_print "$BLU" "This software is part of the Tizonia project <http://tizonia.org>."
 
     echo

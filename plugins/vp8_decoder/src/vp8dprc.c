@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2019 Aratelia Limited - Juan A. Rubio
  *
  * Portions Copyright (c) 2013 The WebM project authors.
  *

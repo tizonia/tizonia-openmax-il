@@ -1,6 +1,6 @@
 /* -*-Mode: c; -*- */
 /**
- * Copyright (C) 2011-2018 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2019 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
