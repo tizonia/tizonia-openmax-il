@@ -1,3 +1,9 @@
+tizplexproxy (0.17.0-1) unstable; urgency=low
+
+  * New upstream release (Closes: #550)
+
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Thu, 17 Jan 2019 22:46:12 +0000
+
 tizplexproxy (0.16.0-1) unstable; urgency=low
 
   * New upstream release (Closes: #537)
