@@ -186,7 +186,9 @@ function query_commit {
     read -p "Commmit? " -n 1 -r
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         git reset -- $TIZONIA_REPO_DIR/tools/tizonia-prepare-release
-        git commit -a --message="$1" --dry-run
+        git commit -a --message="$1"
+    else
+        git-clear
     fi
     echo
     read -p "Continue? " -n 1 -r && [[ $REPLY =~ ^[Yy]$ ]] || exit 1
