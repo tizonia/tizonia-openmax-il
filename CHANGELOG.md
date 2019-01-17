@@ -1,5 +1,23 @@
 # Change Log
 
+## [v0.17.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.17.0) (2019-01-17)
+[Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.16.0...v0.17.0)
+
+**Fixed bugs:**
+
+- tizgmusicproxy.py: Keep on getting a syntax error \(Non-ASCII character '\xe2'\) [\#542](https://github.com/tizonia/tizonia-openmax-il/issues/542)
+- Spotify: "unable to login offline: no such user" [\#531](https://github.com/tizonia/tizonia-openmax-il/issues/531)
+- tizonia: cannot handle whitespaces in its config file [\#468](https://github.com/tizonia/tizonia-openmax-il/issues/468)
+
+**Closed issues:**
+
+- spotify credentials in ~/.config/tizonia/tizonia.conf issue [\#545](https://github.com/tizonia/tizonia-openmax-il/issues/545)
+
+**Merged pull requests:**
+
+- README: arch install notes [\#549](https://github.com/tizonia/tizonia-openmax-il/pull/549) ([sjugge](https://github.com/sjugge))
+- Fixed the fetching of user likes & stream on soundcloud [\#548](https://github.com/tizonia/tizonia-openmax-il/pull/548) ([seifane](https://github.com/seifane))
+
 ## [v0.16.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.16.0) (2018-12-03)
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.15.0...v0.16.0)
 
