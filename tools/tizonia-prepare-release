@@ -183,6 +183,7 @@ function update_changelog {
 
 function query_commit {
     tig
+    echo
     read -p "Commmit? " -n 1 -r
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         git reset -- $TIZONIA_REPO_DIR/tools/tizonia-prepare-release
@@ -206,13 +207,13 @@ function main {
 
     print_banner "[START] : Preparing Tizonia for release; version [$TIZONIA_RELEASE_VERSION]" "$YEL"
 
-    update_package_versions
-    update_plugin_shared_lib_versions
-    update_shared_lib_versions
-    update_python_version_strings
-    update_debian_changelog_files
-    update_doxygen_doc_version_strings
-    update_sphinx_doc_version_strings
+    # update_package_versions
+    # update_plugin_shared_lib_versions
+    # update_shared_lib_versions
+    # update_python_version_strings
+    # update_debian_changelog_files
+    # update_doxygen_doc_version_strings
+    # update_sphinx_doc_version_strings
 
     # Do the following manual steps at this point
     # 7.- Update README.md (as many changes as needed).
