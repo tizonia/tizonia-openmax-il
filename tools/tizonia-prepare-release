@@ -58,20 +58,20 @@
 source tizonia-common.inc
 
 # Constants
-readonly TIZONIA_OLD_PACKAGE_VER="0.15.0"
+readonly TIZONIA_OLD_PACKAGE_VER="0.16.0"
 readonly TIZONIA_NEW_PACKAGE_VER="$TIZONIA_RELEASE_VERSION"
 
-readonly TIZONIA_PLUGIN_OLD_SHLIB_VER="0:15:0"
-readonly TIZONIA_PLUGIN_NEW_SHLIB_VER="0:16:0"
+readonly TIZONIA_PLUGIN_OLD_SHLIB_VER="0:16:0"
+readonly TIZONIA_PLUGIN_NEW_SHLIB_VER="0:17:0"
 
-readonly TIZONIA_OLD_SHLIB_VER="0:15:0"
-readonly TIZONIA_NEW_SHLIB_VER="0:16:0"
+readonly TIZONIA_OLD_SHLIB_VER="0:16:0"
+readonly TIZONIA_NEW_SHLIB_VER="0:17:0"
 
-readonly TIZONIA_PYTHON_OLD_MODULE_VER="0.15.0"
+readonly TIZONIA_PYTHON_OLD_MODULE_VER="0.16.0"
 readonly TIZONIA_PYTHON_NEW_MODULE_VER="$TIZONIA_RELEASE_VERSION"
 
 readonly TIZONIA_DEBIAN_CHANGELOG_VER="$TIZONIA_NEW_PACKAGE_VER"
-readonly TIZONIA_DEBIAN_CHANGELOG_CLOSING_BUG="537"
+readonly TIZONIA_DEBIAN_CHANGELOG_CLOSING_BUG="550"
 
 # Program dependencies
 declare -ar TIZONIA_PREPARE_RELEASE_DEPS=( \
@@ -93,6 +93,8 @@ function update_package_versions {
     perl -i -p -e "s/(?<=AC_INIT)(.*)\s\[$OLD_VER_QUOTED\]/\1 [$NEW_VER]/g" \
         $(find -L "$TIZONIA_REPO_DIR" -type f \( -path "./tools/*" -prune \) -o \( -name '*.ac' \) -print)
     pretty_print "$BLU" "[DONE] : updating package versions."
+
+    query_commit "release $TIZONIA_RELEASE_VERSION: update_package_versions"
 }
 
 function update_shared_lib_versions {
@@ -105,6 +107,8 @@ function update_shared_lib_versions {
         \( -path "./tools/*" -prune \) -o \
         \( -name '*.ac' \) -print)
     pretty_print "$BLU" "[DONE] : updating shared lib versions."
+
+    query_commit "release $TIZONIA_RELEASE_VERSION: update_shared_lib_versions"
 }
 
 function update_plugin_shared_lib_versions {
@@ -115,6 +119,8 @@ function update_plugin_shared_lib_versions {
     perl -i -p -e "s/(?<=SHARED_VERSION_INFO=\")$OLD_VER/$NEW_VER/g" \
         $(find -L . -type f \( -path "./tools/*" -prune \) -o \( -name '*.ac' \) -print)
     pretty_print "$BLU" "[DONE] : updating plugins shared lib versions."
+
+    query_commit "release $TIZONIA_RELEASE_VERSION: update_plugin_shared_lib_versions"
 }
 
 function update_python_version_strings {
@@ -125,6 +131,8 @@ function update_python_version_strings {
     perl -i -p -e "s/$OLD_VER/$NEW_VER/g" \
         $(find -L . -type f \( -path "./tools/*" -prune \) -o \( -name '_version.py' \) -print)
     pretty_print "$BLU" "[DONE] : updating python version strings."
+
+    query_commit "release $TIZONIA_RELEASE_VERSION: update_python_version_strings"
 }
 
 function update_debian_changelog_files {
@@ -138,6 +146,8 @@ function update_debian_changelog_files {
         dch --newversion "$NEW_VER"-1 --upstream --urgency low --distribution unstable "New upstream release (Closes: #$CLOSING_BUG)"
     done
     pretty_print "$BLU" "[DONE] : updating Debian changelog files."
+
+    query_commit "release $TIZONIA_RELEASE_VERSION: update_debian_changelog_files"
 }
 
 function update_doxygen_doc_version_strings {
@@ -148,6 +158,8 @@ function update_doxygen_doc_version_strings {
     perl -i -p -e "s/$OLD_VER/$NEW_VER/g" \
         $(find -L "$TIZONIA_REPO_DIR" -type f -name 'doxyfile.rtd' -print)
     pretty_print "$BLU" "[DONE] : updating Doxygen doc versions."
+
+    query_commit "release $TIZONIA_RELEASE_VERSION: update_doxygen_doc_version_strings"
 }
 
 function update_sphinx_doc_version_strings {
@@ -158,11 +170,26 @@ function update_sphinx_doc_version_strings {
     perl -i -p -e "s/$OLD_VER/$NEW_VER/g" \
         $(find -L "$TIZONIA_REPO_DIR" -type f -name 'conf.py' -print)
     pretty_print "$BLU" "[DONE] : updating Sphinx doc versions."
+
+    query_commit "release $TIZONIA_RELEASE_VERSION: update_sphinx_doc_version_strings"
 }
 
 function update_changelog {
     cd "$TIZONIA_REPO_DIR"
     github_changelog_generator --future-release "$TIZONIA_RELEASE_VERSION" --enhancement-label "**Improvements:**" tizonia/tizonia-openmax-il
+
+    query_commit "release $TIZONIA_RELEASE_VERSION: update_changelog"
+}
+
+function query_commit {
+    tig
+    read -p "Commmit? " -n 1 -r
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        git commit -a --message=$1 --dry-run
+    fi
+    echo
+    read -p "Continue? " -n 1 -r && [[ $REPLY =~ ^[Yy]$ ]] || exit 1
+    echo
 }
 
 function main {
@@ -175,6 +202,7 @@ function main {
     done
 
     print_banner "[START] : Preparing Tizonia for release; version [$TIZONIA_RELEASE_VERSION]" "$YEL"
+
     # update_package_versions
     # update_plugin_shared_lib_versions
     # update_shared_lib_versions
@@ -195,7 +223,7 @@ function main {
     # $ git tag -d v0.2.0
     # $ git push origin :refs/tags/v0.2.0
 
-    print_banner "[DONE] : Updating files." "$BLU" 
+    print_banner "[DONE] : Updating files." "$BLU"
 
 }
 
