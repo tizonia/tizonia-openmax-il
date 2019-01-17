@@ -220,7 +220,7 @@ function main {
     # 8.- Close github issue: release vx.x.x
     # 9.- Create release and tag it on GitHub.
 
-    update_changelog
+    # update_changelog
 
     # Now Delete the tag on Github, push the changes to CHANGELOG.md and re-create the tag
     # $ git tag -l
