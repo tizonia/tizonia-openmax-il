@@ -116,8 +116,12 @@ Debian-compatible system is by running the following command:
 - [tizonia-all-git (HEAD of master branch)](https://aur.archlinux.org/packages/tizonia-all-git/)
 
 ```bash
-    
-    # for the latest stable release
+
+    # Please note that if you are upgrading your existing
+    # Tizonia installation, you *need* to uninstall it before installing a new version.
+    # See GitHub issue https://github.com/tizonia/tizonia-openmax-il/issues/485
+
+    # For the latest stable release
     $ git clone https://aur.archlinux.org/tizonia-all.git
     $ cd tizonia-all
     $ makepkg -si
@@ -126,7 +130,7 @@ Debian-compatible system is by running the following command:
     $ git clone https://aur.archlinux.org/tizonia-all-git.git
     $ cd tizonia-all
     $ makepkg -si
-    
+
 ```
 
 ## Snap Package
