@@ -2,7 +2,7 @@
 
 _githubname=tizonia-openmax-il
 pkgname=tizonia-all-git
-pkgver=0.16.0.r0.g561d1aad
+pkgver=0.17.0.r3.gf55b8759
 pkgrel=1
 pkgdesc="Command-line cloud music player for Linux with support for Spotify, Google Play Music, YouTube, SoundCloud, Dirble, Plex servers and Chromecast devices."
 arch=('x86_64')
@@ -62,6 +62,11 @@ pkgver() {
 }
 
 prepare() {
+  command -v tizonia &> /dev/null \
+      && { \
+      echo >&2 "Please uninstall tizonia-all or tizonia-all-git before proceeding." ; \
+      echo >&2 "See https://github.com/tizonia/tizonia-openmax-il/issues/485." ; \
+      exit 1; }
   mkdir -p "$srcdir/path"
   # Tizonia expects Python 2
   ln -sf /usr/bin/python2 "$srcdir/path/python"
