@@ -242,7 +242,8 @@ public:
 
     // TODO: think about return type in this case
     // this assert should help me to find the use case where it's needed...
-    //assert (false);
+    assert (false);
+    return _cb->call(param);
   }
 
   R call(P param) const
@@ -254,7 +255,8 @@ public:
 
     // TODO: think about return type in this case
     // this assert should help me to find the use case where it's needed...
-    //assert (false);
+    assert (false);
+    return _cb->call(param);
   }
 
   bool empty() const
