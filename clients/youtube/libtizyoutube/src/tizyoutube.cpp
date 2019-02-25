@@ -269,10 +269,8 @@ const char *tizyoutube::get_next_url (const bool a_remove_current_url)
         {
           py_yt_proxy_.attr ("remove_current_url") ();
         }
-      const char *p_next_url
-          = bp::extract< char const * > (py_yt_proxy_.attr ("next_url") ());
-      current_url_.assign (p_next_url);
-      if (!p_next_url || get_current_stream ())
+      current_url_ = bp::extract< std::string > (py_yt_proxy_.attr ("next_url") ());
+      if (get_current_stream ())
         {
           current_url_.clear ();
         }
@@ -296,10 +294,8 @@ const char *tizyoutube::get_prev_url (const bool a_remove_current_url)
         {
           py_yt_proxy_.attr ("remove_current_url") ();
         }
-      const char *p_prev_url
-          = bp::extract< char const * > (py_yt_proxy_.attr ("prev_url") ());
-      current_url_.assign (p_prev_url);
-      if (!p_prev_url || get_current_stream ())
+      current_url_ = bp::extract< std::string > (py_yt_proxy_.attr ("prev_url") ());
+      if (get_current_stream ())
         {
           current_url_.clear ();
         }
@@ -452,19 +448,11 @@ int tizyoutube::get_current_stream ()
   current_queue_length_.assign (
       boost::lexical_cast< std::string > (queue_length));
 
-  const char *p_title = bp::extract< char const * > (
+  current_stream_title_ = bp::extract< std::string > (
       py_yt_proxy_.attr ("current_audio_stream_title") ());
-  if (p_title)
-    {
-      current_stream_title_.assign (p_title);
-    }
 
-  const char *p_author = bp::extract< char const * > (
+  current_stream_author_ = bp::extract< std::string > (
       py_yt_proxy_.attr ("current_audio_stream_author") ());
-  if (p_author)
-    {
-      current_stream_author_.assign (p_author);
-    }
 
   const int file_size = bp::extract< int > (
       py_yt_proxy_.attr ("current_audio_stream_file_size") ());
@@ -472,12 +460,11 @@ int tizyoutube::get_current_stream ()
       boost::lexical_cast< std::string > (file_size / (1024 * 1024)));
   current_stream_file_size_.append (" MiB");
 
-  const char *p_duration = bp::extract< char const * > (
+  std::string duration = bp::extract< std::string > (
       py_yt_proxy_.attr ("current_audio_stream_duration") ());
-  if (p_duration)
+  if (duration.length())
     {
-      std::string value;
-      value.assign (p_duration);
+      std::string value = duration;
       std::vector< std::string > strs;
       boost::split (strs, value, boost::is_any_of (":"));
       std::reverse(strs.begin(), strs.end());
@@ -518,23 +505,19 @@ int tizyoutube::get_current_stream ()
         }
     }
 
-  const char *p_bitrate = bp::extract< char const * > (
+  current_stream_bitrate_ = bp::extract< std::string > (
       py_yt_proxy_.attr ("current_audio_stream_bitrate") ());
-  if (p_bitrate)
-    {
-      current_stream_bitrate_.assign (p_bitrate);
-    }
 
   const int view_count = bp::extract< int > (
       py_yt_proxy_.attr ("current_audio_stream_view_count") ());
   current_stream_view_count_.assign (
       boost::lexical_cast< std::string > (view_count));
 
-  const char *p_description = bp::extract< char const * > (
+  std::string description = bp::extract< std::string > (
       py_yt_proxy_.attr ("current_audio_stream_description") ());
-  if (p_description)
+  if (description.length())
     {
-      current_stream_description_.assign (p_description);
+      current_stream_description_ = description;
       current_stream_description_.erase (
           std::remove (current_stream_description_.begin (),
                        current_stream_description_.end (), '\n'),
@@ -545,26 +528,14 @@ int tizyoutube::get_current_stream ()
           current_stream_description_.end ());
     }
 
-  const char *p_file_extension = bp::extract< char const * > (
+  current_stream_file_extension_ = bp::extract< std::string > (
       py_yt_proxy_.attr ("current_audio_stream_file_extension") ());
-  if (p_file_extension)
-    {
-      current_stream_file_extension_.assign (p_file_extension);
-    }
 
-  const char *p_video_id = bp::extract< char const * > (
+  current_stream_video_id_ = bp::extract< std::string > (
       py_yt_proxy_.attr ("current_audio_stream_video_id") ());
-  if (p_video_id)
-    {
-      current_stream_video_id_.assign (p_video_id);
-    }
 
-  const char *p_published = bp::extract< char const * > (
+  current_stream_published_ = bp::extract< std::string > (
       py_yt_proxy_.attr ("current_audio_stream_published") ());
-  if (p_published)
-    {
-      current_stream_published_.assign (p_published);
-    }
 
   return rc;
 }
