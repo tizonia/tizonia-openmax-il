@@ -742,10 +742,14 @@ class tizgmusicproxy(object):
             max_rel_artist = 0
             artist_tracks = dict()
             if artist:
-                artist_tracks = self.__gmusic.get_artist_info \
+                artist_dict = self.__gmusic.get_artist_info \
                                 (artist['artist']['artistId'],
                                  include_albums, max_top_tracks,
-                                 max_rel_artist)['topTracks']
+                                 max_rel_artist)
+                if artist_dict.get('topTracks'):
+                    artist_tracks = artist_dict['topTracks']
+                else:
+                    raise RuntimeError("Artist search returned no tracks : {0}".format(arg))
 
             if not artist_tracks:
                 raise KeyError
