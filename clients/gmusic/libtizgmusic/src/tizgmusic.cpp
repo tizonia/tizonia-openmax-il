@@ -285,12 +285,9 @@ const char *tizgmusic::get_next_url ()
   current_url_.clear ();
   try
     {
-      const char *p_next_url
-          = bp::extract< char const * >(py_gm_proxy_.attr ("next_url")());
-      if (p_next_url && !get_current_song ())
-        {
-          current_url_.assign (p_next_url);
-        }
+      current_url_
+          = bp::extract< std::string >(py_gm_proxy_.attr ("next_url")());
+      get_current_song ();
     }
   catch (bp::error_already_set &e)
     {
@@ -307,12 +304,9 @@ const char *tizgmusic::get_prev_url ()
   current_url_.clear ();
   try
     {
-      const char *p_prev_url
-          = bp::extract< char const * >(py_gm_proxy_.attr ("prev_url")());
-      if (p_prev_url && !get_current_song ())
-        {
-          current_url_.assign (p_prev_url);
-        }
+      current_url_
+          = bp::extract< std::string > (py_gm_proxy_.attr ("prev_url") ());
+      get_current_song ();
     }
   catch (bp::error_already_set &e)
     {
@@ -402,9 +396,8 @@ void tizgmusic::set_playback_mode (const playback_mode mode)
   (void)rc;
 }
 
-int tizgmusic::get_current_song ()
+void tizgmusic::get_current_song ()
 {
-  int rc = 1;
   current_artist_.clear ();
   current_title_.clear ();
   current_song_genre_.clear ();
@@ -412,27 +405,13 @@ int tizgmusic::get_current_song ()
 
   const bp::tuple &info1 = bp::extract< bp::tuple >(
       py_gm_proxy_.attr ("current_song_title_and_artist")());
-  const char *p_artist = bp::extract< char const * >(info1[0]);
-  const char *p_title = bp::extract< char const * >(info1[1]);
-
-  if (p_artist)
-    {
-      current_artist_.assign (p_artist);
-    }
-  if (p_title)
-    {
-      current_title_.assign (p_title);
-    }
+  current_artist_ = bp::extract< std::string >(info1[0]);
+  current_title_ = bp::extract< std::string >(info1[1]);
 
   const bp::tuple &info2 = bp::extract< bp::tuple >(
       py_gm_proxy_.attr ("current_song_album_and_duration")());
-  const char *p_album = bp::extract< char const * >(info2[0]);
+  current_album_ = bp::extract< std::string >(info2[0]);
   int duration = bp::extract< int >(info2[1]);
-
-  if (p_album)
-    {
-      current_album_.assign (p_album);
-    }
 
   int seconds = 0;
   current_duration_.clear ();
@@ -479,24 +458,9 @@ int tizgmusic::get_current_song ()
   const int song_year = bp::extract< int >(py_gm_proxy_.attr ("current_song_year")());
   current_song_year_.assign (boost::lexical_cast< std::string >(song_year));
 
-  const char *p_genre = bp::extract< char const * >(
+  current_song_genre_ = bp::extract< std::string >(
       py_gm_proxy_.attr ("current_song_genre")());
-  if (p_genre)
-    {
-      current_song_genre_.assign (p_genre);
-    }
 
-  const char *p_album_art = bp::extract< char const * >(
+  current_song_album_art_ = bp::extract< std::string >(
       py_gm_proxy_.attr ("current_song_album_art")());
-  if (p_album_art)
-    {
-      current_song_album_art_.assign (p_album_art);
-    }
-
-  if (p_artist || p_title)
-    {
-      rc = 0;
-    }
-
-  return rc;
 }

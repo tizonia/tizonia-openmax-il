@@ -85,7 +85,7 @@ public:
   const char * get_current_song_album_art ();
 
 private:
-  int get_current_song ();
+  void get_current_song ();
 
 private:
   std::string user_;
