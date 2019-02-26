@@ -81,7 +81,7 @@ public:
   const char *get_current_audio_track_album_art ();
 
 private:
-  int get_current_track ();
+  void get_current_track ();
 
 private:
   std::string base_url_;
