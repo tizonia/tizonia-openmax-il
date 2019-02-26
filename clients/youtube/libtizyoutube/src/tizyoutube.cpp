@@ -270,10 +270,7 @@ const char *tizyoutube::get_next_url (const bool a_remove_current_url)
           py_yt_proxy_.attr ("remove_current_url") ();
         }
       current_url_ = bp::extract< std::string > (py_yt_proxy_.attr ("next_url") ());
-      if (get_current_stream ())
-        {
-          current_url_.clear ();
-        }
+      get_current_stream ();
     }
   catch (bp::error_already_set &e)
     {
@@ -295,10 +292,7 @@ const char *tizyoutube::get_prev_url (const bool a_remove_current_url)
           py_yt_proxy_.attr ("remove_current_url") ();
         }
       current_url_ = bp::extract< std::string > (py_yt_proxy_.attr ("prev_url") ());
-      if (get_current_stream ())
-        {
-          current_url_.clear ();
-        }
+      get_current_stream ();
     }
   catch (bp::error_already_set &e)
     {
@@ -423,9 +417,8 @@ const char *tizyoutube::get_current_audio_stream_published ()
              : current_stream_published_.c_str ();
 }
 
-int tizyoutube::get_current_stream ()
+void tizyoutube::get_current_stream ()
 {
-  int rc = 0;
   current_stream_index_.clear ();
   current_queue_length_.clear ();
   current_stream_title_.clear ();
@@ -537,5 +530,4 @@ int tizyoutube::get_current_stream ()
   current_stream_published_ = bp::extract< std::string > (
       py_yt_proxy_.attr ("current_audio_stream_published") ());
 
-  return rc;
 }

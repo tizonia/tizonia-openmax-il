@@ -84,7 +84,7 @@ public:
   const char *get_current_audio_stream_published ();
 
 private:
-  int get_current_stream ();
+  void get_current_stream ();
 
 private:
   std::string current_url_;
