@@ -92,7 +92,7 @@ public:
   const char *get_current_track_album_uri ();
 
 private:
-  int get_current_track ();
+  void get_current_track ();
 
 private:
   std::string current_uri_;
