@@ -321,6 +321,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     spotify_pass_ (),
     spotify_owner_ (),
     spotify_recover_lost_token_(false),
+    spotify_allow_explicit_tracks_(false),
     spotify_tracks_ (),
     spotify_artist_ (),
     spotify_album_ (),
@@ -724,6 +725,11 @@ const std::string &tiz::programopts::spotify_owner () const
 bool tiz::programopts::spotify_recover_lost_token () const
 {
   return spotify_recover_lost_token_;
+}
+
+bool tiz::programopts::spotify_allow_explicit_tracks () const
+{
+  return spotify_allow_explicit_tracks_;
 }
 
 const std::vector< std::string >
@@ -1458,6 +1464,10 @@ void tiz::programopts::init_spotify_options ()
        "Allow Tizonia to recover the play token and keep playing after a "
        "spurious token loss (default: false).")
       /* TIZ_CLASS_COMMENT: */
+      ("spotify-allow-explicit-tracks",
+       po::bool_switch (&spotify_allow_explicit_tracks_)->default_value (false),
+       "Allow Tizonia to play explicit tracks from Spotify (default: false).")
+      /* TIZ_CLASS_COMMENT: */
       ("spotify-tracks", po::value (&spotify_tracks_),
        "Search and play from Spotify by track name.")
       /* TIZ_CLASS_COMMENT: */
@@ -1510,7 +1520,8 @@ void tiz::programopts::init_spotify_options ()
   register_consume_function (&tiz::programopts::consume_spotify_client_options);
   all_spotify_client_options_
       = boost::assign::list_of ("spotify-user") ("spotify-password") (
-            "spotify-owner") ("spotify-recover-lost-token") ("spotify-tracks") (
+            "spotify-owner") ("spotify-recover-lost-token") (
+            "spotify-allow-explicit-tracks") ("spotify-tracks") (
             "spotify-artist") ("spotify-album") ("spotify-playlist") (
             "spotify-track-id") ("spotify-artist-id") ("spotify-album-id") (
             "spotify-playlist-id") ("spotify-related-artists") (
@@ -2040,6 +2051,25 @@ int tiz::programopts::consume_spotify_client_options (bool &done,
           spotify_recover_lost_token_ = false;
         }
     }
+
+    // This is to find out if the spotify-allow-explicit-tracks flag has  been
+    // provided on the command line, and the retrieve from the config file.
+    // See https://stackoverflow.com/questions/32150230/boost-program-options-bool-always-true
+    bool allow_explicit_tracks_provided
+        = (std::find (all_given_options_.begin (), all_given_options_.end (),
+                      std::string ("spotify-allow-explicit-tracks"))
+           != all_given_options_.end ());
+    if (!allow_explicit_tracks_provided)
+    {
+      if (!retrieve_bool_from_rc_file_if_found ("tizonia", "spotify.allow_explicit_tracks",
+                                                spotify_allow_explicit_tracks_))
+        {
+          // Just make sure we always default this to false when the flag is
+          // not configured in tizonia.conf.
+          spotify_allow_explicit_tracks_ = false;
+        }
+    }
+
     if (spotify_user_.empty ())
     {
       rc = EXIT_FAILURE;
@@ -2621,6 +2651,7 @@ bool tiz::programopts::validate_spotify_client_options () const
   unsigned int spotify_opts_count
       = vm_.count ("spotify-user") + vm_.count ("spotify-password")
         + vm_.count ("spotify-owner") + vm_.count ("spotify-recover-lost-token")
+        + vm_.count ("spotify-allow-explicit-tracks")
         + vm_.count ("spotify-tracks") + vm_.count ("spotify-artist")
         + vm_.count ("spotify-album") + vm_.count ("spotify-playlist")
         + vm_.count ("spotify-track-id") + vm_.count ("spotify-artist-id")

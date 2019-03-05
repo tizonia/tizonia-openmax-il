@@ -67,7 +67,8 @@ namespace tiz
       OMX_ERRORTYPE set_spotify_session (const OMX_HANDLETYPE handle,
                                          const std::string &user,
                                          const std::string &pass,
-                                         const bool recover_lost_token);
+                                         const bool recover_lost_token,
+                                         const bool allow_explicit_tracks);
       OMX_ERRORTYPE set_spotify_playlist (
           const OMX_HANDLETYPE handle, const std::string &playlist,
           const OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE playlist_type,

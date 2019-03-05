@@ -46,13 +46,15 @@ namespace tiz
                      const std::string &pass,
                      const OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE playlist_type,
                      const std::string &owner,
-                     const bool recover_lost_token)
+                     const bool recover_lost_token,
+                     const bool allow_explicit_tracks)
         : config (playlist),
           user_ (user),
           pass_ (pass),
           playlist_type_ (playlist_type),
           owner_ (owner),
-          recover_lost_token_ (recover_lost_token)
+          recover_lost_token_ (recover_lost_token),
+          allow_explicit_tracks_ (allow_explicit_tracks)
       {
       }
 
@@ -85,12 +87,18 @@ namespace tiz
         return recover_lost_token_;
       }
 
+      bool get_allow_explicit_tracks () const
+      {
+        return allow_explicit_tracks_;
+      }
+
     protected:
       const std::string user_;
       const std::string pass_;
       const OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE playlist_type_;
       const std::string owner_;
       const bool recover_lost_token_;
+      const bool allow_explicit_tracks_;
     };
   }  // namespace graph
 }  // namespace tiz
