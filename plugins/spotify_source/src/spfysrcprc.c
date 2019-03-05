@@ -382,9 +382,20 @@ store_metadata_track_name (spfysrc_prc_t * ap_prc, const char * a_track_name)
 {
   char name_str[SPFYSRC_MAX_STRING_SIZE];
   assert (a_track_name);
-  snprintf (name_str, SPFYSRC_MAX_STRING_SIZE - 1, "%s  [%s]  (%s)", a_track_name,
-            tiz_spotify_get_current_track_uri (ap_prc->p_spfy_web_),
-            tiz_spotify_get_current_queue_progress (ap_prc->p_spfy_web_));
+  const char * p_explicitness = tiz_spotify_get_current_track_explicitness (ap_prc->p_spfy_web_);
+  if (p_explicitness)
+    {
+      snprintf (name_str, SPFYSRC_MAX_STRING_SIZE - 1, "%s  [%s]  [%s]  (%s)", a_track_name,
+                p_explicitness,
+                tiz_spotify_get_current_track_uri (ap_prc->p_spfy_web_),
+                tiz_spotify_get_current_queue_progress (ap_prc->p_spfy_web_));
+    }
+  else
+    {
+      snprintf (name_str, SPFYSRC_MAX_STRING_SIZE - 1, "%s  [%s]  (%s)", a_track_name,
+                tiz_spotify_get_current_track_uri (ap_prc->p_spfy_web_),
+                tiz_spotify_get_current_queue_progress (ap_prc->p_spfy_web_));
+    }
   (void) store_metadata (ap_prc, "Track", name_str);
 }
 
@@ -1564,6 +1575,13 @@ spfysrc_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
   /* Instantiate the spotify web api proxy */
   on_spotifyweb_error_ret_omx_oom (tiz_spotify_init (&(p_prc->p_spfy_web_)));
 
+  /* Set explicit track filter */
+  tiz_spotify_set_explicit_track_filter (
+    p_prc->p_spfy_web_, (p_prc->session_.bAllowExplicitTracks == OMX_TRUE
+                           ? ETIZSpotifyExplicitTrackAllow
+                           : ETIZSpotifyExplicitTrackDisallow));
+
+  /* Create playback queue */
   p_prc->need_url_removed_ = false;
   tiz_check_omx (enqueue_playlist_items (p_prc));
   tiz_check_omx (obtain_next_url (p_prc, 1, p_prc->need_url_removed_));

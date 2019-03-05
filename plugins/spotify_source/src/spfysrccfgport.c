@@ -70,6 +70,7 @@ spfysrc_cfgport_ctor (void * ap_obj, va_list * app)
             sizeof (p_obj->spotifysession_.cUserPassword), "pass");
   p_obj->spotifysession_.bRememberCredentials = OMX_TRUE;
   p_obj->spotifysession_.bRecoverLostToken = OMX_FALSE;
+  p_obj->spotifysession_.bAllowExplicitTracks = OMX_FALSE;
   p_obj->spotifysession_.ePreferredBitRate = OMX_AUDIO_SpotifyBitrate320Kbps;
   p_obj->spotifysession_.eConnectionType
     = OMX_AUDIO_SpotifyConnectionMobileWired;
