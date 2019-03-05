@@ -71,6 +71,7 @@ mpris-enabled = false
 # spotify.password = pass
 # spotify.recover_lost_token = false (set to true to continue playback after
 #                                     the token has been [spuriously?] lost)
+# spotify.allow_explicit_tracks = false (set to true to allow explicit tracks)
 
 # Google Play Music configuration
 # -------------------------------------------------------------------------
