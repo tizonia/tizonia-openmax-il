@@ -140,6 +140,7 @@ tizspotify::tizspotify ()
     current_track_uri_ (),
     current_track_artist_uri_ (),
     current_track_album_uri_ (),
+    current_track_explicitness_(),
     current_queue_progress_ ()
 {
 }
@@ -407,6 +408,32 @@ void tizspotify::set_playback_mode (const playback_mode mode)
   (void)rc;
 }
 
+void tizspotify::set_explicit_track_filter (const explicit_track_filter filter)
+{
+  int rc = 0;
+  switch (filter)
+    {
+      case ExplicitTrackAllow:
+        {
+          try_catch_wrapper (
+              py_spotify_proxy_.attr ("set_explicit_track_filter") ("ALLOW"));
+        }
+        break;
+      case ExplicitTrackDisallow:
+        {
+          try_catch_wrapper (
+              py_spotify_proxy_.attr ("set_explicit_track_filter") ("DISALLOW"));
+        }
+        break;
+      default:
+        {
+          assert (0);
+        }
+        break;
+    };
+  (void)rc;
+}
+
 const char *tizspotify::get_current_track_title ()
 {
   return current_track_title_.empty () ? NULL : current_track_title_.c_str ();
@@ -456,6 +483,11 @@ const char *tizspotify::get_current_track_album_uri ()
   return current_track_album_uri_.empty () ? NULL : current_track_album_uri_.c_str ();
 }
 
+const char *tizspotify::get_current_track_explicitness ()
+{
+  return current_track_explicitness_.empty () ? NULL : current_track_explicitness_.c_str ();
+}
+
 void tizspotify::get_current_track ()
 {
   current_track_index_.clear ();
@@ -469,6 +501,7 @@ void tizspotify::get_current_track ()
   current_track_uri_.clear ();
   current_track_artist_uri_.clear ();
   current_track_album_uri_.clear ();
+  current_track_explicitness_.clear ();
 
   int queue_index = 0;
   int queue_length = 0;
@@ -538,6 +571,9 @@ void tizspotify::get_current_track ()
 
   current_track_album_uri_ = bp::extract< std::string > (
       py_spotify_proxy_.attr ("current_track_album_uri") ());
+
+  current_track_explicitness_ = bp::extract< std::string > (
+      py_spotify_proxy_.attr ("current_track_explicitness") ());
 }
 
 void tizspotify::get_current_track_queue_index_and_length (int &queue_index,

@@ -64,6 +64,16 @@ extern "C"
   } tiz_spotify_playback_mode_t;
 
   /**
+   * Various playback modes that control the playback queue.
+   * @ingroup libtizspotify
+   */
+  typedef enum tiz_spotify_explicit_track_filter_t
+  {
+    ETIZSpotifyExplicitTrackAllow,
+    ETIZSpotifyExplicitTrackDisallow
+  } tiz_spotify_explicit_track_filter_t;
+
+  /**
    * Initialize the tiz_spotify handle.
    *
    * @ingroup libtizspotify
@@ -131,6 +141,18 @@ extern "C"
    */
   void tiz_spotify_set_playback_mode (tiz_spotify_t *ap_spotify,
                                       const tiz_spotify_playback_mode_t mode);
+
+  /**
+   * Allow or disallow explicit tracks in the playback queue.
+   *
+   * @ingroup libtizspotify
+   *
+   * @param ap_spotify The tiz_spotify handle.
+   * @param filter Allow or disallow explicit tracks.
+   */
+  void tiz_spotify_set_explicit_track_filter (
+      tiz_spotify_t *ap_spotify,
+      const tiz_spotify_explicit_track_filter_t filter);
 
   /**
    * Search tracks in Spotify and add them to the playback queue.
@@ -487,6 +509,16 @@ extern "C"
    * @param ap_spotify The tiz_spotify handle.
    */
   const char *tiz_spotify_get_current_track_album_uri (tiz_spotify_t *ap_spotify);
+
+  /**
+   * Return 'Explicit' if the current track is 'explicit', NULL otherwise.
+   *
+   * @ingroup libtizspotify
+   *
+   * @param ap_spotify The tiz_spotify handle.
+   */
+  const char *tiz_spotify_get_current_track_explicitness (
+      tiz_spotify_t *ap_spotify);
 
   /**
    * Destroy the tiz_spotify handle.
