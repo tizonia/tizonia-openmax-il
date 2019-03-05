@@ -79,6 +79,8 @@ struct spfysrc_prc
   tiz_spotify_t * p_spfy_web_;     /* Tizonia's Spotify web api object */
   bool keep_processing_sp_events_; /* callback called from libspotify thread to
                                     * ask us to reiterate the main loop */
+  bool need_url_removed_;          /* Flag to signal when a track needs to be
+                                    * removed from the playback queue */
   int next_timeout_;               /* Remove tracks flag */
 };
 

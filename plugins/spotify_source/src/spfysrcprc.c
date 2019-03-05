@@ -86,7 +86,8 @@ omx_preferred_bitrate_to_spfy (
 static void
 end_of_track_handler (OMX_PTR ap_prc, tiz_event_pluggable_t * ap_event);
 static OMX_ERRORTYPE
-obtain_next_url (spfysrc_prc_t * ap_prc, int a_skip_value);
+obtain_next_url (spfysrc_prc_t * ap_prc, int a_skip_value,
+                 bool a_need_url_removed);
 
 #define on_spotifyweb_error_ret_omx_oom(expr)                                \
   do                                                                         \
@@ -177,6 +178,9 @@ static void
 reset_stream_parameters (spfysrc_prc_t * ap_prc)
 {
   assert (ap_prc);
+  TIZ_INIT_OMX_STRUCT (ap_prc->playlist_skip_);
+  ap_prc->playlist_skip_.nValue = 1;
+  ap_prc->need_url_removed_ = false;
   tiz_buffer_clear (ap_prc->p_store_);
   ap_prc->initial_cache_bytes_
     = ((ARATELIA_SPOTIFY_SOURCE_DEFAULT_BIT_RATE_KBITS * 1000) / 8)
@@ -912,12 +916,23 @@ start_playback (spfysrc_prc_t * ap_prc)
             }
           else
             {
-              TIZ_PRINTF_RED ("[Spotify] [INFO] '%s' not available\n",
+              const int ntracks = tiz_spotify_get_current_queue_length_as_int (
+                ap_prc->p_spfy_web_);
+              TIZ_PRINTF_YEL ("[Spotify] [WARN ] '%s' : track not available.\n",
                               sp_track_name (ap_prc->p_sp_track_));
-
-              /* Let's process a fake end of track event */
-              process_spotify_event (ap_prc, end_of_track_handler,
-                                     ap_prc->p_sp_session_);
+              if (ntracks > 1)
+                {
+                  /* Let's process a fake end of track event */
+                  ap_prc->need_url_removed_ = true;
+                  process_spotify_event (ap_prc, end_of_track_handler,
+                                         ap_prc->p_sp_session_);
+                }
+              else
+                {
+                  TIZ_PRINTF_RED ("[Spotify] [FATAL] 'The playback queue is empty.'\n");
+                  (void) tiz_srv_issue_err_event (
+                    (OMX_PTR) ap_prc, OMX_ErrorInsufficientResources);
+                }
             }
         }
     }
@@ -1209,8 +1224,9 @@ end_of_track_handler (OMX_PTR ap_prc, tiz_event_pluggable_t * ap_event)
           p_prc->p_sp_track_ = NULL;
         }
 
-      p_prc->playlist_skip_.nValue > 0 ? obtain_next_url (p_prc, 1)
-        : obtain_next_url (p_prc, -1);
+      p_prc->playlist_skip_.nValue > 0 ? obtain_next_url (p_prc, 1, p_prc->need_url_removed_)
+        : obtain_next_url (p_prc, -1, p_prc->need_url_removed_);
+      p_prc->need_url_removed_ = false;
       p_prc->playlist_skip_.nValue = 1;
 
       start_playback (p_prc);
@@ -1243,6 +1259,7 @@ play_token_lost_handler (OMX_PTR ap_prc, tiz_event_pluggable_t * ap_event)
       if (p_prc->session_.bRecoverLostToken)
         {
           /* The user wants to continue listening to music on this device */
+          p_prc->need_url_removed_ = false;
           process_spotify_event (p_prc, end_of_track_handler,
                                  p_prc->p_sp_session_);
         }
@@ -1391,7 +1408,8 @@ enqueue_playlist_items (spfysrc_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
-obtain_next_url (spfysrc_prc_t * ap_prc, int a_skip_value)
+obtain_next_url (spfysrc_prc_t * ap_prc, int a_skip_value,
+                 bool a_need_url_removed)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   const long pathname_max = PATH_MAX + NAME_MAX;
@@ -1412,13 +1430,15 @@ obtain_next_url (spfysrc_prc_t * ap_prc, int a_skip_value)
   ap_prc->p_uri_param_->nVersion.nVersion = OMX_VERSION;
 
   {
-    const bool need_url_removed = false;
     const char * p_next_url
       = a_skip_value > 0
-          ? tiz_spotify_get_next_uri (ap_prc->p_spfy_web_, need_url_removed)
-          : tiz_spotify_get_prev_uri (ap_prc->p_spfy_web_, need_url_removed);
-    tiz_check_null_ret_oom (p_next_url);
+          ? tiz_spotify_get_next_uri (ap_prc->p_spfy_web_, a_need_url_removed)
+          : tiz_spotify_get_prev_uri (ap_prc->p_spfy_web_, a_need_url_removed);
 
+    ap_prc->ntracks_
+        = tiz_spotify_get_current_queue_length_as_int (ap_prc->p_spfy_web_);
+
+    if (p_next_url)
     {
       const OMX_U32 url_len = strnlen (p_next_url, pathname_max);
       TIZ_TRACE (handleOf (ap_prc), "URL [%s]", p_next_url);
@@ -1507,6 +1527,7 @@ spfysrc_prc_ctor (void * ap_obj, va_list * app)
   p_prc->p_sp_link_ = NULL;
   p_prc->p_spfy_web_ = NULL;
   p_prc->keep_processing_sp_events_ = false;
+  p_prc->need_url_removed_ = false;
   p_prc->next_timeout_ = 0;
 
   return p_prc;
@@ -1543,8 +1564,9 @@ spfysrc_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
   /* Instantiate the spotify web api proxy */
   on_spotifyweb_error_ret_omx_oom (tiz_spotify_init (&(p_prc->p_spfy_web_)));
 
+  p_prc->need_url_removed_ = false;
   tiz_check_omx (enqueue_playlist_items (p_prc));
-  tiz_check_omx (obtain_next_url (p_prc, 1));
+  tiz_check_omx (obtain_next_url (p_prc, 1, p_prc->need_url_removed_));
 
   /* Create a spotify session */
   p_prc->sp_config_.cache_location
@@ -1756,6 +1778,7 @@ spfysrc_prc_config_change (void * ap_obj, OMX_U32 TIZ_UNUSED (a_pid),
         }
 
       /* Let's process a fake end of track event */
+      p_prc->need_url_removed_ = false;
       process_spotify_event (p_prc, end_of_track_handler, p_prc->p_sp_session_);
     }
   return rc;
