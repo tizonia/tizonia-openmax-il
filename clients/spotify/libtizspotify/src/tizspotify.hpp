@@ -93,6 +93,7 @@ public:
 
 private:
   void get_current_track ();
+  void get_current_track_queue_index_and_length(int &index, int &length);
 
 private:
   std::string current_uri_;
