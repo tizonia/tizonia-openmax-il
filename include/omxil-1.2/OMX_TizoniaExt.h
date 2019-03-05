@@ -319,6 +319,7 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE {
     OMX_U8 cUserPassword[OMX_MAX_STRINGNAME_SIZE];
     OMX_BOOL bRememberCredentials; /**< default: OMX_TRUE */
     OMX_BOOL bRecoverLostToken; /**< default: OMX_FALSE */
+    OMX_BOOL bAllowExplicitTracks; /**< default: OMX_FALSE */
     OMX_TIZONIA_AUDIO_SPOTIFYBITRATETYPE ePreferredBitRate;  /**< 96, 160, or 320 kbps; default: 320 */
     OMX_TIZONIA_AUDIO_SPOTIFYCONNECTIONTYPE eConnectionType; /**< Default: Connection type unknown */
 } OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE;
