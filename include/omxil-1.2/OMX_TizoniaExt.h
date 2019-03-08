@@ -77,6 +77,7 @@
 #define OMX_TizoniaIndexParamChromecastSession       OMX_IndexVendorStartUnused + 21 /**< reference: OMX_TIZONIA_PARAM_CHROMECASTSESSIONTYPE */
 #define OMX_TizoniaIndexParamAudioPlexSession        OMX_IndexVendorStartUnused + 22 /**< reference: OMX_TIZONIA_AUDIO_PARAM_PLEXSESSIONTYPE */
 #define OMX_TizoniaIndexParamAudioPlexPlaylist       OMX_IndexVendorStartUnused + 23 /**< reference: OMX_TIZONIA_AUDIO_PARAM_PLEXPLAYLISTTYPE */
+#define OMX_TizoniaIndexParamStreamingBuffer         OMX_IndexVendorStartUnused + 24 /**< reference: OMX_TIZONIA_STREAMINGBUFFERTYPE */
 
 /**
  * OMX_AUDIO_CODINGTYPE extensions
@@ -85,10 +86,10 @@
 #define OMX_AUDIO_CodingOPUS  OMX_AUDIO_CodingVendorStartUnused + 1
 #define OMX_AUDIO_CodingFLAC  OMX_AUDIO_CodingVendorStartUnused + 2
 #define OMX_AUDIO_CodingSPEEX OMX_AUDIO_CodingVendorStartUnused + 3
-#define OMX_AUDIO_CodingOGA   OMX_AUDIO_CodingVendorStartUnused + 4 /** this for audio in an ogg container */
+#define OMX_AUDIO_CodingOGA   OMX_AUDIO_CodingVendorStartUnused + 4 /**< this for audio in an ogg container */
 #define OMX_AUDIO_CodingMP2   OMX_AUDIO_CodingVendorStartUnused + 5
-#define OMX_AUDIO_CodingMP4   OMX_AUDIO_CodingVendorStartUnused + 6 /** this for audio in a mp4 container */
-#define OMX_AUDIO_CodingWEBM  OMX_AUDIO_CodingVendorStartUnused + 7 /** this for audio in a webm container */
+#define OMX_AUDIO_CodingMP4   OMX_AUDIO_CodingVendorStartUnused + 6 /**< this for audio in a mp4 container */
+#define OMX_AUDIO_CodingWEBM  OMX_AUDIO_CodingVendorStartUnused + 7 /**< this for audio in a webm container */
 
 /**
  * OMX_VIDEO_CODINGTYPE extensions
@@ -108,6 +109,28 @@ typedef struct OMX_TIZONIA_PARAM_BUFFER_PREANNOUNCEMENTSMODETYPE
   OMX_U32 nPortIndex;
   OMX_BOOL bEnabled;
 } OMX_TIZONIA_PARAM_BUFFER_PREANNOUNCEMENTSMODETYPE;
+
+/**
+ * Extension to jump to another track in a playlist.
+ */
+
+typedef struct OMX_TIZONIA_PLAYLISTSKIPTYPE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_S32 nValue;              /**< Can be a positive or a negative value. Wrap-around use cases are allowed. */
+} OMX_TIZONIA_PLAYLISTSKIPTYPE;
+
+/**
+ * Media streaming buffer.
+ */
+typedef struct OMX_TIZONIA_STREAMINGBUFFERTYPE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_U32 nPortIndex;
+    OMX_U32 nCapacity;           /**< Total capacity of the buffer, in seconds. */
+    OMX_U32 nLowWaterMark;       /**< A percentage of the total capacity, in the range 0-100. */
+    OMX_U32 nHighWaterMark;      /**< A percentage of the total capacity, in the range 0-100. */
+} OMX_TIZONIA_STREAMINGBUFFERTYPE;
 
 /**
  * Icecast-like audio renderer components
@@ -143,7 +166,7 @@ typedef struct OMX_TIZONIA_ICECASTMETADATATYPE {
     OMX_U32 nSize;
     OMX_VERSIONTYPE nVersion;
     OMX_U32 nPortIndex;
-    OMX_U8 cStreamTitle[1];     /* Max length is OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE */
+    OMX_U8 cStreamTitle[1];     /**< Max length is OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE */
 } OMX_TIZONIA_ICECASTMETADATATYPE;
 
 /**
@@ -182,13 +205,13 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE {
     OMX_VERSIONTYPE nVersion;
     OMX_U32 nPortIndex;
     OMX_U32 nChannels;
-    OMX_U32 nBitRate; /** 6-256 per channel */
-    OMX_U32 nSampleRate; /** 8 kHz (narrowband) to 48 kHz (fullband) */
-    OMX_S32 nFrameDuration; /** 2.5, 5, 10, 20, 40, or 60 ms. */
-    OMX_U32 nEncoderComplexity; /** From 0 to 10, default 0 */
-    OMX_BOOL bPacketLossResilience; /** default, false  */
-    OMX_BOOL bForwardErrorCorrection; /** default, false  */
-    OMX_BOOL bDtx; /** default, false  */
+    OMX_U32 nBitRate; /**< 6-256 per channel */
+    OMX_U32 nSampleRate; /**< 8 kHz (narrowband) to 48 kHz (fullband) */
+    OMX_S32 nFrameDuration; /**< 2.5, 5, 10, 20, 40, or 60 ms. */
+    OMX_U32 nEncoderComplexity; /**< From 0 to 10, default 0 */
+    OMX_BOOL bPacketLossResilience; /**< default, false  */
+    OMX_BOOL bForwardErrorCorrection; /**< default, false  */
+    OMX_BOOL bDtx; /**< default, false  */
     OMX_AUDIO_CHANNELMODETYPE eChannelMode;
     OMX_TIZONIA_AUDIO_OPUSSTREAMFORMATTYPE eFormat;
 } OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE;
@@ -224,16 +247,16 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_FLACTYPE {
     OMX_U32 nSize;
     OMX_VERSIONTYPE nVersion;
     OMX_U32 nPortIndex;
-    OMX_U32 nChannels; /** Up to 8 channels. Default 2.  */
-    OMX_U32 nBitsPerSample; /** 4-32 bits per sample. Default 16. */
-    OMX_U32 nSampleRate; /** From 1Hz to 655350Hz. Default 44100Hz */
-    OMX_U32 nCompressionLevel; /** From 0 (fastest, least compression) to 8
+    OMX_U32 nChannels; /**< Up to 8 channels. Default 2.  */
+    OMX_U32 nBitsPerSample; /**< 4-32 bits per sample. Default 16. */
+    OMX_U32 nSampleRate; /**< From 1Hz to 655350Hz. Default 44100Hz */
+    OMX_U32 nCompressionLevel; /**< From 0 (fastest, least compression) to 8
                                    (slowest, most compression). Default 5. For
                                    more info see
                                    https://xiph.org/flac/api/group__flac__stream__encoder.html#ga20*/
-    OMX_U32 nBlockSize; /** Block size in samples. From 16 to 65535. Default 0
+    OMX_U32 nBlockSize; /**< Block size in samples. From 16 to 65535. Default 0
                             (let encoder estimate blocksize). */
-    OMX_U64 nTotalSamplesEstimate; /** An estimate of the total samples that
+    OMX_U64 nTotalSamplesEstimate; /**< An estimate of the total samples that
                                        will be encoded. Set to 0 if unknown. */
     OMX_AUDIO_CHANNELMODETYPE eChannelMode;
 } OMX_TIZONIA_AUDIO_PARAM_FLACTYPE;
@@ -258,8 +281,8 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_MP2TYPE {
     OMX_VERSIONTYPE nVersion;
     OMX_U32 nPortIndex;
     OMX_U32 nChannels;
-    OMX_U32 nBitRate;           /** 8, 16, 24, 40 and 144 kbit/s (MPEG-2 only), 32, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320 and 384 kbit/s (MPEG-1 and MPEG-2) */
-    OMX_U32 nSampleRate;        /** 16, 22.05 and 24 (MPEG-2 only), 32, 44.1 and 48 kHz (MPEG-1 and MPEG-2)*/
+    OMX_U32 nBitRate;           /**< 8, 16, 24, 40 and 144 kbit/s (MPEG-2 only), 32, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320 and 384 kbit/s (MPEG-1 and MPEG-2) */
+    OMX_U32 nSampleRate;        /**< 16, 22.05 and 24 (MPEG-2 only), 32, 44.1 and 48 kHz (MPEG-1 and MPEG-2)*/
     OMX_AUDIO_CHANNELMODETYPE eChannelMode;
     OMX_TIZONIA_AUDIO_MP2STREAMFORMATTYPE eFormat;
 } OMX_TIZONIA_AUDIO_PARAM_MP2TYPE;
@@ -333,16 +356,6 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE {
     OMX_U8 cPlaylistOwner[OMX_MAX_STRINGNAME_SIZE]; /**< Spotify user that owns this list. If empty, the
                                                        user of the currently active session is assumed. */
 } OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE;
-
-/**
- * Extension to jump to another track in a playlist.
- */
-
-typedef struct OMX_TIZONIA_PLAYLISTSKIPTYPE {
-    OMX_U32 nSize;
-    OMX_VERSIONTYPE nVersion;
-    OMX_S32 nValue;              /** Can be a positive or a negative value. Wrap-around use cases are allowed. */
-} OMX_TIZONIA_PLAYLISTSKIPTYPE;
 
 /**
  * Google Play Music source component

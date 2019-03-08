@@ -191,20 +191,6 @@ set_auto_detect_on_port (youtube_prc_t * ap_prc)
   return OMX_ErrorNone;
 }
 
-static void
-update_cache_size (youtube_prc_t * ap_prc)
-{
-  assert (ap_prc);
-  assert (ap_prc->bitrate_ > 0);
-  ap_prc->cache_bytes_ = ((ap_prc->bitrate_ * 1000) / 8)
-                         * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS;
-  if (ap_prc->p_trans_)
-    {
-      tiz_urltrans_set_internal_buffer_size (ap_prc->p_trans_,
-                                             ap_prc->cache_bytes_);
-    }
-}
-
 static OMX_ERRORTYPE
 store_metadata (youtube_prc_t * ap_prc, const char * ap_header_name,
                 const char * ap_header_info)
@@ -667,6 +653,15 @@ retrieve_playlist (youtube_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
+retrieve_buffer_size (youtube_prc_t * ap_prc)
+{
+  TIZ_INIT_OMX_PORT_STRUCT (ap_prc->buffer_size_, ARATELIA_HTTP_SOURCE_PORT_INDEX);
+  return tiz_api_GetParameter (
+    tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+    OMX_TizoniaIndexParamStreamingBuffer, &(ap_prc->buffer_size_));
+}
+
+static OMX_ERRORTYPE
 enqueue_playlist_items (youtube_prc_t * ap_prc)
 {
   int rc = 1;
@@ -760,7 +755,8 @@ youtube_prc_ctor (void * ap_obj, va_list * app)
   p_prc->bytes_before_eos_ = 0;
   p_prc->auto_detect_on_ = false;
   p_prc->bitrate_ = ARATELIA_HTTP_SOURCE_DEFAULT_BIT_RATE_KBITS;
-  update_cache_size (p_prc);
+  p_prc->cache_bytes_ = ((p_prc->bitrate_ * 1000) / 8)
+    * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS;
   p_prc->remove_current_url_ = false;
   return p_prc;
 }
@@ -784,6 +780,9 @@ youtube_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
   assert (p_prc);
   tiz_check_omx (retrieve_session_configuration (p_prc));
   tiz_check_omx (retrieve_playlist (p_prc));
+  tiz_check_omx (retrieve_buffer_size (p_prc));
+  p_prc->cache_bytes_ = ((p_prc->bitrate_ * 1000) / 8)
+    * p_prc->buffer_size_.nCapacity;
 
   on_youtube_error_ret_omx_oom (tiz_youtube_init (&(p_prc->p_youtube_)));
 
@@ -805,7 +804,7 @@ youtube_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
     rc
       = tiz_urltrans_init (&(p_prc->p_trans_), p_prc, p_prc->p_uri_param_,
                            ARATELIA_HTTP_SOURCE_COMPONENT_NAME,
-                           ARATELIA_HTTP_SOURCE_PORT_MIN_BUF_SIZE,
+                           p_prc->cache_bytes_,
                            ARATELIA_HTTP_SOURCE_DEFAULT_RECONNECT_TIMEOUT,
                            buffer_cbacks, info_cbacks, io_cbacks, timer_cbacks);
   }

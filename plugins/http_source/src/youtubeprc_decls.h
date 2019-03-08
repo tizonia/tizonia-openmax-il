@@ -50,6 +50,7 @@ struct youtube_prc
   OMX_TIZONIA_AUDIO_PARAM_YOUTUBESESSIONTYPE session_;
   OMX_TIZONIA_AUDIO_PARAM_YOUTUBEPLAYLISTTYPE playlist_;
   OMX_TIZONIA_PLAYLISTSKIPTYPE playlist_skip_;
+  OMX_TIZONIA_STREAMINGBUFFERTYPE buffer_size_;
   OMX_PARAM_CONTENTURITYPE * p_uri_param_;
   tiz_urltrans_t * p_trans_;
   tiz_youtube_t * p_youtube_;

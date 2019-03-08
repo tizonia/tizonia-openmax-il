@@ -50,6 +50,7 @@ struct dirble_prc
   OMX_TIZONIA_AUDIO_PARAM_DIRBLESESSIONTYPE session_;
   OMX_TIZONIA_AUDIO_PARAM_DIRBLEPLAYLISTTYPE playlist_;
   OMX_TIZONIA_PLAYLISTSKIPTYPE playlist_skip_;
+  OMX_TIZONIA_STREAMINGBUFFERTYPE buffer_size_;
   OMX_PARAM_CONTENTURITYPE * p_uri_param_;
   tiz_urltrans_t * p_trans_;
   tiz_dirble_t * p_dirble_;
