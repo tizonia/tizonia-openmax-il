@@ -740,7 +740,7 @@ curl_write_cback (void * ptr, size_t size, size_t nmemb, void * userdata)
           if (nbytes > 0)
             {
               if (tiz_buffer_available (p_trans->p_store_)
-                  > (2 * p_trans->internal_buffer_size_))
+                  > (p_trans->internal_buffer_size_))
                 {
                   /* This is to pause curl */
                   TIZ_PRINTF_DBG_GRN ("Pausing curl - cache size [%d]",
