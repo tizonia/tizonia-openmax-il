@@ -1,7 +1,7 @@
 .. Tizonia documentation
 
-Screenshots
-===========
+Usage
+=====
 
 .. toctree::
    :maxdepth: 2
@@ -14,4 +14,10 @@ Screenshots
    spotify
    googlemusic
    soundcloud
+   dirble
+   youtube
+   plex
+   chromecast
+   keyboard
+   config
    localmedia

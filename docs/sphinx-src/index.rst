@@ -12,18 +12,24 @@ Overview
 ========
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    overview/README
    overview/PROJECT
+   overview/CONTRIBUTING
+   overview/ISSUE_TEMPLATE
+   overview/BUILDING
+   overview/CODE_OF_CONDUCT
+   overview/CHANGELOG
+   overview/COPYING.LESSER
 
-Screenshots
-===========
+Usage
+=====
 
 .. toctree::
    :maxdepth: 2
 
-   screenshots/screenshots
+   usage/usage
 
 Development
 ===========

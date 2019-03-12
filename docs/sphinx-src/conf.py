@@ -303,25 +303,35 @@ def run_doxygen(app):
     try:
         repo_path = os.path.abspath("../../")
         cwd = os.getcwd()
+        sys.stdout.write("Repo path : %s\n" % repo_path)
+        sys.stdout.write("CWD : %s\n" % cwd)
 
         links = \
             [ \
               [ 'README.md', 'overview/README.md' ] , \
               [ 'PROJECT.md', 'overview/PROJECT.md' ] , \
-              [ 'BUILDING.md', 'development/BUILDING.md' ] , \
+              [ 'BUILDING.md', 'overview/BUILDING.md' ] , \
+              [ 'CONTRIBUTING.md', 'overview/CONTRIBUTING.md' ] , \
+              [ 'ISSUE_TEMPLATE.md', 'overview/ISSUE_TEMPLATE.md' ] , \
+              [ 'PROJECT.md', 'overview/PROJECT.md' ] , \
+              [ 'CODE_OF_CONDUCT.md', 'overview/CODE_OF_CONDUCT.md' ] , \
+              [ 'CHANGELOG.md', 'overview/CHANGELOG.md' ] , \
+              [ 'COPYING.LESSER.md', 'overview/COPYING.LESSER.md' ] , \
             ]
 
         for link in links:
             source = os.path.join(repo_path, link[0])
             target = os.path.join(cwd, link[1])
             if not os.path.lexists(target):
-                sys.stdout.write("Creating symlink : %s" % target)
+                sys.stdout.write("Creating symlink : source %s -> target %s \n" % (source, target))
                 os.symlink(source, target)
 
         read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
         if read_the_docs_build:
+            sys.stdout.write("Running doxygen in RTD environment\n")
             retcode = subprocess.call("cd ../doxygen-src && doxygen doxyfile.rtd", shell=True)
         else:
+            sys.stdout.write("Running doxygen in local environment\n")
             retcode = subprocess.call("cd .. && make", shell=True)
         if retcode < 0:
             sys.stderr.write("doxygen terminated by signal %s" % (-retcode))
