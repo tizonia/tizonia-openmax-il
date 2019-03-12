@@ -69,7 +69,7 @@ httpsrc_port_ctor (void * ap_obj, va_list * app)
   p_obj->buffertype_.nSize = sizeof (OMX_TIZONIA_STREAMINGBUFFERTYPE);
   p_obj->buffertype_.nVersion.nVersion = OMX_VERSION;
   p_obj->buffertype_.nPortIndex = ARATELIA_HTTP_SOURCE_PORT_INDEX;
-  p_obj->buffertype_.nCapacity = ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS;
+  p_obj->buffertype_.nCapacity = ARATELIA_HTTP_SOURCE_DEFAULT_BUFFER_SECONDS;
   p_obj->buffertype_.nLowWaterMark = 90;
   p_obj->buffertype_.nHighWaterMark = 10;
 

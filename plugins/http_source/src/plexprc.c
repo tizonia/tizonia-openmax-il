@@ -734,8 +734,8 @@ plex_prc_ctor (void * ap_obj, va_list * app)
   p_prc->bytes_before_eos_ = 0;
   p_prc->auto_detect_on_ = false;
   p_prc->bitrate_ = ARATELIA_HTTP_SOURCE_DEFAULT_BIT_RATE_KBITS;
-  p_prc->cache_bytes_ = ((p_prc->bitrate_ * 1000) / 8)
-    * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS;
+  p_prc->buffer_bytes_ = ((p_prc->bitrate_ * 1000) / 8)
+    * ARATELIA_HTTP_SOURCE_DEFAULT_BUFFER_SECONDS_PLEX;
   p_prc->remove_current_url_ = false;
   p_prc->connection_closed_ = false;
   return p_prc;
@@ -761,8 +761,11 @@ plex_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
   tiz_check_omx (retrieve_session_configuration (p_prc));
   tiz_check_omx (retrieve_playlist (p_prc));
   tiz_check_omx (retrieve_buffer_size (p_prc));
-  p_prc->cache_bytes_ = ((p_prc->bitrate_ * 1000) / 8)
-    * p_prc->buffer_size_.nCapacity;
+  if (p_prc->buffer_size_.nCapacity)
+    {
+      p_prc->buffer_bytes_ = ((p_prc->bitrate_ * 1000) / 8)
+        * p_prc->buffer_size_.nCapacity;
+    }
 
   on_plex_error_ret_omx_oom (
     tiz_plex_init (&(p_prc->p_plex_), (const char *) p_prc->session_.cBaseUrl,
@@ -786,7 +789,7 @@ plex_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
     rc
       = tiz_urltrans_init (&(p_prc->p_trans_), p_prc, p_prc->p_uri_param_,
                            ARATELIA_HTTP_SOURCE_COMPONENT_NAME,
-                           p_prc->cache_bytes_,
+                           p_prc->buffer_bytes_,
                            ARATELIA_HTTP_SOURCE_DEFAULT_RECONNECT_TIMEOUT,
                            buffer_cbacks, info_cbacks, io_cbacks, timer_cbacks);
   }
@@ -813,7 +816,7 @@ plex_prc_prepare_to_transfer (void * ap_prc, OMX_U32 a_pid)
   assert (ap_prc);
   p_prc->eos_ = false;
   tiz_urltrans_cancel (p_prc->p_trans_);
-  tiz_urltrans_set_internal_buffer_size (p_prc->p_trans_, p_prc->cache_bytes_);
+  tiz_urltrans_set_internal_buffer_size (p_prc->p_trans_, p_prc->buffer_bytes_);
   return prepare_for_port_auto_detection (p_prc);
 }
 

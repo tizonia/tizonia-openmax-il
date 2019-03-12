@@ -74,8 +74,9 @@ gmusic_cfgport_ctor (void * ap_obj, va_list * app)
   TIZ_INIT_OMX_STRUCT (p_obj->playlist_);
   snprintf ((char *) p_obj->playlist_.cPlaylistName,
             sizeof (p_obj->playlist_.cPlaylistName), "playlist");
-  snprintf ((char *) p_obj->playlist_.cAdditionalKeywords,
-            sizeof (p_obj->playlist_.cAdditionalKeywords), "");
+  /* No need to initialise this: */
+  /* snprintf ((char *) p_obj->playlist_.cAdditionalKeywords, */
+  /*             sizeof (p_obj->playlist_.cAdditionalKeywords), ""); */
   p_obj->playlist_.ePlaylistType = OMX_AUDIO_GmusicPlaylistTypeUnknown;
   p_obj->playlist_.bShuffle = OMX_FALSE;
   p_obj->playlist_.bUnlimitedSearch = OMX_FALSE;

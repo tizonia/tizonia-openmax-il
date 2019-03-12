@@ -55,7 +55,7 @@ struct httpsrc_prc
   OMX_U32 samplerate_;
   bool auto_detect_on_;
   int bitrate_;
-  int cache_bytes_;
+  int buffer_bytes_;
   bool connection_closed_;
   bool first_buffer_delivered_;
 };
