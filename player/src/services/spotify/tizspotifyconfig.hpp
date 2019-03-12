@@ -48,7 +48,7 @@ namespace tiz
                      const std::string &owner,
                      const bool recover_lost_token,
                      const bool allow_explicit_tracks)
-        : config (playlist),
+        : config (playlist, 0),
           user_ (user),
           pass_ (pass),
           playlist_type_ (playlist_type),

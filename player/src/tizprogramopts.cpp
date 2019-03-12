@@ -120,7 +120,7 @@ namespace
   {
     bool rc = true;
     rates.clear ();
-    for (unsigned int i = 0; i < rate_strings.size () && rc; ++i)
+    for (uint32_t i = 0; i < rate_strings.size () && rc; ++i)
     {
       rates.push_back (boost::lexical_cast< int > (rate_strings[i]));
       rc = is_valid_sampling_rate (rates[i]);
@@ -132,7 +132,7 @@ namespace
   bool is_valid_bitrate_list (const std::vector< std::string > &rate_strings)
   {
     bool rc = true;
-    for (unsigned int i = 0; i < rate_strings.size (); ++i)
+    for (uint32_t i = 0; i < rate_strings.size (); ++i)
     {
       if (!(0 == rate_strings[i].compare ("CBR")
             || 0 == rate_strings[i].compare ("VBR")))
@@ -248,6 +248,34 @@ namespace
     return is_found;
   }
 
+  bool retrieve_uint_from_rc_file (const char *rc_section, const char *rc_key,
+                                   uint32_t &uint_val)
+  {
+    bool is_found = false;
+    assert (rc_section);
+    assert (rc_key);
+    const char *p_key = tiz_rcfile_get_value (rc_section, rc_key);
+    if (p_key)
+    {
+      uint_val = boost::lexical_cast< uint32_t >(p_key);
+      is_found = true;
+    }
+    return is_found;
+  }
+
+  void retrieve_buffer_seconds_from_rc_file (const char *rc_key, uint32_t &uint_val)
+  {
+    if (0 == uint_val && rc_key)
+    {
+      uint32_t val = 0;
+      if (retrieve_uint_from_rc_file ("tizonia", rc_key, val)
+          && val > 0)
+      {
+        uint_val = val;
+      }
+    }
+  }
+
 // Workaround for 'implicit_option' behavioral change introduced in boost
 // 1.59. See https://github.com/boostorg/program_options/issues/25
 #if (BOOST_VERSION >= 105900) && (BOOST_VERSION < 106500)
@@ -304,6 +332,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     shuffle_ (false),
     daemon_ (false),
     chromecast_name_or_ip_ (),
+    buffer_seconds_(0),
     log_dir_ (),
     debug_info_ (false),
     comp_name_ (),
@@ -357,6 +386,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     gmusic_playlist_container_ (),
     gmusic_playlist_type_ (OMX_AUDIO_GmusicPlaylistTypeUnknown),
     gmusic_is_unlimited_search_ (false),
+    gmusic_buffer_seconds_ (0),
     scloud_oauth_token_ (),
     scloud_user_stream_ (),
     scloud_user_likes_ (),
@@ -368,6 +398,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     scloud_tags_ (),
     scloud_playlist_container_ (),
     scloud_playlist_type_ (OMX_AUDIO_SoundCloudPlaylistTypeUnknown),
+    scloud_buffer_seconds_ (0),
     dirble_api_key_ (),
     dirble_popular_stations_ (),
     dirble_stations_ (),
@@ -375,6 +406,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     dirble_country_ (),
     dirble_playlist_container_ (),
     dirble_playlist_type_ (OMX_AUDIO_DirblePlaylistTypeUnknown),
+    dirble_buffer_seconds_ (0),
     youtube_audio_stream_ (),
     youtube_audio_playlist_ (),
     youtube_audio_mix_ (),
@@ -384,6 +416,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     youtube_audio_channel_playlist_ (),
     youtube_playlist_container_ (),
     youtube_playlist_type_ (OMX_AUDIO_YoutubePlaylistTypeUnknown),
+    youtube_buffer_seconds_ (0),
     plex_base_url_ (),
     plex_token_ (),
     plex_audio_tracks_ (),
@@ -392,6 +425,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     plex_audio_playlist_ (),
     plex_playlist_container_ (),
     plex_playlist_type_ (OMX_AUDIO_PlexPlaylistTypeUnknown),
+    plex_buffer_seconds_ (0),
     consume_functions_ (),
     all_global_options_ (),
     all_debug_options_ (),
@@ -425,7 +459,7 @@ int tiz::programopts::consume ()
 {
   int rc = EXIT_FAILURE;
   bool config_file_ok = (0 == tiz_rcfile_status ());
-  unsigned int given_options_count = 0;
+  uint32_t given_options_count = 0;
   std::string error_msg;
 
   try
@@ -1005,6 +1039,11 @@ bool tiz::programopts::gmusic_is_unlimited_search () const
   return gmusic_is_unlimited_search_;
 }
 
+uint32_t tiz::programopts::gmusic_buffer_seconds () const
+{
+  return buffer_seconds_ ? buffer_seconds_ : gmusic_buffer_seconds_;
+}
+
 const std::string &tiz::programopts::scloud_oauth_token () const
 {
   return scloud_oauth_token_;
@@ -1095,6 +1134,11 @@ tiz::programopts::scloud_playlist_type ()
   return scloud_playlist_type_;
 }
 
+uint32_t tiz::programopts::scloud_buffer_seconds () const
+{
+  return buffer_seconds_ ? buffer_seconds_ : scloud_buffer_seconds_;
+}
+
 const std::string &tiz::programopts::dirble_api_key () const
 {
   return dirble_api_key_;
@@ -1151,6 +1195,11 @@ tiz::programopts::dirble_playlist_type ()
   }
 
   return dirble_playlist_type_;
+}
+
+uint32_t tiz::programopts::dirble_buffer_seconds () const
+{
+  return buffer_seconds_ ? buffer_seconds_ : dirble_buffer_seconds_;
 }
 
 const std::vector< std::string >
@@ -1231,6 +1280,11 @@ tiz::programopts::youtube_playlist_type ()
   return youtube_playlist_type_;
 }
 
+uint32_t tiz::programopts::youtube_buffer_seconds () const
+{
+  return buffer_seconds_ ? buffer_seconds_ : youtube_buffer_seconds_;
+}
+
 const std::string &tiz::programopts::plex_base_url () const
 {
   return plex_base_url_;
@@ -1294,6 +1348,11 @@ tiz::programopts::plex_playlist_type ()
   return plex_playlist_type_;
 }
 
+uint32_t tiz::programopts::plex_buffer_seconds () const
+{
+  return buffer_seconds_ ? buffer_seconds_ : plex_buffer_seconds_;
+}
+
 void tiz::programopts::print_license () const
 {
   TIZ_PRINTF_GRN (
@@ -1327,13 +1386,18 @@ void tiz::programopts::init_global_options ()
       ("cast,c", po::value (&chromecast_name_or_ip_),
        "Cast to a Chromecast device (arg: device name or ip address). "
        "Available in combination with Google Play Music, SoundCloud, Dirble, "
-       "YouTube, Plex and HTTP radio stations.");
+       "YouTube, Plex and HTTP radio stations.")
+      /* TIZ_CLASS_COMMENT: */
+      ("buffer-seconds,b", po::value (&buffer_seconds_),
+       "Size of the audio buffer (in seconds) to use while downloading streams. "
+       "Increase in case of cuts.");
 
   register_consume_function (&tiz::programopts::consume_global_options);
   // TODO: help and version are not included. These should be moved out of
   // "global" and into its own category: "info"
   all_global_options_
-      = boost::assign::list_of ("recurse") ("shuffle") ("daemon") ("cast")
+      = boost::assign::list_of ("recurse") ("shuffle") ("daemon") ("cast") (
+            "buffer-seconds")
             .convert_to_container< std::vector< std::string > > ();
 
   // Even though --cast is a global option, we also initialise here a
@@ -1553,8 +1617,7 @@ void tiz::programopts::init_gmusic_options ()
        "Additional search keywords (this is optional: use in conjunction with"
        "--gmusic-unlimited-activity).")
       /* TIZ_CLASS_COMMENT: */
-      ("gmusic-library",
-       "Play all tracks from the user's library.")
+      ("gmusic-library", "Play all tracks from the user's library.")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-tracks", po::value (&gmusic_tracks_),
        "Play tracks from the user's library by track name.")
@@ -1765,7 +1828,7 @@ void tiz::programopts::init_input_uri_option ()
             .convert_to_container< std::vector< std::string > > ();
 }
 
-unsigned int tiz::programopts::parse_command_line (int argc, char *argv[])
+uint32_t tiz::programopts::parse_command_line (int argc, char *argv[])
 {
   // Declare an options description instance which will include
   // all the options
@@ -2166,6 +2229,11 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
       retrieve_string_from_rc_file ("tizonia", "gmusic.device_id",
                                     gmusic_device_id_);
     }
+    if (!buffer_seconds_)
+      {
+        retrieve_buffer_seconds_from_rc_file ("gmusic.buffer_seconds",
+                                              gmusic_buffer_seconds_);
+      }
 
     if (vm_.count ("gmusic-library"))
     {
@@ -2284,6 +2352,11 @@ int tiz::programopts::consume_scloud_client_options (bool &done,
       retrieve_string_from_rc_file ("tizonia", "soundcloud.oauth_token",
                                     scloud_oauth_token_);
     }
+    if (!buffer_seconds_)
+      {
+        retrieve_buffer_seconds_from_rc_file ("soundcloud.buffer_seconds",
+                                              scloud_buffer_seconds_);
+      }
 
     if (vm_.count ("soundcloud-user-stream"))
     {
@@ -2366,6 +2439,11 @@ int tiz::programopts::consume_dirble_client_options (bool &done,
       retrieve_string_from_rc_file ("tizonia", "dirble.api_key",
                                     dirble_api_key_);
     }
+    if (!buffer_seconds_)
+      {
+        retrieve_buffer_seconds_from_rc_file ("dirble.buffer_seconds",
+                                              dirble_buffer_seconds_);
+      }
 
     if (vm_.count ("dirble-popular-stations"))
     {
@@ -2439,6 +2517,12 @@ int tiz::programopts::consume_youtube_client_options (bool &done,
                                       + vm_.count ("youtube-audio-channel-uploads")
                                       + vm_.count ("youtube-audio-channel-playlist");
 
+    if (!buffer_seconds_)
+      {
+        retrieve_buffer_seconds_from_rc_file ("youtube.buffer_seconds",
+                                              youtube_buffer_seconds_);
+      }
+
     if (playlist_option_count > 1)
     {
       rc = EXIT_FAILURE;
@@ -2488,9 +2572,8 @@ int tiz::programopts::consume_plex_client_options (bool &done, std::string &msg)
     done = true;
 
     const int playlist_option_count
-        = vm_.count ("plex-server-base-url") + vm_.count ("plex-auth-token")
-          + vm_.count ("plex-audio-tracks") + vm_.count ("plex-audio-artist")
-          + vm_.count ("plex-audio-album") + vm_.count ("plex-audio-playlist");
+        = vm_.count ("plex-audio-tracks") + vm_.count ("plex-audio-artist")
+          + vm_.count ("plex-audio-album") + vm_.count ("pl ex-audio-playlist");
 
     if (plex_base_url_.empty ())
     {
@@ -2503,6 +2586,12 @@ int tiz::programopts::consume_plex_client_options (bool &done, std::string &msg)
       retrieve_string_from_rc_file ("tizonia", "plex.auth_token",
                                     plex_token_);
     }
+
+    if (!buffer_seconds_)
+      {
+        retrieve_buffer_seconds_from_rc_file ("plex.buffer_seconds",
+                                              plex_buffer_seconds_);
+      }
 
     if (playlist_option_count > 1)
     {
@@ -2612,7 +2701,7 @@ int tiz::programopts::consume_input_http_uris_option ()
 bool tiz::programopts::validate_omx_options () const
 {
   bool outcome = false;
-  const unsigned int omx_opts_count = vm_.count ("comp-list")
+  const uint32_t omx_opts_count = vm_.count ("comp-list")
                                       + vm_.count ("roles-of-comp")
                                       + vm_.count ("comps-of-role");
 
@@ -2648,7 +2737,7 @@ bool tiz::programopts::validate_streaming_server_options () const
 bool tiz::programopts::validate_spotify_client_options () const
 {
   bool outcome = false;
-  unsigned int spotify_opts_count
+  uint32_t spotify_opts_count
       = vm_.count ("spotify-user") + vm_.count ("spotify-password")
         + vm_.count ("spotify-owner") + vm_.count ("spotify-recover-lost-token")
         + vm_.count ("spotify-allow-explicit-tracks")
@@ -2679,14 +2768,14 @@ bool tiz::programopts::validate_spotify_client_options () const
 bool tiz::programopts::validate_gmusic_client_options () const
 {
   bool outcome = false;
-  unsigned int gmusic_opts_count
+  uint32_t gmusic_opts_count
       = vm_.count ("gmusic-user") + vm_.count ("gmusic-password")
-        + vm_.count ("gmusic-device-id") + vm_.count ("gmusic-additional-keywords")
-        + vm_.count ("gmusic-library")
-        + vm_.count ("gmusic-tracks") + vm_.count ("gmusic-artist")
-        + vm_.count ("gmusic-album") + vm_.count ("gmusic-playlist")
-        + vm_.count ("gmusic-podcast") + vm_.count ("gmusic-station")
-        + vm_.count ("gmusic-unlimited-station")
+        + vm_.count ("gmusic-device-id")
+        + vm_.count ("gmusic-additional-keywords")
+        + vm_.count ("gmusic-library") + vm_.count ("gmusic-tracks")
+        + vm_.count ("gmusic-artist") + vm_.count ("gmusic-album")
+        + vm_.count ("gmusic-playlist") + vm_.count ("gmusic-podcast")
+        + vm_.count ("gmusic-station") + vm_.count ("gmusic-unlimited-station")
         + vm_.count ("gmusic-unlimited-album")
         + vm_.count ("gmusic-unlimited-artist")
         + vm_.count ("gmusic-unlimited-tracks")
@@ -2713,7 +2802,7 @@ bool tiz::programopts::validate_gmusic_client_options () const
 bool tiz::programopts::validate_scloud_client_options () const
 {
   bool outcome = false;
-  unsigned int scloud_opts_count
+  uint32_t scloud_opts_count
       = vm_.count ("soundcloud-oauth-token")
         + vm_.count ("soundcloud-user-stream")
         + vm_.count ("soundcloud-user-likes")
@@ -2738,7 +2827,7 @@ bool tiz::programopts::validate_scloud_client_options () const
 bool tiz::programopts::validate_dirble_client_options () const
 {
   bool outcome = false;
-  unsigned int dirble_opts_count
+  uint32_t dirble_opts_count
       = vm_.count ("dirble-api-key") + vm_.count ("dirble-popular-stations")
         + vm_.count ("dirble-station") + vm_.count ("dirble-category")
         + vm_.count ("dirble-country") + vm_.count ("log-directory");
@@ -2759,13 +2848,13 @@ bool tiz::programopts::validate_dirble_client_options () const
 bool tiz::programopts::validate_youtube_client_options () const
 {
   bool outcome = false;
-  unsigned int youtube_opts_count = vm_.count ("youtube-audio-stream")
-                                    + vm_.count ("youtube-audio-playlist")
-                                    + vm_.count ("youtube-audio-mix")
-                                    + vm_.count ("youtube-audio-search")
-                                    + vm_.count ("youtube-audio-mix-search")
-                                    + vm_.count ("youtube-audio-channel-uploads")
-                                    + vm_.count ("youtube-audio-channel-playlist");
+  uint32_t youtube_opts_count = vm_.count ("youtube-audio-stream")
+                                + vm_.count ("youtube-audio-playlist")
+                                + vm_.count ("youtube-audio-mix")
+                                + vm_.count ("youtube-audio-search")
+                                + vm_.count ("youtube-audio-mix-search")
+                                + vm_.count ("youtube-audio-channel-uploads")
+                                + vm_.count ("youtube-audio-channel-playlist");
 
   std::vector< std::string > all_valid_options = all_youtube_client_options_;
   concat_option_lists (all_valid_options, all_global_options_);
@@ -2783,7 +2872,7 @@ bool tiz::programopts::validate_youtube_client_options () const
 bool tiz::programopts::validate_plex_client_options () const
 {
   bool outcome = false;
-  unsigned int plex_opts_count
+  uint32_t plex_opts_count
       = vm_.count ("plex-server-base-url") + vm_.count ("plex-auth-token")
         + vm_.count ("plex-audio-tracks") + vm_.count ("plex-audio-artist")
         + vm_.count ("plex-audio-album") + vm_.count ("plex-audio-playlist");

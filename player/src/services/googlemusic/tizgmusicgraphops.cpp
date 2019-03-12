@@ -108,6 +108,12 @@ void graph::gmusicops::do_configure_comp (const int comp_id)
             gmusic_config->get_additional_keywords (),
             gmusic_config->is_unlimited_search (), playlist_->shuffle ()),
         "Unable to set OMX_TizoniaIndexParamAudioGmusicPlaylist");
+
+    const OMX_U32 port_id = 0;
+    G_OPS_BAIL_IF_ERROR (
+        tiz::graph::util::set_streaming_buffer_params (
+            handles_[0], port_id, config_->get_buffer_seconds (), 0, 100),
+        "Unable to set OMX_TizoniaIndexParamStreamingBuffer");
   }
 }
 

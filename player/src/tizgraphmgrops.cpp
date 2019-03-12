@@ -179,12 +179,15 @@ void graphmgr::ops::do_load ()
 
 void graphmgr::ops::do_execute ()
 {
+  const uint32_t unused_buffer_seconds = 0; // this is not used here
+
   assert (playlist_);
   assert (next_playlist_);
 
   next_playlist_->set_loop_playback (playlist_->single_format ());
   graph_config_.reset ();
-  graph_config_ = boost::make_shared< tiz::graph::config >(next_playlist_);
+  graph_config_ = boost::make_shared< tiz::graph::config > (
+      next_playlist_, unused_buffer_seconds);
 
   if (graph_config_)
   {

@@ -89,18 +89,23 @@ namespace tiz
     OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE gmusic_playlist_type ();
     const std::string &gmusic_additional_keywords () const;
     bool gmusic_is_unlimited_search () const;
+    uint32_t gmusic_buffer_seconds() const;
     const std::string &scloud_oauth_token () const;
     const std::vector< std::string > &scloud_playlist_container ();
     OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE scloud_playlist_type ();
+    uint32_t scloud_buffer_seconds() const;
     const std::string &dirble_api_key () const;
     const std::vector< std::string > &dirble_playlist_container ();
     OMX_TIZONIA_AUDIO_DIRBLEPLAYLISTTYPE dirble_playlist_type ();
+    uint32_t dirble_buffer_seconds() const;
     const std::vector< std::string > &youtube_playlist_container ();
     OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE youtube_playlist_type ();
+    uint32_t youtube_buffer_seconds() const;
     const std::string &plex_base_url () const;
     const std::string &plex_token () const;
     const std::vector< std::string > &plex_playlist_container ();
     OMX_TIZONIA_AUDIO_PLEXPLAYLISTTYPE plex_playlist_type ();
+    uint32_t plex_buffer_seconds() const;
 
   private:
     void print_usage_feature (
@@ -122,7 +127,7 @@ namespace tiz
     void init_plex_options ();
     void init_input_uri_option ();
 
-    unsigned int parse_command_line (int argc, char *argv[]);
+    uint32_t parse_command_line (int argc, char *argv[]);
 
     typedef int (tiz::programopts::*consume_mem_fn_t) (bool &, std::string &);
     typedef boost::function< int(bool &, std::string &) > consume_function_t;
@@ -184,6 +189,7 @@ namespace tiz
     bool shuffle_;
     bool daemon_;
     std::string chromecast_name_or_ip_;
+    uint32_t buffer_seconds_;
     std::string log_dir_;
     bool debug_info_;
     std::string comp_name_;
@@ -237,6 +243,7 @@ namespace tiz
     std::vector< std::string > gmusic_playlist_container_;
     OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE gmusic_playlist_type_;
     bool gmusic_is_unlimited_search_;
+    uint32_t gmusic_buffer_seconds_;
     std::string scloud_oauth_token_;
     std::string scloud_user_stream_;
     std::string scloud_user_likes_;
@@ -248,6 +255,7 @@ namespace tiz
     std::string scloud_tags_;
     std::vector< std::string > scloud_playlist_container_;
     OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE scloud_playlist_type_;
+    uint32_t scloud_buffer_seconds_;
     std::string dirble_api_key_;
     std::string dirble_popular_stations_;
     std::string dirble_stations_;
@@ -255,6 +263,7 @@ namespace tiz
     std::string dirble_country_;
     std::vector< std::string > dirble_playlist_container_;
     OMX_TIZONIA_AUDIO_DIRBLEPLAYLISTTYPE dirble_playlist_type_;
+    uint32_t dirble_buffer_seconds_;
     std::string youtube_audio_stream_;
     std::string youtube_audio_playlist_;
     std::string youtube_audio_mix_;
@@ -264,6 +273,7 @@ namespace tiz
     std::string youtube_audio_channel_playlist_;
     std::vector< std::string > youtube_playlist_container_;
     OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE youtube_playlist_type_;
+    uint32_t youtube_buffer_seconds_;
     std::string plex_base_url_;
     std::string plex_token_;
     std::string plex_audio_tracks_;
@@ -272,6 +282,7 @@ namespace tiz
     std::string plex_audio_playlist_;
     std::vector< std::string > plex_playlist_container_;
     OMX_TIZONIA_AUDIO_PLEXPLAYLISTTYPE plex_playlist_type_;
+    uint32_t plex_buffer_seconds_;
     std::vector< consume_function_t > consume_functions_;
 
     std::vector< std::string > all_global_options_;

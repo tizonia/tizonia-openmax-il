@@ -24,7 +24,7 @@ _tizonia()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
 
-    global="--help --version --recurse --shuffle --daemon --cast --comp-list --roles-of-comp --comps-of-role"
+    global="--help --buffer-seconds --cast --daemon --recurse --shuffle --version --comp-list --roles-of-comp --comps-of-role"
     omx="--comp-list --roles-of-comp --comps-of-role"
     server="--server --port --station-name --station-genre --no-icy-metadata --bitrate-modes --sampling-rates"
     client="--station-id"

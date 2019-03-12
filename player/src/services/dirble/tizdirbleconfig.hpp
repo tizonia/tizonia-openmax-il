@@ -44,9 +44,10 @@ namespace tiz
     {
 
     public:
-      dirbleconfig (const tizplaylist_ptr_t &playlist, const std::string &api_key,
+      dirbleconfig (const tizplaylist_ptr_t &playlist, uint32_t buffer_seconds,
+                    const std::string &api_key,
                     const OMX_TIZONIA_AUDIO_DIRBLEPLAYLISTTYPE &playlist_type)
-        : config (playlist),
+        : config (playlist, buffer_seconds),
           api_key_ (api_key),
           playlist_type_ (playlist_type)
       {

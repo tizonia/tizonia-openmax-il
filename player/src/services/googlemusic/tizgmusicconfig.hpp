@@ -44,17 +44,18 @@ namespace tiz
     {
 
     public:
-      gmusicconfig (const tizplaylist_ptr_t &playlist, const std::string &user,
-                    const std::string &pass, const std::string &device_id,
+      gmusicconfig (const tizplaylist_ptr_t &playlist, uint32_t buffer_seconds,
+                    const std::string &user, const std::string &pass,
+                    const std::string &device_id,
                     const OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE playlist_type,
                     const std::string &additional_keywords,
                     const bool is_unlimited_search = false)
-        : config (playlist),
+        : config (playlist, buffer_seconds),
           user_ (user),
           pass_ (pass),
           device_id_ (device_id),
           playlist_type_ (playlist_type),
-          additional_keywords_(additional_keywords),
+          additional_keywords_ (additional_keywords),
           is_unlimited_search_ (is_unlimited_search)
       {
       }

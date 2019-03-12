@@ -44,9 +44,11 @@ namespace tiz
     {
 
     public:
-      scloudconfig (const tizplaylist_ptr_t &playlist, const std::string &oauth_token,
-                    const OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE &playlist_type)
-        : config (playlist),
+      scloudconfig (
+          const tizplaylist_ptr_t &playlist, uint32_t buffer_seconds,
+          const std::string &oauth_token,
+          const OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE &playlist_type)
+        : config (playlist, buffer_seconds),
           oauth_token_ (oauth_token),
           playlist_type_ (playlist_type)
       {
