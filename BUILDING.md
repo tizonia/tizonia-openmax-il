@@ -1,6 +1,9 @@
+# Building from Source
+
+#### Table Of Contents
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
 
 - [Building from Source](#building-from-source)
   - [Prerequisites](#prerequisites)
@@ -21,12 +24,10 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-## Building from Source ##
-
 To build and install from source, please read the following sections. Ubuntu
 16.04 is assumed, but should work on other recent Debian-based distros.
 
-### Prerequisites ###
+### Prerequisites
 
 Please make sure you have enough RAM available on your system to build
 Tizonia. A good 6GB of free RAM may be needed if you are planning to build
@@ -45,7 +46,7 @@ to disable certain parts of the software.
   build the Tizonia tree multiple times.
 
 
-### Dependencies ###
+### Dependencies
 
 To install all the development dependencies, the `tizonia-dev-build` tool is
 the recommended way. This script lives under the `tools` directory and internally
@@ -185,7 +186,7 @@ build of the ALSA-based OpenMAX IL pcm renderer.
 
 ```
 
-### Tizonia's configuration file ###
+### Tizonia's configuration file
 
 Copy *tizonia.conf* into the user's config folder:
 
@@ -196,7 +197,7 @@ Copy *tizonia.conf* into the user's config folder:
 
 ```
 
-### Resource Manager's D-BUS service activation file (optional) ###
+### Resource Manager's D-BUS service activation file (optional)
 
 OpenMAX IL Resource Management is present but disabled by default. This is a
 feature required on an compliant OpenMAX IL 1.2 implementation. Currently,
@@ -212,7 +213,7 @@ activation file to some place where it can be found by the DBUS services. E.g:
 
 ```
 
-### Known issues ###
+### Known issues
 
 The `tizonia` player app makes heavy use the the the
 [Boost Meta State Machine (MSM)](http://www.boost.org/doc/libs/1_55_0/libs/msm/doc/HTML/index.html)
@@ -261,7 +262,7 @@ See <file:///usr/share/doc/gcc-4.8/README.Bugs> for instructions.
 
 ```
 
-### Speeding up (re-)compilation using ccache ###
+### Speeding up (re-)compilation using ccache
 
 [ccache](https://ccache.samba.org/) is a compiler cache. It speeds up
 recompilation by caching previous compilations. With Tizonia, this is very
@@ -277,7 +278,7 @@ $ sudo apt-get install ccache
 Once ccache is installed, `tizonia-dev-build` will detect its presence and
 start making use of it to (dramatically) reduce compilation time in most cases.
 
-### Creating a JSON compilation database, for use with e.g. Emacs RTags ###
+### Creating a JSON compilation database, for use with e.g. Emacs RTags
 
 JSON compilation databases are used nowdays by many tools to provide
 information on how a single compilation unit is processed. This helps these
