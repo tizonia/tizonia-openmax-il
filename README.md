@@ -239,4 +239,4 @@ release of the project.
 - Tizonia OpenMAX IL is released under the [GNU Lesser General Public
 License](COPYING.LESSER) version 3.
 
-- Finally, please visit the project web site at http://www.tizonia.org
+- Finally, please visit the project web site at http://tizonia.org
