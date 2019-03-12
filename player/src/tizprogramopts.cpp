@@ -1389,8 +1389,8 @@ void tiz::programopts::init_global_options ()
        "YouTube, Plex and HTTP radio stations.")
       /* TIZ_CLASS_COMMENT: */
       ("buffer-seconds,b", po::value (&buffer_seconds_),
-       "Size of the audio buffer (in seconds) to use while downloading streams. "
-       "Increase in case of cuts.");
+       "Size of the buffer (in seconds) to be used while downloading streams. "
+       "Increase in case of cuts in gmusic, scloud, dirble, youtube or plex.");
 
   register_consume_function (&tiz::programopts::consume_global_options);
   // TODO: help and version are not included. These should be moved out of
