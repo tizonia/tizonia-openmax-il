@@ -82,7 +82,9 @@ mpris-enabled = false
 # gmusic.password   = pass (account password or app-specific password for
 #                          2-factor users)
 # gmusic.device_id  = deviceid (16 hex digits, e.g. '1234567890abcdef')
-
+# gmusic.buffer_seconds = size of the audio buffer (in seconds) to use while
+#                         downloading streams. Default: 720. Increase in
+#                         case of cuts.
 
 # SoundCloud configuration
 # -------------------------------------------------------------------------
@@ -94,6 +96,9 @@ mpris-enabled = false
 # details.
 #
 # soundcloud.oauth_token = X-XXXXXX-XXXXXXXX-XXXXXXXXXXXXXX
+# soundcloud.buffer_seconds = size of the audio buffer (in seconds) to use
+#                             while downloading streams. Default: 600.
+#                             Increase in case of cuts.
 
 
 # Dirble configuration
@@ -104,6 +109,19 @@ mpris-enabled = false
 # To obtain your Dirble API key, go to https://dirble.com/developer/
 #
 # dirble.api_key = xxxxxxxxxxxxxx
+# dirble.buffer_seconds = size of the audio buffer (in seconds) to use
+#                         while downloading streams. Default: 120.
+#                         Increase in case of cuts.
+
+
+# YouTube configuration
+# -------------------------------------------------------------------------
+# To avoid passing this information on the command line, uncomment and
+# configure as needed.
+#
+# youtube.buffer_seconds = size of the audio buffer (in seconds) to use
+#                          while downloading streams. Default: 60.
+#                          Increase in case of cuts.
 
 
 # Plex configuration
@@ -116,4 +134,7 @@ mpris-enabled = false
 #
 # plex.base_url = xxxxxxxxxxxxxx (e.g. http://plexserver:32400)
 # plex.auth_token = xxxxxxxxxxxxxx (e.g. SrPEojhap3H5Qj2DmjhX)
+# plex.buffer_seconds = size of the audio buffer (in seconds) to use
+#                       while downloading streams. Default: 60.
+#                       Increase in case of cuts.
 
