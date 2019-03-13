@@ -48,7 +48,7 @@ issue [#531](https://github.com/tizonia/tizonia-openmax-il/issues/531).
 Spotify support with more options to dicover new music rather than just playing
 the content that you know and love. Last but not least,
 [docker-tizonia](https://hub.docker.com/r/tizonia/docker-tizonia/) has been
-updated! (many thanks to [Josh5](https://github.com/Josh5).
+updated! (many thanks to [Josh5](https://github.com/Josh5)).
 
 - [2018-06-15] Tizonia
 [v0.15.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.15.0). Reworked
@@ -210,7 +210,7 @@ dependencies are up-to-date, as follows:
 Roughly in priority order:
 
 - Pandora support ([#340](https://github.com/tizonia/tizonia-openmax-il/issues/340)).
-- RPC interface / headless support ([#488](https://github.com/tizonia/tizonia-openmax-il/issues/488)).
+- RPC interface / headless support ([#488](https://github.com/tizonia/tizonia-openmax-il/issues/488), [#509](https://github.com/tizonia/tizonia-openmax-il/issues/509), [#551](https://github.com/tizonia/tizonia-openmax-il/issues/551)).
 - Airsonic/Subsonic support ([#496](https://github.com/tizonia/tizonia-openmax-il/issues/496)).
 - Deezer support ([#498](https://github.com/tizonia/tizonia-openmax-il/issues/498))
 - Tidal support ([#440](https://github.com/tizonia/tizonia-openmax-il/issues/440))
@@ -239,4 +239,4 @@ release of the project.
 - Tizonia OpenMAX IL is released under the [GNU Lesser General Public
 License](COPYING.LESSER) version 3.
 
-- Finally, please visit the project web site at http://www.tizonia.org
+- Finally, please visit the project web site at http://tizonia.org

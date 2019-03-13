@@ -1,3 +1,5 @@
+# Issue Template
+
 <!--
 
 Have you read Tizonia's Code of Conduct? By filing an Issue, you are expected

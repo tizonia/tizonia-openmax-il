@@ -1,0 +1,155 @@
+Configuration Files
+===================
+
+.. image:: ../_static/screenshots/tizonia-help-config.png
+    :align: center
+    :alt: tizonia shoutcast config help
+
+
+tizonia.conf
+############
+
+.. code-block:: ini
+   :linenos:
+
+   # -*-Mode: conf; -*-
+   # tizonia-config v0.17.0 configuration file
+
+   [ilcore]
+   # Tizonia OpenMAX IL Core section
+
+   # Component plugins discovery
+   # -------------------------------------------------------------------------
+   # A comma-separated list of paths to be scanned by the Tizonia IL Core when
+   # searching for component plugins
+   component-paths = /home/joni/temp/lib/tizonia0-plugins12;
+
+   # IL Core extension plugins discovery
+   # -------------------------------------------------------------------------
+   # A comma-separated list of paths to be scanned by the Tizonia IL Core when
+   # searching for IL Core extensions (not implemented yet)
+   extension-paths =
+
+
+   [resource-management]
+   # Tizonia OpenMAX IL Resource Management (RM) section
+
+   # Resource Manager (RM) daemon interface enable/disable switch
+   # -------------------------------------------------------------------------
+   # Whether the IL RM functionality is enabled or not
+   enabled = false
+
+   # RM database
+   # -------------------------------------------------------------------------
+   # This is the path to the Resource Manager database
+   rmdb = /home/joni/temp/share/tizrmd/tizrm.db
+
+
+   [plugins]
+   # OpenMAX IL Component plugins section
+
+   # Each key-value pair represents a list of any data that a
+   # specific component might need. The entries here must honor the following
+   # format: OMX.component.name.key = <semi-colon-separated list of items>
+
+   # ALSA Audio Renderer
+   # -------------------------------------------------------------------------
+   #
+   # OMX.Aratelia.audio_renderer.alsa.pcm.preannouncements_disabled.port0 = false
+   OMX.Aratelia.audio_renderer.alsa.pcm.alsa_device = default
+   OMX.Aratelia.audio_renderer.alsa.pcm.alsa_mixer = Master
+
+
+   [tizonia]
+   # Tizonia player section
+
+   # The default audio renderer used by the tizonia player
+   # -------------------------------------------------------------------------
+   # Valid values are:
+   # - OMX.Aratelia.audio_renderer.pulseaudio.pcm
+   # - OMX.Aratelia.audio_renderer.alsa.pcm
+   default-audio-renderer = OMX.Aratelia.audio_renderer.pulseaudio.pcm
+
+   # MPRIS v2 interface enable/disable switch
+   # -------------------------------------------------------------------------
+   # Valid values are: true | false
+   #
+   mpris-enabled = false
+
+   # Spotify configuration
+   # -------------------------------------------------------------------------
+   # To avoid passing this information on the command line, uncomment
+   # and configure accordingly
+   #
+   # spotify.user     = user
+   # spotify.password = pass
+   # spotify.recover_lost_token = false (set to true to continue playback after
+   #                                     the token has been [spuriously?] lost)
+   # spotify.allow_explicit_tracks = false (set to true to allow explicit tracks)
+
+   # Google Play Music configuration
+   # -------------------------------------------------------------------------
+   # To avoid passing this information on the command line, uncomment and
+   # configure here.
+   #
+   # gmusic.user       = user@gmail.com
+   # gmusic.password   = pass (account password or app-specific password for
+   #                          2-factor users)
+   # gmusic.device_id  = deviceid (16 hex digits, e.g. '1234567890abcdef')
+   # gmusic.buffer_seconds = size of the audio buffer (in seconds) to use while
+   #                         downloading streams. Default: 720. Increase in
+   #                         case of cuts.
+
+   # SoundCloud configuration
+   # -------------------------------------------------------------------------
+   # To avoid passing this information on the command line, uncomment and
+   # configure your SoundCloud OAuth token here.
+   #
+   # To obtain your OAuth token, Tizonia needs to be granted access to your
+   # SoundCloud account. Visit http://tizonia.org/docs/soundcloud/ for the
+   # details.
+   #
+   # soundcloud.oauth_token = X-XXXXXX-XXXXXXXX-XXXXXXXXXXXXXX
+   # soundcloud.buffer_seconds = size of the audio buffer (in seconds) to use
+   #                             while downloading streams. Default: 600.
+   #                             Increase in case of cuts.
+
+
+   # Dirble configuration
+   # -------------------------------------------------------------------------
+   # To avoid passing this information on the command line, uncomment and
+   # configure your Dirble Api Key here.
+   #
+   # To obtain your Dirble API key, go to https://dirble.com/developer/
+   #
+   # dirble.api_key = xxxxxxxxxxxxxx
+   # dirble.buffer_seconds = size of the audio buffer (in seconds) to use
+   #                         while downloading streams. Default: 120.
+   #                         Increase in case of cuts.
+
+
+   # YouTube configuration
+   # -------------------------------------------------------------------------
+   # To avoid passing this information on the command line, uncomment and
+   # configure as needed.
+   #
+   # youtube.buffer_seconds = size of the audio buffer (in seconds) to use
+   #                          while downloading streams. Default: 60.
+   #                          Increase in case of cuts.
+
+
+   # Plex configuration
+   # -------------------------------------------------------------------------
+   # To avoid passing this information on the command line, uncomment and
+   # configure your Plex server and account auth token here.
+   #
+   # To find how to obtain a Plex user authentication token, see:
+   # https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/
+   #
+   # plex.base_url = xxxxxxxxxxxxxx (e.g. http://plexserver:32400)
+   # plex.auth_token = xxxxxxxxxxxxxx (e.g. SrPEojhap3H5Qj2DmjhX)
+   # plex.buffer_seconds = size of the audio buffer (in seconds) to use
+   #                       while downloading streams. Default: 60.
+   #                       Increase in case of cuts.
+
+

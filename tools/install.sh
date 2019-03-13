@@ -60,6 +60,11 @@ fi
 # anything else.  Some of these packages are needed to make sure that Tizonia's
 # Python dependencies are correctly installed from PIP.
 sudo apt-get -y --force-yes install build-essential git curl python-dev apt-transport-https libffi-dev libssl-dev libxml2-dev libxslt1-dev
+if [[ "$?" -ne 0 ]]; then
+    echo "Oops. Some important dependencies failed to install!."
+    echo "Please re-run the install script."
+    exit 1
+fi
 
 # Add Mopidy's archive to APT's sources.list (required to install 'libspotify')
 grep -q "apt.mopidy.com" /etc/apt/sources.list
@@ -93,6 +98,7 @@ sudo apt-get -y install python-pip \
             plexapi \
             fuzzywuzzy \
             eventlet \
+            python-Levenshtein \
     && sudo -H pip2 install git+https://github.com/plamere/spotipy.git --upgrade
 
 # Install 'libspotify'
