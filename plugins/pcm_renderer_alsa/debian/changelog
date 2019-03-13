@@ -1,3 +1,9 @@
+tizalsapcmrnd (0.18.0-1) unstable; urgency=low
+
+  * New upstream release (Closes: #572)
+
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Wed, 13 Mar 2019 22:39:06 +0000
+
 tizalsapcmrnd (0.17.0-1) unstable; urgency=low
 
   * New upstream release (Closes: #550)
