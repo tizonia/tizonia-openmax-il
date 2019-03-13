@@ -1,5 +1,30 @@
 # Change Log
 
+## [v0.18.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.18.0) (2019-03-13)
+[Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.17.0...v0.18.0)
+
+**Improvements:**
+
+- various graphs : add rewind, fast-forward functionality [\#125](https://github.com/tizonia/tizonia-openmax-il/issues/125)
+- Spotify: config option to allow/disallow 'explicit' tracks [\#568](https://github.com/tizonia/tizonia-openmax-il/issues/568)
+- Spotify: smarter  '--spotify-artist' search [\#538](https://github.com/tizonia/tizonia-openmax-il/issues/538)
+
+**Fixed bugs:**
+
+- Arch User Repository: 'tizonia-all' builds sometimes break during upgrades [\#485](https://github.com/tizonia/tizonia-openmax-il/issues/485)
+- Spotify: core dumped with 'tizonia --spotify-album "living on a prayer" [\#569](https://github.com/tizonia/tizonia-openmax-il/issues/569)
+- Google Play Music. Artist Not Found [\#565](https://github.com/tizonia/tizonia-openmax-il/issues/565)
+- tizonia fails with MALLOC\_PERTURB\_ set [\#563](https://github.com/tizonia/tizonia-openmax-il/issues/563)
+- Spotify: tizonia repeats the first track [\#560](https://github.com/tizonia/tizonia-openmax-il/issues/560)
+- dbus-cplusplus: fix no return in non void function [\#555](https://github.com/tizonia/tizonia-openmax-il/issues/555)
+- Google Play music intermittently cutting songs short [\#547](https://github.com/tizonia/tizonia-openmax-il/issues/547)
+
+**Closed issues:**
+
+- configure error [\#540](https://github.com/tizonia/tizonia-openmax-il/issues/540)
+- docs: document Tizonia's configuration system [\#368](https://github.com/tizonia/tizonia-openmax-il/issues/368)
+- docs: document player shortcuts [\#570](https://github.com/tizonia/tizonia-openmax-il/issues/570)
+
 ## [v0.17.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.17.0) (2019-01-17)
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.16.0...v0.17.0)
 
@@ -11,7 +36,7 @@
 
 **Closed issues:**
 
-- spotify credentials in ~/.config/tizonia/tizonia.conf issue [\#545](https://github.com/tizonia/tizonia-openmax-il/issues/545)
+- release v0.17.0 [\#550](https://github.com/tizonia/tizonia-openmax-il/issues/550)
 
 **Merged pull requests:**
 
@@ -48,7 +73,6 @@
 
 **Closed issues:**
 
-- Why so many dependencies?! [\#530](https://github.com/tizonia/tizonia-openmax-il/issues/530)
 - Updating Instructions threw an unhandled exception, seems like a syntax error [\#520](https://github.com/tizonia/tizonia-openmax-il/issues/520)
 - Tizonia Snap exits with OMX\_ErrorInsufficientResources error [\#513](https://github.com/tizonia/tizonia-openmax-il/issues/513)
 - Tizonia can't find my Spotify playlists [\#506](https://github.com/tizonia/tizonia-openmax-il/issues/506)
