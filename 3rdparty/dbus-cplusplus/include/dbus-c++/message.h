@@ -199,7 +199,7 @@ public:
 
   void terminate();
 
-protected:
+public:
 
   Message();
 

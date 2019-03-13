@@ -223,6 +223,17 @@ class tizspotifyproxy(object):
             count = len(self.queue)
             artist = self.__search_artists(arg_dec)
 
+            if not artist:
+                logging.info('No artist found with search : %s. Going with a track search', arg_dec)
+                results = self._spotify.search(arg_dec, limit=20, offset=0, type='track')
+                tracks = results['tracks']
+                for i, track in enumerate(tracks['items']):
+                    artist_id = track['artists'][0]['id']
+                    artist_name = track['artists'][0]['name']
+                    logging.info('Artist found with track search : %s', artist_name)
+                    artist = self._spotify.artist(artist_id)
+                    if artist:
+                        break
             if artist:
                 self.__enqueue_artist(artist)
 
