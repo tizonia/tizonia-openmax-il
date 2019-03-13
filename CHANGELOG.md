@@ -5,7 +5,6 @@
 
 **Improvements:**
 
-- various graphs : add rewind, fast-forward functionality [\#125](https://github.com/tizonia/tizonia-openmax-il/issues/125)
 - Spotify: config option to allow/disallow 'explicit' tracks [\#568](https://github.com/tizonia/tizonia-openmax-il/issues/568)
 - Spotify: smarter  '--spotify-artist' search [\#538](https://github.com/tizonia/tizonia-openmax-il/issues/538)
 
@@ -24,6 +23,7 @@
 - configure error [\#540](https://github.com/tizonia/tizonia-openmax-il/issues/540)
 - docs: document Tizonia's configuration system [\#368](https://github.com/tizonia/tizonia-openmax-il/issues/368)
 - docs: document player shortcuts [\#570](https://github.com/tizonia/tizonia-openmax-il/issues/570)
+- various graphs : add rewind, fast-forward functionality [\#125](https://github.com/tizonia/tizonia-openmax-il/issues/125)
 
 ## [v0.17.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.17.0) (2019-01-17)
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.16.0...v0.17.0)
