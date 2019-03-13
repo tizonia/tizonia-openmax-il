@@ -972,6 +972,31 @@ graph::util::set_plex_playlist (
 }
 
 OMX_ERRORTYPE
+graph::util::set_streaming_buffer_params (const OMX_HANDLETYPE handle,
+                                          const OMX_U32 port_id,
+                                          const uint32_t capacity_seconds,
+                                          const uint32_t low_watermark,
+                                          const uint32_t high_watermark)
+{
+  // Set the streaming buffer parameters
+  OMX_TIZONIA_STREAMINGBUFFERTYPE buffertype;
+  TIZ_INIT_OMX_PORT_STRUCT (buffertype, port_id);
+  tiz_check_omx (OMX_GetParameter (
+      handle,
+      static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamStreamingBuffer),
+      &buffertype));
+
+  buffertype.nCapacity = capacity_seconds;
+  buffertype.nLowWaterMark = low_watermark;
+  buffertype.nHighWaterMark = high_watermark;
+
+  return OMX_SetParameter (
+      handle,
+      static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamStreamingBuffer),
+      &buffertype);
+}
+
+OMX_ERRORTYPE
 graph::util::enable_port_format_auto_detection (const OMX_HANDLETYPE handle,
                                                 const OMX_U32 port_id,
                                                 const OMX_PORTDOMAINTYPE domain)

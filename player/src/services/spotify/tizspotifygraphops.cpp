@@ -96,7 +96,8 @@ void graph::spotifyops::do_configure_comp (const int comp_id)
     G_OPS_BAIL_IF_ERROR (
         set_spotify_session (handles_[0], spotify_config->get_user_name (),
                              spotify_config->get_user_pass (),
-                             spotify_config->get_recover_lost_token ()),
+                             spotify_config->get_recover_lost_token (),
+                             spotify_config->get_allow_explicit_tracks ()),
         "Unable to set OMX_TizoniaIndexParamAudioSpotifySession");
 
     G_OPS_BAIL_IF_ERROR (
@@ -383,7 +384,8 @@ OMX_ERRORTYPE
 graph::spotifyops::set_spotify_session (const OMX_HANDLETYPE handle,
                                         const std::string &user,
                                         const std::string &pass,
-                                        const bool recover_lost_token)
+                                        const bool recover_lost_token,
+                                        const bool allow_explicit_tracks)
 {
   // Set the Spotify user and pass
   OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE sessiontype;
@@ -396,6 +398,7 @@ graph::spotifyops::set_spotify_session (const OMX_HANDLETYPE handle,
   tiz::graph::util::copy_omx_string (sessiontype.cUserPassword, pass);
   sessiontype.bRememberCredentials = OMX_TRUE; // default value
   sessiontype.bRecoverLostToken = (recover_lost_token ? OMX_TRUE : OMX_FALSE);
+  sessiontype.bAllowExplicitTracks = (allow_explicit_tracks ? OMX_TRUE : OMX_FALSE);
   return OMX_SetParameter (
       handle,
       static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioSpotifySession),

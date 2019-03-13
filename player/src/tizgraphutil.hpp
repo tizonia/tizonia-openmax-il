@@ -225,6 +225,11 @@ namespace tiz
           const OMX_TIZONIA_AUDIO_PLEXPLAYLISTTYPE playlist_type,
           const bool shuffle);
 
+      static OMX_ERRORTYPE set_streaming_buffer_params (
+          const OMX_HANDLETYPE handle, const OMX_U32 port_id,
+          const uint32_t capacity_seconds, const uint32_t low_watermark,
+          const uint32_t high_watermark);
+
       static OMX_ERRORTYPE enable_port_format_auto_detection (
           const OMX_HANDLETYPE handle, const OMX_U32 port_id,
           const OMX_PORTDOMAINTYPE domain);

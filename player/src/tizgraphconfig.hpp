@@ -29,6 +29,8 @@
 #ifndef TIZGRAPHCONFIG_HPP
 #define TIZGRAPHCONFIG_HPP
 
+#include <stdint.h>
+
 #include <boost/shared_ptr.hpp>
 
 #include "tizgraphtypes.hpp"
@@ -42,8 +44,8 @@ namespace tiz
     {
 
     public:
-      explicit config (const tizplaylist_ptr_t &playlist)
-        : playlist_ (playlist)
+      explicit config (const tizplaylist_ptr_t &playlist, const uint32_t buffer_seconds)
+        : playlist_ (playlist), buffer_seconds_ (buffer_seconds)
       {
       }
 
@@ -56,8 +58,14 @@ namespace tiz
         return playlist_;
       }
 
+      uint32_t get_buffer_seconds () const
+      {
+        return buffer_seconds_;
+      }
+
     protected:
       tizplaylist_ptr_t playlist_;
+      uint32_t buffer_seconds_;
     };
 
   }  // namespace graph

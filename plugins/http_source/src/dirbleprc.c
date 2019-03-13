@@ -180,20 +180,6 @@ set_auto_detect_on_port (dirble_prc_t * ap_prc)
   return OMX_ErrorNone;
 }
 
-static void
-update_cache_size (dirble_prc_t * ap_prc)
-{
-  assert (ap_prc);
-  assert (ap_prc->bitrate_ > 0);
-  ap_prc->cache_bytes_ = ((ap_prc->bitrate_ * 1000) / 8)
-                         * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS;
-  if (ap_prc->p_trans_)
-    {
-      tiz_urltrans_set_internal_buffer_size (ap_prc->p_trans_,
-                                             ap_prc->cache_bytes_);
-    }
-}
-
 static OMX_ERRORTYPE
 store_metadata (dirble_prc_t * ap_prc, const char * ap_header_name,
                 const char * ap_header_info)
@@ -609,6 +595,15 @@ retrieve_playlist (dirble_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
+retrieve_buffer_size (dirble_prc_t * ap_prc)
+{
+  TIZ_INIT_OMX_PORT_STRUCT (ap_prc->buffer_size_, ARATELIA_HTTP_SOURCE_PORT_INDEX);
+  return tiz_api_GetParameter (
+    tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+    OMX_TizoniaIndexParamStreamingBuffer, &(ap_prc->buffer_size_));
+}
+
+static OMX_ERRORTYPE
 enqueue_playlist_items (dirble_prc_t * ap_prc)
 {
   int rc = 1;
@@ -685,7 +680,8 @@ dirble_prc_ctor (void * ap_obj, va_list * app)
   p_prc->samplerate_ = 44100;
   p_prc->auto_detect_on_ = false;
   p_prc->bitrate_ = ARATELIA_HTTP_SOURCE_DEFAULT_BIT_RATE_KBITS;
-  update_cache_size (p_prc);
+  p_prc->buffer_bytes_ = ((p_prc->bitrate_ * 1000) / 8)
+    * ARATELIA_HTTP_SOURCE_DEFAULT_BUFFER_SECONDS_DIRBLE;
   p_prc->remove_current_url_ = false;
   p_prc->connection_closed_ = false;
   p_prc->first_buffer_delivered_ = false;
@@ -711,6 +707,12 @@ dirble_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
   assert (p_prc);
   tiz_check_omx (retrieve_session_configuration (p_prc));
   tiz_check_omx (retrieve_playlist (p_prc));
+  tiz_check_omx (retrieve_buffer_size (p_prc));
+  if (p_prc->buffer_size_.nCapacity)
+    {
+      p_prc->buffer_bytes_ = ((p_prc->bitrate_ * 1000) / 8)
+        * p_prc->buffer_size_.nCapacity;
+    }
 
   on_dirble_error_ret_omx_oom (tiz_dirble_init (
     &(p_prc->p_dirble_), (const char *) p_prc->session_.cApiKey));
@@ -733,7 +735,7 @@ dirble_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
     rc
       = tiz_urltrans_init (&(p_prc->p_trans_), p_prc, p_prc->p_uri_param_,
                            ARATELIA_HTTP_SOURCE_COMPONENT_NAME,
-                           ARATELIA_HTTP_SOURCE_PORT_MIN_BUF_SIZE,
+                           p_prc->buffer_bytes_,
                            ARATELIA_HTTP_SOURCE_DEFAULT_RECONNECT_TIMEOUT,
                            buffer_cbacks, info_cbacks, io_cbacks, timer_cbacks);
     if (OMX_ErrorNone == rc)
@@ -764,7 +766,7 @@ dirble_prc_prepare_to_transfer (void * ap_prc, OMX_U32 a_pid)
   assert (ap_prc);
   p_prc->eos_ = false;
   tiz_urltrans_cancel (p_prc->p_trans_);
-  tiz_urltrans_set_internal_buffer_size (p_prc->p_trans_, p_prc->cache_bytes_);
+  tiz_urltrans_set_internal_buffer_size (p_prc->p_trans_, p_prc->buffer_bytes_);
   return prepare_for_port_auto_detection (p_prc);
 }
 

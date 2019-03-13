@@ -49,7 +49,7 @@ namespace tiz
                       const std::string &station_name,
                       const std::string &station_genre,
                       const bool &icy_metadata_enabled)
-        : config (playlist), host_ (host), addr_ (ip_address), port_ (port),
+        : config (playlist, 0), host_ (host), addr_ (ip_address), port_ (port),
           sampling_rate_list_ (sampling_rate_list), bitrate_mode_list_ (bitrate_mode_list),
           station_name_ (station_name), station_genre_ (station_genre),
           icy_metadata_enabled_ (icy_metadata_enabled)

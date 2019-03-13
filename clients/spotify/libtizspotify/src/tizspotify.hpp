@@ -46,6 +46,15 @@ public:
     PlaybackModeMax
   };
 
+  /**
+   * Allow/disallow explicit tracks in playback queue.
+   */
+  enum explicit_track_filter
+  {
+    ExplicitTrackAllow,
+    ExplicitTrackDisallow
+  };
+
 public:
   tizspotify ();
   ~tizspotify ();
@@ -72,6 +81,7 @@ public:
   int play_recommendations_by_genre (const std::string &genre);
 
   void set_playback_mode (const playback_mode mode);
+  void set_explicit_track_filter (const explicit_track_filter filter);
   void clear_queue ();
   const char *get_current_track_index ();
   const char *get_current_queue_length ();
@@ -90,9 +100,11 @@ public:
   const char *get_current_track_uri ();
   const char *get_current_track_artist_uri ();
   const char *get_current_track_album_uri ();
+  const char *get_current_track_explicitness ();
 
 private:
-  int get_current_track ();
+  void get_current_track ();
+  void get_current_track_queue_index_and_length(int &index, int &length);
 
 private:
   std::string current_uri_;
@@ -108,6 +120,7 @@ private:
   std::string current_track_uri_;
   std::string current_track_artist_uri_;
   std::string current_track_album_uri_;
+  std::string current_track_explicitness_;
   std::string current_queue_progress_;
   boost::python::object py_main_;
   boost::python::object py_global_;

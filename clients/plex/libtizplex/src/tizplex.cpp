@@ -222,13 +222,9 @@ const char *tizplex::get_next_url (const bool a_remove_current_url)
         {
           py_plex_proxy_.attr ("remove_current_url") ();
         }
-      const char *p_next_url
-          = bp::extract< char const * > (py_plex_proxy_.attr ("next_url") ());
-      current_url_.assign (p_next_url);
-      if (!p_next_url || get_current_track ())
-        {
-          current_url_.clear ();
-        }
+      current_url_
+          = bp::extract< std::string > (py_plex_proxy_.attr ("next_url") ());
+      get_current_track ();
     }
   catch (bp::error_already_set &e)
     {
@@ -249,13 +245,9 @@ const char *tizplex::get_prev_url (const bool a_remove_current_url)
         {
           py_plex_proxy_.attr ("remove_current_url") ();
         }
-      const char *p_prev_url
-          = bp::extract< char const * > (py_plex_proxy_.attr ("prev_url") ());
-      current_url_.assign (p_prev_url);
-      if (!p_prev_url || get_current_track ())
-        {
-          current_url_.clear ();
-        }
+      current_url_
+          = bp::extract< std::string > (py_plex_proxy_.attr ("prev_url") ());
+      get_current_track ();
     }
   catch (bp::error_already_set &e)
     {
@@ -370,9 +362,8 @@ const char *tizplex::get_current_audio_track_album_art ()
                                            : current_track_album_art_.c_str ();
 }
 
-int tizplex::get_current_track ()
+void tizplex::get_current_track ()
 {
-  int rc = 0;
   current_track_index_.clear ();
   current_queue_length_.clear ();
   current_track_title_.clear ();
@@ -394,26 +385,14 @@ int tizplex::get_current_track ()
   current_queue_length_.assign (
       boost::lexical_cast< std::string > (queue_length));
 
-  const char *p_title = bp::extract< char const * > (
+  current_track_title_ = bp::extract< std::string > (
       py_plex_proxy_.attr ("current_audio_track_title") ());
-  if (p_title)
-    {
-      current_track_title_.assign (p_title);
-    }
 
-  const char *p_artist = bp::extract< char const * > (
+  current_track_artist_ = bp::extract< std::string > (
       py_plex_proxy_.attr ("current_audio_track_artist") ());
-  if (p_artist)
-    {
-      current_track_artist_.assign (p_artist);
-    }
 
-  const char *p_album = bp::extract< char const * > (
+  current_track_album_ = bp::extract< std::string > (
       py_plex_proxy_.attr ("current_audio_track_album") ());
-  if (p_album)
-    {
-      current_track_album_.assign (p_album);
-    }
 
   const int year = bp::extract< int > (
       py_plex_proxy_.attr ("current_audio_track_year") ());
@@ -469,19 +448,9 @@ int tizplex::get_current_track ()
       py_plex_proxy_.attr ("current_audio_track_bitrate") ());
   current_track_bitrate_.assign (boost::lexical_cast< std::string > (bitrate));
 
-  const char *p_codec = bp::extract< char const * > (
+  current_track_codec_ = bp::extract< std::string > (
       py_plex_proxy_.attr ("current_audio_track_codec") ());
-  if (p_codec)
-    {
-      current_track_codec_.assign (p_codec);
-    }
 
-  const char *p_album_art = bp::extract< char const * > (
+  current_track_album_art_ = bp::extract< std::string > (
       py_plex_proxy_.attr ("current_audio_track_album_art") ());
-  if (p_album_art)
-    {
-      current_track_album_art_.assign (p_album_art);
-    }
-
-  return rc;
 }

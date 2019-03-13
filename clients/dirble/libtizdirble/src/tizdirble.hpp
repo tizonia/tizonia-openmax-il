@@ -73,7 +73,7 @@ public:
   const char * get_current_station_stream_url ();
 
 private:
-  int get_current_station ();
+  void get_current_station ();
 
 private:
   std::string api_key_;

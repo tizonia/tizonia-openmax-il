@@ -231,12 +231,9 @@ const char *tizsoundcloud::get_next_url ()
   current_url_.clear ();
   try
     {
-      const char *p_next_url
-          = bp::extract< char const * > (py_gm_proxy_.attr ("next_url") ());
-      if (p_next_url && !get_current_track ())
-        {
-          current_url_.assign (p_next_url);
-        }
+      current_url_
+        = bp::extract< std::string > (py_gm_proxy_.attr ("next_url") ());
+      get_current_track ();
     }
   catch (bp::error_already_set &e)
     {
@@ -253,12 +250,9 @@ const char *tizsoundcloud::get_prev_url ()
   current_url_.clear ();
   try
     {
-      const char *p_prev_url
-          = bp::extract< char const * > (py_gm_proxy_.attr ("prev_url") ());
-      if (p_prev_url && !get_current_track ())
-        {
-          current_url_.assign (p_prev_url);
-        }
+      current_url_
+        = bp::extract< std::string > (py_gm_proxy_.attr ("prev_url") ());
+      get_current_track ();
     }
   catch (bp::error_already_set &e)
     {
@@ -345,25 +339,15 @@ void tizsoundcloud::set_playback_mode (const playback_mode mode)
   (void)rc;
 }
 
-int tizsoundcloud::get_current_track ()
+void tizsoundcloud::get_current_track ()
 {
-  int rc = 1;
   current_user_.clear ();
   current_title_.clear ();
 
   const bp::tuple &info1 = bp::extract< bp::tuple > (
       py_gm_proxy_.attr ("current_track_title_and_user") ());
-  const char *p_user = bp::extract< char const * > (info1[0]);
-  const char *p_title = bp::extract< char const * > (info1[1]);
-
-  if (p_user)
-    {
-      current_user_.assign (p_user);
-    }
-  if (p_title)
-    {
-      current_title_.assign (p_title);
-    }
+  current_user_ = bp::extract< std::string > (info1[0]);
+  current_title_ = bp::extract< std::string > (info1[1]);
 
   int duration
       = bp::extract< int > (py_gm_proxy_.attr ("current_track_duration") ());
@@ -406,33 +390,17 @@ int tizsoundcloud::get_current_track ()
       = bp::extract< int > (py_gm_proxy_.attr ("current_track_year") ());
   current_track_year_.assign (boost::lexical_cast< std::string > (track_year));
 
-  const char *p_track_permalink = bp::extract< char const * > (
+  current_track_permalink_ = bp::extract< std::string > (
       py_gm_proxy_.attr ("current_track_permalink") ());
-  if (p_track_permalink)
-    {
-      current_track_permalink_.assign (p_track_permalink);
-    }
 
-  const char *p_track_license = bp::extract< char const * > (
+  current_track_license_ = bp::extract< std::string > (
       py_gm_proxy_.attr ("current_track_license") ());
-  if (p_track_license)
-    {
-      current_track_license_.assign (p_track_license);
-    }
 
   const int track_likes
       = bp::extract< int > (py_gm_proxy_.attr ("current_track_likes") ());
   current_track_likes_.assign (
       boost::lexical_cast< std::string > (track_likes));
 
-  const char *track_user_avatar = bp::extract< char const * > (
+  current_track_user_avatar_ = bp::extract< std::string > (
       py_gm_proxy_.attr ("current_track_user_avatar") ());
-  current_track_user_avatar_.assign (track_user_avatar);
-
-  if (p_user || p_title)
-    {
-      rc = 0;
-    }
-
-  return rc;
 }

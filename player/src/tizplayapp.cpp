@@ -863,6 +863,7 @@ tiz::playapp::decode_stream ()
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   const uri_lst_t &uri_list = popts_.uri_list ();
+  const uint32_t unused_buffer_seconds = 0; // this is not used during casting
 
   (void)daemonize_if_requested ();
   print_banner ();
@@ -874,7 +875,7 @@ tiz::playapp::decode_stream ()
   playlist->set_loop_playback (true);
 
   tizgraphconfig_ptr_t config
-      = boost::make_shared< tiz::graph::config > (playlist);
+    = boost::make_shared< tiz::graph::config > (playlist, unused_buffer_seconds);
 
   // Instantiate the streaming client manager
   tiz::graphmgr::mgr_ptr_t p_mgr
@@ -904,6 +905,7 @@ tiz::playapp::spotify_stream ()
   const std::string owner (popts_.spotify_owner ());
   std::string pass (popts_.spotify_password ());
   const bool recover_lost_token = popts_.spotify_recover_lost_token ();
+  const bool allow_explicit_tracks = popts_.spotify_allow_explicit_tracks ();
   const uri_lst_t &uri_list = popts_.spotify_playlist_container ();
   const OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE playlist_type
       = popts_.spotify_playlist_type ();
@@ -929,9 +931,9 @@ tiz::playapp::spotify_stream ()
   playlist->set_loop_playback (true);
 
   tizgraphconfig_ptr_t config
-      = boost::make_shared< tiz::graph::spotifyconfig > (playlist, user, pass,
-                                                         playlist_type, owner,
-                                                         recover_lost_token);
+      = boost::make_shared< tiz::graph::spotifyconfig > (
+          playlist, user, pass, playlist_type, owner, recover_lost_token,
+          allow_explicit_tracks);
 
   // Instantiate the streaming client manager
   tiz::graphmgr::mgr_ptr_t p_mgr
@@ -971,6 +973,7 @@ tiz::playapp::gmusic_stream ()
   const OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE playlist_type
       = popts_.gmusic_playlist_type ();
   const bool is_unlimited_search = popts_.gmusic_is_unlimited_search ();
+  const uint32_t buffer_seconds = popts_.gmusic_buffer_seconds ();
 
   print_banner ();
 
@@ -993,8 +996,8 @@ tiz::playapp::gmusic_stream ()
   playlist->set_loop_playback (true);
 
   tizgraphconfig_ptr_t config = boost::make_shared< tiz::graph::gmusicconfig > (
-      playlist, user, pass, device_id, playlist_type, additional_keywords,
-      is_unlimited_search);
+      playlist, buffer_seconds, user, pass, device_id, playlist_type,
+      additional_keywords, is_unlimited_search);
 
   // Instantiate the streaming client manager
   tiz::graphmgr::mgr_ptr_t p_mgr
@@ -1023,6 +1026,7 @@ tiz::playapp::scloud_stream ()
   const uri_lst_t &uri_list = popts_.scloud_playlist_container ();
   const OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE playlist_type
       = popts_.scloud_playlist_type ();
+  const uint32_t buffer_seconds = popts_.scloud_buffer_seconds ();
 
   print_banner ();
 
@@ -1036,7 +1040,7 @@ tiz::playapp::scloud_stream ()
   playlist->set_loop_playback (true);
 
   tizgraphconfig_ptr_t config = boost::make_shared< tiz::graph::scloudconfig > (
-      playlist, token, playlist_type);
+      playlist, buffer_seconds, token, playlist_type);
 
   // Instantiate the streaming client manager
   tiz::graphmgr::mgr_ptr_t p_mgr
@@ -1065,6 +1069,7 @@ tiz::playapp::dirble_stream ()
   const uri_lst_t &uri_list = popts_.dirble_playlist_container ();
   const OMX_TIZONIA_AUDIO_DIRBLEPLAYLISTTYPE playlist_type
       = popts_.dirble_playlist_type ();
+  const uint32_t buffer_seconds = popts_.dirble_buffer_seconds ();
 
   print_banner ();
 
@@ -1078,7 +1083,7 @@ tiz::playapp::dirble_stream ()
   playlist->set_loop_playback (true);
 
   tizgraphconfig_ptr_t config = boost::make_shared< tiz::graph::dirbleconfig > (
-      playlist, api_key, playlist_type);
+      playlist, buffer_seconds, api_key, playlist_type);
 
   // Instantiate the streaming client manager
   tiz::graphmgr::mgr_ptr_t p_mgr
@@ -1106,6 +1111,7 @@ tiz::playapp::youtube_stream ()
   const uri_lst_t &uri_list = popts_.youtube_playlist_container ();
   const OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE playlist_type
       = popts_.youtube_playlist_type ();
+  const uint32_t buffer_seconds = popts_.youtube_buffer_seconds ();
 
   print_banner ();
 
@@ -1119,8 +1125,8 @@ tiz::playapp::youtube_stream ()
   playlist->set_loop_playback (true);
 
   tizgraphconfig_ptr_t config
-      = boost::make_shared< tiz::graph::youtubeconfig > (playlist,
-                                                         playlist_type);
+      = boost::make_shared< tiz::graph::youtubeconfig > (
+          playlist, buffer_seconds, playlist_type);
 
   // Instantiate the streaming client manager
   tiz::graphmgr::mgr_ptr_t p_mgr
@@ -1150,6 +1156,7 @@ tiz::playapp::plex_stream ()
   const uri_lst_t &uri_list = popts_.plex_playlist_container ();
   const OMX_TIZONIA_AUDIO_PLEXPLAYLISTTYPE playlist_type
       = popts_.plex_playlist_type ();
+  const uint32_t buffer_seconds = popts_.plex_buffer_seconds ();
 
   print_banner ();
 
@@ -1163,7 +1170,7 @@ tiz::playapp::plex_stream ()
   playlist->set_loop_playback (true);
 
   tizgraphconfig_ptr_t config = boost::make_shared< tiz::graph::plexconfig > (
-      playlist, base_url, token, playlist_type);
+      playlist, buffer_seconds, base_url, token, playlist_type);
 
   // Instantiate the streaming client manager
   tiz::graphmgr::mgr_ptr_t p_mgr
@@ -1190,6 +1197,7 @@ tiz::playapp::http_stream_chromecast ()
   const bool shuffle = popts_.shuffle ();
   const uri_lst_t &uri_list = popts_.uri_list ();
   const std::string cc_name_or_ip (popts_.chromecast_name_or_ip ());
+  const uint32_t unused_buffer_seconds = 0; // this is not used during casting
 
   (void)daemonize_if_requested ();
   print_banner ();
@@ -1201,7 +1209,8 @@ tiz::playapp::http_stream_chromecast ()
   playlist->set_loop_playback (true);
 
   tizgraphconfig_ptr_t service_config
-      = boost::make_shared< tiz::graph::config > (playlist);
+      = boost::make_shared< tiz::graph::config > (playlist,
+                                                  unused_buffer_seconds);
 
   tizgraphconfig_ptr_t config
       = boost::make_shared< tiz::graph::chromecastconfig > (
@@ -1240,6 +1249,7 @@ tiz::playapp::gmusic_stream_chromecast ()
       = popts_.gmusic_playlist_type ();
   const bool is_unlimited_search = popts_.gmusic_is_unlimited_search ();
   const std::string cc_name_or_ip (popts_.chromecast_name_or_ip ());
+  const uint32_t unused_buffer_seconds = 0; // this is not used during casting
 
   print_banner ();
 
@@ -1263,8 +1273,8 @@ tiz::playapp::gmusic_stream_chromecast ()
 
   tizgraphconfig_ptr_t service_config
       = boost::make_shared< tiz::graph::gmusicconfig > (
-          playlist, user, pass, device_id, playlist_type, additional_keywords,
-          is_unlimited_search);
+          playlist, unused_buffer_seconds, user, pass, device_id, playlist_type,
+          additional_keywords, is_unlimited_search);
 
   tizgraphconfig_ptr_t config
       = boost::make_shared< tiz::graph::chromecastconfig > (
@@ -1299,6 +1309,7 @@ tiz::playapp::scloud_stream_chromecast ()
   const OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE playlist_type
       = popts_.scloud_playlist_type ();
   const std::string cc_name_or_ip (popts_.chromecast_name_or_ip ());
+  const uint32_t unused_buffer_seconds = 0; // this is not used during casting
 
   print_banner ();
 
@@ -1312,8 +1323,8 @@ tiz::playapp::scloud_stream_chromecast ()
   playlist->set_loop_playback (true);
 
   tizgraphconfig_ptr_t service_config
-      = boost::make_shared< tiz::graph::scloudconfig > (playlist, token,
-                                                        playlist_type);
+      = boost::make_shared< tiz::graph::scloudconfig > (
+          playlist, unused_buffer_seconds, token, playlist_type);
 
   tizgraphconfig_ptr_t config
       = boost::make_shared< tiz::graph::chromecastconfig > (
@@ -1348,6 +1359,7 @@ tiz::playapp::dirble_stream_chromecast ()
   const OMX_TIZONIA_AUDIO_DIRBLEPLAYLISTTYPE playlist_type
       = popts_.dirble_playlist_type ();
   const std::string cc_name_or_ip (popts_.chromecast_name_or_ip ());
+  const uint32_t unused_buffer_seconds = 0; // this is not used during casting
 
   print_banner ();
 
@@ -1361,8 +1373,8 @@ tiz::playapp::dirble_stream_chromecast ()
   playlist->set_loop_playback (true);
 
   tizgraphconfig_ptr_t service_config
-      = boost::make_shared< tiz::graph::dirbleconfig > (playlist, api_key,
-                                                        playlist_type);
+      = boost::make_shared< tiz::graph::dirbleconfig > (
+          playlist, unused_buffer_seconds, api_key, playlist_type);
 
   tizgraphconfig_ptr_t config
       = boost::make_shared< tiz::graph::chromecastconfig > (
@@ -1396,6 +1408,7 @@ tiz::playapp::youtube_stream_chromecast ()
   const uri_lst_t &uri_list = popts_.youtube_playlist_container ();
   const OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE playlist_type
       = popts_.youtube_playlist_type ();
+  const uint32_t unused_buffer_seconds = 0; // this is not used during casting
 
   print_banner ();
 
@@ -1409,8 +1422,8 @@ tiz::playapp::youtube_stream_chromecast ()
   playlist->set_loop_playback (true);
 
   tizgraphconfig_ptr_t service_config
-      = boost::make_shared< tiz::graph::youtubeconfig > (playlist,
-                                                         playlist_type);
+      = boost::make_shared< tiz::graph::youtubeconfig > (
+          playlist, unused_buffer_seconds, playlist_type);
 
   tizgraphconfig_ptr_t config
       = boost::make_shared< tiz::graph::chromecastconfig > (
@@ -1446,6 +1459,7 @@ tiz::playapp::plex_stream_chromecast ()
   const OMX_TIZONIA_AUDIO_PLEXPLAYLISTTYPE playlist_type
       = popts_.plex_playlist_type ();
   const std::string cc_name_or_ip (popts_.chromecast_name_or_ip ());
+  const uint32_t unused_buffer_seconds = 0; // this is not used during casting
 
   print_banner ();
 
@@ -1459,8 +1473,8 @@ tiz::playapp::plex_stream_chromecast ()
   playlist->set_loop_playback (true);
 
   tizgraphconfig_ptr_t service_config
-      = boost::make_shared< tiz::graph::plexconfig > (playlist, base_url, token,
-                                                      playlist_type);
+      = boost::make_shared< tiz::graph::plexconfig > (
+          playlist, unused_buffer_seconds, base_url, token, playlist_type);
 
   tizgraphconfig_ptr_t config
       = boost::make_shared< tiz::graph::chromecastconfig > (

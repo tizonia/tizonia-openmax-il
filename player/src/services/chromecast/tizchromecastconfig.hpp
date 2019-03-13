@@ -58,7 +58,7 @@ namespace tiz
       chromecastconfig (const std::string &cc_name_or_ip,
                         const tizgraphconfig_ptr_t &service_config,
                         const service_config_type_t service_config_type)
-        : config (service_config->get_playlist ()),
+        : config (service_config->get_playlist (), 0),
           name_or_ip_ (cc_name_or_ip),
           service_config_ (service_config),
           service_config_type_(service_config_type)

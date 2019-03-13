@@ -142,8 +142,16 @@ extern "C" void tiz_spotify_set_playback_mode (
 {
   assert (ap_spotify);
   assert (ap_spotify->p_proxy_);
-  return ap_spotify->p_proxy_->set_playback_mode (
+  ap_spotify->p_proxy_->set_playback_mode (
       static_cast< tizspotify::playback_mode > (mode));
+}
+
+extern "C" void tiz_spotify_set_explicit_track_filter (
+    tiz_spotify_t *ap_spotify, const tiz_spotify_explicit_track_filter_t filter)
+{
+  assert (ap_spotify);
+  ap_spotify->p_proxy_->set_explicit_track_filter (
+      static_cast< tizspotify::explicit_track_filter > (filter));
 }
 
 extern "C" int tiz_spotify_play_tracks (tiz_spotify_t *ap_spotify,
@@ -346,6 +354,14 @@ extern "C" const char *tiz_spotify_get_current_track_album_uri (
   assert (ap_spotify);
   assert (ap_spotify->p_proxy_);
   return ap_spotify->p_proxy_->get_current_track_album_uri ();
+}
+
+extern "C" const char *tiz_spotify_get_current_track_explicitness (
+    tiz_spotify_t *ap_spotify)
+{
+  assert (ap_spotify);
+  assert (ap_spotify->p_proxy_);
+  return ap_spotify->p_proxy_->get_current_track_explicitness ();
 }
 
 extern "C" void tiz_spotify_destroy (tiz_spotify_t *ap_spotify)

@@ -9,18 +9,20 @@ local rc=1
 
 _arguments -S -s \
   '--help[Help topics.]:Help topics by area:(global openmax server client spotify googlemusic soundcloud dirble youtube plex chromecast keyboard config examples)' \
-  '(-v)--version[Print the version information.]' \
+  '(-b)--buffer-seconds[Size of the audio buffer to use while downloading streams.]' \
+  '(-c)--cast[Cast to a Chromecast device (arg: device name or ip address).]' \
+  '(-d)--daemon[Run in the brackground.]' \
   '(-r)--recurse[Recursively process a given path.]' \
   '(-s)--shuffle[Shuffle the playlist.]' \
-  '(-d)--daemon[Run in the brackground.]' \
-  '(-c)--cast[Cast to a Chromecast device (arg: device name or ip address).]' \
+  '(-v)--version[Print the version information.]' \
+  '(-C)--comps-of-role[Display the OpenMAX IL components that implement the role.]' \
   '(-L)--comp-list[Enumerate all the OpenMAX IL components in the system.]' \
   '(-R)--roles-of-comp[Display the OpenMAX IL roles found in component.]' \
-  '(-C)--comps-of-role[Display the OpenMAX IL components that implement the role.]' \
   '--spotify-user[Spotify user name.]' \
   '--spotify-password[Spotify user password.]' \
   '--spotify-owner[The owner of the playlist (optional, may be used in conjunction with --spotify-playlist).]' \
   '--spotify-recover-lost-token[Allow Tizonia to recover the play token and keep playing after a spurious token loss (default: false).]' \
+  '--spotify-allow-explicit-tracks[Allow Tizonia to play explicit tracks from Spotify (default: false).]' \
   '--spotify-tracks[Search and play from Spotify by track name.]' \
   '--spotify-artist[Search and play from Spotify by artist name.]' \
   '--spotify-album[Search and play from Spotify by album name.]' \

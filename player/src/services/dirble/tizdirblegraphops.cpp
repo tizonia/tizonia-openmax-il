@@ -105,6 +105,12 @@ void graph::dirbleops::do_configure_comp (const int comp_id)
             handles_[0], playlist_->get_current_uri (),
             dirble_config->get_playlist_type (), playlist_->shuffle ()),
         "Unable to set OMX_TizoniaIndexParamAudioDirblePlaylist");
+
+    const OMX_U32 port_id = 0;
+    G_OPS_BAIL_IF_ERROR (
+        tiz::graph::util::set_streaming_buffer_params (
+            handles_[0], port_id, config_->get_buffer_seconds (), 0, 100),
+        "Unable to set OMX_TizoniaIndexParamStreamingBuffer");
   }
 }
 

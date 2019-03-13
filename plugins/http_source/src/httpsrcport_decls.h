@@ -44,6 +44,7 @@ struct httpsrc_port
 {
   /* Object */
   const tiz_audioport_t _;
+  OMX_TIZONIA_STREAMINGBUFFERTYPE buffertype_;
   OMX_AUDIO_PARAM_MP3TYPE mp3type_;
   OMX_AUDIO_PARAM_AACPROFILETYPE aactype_;
   OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE opustype_;

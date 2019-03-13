@@ -384,12 +384,12 @@ update_cache_size (httpsrc_prc_t * ap_prc)
 {
   assert (ap_prc);
   assert (ap_prc->bitrate_ > 0);
-  ap_prc->cache_bytes_ = ((ap_prc->bitrate_ * 1000) / 8)
-                         * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS;
+  ap_prc->buffer_bytes_ = ((ap_prc->bitrate_ * 1000) / 8)
+                         * ARATELIA_HTTP_SOURCE_DEFAULT_BUFFER_SECONDS;
   if (ap_prc->p_trans_)
     {
       tiz_urltrans_set_internal_buffer_size (ap_prc->p_trans_,
-                                             ap_prc->cache_bytes_);
+                                             ap_prc->buffer_bytes_);
     }
 }
 
@@ -817,7 +817,7 @@ httpsrc_prc_prepare_to_transfer (void * ap_prc, OMX_U32 a_pid)
   assert (ap_prc);
   p_prc->eos_ = false;
   tiz_urltrans_cancel (p_prc->p_trans_);
-  tiz_urltrans_set_internal_buffer_size (p_prc->p_trans_, p_prc->cache_bytes_);
+  tiz_urltrans_set_internal_buffer_size (p_prc->p_trans_, p_prc->buffer_bytes_);
   return prepare_for_port_auto_detection (p_prc);
 }
 

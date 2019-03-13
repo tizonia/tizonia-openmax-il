@@ -56,10 +56,24 @@ httpsrc_port_ctor (void * ap_obj, va_list * app)
     = super_ctor (typeOf (ap_obj, "httpsrcport"), ap_obj, app);
   assert (p_obj);
 
-  tiz_port_register_index (p_obj, OMX_IndexParamAudioMp3);
-  tiz_port_register_index (p_obj, OMX_IndexParamAudioAac);
-  tiz_port_register_index (p_obj, OMX_TizoniaIndexParamAudioOpus);
+  tiz_check_omx_ret_null (
+    tiz_port_register_index (p_obj, OMX_TizoniaIndexParamStreamingBuffer));
+  tiz_check_omx_ret_null (
+    tiz_port_register_index (p_obj, OMX_IndexParamAudioMp3));
+  tiz_check_omx_ret_null (
+    tiz_port_register_index (p_obj, OMX_IndexParamAudioAac));
+  tiz_check_omx_ret_null (
+    tiz_port_register_index (p_obj, OMX_TizoniaIndexParamAudioOpus));
 
+  /* OMX_TIZONIA_STREAMINGBUFFERTYPE */
+  p_obj->buffertype_.nSize = sizeof (OMX_TIZONIA_STREAMINGBUFFERTYPE);
+  p_obj->buffertype_.nVersion.nVersion = OMX_VERSION;
+  p_obj->buffertype_.nPortIndex = ARATELIA_HTTP_SOURCE_PORT_INDEX;
+  p_obj->buffertype_.nCapacity = ARATELIA_HTTP_SOURCE_DEFAULT_BUFFER_SECONDS;
+  p_obj->buffertype_.nLowWaterMark = 90;
+  p_obj->buffertype_.nHighWaterMark = 10;
+
+  /* OMX_AUDIO_PARAM_MP3TYPE */
   p_obj->mp3type_.nSize = sizeof (OMX_AUDIO_PARAM_MP3TYPE);
   p_obj->mp3type_.nVersion.nVersion = OMX_VERSION;
   p_obj->mp3type_.nPortIndex = ARATELIA_HTTP_SOURCE_PORT_INDEX;
@@ -70,6 +84,7 @@ httpsrc_port_ctor (void * ap_obj, va_list * app)
   p_obj->mp3type_.eChannelMode = OMX_AUDIO_ChannelModeStereo;
   p_obj->mp3type_.eFormat = OMX_AUDIO_MP3StreamFormatMP1Layer3;
 
+  /* OMX_AUDIO_PARAM_AACPROFILETYPE */
   p_obj->aactype_.nSize = sizeof (OMX_AUDIO_PARAM_AACPROFILETYPE);
   p_obj->aactype_.nVersion.nVersion = OMX_VERSION;
   p_obj->aactype_.nPortIndex = ARATELIA_HTTP_SOURCE_PORT_INDEX;
@@ -84,6 +99,7 @@ httpsrc_port_ctor (void * ap_obj, va_list * app)
   p_obj->aactype_.eAACStreamFormat = OMX_AUDIO_AACStreamFormatMP2ADTS;
   p_obj->aactype_.eChannelMode = OMX_AUDIO_ChannelModeStereo;
 
+  /* OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE */
   p_obj->opustype_.nSize = sizeof (OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE);
   p_obj->opustype_.nVersion.nVersion = OMX_VERSION;
   p_obj->opustype_.nPortIndex = ARATELIA_HTTP_SOURCE_PORT_INDEX;
@@ -145,7 +161,14 @@ httpsrc_port_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
 
       default:
         {
-          if (OMX_TizoniaIndexParamAudioOpus == a_index)
+
+          if (OMX_TizoniaIndexParamStreamingBuffer == a_index)
+            {
+              OMX_TIZONIA_STREAMINGBUFFERTYPE * p_buffertype
+                = (OMX_TIZONIA_STREAMINGBUFFERTYPE *) ap_struct;
+              *p_buffertype = p_obj->buffertype_;
+            }
+          else if (OMX_TizoniaIndexParamAudioOpus == a_index)
             {
               OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE * p_opusmode
                 = (OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE *) ap_struct;
@@ -267,7 +290,16 @@ httpsrc_port_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
       default:
         {
 
-          if (OMX_TizoniaIndexParamAudioOpus == a_index)
+          if (OMX_TizoniaIndexParamStreamingBuffer == a_index)
+            {
+              const OMX_TIZONIA_STREAMINGBUFFERTYPE * p_buffertype
+                = (OMX_TIZONIA_STREAMINGBUFFERTYPE *) ap_struct;
+
+              p_obj->buffertype_.nCapacity = p_buffertype->nCapacity;
+              p_obj->buffertype_.nLowWaterMark = p_buffertype->nLowWaterMark;
+              p_obj->buffertype_.nHighWaterMark = p_buffertype->nHighWaterMark;
+            }
+          else if (OMX_TizoniaIndexParamAudioOpus == a_index)
             {
               const OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE * p_opustype
                 = (OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE *) ap_struct;

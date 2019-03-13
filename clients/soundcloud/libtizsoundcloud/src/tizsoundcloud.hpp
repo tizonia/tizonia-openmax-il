@@ -79,7 +79,7 @@ public:
   const char * get_current_track_user_avatar ();
 
 private:
-  int get_current_track ();
+  void get_current_track ();
 
 private:
   std::string oauth_token_;

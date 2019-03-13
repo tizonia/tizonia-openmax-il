@@ -44,10 +44,10 @@ namespace tiz
     {
 
     public:
-      plexconfig (const tizplaylist_ptr_t &playlist, const std::string &base_url,
-                  const std::string &token,
+      plexconfig (const tizplaylist_ptr_t &playlist, uint32_t buffer_seconds,
+                  const std::string &base_url, const std::string &token,
                   const OMX_TIZONIA_AUDIO_PLEXPLAYLISTTYPE &playlist_type)
-        : config (playlist),
+        : config (playlist, buffer_seconds),
           base_url_ (base_url),
           token_ (token),
           playlist_type_ (playlist_type)

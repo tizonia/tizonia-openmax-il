@@ -157,13 +157,9 @@ const char *tizdirble::get_next_url (const bool a_remove_current_url)
         {
           py_dirble_proxy_.attr ("remove_current_url") ();
         }
-      const char *p_next_url
-          = bp::extract< char const * > (py_dirble_proxy_.attr ("next_url") ());
-      current_url_.assign (p_next_url);
-      if (!p_next_url || get_current_station ())
-        {
-          current_url_.clear ();
-        }
+      current_url_
+          = bp::extract< std::string > (py_dirble_proxy_.attr ("next_url") ());
+      get_current_station ();
     }
   catch (bp::error_already_set &e)
     {
@@ -184,13 +180,9 @@ const char *tizdirble::get_prev_url (const bool a_remove_current_url)
         {
           py_dirble_proxy_.attr ("remove_current_url") ();
         }
-      const char *p_prev_url
-          = bp::extract< char const * > (py_dirble_proxy_.attr ("prev_url") ());
-      current_url_.assign (p_prev_url);
-      if (!p_prev_url || get_current_station ())
-        {
-          current_url_.clear ();
-        }
+      current_url_
+          = bp::extract< std::string > (py_dirble_proxy_.attr ("prev_url") ());
+      get_current_station ();
     }
   catch (bp::error_already_set &e)
     {
@@ -270,49 +262,24 @@ void tizdirble::set_playback_mode (const playback_mode mode)
   (void)rc;
 }
 
-int tizdirble::get_current_station ()
+void tizdirble::get_current_station ()
 {
-  int rc = 1;
   current_station_name_.clear ();
   current_station_country_.clear ();
 
   const bp::tuple &info1 = bp::extract< bp::tuple > (
       py_dirble_proxy_.attr ("current_station_name_and_country") ());
-  const char *p_name = bp::extract< char const * > (info1[0]);
-  const char *p_country = bp::extract< char const * > (info1[1]);
+  current_station_name_ = bp::extract< std::string > (info1[0]);
+  current_station_country_ = bp::extract< std::string > (info1[1]);
 
-  if (p_name)
-    {
-      current_station_name_.assign (p_name);
-    }
-  if (p_country)
-    {
-      current_station_country_.assign (p_country);
-    }
-
-  const char *p_category = bp::extract< char const * > (
+  current_station_category_ = bp::extract< std::string > (
       py_dirble_proxy_.attr ("current_station_category") ());
-  if (p_category)
-    {
-      current_station_category_.assign (p_category);
-    }
 
-  const char *p_website = bp::extract< char const * > (
+  current_station_website_ = bp::extract< std::string > (
       py_dirble_proxy_.attr ("current_station_website") ());
-  if (p_website)
-    {
-      current_station_website_.assign (p_website);
-    }
 
   const int bitrate = bp::extract< int > (
       py_dirble_proxy_.attr ("current_station_bitrate") ());
   current_station_bitrate_.assign (
       boost::lexical_cast< std::string > (bitrate));
-
-  if (p_name)
-    {
-      rc = 0;
-    }
-
-  return rc;
 }
