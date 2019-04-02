@@ -19,6 +19,18 @@
 # Script that installs Tizonia's debian packages and their dependencies.
 #
 
+# Make sure the installation happens safely
+
+if [[ "$(id -u)" -eq 0 ]]; then
+    if [[ ( -z "$1" ) || ( "$1" != "--safe" ) ]]; then
+        echo "WARNING: Running as root; installation aborted."
+        echo "Please add '--safe' to bypass this check and continue installing as root."
+        exit 1
+    else
+        echo "WARNING: Running as root with --safe option; installation continues..."
+    fi
+fi
+
 # Run the install actions in a subshell
 (
 RELIDS=$(cat /etc/*-release)
