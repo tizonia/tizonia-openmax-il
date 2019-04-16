@@ -60,10 +60,6 @@ avcport_ctor (void * ap_obj, va_list * app)
 
   assert (app);
 
-  /* TODO: This constructor needs to be reviewed to possibly initialise
-     structures with the defaults given in the spec for AVC decoder/encoder
-     ports */
-
   tiz_port_register_index (p_obj, OMX_IndexParamVideoAvc);
   tiz_port_register_index (p_obj,
                            OMX_IndexParamVideoProfileLevelQuerySupported);
@@ -80,6 +76,7 @@ avcport_ctor (void * ap_obj, va_list * app)
     }
 
   /* Initialize the OMX_VIDEO_PARAM_AVCTYPE structure */
+  TIZ_INIT_OMX_PORT_STRUCT(p_obj->avctype_, p_base->portdef_.nPortIndex);
   if ((p_avctype = va_arg (*app, OMX_VIDEO_PARAM_AVCTYPE *)))
     {
       p_obj->avctype_ = *p_avctype;
@@ -108,6 +105,8 @@ avcport_ctor (void * ap_obj, va_list * app)
   p_obj->pltype_.eCodecType = 0; /* Not applicable */
 
   /* Init the OMX_VIDEO_PARAM_BITRATETYPE structure, if provided */
+  TIZ_INIT_OMX_PORT_STRUCT(p_obj->pbrtype_, p_base->portdef_.nPortIndex);
+  TIZ_INIT_OMX_PORT_STRUCT(p_obj->cbrtype_, p_base->portdef_.nPortIndex);
   if ((p_pbrtype = va_arg (*app, OMX_VIDEO_PARAM_BITRATETYPE *)))
     {
       p_obj->pbrtype_ = *p_pbrtype;
@@ -121,6 +120,7 @@ avcport_ctor (void * ap_obj, va_list * app)
     }
 
   /* Init the OMX_VIDEO_PARAM_QUANTIZATIONTYPE structure, if provided */
+  TIZ_INIT_OMX_PORT_STRUCT(p_obj->pqtype_, p_base->portdef_.nPortIndex);
   if ((p_pqtype = va_arg (*app, OMX_VIDEO_PARAM_QUANTIZATIONTYPE *)))
     {
       p_obj->pqtype_ = *p_pqtype;
