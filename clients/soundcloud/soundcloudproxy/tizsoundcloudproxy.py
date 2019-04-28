@@ -182,6 +182,7 @@ class tizsoundcloudproxy(object):
                             count += 1
             if count == 0:
                 raise KeyError
+
             logging.info("Added {0} stream tracks to queue" \
                          .format(count))
             self.__update_play_queue_order()
@@ -210,8 +211,11 @@ class tizsoundcloudproxy(object):
                             if track['streamable']:
                                 self.queue.append(track)
                                 count += 1
+
             if count == 0:
-                raise KeyError
+                raise RuntimeError(u"SoundCloud did not return any"
+                                   " tracks favourited by the user.")
+
             logging.info("Added {0} stream tracks to queue" \
                          .format(count))
             self.__update_play_queue_order()
@@ -242,8 +246,11 @@ class tizsoundcloudproxy(object):
                         if track['streamable']:
                             self.queue.append(track)
                             count += 1
+
             if count == 0:
-                raise KeyError
+                raise RuntimeError(u"SoundCloud did not return any"
+                                   " playlists.")
+
             logging.info("Added {0} stream tracks to queue" \
                          .format(count))
             self.__update_play_queue_order()
@@ -289,8 +296,10 @@ class tizsoundcloudproxy(object):
                             count += 1
                     if count > 0:
                         break
+
             if count == 0:
-                raise KeyError(str("Creator not found : %s" % arg))
+                raise RuntimeError(str("Creator not found : %s" % arg))
+
             logging.info("Added {0} user tracks to queue" \
                          .format(count))
             self.__update_play_queue_order()
@@ -318,8 +327,10 @@ class tizsoundcloudproxy(object):
                 print_nfo("[SoundCloud] [Track] '{0}'.".format(title))
                 self.queue.append(track)
                 count += 1
+
             if count == 0:
-                raise KeyError
+                raise RuntimeError(str("No tracks found : %s" % arg))
+
             logging.info("Added {0} tracks to queue" \
                          .format(count))
             try:
@@ -379,7 +390,10 @@ class tizsoundcloudproxy(object):
                     count += 1
 
             if count == 0:
-                raise KeyError
+                raise RuntimeError(u"SoundCloud did not return any"
+                                   " playlists or returned an empty "
+                                   " playlist.")
+
             logging.info("Added {0} playlist tracks to queue" \
                          .format(count))
             self.__update_play_queue_order()
@@ -407,8 +421,10 @@ class tizsoundcloudproxy(object):
                 print_nfo("[SoundCloud] [Track] '{0}'.".format(title))
                 self.queue.append(track)
                 count += 1
+
             if count == 0:
-                raise KeyError
+                raise RuntimeError(str("No genres found : %s" % arg))
+
             logging.info("Added {0} tracks to queue" \
                          .format(count))
             try:
@@ -445,8 +461,10 @@ class tizsoundcloudproxy(object):
                 print_nfo("[SoundCloud] [Track] '{0}'.".format(title))
                 self.queue.append(track)
                 count += 1
+
             if count == 0:
-                raise KeyError
+                raise RuntimeError(str("No tags found : %s" % arg))
+
             logging.info("Added {0} tracks to queue" \
                          .format(count))
             try:
