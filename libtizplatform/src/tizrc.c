@@ -411,8 +411,7 @@ shell_expand_value_in_place (char * p_value, value_t * p_value_list)
   if (p_value && p_value_list)
     {
       wordexp_t p;
-      wordexp (p_value, &p, 0);
-      if (p.we_wordc > 0)
+      if (0 == wordexp (p_value, &p, 0) && p.we_wordc > 0)
         {
           char ** w;
           w = p.we_wordv;
@@ -420,8 +419,8 @@ shell_expand_value_in_place (char * p_value, value_t * p_value_list)
           /* Replace the existing value */
           tiz_mem_free (p_value_list->p_value);
           p_value_list->p_value = p_expanded;
+          wordfree (&p);
        }
-      wordfree (&p);
     }
   return p_expanded;
 }
