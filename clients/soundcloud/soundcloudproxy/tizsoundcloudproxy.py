@@ -35,6 +35,9 @@ from requests.exceptions import HTTPError
 from operator import itemgetter
 from fuzzywuzzy import process
 
+reload(sys)
+sys.setdefaultencoding('utf-8')
+
 # For use during debugging
 # import pprint
 
