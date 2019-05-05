@@ -35,6 +35,9 @@ from plexapi.server import PlexServer
 from fuzzywuzzy import process
 from fuzzywuzzy import fuzz
 
+reload(sys)
+sys.setdefaultencoding('utf-8')
+
 # For use during debugging
 # import pprint
 
