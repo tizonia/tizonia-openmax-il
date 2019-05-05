@@ -276,6 +276,64 @@ class tizspotifyproxy(object):
             raise ValueError(str("Album not found : '%s' (or no suitable tracks in queue)" \
                                  % to_ascii(arg_dec)))
 
+    def enqueue_global_playlist(self, arg):
+        """Obtain an album from Spotify and add all its tracks to the playback
+        queue.
+
+        :param arg: an album search term
+
+        """
+        arg_dec = arg.decode('utf-8')
+        logging.info('arg : %s', arg_dec)
+        try:
+            count = len(self.queue)
+            playlist = None
+            playlist_name = None
+            playlist_dict = dict()
+            playlist_names = list()
+            results = self._spotify.search(arg_dec, limit=10, offset=0, type='playlist')
+            playlists = results['playlists']
+            for i, pl in enumerate(playlists['items']):
+                if pl:
+                    owner = pl['owner']['id']
+                    name = pl['name']
+                    print_msg("[Spotify] [Global playlist search] '{0}' (owner: {1})." \
+                              .format(arg_dec, owner.decode('utf-8')))
+                    if arg_dec.lower() == name.lower():
+                        playlist_name = name
+                        playlist = pl
+                        break
+                    if fuzz.partial_ratio(arg_dec, name) > 50:
+                        playlist_dict[name] = pl
+                        playlist_names.append(name)
+
+            if not playlist_name:
+                if len(playlist_names) > 1:
+                    playlist_name = process.extractOne(arg_dec, playlist_names)[0]
+                    playlist = playlist_dict[playlist_name]
+                elif len(playlist_names) == 1:
+                    playlist_name = playlist_names[0]
+                    playlist = playlist_dict[playlist_name]
+
+            if playlist:
+                if arg_dec.lower() != playlist_name.lower():
+                    print_wrn("[Spotify] '{0}' not found. " \
+                              "Playing '{1}' instead." \
+                              .format(arg_dec, playlist_name))
+                results = self._spotify.user_playlist(playlist['owner']['id'],
+                                                      playlist['id'], fields="tracks,next")
+                self.__enqueue_playlist(results)
+
+            self.__remove_explicit_tracks()
+            if count == len(self.queue):
+                raise ValueError
+
+            self.__update_play_queue_order()
+
+        except ValueError:
+            raise ValueError(str("Playlist not found : '%s' (or no suitable tracks in queue)" \
+                                 % to_ascii(arg_dec)))
+
     def enqueue_playlist(self, arg, owner):
         """Add all audio tracks in a Spotify playlist to the playback queue.
 
@@ -289,11 +347,19 @@ class tizspotifyproxy(object):
         try:
             count = len(self.queue)
 
-            playlist = self.__search_playlist(arg_dec, owner, is_featured=False)
-            if playlist:
-                results = self._spotify.user_playlist(owner, playlist['id'],
-                                                      fields="tracks,next")
-                self.__enqueue_playlist(results)
+            if owner != 'anyuser':
+                playlist = self.__search_playlist(arg_dec, owner, is_featured=False)
+                if playlist:
+                    results = self._spotify.user_playlist(owner, playlist['id'],
+                                                          fields="tracks,next")
+                    self.__enqueue_playlist(results)
+
+            if count == len(self.queue) and owner != 'anyuser':
+                print_wrn("[Spotify] [Playlist search] '{0}' not found in the user's library. " \
+                          .format(arg_dec))
+
+            if count == len(self.queue) or owner == 'anyuser':
+                self.enqueue_global_playlist(arg)
 
             self.__remove_explicit_tracks()
             if count == len(self.queue):
@@ -993,7 +1059,7 @@ class tizspotifyproxy(object):
 
             if playlist_name:
                 if arg.lower() != playlist_name.lower():
-                    print_wrn("[Spotify] '{0}' not found. " \
+                    print_wrn("[Spotify] [Playlist search] '{0}' not found. " \
                               "Playing '{1}' instead." \
                               .format(arg, playlist_name))
                 else:
