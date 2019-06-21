@@ -2573,7 +2573,7 @@ int tiz::programopts::consume_plex_client_options (bool &done, std::string &msg)
 
     const int playlist_option_count
         = vm_.count ("plex-audio-tracks") + vm_.count ("plex-audio-artist")
-          + vm_.count ("plex-audio-album") + vm_.count ("pl ex-audio-playlist");
+          + vm_.count ("plex-audio-album") + vm_.count ("plex-audio-playlist");
 
     if (plex_base_url_.empty ())
     {
