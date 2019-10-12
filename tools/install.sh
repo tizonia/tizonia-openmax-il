@@ -63,6 +63,8 @@ elif echo "$RELIDS" | grep -E 'bionic|juno|tara|tessa|tina'; then
   # NOTE: Elementary OS 'juno' is based on bionic
   # NOTE: Linux Mint 'tara'. 'tessa' and 'tina' are based on bionic
   DISTRO="ubuntu" ; RELEASE="bionic"
+elif echo "$RELIDS" | grep disco; then
+  DISTRO="ubuntu" ; RELEASE="disco"
 else
   echo "Can't find a supported Debian or Ubuntu-based distribution."
   exit 1
