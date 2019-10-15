@@ -62,6 +62,10 @@ elif echo "$RELIDS" | grep -E 'xenial|loki|sarah|serena|sonya|sylvia'; then
 elif echo "$RELIDS" | grep -E 'bionic|juno|tara|tessa|tina'; then
   # NOTE: Elementary OS 'juno' is based on bionic
   # NOTE: Linux Mint 'tara'. 'tessa' and 'tina' are based on bionic
+  # NOTE: Most of the time, binaries compiled on 18.04 will work on newer
+  # releases, meaning you can try adding newer releases to the bionic conditional
+  # (e.g. 'disco|bionic|juno|...'), to support installation on a newer system; 
+  # however, do this 'at your own risk', as not all features will be guaranteed to work.
   DISTRO="ubuntu" ; RELEASE="bionic"
 elif echo "$RELIDS" | grep disco; then
   DISTRO="ubuntu" ; RELEASE="disco"
