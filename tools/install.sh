@@ -67,6 +67,8 @@ elif echo "$RELIDS" | grep -E 'bionic|juno|tara|tessa|tina'; then
   # (e.g. 'disco|bionic|juno|...'), to support installation on a newer system; 
   # however, do this 'at your own risk', as not all features will be guaranteed to work.
   DISTRO="ubuntu" ; RELEASE="bionic"
+elif echo "$RELIDS" | grep disco; then
+  DISTRO="ubuntu" ; RELEASE="disco"
 else
   echo "Can't find a supported Debian or Ubuntu-based distribution."
   exit 1
