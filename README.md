@@ -89,7 +89,7 @@ combinations:
 |     amd64, armhf      |     amd64, armhf      |     amd64, armhf   |        armhf         |       amd64        |
 | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-xenial/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-xenial/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-bionic/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-bionic/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-stretch/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-stretch/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/raspbian/tizonia-stretch/images/download.svg) ](https://bintray.com/tizonia/raspbian/tizonia-stretch/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-buster/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-buster/_latestVersion) |
 
-> NOTE: Elementary OS, Linux Mint, Kali Linux are supported on releases based on Ubuntu 'Xenial' or 'Bionic' and Debian 'Buster'.
+> NOTE: Elementary OS, Linux Mint, Kali Linux are supported on releases based on Ubuntu 'Xenial' or 'Bionic' and Debian 'Buster'. To install Tizonia on non-LTS Ubuntu releases, use the Snap package or have a look at [#631](https://github.com/tizonia/tizonia-openmax-il/issues/631).
 
 Please note that the **recommended** way to install Tizonia on a
 Debian-compatible system is by running the following command:
