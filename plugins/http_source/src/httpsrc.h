@@ -40,7 +40,7 @@ extern "C" {
 #define ARATELIA_HTTP_SOURCE_DEFAULT_ROLE "audio_source.http"
 #define ARATELIA_GMUSIC_SOURCE_DEFAULT_ROLE "audio_source.http.gmusic"
 #define ARATELIA_SCLOUD_SOURCE_DEFAULT_ROLE "audio_source.http.scloud"
-#define ARATELIA_DIRBLE_SOURCE_DEFAULT_ROLE "audio_source.http.dirble"
+/* #define ARATELIA_DIRBLE_SOURCE_DEFAULT_ROLE "audio_source.http.dirble" */
 #define ARATELIA_YOUTUBE_SOURCE_DEFAULT_ROLE "audio_source.http.youtube"
 #define ARATELIA_PLEX_SOURCE_DEFAULT_ROLE "audio_source.http.plex"
 #define ARATELIA_HTTP_SOURCE_COMPONENT_NAME "OMX.Aratelia.audio_source.http"
