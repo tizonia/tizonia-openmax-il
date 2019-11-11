@@ -21,7 +21,7 @@ Access YouTube to retrieve audio stream URLs and create a playback queue.
 
 """
 
-from __future__ import print_function, unicode_literals
+
 
 import sys
 import os
@@ -174,7 +174,7 @@ def to_ascii(msg):
 
     """
 
-    return unicodedata.normalize('NFKD', unicode(msg)).encode('ASCII', 'ignore')
+    return unicodedata.normalize('NFKD', str(msg)).encode('ASCII', 'ignore')
 
 def get_track_id_from_json(item):
     """ Try to extract a video Id from a pafy query response """
@@ -189,7 +189,7 @@ def get_track_id_from_json(item):
                 node = node.get(part)
         if node:
             # Make sure that what we are returning is a string
-            if isinstance(node, (str, unicode)):
+            if isinstance(node, str):
                 return node
     return ''
 
@@ -757,7 +757,7 @@ class tizyoutubeproxy(object):
         if total_streams:
             if not len(self.play_queue_order):
                 # Create a sequential play order, if empty
-                self.play_queue_order = range(total_streams)
+                self.play_queue_order = list(range(total_streams))
             if self.current_play_mode == self.play_modes.SHUFFLE:
                 random.shuffle(self.play_queue_order)
             print_nfo("[YouTube] [Streams in queue] '{0}'." \

@@ -23,10 +23,10 @@ import sys
 import warnings
 
 if sys.version_info[0] > 2:
-    warnings.warn("spotifyproxy Python 3 support is experimental", RuntimeWarning)
+    warnings.warn("plexproxy Python 3 support is experimental", RuntimeWarning)
 else:
     if sys.version_info[:3] < (2, 7, 9):
-        warnings.warn("spotifyproxy does not officially support versions below "
+        warnings.warn("plexproxy does not officially support versions below "
                       "Python 2.7.9", RuntimeWarning)
 
 VERSIONFILE = '_version.py'
