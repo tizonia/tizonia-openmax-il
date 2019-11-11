@@ -44,6 +44,6 @@ libtizchromecast_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION
 libtizchromecast_la_LIBADD = \
 	@BOOST_PYTHON_LIB@ \
 	@PYTHON_LIBS@ \
-	-lboost_python
+	-lboost_python3
 
 

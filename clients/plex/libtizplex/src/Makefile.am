@@ -38,6 +38,4 @@ libtizplex_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@
 libtizplex_la_LIBADD = \
 	@BOOST_PYTHON_LIB@ \
 	@PYTHON_LIBS@ \
-	-lboost_python
-
-
+	-lboost_python3

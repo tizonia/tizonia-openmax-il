@@ -7,5 +7,5 @@ Name: libtizspotify
 Description: Tizonia Spotify Web client library
 Version: @PACKAGE_VERSION@
 Libs: -L${libdir} -ltizspotify
-Libs.private: -lpython3.6 -lboost_python
+Libs.private: -lpython3.6 -lboost_python3
 Cflags: -I${includedir} -I${includedir}/python3.6 -I${includedir}/tizonia
