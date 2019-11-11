@@ -21,7 +21,7 @@ Access Spotify servers to retrieve audio track URIs and create a playback queue.
 
 """
 
-from __future__ import print_function, unicode_literals
+
 
 import sys
 import os
@@ -118,7 +118,7 @@ def to_ascii(msg):
 
     """
 
-    return unicodedata.normalize('NFKD', unicode(msg)).encode('ASCII', 'ignore')
+    return unicodedata.normalize('NFKD', str(msg)).encode('ASCII', 'ignore')
 
 class TrackInfo(object):
     """ Class that represents a Spotify track in the queue.
@@ -1079,7 +1079,7 @@ class tizspotifyproxy(object):
         if total_tracks:
             if not len(self.play_queue_order):
                 # Create a sequential play order, if empty
-                self.play_queue_order = range(total_tracks)
+                self.play_queue_order = list(range(total_tracks))
             if self.current_play_mode == self.play_modes.SHUFFLE:
                 random.shuffle(self.play_queue_order)
             print_nfo("[Spotify] [Tracks in queue] '{0}'." \
