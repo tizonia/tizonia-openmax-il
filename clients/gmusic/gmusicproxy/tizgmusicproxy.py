@@ -77,7 +77,7 @@ def pretty_print(color, msg=""):
     """Print message with color.
 
     """
-    print color + msg + _Colors.ENDC
+    print(color + msg + _Colors.ENDC)
 
 def print_msg(msg=""):
     """Print a normal message.
@@ -129,7 +129,7 @@ def to_ascii(msg):
 
     """
 
-    return unicodedata.normalize('NFKD', unicode(msg)).encode('ASCII', 'ignore')
+    return unicodedata.normalize('NFKD', str(msg)).encode('ASCII', 'ignore')
 
 class tizgmusicproxy(object):
     """A class for logging into a Google Play Music account and retrieving song
@@ -366,10 +366,10 @@ class tizgmusicproxy(object):
             self.__update_local_library()
             artist = None
             artist_dict = None
-            if arg not in self.library.keys():
+            if arg not in list(self.library.keys()):
                 artist_dicts = dict()
                 artist_names = list()
-                for name, art in self.library.iteritems():
+                for name, art in self.library.items():
                     if fuzz.ratio(arg, name) > 50:
                         artist_names.append(name)
                         artist_dicts[name] = art
@@ -391,7 +391,7 @@ class tizgmusicproxy(object):
                 if not artist:
                     # Play some random artist from the library
                     random.seed()
-                    artist = random.choice(self.library.keys())
+                    artist = random.choice(list(self.library.keys()))
                     artist_dict = self.library[artist]
                     print_wrn("[Google Play Music] '{0}' not found. "\
                               "Feeling lucky?." \
@@ -434,8 +434,8 @@ class tizgmusicproxy(object):
             if not album:
                 # Play some random album from the library
                 random.seed()
-                artist = random.choice(self.library.keys())
-                album = random.choice(self.library[artist].keys())
+                artist = random.choice(list(self.library.keys()))
+                album = random.choice(list(self.library[artist].keys()))
                 print_wrn("[Google Play Music] '{0}' not found. "\
                           "Feeling lucky?." \
                           .format(to_ascii(arg)))
@@ -465,13 +465,13 @@ class tizgmusicproxy(object):
             self.__update_playlists()
             playlist = None
             playlist_name = None
-            for name, plist in self.playlists.items():
+            for name, plist in list(self.playlists.items()):
                 print_nfo("[Google Play Music] [Playlist] '{0}' ({1} tracks)." \
                           .format(to_ascii(name), len(plist)))
-            if arg not in self.playlists.keys():
+            if arg not in list(self.playlists.keys()):
                 playlist_dict = dict()
                 playlist_names = list()
-                for name, plist in self.playlists.iteritems():
+                for name, plist in self.playlists.items():
                     if fuzz.ratio(arg, name) > 50:
                         playlist_dict[name] = plist
                         playlist_names.append(name)
@@ -494,7 +494,7 @@ class tizgmusicproxy(object):
                 playlist_name = arg
                 playlist = self.playlists[arg]
 
-            if (not playlist and len(self.playlists.keys()) > 0):
+            if (not playlist and len(list(self.playlists.keys())) > 0):
                 print_wrn("[Google Play Music] '{0}' not found (or is empty). "\
                           "Feeling lucky?." \
                           .format(to_ascii(arg)))
@@ -505,7 +505,7 @@ class tizgmusicproxy(object):
                       and x < 3 and len(playlists_copy):
                     x += 1
                     # Play some random playlist from the library
-                    playlist_name = random.choice(playlists_copy.keys())
+                    playlist_name = random.choice(list(playlists_copy.keys()))
                     playlist = self.playlists[playlist_name]
                     if not playlist or not len(playlist):
                         del playlists_copy[playlist_name]
@@ -583,16 +583,16 @@ class tizgmusicproxy(object):
                     station_seed = station_seeds[station_name]
 
                 if station_seed:
-                    if station_seed['seedType'] == u'2':
+                    if station_seed['seedType'] == '2':
                         station_id = self.__gmusic.create_station(station_name,
                                                                   track_id=station_seed['trackId'])
-                    if station_seed['seedType'] == u'3':
+                    if station_seed['seedType'] == '3':
                         station_id = self.__gmusic.create_station(station_name,
                                                                   artist_id=station_seed['artistId'])
-                    if station_seed['seedType'] == u'4':
+                    if station_seed['seedType'] == '4':
                         station_id = self.__gmusic.create_station(station_name,
                                                                   album_id=station_seed['albumId'])
-                    if station_seed['seedType'] == u'9':
+                    if station_seed['seedType'] == '9':
                         station_id = self.__gmusic.create_station(station_name,
                                                                   curated_station_id=station_seed['curatedStationId'])
                 if station_id:
@@ -876,8 +876,8 @@ class tizgmusicproxy(object):
             count = 0
             for track in tracks:
                 store_track = self.__gmusic.get_track_info(track['storeId'])
-                if u'id' not in store_track.keys():
-                    store_track[u'id'] = store_track['storeId']
+                if 'id' not in list(store_track.keys()):
+                    store_track['id'] = store_track['storeId']
                 self.queue.append(store_track)
                 count += 1
             if count == 0:
@@ -937,7 +937,7 @@ class tizgmusicproxy(object):
         if total_tracks:
             if not len(self.play_queue_order):
                 # Create a sequential play order, if empty
-                self.play_queue_order = range(total_tracks)
+                self.play_queue_order = list(range(total_tracks))
             if self.current_play_mode == self.play_modes.SHUFFLE:
                 random.shuffle(self.play_queue_order)
 
@@ -1015,9 +1015,9 @@ class tizgmusicproxy(object):
             self.library[song_artist][self.all_songs_album_title].append(song)
 
         # Sort albums by track number
-        for artist in self.library.keys():
+        for artist in list(self.library.keys()):
             logging.info("Artist : %s", to_ascii(artist))
-            for album in self.library[artist].keys():
+            for album in list(self.library[artist].keys()):
                 logging.info("   Album : %s", to_ascii(album))
                 if album == self.all_songs_album_title:
                     sorted_album = sorted(self.library[artist][album],
@@ -1034,7 +1034,7 @@ class tizgmusicproxy(object):
         """
         self.stations.clear()
         stations = self.__gmusic.get_all_stations()
-        self.stations[u"I'm Feeling Lucky"] = 'IFL'
+        self.stations["I'm Feeling Lucky"] = 'IFL'
         for station in stations:
             station_name = station['name']
             logging.info("station name : %s", to_ascii(station_name))
@@ -1057,12 +1057,12 @@ class tizgmusicproxy(object):
                 station_name = station['name']
                 seed = station['seed']
                 seed_type = seed['seedType']
-                track_id = seed['trackId'] if seed_type == u'2' else None
-                artist_id = seed['artistId'] if seed_type == u'3' else None
-                album_id = seed['albumId'] if seed_type == u'4' else None
-                genre_id = seed['genreId'] if seed_type == u'5' else None
-                playlist_token = seed['playlistShareToken'] if seed_type == u'8' else None
-                curated_station_id = seed['curatedStationId'] if seed_type == u'9' else None
+                track_id = seed['trackId'] if seed_type == '2' else None
+                artist_id = seed['artistId'] if seed_type == '3' else None
+                album_id = seed['albumId'] if seed_type == '4' else None
+                genre_id = seed['genreId'] if seed_type == '5' else None
+                playlist_token = seed['playlistShareToken'] if seed_type == '8' else None
+                curated_station_id = seed['curatedStationId'] if seed_type == '9' else None
                 num_tracks = max_results
                 tracks = list()
                 try:
@@ -1195,12 +1195,12 @@ class tizgmusicproxy(object):
                 station_name = station['name']
                 seed = station['seed']
                 seed_type = seed['seedType']
-                track_id = seed['trackId'] if seed_type == u'2' else None
-                artist_id = seed['artistId'] if seed_type == u'3' else None
-                album_id = seed['albumId'] if seed_type == u'4' else None
-                genre_id = seed['genreId'] if seed_type == u'5' else None
-                playlist_token = seed['playlistShareToken'] if seed_type == u'8' else None
-                curated_station_id = seed['curatedStationId'] if seed_type == u'9' else None
+                track_id = seed['trackId'] if seed_type == '2' else None
+                artist_id = seed['artistId'] if seed_type == '3' else None
+                album_id = seed['albumId'] if seed_type == '4' else None
+                genre_id = seed['genreId'] if seed_type == '5' else None
+                playlist_token = seed['playlistShareToken'] if seed_type == '8' else None
+                curated_station_id = seed['curatedStationId'] if seed_type == '9' else None
                 num_tracks = MAX_TRACKS
                 tracks = list()
                 try:
@@ -1277,8 +1277,8 @@ class tizgmusicproxy(object):
         """
         count = 0
         for track in tracks:
-            if u'id' not in track.keys() and track.get('storeId'):
-                track[u'id'] = track['storeId']
+            if 'id' not in list(track.keys()) and track.get('storeId'):
+                track['id'] = track['storeId']
             self.queue.append(track)
             count += 1
         return count
@@ -1345,14 +1345,14 @@ class tizgmusicproxy(object):
         if query_type == "podcast" and len(search_results) \
            and not search_results[0].get('navigational_result'):
             for res in search_results:
-                res[u'best_result'] = False
-                res[u'navigational_result'] = False
+                res['best_result'] = False
+                res['navigational_result'] = False
                 res[query_type] = res['series']
 
         result = ''
         if query_type != "playlist":
             result = next((hit for hit in search_results \
-                           if 'best_result' in hit.keys() \
+                           if 'best_result' in list(hit.keys()) \
                            and hit['best_result'] == True), None)
 
         if not result and len(search_results):
