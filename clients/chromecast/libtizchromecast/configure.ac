@@ -63,8 +63,8 @@ LT_INIT
 # Checks for libraries.
 AC_LANG([C++])
 PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
-AM_PATH_PYTHON([2.7])
-AX_PYTHON_DEVEL([>= '2.7'])
+AM_PATH_PYTHON([3.6])
+AX_PYTHON_DEVEL([>= '3.6'])
 # AX_PYTHON_MODULE(pychromecast, [tizchromecastproxy needs pychromecast])
 AX_BOOST_BASE([1.54],, [AC_MSG_ERROR([libtizchromecast needs Boost 1.54])])
 AX_BOOST_PYTHON

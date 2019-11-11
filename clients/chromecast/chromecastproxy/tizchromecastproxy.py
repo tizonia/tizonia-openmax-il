@@ -21,8 +21,8 @@ Access a Chromecast device to initiate and manage audio streaming sessions..
 
 """
 
-from __future__ import unicode_literals
-from __future__ import division
+
+
 
 import select
 import sys
@@ -74,7 +74,7 @@ def pretty_print(color, msg=""):
     """Print message with color.
 
     """
-    print color + msg + _Colors.ENDC
+    print(color + msg + _Colors.ENDC)
 
 def print_msg(msg=""):
     """Print a normal message.
@@ -116,7 +116,7 @@ def to_ascii(msg):
 
     """
 
-    return unicodedata.normalize('NFKD', unicode(msg)).encode('ASCII', 'ignore')
+    return unicodedata.normalize('NFKD', str(msg)).encode('ASCII', 'ignore')
 
 
 class tizchromecastproxy(object):
@@ -225,15 +225,15 @@ class tizchromecastproxy(object):
             logging.info("new_cast_status: %r" % (status,))
             try:
                 if not status.app_id:
-                    self.cast_status_listener(to_ascii(u'UNKNOWN'), \
+                    self.cast_status_listener(to_ascii('UNKNOWN'), \
                                               status.volume_level)
                 elif status.app_id == APP_MEDIA_RECEIVER \
-                     and status.status_text == u'Ready To Cast':
-                    self.cast_status_listener(to_ascii(u'READY_TO_CAST'), \
+                     and status.status_text == 'Ready To Cast':
+                    self.cast_status_listener(to_ascii('READY_TO_CAST'), \
                                               status.volume_level)
                 elif status.app_id == APP_MEDIA_RECEIVER \
-                     and u'Now Casting' in status.status_text:
-                    self.cast_status_listener(to_ascii(u'NOW_CASTING'), \
+                     and 'Now Casting' in status.status_text:
+                    self.cast_status_listener(to_ascii('NOW_CASTING'), \
                                               status.volume_level)
             except Exception as exception:
                 logging.info('Unable to deliver cast status callback %s', \
