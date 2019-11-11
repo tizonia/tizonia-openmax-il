@@ -21,7 +21,7 @@ Access Plex servers to retrieve audio track URLs and create a playback queue.
 
 """
 
-from __future__ import print_function, unicode_literals
+
 
 import sys
 import os
@@ -34,8 +34,9 @@ from plexapi.myplex import MyPlexAccount
 from plexapi.server import PlexServer
 from fuzzywuzzy import process
 from fuzzywuzzy import fuzz
+import imp
 
-reload(sys)
+imp.reload(sys)
 sys.setdefaultencoding('utf-8')
 
 # For use during debugging
@@ -122,7 +123,7 @@ def to_ascii(msg):
 
     """
 
-    return unicodedata.normalize('NFKD', unicode(msg)).encode('ASCII', 'ignore')
+    return unicodedata.normalize('NFKD', str(msg)).encode('ASCII', 'ignore')
 
 class TrackInfo(object):
     """ Class that represents a Plex track in the queue.
@@ -352,7 +353,7 @@ class tizplexproxy(object):
                     playlist_title = playlist.title
                     print_wrn("[Plex] Playing '{0}'." \
                               .format(playlist_title.encode('utf-8')))
-                    for item in playlist.items():
+                    for item in list(playlist.items()):
                         if item.TYPE == 'track':
                             track = item
                             track_info = TrackInfo(track, track.artist(), \
@@ -386,7 +387,7 @@ class tizplexproxy(object):
                               "Playing '{1}' instead." \
                               .format(arg.encode('utf-8'), \
                                       playlist_title.encode('utf-8')))
-                    for item in playlist.items():
+                    for item in list(playlist.items()):
                         if item.TYPE == 'track':
                             track = item
                             track_info = TrackInfo(track, track.artist(), \
@@ -582,7 +583,7 @@ class tizplexproxy(object):
         if total_tracks:
             if not len(self.play_queue_order):
                 # Create a sequential play order, if empty
-                self.play_queue_order = range(total_tracks)
+                self.play_queue_order = list(range(total_tracks))
             if self.current_play_mode == self.play_modes.SHUFFLE:
                 random.shuffle(self.play_queue_order)
             print_nfo("[Plex] [Tracks in queue] '{0}'." \

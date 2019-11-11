@@ -1,35 +1,5 @@
 tizplexproxy (0.18.0-1) unstable; urgency=low
 
-  * New upstream release (Closes: #572)
+  * source package automatically created by stdeb 0.8.5
 
- -- Juan A. Rubio <juan.rubio@aratelia.com>  Wed, 13 Mar 2019 22:39:03 +0000
-
-tizplexproxy (0.17.0-1) unstable; urgency=low
-
-  * New upstream release (Closes: #550)
-
- -- Juan A. Rubio <juan.rubio@aratelia.com>  Thu, 17 Jan 2019 22:46:12 +0000
-
-tizplexproxy (0.16.0-1) unstable; urgency=low
-
-  * New upstream release (Closes: #537)
-
- -- Juan A. Rubio <juan.rubio@aratelia.com>  Mon, 03 Dec 2018 22:08:36 +0000
-
-tizplexproxy (0.15.0-1) unstable; urgency=low
-
-  * New upstream release (Closes: #497)
-
- -- Juan A. Rubio <juan.rubio@aratelia.com>  Fri, 15 Jun 2018 18:28:39 +0100
-
-tizplexproxy (0.14.0-1) unstable; urgency=low
-
-  * New upstream release (Closes: #482)
-
- -- Juan A. Rubio <juan.rubio@aratelia.com>  Wed, 18 Apr 2018 15:58:04 +0100
-
-tizplexproxy (0.13.0-1) unstable; urgency=low
-
-  * Initial release (Closes: #460)
-
- -- Juan A. Rubio <juan.rubio@aratelia.com>  Fri, 09 Mar 2018 21:11:28 +0000
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Mon, 11 Nov 2019 17:47:13 +0000
