@@ -22,7 +22,7 @@ queue for streaming.
 
 """
 
-from __future__ import unicode_literals
+
 
 import os
 import sys
@@ -34,8 +34,9 @@ import unicodedata
 from requests.exceptions import HTTPError
 from operator import itemgetter
 from fuzzywuzzy import process
+import imp
 
-reload(sys)
+imp.reload(sys)
 sys.setdefaultencoding('utf-8')
 
 # For use during debugging
@@ -69,7 +70,7 @@ def pretty_print(color, msg=""):
     """Print message with color.
 
     """
-    print color + msg + _Colors.ENDC
+    print(color + msg + _Colors.ENDC)
 
 def print_msg(msg=""):
     """Print a normal message.
@@ -121,7 +122,7 @@ def to_ascii(msg):
 
     """
 
-    return unicodedata.normalize('NFKD', unicode(msg)).encode('ASCII', 'ignore')
+    return unicodedata.normalize('NFKD', str(msg)).encode('ASCII', 'ignore')
 
 class tizsoundcloudproxy(object):
     """A class that logs into a SoundCloud account, retrieves track URLs
@@ -216,7 +217,7 @@ class tizsoundcloudproxy(object):
                                 count += 1
 
             if count == 0:
-                raise RuntimeError(u"SoundCloud did not return any"
+                raise RuntimeError("SoundCloud did not return any"
                                    " tracks favourited by the user.")
 
             logging.info("Added {0} stream tracks to queue" \
@@ -251,7 +252,7 @@ class tizsoundcloudproxy(object):
                             count += 1
 
             if count == 0:
-                raise RuntimeError(u"SoundCloud did not return any"
+                raise RuntimeError("SoundCloud did not return any"
                                    " playlists.")
 
             logging.info("Added {0} stream tracks to queue" \
@@ -393,7 +394,7 @@ class tizsoundcloudproxy(object):
                     count += 1
 
             if count == 0:
-                raise RuntimeError(u"SoundCloud did not return any"
+                raise RuntimeError("SoundCloud did not return any"
                                    " playlists or returned an empty "
                                    " playlist.")
 
@@ -441,7 +442,7 @@ class tizsoundcloudproxy(object):
         except KeyError:
             raise KeyError(str("Genre not found : %s" % arg))
         except AttributeError:
-            print("Unexpected error:", sys.exc_info()[0])
+            print(("Unexpected error:", sys.exc_info()[0]))
 
     def enqueue_tags(self, arg):
         """Search SoundCloud for a tag (or list of) and add its tracks to
@@ -481,7 +482,7 @@ class tizsoundcloudproxy(object):
         except KeyError:
             raise KeyError(str("Tag(s) not found : %s" % arg))
         except AttributeError:
-            print("Unexpected error:", sys.exc_info()[0])
+            print(("Unexpected error:", sys.exc_info()[0]))
 
     def current_track_title_and_user(self):
         """ Retrieve the current track's title and user name.
@@ -669,7 +670,7 @@ class tizsoundcloudproxy(object):
         if total_tracks:
             if not len(self.play_queue_order):
                 # Create a sequential play order, if empty
-                self.play_queue_order = range(total_tracks)
+                self.play_queue_order = list(range(total_tracks))
             if self.current_play_mode == self.play_modes.SHUFFLE:
                 random.shuffle(self.play_queue_order)
             print_nfo("[SoundCloud] [Tracks in queue] '{0}'." \
