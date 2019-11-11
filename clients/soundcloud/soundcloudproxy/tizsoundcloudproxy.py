@@ -36,8 +36,9 @@ from operator import itemgetter
 from fuzzywuzzy import process
 import imp
 
-imp.reload(sys)
-sys.setdefaultencoding('utf-8')
+if sys.version[0] == '2':
+    imp.reload(sys)
+    sys.setdefaultencoding('utf-8')
 
 # For use during debugging
 # import pprint
@@ -241,7 +242,7 @@ class tizsoundcloudproxy(object):
             for resource in resources:
                 playlist = resource.fields()
                 pid = playlist.get("id")
-                title = to_ascii(playlist.get('title'))
+                title = playlist.get('title')
                 print_nfo("[SoundCloud] [Playlist] '{0}'.".format(title))
                 if arg.lower() in title.lower():
                     playlist_resource = self.__api.get('/playlists/%s' % pid)
@@ -500,7 +501,10 @@ class tizsoundcloudproxy(object):
                              .format(title, user))
             except KeyError:
                 logging.info("title/user : not found")
-        return title.encode("utf-8"), user.encode("utf-8")
+        if sys.version[0] == '2':
+            return title.encode("utf-8"), user.encode("utf-8")
+        else:
+            return title, user
 
     def current_track_duration(self):
         """ Retrieve the current track's duration.
