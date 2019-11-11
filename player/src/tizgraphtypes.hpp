@@ -62,7 +62,7 @@ namespace tiz
     class spotifyconfig;
     class gmusicconfig;
     class scloudconfig;
-    class dirbleconfig;
+//     class dirbleconfig;
     class youtubeconfig;
     class plexconfig;
     class chromecastconfig;
@@ -78,7 +78,7 @@ typedef boost::shared_ptr< tiz::graph::httpservconfig > tizhttpservconfig_ptr_t;
 typedef boost::shared_ptr< tiz::graph::spotifyconfig > tizspotifyconfig_ptr_t;
 typedef boost::shared_ptr< tiz::graph::gmusicconfig > tizgmusicconfig_ptr_t;
 typedef boost::shared_ptr< tiz::graph::scloudconfig > tizscloudconfig_ptr_t;
-typedef boost::shared_ptr< tiz::graph::dirbleconfig > tizdirbleconfig_ptr_t;
+// typedef boost::shared_ptr< tiz::graph::dirbleconfig > tizdirbleconfig_ptr_t;
 typedef boost::shared_ptr< tiz::graph::youtubeconfig > tizyoutubeconfig_ptr_t;
 typedef boost::shared_ptr< tiz::graph::plexconfig > tizplexconfig_ptr_t;
 typedef boost::shared_ptr< tiz::graph::chromecastconfig > tizchromecastconfig_ptr_t;

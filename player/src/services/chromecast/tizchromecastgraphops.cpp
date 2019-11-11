@@ -43,7 +43,7 @@
 
 #include "tizchromecastconfig.hpp"
 #include "tizchromecastgraphops.hpp"
-#include <tizdirbleconfig.hpp>
+// #include <tizdirbleconfig.hpp>
 #include <tizgmusicconfig.hpp>
 #include <tizgraph.hpp>
 #include <tizgraphutil.hpp>
@@ -109,12 +109,12 @@ void graph::chromecastops::do_load ()
     config_service_func_
         = boost::bind (&tiz::graph::chromecastops::do_configure_scloud, this);
   }
-  else if (config_type == cc_cfg_t::ConfigDirble)
-  {
-    role_lst_.push_back ("audio_renderer.chromecast.dirble");
-    config_service_func_
-        = boost::bind (&tiz::graph::chromecastops::do_configure_dirble, this);
-  }
+//   else if (config_type == cc_cfg_t::ConfigDirble)
+//   {
+//     role_lst_.push_back ("audio_renderer.chromecast.dirble");
+//     config_service_func_
+//         = boost::bind (&tiz::graph::chromecastops::do_configure_dirble, this);
+//   }
   else if (config_type == cc_cfg_t::ConfigYouTube)
   {
     role_lst_.push_back ("audio_renderer.chromecast.youtube");
@@ -320,24 +320,24 @@ void graph::chromecastops::do_configure_scloud ()
       "Unable to set OMX_TizoniaIndexParamAudioSoundCloudPlaylist");
 }
 
-void graph::chromecastops::do_configure_dirble ()
-{
-  assert (cc_config_);
-  tizdirbleconfig_ptr_t dirble_config
-      = boost::dynamic_pointer_cast< dirbleconfig > (
-          cc_config_->get_service_config ());
-  assert (dirble_config);
+// void graph::chromecastops::do_configure_dirble ()
+// {
+//   assert (cc_config_);
+//   tizdirbleconfig_ptr_t dirble_config
+//       = boost::dynamic_pointer_cast< dirbleconfig > (
+//           cc_config_->get_service_config ());
+//   assert (dirble_config);
 
-  G_OPS_BAIL_IF_ERROR (tiz::graph::util::set_dirble_api_key (
-                           handles_[0], dirble_config->get_api_key ()),
-                       "Unable to set OMX_TizoniaIndexParamAudioDirbleSession");
+//   G_OPS_BAIL_IF_ERROR (tiz::graph::util::set_dirble_api_key (
+//                            handles_[0], dirble_config->get_api_key ()),
+//                        "Unable to set OMX_TizoniaIndexParamAudioDirbleSession");
 
-  G_OPS_BAIL_IF_ERROR (
-      tiz::graph::util::set_dirble_playlist (
-          handles_[0], playlist_->get_current_uri (),
-          dirble_config->get_playlist_type (), playlist_->shuffle ()),
-      "Unable to set OMX_TizoniaIndexParamAudioDirblePlaylist");
-}
+//   G_OPS_BAIL_IF_ERROR (
+//       tiz::graph::util::set_dirble_playlist (
+//           handles_[0], playlist_->get_current_uri (),
+//           dirble_config->get_playlist_type (), playlist_->shuffle ()),
+//       "Unable to set OMX_TizoniaIndexParamAudioDirblePlaylist");
+// }
 
 void graph::chromecastops::do_configure_youtube ()
 {

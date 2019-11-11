@@ -321,7 +321,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     spotify_ ("Spotify options (Spotify Premium required)"),
     gmusic_ ("Google Play Music options"),
     scloud_ ("SoundCloud options"),
-    dirble_ ("Dirble options"),
+//     dirble_ ("Dirble options"),
     youtube_ ("YouTube options"),
     plex_ ("Plex options"),
     chromecast_ ("Chromecast options"),
@@ -399,14 +399,14 @@ tiz::programopts::programopts (int argc, char *argv[])
     scloud_playlist_container_ (),
     scloud_playlist_type_ (OMX_AUDIO_SoundCloudPlaylistTypeUnknown),
     scloud_buffer_seconds_ (0),
-    dirble_api_key_ (),
-    dirble_popular_stations_ (),
-    dirble_stations_ (),
-    dirble_category_ (),
-    dirble_country_ (),
-    dirble_playlist_container_ (),
-    dirble_playlist_type_ (OMX_AUDIO_DirblePlaylistTypeUnknown),
-    dirble_buffer_seconds_ (0),
+//     dirble_api_key_ (),
+//     dirble_popular_stations_ (),
+//     dirble_stations_ (),
+//     dirble_category_ (),
+//     dirble_country_ (),
+//     dirble_playlist_container_ (),
+//     dirble_playlist_type_ (OMX_AUDIO_DirblePlaylistTypeUnknown),
+//     dirble_buffer_seconds_ (0),
     youtube_audio_stream_ (),
     youtube_audio_playlist_ (),
     youtube_audio_mix_ (),
@@ -435,7 +435,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     all_spotify_client_options_ (),
     all_gmusic_client_options_ (),
     all_scloud_client_options_ (),
-    all_dirble_client_options_ (),
+//     all_dirble_client_options_ (),
     all_youtube_client_options_ (),
     all_plex_client_options_ (),
     all_input_uri_options_ (),
@@ -449,7 +449,7 @@ tiz::programopts::programopts (int argc, char *argv[])
   init_spotify_options ();
   init_gmusic_options ();
   init_scloud_options ();
-  init_dirble_options ();
+//   init_dirble_options ();
   init_youtube_options ();
   init_plex_options ();
   init_input_uri_option ();
@@ -549,9 +549,9 @@ void tiz::programopts::print_usage_help () const
   std::cout << "  "
             << "soundcloud    SoundCloud options."
             << "\n";
-  std::cout << "  "
-            << "dirble        Dirble options."
-            << "\n";
+//   std::cout << "  "
+//             << "dirble        Dirble options."
+//             << "\n";
   std::cout << "  "
             << "youtube       YouTube options."
             << "\n";
@@ -1139,68 +1139,68 @@ uint32_t tiz::programopts::scloud_buffer_seconds () const
   return buffer_seconds_ ? buffer_seconds_ : scloud_buffer_seconds_;
 }
 
-const std::string &tiz::programopts::dirble_api_key () const
-{
-  return dirble_api_key_;
-}
+// const std::string &tiz::programopts::dirble_api_key () const
+// {
+//   return dirble_api_key_;
+// }
 
-const std::vector< std::string > &tiz::programopts::dirble_playlist_container ()
-{
-  dirble_playlist_container_.clear ();
-  if (!dirble_popular_stations_.empty ())
-  {
-    dirble_playlist_container_.push_back (dirble_popular_stations_);
-  }
-  else if (!dirble_stations_.empty ())
-  {
-    dirble_playlist_container_.push_back (dirble_stations_);
-  }
-  else if (!dirble_category_.empty ())
-  {
-    dirble_playlist_container_.push_back (dirble_category_);
-  }
-  else if (!dirble_country_.empty ())
-  {
-    dirble_playlist_container_.push_back (dirble_country_);
-  }
-  else
-  {
-    assert (0);
-  }
-  return dirble_playlist_container_;
-}
+// const std::vector< std::string > &tiz::programopts::dirble_playlist_container ()
+// {
+//   dirble_playlist_container_.clear ();
+//   if (!dirble_popular_stations_.empty ())
+//   {
+//     dirble_playlist_container_.push_back (dirble_popular_stations_);
+//   }
+//   else if (!dirble_stations_.empty ())
+//   {
+//     dirble_playlist_container_.push_back (dirble_stations_);
+//   }
+//   else if (!dirble_category_.empty ())
+//   {
+//     dirble_playlist_container_.push_back (dirble_category_);
+//   }
+//   else if (!dirble_country_.empty ())
+//   {
+//     dirble_playlist_container_.push_back (dirble_country_);
+//   }
+//   else
+//   {
+//     assert (0);
+//   }
+//   return dirble_playlist_container_;
+// }
 
-OMX_TIZONIA_AUDIO_DIRBLEPLAYLISTTYPE
-tiz::programopts::dirble_playlist_type ()
-{
-  if (!dirble_popular_stations_.empty ())
-  {
-    dirble_playlist_type_ = OMX_AUDIO_DirblePlaylistTypePopularStations;
-  }
-  else if (!dirble_stations_.empty ())
-  {
-    dirble_playlist_type_ = OMX_AUDIO_DirblePlaylistTypeStations;
-  }
-  else if (!dirble_category_.empty ())
-  {
-    dirble_playlist_type_ = OMX_AUDIO_DirblePlaylistTypeCategory;
-  }
-  else if (!dirble_country_.empty ())
-  {
-    dirble_playlist_type_ = OMX_AUDIO_DirblePlaylistTypeCountry;
-  }
-  else
-  {
-    dirble_playlist_type_ = OMX_AUDIO_DirblePlaylistTypeUnknown;
-  }
+// OMX_TIZONIA_AUDIO_DIRBLEPLAYLISTTYPE
+// tiz::programopts::dirble_playlist_type ()
+// {
+//   if (!dirble_popular_stations_.empty ())
+//   {
+//     dirble_playlist_type_ = OMX_AUDIO_DirblePlaylistTypePopularStations;
+//   }
+//   else if (!dirble_stations_.empty ())
+//   {
+//     dirble_playlist_type_ = OMX_AUDIO_DirblePlaylistTypeStations;
+//   }
+//   else if (!dirble_category_.empty ())
+//   {
+//     dirble_playlist_type_ = OMX_AUDIO_DirblePlaylistTypeCategory;
+//   }
+//   else if (!dirble_country_.empty ())
+//   {
+//     dirble_playlist_type_ = OMX_AUDIO_DirblePlaylistTypeCountry;
+//   }
+//   else
+//   {
+//     dirble_playlist_type_ = OMX_AUDIO_DirblePlaylistTypeUnknown;
+//   }
 
-  return dirble_playlist_type_;
-}
+//   return dirble_playlist_type_;
+// }
 
-uint32_t tiz::programopts::dirble_buffer_seconds () const
-{
-  return buffer_seconds_ ? buffer_seconds_ : dirble_buffer_seconds_;
-}
+// uint32_t tiz::programopts::dirble_buffer_seconds () const
+// {
+//   return buffer_seconds_ ? buffer_seconds_ : dirble_buffer_seconds_;
+// }
 
 const std::vector< std::string >
     &tiz::programopts::youtube_playlist_container ()
@@ -1385,12 +1385,12 @@ void tiz::programopts::init_global_options ()
       /* TIZ_CLASS_COMMENT: */
       ("cast,c", po::value (&chromecast_name_or_ip_),
        "Cast to a Chromecast device (arg: device name or ip address). "
-       "Available in combination with Google Play Music, SoundCloud, Dirble, "
+       "Available in combination with Google Play Music, SoundCloud, "
        "YouTube, Plex and HTTP radio stations.")
       /* TIZ_CLASS_COMMENT: */
       ("buffer-seconds,b", po::value (&buffer_seconds_),
        "Size of the buffer (in seconds) to be used while downloading streams. "
-       "Increase in case of cuts in gmusic, scloud, dirble, youtube or plex.");
+       "Increase in case of cuts in gmusic, scloud, youtube or plex.");
 
   register_consume_function (&tiz::programopts::consume_global_options);
   // TODO: help and version are not included. These should be moved out of
@@ -1407,7 +1407,7 @@ void tiz::programopts::init_global_options ()
       /* TIZ_CLASS_COMMENT: */
       ("cast,c", po::value (&chromecast_name_or_ip_),
        "Cast to a Chromecast device (arg: device name or ip address). "
-       "Available in combination with Google Play Music, SoundCloud, Dirble, "
+       "Available in combination with Google Play Music, SoundCloud, "
        "YouTube, Plex and HTTP radio stations.");
 }
 
@@ -1725,28 +1725,28 @@ void tiz::programopts::init_scloud_options ()
             .convert_to_container< std::vector< std::string > > ();
 }
 
-void tiz::programopts::init_dirble_options ()
-{
-  dirble_.add_options ()
-      /* TIZ_CLASS_COMMENT: */
-      ("dirble-api-key", po::value (&dirble_api_key_),
-       "Dirble Api Key (not required if provided via config file).")
-      /* TIZ_CLASS_COMMENT: */
-      ("dirble-popular-stations", "Play Dirble's popular stations.")
-      /* TIZ_CLASS_COMMENT: */
-      ("dirble-station", po::value (&dirble_stations_),
-       "Dirble station search.") ("dirble-category",
-                                  po::value (&dirble_category_),
-                                  "Dirble category search.") (
-          "dirble-country", po::value (&dirble_country_),
-          "Dirble country search.");
+// void tiz::programopts::init_dirble_options ()
+// {
+//   dirble_.add_options ()
+//       /* TIZ_CLASS_COMMENT: */
+//       ("dirble-api-key", po::value (&dirble_api_key_),
+//        "Dirble Api Key (not required if provided via config file).")
+//       /* TIZ_CLASS_COMMENT: */
+//       ("dirble-popular-stations", "Play Dirble's popular stations.")
+//       /* TIZ_CLASS_COMMENT: */
+//       ("dirble-station", po::value (&dirble_stations_),
+//        "Dirble station search.") ("dirble-category",
+//                                   po::value (&dirble_category_),
+//                                   "Dirble category search.") (
+//           "dirble-country", po::value (&dirble_country_),
+//           "Dirble country search.");
 
-  register_consume_function (&tiz::programopts::consume_dirble_client_options);
-  all_dirble_client_options_
-      = boost::assign::list_of ("dirble-api-key") ("dirble-popular-stations") (
-            "dirble-station") ("dirble-category") ("dirble-country")
-            .convert_to_container< std::vector< std::string > > ();
-}
+//   register_consume_function (&tiz::programopts::consume_dirble_client_options);
+//   all_dirble_client_options_
+//       = boost::assign::list_of ("dirble-api-key") ("dirble-popular-stations") (
+//             "dirble-station") ("dirble-category") ("dirble-country")
+//             .convert_to_container< std::vector< std::string > > ();
+// }
 
 void tiz::programopts::init_youtube_options ()
 {
@@ -1843,7 +1843,7 @@ uint32_t tiz::programopts::parse_command_line (int argc, char *argv[])
 #endif
       .add (gmusic_)
       .add (scloud_)
-      .add (dirble_)
+//       .add (dirble_)
       .add (youtube_)
       .add (plex_)
       .add (input_);
@@ -1931,10 +1931,10 @@ int tiz::programopts::consume_global_options (bool &done,
     {
       print_usage_feature (scloud_);
     }
-    else if (0 == help_option_.compare ("dirble"))
-    {
-      print_usage_feature (dirble_);
-    }
+//     else if (0 == help_option_.compare ("dirble"))
+//     {
+//       print_usage_feature (dirble_);
+//     }
     else if (0 == help_option_.compare ("youtube"))
     {
       print_usage_feature (youtube_);
@@ -2420,84 +2420,84 @@ int tiz::programopts::consume_scloud_client_options (bool &done,
   return rc;
 }
 
-int tiz::programopts::consume_dirble_client_options (bool &done,
-                                                     std::string &msg)
-{
-  int rc = EXIT_FAILURE;
-  done = false;
+// int tiz::programopts::consume_dirble_client_options (bool &done,
+//                                                      std::string &msg)
+// {
+//   int rc = EXIT_FAILURE;
+//   done = false;
 
-  if (validate_dirble_client_options ())
-  {
-    done = true;
+//   if (validate_dirble_client_options ())
+//   {
+//     done = true;
 
-    const int playlist_option_count
-        = vm_.count ("dirble-popular-stations") + vm_.count ("dirble-station")
-          + vm_.count ("dirble-category") + vm_.count ("dirble-country");
+//     const int playlist_option_count
+//         = vm_.count ("dirble-popular-stations") + vm_.count ("dirble-station")
+//           + vm_.count ("dirble-category") + vm_.count ("dirble-country");
 
-    if (dirble_api_key_.empty ())
-    {
-      retrieve_string_from_rc_file ("tizonia", "dirble.api_key",
-                                    dirble_api_key_);
-    }
-    if (!buffer_seconds_)
-      {
-        retrieve_buffer_seconds_from_rc_file ("dirble.buffer_seconds",
-                                              dirble_buffer_seconds_);
-      }
+//     if (dirble_api_key_.empty ())
+//     {
+//       retrieve_string_from_rc_file ("tizonia", "dirble.api_key",
+//                                     dirble_api_key_);
+//     }
+//     if (!buffer_seconds_)
+//       {
+//         retrieve_buffer_seconds_from_rc_file ("dirble.buffer_seconds",
+//                                               dirble_buffer_seconds_);
+//       }
 
-    if (vm_.count ("dirble-popular-stations"))
-    {
-      // This is not going to be used by the client code, but will help
-      // in dirble_playlist_type() to decide which playlist type value is
-      // returned.
-      dirble_popular_stations_.assign ("Dirble popular stations");
-    }
+//     if (vm_.count ("dirble-popular-stations"))
+//     {
+//       // This is not going to be used by the client code, but will help
+//       // in dirble_playlist_type() to decide which playlist type value is
+//       // returned.
+//       dirble_popular_stations_.assign ("Dirble popular stations");
+//     }
 
-    if (dirble_api_key_.empty ())
-    {
-      rc = EXIT_FAILURE;
-      std::ostringstream oss;
-      oss << "Need to provide a Dirble API key.";
-      msg.assign (oss.str ());
-    }
-    else if (playlist_option_count > 1)
-    {
-      rc = EXIT_FAILURE;
-      std::ostringstream oss;
-      oss << "Only one playlist type must be specified.";
-      msg.assign (oss.str ());
-    }
-    else if (!playlist_option_count)
-    {
-      rc = EXIT_FAILURE;
-      std::ostringstream oss;
-      oss << "A playlist must be specified.";
-      msg.assign (oss.str ());
-    }
-    else if (OMX_AUDIO_DirblePlaylistTypeUnknown == dirble_playlist_type ())
-    {
-      rc = EXIT_FAILURE;
-      std::ostringstream oss;
-      oss << "A playlist value must be specified.";
-      msg.assign (oss.str ());
-    }
-    else
-    {
-      if (chromecast_name_or_ip_.empty ())
-      {
-        rc = call_handler (option_handlers_map_.find ("dirble-stream"));
-      }
-      else
-      {
-        rc = call_handler (
-            option_handlers_map_.find ("dirble-stream-chromecast"));
-      }
-    }
-  }
-  TIZ_PRINTF_DBG_RED ("dirble ; rc = [%s]\n",
-                      rc == EXIT_SUCCESS ? "SUCCESS" : "FAILURE");
-  return rc;
-}
+//     if (dirble_api_key_.empty ())
+//     {
+//       rc = EXIT_FAILURE;
+//       std::ostringstream oss;
+//       oss << "Need to provide a Dirble API key.";
+//       msg.assign (oss.str ());
+//     }
+//     else if (playlist_option_count > 1)
+//     {
+//       rc = EXIT_FAILURE;
+//       std::ostringstream oss;
+//       oss << "Only one playlist type must be specified.";
+//       msg.assign (oss.str ());
+//     }
+//     else if (!playlist_option_count)
+//     {
+//       rc = EXIT_FAILURE;
+//       std::ostringstream oss;
+//       oss << "A playlist must be specified.";
+//       msg.assign (oss.str ());
+//     }
+//     else if (OMX_AUDIO_DirblePlaylistTypeUnknown == dirble_playlist_type ())
+//     {
+//       rc = EXIT_FAILURE;
+//       std::ostringstream oss;
+//       oss << "A playlist value must be specified.";
+//       msg.assign (oss.str ());
+//     }
+//     else
+//     {
+//       if (chromecast_name_or_ip_.empty ())
+//       {
+//         rc = call_handler (option_handlers_map_.find ("dirble-stream"));
+//       }
+//       else
+//       {
+//         rc = call_handler (
+//             option_handlers_map_.find ("dirble-stream-chromecast"));
+//       }
+//     }
+//   }
+//   TIZ_PRINTF_DBG_RED ("dirble ; rc = [%s]\n",
+//                       rc == EXIT_SUCCESS ? "SUCCESS" : "FAILURE");
+//   return rc;
+// }
 
 int tiz::programopts::consume_youtube_client_options (bool &done,
                                                       std::string &msg)
@@ -2824,26 +2824,26 @@ bool tiz::programopts::validate_scloud_client_options () const
   return outcome;
 }
 
-bool tiz::programopts::validate_dirble_client_options () const
-{
-  bool outcome = false;
-  uint32_t dirble_opts_count
-      = vm_.count ("dirble-api-key") + vm_.count ("dirble-popular-stations")
-        + vm_.count ("dirble-station") + vm_.count ("dirble-category")
-        + vm_.count ("dirble-country") + vm_.count ("log-directory");
+// bool tiz::programopts::validate_dirble_client_options () const
+// {
+//   bool outcome = false;
+//   uint32_t dirble_opts_count
+//       = vm_.count ("dirble-api-key") + vm_.count ("dirble-popular-stations")
+//         + vm_.count ("dirble-station") + vm_.count ("dirble-category")
+//         + vm_.count ("dirble-country") + vm_.count ("log-directory");
 
-  std::vector< std::string > all_valid_options = all_dirble_client_options_;
-  concat_option_lists (all_valid_options, all_global_options_);
-  concat_option_lists (all_valid_options, all_debug_options_);
+//   std::vector< std::string > all_valid_options = all_dirble_client_options_;
+//   concat_option_lists (all_valid_options, all_global_options_);
+//   concat_option_lists (all_valid_options, all_debug_options_);
 
-  if (dirble_opts_count > 0
-      && is_valid_options_combination (all_valid_options, all_given_options_))
-  {
-    outcome = true;
-  }
-  TIZ_PRINTF_DBG_RED ("outcome = [%s]\n", outcome ? "SUCCESS" : "FAILURE");
-  return outcome;
-}
+//   if (dirble_opts_count > 0
+//       && is_valid_options_combination (all_valid_options, all_given_options_))
+//   {
+//     outcome = true;
+//   }
+//   TIZ_PRINTF_DBG_RED ("outcome = [%s]\n", outcome ? "SUCCESS" : "FAILURE");
+//   return outcome;
+// }
 
 bool tiz::programopts::validate_youtube_client_options () const
 {

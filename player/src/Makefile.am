@@ -95,11 +95,6 @@ noinst_HEADERS = \
 	services/soundcloud/tizscloudgraphops.hpp \
 	services/soundcloud/tizscloudconfig.hpp \
 	services/soundcloud/tizscloudmgr.hpp \
-	services/dirble/tizdirblegraph.hpp \
-	services/dirble/tizdirblegraphfsm.hpp \
-	services/dirble/tizdirblegraphops.hpp \
-	services/dirble/tizdirbleconfig.hpp \
-	services/dirble/tizdirblemgr.hpp \
 	services/youtube/tizyoutubegraph.hpp \
 	services/youtube/tizyoutubegraphfsm.hpp \
 	services/youtube/tizyoutubegraphops.hpp \
@@ -167,10 +162,6 @@ tizonia_SOURCES = \
 	services/soundcloud/tizscloudgraph.cpp \
 	services/soundcloud/tizscloudgraphops.cpp \
 	services/soundcloud/tizscloudmgr.cpp \
-	services/dirble/tizdirblegraph.cpp \
-	services/dirble/tizdirblegraphfsm.cpp \
-	services/dirble/tizdirblegraphops.cpp \
-	services/dirble/tizdirblemgr.cpp \
 	services/youtube/tizyoutubegraph.cpp \
 	services/youtube/tizyoutubegraphfsm.cpp \
 	services/youtube/tizyoutubegraphops.cpp \
@@ -196,7 +187,6 @@ tizonia_CPPFLAGS = \
 	-I$(top_srcdir)/src \
 	-I$(top_srcdir)/src/services \
 	-I$(top_srcdir)/src/services/googlemusic \
-	-I$(top_srcdir)/src/services/dirble \
 	-I$(top_srcdir)/src/services/soundcloud \
 	-I$(top_srcdir)/src/services/youtube \
 	-I$(top_srcdir)/src/services/plex \

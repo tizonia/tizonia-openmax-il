@@ -62,13 +62,13 @@ namespace tiz
     OMX_ERRORTYPE spotify_stream ();
     OMX_ERRORTYPE gmusic_stream ();
     OMX_ERRORTYPE scloud_stream ();
-    OMX_ERRORTYPE dirble_stream ();
+//     OMX_ERRORTYPE dirble_stream ();
     OMX_ERRORTYPE youtube_stream ();
     OMX_ERRORTYPE plex_stream ();
     OMX_ERRORTYPE http_stream_chromecast ();
     OMX_ERRORTYPE gmusic_stream_chromecast ();
     OMX_ERRORTYPE scloud_stream_chromecast ();
-    OMX_ERRORTYPE dirble_stream_chromecast ();
+//     OMX_ERRORTYPE dirble_stream_chromecast ();
     OMX_ERRORTYPE youtube_stream_chromecast ();
     OMX_ERRORTYPE plex_stream_chromecast ();
 
