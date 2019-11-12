@@ -192,8 +192,6 @@ class tizspotifyproxy(object):
 
         """
         arg_dec = arg
-        if sys.version[0] == '2':
-            arg_dec = arg.decode('utf-8')
         logging.info('arg : %s', arg_dec)
         print_msg("[Spotify] [Track search] '{0}'.".format(arg_dec))
         try:
@@ -221,8 +219,6 @@ class tizspotifyproxy(object):
 
         """
         arg_dec = arg
-        if sys.version[0] == '2':
-            arg_dec = arg.decode('utf-8')
         logging.info('arg : %s', arg_dec)
         print_msg("[Spotify] [Artist search] '{0}'.".format(arg_dec))
         try:
@@ -261,8 +257,6 @@ class tizspotifyproxy(object):
 
         """
         arg_dec = arg
-        if sys.version[0] == '2':
-            arg_dec = arg.decode('utf-8')
         logging.info('arg : %s', arg_dec)
         print_msg("[Spotify] [Album search] '{0}'.".format(arg_dec))
         try:
@@ -292,8 +286,6 @@ class tizspotifyproxy(object):
 
         """
         arg_dec = arg
-        if sys.version[0] == '2':
-            arg_dec = arg.decode('utf-8')
         logging.info('arg : %s', arg_dec)
         try:
             count = len(self.queue)
@@ -308,7 +300,7 @@ class tizspotifyproxy(object):
                     owner = pl['owner']['id']
                     name = pl['name']
                     print_msg("[Spotify] [Global playlist search] '{0}' (owner: {1})." \
-                              .format(arg_dec, owner.decode('utf-8')))
+                              .format(arg_dec, owner))
                     if arg_dec.lower() == name.lower():
                         playlist_name = name
                         playlist = pl
@@ -351,11 +343,9 @@ class tizspotifyproxy(object):
 
         """
         arg_dec = arg
-        if sys.version[0] == '2':
-            arg_dec = arg.decode('utf-8')
         logging.info('arg : %s', arg_dec)
         print_msg("[Spotify] [Playlist search] '{0}' (owner: {1})." \
-                  .format(arg_dec, owner.decode('utf-8')))
+                  .format(arg_dec, owner))
         try:
             count = len(self.queue)
 
@@ -390,8 +380,6 @@ class tizspotifyproxy(object):
 
         """
         arg_dec = arg
-        if sys.version[0] == '2':
-            arg_dec = arg.decode('utf-8')
         logging.info('arg : %s', arg_dec)
         try:
             count = len(self.queue)
@@ -418,8 +406,6 @@ class tizspotifyproxy(object):
 
         """
         arg_dec = arg
-        if sys.version[0] == '2':
-            arg_dec = arg.decode('utf-8')
         logging.info('arg : %s', arg_dec)
         print_msg("[Spotify] [Featured playlist search] '{0}'.".format(arg_dec))
         try:
@@ -447,8 +433,6 @@ class tizspotifyproxy(object):
 
         """
         arg_dec = arg
-        if sys.version[0] == '2':
-            arg_dec = arg.decode('utf-8')
         logging.info('arg : %s', arg_dec)
         print_msg("[Spotify] [New Releases search] '{0}'.".format(arg_dec))
         try:
@@ -580,7 +564,7 @@ class tizspotifyproxy(object):
         """
         logging.info('id : %s', id)
         print_msg("[Spotify] [Playlist id] '{0}' (owner: {1})." \
-                  .format(id, owner.decode('utf-8')))
+                  .format(id, owner))
         try:
             count = len(self.queue)
             playlist = self._spotify.user_playlist(owner, id)
@@ -666,8 +650,6 @@ class tizspotifyproxy(object):
 
         """
         arg_dec = arg
-        if sys.version[0] == '2':
-            arg_dec = arg.decode('utf-8')
         logging.info('id : %s', arg_dec)
         print_msg("[Spotify] [Recomendations by genre] '{0}'.".format(arg_dec))
         try:
