@@ -36,8 +36,9 @@ from fuzzywuzzy import process
 from fuzzywuzzy import fuzz
 import imp
 
-imp.reload(sys)
-sys.setdefaultencoding('utf-8')
+if sys.version[0] == '2':
+    imp.reload(sys)
+    sys.setdefaultencoding('utf-8')
 
 # For use during debugging
 # import pprint
@@ -123,7 +124,9 @@ def to_ascii(msg):
 
     """
 
-    return unicodedata.normalize('NFKD', str(msg)).encode('ASCII', 'ignore')
+    if sys.version[0] == '2':
+        return unicodedata.normalize('NFKD', str(msg)).encode('ASCII', 'ignore')
+    return msg
 
 class TrackInfo(object):
     """ Class that represents a Plex track in the queue.
@@ -231,7 +234,7 @@ class tizplexproxy(object):
                 for artist in artists:
                     artist_name = artist.title
                     print_wrn("[Plex] Playing '{0}'." \
-                              .format(artist_name.encode('utf-8')))
+                              .format(artist_name))
                     for album in artist.albums():
                         for track in album.tracks():
                             track_info = TrackInfo(track, artist, album)
@@ -258,8 +261,8 @@ class tizplexproxy(object):
                 if artist:
                     print_wrn("[Plex] '{0}' not found. " \
                               "Playing '{1}' instead." \
-                              .format(arg.encode('utf-8'), \
-                                      artist_name.encode('utf-8')))
+                              .format(arg, \
+                                      artist_name))
                     for album in artist.albums():
                         for track in album.tracks():
                             track_info = TrackInfo(track, artist, album)
@@ -293,7 +296,7 @@ class tizplexproxy(object):
                 for album in albums:
                     album_name = album.title
                     print_wrn("[Plex] Playing '{0}'." \
-                              .format(album_name.encode('utf-8')))
+                              .format(album_name))
                     for track in album.tracks():
                         track_info = TrackInfo(track, track.artist(), album)
                         self.add_to_playback_queue(track_info)
@@ -319,8 +322,8 @@ class tizplexproxy(object):
                 if album:
                     print_wrn("[Plex] '{0}' not found. " \
                               "Playing '{1}' instead." \
-                              .format(arg.encode('utf-8'), \
-                                      album_name.encode('utf-8')))
+                              .format(arg, \
+                                      album_name))
                     for track in album.tracks():
                         track_info = TrackInfo(track, album, album)
                         self.add_to_playback_queue(track_info)
@@ -352,7 +355,7 @@ class tizplexproxy(object):
                 if playlist:
                     playlist_title = playlist.title
                     print_wrn("[Plex] Playing '{0}'." \
-                              .format(playlist_title.encode('utf-8')))
+                              .format(playlist_title))
                     for item in list(playlist.items()):
                         if item.TYPE == 'track':
                             track = item
@@ -361,7 +364,7 @@ class tizplexproxy(object):
                             self.add_to_playback_queue(track_info)
                         if count == len(self.queue):
                             print_wrn("[Plex] '{0}' No audio tracks found." \
-                                      .format(playlist_title.encode('utf-8')))
+                                      .format(playlist_title))
                             raise ValueError
 
             except (NotFound):
@@ -385,8 +388,8 @@ class tizplexproxy(object):
                 if playlist:
                     print_wrn("[Plex] '{0}' not found. " \
                               "Playing '{1}' instead." \
-                              .format(arg.encode('utf-8'), \
-                                      playlist_title.encode('utf-8')))
+                              .format(arg, \
+                                      playlist_title))
                     for item in list(playlist.items()):
                         if item.TYPE == 'track':
                             track = item
@@ -395,7 +398,7 @@ class tizplexproxy(object):
                             self.add_to_playback_queue(track_info)
                         if count == len(self.queue):
                             print_wrn("[Plex] '{0}' No audio tracks found." \
-                                      .format(playlist_title.encode('utf-8')))
+                                      .format(playlist_title))
 
             if count == len(self.queue):
                 raise ValueError
@@ -412,7 +415,7 @@ class tizplexproxy(object):
         track = self.now_playing_track
         title = ''
         if track:
-            title = to_ascii(track.title).encode("utf-8")
+            title = to_ascii(track.title)
         return title
 
     def current_audio_track_artist(self):
@@ -422,7 +425,7 @@ class tizplexproxy(object):
         track = self.now_playing_track
         artist = ''
         if track:
-            artist = to_ascii(track.artist).encode("utf-8")
+            artist = to_ascii(track.artist)
         return artist
 
     def current_audio_track_album(self):
@@ -432,7 +435,7 @@ class tizplexproxy(object):
         track = self.now_playing_track
         album = ''
         if track:
-            album = to_ascii(track.album).encode("utf-8")
+            album = to_ascii(track.album)
         return album
 
     def current_audio_track_year(self):
@@ -482,7 +485,7 @@ class tizplexproxy(object):
         track = self.now_playing_track
         codec = ''
         if track:
-            codec = to_ascii(track.codec).encode("utf-8")
+            codec = to_ascii(track.codec)
         return codec
 
     def current_audio_track_album_art(self):
@@ -492,7 +495,7 @@ class tizplexproxy(object):
         track = self.now_playing_track
         album_art = ''
         if track:
-            album_art = to_ascii(track.thumb_url).encode("utf-8")
+            album_art = to_ascii(track.thumb_url)
         return album_art
 
     def current_audio_track_queue_index_and_queue_length(self):
@@ -517,7 +520,7 @@ class tizplexproxy(object):
         if len(self.queue) and self.queue_index:
             track = self.queue[self.queue_index]
             print_nfo("[Plex] [Track] '{0}' removed." \
-                      .format(to_ascii(track['i'].title).encode("utf-8")))
+                      .format(to_ascii(track['i'].title)))
             del self.queue[self.queue_index]
             self.queue_index -= 1
             if self.queue_index < 0:
@@ -595,7 +598,7 @@ class tizplexproxy(object):
         """
         try:
             self.now_playing_track = track
-            return track.url.encode("utf-8")
+            return track.url
 
         except AttributeError:
             logging.info("Could not retrieve the track url!")
@@ -605,7 +608,7 @@ class tizplexproxy(object):
         """ Add to the playback queue. """
 
         print_nfo("[Plex] [Track] '{0}' [{1}]." \
-                  .format(to_ascii(track.title).encode("utf-8"), \
+                  .format(to_ascii(track.title), \
                           to_ascii(track.codec)))
         queue_index = len(self.queue)
         self.queue.append(track)

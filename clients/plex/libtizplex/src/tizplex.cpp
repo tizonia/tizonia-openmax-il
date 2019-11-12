@@ -406,7 +406,7 @@ void tizplex::get_current_track ()
   current_track_file_size_.append (" MiB");
   current_track_file_size_as_int_ = file_size;
 
-  const int duration = bp::extract< int > (
+  const int duration = bp::extract< float > (
       py_plex_proxy_.attr ("current_audio_track_duration") ());
   int seconds = duration % 60;
   int minutes = (duration - seconds) / 60;
