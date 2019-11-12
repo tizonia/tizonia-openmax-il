@@ -522,7 +522,7 @@ void tizspotify::get_current_track ()
   current_track_release_date_ = bp::extract< std::string > (
       py_spotify_proxy_.attr ("current_track_release_date") ());
 
-  const int duration = bp::extract< int > (
+  const int duration = bp::extract< float > (
       py_spotify_proxy_.attr ("current_track_duration") ());
   int seconds = duration % 60;
   int minutes = (duration - seconds) / 60;

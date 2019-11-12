@@ -118,7 +118,9 @@ def to_ascii(msg):
 
     """
 
-    return unicodedata.normalize('NFKD', str(msg)).encode('ASCII', 'ignore')
+    if sys.version[0] == '2':
+        return unicodedata.normalize('NFKD', str(msg)).encode('ASCII', 'ignore')
+    return msg
 
 class TrackInfo(object):
     """ Class that represents a Spotify track in the queue.
@@ -189,7 +191,9 @@ class tizspotifyproxy(object):
         :param arg: a search string
 
         """
-        arg_dec = arg.decode('utf-8')
+        arg_dec = arg
+        if sys.version[0] == '2':
+            arg_dec = arg.decode('utf-8')
         logging.info('arg : %s', arg_dec)
         print_msg("[Spotify] [Track search] '{0}'.".format(arg_dec))
         try:
@@ -216,7 +220,9 @@ class tizspotifyproxy(object):
         :param arg: an artist search term
 
         """
-        arg_dec = arg.decode('utf-8')
+        arg_dec = arg
+        if sys.version[0] == '2':
+            arg_dec = arg.decode('utf-8')
         logging.info('arg : %s', arg_dec)
         print_msg("[Spotify] [Artist search] '{0}'.".format(arg_dec))
         try:
@@ -254,7 +260,9 @@ class tizspotifyproxy(object):
         :param arg: an album search term
 
         """
-        arg_dec = arg.decode('utf-8')
+        arg_dec = arg
+        if sys.version[0] == '2':
+            arg_dec = arg.decode('utf-8')
         logging.info('arg : %s', arg_dec)
         print_msg("[Spotify] [Album search] '{0}'.".format(arg_dec))
         try:
@@ -283,7 +291,9 @@ class tizspotifyproxy(object):
         :param arg: an album search term
 
         """
-        arg_dec = arg.decode('utf-8')
+        arg_dec = arg
+        if sys.version[0] == '2':
+            arg_dec = arg.decode('utf-8')
         logging.info('arg : %s', arg_dec)
         try:
             count = len(self.queue)
@@ -340,7 +350,9 @@ class tizspotifyproxy(object):
         :param arg: a playlist search term
 
         """
-        arg_dec = arg.decode('utf-8')
+        arg_dec = arg
+        if sys.version[0] == '2':
+            arg_dec = arg.decode('utf-8')
         logging.info('arg : %s', arg_dec)
         print_msg("[Spotify] [Playlist search] '{0}' (owner: {1})." \
                   .format(arg_dec, owner.decode('utf-8')))
@@ -377,7 +389,9 @@ class tizspotifyproxy(object):
         :param arg: an artist search term
 
         """
-        arg_dec = arg.decode('utf-8')
+        arg_dec = arg
+        if sys.version[0] == '2':
+            arg_dec = arg.decode('utf-8')
         logging.info('arg : %s', arg_dec)
         try:
             count = len(self.queue)
@@ -403,7 +417,9 @@ class tizspotifyproxy(object):
         :param arg: a playlist search term
 
         """
-        arg_dec = arg.decode('utf-8')
+        arg_dec = arg
+        if sys.version[0] == '2':
+            arg_dec = arg.decode('utf-8')
         logging.info('arg : %s', arg_dec)
         print_msg("[Spotify] [Featured playlist search] '{0}'.".format(arg_dec))
         try:
@@ -430,7 +446,9 @@ class tizspotifyproxy(object):
         :param arg: an album search term
 
         """
-        arg_dec = arg.decode('utf-8')
+        arg_dec = arg
+        if sys.version[0] == '2':
+            arg_dec = arg.decode('utf-8')
         logging.info('arg : %s', arg_dec)
         print_msg("[Spotify] [New Releases search] '{0}'.".format(arg_dec))
         try:
@@ -647,7 +665,9 @@ class tizspotifyproxy(object):
         :param id: a genre name or search term
 
         """
-        arg_dec = arg.decode('utf-8')
+        arg_dec = arg
+        if sys.version[0] == '2':
+            arg_dec = arg.decode('utf-8')
         logging.info('id : %s', arg_dec)
         print_msg("[Spotify] [Recomendations by genre] '{0}'.".format(arg_dec))
         try:
@@ -696,46 +716,51 @@ class tizspotifyproxy(object):
         """ Retrieve the current track's title.
 
         """
+        logging.info("current_track_title")
         track = self.now_playing_track
         title = ''
         if track:
             title = track.title
-        return to_ascii(title).encode("utf-8")
+        return to_ascii(title)
 
     def current_track_artist(self):
         """ Retrieve the current track's artist.
 
         """
+        logging.info("current_track_artist")
         track = self.now_playing_track
         artist = ''
         if track:
             artist = track.artist
-        return to_ascii(artist).encode("utf-8")
+        return to_ascii(artist)
 
     def current_track_album(self):
         """ Retrieve the current track's album.
 
         """
+        logging.info("current_track_album")
         track = self.now_playing_track
         album = ''
         if track:
             album = track.album
-        return to_ascii(album).encode("utf-8")
+        return to_ascii(album)
 
     def current_track_release_date(self):
         """ Retrieve the current track's publication date.
 
         """
+        logging.info("current_track_release_date")
         track = self.now_playing_track
         date = ''
         if track:
             date = track.release_date
-        return to_ascii(date).encode("utf-8")
+        return to_ascii(date)
 
     def current_track_duration(self):
         """ Retrieve the current track's duration.
 
         """
+        logging.info("current_track_duration")
         track = self.now_playing_track
         duration = 0
         if track:
@@ -747,58 +772,64 @@ class tizspotifyproxy(object):
         """ Retrieve the current track's album_art.
 
         """
+        logging.info("current_track_album_art")
         track = self.now_playing_track
         album_art = ''
-        if track:
+        if track and track.thumb_url:
             album_art = track.thumb_url
-        return to_ascii(album_art).encode("utf-8")
+        return to_ascii(album_art)
 
     def current_track_uri(self):
         """ Retrieve the Spotify URI of the current track.
 
         """
+        logging.info("current_track_uri")
         track = self.now_playing_track
         spotify_uri = ''
         if track:
             spotify_uri = track.uri
-        return to_ascii(spotify_uri).encode("utf-8")
+        return to_ascii(spotify_uri)
 
     def current_track_artist_uri(self):
         """ Retrieve the current track's artist URI.
 
         """
+        logging.info("current_track_artist_uri")
         track = self.now_playing_track
         artist_uri = ''
         if track:
             artist_uri = track.artist_uri
-        return to_ascii(artist_uri).encode("utf-8")
+        return to_ascii(artist_uri)
 
     def current_track_album_uri(self):
         """ Retrieve the current track's album URI.
 
         """
+        logging.info("current_track_album_uri")
         track = self.now_playing_track
         album_uri = ''
         if track:
             album_uri = track.album_uri
-        return to_ascii(album_uri).encode("utf-8")
+        return to_ascii(album_uri)
 
     def current_track_explicitness(self):
         """ Returns 'Explicit' if the current tracks is a 'explicit' track, empty
         string otherwise.
 
         """
+        logging.info("current_track_explicitness")
         track = self.now_playing_track
         explicitness = ''
         if track and track.explicit:
             explicitness = "Explicit"
-        return to_ascii(explicitness).encode("utf-8")
+        return to_ascii(explicitness)
 
     def current_track_queue_index_and_queue_length(self):
         """ Retrieve index in the queue (starting from 1) of the current track and the
         length of the playback queue.
 
         """
+        logging.info("current_track_queue_index_and_queue_length")
         return self.play_queue_order[self.queue_index] + 1, len(self.queue)
 
     def clear_queue(self):
@@ -816,7 +847,7 @@ class tizspotifyproxy(object):
         if len(self.queue) and self.queue_index >= 0:
             track = self.queue[self.queue_index]
             print_nfo("[Spotify] [Track] '{0}' removed." \
-                      .format(to_ascii(track.title).encode("utf-8")))
+                      .format(to_ascii(track.title)))
             del self.queue[self.queue_index]
             self.queue_index -= 1
             if self.queue_index < 0:
@@ -1115,7 +1146,7 @@ class tizspotifyproxy(object):
         """
         try:
             self.now_playing_track = track
-            return track.uri.encode("utf-8")
+            return track.uri
 
         except AttributeError:
             logging.info("Could not retrieve the track uri!")
@@ -1126,15 +1157,15 @@ class tizspotifyproxy(object):
 
         if not track.explicit:
             print_nfo("[Spotify] [Track] '{0}' [{1}]." \
-                      .format(to_ascii(track.title).encode("utf-8"), \
-                              to_ascii(track.artist).encode("utf-8")))
+                      .format(to_ascii(track.title), \
+                              to_ascii(track.artist)))
         # Make sure explicit track titles are not printed if these are not
         # allowed.
         if track.explicit and \
            (self.current_explicit_filter_mode == self.explicit_filter_modes.ALLOW):
             print_nfo("[Spotify] [Track] '{0}' [{1}] (Explicit)." \
-                      .format(to_ascii(track.title).encode("utf-8"), \
-                              to_ascii(track.artist).encode("utf-8")))
+                      .format(to_ascii(track.title), \
+                              to_ascii(track.artist)))
         queue_index = len(self.queue)
         self.queue.append(track)
 
