@@ -123,7 +123,9 @@ def to_ascii(msg):
 
     """
 
-    return unicodedata.normalize('NFKD', str(msg)).encode('ASCII', 'ignore')
+    if sys.version[0] == '2':
+        return unicodedata.normalize('NFKD', str(msg)).encode('ASCII', 'ignore')
+    return msg
 
 class tizsoundcloudproxy(object):
     """A class that logs into a SoundCloud account, retrieves track URLs
@@ -284,10 +286,10 @@ class tizsoundcloudproxy(object):
                 arg_permalink = permalink.replace(' ', '-').lower()
                 if track_count == 0:
                     continue
-                if arg.lower() == username.encode("utf-8").lower() \
-                   or arg_permalink == permalink.encode("utf-8").lower() \
+                if arg.lower() == username.lower() \
+                   or arg_permalink == permalink.lower() \
                    or (fullname and arg.lower() \
-                       == fullname.encode("utf-8").lower()):
+                       == fullname.lower()):
                     try:
                         track_resources \
                             = self.__api.get('/users/%s/tracks' \
@@ -502,7 +504,7 @@ class tizsoundcloudproxy(object):
             except KeyError:
                 logging.info("title/user : not found")
         if sys.version[0] == '2':
-            return title.encode("utf-8"), user.encode("utf-8")
+            return title, user
         else:
             return title, user
 
@@ -555,7 +557,7 @@ class tizsoundcloudproxy(object):
                 logging.info("track permalink {0}".format(permalink))
             except KeyError:
                 logging.info("permalink : not found")
-        return track_permalink.encode("utf-8")
+        return track_permalink
 
     def current_track_license(self):
         """ Return the current track's license.
@@ -572,7 +574,7 @@ class tizsoundcloudproxy(object):
                 logging.info("track license {0}".format(tlicense))
             except KeyError:
                 logging.info("license : not found")
-        return track_license.encode("utf-8")
+        return track_license
 
     def current_track_likes(self):
         """ Return the current track's likes.
@@ -608,7 +610,7 @@ class tizsoundcloudproxy(object):
                         logging.info("track user_avatar {0}".format(user_avatar))
             except KeyError:
                 logging.info("user_avatar : not found")
-        return track_user_avatar.encode("utf-8")
+        return track_user_avatar
 
 
     def clear_queue(self):
@@ -691,7 +693,7 @@ class tizsoundcloudproxy(object):
             stream_url = track['stream_url']
             stream = self.__api.get(stream_url, allow_redirects=False)
             #pprint.pprint("location {0}".format(stream.location))
-            return stream.location.encode("utf-8")
+            return stream.location
         except AttributeError:
             logging.info("Could not retrieve the track url!")
             raise
