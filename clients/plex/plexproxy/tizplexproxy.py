@@ -412,6 +412,7 @@ class tizplexproxy(object):
         """ Retrieve the current track's title.
 
         """
+        logging.info("current_audio_track_title")
         track = self.now_playing_track
         title = ''
         if track:
@@ -422,6 +423,7 @@ class tizplexproxy(object):
         """ Retrieve the current track's artist.
 
         """
+        logging.info("current_audio_track_artist")
         track = self.now_playing_track
         artist = ''
         if track:
@@ -432,9 +434,10 @@ class tizplexproxy(object):
         """ Retrieve the current track's album.
 
         """
+        logging.info("current_audio_track_album")
         track = self.now_playing_track
         album = ''
-        if track:
+        if track and track.album:
             album = to_ascii(track.album)
         return album
 
@@ -442,6 +445,7 @@ class tizplexproxy(object):
         """ Retrieve the current track's publication year.
 
         """
+        logging.info("current_audio_track_year")
         track = self.now_playing_track
         year = 0
         if track:
@@ -452,6 +456,7 @@ class tizplexproxy(object):
         """ Retrieve the current track's file size.
 
         """
+        logging.info("current_audio_track_file_size")
         track = self.now_playing_track
         size = 0
         if track:
@@ -462,6 +467,7 @@ class tizplexproxy(object):
         """ Retrieve the current track's duration.
 
         """
+        logging.info("current_audio_track_duration")
         track = self.now_playing_track
         duration = 0
         if track:
@@ -472,6 +478,7 @@ class tizplexproxy(object):
         """ Retrieve the current track's bitrate.
 
         """
+        logging.info("current_audio_track_bitrate")
         track = self.now_playing_track
         bitrate = 0
         if track:
@@ -482,6 +489,7 @@ class tizplexproxy(object):
         """ Retrieve the current track's codec.
 
         """
+        logging.info("current_audio_track_codec")
         track = self.now_playing_track
         codec = ''
         if track:
@@ -492,9 +500,10 @@ class tizplexproxy(object):
         """ Retrieve the current track's album_art.
 
         """
+        logging.info("current_audio_track_album_art")
         track = self.now_playing_track
         album_art = ''
-        if track:
+        if track and track.thumb_url:
             album_art = to_ascii(track.thumb_url)
         return album_art
 
@@ -503,6 +512,7 @@ class tizplexproxy(object):
         length of the playback queue.
 
         """
+        logging.info("current_audio_track_queue_index_and_queue_length")
         return self.play_queue_order[self.queue_index] + 1, len(self.queue)
 
     def clear_queue(self):
