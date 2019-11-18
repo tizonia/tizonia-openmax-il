@@ -195,6 +195,7 @@ function install_deps {
         libsndfile1-dev \
         libmp4v2-dev \
         python3-dev \
+        python3-all-dev \
         python3-setuptools \
         python3-pip \
         curl \
@@ -240,13 +241,21 @@ function install_python_deps {
 
     echo "Installing pip and the gmusicapi python module..."
     wget https://bootstrap.pypa.io/get-pip.py \
-        && sudo python3 get-pip.py \
-        && pip3 install --user gmusicapi
+        && sudo python3 get-pip.py
 
     exit_status=$?
 
     if [[ "$exit_status" -ne 0 ]] ; then
-        echo "Error while installing gmusicapi" >&2
+        echo "Error while installing pip" >&2
+        return
+    fi
+
+    if [[ "$exit_status" -eq 0 ]] ; then
+        pip3 install --user gmusicapi
+        exit_status=$?
+        if [[ "$exit_status" -ne 0 ]] ; then
+            echo "Error while installing gmusicapi" >&2
+        fi
     fi
 
     if [[ "$exit_status" -eq 0 ]] ; then
