@@ -21,22 +21,22 @@
 #
 
 sudo: required
-dist: trusty
+dist: xenial
 language: c
 compiler:
   - gcc
 python:
-  - "2.7_with_system_site_packages"
+  - "3.5"
 before_install:
-  - ./tools/tizonia-travis-build-trusty deps "$HOME"
-  - ./tools/tizonia-travis-build-trusty pydeps "$HOME"
+  - ./tools/tizonia-travis-build-xenial deps "$HOME"
+  - ./tools/tizonia-travis-build-xenial pydeps "$HOME"
 before_script:
-  - ./tools/tizonia-travis-build-trusty media "$HOME" "$HOME/temp"
+  - ./tools/tizonia-travis-build-xenial media "$HOME" "$HOME/temp"
 script:
-  - ./tools/tizonia-travis-build-trusty build "$HOME/build/tizonia/tizonia-openmax-il"
-  - ./tools/tizonia-travis-build-trusty config "$HOME/build/tizonia/tizonia-openmax-il"
-  - ./tools/tizonia-travis-build-trusty unit "$HOME/build/tizonia/tizonia-openmax-il"
-  - ./tools/tizonia-travis-build-trusty skema "$HOME/build"
-  - ./tools/tizonia-travis-build-trusty suites "$HOME/build"
+  - ./tools/tizonia-travis-build-xenial build "$HOME/build/tizonia/tizonia-openmax-il"
+  - ./tools/tizonia-travis-build-xenial config "$HOME/build/tizonia/tizonia-openmax-il"
+  - ./tools/tizonia-travis-build-xenial unit "$HOME/build/tizonia/tizonia-openmax-il"
+  - ./tools/tizonia-travis-build-xenial skema "$HOME/build"
+  - ./tools/tizonia-travis-build-xenial suites "$HOME/build"
 after_success:
-  - ./tools/tizonia-travis-build-trusty coverage "$HOME/build/tizonia/tizonia-openmax-il"
+  - ./tools/tizonia-travis-build-xenial coverage "$HOME/build/tizonia/tizonia-openmax-il"
