@@ -250,7 +250,7 @@ function install_python_deps {
     fi
 
     if [[ "$exit_status" -eq 0 ]] ; then
-        pip install --user soundcloud
+        pip3 install --user soundcloud
         exit_status=$?
         if [[ "$exit_status" -ne 0 ]] ; then
             echo "Error while installing soundcloud" >&2
@@ -258,7 +258,7 @@ function install_python_deps {
     fi
 
     if [[ "$exit_status" -eq 0 ]] ; then
-        pip install --user youtube_dl
+        pip3 install --user youtube_dl
         exit_status=$?
         if [[ "$exit_status" -ne 0 ]] ; then
             echo "Error while installing youtube_dl" >&2
@@ -266,7 +266,7 @@ function install_python_deps {
     fi
 
     if [[ "$exit_status" -eq 0 ]] ; then
-        pip install --user pafy
+        pip3 install --user pafy
         exit_status=$?
         if [[ "$exit_status" -ne 0 ]] ; then
             echo "Error while installing pafy" >&2
@@ -274,7 +274,7 @@ function install_python_deps {
     fi
 
     if [[ "$exit_status" -eq 0 ]] ; then
-        pip install --user pychromecast
+        pip3 install --user pychromecast
         exit_status=$?
         if [[ "$exit_status" -ne 0 ]] ; then
             echo "Error while installing pychromecast" >&2
@@ -282,7 +282,7 @@ function install_python_deps {
     fi
 
     if [[ "$exit_status" -eq 0 ]] ; then
-        pip install --user pycountry
+        pip3 install --user pycountry
         exit_status=$?
         if [[ "$exit_status" -ne 0 ]] ; then
             echo "Error while installing pycountry" >&2
@@ -290,7 +290,7 @@ function install_python_deps {
     fi
 
     if [[ "$exit_status" -eq 0 ]] ; then
-        pip install --user titlecase
+        pip3 install --user titlecase
         exit_status=$?
         if [[ "$exit_status" -ne 0 ]] ; then
             echo "Error while installing titlecase" >&2
@@ -298,7 +298,7 @@ function install_python_deps {
     fi
 
     if [[ "$exit_status" -eq 0 ]] ; then
-        pip install --user plexapi
+        pip3 install --user plexapi
         exit_status=$?
         if [[ "$exit_status" -ne 0 ]] ; then
             echo "Error while installing plexapi" >&2
@@ -306,7 +306,7 @@ function install_python_deps {
     fi
 
     if [[ "$exit_status" -eq 0 ]] ; then
-        pip install --user fuzzywuzzy
+        pip3 install --user fuzzywuzzy
         exit_status=$?
         if [[ "$exit_status" -ne 0 ]] ; then
             echo "Error while installing fuzzywuzzy" >&2
@@ -314,7 +314,7 @@ function install_python_deps {
     fi
 
     if [[ "$exit_status" -eq 0 ]] ; then
-        pip install --user eventlet
+        pip3 install --user eventlet
         exit_status=$?
         if [[ "$exit_status" -ne 0 ]] ; then
             echo "Error while installing eventlet" >&2
@@ -322,7 +322,7 @@ function install_python_deps {
     fi
 
     if [[ "$exit_status" -eq 0 ]] ; then
-        pip install --user git+https://github.com/plamere/spotipy.git
+        pip3 install --user git+https://github.com/plamere/spotipy.git
         exit_status=$?
         if [[ "$exit_status" -ne 0 ]] ; then
             echo "Error while installing spotipy" >&2
@@ -330,7 +330,7 @@ function install_python_deps {
     fi
 
     if [[ "$exit_status" -eq 0 ]] ; then
-        pip install --user codecov
+        pip3 install --user codecov
         exit_status=$?
         if [[ "$exit_status" -ne 0 ]] ; then
             echo "Error while installing soundcloud" >&2
