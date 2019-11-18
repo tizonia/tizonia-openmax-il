@@ -1026,7 +1026,8 @@ logged_in (sp_session * sess, sp_error error)
       start_playback (p_prc);
       (void) sp_rc;
     }
-  else if (SP_ERROR_BAD_USERNAME_OR_PASSWORD == error)
+  else if (SP_ERROR_BAD_USERNAME_OR_PASSWORD == error
+           || SP_ERROR_USER_NEEDS_PREMIUM == error)
     {
       spfy_login_failure_data_t * p_data
         = tiz_mem_calloc (1, sizeof (spfy_login_failure_data_t));
