@@ -68,7 +68,7 @@ export PKG_CONFIG_PATH="$PKG_CONFIG_DIR"
 export LD_LIBRARY_PATH="$LIB_DIR"
 export PATH="$BIN_DIR:$PATH"
 # Export $PYTHONPATH to make sure soundcloud and gmusicapi can be found
-export PYTHONPATH="$PYTHONPATH":"$HOME"/.local/lib/python3.5/site-packages
+export PYTHONPATH="$PYTHONPATH":"$HOME"/.local/lib/python3.6/site-packages
 
 ##################################################################
 # Simple function to print a debug/error message with some extra info
