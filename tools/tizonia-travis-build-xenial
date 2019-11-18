@@ -197,15 +197,6 @@ function install_deps {
         python3-dev \
         python3-setuptools \
         python3-pip \
-        python3-decorator \
-        python3-protobuf \
-        python3-validictory \
-        python3-bs4 \
-        python3-oauth2client \
-        python3-dateutil \
-        python3-mutagen \
-        python3-crypto \
-        python3-requests \
         curl \
         check \
         wget \
