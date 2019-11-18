@@ -21,12 +21,10 @@
 #
 
 sudo: required
-dist: xenial
+dist: bionic
 language: c
-compiler:
-  - gcc
-python:
-  - "3.6"
+compiler: gcc
+python: 3.6
 before_install:
   - ./tools/tizonia-travis-build-xenial deps "$HOME"
   - ./tools/tizonia-travis-build-xenial pydeps "$HOME"
