@@ -346,6 +346,14 @@ function install_python_deps {
         fi
     fi
 
+    echo "Finding out about the default python installation"
+    which python
+    which python3
+    echo "PYTHONPATH=$PYTHONPATH"
+    echo "PYTHON_VERSION=$PYTHON_VERSION"
+    ls -l /usr/bin/python*
+    ls -l ~/.local/lib/
+
     return $exit_status
 }
 
