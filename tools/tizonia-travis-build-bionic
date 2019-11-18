@@ -1,0 +1,669 @@
+#!/bin/bash
+#
+# Copyright (C) 2011-2019 Aratelia Limited - Juan A. Rubio
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#
+# Tizonia's Travis-ci build script - for Travis' Ubuntu 14.04 image
+#
+
+# Globals
+WORKING_DIR="$HOME/tizonia-openmax-il" # Default value for working directory
+INSTALL_DIR="$HOME/build" # Default value for install directory
+TIZRMD_PID=-1
+
+# Constants
+readonly E_BADARGS=85
+readonly E_NOFILE=86
+readonly E_BAD_CLONE=87
+
+readonly TIZONIA_CONF_PATH="$HOME/.config/tizonia/tizonia.conf"
+
+readonly SKEMA_GIT_REPO=https://github.com/tizonia/skema
+readonly SKEMA_DIR="$INSTALL_DIR"/skema
+readonly SKEMA_BIN_DIR="$SKEMA_DIR"/bin
+
+readonly MAXJOBS=12
+readonly CORES=$(grep -c ^processor /proc/cpuinfo)
+readonly CORESMINUSONE=$(( CORES - 1 ))
+readonly JOBS=$(($CORESMINUSONE<$MAXJOBS?$CORESMINUSONE:$MAXJOBS))
+
+# A list of skema test suites that should NOT be executed (i.e are disabled)
+declare -ar SKEMA_EXEMPT_SUITES=( \
+    'PcmPlaybackPulse' \ # no pulseaudio in travis
+    'Mp3Streaming' \
+    'Mp3StreamingClient' \
+    'VorbisDecodeBaseProfile' \
+    'OpusPlayback' \
+    'WavPlayback' \
+    'OggOpusMux' \
+    'Vp8Playback' \
+    'WebmVp8Playback' \
+    'Mp3StreamingClientPortAutoDetect' \
+    'Mp4AacDemux' \
+)
+
+# A list of skema test suites that should be executed without the --quiet flag
+# (i.e so that the test log is output to stdout)
+declare -ar SKEMA_NON_QUIET_SUITES=( \
+)
+
+# Export important variables
+LIB_DIR="$INSTALL_DIR"/lib
+BIN_DIR="$INSTALL_DIR"/bin
+PKG_CONFIG_DIR="$LIB_DIR"/pkgconfig
+export PKG_CONFIG_PATH="$PKG_CONFIG_DIR"
+export LD_LIBRARY_PATH="$LIB_DIR"
+export PATH="$BIN_DIR:$PATH"
+# Export $PYTHONPATH to make sure soundcloud and gmusicapi can be found
+export PYTHONPATH="$PYTHONPATH":"$HOME"/.local/lib/python3.6/site-packages
+
+##################################################################
+# Simple function to print a debug/error message with some extra info
+#
+# Globals
+#   None
+# Arguments:
+#   An error message
+# Returns:
+#   None
+##################################################################
+function err {
+  echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $@" >&2
+}
+
+##################################################################
+# Simple function to go to the working directory
+#
+# Globals
+#   WORKING_DIR
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function cd_to_working_dir {
+    echo "Changing dir to working directory: $WORKING_DIR"
+    cd "$WORKING_DIR"
+}
+
+##################################################################
+# Simple function to check if a string exists in an array
+#
+# Globals
+#   none
+# Arguments:
+#   The search string is the first argument
+#   The array is the second argument
+# Returns:
+#   0 on success, 1 on error
+##################################################################
+function exists_in_array {
+    local e
+    for e in "${@:2}"; do [[ "$e" == "$1" ]] && return 0; done
+    return 1
+}
+
+##################################################################
+# Run all the installed skema suites
+#
+# Globals
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function start_dbus {
+    # Only start D-BUS and the RM daemon if RM is enabled in tizonia.conf
+    local rm_needed=$(sed -rn 's/^enabled(\s*)=(\s*)(true|false)/\3/p' "$TIZONIA_CONF_PATH")
+    if [[ "$rm_needed" == "true" ]]; then
+        ## test for an existing bus daemon, just to be safe
+        if test -z "$DBUS_SESSION_BUS_ADDRESS" ; then
+            ## if not found, launch a new one
+            export $(dbus-launch --exit-with-session)
+            echo "D-Bus per-session daemon address is: $DBUS_SESSION_BUS_ADDRESS"
+            echo "D-Bus per-session daemon PID is    : $DBUS_SESSION_BUS_PID"
+        fi
+
+        "$INSTALL_DIR"/bin/tizrmd &
+        TIZRMD_PID=$(pidof tizrmd)
+        if [[ -z "$TIZRMD_PID" ]] ; then
+            err "Unable to start the resource manager deamon"
+            exit 1
+        fi
+        echo "Tizonia RM daemon instantiated: pid $ltrmdpid."
+    fi
+}
+
+##################################################################
+# Installs the binary dependencies
+#
+# Globals
+#   None
+# Arguments:
+#   None
+# Returns:
+#   0 on success
+##################################################################
+function install_deps {
+    echo "Installing Tizonia's dependencies..."
+    sudo apt update && sudo apt upgrade -y && sudo apt dist-upgrade -y \
+        && sudo apt-get install -y \
+        build-essential \
+        autoconf \
+        autoconf-archive \
+        automake \
+        autotools-dev \
+        libtool \
+        libmad0-dev \
+        liblog4c-dev \
+        libasound2-dev \
+        libdbus-1-dev \
+        libsqlite3-dev \
+        libboost-all-dev \
+        uuid-dev \
+        libsdl1.2-dev \
+        libvpx-dev \
+        libmp3lame-dev \
+        libfaad-dev \
+        libev-dev \
+        libtag1-dev \
+        libfishsound-dev \
+        libmediainfo-dev \
+        libcurl3-dev \
+        libpulse-dev \
+        libmpg123-dev \
+        libvorbis-dev \
+        libopus-dev \
+        libopusfile-dev \
+        libogg-dev \
+        libflac-dev \
+        liboggz2-dev \
+        libsndfile1-dev \
+        libmp4v2-dev \
+        python3-dev \
+        python3-all-dev \
+        python3-setuptools \
+        python3-pip \
+        curl \
+        check \
+        wget \
+        sqlite3 \
+        dbus-x11 \
+        mercurial \
+        lcov
+
+    exit_status=$?
+
+    if [[ "$exit_status" -ne 0 ]] ; then
+        echo "Error while installing debian dependencies" >&2
+    fi
+
+    if [[ "$exit_status" -eq 0 ]] ; then
+        echo "Installing libspotify..."
+        wget -q -O - http://apt.mopidy.com/mopidy.gpg | sudo apt-key add -
+        echo deb http://apt.mopidy.com/ stable main contrib non-free | sudo tee -a /etc/apt/sources.list
+        echo deb-src http://apt.mopidy.com/ stable main contrib non-free | sudo tee -a /etc/apt/sources.list
+        sudo apt-get update -qq \
+            && sudo apt-get install libspotify12 libspotify-dev -qq
+        exit_status=$?
+    fi
+
+    return $exit_status
+}
+
+##################################################################
+# Installs python modules
+#
+# Globals
+#   WORKING_DIR
+#   INSTALL_DIR
+# Arguments:
+#   None
+# Returns:
+#   0 on success
+##################################################################
+function install_python_deps {
+    cd_to_working_dir
+
+    echo "Installing pip and the gmusicapi python module..."
+    wget https://bootstrap.pypa.io/get-pip.py \
+        && sudo python3 get-pip.py
+
+    exit_status=$?
+
+    if [[ "$exit_status" -ne 0 ]] ; then
+        echo "Error while installing pip" >&2
+        return
+    fi
+
+    if [[ "$exit_status" -eq 0 ]] ; then
+        pip3 install --user gmusicapi
+        exit_status=$?
+        if [[ "$exit_status" -ne 0 ]] ; then
+            echo "Error while installing gmusicapi" >&2
+        fi
+    fi
+
+    if [[ "$exit_status" -eq 0 ]] ; then
+        pip3 install --user soundcloud
+        exit_status=$?
+        if [[ "$exit_status" -ne 0 ]] ; then
+            echo "Error while installing soundcloud" >&2
+        fi
+    fi
+
+    if [[ "$exit_status" -eq 0 ]] ; then
+        pip3 install --user youtube_dl
+        exit_status=$?
+        if [[ "$exit_status" -ne 0 ]] ; then
+            echo "Error while installing youtube_dl" >&2
+        fi
+    fi
+
+    if [[ "$exit_status" -eq 0 ]] ; then
+        pip3 install --user pafy
+        exit_status=$?
+        if [[ "$exit_status" -ne 0 ]] ; then
+            echo "Error while installing pafy" >&2
+        fi
+    fi
+
+    if [[ "$exit_status" -eq 0 ]] ; then
+        pip3 install --user pychromecast
+        exit_status=$?
+        if [[ "$exit_status" -ne 0 ]] ; then
+            echo "Error while installing pychromecast" >&2
+        fi
+    fi
+
+    if [[ "$exit_status" -eq 0 ]] ; then
+        pip3 install --user pycountry
+        exit_status=$?
+        if [[ "$exit_status" -ne 0 ]] ; then
+            echo "Error while installing pycountry" >&2
+        fi
+    fi
+
+    if [[ "$exit_status" -eq 0 ]] ; then
+        pip3 install --user titlecase
+        exit_status=$?
+        if [[ "$exit_status" -ne 0 ]] ; then
+            echo "Error while installing titlecase" >&2
+        fi
+    fi
+
+    if [[ "$exit_status" -eq 0 ]] ; then
+        pip3 install --user plexapi
+        exit_status=$?
+        if [[ "$exit_status" -ne 0 ]] ; then
+            echo "Error while installing plexapi" >&2
+        fi
+    fi
+
+    if [[ "$exit_status" -eq 0 ]] ; then
+        pip3 install --user fuzzywuzzy
+        exit_status=$?
+        if [[ "$exit_status" -ne 0 ]] ; then
+            echo "Error while installing fuzzywuzzy" >&2
+        fi
+    fi
+
+    if [[ "$exit_status" -eq 0 ]] ; then
+        pip3 install --user eventlet
+        exit_status=$?
+        if [[ "$exit_status" -ne 0 ]] ; then
+            echo "Error while installing eventlet" >&2
+        fi
+    fi
+
+    if [[ "$exit_status" -eq 0 ]] ; then
+        pip3 install --user git+https://github.com/plamere/spotipy.git
+        exit_status=$?
+        if [[ "$exit_status" -ne 0 ]] ; then
+            echo "Error while installing spotipy" >&2
+        fi
+    fi
+
+    if [[ "$exit_status" -eq 0 ]] ; then
+        pip3 install --user codecov
+        exit_status=$?
+        if [[ "$exit_status" -ne 0 ]] ; then
+            echo "Error while installing soundcloud" >&2
+        fi
+    fi
+
+    echo "Finding out about the default python installation"
+    which python
+    which python3
+    echo "PYTHONPATH=$PYTHONPATH"
+    echo "PYTHON_VERSION=$PYTHON_VERSION"
+    ls -l /usr/bin/python*
+    ls -l ~/.local/lib/
+
+    return $exit_status
+}
+
+##################################################################
+# Installs the config files
+#
+# Globals
+#   INSTALL_DIR
+# Arguments:
+#   None
+# Returns:
+#   0 on success
+##################################################################
+function copy_config_files {
+    cd_to_working_dir
+    echo "Copy the Resource Manager's D-bus service file " \
+         "to the user's local D-Bus search path"
+    echo "${INSTALL_DIR}"
+    local DBUS_SERVICE_FILE=${INSTALL_DIR}"/share/dbus-1/services/com.aratelia.tiz.rm.service"
+    local DBUS_DIR="$HOME/.local/share/dbus-1/services"
+    mkdir -p "$DBUS_DIR" && cp "$DBUS_SERVICE_FILE" "$DBUS_DIR"
+    local exit_status=$?
+    if [[ "$exit_status" -eq 0 ]] ; then
+        echo "Preparing the $TIZONIA_CONF_PATH config file..."
+        mkdir -p "$HOME/.config/tizonia" \
+            && cp "$WORKING_DIR/config/src/tizonia.conf" "$TIZONIA_CONF_PATH"
+        exit_status=$?
+    fi
+
+    # Modify tizonia config to make the ALSA renderer use the null pcm
+    if [[ "$exit_status" -eq 0 ]] ; then
+        echo "Preparing the $TIZONIA_CONF_PATH config file..."
+        perl -pi -e 's/^(OMX\..*alsa_device.*)\bdefault\b/\1null/' "$TIZONIA_CONF_PATH"
+        exit_status=$?
+    fi
+    return "$exit_status"
+}
+
+##################################################################
+# Recursively configure and build all projects
+#
+# Globals
+#   INSTALL_DIR
+# Arguments:
+#   None
+# Returns:
+#   0 on success
+##################################################################
+function configure_and_build {
+    cd_to_working_dir
+
+    # Fix annoying log4c.m4 warning
+    sudo sed -irn 's/AC_DEFUN(AM_PATH_LOG4C/AC_DEFUN(\[AM_PATH_LOG4C\]/' /usr/share/aclocal/log4c.m4
+
+    echo "Configuring, building and installing Tizonia - Install dir [$INSTALL_DIR]..."
+    autoreconf -ifs \
+        && ./configure \
+               --silent \
+               --enable-silent-rules \
+               --enable-test \
+               --prefix="$INSTALL_DIR" \
+               --enable-player \
+               --without-bashcompletiondir \
+               --without-zshcompletiondir \
+               CFLAGS='-O0 --coverage' \
+               CXXFLAGS='-O0 --coverage' \
+               LDFLAGS='-lgcov' \
+        && make -s -j$JOBS V=0 install
+
+    return $?
+}
+
+##################################################################
+# Run a number of selected unit test suites.
+#
+# Globals
+#   WORKING_DIR
+# Arguments:
+#   None
+# Returns:
+#   0 on success
+##################################################################
+function run_unit {
+
+    start_dbus
+
+    cd_to_working_dir
+
+    cd "$WORKING_DIR"/libtizplatform && make check
+    exit_status=$?
+    if [[ "$exit_status" -ne 0 ]]; then
+        err "Error in suite: libtizplatform"
+        exit 1
+    fi
+
+    cd "$WORKING_DIR"/libtizcore && make check
+    exit_status=$?
+    if [[ "$exit_status" -ne 0 ]]; then
+        err "Error in suite: libtizcore"
+        exit 1
+    fi
+
+    cd "$WORKING_DIR"/libtizonia && make check
+    exit_status=$?
+    if [[ "$exit_status" -ne 0 ]]; then
+        err "Error in suite: libtizonia"
+        exit 1
+    fi
+
+    return "$exit_status"
+}
+
+##################################################################
+# Clones Skema's git repo and installs all Skema 'tags' and 'suites'
+#
+# Globals
+#   SKEMA_GIT_REPO
+#   SKEMA_BIN_DIR
+# Arguments:
+#   None
+# Returns:
+#   0 on success
+##################################################################
+function install_skema {
+
+    cd_to_working_dir
+
+    # Step #1 : Clone repo
+    echo "Cloning skema's repo..."
+    git clone "$SKEMA_GIT_REPO" "$SKEMA_DIR" &>/dev/null
+    local exit_status=$?
+    if [[ "$exit_status" -ne 0 ]]; then
+        err "Unable to clone skema's repo: $SKEMA_GIT_REPO"
+        exit "${E_BAD_CLONE}"
+    fi
+
+    # Step #2: Install skema's tags
+    cd "$SKEMA_BIN_DIR"
+
+    local tags=( $(./skema list_tags) )
+    local tag_count="${#tags[@]}"
+    echo "Installing all $tag_count tags..."
+    for t in "${tags[@]}"; do
+        echo "Installing [$t]"
+        ./skema uninstall_tag "$t"
+        ./skema install_tag "$t"
+    done
+
+    # This is to verify that the tags are installed
+    local installed_tags=( $(./skema list_installed_tags) )
+    local installed_tag_count="${#installed_tags[@]}"
+    if [[ "$installed_tag_count" -ne "$tag_count" ]]; then
+        err "Error while installing tags"
+        exit 1
+    fi
+
+    # Step #3: Install skema's test suites
+    echo
+    local suites=( $(./skema list_suites) )
+    local suite_count="${#suites[@]}"
+    echo "Installing all $suite_count suites..."
+    for s in "${suites[@]}"; do
+        echo "Installing [$s]"
+        ./skema uninstall_suite "$s"
+        ./skema install_suite "$s"
+    done
+
+    # This is to verify that the suites are installed
+    local installed_suites=( $(./skema list_installed_suites) )
+    local installed_suite_count="${#installed_suites[@]}"
+    if [[ "$installed_suite_count" -ne "$suite_count" ]]; then
+        err "Error while installing suites"
+        exit 1
+    fi
+    return "$exit_status"
+}
+
+##################################################################
+# Run all skema test suites installed, minus the ones that have
+# been exempted.
+#
+# Globals
+#   SKEMA_EXEMPT_SUITES
+#   SKEMA_NON_QUIET_SUITES
+# Arguments:
+#   None
+# Returns:
+#   0 on success
+##################################################################
+function run_suites {
+
+    # D-Bus has been already started
+    # start_dbus
+
+    cd "$SKEMA_BIN_DIR"
+
+    # Retrieve the list of installed suites
+    local installed_suites=( $(./skema list_installed_suites) )
+    local installed_suite_count="${#installed_suite_count[@]}"
+    local exit_status=0
+    for s in "${installed_suites[@]}"; do
+        # Check if the suite is exempt
+        exists_in_array "$s" "${SKEMA_EXEMPT_SUITES[@]}"
+        exit_status=$?
+        if [[ "$exit_status" -eq 0 ]]; then
+            err "Skipping suite : $s"
+            continue
+        fi
+
+        exists_in_array "$s" "${SKEMA_NON_QUIET_SUITES[@]}"
+        exit_status=$?
+        quiet='--quiet'
+        if [[ "$exit_status" -eq 0 ]]; then
+            quiet=''
+        fi
+
+        echo "Running [$s]"
+        ./skema run_suite "$s" "$quiet"
+        exit_status=$?
+        if [[ "$exit_status" -ne 0 ]]; then
+            err "Error in suite: $s"
+            exit 1
+        fi
+    done
+    return "$exit_status"
+}
+
+function run_coverage {
+    cd_to_working_dir
+
+    # Creating code coverage report
+    local cwd=$(pwd)
+    lcov --directory . --capture --output-file coverage.info # capture coverage info
+    lcov --remove coverage.info \
+         '/usr/*' \
+         "$cwd/clients/*" \
+         "$cwd/rm/*" \
+         "$cwd/libtizplatform/src/ev/*" \
+         "$cwd/libtizplatform/src/avl/*" \
+         "$cwd/libtizplatform/src/http-parser/*" \
+         "$cwd/libtizplatform/src/utarray/*" \
+         "$cwd/libtizplatform/src/utarray/*" \
+         --output-file coverage.info
+
+    lcov --list coverage.info #debug info
+
+    # Uploading report to CodeCov
+    bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
+}
+
+##################################################################
+# Main function
+#
+# Globals
+#   INSTALL_DIR
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function main {
+
+    if [[ "$2" != "" ]]; then
+        WORKING_DIR="$2"
+    fi
+
+    if [[ "$3" != "" ]]; then
+        INSTALL_DIR="$3"
+    fi
+
+    # Create directories
+    if [[ ! -d "$INSTALL_DIR" ]]; then
+        echo "Creating the install directory: $INSTALL_DIR"
+        mkdir -p "$INSTALL_DIR"
+    fi
+
+    echo "Changing dir to working directory: $WORKING_DIR"
+    cd "$WORKING_DIR"
+
+
+    if [[ "$1" == "deps" ]];  then
+        install_deps
+    elif [[ "$1" == "pydeps" ]];  then
+        install_python_deps
+    elif [[ "$1" == "build" ]]; then
+        configure_and_build
+    elif [[ "$1" == "media" ]];  then
+        cd_to_working_dir
+        echo "Downloading test media files to $INSTALL_DIR..."
+        mkdir -p "$INSTALL_DIR" \
+            && cd "$INSTALL_DIR" \
+            && wget http://www.aratelia.com/tizonia/tizonia-test-media.tgz \
+            && tar zxvf tizonia-test-media.tgz &>/dev/null
+    elif [[ "$1" == "config" ]];  then
+        copy_config_files
+    elif [[ "$1" == "unit" ]];  then
+        run_unit
+    elif [[ "$1" == "skema" ]];  then
+        install_skema
+    elif [[ "$1" == "suites" ]];  then
+        run_suites
+    elif [[ "$1" == "coverage" ]];  then
+        run_coverage
+    else
+        CMD=$(basename "$0")
+        echo "Usage: $CMD <deps|pydeps|media|build|config|skema|tests|coverage> <working_dir> <install_dir>"
+        exit 1
+    fi
+
+    exit $?
+}
+
+main "$@"

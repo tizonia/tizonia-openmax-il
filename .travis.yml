@@ -26,15 +26,15 @@ language: c
 compiler: gcc
 python: 3.6
 before_install:
-  - ./tools/tizonia-travis-build-xenial deps "$HOME"
-  - ./tools/tizonia-travis-build-xenial pydeps "$HOME"
+  - ./tools/tizonia-travis-build-bionic deps "$HOME"
+  - ./tools/tizonia-travis-build-bionic pydeps "$HOME"
 before_script:
-  - ./tools/tizonia-travis-build-xenial media "$HOME" "$HOME/temp"
+  - ./tools/tizonia-travis-build-bionic media "$HOME" "$HOME/temp"
 script:
-  - ./tools/tizonia-travis-build-xenial build "$HOME/build/tizonia/tizonia-openmax-il"
-  - ./tools/tizonia-travis-build-xenial config "$HOME/build/tizonia/tizonia-openmax-il"
-  - ./tools/tizonia-travis-build-xenial unit "$HOME/build/tizonia/tizonia-openmax-il"
-  - ./tools/tizonia-travis-build-xenial skema "$HOME/build"
-  - ./tools/tizonia-travis-build-xenial suites "$HOME/build"
+  - ./tools/tizonia-travis-build-bionic build "$HOME/build/tizonia/tizonia-openmax-il"
+  - ./tools/tizonia-travis-build-bionic config "$HOME/build/tizonia/tizonia-openmax-il"
+  - ./tools/tizonia-travis-build-bionic unit "$HOME/build/tizonia/tizonia-openmax-il"
+  - ./tools/tizonia-travis-build-bionic skema "$HOME/build"
+  - ./tools/tizonia-travis-build-bionic suites "$HOME/build"
 after_success:
-  - ./tools/tizonia-travis-build-xenial coverage "$HOME/build/tizonia/tizonia-openmax-il"
+  - ./tools/tizonia-travis-build-bionic coverage "$HOME/build/tizonia/tizonia-openmax-il"
