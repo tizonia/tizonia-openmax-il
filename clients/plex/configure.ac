@@ -33,7 +33,7 @@ AC_PROG_MAKE_SET
 LT_INIT
 
 # Checks for libraries.
-AM_PATH_PYTHON([3.6])
+AM_PATH_PYTHON([3.5])
 
 # Checks for header files.
 

@@ -22,12 +22,9 @@ import re
 import sys
 import warnings
 
-if sys.version_info[0] > 2:
-    warnings.warn("plexproxy Python 3 support is experimental", RuntimeWarning)
-else:
-    if sys.version_info[:3] < (2, 7, 9):
-        warnings.warn("plexproxy does not officially support versions below "
-                      "Python 2.7.9", RuntimeWarning)
+if sys.version_info[:3] < (3, 5, 1):
+    warnings.warn("plexproxy does not officially support versions below "
+                  "Python 3.5.1", RuntimeWarning)
 
 VERSIONFILE = '_version.py'
 
@@ -58,7 +55,6 @@ setup(
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Topic :: Internet :: WWW/HTTP',

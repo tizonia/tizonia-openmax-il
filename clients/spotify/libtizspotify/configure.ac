@@ -62,8 +62,8 @@ LT_INIT
 
 # Checks for libraries.
 AC_LANG([C++])
-AM_PATH_PYTHON([3.6])
-AX_PYTHON_DEVEL([>= '3.6'])
+AM_PATH_PYTHON([3.5])
+AX_PYTHON_DEVEL([>= '3.5'])
 AX_BOOST_BASE([1.54],, [AC_MSG_ERROR([libtizspotify needs Boost 1.54])])
 AX_BOOST_PYTHON
 
