@@ -92,17 +92,10 @@ declare -ar TIZ_TIZONIA_DEPS=( \
     libspotify12 \
     libspotify-dev \
     libexpat1-dev \
-    python-dev \
-    python-setuptools \
-    python-pip \
-    python-decorator \
-    python-protobuf \
-    python-validictory \
-    python-bs4 \
-    python-oauth2client \
-    python-dateutil \
-    python-crypto \
-    python-requests \
+    python3-dev \
+    python3-all-dev \
+    python3-setuptools \
+    python3-pip \
     curl \
     check \
     wget \
@@ -137,8 +130,7 @@ declare -ar TIZ_DEBIAN_PKGS=( \
     fakeroot \
     dh-autoreconf \
     equivs \
-    python-all-dev \
-    python-stdeb \
+    python3-stdeb \
 )
 
 readonly TIZ_PYTHON_PROJECTS=( \
@@ -161,7 +153,7 @@ fi
 # &> /dev/null
 readonly TIZ_C_CPP_PROJECT_DIST_CMD="autoreconf -ifs &> /dev/null && ./configure && make dist && cp *.tar.gz \"$DEBIAN_DIR\""
 readonly TIZ_C_CPP_PROJECT_DIST_PLAYER_CMD="autoreconf -ifs &> /dev/null && ./configure --with-boost-libdir=/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH) && make dist && cp *.tar.gz \"$DEBIAN_DIR\""
-readonly TIZ_PYTHON_PROJECT_DIST_CMD="python setup.py sdist && cp dist/*.tar.gz \"$DEBIAN_DIR\""
+readonly TIZ_PYTHON_PROJECT_DIST_CMD="python3 setup.py sdist && cp dist/*.tar.gz \"$DEBIAN_DIR\""
 
 declare -Ar TIZ_PROJECT_DIST_CMD=( \
     [tizdbus-c++]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
@@ -431,13 +423,13 @@ function do_tizonia_deps {
     # Install a new version of pip
     echo "Installing a fresher version of pip..."
     wget https://bootstrap.pypa.io/get-pip.py \
-        && sudo -H python get-pip.py
+        && sudo -H python3 get-pip.py
 
     for dep in "${TIZ_TIZONIA_PYPI_DEPS[@]}"; do
-        # Install Python pip-based dependencies
-        python -c "import $dep"
+        # Install Python pip3-based dependencies
+        python3 -c "import $dep"
         if [[ "$?" -ne 0 ]]; then
-            sudo -H pip install --upgrade "$dep"
+            sudo -H pip3 install --upgrade "$dep"
         else
             pretty_print "$GRN" "[$dep] : installed."
         fi
@@ -976,7 +968,7 @@ function do_uninstall_project_debs {
 function do_uninstall_all_debs {
     local exit_status=0
     sudo apt-get remove --purge tizonia-all -qq --force-yes && sudo apt-get autoremove -qq --force-yes
-    dpkg -l | grep -E 'ii\s*(libtiz|tiz|python-tiz)' | awk '{ print $2 }' | xargs sudo apt-get remove --purge -qq
+    dpkg -l | grep -E 'ii\s*(libtiz|tiz|python-tiz|python3-tiz)' | awk '{ print $2 }' | xargs sudo apt-get remove --purge -qq
     return "$exit_status"
 }
 

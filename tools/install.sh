@@ -75,7 +75,7 @@ fi
 # Let's make sure these packages are already installed before trying to install
 # anything else.  Some of these packages are needed to make sure that Tizonia's
 # Python dependencies are correctly installed from PIP.
-sudo apt-get -y --force-yes install build-essential git curl python-dev apt-transport-https libffi-dev libssl-dev libxml2-dev libxslt1-dev
+sudo apt-get -y --force-yes install build-essential git curl python3-dev apt-transport-https libffi-dev libssl-dev libxml2-dev libxslt1-dev
 if [[ "$?" -ne 0 ]]; then
     echo "Oops. Some important dependencies failed to install!."
     echo "Please re-run the install script."
@@ -100,10 +100,10 @@ fi
 # Resynchronize APT's package index files
 sudo apt-get update
 
-# Python dependencies (NOTE: using pip2 here, to make sure the Python 2
+# Python dependencies (NOTE: using pip3 here, to make sure the Python 3
 # versions of these packages are installed).
-sudo apt-get -y install python-pip \
-    && sudo -H pip2 install --upgrade \
+sudo apt-get -y install python3-pip \
+    && sudo -H pip3 install --upgrade \
             gmusicapi \
             soundcloud \
             youtube-dl \
@@ -115,7 +115,7 @@ sudo apt-get -y install python-pip \
             fuzzywuzzy \
             eventlet \
             python-Levenshtein \
-    && sudo -H pip2 install git+https://github.com/plamere/spotipy.git --upgrade
+    && sudo -H pip3 install git+https://github.com/plamere/spotipy.git --upgrade
 
 # Install 'libspotify'
 if [[ "$?" -eq 0 ]]; then
