@@ -22,16 +22,14 @@ Section: libs
 Depends: tizilheaders,
     libtizdbus-c++0,
     libtizdbus-c++-bin,
-    python-tizgmusicproxy,
-    python-tizsoundcloudproxy,
-    python-tizdirbleproxy,
-    python-tizyoutubeproxy,
-    python-tizplexproxy,
-    python-tizchromecastproxy,
-    python-tizspotifyproxy,
+    python3-tizgmusicproxy,
+    python3-tizsoundcloudproxy,
+    python3-tizyoutubeproxy,
+    python3-tizplexproxy,
+    python3-tizchromecastproxy,
+    python3-tizspotifyproxy,
     libtizgmusic0,
     libtizsoundcloud0,
-    libtizdirble0,
     libtizyoutube0,
     libtizplex0,
     libtizchromecast0,
@@ -69,7 +67,7 @@ Depends: tizilheaders,
     tizonia-config
 Description: Tizonia command-line music player (metapackage)
  A command-line music player and streaming server with support
- for Spotify, Google Play Music, YouTube, SoundCloud, Dirble,
- Plex servers and Chromecast devices.
+ for Spotify, Google Play Music, YouTube, SoundCloud, Plex
+ servers and Chromecast devices.
  .
  This is a metapackage that depends on all Tizonia libraries.
