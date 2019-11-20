@@ -188,7 +188,7 @@ To upgrade, simply re-run the install script. This is the most convienent way
 of upgrading the software and all its dependencies.
 
 If you prefer to do it manually, it is a two-step process. Run 'apt-get' as
-usual to upgrade the Debian packages, but also make sure the various Python
+usual to upgrade the Debian packages, but also make sure the various Python 3
 dependencies are up-to-date, as follows:
 
 ```bash
@@ -196,10 +196,10 @@ dependencies are up-to-date, as follows:
     # Step1: This will update Tizonia's Debian packages
     $ sudo apt-get update && sudo apt-get upgrade
 
-    # Step2: Tizonia's Python dependencies
+    # Step2: Tizonia's Python 3 dependencies
     # (Note that new versions of some of these Python packages are released frequently,
     # so you should do this frequently, even if there isn't a new Tizonia release)
-    $ sudo -H pip install --upgrade gmusicapi soundcloud youtube-dl pafy pycountry titlecase pychromecast plexapi fuzzywuzzy eventlet && sudo -H pip install git+https://github.com/plamere/spotipy.git --upgrade
+    $ sudo -H pip3 install --upgrade gmusicapi soundcloud youtube-dl pafy pycountry titlecase pychromecast plexapi fuzzywuzzy eventlet python-Levenshtein && sudo -H pip3 install git+https://github.com/plamere/spotipy.git --upgrade
 
 ```
 
