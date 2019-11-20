@@ -6,7 +6,7 @@
 
 * A command-line streaming music client/server for Linux.
 * Support for Spotify (Premium), Google Play Music (free and paid tiers), YouTube,
-  SoundCloud, Dirble, Plex servers and Chromecast devices.
+  SoundCloud, Plex servers and Chromecast devices.
 * The first open-source implementation of [OpenMAX IL 1.2](https://www.khronos.org/news/press/khronos-group-releases-openmax-il-1.2-provisional-specification).
 
 ---
@@ -165,7 +165,7 @@ Tizonia can also be run from a Docker container. A Docker image is available fro
 
 ## Configuration
 
-To use *Spotify*, *Google Play Music*, *SoundCloud*, *Dirble* and *Plex* introduce
+To use *Spotify*, *Google Play Music*, *SoundCloud* and *Plex* introduce
 your credentials in Tizonia's config file (see instructions inside this file for
 more information):
 
