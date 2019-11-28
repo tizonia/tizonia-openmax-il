@@ -231,7 +231,8 @@ class tizgmusicproxy(object):
         logging.info("current_song_album_and_duration")
         song = self.now_playing_song
         if song:
-            album = to_ascii(song.get('album'))
+            album = to_ascii(song.get('album')) \
+                if song.get('album') else ''
             duration = to_ascii \
                        (song.get('durationMillis'))
             logging.info("album %s duration %s", album, duration)
@@ -283,7 +284,7 @@ class tizgmusicproxy(object):
         """
         logging.info("current_song_genre")
         song = self.now_playing_song
-        if song:
+        if song and song.get('genre'):
             genre = to_ascii(song.get('genre'))
             logging.info("genre %s", genre)
             return genre
@@ -296,7 +297,7 @@ class tizgmusicproxy(object):
         """
         logging.info("current_song_art")
         song = self.now_playing_song
-        if song:
+        if song and song.get('albumArtRef'):
             artref = song.get('albumArtRef')
             if artref and len(artref) > 0:
                 url = to_ascii(artref[0].get('url'))
