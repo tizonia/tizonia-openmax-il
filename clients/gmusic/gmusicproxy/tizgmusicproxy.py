@@ -129,7 +129,9 @@ def to_ascii(msg):
 
     """
 
-    return unicodedata.normalize('NFKD', str(msg)).encode('ASCII', 'ignore')
+    if sys.version[0] == '2':
+        return unicodedata.normalize('NFKD', str(msg)).encode('ASCII', 'ignore')
+    return msg
 
 class tizgmusicproxy(object):
     """A class for logging into a Google Play Music account and retrieving song
@@ -157,7 +159,7 @@ class tizgmusicproxy(object):
         tizconfig = os.path.join(userdir, ".config/tizonia/." + email + ".auth_token")
         auth_token = ""
         if os.path.isfile(tizconfig):
-            with open(tizconfig, "r") as f:
+            with open(tizconfig, "rb") as f:
                 auth_token = pickle.load(f)
                 if auth_token:
                     # 'Keep track of the auth token' workaround. See:
@@ -779,8 +781,8 @@ class tizgmusicproxy(object):
                 raise KeyError
 
             print_wrn("[Google Play Music] Playing '{0} ({1})'." \
-                      .format((album['album']['name']).encode('utf-8'), \
-                              (album['album']['artist']).encode('utf-8')))
+                      .format((album['album']['name']), \
+                              (album['album']['artist'])))
 
             self.__enqueue_tracks(album_tracks)
             self.__update_play_queue_order()
@@ -843,16 +845,16 @@ class tizgmusicproxy(object):
                 raise KeyError
 
             print_wrn("[Google Play Music] Playing '{0}' by '{1}'." \
-                      .format(playlist['name'].encode('utf-8'),
-                              playlist['ownerName'].encode('utf-8') \
+                      .format(playlist['name'],
+                              playlist['ownerName'] \
                               if playlist.get('ownerName') else 'n/a'))
 
             for item in playlist_contents:
                 track = item['track']
                 print_nfo("[Google Play Music] [Track] '{} by {} (Album: {}, {})'." \
-                          .format((track['title']).encode('utf-8'),
-                                  (track['artist']).encode('utf-8'),
-                                  (track['album']).encode('utf-8'),
+                          .format((track['title']),
+                                  (track['artist']),
+                                  (track['album']),
                                   (track['year'])))
                 playlist_tracks.append(track)
 
@@ -901,7 +903,7 @@ class tizgmusicproxy(object):
                 next_song = self.queue[self.play_queue_order[self.queue_index]]
                 url = self.__retrieve_track_url(next_song)
                 if url:
-                    return url.encode('utf-8')
+                    return url
                 else:
                     return self.next_url()
             else:
@@ -1084,7 +1086,7 @@ class tizgmusicproxy(object):
                 if tracks_added:
                     if not quiet:
                         print_wrn("[Google Play Music] [Station] : '{0}'." \
-                                  .format(station_name.encode('utf-8')))
+                                  .format(station_name))
                     logging.info("Added %d tracks from %s to queue", \
                                  tracks_added, to_ascii(arg))
                     self.__update_play_queue_order()
@@ -1119,8 +1121,8 @@ class tizgmusicproxy(object):
 #                 situation_desc = situation['description'] if situation.get('description') else 'None'
 #                 if situation_desc:
 #                     print_nfo("[Google Play Music] [{0}] '{1} : {2}'." \
-#                               .format(arg.encode('utf-8'), situation_title.encode('utf-8'),
-#                                       situation_desc.encode('utf-8')))
+#                               .format(arg, situation_title,
+#                                       situation_desc))
 
 # {u'cluster': [{u'category': u'1', u'id': u'search_situation', u'type': u'7'}],
 #  u'situation': {u'description': u'We\u2019ll play you great songs that the whole office can enjoy.',
@@ -1153,16 +1155,16 @@ class tizgmusicproxy(object):
                         if situation_desc:
                             if not additional_keywords:
                                 print_nfo("[Google Play Music] [{0}] '{1} : {2}'." \
-                                          .format(arg.encode('utf-8'),
-                                                  situation_title.encode('utf-8'),
-                                                  situation_desc.encode('utf-8')))
+                                          .format(arg,
+                                                  situation_title,
+                                                  situation_desc))
                             else:
                                 print_nfo("[Google Play Music] [{0} - {1}] '{2} : {3}'." \
-                                          .format(arg.encode('utf-8'),
-                                                  additional_keywords.encode('utf-8') \
+                                          .format(arg,
+                                                  additional_keywords \
                                                   if additional_keywords else '(no keywords)',
-                                                  situation_title.encode('utf-8'),
-                                                  situation_desc.encode('utf-8')))
+                                                  situation_title,
+                                                  situation_desc))
                             if fuzz.partial_ratio(additional_keywords, situation_title) > 50:
                                 situation_titles.append(situation_title)
                                 situation_dict[situation_title] = situation
@@ -1221,7 +1223,7 @@ class tizgmusicproxy(object):
                 tracks_added = self.__enqueue_tracks(tracks)
                 if tracks_added:
                     print_wrn("[Google Play Music] [Station] : '{0}'." \
-                              .format(station_name.encode('utf-8')))
+                              .format(station_name))
                     logging.info("Added %d tracks from %s to queue", \
                                  tracks_added, to_ascii(station_name))
                     self.__update_play_queue_order()
@@ -1253,16 +1255,16 @@ class tizgmusicproxy(object):
             if podcast:
                 # There is a podcast, enqueue its episodes.
                 print_nfo("[Google Play Music] [Podcast] 'Playing '{0}' by {1}'." \
-                          .format((podcast['title']).encode('utf-8'),
-                                  (podcast['author']).encode('utf-8')))
+                          .format((podcast['title']),
+                                  (podcast['author'])))
                 print_nfo("[Google Play Music] [Podcast] '{0}'." \
-                          .format((podcast['description'][0:150]).encode('utf-8')))
+                          .format((podcast['description'][0:150])))
                 series = self.__gmusic.get_podcast_series_info(podcast['seriesId'])
                 episodes = series['episodes']
                 for episode in episodes:
                     print_nfo("[Google Play Music] [Podcast Episode] '{0} : {1}'." \
-                              .format((episode['title']).encode('utf-8'),
-                                      (episode['description'][0:80]).encode('utf-8')))
+                              .format((episode['title']),
+                                      (episode['description'][0:80])))
                 episodes_added = self.__enqueue_tracks(episodes)
 
             if not podcast or not episodes_added:
@@ -1368,23 +1370,23 @@ class tizgmusicproxy(object):
                     if query_type == "album":
                         print_nfo("[Google Play Music] [{0}] '{1} ({2})'." \
                                   .format(query_type.capitalize(),
-                                          name.encode('utf-8'),
-                                          hit['album']['artist'].encode('utf-8')))
+                                          name,
+                                          hit['album']['artist']))
                     elif query_type == "playlist":
                         playlist = hit['playlist']
                         if playlist.get('ownerName'):
                             print_nfo("[Google Play Music] [{0}] '{1}' by '{2}'." \
                                       .format(query_type.capitalize(),
-                                              name.encode('utf-8'),
-                                              playlist['ownerName'].encode('utf-8')))
+                                              name,
+                                              playlist['ownerName']))
                         else:
                             print_nfo("[Google Play Music] [{0}] '{1}'." \
                                       .format(query_type.capitalize(),
-                                              name.encode('utf-8')))
+                                              name))
                     else:
                         print_nfo("[Google Play Music] [{0}] '{1}'." \
                                   .format(query_type.capitalize(),
-                                          (name).encode('utf-8')))
+                                          (name)))
                 choices[name] = hit
                 choice_names.append(name)
 
@@ -1407,7 +1409,7 @@ class tizgmusicproxy(object):
             if not quiet:
                 print_wrn("[Google Play Music] '{0}' not found. "\
                           "Feeling lucky?." \
-                          .format(query.encode('utf-8')))
+                          .format(query))
 
         return result
 
