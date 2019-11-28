@@ -186,7 +186,7 @@ class tizgmusicproxy(object):
                 self.logged_in = self.__gmusic.login(email, password, device_id)
                 attempts += 1
 
-            with open(tizconfig, "a+") as f:
+            with open(tizconfig, "ab+") as f:
                 f.truncate()
                 pickle.dump(self.__gmusic.session._authtoken, f)
 
