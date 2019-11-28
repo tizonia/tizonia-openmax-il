@@ -82,14 +82,16 @@ namespace
 
         // Check the existence of the 'spotipy' module
         bp::object ignored = exec (
-            "import imp\n"
-            "imp.find_module('spotipy')\n",
+            "import importlib\n"
+            "spec = importlib.util.find_spec('spotipy')\n"
+            "if not spec:\n raise ValueError\n",
             py_global);
 
         // Check the existence of the 'fuzzywuzzy' module
         bp::object ignored2 = exec (
-            "import imp\n"
-            "imp.find_module('fuzzywuzzy')\n",
+            "import importlib\n"
+            "spec = importlib.util.find_spec('fuzzywuzzy')\n"
+            "if not spec:\n raise ValueError\n",
             py_global);
 
         rc = 0;

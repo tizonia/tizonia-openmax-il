@@ -88,20 +88,23 @@ namespace
 
         // Check the existence of the 'pafy' module
         bp::object ignored = exec (
-            "import imp\n"
-            "imp.find_module('pafy')\n",
+            "import importlib\n"
+            "spec = importlib.util.find_spec('pafy')\n"
+            "if not spec:\n raise ValueError\n",
             py_global);
 
         // Check the existence of the 'youtube_dl' module
         bp::object ignored2 = exec (
-            "import imp\n"
-            "imp.find_module('youtube_dl')\n",
+            "import importlib\n"
+            "spec = importlib.util.find_spec('youtube_dl')\n"
+            "if not spec:\n raise ValueError\n",
             py_global);
 
         // Check the existence of the 'fuzzywuzzy' module
         bp::object ignored3 = exec (
-            "import imp\n"
-            "imp.find_module('fuzzywuzzy')\n",
+            "import importlib\n"
+            "spec = importlib.util.find_spec('fuzzywuzzy')\n"
+            "if not spec:\n raise ValueError\n",
             py_global);
 
         rc = 0;
@@ -110,7 +113,7 @@ namespace
       {
         PyErr_PrintEx (0);
         std::cerr << std::string (
-            "\nPython modules 'pafy' or 'youtube-dl' or 'fuzzywuzzy' not found."
+            "\nPython modules 'pafy', 'youtube-dl' or 'fuzzywuzzy' not found."
             "\nPlease make sure these are installed correctly.\n");
       }
     catch (...)
