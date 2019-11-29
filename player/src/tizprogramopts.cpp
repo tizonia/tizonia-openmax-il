@@ -1801,7 +1801,7 @@ void tiz::programopts::init_plex_options ()
        "file).")
       /* TIZ_CLASS_COMMENT: */
       ("plex-music-section", po::value (&plex_section_),
-       "Name of the plex music section (needed if different from 'Music'; "
+       "Name of the Plex music section (needed if different from 'Music'; "
        "may be provided via config file).")
       /* TIZ_CLASS_COMMENT: */
       ("plex-audio-tracks", po::value (&plex_audio_tracks_),

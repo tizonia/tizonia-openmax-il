@@ -78,6 +78,7 @@ _arguments -S -s \
   '--youtube-audio-channel-uploads[Play all videos uploaded to a YouTube channel.]' \
   '--plex-server-base-url[Plex server base URL (e.g. http://plexserver:32400. Not required if provided via config file).]' \
   '--plex-auth-token arg[Plex account authentication token (not required if provided via config file).]' \
+  '--plex-music-section arg[Name of the Plex music section (needed if different from 'Music'; not required if provided via config file).]' \
   '--plex-audio-tracks[Search and play audio tracks from a Plex server.]' \
   '--plex-audio-artist[Search and play an artist audio tracks from a Plex server.]' \
   '--plex-audio-album[Search and play a music album from a Plex server.]' \
