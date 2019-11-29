@@ -931,7 +931,8 @@ graph::util::set_youtube_playlist (
 OMX_ERRORTYPE
 graph::util::set_plex_session (const OMX_HANDLETYPE handle,
                                const std::string &base_url,
-                               const std::string &token)
+                               const std::string &token,
+                               const std::string &section)
 {
   // Set the Plex user and pass
   OMX_TIZONIA_AUDIO_PARAM_PLEXSESSIONTYPE sessiontype;
@@ -942,6 +943,7 @@ graph::util::set_plex_session (const OMX_HANDLETYPE handle,
       &sessiontype));
   tiz::graph::util::copy_omx_string (sessiontype.cBaseUrl, base_url);
   tiz::graph::util::copy_omx_string (sessiontype.cAuthToken, token);
+  tiz::graph::util::copy_omx_string (sessiontype.cMusicSectionName, section);
   return OMX_SetParameter (
       handle,
       static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioPlexSession),

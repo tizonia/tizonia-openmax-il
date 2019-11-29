@@ -1153,6 +1153,7 @@ tiz::playapp::plex_stream ()
   const bool shuffle = popts_.shuffle ();
   const std::string base_url (popts_.plex_base_url ());
   const std::string token (popts_.plex_token ());
+  const std::string section (popts_.plex_section ());
   const uri_lst_t &uri_list = popts_.plex_playlist_container ();
   const OMX_TIZONIA_AUDIO_PLEXPLAYLISTTYPE playlist_type
       = popts_.plex_playlist_type ();
@@ -1170,7 +1171,7 @@ tiz::playapp::plex_stream ()
   playlist->set_loop_playback (true);
 
   tizgraphconfig_ptr_t config = boost::make_shared< tiz::graph::plexconfig > (
-      playlist, buffer_seconds, base_url, token, playlist_type);
+      playlist, buffer_seconds, base_url, token, section, playlist_type);
 
   // Instantiate the streaming client manager
   tiz::graphmgr::mgr_ptr_t p_mgr
@@ -1455,6 +1456,7 @@ tiz::playapp::plex_stream_chromecast ()
   const bool shuffle = popts_.shuffle ();
   const std::string base_url (popts_.plex_base_url ());
   const std::string token (popts_.plex_token ());
+  const std::string section (popts_.plex_section ());
   const uri_lst_t &uri_list = popts_.plex_playlist_container ();
   const OMX_TIZONIA_AUDIO_PLEXPLAYLISTTYPE playlist_type
       = popts_.plex_playlist_type ();
@@ -1474,7 +1476,8 @@ tiz::playapp::plex_stream_chromecast ()
 
   tizgraphconfig_ptr_t service_config
       = boost::make_shared< tiz::graph::plexconfig > (
-          playlist, unused_buffer_seconds, base_url, token, playlist_type);
+          playlist, unused_buffer_seconds, base_url, token, section,
+          playlist_type);
 
   tizgraphconfig_ptr_t config
       = boost::make_shared< tiz::graph::chromecastconfig > (

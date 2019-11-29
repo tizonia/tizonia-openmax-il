@@ -419,6 +419,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     youtube_buffer_seconds_ (0),
     plex_base_url_ (),
     plex_token_ (),
+    plex_section_ (),
     plex_audio_tracks_ (),
     plex_audio_artist_ (),
     plex_audio_album_ (),
@@ -1295,6 +1296,11 @@ const std::string &tiz::programopts::plex_token () const
   return plex_token_;
 }
 
+const std::string &tiz::programopts::plex_section () const
+{
+  return plex_section_;
+}
+
 const std::vector< std::string > &tiz::programopts::plex_playlist_container ()
 {
   plex_playlist_container_.clear ();
@@ -1794,6 +1800,10 @@ void tiz::programopts::init_plex_options ()
        "Plex account authentication token (not required if provided via config "
        "file).")
       /* TIZ_CLASS_COMMENT: */
+      ("plex-music-section", po::value (&plex_section_),
+       "Name of the plex music section (needed if different from 'Music'; "
+       "may be provided via config file).")
+      /* TIZ_CLASS_COMMENT: */
       ("plex-audio-tracks", po::value (&plex_audio_tracks_),
        "Search and play audio tracks from a Plex server.")
       /* TIZ_CLASS_COMMENT: */
@@ -1809,8 +1819,8 @@ void tiz::programopts::init_plex_options ()
   register_consume_function (&tiz::programopts::consume_plex_client_options);
   all_plex_client_options_
       = boost::assign::list_of ("plex-server-base-url") ("plex-auth-token") (
-            "plex-audio-tracks") ("plex-audio-artist") ("plex-audio-album") (
-            "plex-audio-playlist")
+            "plex-music-section") ("plex-audio-tracks") ("plex-audio-artist") (
+            "plex-audio-album") ("plex-audio-playlist")
             .convert_to_container< std::vector< std::string > > ();
 }
 
@@ -2587,6 +2597,21 @@ int tiz::programopts::consume_plex_client_options (bool &done, std::string &msg)
                                     plex_token_);
     }
 
+    if (plex_section_.empty ())
+    {
+      std::string music_section_name;
+      retrieve_string_from_rc_file ("tizonia", "plex.music_section_name",
+                                    music_section_name);
+      if (!music_section_name.empty ())
+      {
+        plex_section_.assign (music_section_name);
+      }
+      else
+      {
+        plex_section_.assign ("Music");
+      }
+    }
+
     if (!buffer_seconds_)
       {
         retrieve_buffer_seconds_from_rc_file ("plex.buffer_seconds",
@@ -2874,8 +2899,9 @@ bool tiz::programopts::validate_plex_client_options () const
   bool outcome = false;
   uint32_t plex_opts_count
       = vm_.count ("plex-server-base-url") + vm_.count ("plex-auth-token")
-        + vm_.count ("plex-audio-tracks") + vm_.count ("plex-audio-artist")
-        + vm_.count ("plex-audio-album") + vm_.count ("plex-audio-playlist");
+        + vm_.count ("plex-music-section") + vm_.count ("plex-audio-tracks")
+        + vm_.count ("plex-audio-artist") + vm_.count ("plex-audio-album")
+        + vm_.count ("plex-audio-playlist");
 
   std::vector< std::string > all_valid_options = all_plex_client_options_;
   concat_option_lists (all_valid_options, all_global_options_);

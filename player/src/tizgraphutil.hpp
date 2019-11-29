@@ -217,8 +217,9 @@ namespace tiz
           const bool shuffle);
 
       static OMX_ERRORTYPE set_plex_session (const OMX_HANDLETYPE handle,
-                                               const std::string &base_url,
-                                               const std::string &token);
+                                             const std::string &base_url,
+                                             const std::string &token,
+                                             const std::string &section);
 
       static OMX_ERRORTYPE set_plex_playlist (
           const OMX_HANDLETYPE handle, const std::string &playlist,

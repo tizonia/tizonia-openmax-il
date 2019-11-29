@@ -103,6 +103,7 @@ namespace tiz
     uint32_t youtube_buffer_seconds() const;
     const std::string &plex_base_url () const;
     const std::string &plex_token () const;
+    const std::string &plex_section () const;
     const std::vector< std::string > &plex_playlist_container ();
     OMX_TIZONIA_AUDIO_PLEXPLAYLISTTYPE plex_playlist_type ();
     uint32_t plex_buffer_seconds() const;
@@ -276,6 +277,7 @@ namespace tiz
     uint32_t youtube_buffer_seconds_;
     std::string plex_base_url_;
     std::string plex_token_;
+    std::string plex_section_;
     std::string plex_audio_tracks_;
     std::string plex_audio_artist_;
     std::string plex_audio_album_;

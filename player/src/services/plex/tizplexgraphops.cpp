@@ -94,10 +94,11 @@ void graph::plexops::do_configure_comp (const int comp_id)
         = boost::dynamic_pointer_cast< plexconfig > (config_);
     assert (plex_config);
 
-    G_OPS_BAIL_IF_ERROR (tiz::graph::util::set_plex_session (
-                             handles_[0], plex_config->get_base_url (),
-                             plex_config->get_token ()),
-                         "Unable to set OMX_TizoniaIndexParamAudioPlexSession");
+    G_OPS_BAIL_IF_ERROR (
+        tiz::graph::util::set_plex_session (
+            handles_[0], plex_config->get_base_url (),
+            plex_config->get_token (), plex_config->get_section ()),
+        "Unable to set OMX_TizoniaIndexParamAudioPlexSession");
 
     G_OPS_BAIL_IF_ERROR (
         tiz::graph::util::set_plex_playlist (
