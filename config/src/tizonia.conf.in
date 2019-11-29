@@ -137,4 +137,5 @@ mpris-enabled = false
 # plex.buffer_seconds = size of the audio buffer (in seconds) to use
 #                       while downloading streams. Default: 60.
 #                       Increase in case of cuts.
-
+# plex.music_section_name = name of the music section in your plex library
+#                           (default: Music)

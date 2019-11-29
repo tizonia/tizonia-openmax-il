@@ -157,7 +157,7 @@ class tizplexproxy(object):
 
     """
 
-    def __init__(self, base_url, token):
+    def __init__(self, base_url, token, section):
         self.base_url = base_url
         self.queue = list()
         self.queue_index = -1
@@ -166,7 +166,7 @@ class tizplexproxy(object):
         self.current_play_mode = self.play_modes.NORMAL
         self.now_playing_track = None
         self._plex = PlexServer(base_url, token)
-        self._music = self._plex.library.section('Music')
+        self._music = self._plex.library.section(section)
 
     def set_play_mode(self, mode):
         """ Set the playback mode.
