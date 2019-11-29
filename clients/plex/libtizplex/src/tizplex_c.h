@@ -70,11 +70,13 @@ typedef enum tiz_plex_playback_mode {
  * initialised.
  * @param ap_base_url The Plex server base url.
  * @param ap_auth_token The Plex account auth token.
+ * @param ap_music_section The name of the music section in the Plex library.
  *
  * @return 0 on success.
  */
 int tiz_plex_init (/*@null@ */ tiz_plex_ptr_t *app_plex,
-                   const char *ap_base_url, const char *ap_auth_token);
+                   const char *ap_base_url, const char *ap_auth_token,
+                   const char *ap_music_section);
 
 /**
  * Clear the playback queue.

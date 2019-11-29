@@ -50,13 +50,14 @@ static void plex_free_data (tiz_plex_t *ap_plex)
 }
 
 static int plex_alloc_data (tiz_plex_t *ap_plex, const char *ap_base_url,
-                            const char *ap_auth_token)
+                            const char *ap_auth_token,
+                            const char *ap_music_section)
 {
   int rc = 0;
   assert (ap_plex);
   try
     {
-      ap_plex->p_proxy_ = new tizplex (ap_base_url, ap_auth_token);
+      ap_plex->p_proxy_ = new tizplex (ap_base_url, ap_auth_token, ap_music_section);
     }
   catch (...)
     {
@@ -67,7 +68,8 @@ static int plex_alloc_data (tiz_plex_t *ap_plex, const char *ap_base_url,
 }
 
 extern "C" int tiz_plex_init (tiz_plex_ptr_t *app_plex, const char *ap_base_url,
-                              const char *ap_auth_token)
+                              const char *ap_auth_token,
+                              const char *ap_music_section)
 {
   tiz_plex_t *p_plex = NULL;
   int rc = 1;
@@ -76,7 +78,8 @@ extern "C" int tiz_plex_init (tiz_plex_ptr_t *app_plex, const char *ap_base_url,
 
   if ((p_plex = (tiz_plex_t *)calloc (1, sizeof (tiz_plex_t))))
     {
-      if (!plex_alloc_data (p_plex, ap_base_url, ap_auth_token))
+      if (!plex_alloc_data (p_plex, ap_base_url, ap_auth_token,
+                            ap_music_section))
         {
           tizplex *p_px = p_plex->p_proxy_;
           assert (p_px);

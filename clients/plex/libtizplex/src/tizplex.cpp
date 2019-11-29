@@ -122,16 +122,20 @@ namespace
 
   void start_plex (boost::python::object &py_global,
                    boost::python::object &py_plex_proxy,
-                   const std::string &base_url, const std::string &auth_token)
+                   const std::string &base_url, const std::string &auth_token,
+                   const std::string &music_section)
   {
     bp::object pyplexproxy = py_global["tizplexproxy"];
-    py_plex_proxy = pyplexproxy (base_url.c_str (), auth_token.c_str ());
+    py_plex_proxy = pyplexproxy (base_url.c_str (), auth_token.c_str (),
+                                 music_section.c_str ());
   }
 }
 
-tizplex::tizplex (const std::string &base_url, const std::string &auth_token)
+tizplex::tizplex (const std::string &base_url, const std::string &auth_token,
+                  const std::string &music_section)
   : base_url_ (base_url),
     auth_token_ (auth_token),
+    music_section_ (music_section),
     current_url_ (),
     current_track_index_ (),
     current_queue_length_ (),
@@ -166,8 +170,8 @@ int tizplex::init ()
 int tizplex::start ()
 {
   int rc = 0;
-  try_catch_wrapper (
-      start_plex (py_global_, py_plex_proxy_, base_url_, auth_token_));
+  try_catch_wrapper (start_plex (py_global_, py_plex_proxy_, base_url_,
+                                 auth_token_, music_section_));
   return rc;
 }
 
