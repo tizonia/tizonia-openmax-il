@@ -769,7 +769,8 @@ plex_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
 
   on_plex_error_ret_omx_oom (
     tiz_plex_init (&(p_prc->p_plex_), (const char *) p_prc->session_.cBaseUrl,
-                   (const char *) p_prc->session_.cAuthToken));
+                   (const char *) p_prc->session_.cAuthToken,
+                   (const char *) p_prc->session_.cMusicSectionName));
 
   tiz_check_omx (enqueue_playlist_items (p_prc));
   tiz_check_omx (obtain_next_url (p_prc, 1));
