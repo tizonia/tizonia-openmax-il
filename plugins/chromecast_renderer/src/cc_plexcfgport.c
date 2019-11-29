@@ -67,6 +67,8 @@ cc_plex_cfgport_ctor (void * ap_obj, va_list * app)
             sizeof (p_obj->session_.cBaseUrl), "xyzxyzxyzxyzxyz");
   snprintf ((char *) p_obj->session_.cAuthToken,
             sizeof (p_obj->session_.cAuthToken), "xyzxyzxyzxyzxyz");
+  snprintf ((char *) p_obj->session_.cMusicSectionName,
+            sizeof (p_obj->session_.cMusicSectionName), "Music");
 
   /* Initialize the OMX_TIZONIA_AUDIO_PARAM_PLEXPLAYLISTTYPE structure */
   TIZ_INIT_OMX_STRUCT (p_obj->playlist_);
@@ -138,8 +140,7 @@ cc_plex_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
               sizeof (OMX_TIZONIA_AUDIO_PARAM_PLEXSESSIONTYPE));
       p_obj->session_.cBaseUrl[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
       p_obj->session_.cAuthToken[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
-      TIZ_TRACE (ap_hdl, "Plex Auth Token [%s]...",
-                 p_obj->session_.cAuthToken);
+      p_obj->session_.cMusicSectionName[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
     }
   else if (OMX_TizoniaIndexParamAudioPlexPlaylist == a_index)
     {
