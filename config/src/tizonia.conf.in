@@ -62,6 +62,17 @@ default-audio-renderer = OMX.Aratelia.audio_renderer.pulseaudio.pcm
 #
 mpris-enabled = false
 
+# HTTP proxy server configuration
+# -------------------------------------------------------------------------
+# NOTE: Proxy configuration is currently only available with the Spotify
+# service. It will be ignored with other music services.
+#
+# proxy.server = Url to the proxy server that should be used.
+#                The format is protocol://<host>:port (where protocol
+#                is http/https/socks4/socks5). E.g.: http:some.proxy.net:1234
+# proxy.user_name = Username to authenticate with proxy server
+# proxy.user_password = Password to authenticate with proxy server
+
 # Spotify configuration
 # -------------------------------------------------------------------------
 # To avoid passing this information on the command line, uncomment
