@@ -325,7 +325,8 @@ tiz::programopts::programopts (int argc, char *argv[])
     youtube_ ("YouTube options"),
     plex_ ("Plex options"),
     chromecast_ ("Chromecast options"),
-    input_ ("Intput urioption"),
+    proxy_ ("Proxy server options"),
+    input_ ("Input urioption"),
     positional_ (),
     help_option_ ("help"),
     recurse_ (false),
@@ -333,6 +334,9 @@ tiz::programopts::programopts (int argc, char *argv[])
     daemon_ (false),
     chromecast_name_or_ip_ (),
     buffer_seconds_(0),
+    proxy_server_(),
+    proxy_user_(),
+    proxy_password_(),
     log_dir_ (),
     debug_info_ (false),
     comp_name_ (),
@@ -563,6 +567,9 @@ void tiz::programopts::print_usage_help () const
             << "chromecast    Chromecast options."
             << "\n";
   std::cout << "  "
+            << "proxy         Proxy server options."
+            << "\n";
+  std::cout << "  "
             << "keyboard      Keyboard control."
             << "\n";
   std::cout << "  "
@@ -675,6 +682,21 @@ bool tiz::programopts::daemon () const
 const std::string &tiz::programopts::chromecast_name_or_ip () const
 {
   return chromecast_name_or_ip_;
+}
+
+const std::string &tiz::programopts::proxy_server () const
+{
+  return proxy_server_;
+}
+
+const std::string &tiz::programopts::proxy_user () const
+{
+  return proxy_user_;
+}
+
+const std::string &tiz::programopts::proxy_password () const
+{
+  return proxy_password_;
 }
 
 const std::string &tiz::programopts::log_dir () const
@@ -1396,14 +1418,26 @@ void tiz::programopts::init_global_options ()
       /* TIZ_CLASS_COMMENT: */
       ("buffer-seconds,b", po::value (&buffer_seconds_),
        "Size of the buffer (in seconds) to be used while downloading streams. "
-       "Increase in case of cuts in gmusic, scloud, youtube or plex.");
+       "Increase in case of cuts in gmusic, scloud, youtube or plex.")
+      /* TIZ_CLASS_COMMENT: */
+      ("proxy-server", po::value (&proxy_server_),
+       "Url to the proxy server that should be used. (not required if provided "
+       "via config file).")
+      /* TIZ_CLASS_COMMENT: */
+      ("proxy-user", po::value (&proxy_user_),
+       "User name to be used during proxy server authentication (not required "
+       "if provided via config file).")
+      /* TIZ_CLASS_COMMENT: */
+      ("proxy-password", po::value (&proxy_password_),
+       "Password to be used during proxy server authentication (not required "
+       "if provided via config file).");
 
   register_consume_function (&tiz::programopts::consume_global_options);
   // TODO: help and version are not included. These should be moved out of
   // "global" and into its own category: "info"
   all_global_options_
       = boost::assign::list_of ("recurse") ("shuffle") ("daemon") ("cast") (
-            "buffer-seconds")
+            "buffer-seconds") ("proxy-server") ("proxy-user") ("proxy-password")
             .convert_to_container< std::vector< std::string > > ();
 
   // Even though --cast is a global option, we also initialise here a
@@ -1415,6 +1449,26 @@ void tiz::programopts::init_global_options ()
        "Cast to a Chromecast device (arg: device name or ip address). "
        "Available in combination with Google Play Music, SoundCloud, "
        "YouTube, Plex and HTTP radio stations.");
+
+  // We also initialise here a 'proxy' option description for the purpose
+  // of displaying it with the --help command.
+  proxy_.add_options ()
+      /* TIZ_CLASS_COMMENT: */
+      ("proxy-server", po::value (&proxy_server_),
+       "Url to the proxy server that should be used (only works with the "
+       "Spotify service at the moment, not required if provided "
+       "via config file). The format is protocol://<host>:port (where protocol "
+       "is http/https/socks4/socks5")
+      /* TIZ_CLASS_COMMENT: */
+      ("proxy-user", po::value (&proxy_user_),
+       "User name to be used during proxy server authentication (only works "
+       "with the Spotify service at the moment, not required "
+       "if provided via config file).")
+      /* TIZ_CLASS_COMMENT: */
+      ("proxy-password", po::value (&proxy_password_),
+       "Password to be used during proxy server authentication (only works with "
+       "the Spotify service at the moment, not required "
+       "if provided via config file).");
 }
 
 void tiz::programopts::init_debug_options ()
@@ -1957,6 +2011,10 @@ int tiz::programopts::consume_global_options (bool &done,
     {
       print_usage_feature (chromecast_);
     }
+    else if (0 == help_option_.compare ("proxy"))
+    {
+      print_usage_feature (proxy_);
+    }
     else if (0 == help_option_.compare ("keyboard"))
     {
       print_usage_keyboard ();
@@ -1980,6 +2038,21 @@ int tiz::programopts::consume_global_options (bool &done,
     done = true;
     rc = EXIT_SUCCESS;
   }
+
+  if (proxy_server_.empty ())
+  {
+    retrieve_string_from_rc_file ("tizonia", "proxy.server", proxy_server_);
+  }
+  if (proxy_user_.empty ())
+  {
+    retrieve_string_from_rc_file ("tizonia", "proxy.user_name", proxy_user_);
+  }
+  if (proxy_password_.empty ())
+  {
+    retrieve_string_from_rc_file ("tizonia", "proxy.user_password",
+                                  proxy_password_);
+  }
+
   TIZ_PRINTF_DBG_RED ("global-opts ; rc = [%s]\n",
                       rc == EXIT_SUCCESS ? "SUCCESS" : "FAILURE");
   return rc;

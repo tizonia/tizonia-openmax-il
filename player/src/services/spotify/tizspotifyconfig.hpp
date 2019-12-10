@@ -47,14 +47,20 @@ namespace tiz
                      const OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE playlist_type,
                      const std::string &owner,
                      const bool recover_lost_token,
-                     const bool allow_explicit_tracks)
-        : config (playlist, 0),
-          user_ (user),
-          pass_ (pass),
-          playlist_type_ (playlist_type),
-          owner_ (owner),
-          recover_lost_token_ (recover_lost_token),
-          allow_explicit_tracks_ (allow_explicit_tracks)
+                     const bool allow_explicit_tracks,
+                     const std::string &proxy_server,
+                     const std::string &proxy_user,
+                     const std::string &proxy_password)
+      : config (playlist, 0),
+        user_ (user),
+        pass_ (pass),
+        playlist_type_ (playlist_type),
+        owner_ (owner),
+        recover_lost_token_ (recover_lost_token),
+        allow_explicit_tracks_ (allow_explicit_tracks),
+        proxy_server_ (proxy_server),
+        proxy_user_ (proxy_user),
+        proxy_password_ (proxy_password)
       {
       }
 
@@ -92,6 +98,21 @@ namespace tiz
         return allow_explicit_tracks_;
       }
 
+      std::string get_proxy_server () const
+      {
+        return proxy_server_;
+      }
+
+      std::string get_proxy_user () const
+      {
+        return proxy_user_;
+      }
+
+      std::string get_proxy_password () const
+      {
+        return proxy_password_;
+      }
+
     protected:
       const std::string user_;
       const std::string pass_;
@@ -99,6 +120,9 @@ namespace tiz
       const std::string owner_;
       const bool recover_lost_token_;
       const bool allow_explicit_tracks_;
+      const std::string proxy_server_;
+      const std::string proxy_user_;
+      const std::string proxy_password_;
     };
   }  // namespace graph
 }  // namespace tiz

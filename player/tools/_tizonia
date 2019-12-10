@@ -18,6 +18,9 @@ _arguments -S -s \
   '(-C)--comps-of-role[Display the OpenMAX IL components that implement the role.]' \
   '(-L)--comp-list[Enumerate all the OpenMAX IL components in the system.]' \
   '(-R)--roles-of-comp[Display the OpenMAX IL roles found in component.]' \
+  '--proxy-server[Url to the proxy server that should be used (works wih Spotify only).]' \
+  '--proxy-user[User name to be used during proxy server authentication.]' \
+  '--proxy-password[Password to be used during proxy server authentication.]' \
   '--spotify-user[Spotify user name.]' \
   '--spotify-password[Spotify user password.]' \
   '--spotify-owner[The owner of the playlist (optional, may be used in conjunction with --spotify-playlist).]' \

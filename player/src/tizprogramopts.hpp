@@ -62,6 +62,9 @@ namespace tiz
     bool recurse () const;
     bool daemon () const;
     const std::string &chromecast_name_or_ip () const;
+    const std::string &proxy_server () const;
+    const std::string &proxy_user () const;
+    const std::string &proxy_password () const;
     const std::string &log_dir () const;
     bool debug_info () const;
     const std::string &component_name () const;
@@ -181,6 +184,7 @@ namespace tiz
     boost::program_options::options_description youtube_;
     boost::program_options::options_description plex_;
     boost::program_options::options_description chromecast_;
+    boost::program_options::options_description proxy_;
     boost::program_options::options_description input_;
     boost::program_options::positional_options_description positional_;
 
@@ -191,6 +195,9 @@ namespace tiz
     bool daemon_;
     std::string chromecast_name_or_ip_;
     uint32_t buffer_seconds_;
+    std::string proxy_server_;
+    std::string proxy_user_;
+    std::string proxy_password_;
     std::string log_dir_;
     bool debug_info_;
     std::string comp_name_;
