@@ -1524,6 +1524,9 @@ spfysrc_prc_ctor (void * ap_obj, va_list * app)
   p_prc->sp_config_.compress_playlists = false;
   p_prc->sp_config_.dont_save_metadata_for_playlists = true;
   p_prc->sp_config_.initially_unload_playlists = false;
+  p_prc->sp_config_.proxy = NULL;
+  p_prc->sp_config_.proxy_username = NULL;
+  p_prc->sp_config_.proxy_password = NULL;
 
   /* Init the spotify callbacks struct */
   tiz_mem_set ((OMX_PTR) &p_prc->sp_cbacks_, 0, sizeof (p_prc->sp_cbacks_));
@@ -1593,6 +1596,20 @@ spfysrc_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
   p_prc->sp_config_.settings_location = p_prc->sp_config_.cache_location;
   goto_end_on_sp_error (
     sp_session_create (&(p_prc->sp_config_), &(p_prc->p_sp_session_)));
+
+  if (p_prc->session_.cProxyServer
+      && 0 != strncmp ((char *) p_prc->session_.cProxyServer, "",
+                       OMX_MAX_STRINGNAME_SIZE))
+    {
+      TIZ_PRINTF_DBG_BLU("cProxyServer: %s\n", p_prc->session_.cProxyServer);
+      TIZ_PRINTF_DBG_BLU("cProxyUserName: %s\n", p_prc->session_.cProxyUserName);
+      TIZ_PRINTF_DBG_BLU("cProxyPassword: %s\n", p_prc->session_.cProxyPassword);
+      p_prc->sp_config_.proxy = ((char *) p_prc->session_.cProxyServer);
+      p_prc->sp_config_.proxy_username
+        = ((char *) p_prc->session_.cProxyUserName);
+      p_prc->sp_config_.proxy_password
+        = ((char *) p_prc->session_.cProxyPassword);
+    }
 
   TIZ_PRINTF_BLU ("[Spotify] [Cache]: '%s'\n",
                   p_prc->sp_config_.cache_location);
