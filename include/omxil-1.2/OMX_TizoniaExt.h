@@ -340,6 +340,11 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE {
     OMX_VERSIONTYPE nVersion;
     OMX_U8 cUserName[OMX_MAX_STRINGNAME_SIZE];
     OMX_U8 cUserPassword[OMX_MAX_STRINGNAME_SIZE];
+    OMX_U8 cProxyServer[OMX_MAX_STRINGNAME_SIZE]; /**< Url to the proxy server that should be used. */
+                                                   /**< The format is protocol: <host>:port (where protocal
+                                                        is http/https/socks4/socks5)  */
+    OMX_U8 cProxyUserName[OMX_MAX_STRINGNAME_SIZE];
+    OMX_U8 cProxyPassword[OMX_MAX_STRINGNAME_SIZE];
     OMX_BOOL bRememberCredentials; /**< default: OMX_TRUE */
     OMX_BOOL bRecoverLostToken; /**< default: OMX_FALSE */
     OMX_BOOL bAllowExplicitTracks; /**< default: OMX_FALSE */
