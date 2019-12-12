@@ -36,7 +36,9 @@ fi
 RELIDS=$(cat /etc/*-release)
 if echo "$RELIDS" | grep raspbian; then
     DISTRO="raspbian"
-    if echo "$RELIDS" | grep stretch; then
+    if echo "$RELIDS" | grep buster; then
+        RELEASE="buster"
+    elif echo "$RELIDS" | grep stretch; then
         RELEASE="stretch"
     elif echo "$RELIDS" | grep jessie; then
         RELEASE="jessie"
@@ -46,9 +48,11 @@ if echo "$RELIDS" | grep raspbian; then
     fi
 elif echo "$RELIDS" | grep stretch; then
   DISTRO="debian" ; RELEASE="stretch"
-elif echo "$RELIDS" | grep -E 'buster|kali-rolling'; then
-  # NOTE: Kali Linux is based on Debian Testing, which is currently codenamed 'Buster'
+elif echo "$RELIDS" | grep -E 'buster'; then
   DISTRO="debian" ; RELEASE="buster"
+elif echo "$RELIDS" | grep -E 'bullseye|kali-rolling'; then
+  # NOTE: Kali Linux is based on Debian Testing, which is currently codenamed 'Bullseye'
+  DISTRO="debian" ; RELEASE="bullseye"
 elif echo "$RELIDS" | grep -E 'trusty|freya|qiana|rebecca|rafaela|rosa'; then
   # NOTE: Elementary OS 'freya' is based on trusty
   # NOTE: LinuxMint 'qiana' 'rebecca' 'rafaela' 'rosa' are all based on trusty
@@ -59,8 +63,8 @@ elif echo "$RELIDS" | grep -E 'xenial|loki|sarah|serena|sonya|sylvia'; then
   # NOTE: Elementary OS 'loki' is based on xenial
   # NOTE: Linux Mint 'sarah', 'serena', 'sonya' and 'sylvia' are based on xenial
   DISTRO="ubuntu" ; RELEASE="xenial"
-elif echo "$RELIDS" | grep -E 'bionic|juno|tara|tessa|tina'; then
-  # NOTE: Elementary OS 'juno' is based on bionic
+elif echo "$RELIDS" | grep -E 'bionic|juno|hera|tara|tessa|tina'; then
+  # NOTE: Elementary OS 'juno', and 'hera' are based on bionic
   # NOTE: Linux Mint 'tara'. 'tessa' and 'tina' are based on bionic
   # NOTE: Most of the time, binaries compiled on 18.04 will work on newer
   # releases, meaning you can try adding newer releases to the bionic conditional
