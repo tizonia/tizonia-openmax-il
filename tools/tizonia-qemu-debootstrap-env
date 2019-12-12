@@ -385,7 +385,7 @@ EOF
     print_banner "[$DISTRO-$RELEASE-$ARCH] Installing additional packages" "$GRN"
     run_chroot apt-get update
     run_chroot apt-get upgrade -qq --force-yes
-    run_chroot apt-get install -qq --force-yes sudo mercurial wget python python-setuptools apt-utils dpkg-dev
+    run_chroot apt-get install -qq --force-yes sudo git wget python python3-setuptools apt-utils dpkg-dev
     echo
     pretty_print "$BLU" "Done installing additional packages."
 }
