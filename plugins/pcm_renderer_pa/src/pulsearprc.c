@@ -157,7 +157,7 @@ get_default_volume (pulsear_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
-set_initial_component_volume (pulsear_prc_t * ap_prc)
+set_component_volume (pulsear_prc_t * ap_prc)
 {
   OMX_AUDIO_CONFIG_VOLUMETYPE volume;
 
@@ -170,8 +170,7 @@ set_initial_component_volume (pulsear_prc_t * ap_prc)
 
   volume.sVolume.nValue = ap_prc->volume_;
 
-  TIZ_PRINTF_YEL ("ap_prc->volume_ [%d]", ap_prc->volume_);
-
+  /* Store the volume value in the component's port */
   tiz_check_omx (tiz_krn_SetConfig_internal (
     tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
     OMX_IndexConfigAudioVolume, &volume));
@@ -937,12 +936,15 @@ toggle_mute (pulsear_prc_t * ap_prc, const bool a_mute)
 static void
 set_volume (pulsear_prc_t * ap_prc, const long a_volume)
 {
-  TIZ_DEBUG (handleOf (ap_prc), "ap_prc->volume_ [%d]", ap_prc->volume_);
   if (set_pa_sink_volume (ap_prc, a_volume))
     {
       assert (ap_prc);
       ap_prc->volume_ = a_volume;
       TIZ_DEBUG (handleOf (ap_prc), "ap_prc->volume_ = %ld", ap_prc->volume_);
+      if (OMX_ErrorNone != set_component_volume (ap_prc))
+        {
+          TIZ_NOTICE (handleOf (ap_prc), "Could not set the component's volume");
+        }
     }
 }
 
@@ -950,16 +952,16 @@ static void
 prepare_volume_ramp (pulsear_prc_t * ap_prc)
 {
   assert (ap_prc);
-  pa_volume_t vol = ARATELIA_PCM_RENDERER_DEFAULT_VOLUME_VALUE;
-  (void) pa_cvolume_init (&(ap_prc->pa_vol_));
-  ap_prc->pa_vol_.channels = ap_prc->pcmmode_.nChannels;
-  (void) pa_cvolume_set (&(ap_prc->pa_vol_), ap_prc->pa_vol_.channels, vol);
-
-  TIZ_DEBUG (handleOf (ap_prc), "pa_vol_.channels[%d]",
-             ap_prc->pa_vol_.channels);
-
   if (ap_prc->ramp_enabled_)
     {
+      pa_volume_t vol = ARATELIA_PCM_RENDERER_DEFAULT_VOLUME_VALUE;
+      (void) pa_cvolume_init (&(ap_prc->pa_vol_));
+      ap_prc->pa_vol_.channels = ap_prc->pcmmode_.nChannels;
+      (void) pa_cvolume_set (&(ap_prc->pa_vol_), ap_prc->pa_vol_.channels, vol);
+
+      TIZ_DEBUG (handleOf (ap_prc), "pa_vol_.channels[%d]",
+                 ap_prc->pa_vol_.channels);
+
       ap_prc->ramp_volume_ = ARATELIA_PCM_RENDERER_DEFAULT_VOLUME_VALUE;
       set_volume (ap_prc, ap_prc->ramp_volume_);
       ap_prc->ramp_volume_ = ARATELIA_PCM_RENDERER_DEFAULT_VOLUME_VALUE;
@@ -1043,7 +1045,7 @@ pulsear_prc_ctor (void * ap_prc, va_list * app)
   p_prc->pa_nbytes_ = 0;
   p_prc->p_ev_timer_ = NULL;
   p_prc->gain_ = ARATELIA_PCM_RENDERER_DEFAULT_GAIN_VALUE;
-  p_prc->volume_ = ARATELIA_PCM_RENDERER_DEFAULT_VOLUME_VALUE;
+  p_prc->volume_ = get_default_volume (ap_prc);
   p_prc->pending_volume_ = 0;
   p_prc->ramp_enabled_ = false;
   p_prc->ramp_step_ = 0;
@@ -1073,7 +1075,6 @@ pulsear_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
      component has already been initialised. */
   if (!(p_prc->p_ev_timer_))
     {
-      p_prc->volume_ = get_default_volume (ap_prc);
       set_volume (ap_prc, p_prc->volume_);
       tiz_check_omx (tiz_srv_timer_watcher_init (p_prc, &(p_prc->p_ev_timer_)));
       rc = init_pulseaudio (ap_prc);
@@ -1106,11 +1107,6 @@ pulsear_prc_prepare_to_transfer (void * ap_prc, OMX_U32 a_pid)
   p_prc->ramp_step_ = 0;
   p_prc->ramp_step_count_ = ARATELIA_PCM_RENDERER_DEFAULT_RAMP_STEP_COUNT;
   p_prc->ramp_volume_ = 0;
-  if (OMX_ErrorNone != set_initial_component_volume (p_prc))
-    {
-      TIZ_NOTICE (handleOf (p_prc), "Could not set the component's volume");
-    }
-
   return OMX_ErrorNone;
 }
 
