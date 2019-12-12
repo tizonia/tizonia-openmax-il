@@ -602,7 +602,7 @@ function do_tar_file {
     print_banner "Creating distribution tar file for: $1 [$2]" "$GRN"
     cd_to_dir "$pkg_dir"
 
-    hg purge . > /dev/null && rm -rf "$DEBIAN_DIR/$pkg" && mkdir -p "$DEBIAN_DIR/$pkg"
+    git clean -f -d . > /dev/null && rm -rf "$DEBIAN_DIR/$pkg" && mkdir -p "$DEBIAN_DIR/$pkg"
     exit_status=$?
     if [[ "$exit_status" -eq 0 ]] ; then
         err_msg="[$pkg] : Error creating the tar file."
