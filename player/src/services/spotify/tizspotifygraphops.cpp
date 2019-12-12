@@ -100,7 +100,8 @@ void graph::spotifyops::do_configure_comp (const int comp_id)
                              spotify_config->get_proxy_user (),
                              spotify_config->get_proxy_password (),
                              spotify_config->get_recover_lost_token (),
-                             spotify_config->get_allow_explicit_tracks ()),
+                             spotify_config->get_allow_explicit_tracks (),
+                             spotify_config->get_preferred_bitrate ()),
         "Unable to set OMX_TizoniaIndexParamAudioSpotifySession");
 
     G_OPS_BAIL_IF_ERROR (
@@ -391,7 +392,8 @@ graph::spotifyops::set_spotify_session (const OMX_HANDLETYPE handle,
                                         const std::string &proxy_user,
                                         const std::string &proxy_password,
                                         const bool recover_lost_token,
-                                        const bool allow_explicit_tracks)
+                                        const bool allow_explicit_tracks,
+                                        const uint32_t preferred_bitrate)
 {
   // Set the Spotify user and pass
   OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE sessiontype;
@@ -408,6 +410,27 @@ graph::spotifyops::set_spotify_session (const OMX_HANDLETYPE handle,
   sessiontype.bRememberCredentials = OMX_TRUE; // default value
   sessiontype.bRecoverLostToken = (recover_lost_token ? OMX_TRUE : OMX_FALSE);
   sessiontype.bAllowExplicitTracks = (allow_explicit_tracks ? OMX_TRUE : OMX_FALSE);
+  switch (preferred_bitrate)
+    {
+    case 96:
+      {
+        sessiontype.ePreferredBitRate = OMX_AUDIO_SpotifyBitrate96Kbps;
+      }
+      break;
+    case 160:
+      {
+        sessiontype.ePreferredBitRate = OMX_AUDIO_SpotifyBitrate160Kbps;
+      }
+      break;
+    case 320:
+      // NOTE: fall-through
+    default:
+      {
+        sessiontype.ePreferredBitRate = OMX_AUDIO_SpotifyBitrate320Kbps;
+      }
+      break;
+    };
+
   return OMX_SetParameter (
       handle,
       static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioSpotifySession),

@@ -26,6 +26,7 @@ _arguments -S -s \
   '--spotify-owner[The owner of the playlist (optional, may be used in conjunction with --spotify-playlist).]' \
   '--spotify-recover-lost-token[Allow Tizonia to recover the play token and keep playing after a spurious token loss (default: false).]' \
   '--spotify-allow-explicit-tracks[Allow Tizonia to play explicit tracks from Spotify (default: false).]' \
+  '--spotify-preferred-bitrate[Three possible values (kbps): 96, 160, or 320 (default: 320)]' \
   '--spotify-tracks[Search and play from Spotify by track name.]' \
   '--spotify-artist[Search and play from Spotify by artist name.]' \
   '--spotify-album[Search and play from Spotify by album name.]' \

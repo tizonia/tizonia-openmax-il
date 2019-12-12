@@ -263,7 +263,7 @@ namespace
     return is_found;
   }
 
-  void retrieve_buffer_seconds_from_rc_file (const char *rc_key, uint32_t &uint_val)
+  void retrieve_tizonia_uint_from_rc_file (const char *rc_key, uint32_t &uint_val)
   {
     if (0 == uint_val && rc_key)
     {
@@ -355,6 +355,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     spotify_owner_ (),
     spotify_recover_lost_token_(false),
     spotify_allow_explicit_tracks_(false),
+    spotify_preferred_bitrate_ (0),
     spotify_tracks_ (),
     spotify_artist_ (),
     spotify_album_ (),
@@ -787,6 +788,11 @@ bool tiz::programopts::spotify_recover_lost_token () const
 bool tiz::programopts::spotify_allow_explicit_tracks () const
 {
   return spotify_allow_explicit_tracks_;
+}
+
+uint32_t tiz::programopts::spotify_preferred_bitrate () const
+{
+  return spotify_preferred_bitrate_;
 }
 
 const std::vector< std::string >
@@ -1592,6 +1598,10 @@ void tiz::programopts::init_spotify_options ()
        po::bool_switch (&spotify_allow_explicit_tracks_)->default_value (false),
        "Allow Tizonia to play explicit tracks from Spotify (default: false).")
       /* TIZ_CLASS_COMMENT: */
+      ("spotify-preferred-bitrate",
+       po::value (&spotify_preferred_bitrate_),
+       "Preferred Spotify bitrate (kbps) (320, 160 or 96; default: 320).")
+      /* TIZ_CLASS_COMMENT: */
       ("spotify-tracks", po::value (&spotify_tracks_),
        "Search and play from Spotify by track name.")
       /* TIZ_CLASS_COMMENT: */
@@ -1645,12 +1655,12 @@ void tiz::programopts::init_spotify_options ()
   all_spotify_client_options_
       = boost::assign::list_of ("spotify-user") ("spotify-password") (
             "spotify-owner") ("spotify-recover-lost-token") (
-            "spotify-allow-explicit-tracks") ("spotify-tracks") (
-            "spotify-artist") ("spotify-album") ("spotify-playlist") (
-            "spotify-track-id") ("spotify-artist-id") ("spotify-album-id") (
-            "spotify-playlist-id") ("spotify-related-artists") (
-            "spotify-featured-playlist") ("spotify-new-releases") (
-            "spotify-recommendations-by-track-id") (
+            "spotify-allow-explicit-tracks") ("spotify-preferred-bitrate") (
+            "spotify-tracks") ("spotify-artist") ("spotify-album") (
+            "spotify-playlist") ("spotify-track-id") ("spotify-artist-id") (
+            "spotify-album-id") ("spotify-playlist-id") (
+            "spotify-related-artists") ("spotify-featured-playlist") (
+            "spotify-new-releases") ("spotify-recommendations-by-track-id") (
             "spotify-recommendations-by-artist-id") (
             "spotify-recommendations-by-genre")
             .convert_to_container< std::vector< std::string > > ();
@@ -2199,7 +2209,7 @@ int tiz::programopts::consume_spotify_client_options (bool &done,
     }
 
     // This is to find out if the spotify-allow-explicit-tracks flag has  been
-    // provided on the command line, and the retrieve from the config file.
+    // provided on the command line, and then retrieve from the config file.
     // See https://stackoverflow.com/questions/32150230/boost-program-options-bool-always-true
     bool allow_explicit_tracks_provided
         = (std::find (all_given_options_.begin (), all_given_options_.end (),
@@ -2214,6 +2224,12 @@ int tiz::programopts::consume_spotify_client_options (bool &done,
           // not configured in tizonia.conf.
           spotify_allow_explicit_tracks_ = false;
         }
+    }
+
+    if (!spotify_preferred_bitrate_)
+    {
+      retrieve_tizonia_uint_from_rc_file ("spotify.preferred_bitrate",
+                                          spotify_preferred_bitrate_);
     }
 
     if (spotify_user_.empty ())
@@ -2313,10 +2329,10 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
                                     gmusic_device_id_);
     }
     if (!buffer_seconds_)
-      {
-        retrieve_buffer_seconds_from_rc_file ("gmusic.buffer_seconds",
-                                              gmusic_buffer_seconds_);
-      }
+    {
+      retrieve_tizonia_uint_from_rc_file ("gmusic.buffer_seconds",
+                                          gmusic_buffer_seconds_);
+    }
 
     if (vm_.count ("gmusic-library"))
     {
@@ -2436,10 +2452,10 @@ int tiz::programopts::consume_scloud_client_options (bool &done,
                                     scloud_oauth_token_);
     }
     if (!buffer_seconds_)
-      {
-        retrieve_buffer_seconds_from_rc_file ("soundcloud.buffer_seconds",
-                                              scloud_buffer_seconds_);
-      }
+    {
+      retrieve_tizonia_uint_from_rc_file ("soundcloud.buffer_seconds",
+                                          scloud_buffer_seconds_);
+    }
 
     if (vm_.count ("soundcloud-user-stream"))
     {
@@ -2524,7 +2540,7 @@ int tiz::programopts::consume_scloud_client_options (bool &done,
 //     }
 //     if (!buffer_seconds_)
 //       {
-//         retrieve_buffer_seconds_from_rc_file ("dirble.buffer_seconds",
+//         retrieve_tizonia_uint_from_rc_file ("dirble.buffer_seconds",
 //                                               dirble_buffer_seconds_);
 //       }
 
@@ -2601,10 +2617,10 @@ int tiz::programopts::consume_youtube_client_options (bool &done,
                                       + vm_.count ("youtube-audio-channel-playlist");
 
     if (!buffer_seconds_)
-      {
-        retrieve_buffer_seconds_from_rc_file ("youtube.buffer_seconds",
-                                              youtube_buffer_seconds_);
-      }
+    {
+      retrieve_tizonia_uint_from_rc_file ("youtube.buffer_seconds",
+                                          youtube_buffer_seconds_);
+    }
 
     if (playlist_option_count > 1)
     {
@@ -2686,10 +2702,10 @@ int tiz::programopts::consume_plex_client_options (bool &done, std::string &msg)
     }
 
     if (!buffer_seconds_)
-      {
-        retrieve_buffer_seconds_from_rc_file ("plex.buffer_seconds",
-                                              plex_buffer_seconds_);
-      }
+    {
+      retrieve_tizonia_uint_from_rc_file ("plex.buffer_seconds",
+                                          plex_buffer_seconds_);
+    }
 
     if (playlist_option_count > 1)
     {

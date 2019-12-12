@@ -71,7 +71,8 @@ namespace tiz
                                          const std::string &proxy_password,
                                          const std::string &proxy_user,
                                          const bool recover_lost_token,
-                                         const bool allow_explicit_tracks);
+                                         const bool allow_explicit_tracks,
+                                         const uint32_t preferred_bitrate);
       OMX_ERRORTYPE set_spotify_playlist (
           const OMX_HANDLETYPE handle, const std::string &playlist,
           const OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE playlist_type,
