@@ -45,6 +45,13 @@ rmdb = @datadir@/tizrmd/tizrm.db
 OMX.Aratelia.audio_renderer.alsa.pcm.alsa_device = default
 OMX.Aratelia.audio_renderer.alsa.pcm.alsa_mixer = Master
 
+# PulseAudio Audio Renderer
+# -------------------------------------------------------------------------
+#
+# OMX.Aratelia.audio_renderer.pulseaudio.pcm.preannouncements_disabled.port0 = false
+# OMX.Aratelia.audio_renderer.pulseaudio.pcm.default_volume = Value from 0
+#                                                             to 100 (Default: 75)
+
 
 [tizonia]
 # Tizonia player section
@@ -56,11 +63,13 @@ OMX.Aratelia.audio_renderer.alsa.pcm.alsa_mixer = Master
 # - OMX.Aratelia.audio_renderer.alsa.pcm
 default-audio-renderer = OMX.Aratelia.audio_renderer.pulseaudio.pcm
 
+
 # MPRIS v2 interface enable/disable switch
 # -------------------------------------------------------------------------
 # Valid values are: true | false
 #
 mpris-enabled = false
+
 
 # HTTP proxy server configuration
 # -------------------------------------------------------------------------
@@ -72,6 +81,7 @@ mpris-enabled = false
 #                is http/https/socks4/socks5). E.g.: http:some.proxy.net:1234
 # proxy.user_name = Username to authenticate with proxy server
 # proxy.user_password = Password to authenticate with proxy server
+
 
 # Spotify configuration
 # -------------------------------------------------------------------------
@@ -85,6 +95,7 @@ mpris-enabled = false
 # spotify.allow_explicit_tracks = false (set to true to allow explicit tracks)
 # spotify.preferred_bitrate = Three possible values: 96, 160, or 320 ; default: 320
 
+
 # Google Play Music configuration
 # -------------------------------------------------------------------------
 # To avoid passing this information on the command line, uncomment and
@@ -97,6 +108,7 @@ mpris-enabled = false
 # gmusic.buffer_seconds = size of the audio buffer (in seconds) to use while
 #                         downloading streams. Default: 720. Increase in
 #                         case of cuts.
+
 
 # SoundCloud configuration
 # -------------------------------------------------------------------------

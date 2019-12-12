@@ -30,6 +30,8 @@
 #include <config.h>
 #endif
 
+#include <stdio.h>
+#include <errno.h>
 #include <stdlib.h>
 #include <assert.h>
 
@@ -109,6 +111,72 @@ pulseaudio_context_state_to_str (const pa_context_state_t a_state)
     }
 
   return (OMX_STRING) "Unknown PA context state";
+}
+
+static long
+get_default_volume (pulsear_prc_t * ap_prc)
+{
+  const char * p_default_vol = tiz_rcfile_get_value (
+    TIZ_RCFILE_PLUGINS_DATA_SECTION,
+    "OMX.Aratelia.audio_renderer.pulseaudio.pcm.default_volume");
+  long default_vol = ARATELIA_PCM_RENDERER_DEFAULT_VOLUME_VALUE;
+  assert (ap_prc);
+
+  if (p_default_vol)
+    {
+      char * end = NULL;
+      TIZ_DEBUG (handleOf (ap_prc), "Parsing '%s': ", p_default_vol);
+      for (long i = strtol (p_default_vol, &end, 10); p_default_vol != end;
+           i = strtol (p_default_vol, &end, 10))
+        {
+          TIZ_DEBUG (handleOf (ap_prc), "'%.*s' -> ",
+                     (int) (end - p_default_vol), p_default_vol);
+          p_default_vol = end;
+          if (errno == ERANGE)
+            {
+              TIZ_ERROR (handleOf (ap_prc), "range error, got %ld\n", i);
+              errno = 0;
+            }
+          else
+            {
+              TIZ_NOTICE (handleOf (ap_prc), "Value parsed: %ld\n", i);
+              default_vol = i;
+            }
+          break;
+        }
+    }
+  if (default_vol > ARATELIA_PCM_RENDERER_MAX_VOLUME_VALUE
+      || default_vol < ARATELIA_PCM_RENDERER_MIN_VOLUME_VALUE)
+    {
+      TIZ_NOTICE (handleOf (ap_prc),
+                  "Value parsed is out of range. Using default value %ld\n",
+                  ARATELIA_PCM_RENDERER_DEFAULT_VOLUME_VALUE);
+      default_vol = ARATELIA_PCM_RENDERER_DEFAULT_VOLUME_VALUE;
+    }
+  return default_vol;
+}
+
+static OMX_ERRORTYPE
+set_initial_component_volume (pulsear_prc_t * ap_prc)
+{
+  OMX_AUDIO_CONFIG_VOLUMETYPE volume;
+
+  assert (ap_prc);
+
+  TIZ_INIT_OMX_PORT_STRUCT (volume, ARATELIA_PCM_RENDERER_PORT_INDEX);
+  tiz_check_omx (tiz_api_GetConfig (tiz_get_krn (handleOf (ap_prc)),
+                                    handleOf (ap_prc),
+                                    OMX_IndexConfigAudioVolume, &volume));
+
+  volume.sVolume.nValue = ap_prc->volume_;
+
+  TIZ_PRINTF_YEL ("ap_prc->volume_ [%d]", ap_prc->volume_);
+
+  tiz_check_omx (tiz_krn_SetConfig_internal (
+    tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+    OMX_IndexConfigAudioVolume, &volume));
+
+  return OMX_ErrorNone;
 }
 
 static OMX_STRING
@@ -1005,6 +1073,7 @@ pulsear_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
      component has already been initialised. */
   if (!(p_prc->p_ev_timer_))
     {
+      p_prc->volume_ = get_default_volume (ap_prc);
       set_volume (ap_prc, p_prc->volume_);
       tiz_check_omx (tiz_srv_timer_watcher_init (p_prc, &(p_prc->p_ev_timer_)));
       rc = init_pulseaudio (ap_prc);
@@ -1037,6 +1106,11 @@ pulsear_prc_prepare_to_transfer (void * ap_prc, OMX_U32 a_pid)
   p_prc->ramp_step_ = 0;
   p_prc->ramp_step_count_ = ARATELIA_PCM_RENDERER_DEFAULT_RAMP_STEP_COUNT;
   p_prc->ramp_volume_ = 0;
+  if (OMX_ErrorNone != set_initial_component_volume (p_prc))
+    {
+      TIZ_NOTICE (handleOf (p_prc), "Could not set the component's volume");
+    }
+
   return OMX_ErrorNone;
 }
 
@@ -1230,9 +1304,8 @@ pulsear_prc_config_change (void * ap_obj, OMX_U32 a_pid,
           tiz_check_omx (
             tiz_api_GetConfig (tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
                                OMX_IndexConfigAudioVolume, &volume));
-          TIZ_DEBUG (
-            handleOf (p_prc),
-            "[OMX_IndexConfigAudioVolume] : volume.sVolume.nValue = %ld",
+          TIZ_DEBUG (handleOf (p_prc),
+            "[OMX_IndexConfigAudioVolume] : volume.sVolume.nValue = %ld\n",
             volume.sVolume.nValue);
           if (volume.sVolume.nValue <= ARATELIA_PCM_RENDERER_MAX_VOLUME_VALUE
               && volume.sVolume.nValue
