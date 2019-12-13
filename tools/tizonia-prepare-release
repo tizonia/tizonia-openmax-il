@@ -210,8 +210,8 @@ function main {
 
     # update_package_versions
     # update_plugin_shared_lib_versions
-    update_shared_lib_versions
-    # update_python_version_strings
+    # update_shared_lib_versions
+    update_python_version_strings
     # update_debian_changelog_files
     # update_doxygen_doc_version_strings
     # update_sphinx_doc_version_strings
