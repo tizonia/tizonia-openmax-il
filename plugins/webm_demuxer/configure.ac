@@ -16,7 +16,7 @@
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
 AC_PREREQ([2.67])
-AC_INIT([tizwebmdmux], [0.18.0], [juan.rubio@aratelia.com])
+AC_INIT([tizwebmdmux], [0.19.0], [juan.rubio@aratelia.com])
 AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE([foreign color-tests silent-rules subdir-objects -Wall -Werror])
 AC_CONFIG_SRCDIR([config.h.in])

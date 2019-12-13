@@ -1,5 +1,5 @@
 AC_PREREQ([2.68])
-AC_INIT([libtizdbus-c++], [0.18.0], [juan.rubio@aratartelia.com], [tizdbus-c++])
+AC_INIT([libtizdbus-c++], [0.19.0], [juan.rubio@aratartelia.com], [tizdbus-c++])
 AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
 AC_CONFIG_SRCDIR([src/error.cpp])
