@@ -1,5 +1,5 @@
-tizgmusicproxy (0.18.0-1) unstable; urgency=low
+tizgmusicproxy (0.19.0-1) unstable; urgency=low
 
-  * source package automatically created by stdeb 0.8.5
+  * Initial release (Closes: #643)
 
- -- Juan A. Rubio <juan.rubio@aratelia.com>  Mon, 11 Nov 2019 18:02:22 +0000
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Fri, 13 Dec 2019 14:37:13 +0000
