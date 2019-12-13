@@ -667,7 +667,7 @@ class tizyoutubeproxy(object):
         length of the playback queue.
 
         """
-        return self.queue_index + 1, len(self.queue)
+        return self.play_queue_order[self.queue_index] + 1, len(self.queue)
 
     def clear_queue(self):
         """ Clears the playback queue.
@@ -703,7 +703,9 @@ class tizyoutubeproxy(object):
                    and (self.queue_index >= 0):
                     next_stream = self.queue[self.play_queue_order \
                                             [self.queue_index]]
-                    return self.__retrieve_stream_url(next_stream, self.queue_index).rstrip()
+                    return self.__retrieve_stream_url(next_stream, \
+                                                      self.play_queue_order \
+                                                      [self.queue_index]).rstrip()
                 else:
                     self.queue_index = -1
                     return self.next_url()
@@ -732,7 +734,9 @@ class tizyoutubeproxy(object):
                    and (self.queue_index >= 0):
                     prev_stream = self.queue[self.play_queue_order \
                                             [self.queue_index]]
-                    return self.__retrieve_stream_url(prev_stream, self.queue_index).rstrip()
+                    return self.__retrieve_stream_url(prev_stream, \
+                                                      self.play_queue_order \
+                                                      [self.queue_index]).rstrip()
                 else:
                     self.queue_index = len(self.queue)
                     return self.prev_url()
