@@ -39,8 +39,8 @@
 
 - [2019-12-13] Tizonia
 [v0.19.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.19.0). Another
-maintenance release with a good bunch of improvements and bug fixes.
-Removed Dirble (the service is sadly gone).
+maintenance release with a good bunch of improvements and bug fixes: e.g. Python 3 migration,
+Dirble removal (the service is sadly gone).
 
 - [2019-03-13] Tizonia
 [v0.18.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.18.0). Various
