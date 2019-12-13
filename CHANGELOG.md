@@ -1,10 +1,58 @@
-# Change Log
+# Changelog
+
+## [v0.19.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.19.0) (2019-12-13)
+
+[Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.18.0...v0.19.0)
+
+**Improvements:**
+
+- Support Debian Bullseye [\#632](https://github.com/tizonia/tizonia-openmax-il/issues/632)
+- install.sh: add support for Linux Mint 19.2 Tina [\#629](https://github.com/tizonia/tizonia-openmax-il/issues/629)
+- Spotify: doesn't seem to use proxy [\#626](https://github.com/tizonia/tizonia-openmax-il/issues/626)
+- Raspbian Buster not supported [\#621](https://github.com/tizonia/tizonia-openmax-il/issues/621)
+- PulseAudio volume remembered/customized [\#620](https://github.com/tizonia/tizonia-openmax-il/issues/620)
+- Python3 support [\#614](https://github.com/tizonia/tizonia-openmax-il/issues/614)
+- Spotify: allow configuration of preferred bitrate settings [\#613](https://github.com/tizonia/tizonia-openmax-il/issues/613)
+- Plex: allow music section name other than 'Music' [\#610](https://github.com/tizonia/tizonia-openmax-il/issues/610)
+- spotify: global playlist search [\#589](https://github.com/tizonia/tizonia-openmax-il/issues/589)
+
+**Fixed bugs:**
+
+- Spotify: tizonia should exit and display an error when used with a non-premium Spotify account [\#634](https://github.com/tizonia/tizonia-openmax-il/issues/634)
+- Dirble not accessible \(Dirble removal\) [\#624](https://github.com/tizonia/tizonia-openmax-il/issues/624)
+- --plex-audio-playlist \<arg\> returns "A playlist type must be specified." [\#605](https://github.com/tizonia/tizonia-openmax-il/issues/605)
+- YouTube: Shuffle option does not work [\#592](https://github.com/tizonia/tizonia-openmax-il/issues/592)
+- Plex: \(UnicodeDecodeError\) : 'ascii' codec can't decode byte [\#580](https://github.com/tizonia/tizonia-openmax-il/issues/580)
+- Segmentation fault with spotify [\#575](https://github.com/tizonia/tizonia-openmax-il/issues/575)
+- \[SoundCloud\] \(UnicodeDecodeError\) : 'ascii' codec can't decode byte 0xc3 in position 0: ordinal not in range\(128\) [\#574](https://github.com/tizonia/tizonia-openmax-il/issues/574)
+
+**Closed issues:**
+
+- Unable to locate package tizonia-all [\#640](https://github.com/tizonia/tizonia-openmax-il/issues/640)
+- Tizonia complains over unsufficient resources [\#622](https://github.com/tizonia/tizonia-openmax-il/issues/622)
+- OMX\_ErrorInsufficientResources when using gmusic [\#617](https://github.com/tizonia/tizonia-openmax-il/issues/617)
+- gmusic: Could not retrieve the song url! \(403: Forbidden\) [\#615](https://github.com/tizonia/tizonia-openmax-il/issues/615)
+- Update command failed [\#611](https://github.com/tizonia/tizonia-openmax-il/issues/611)
+- Tizonia \[runs very slow\] on Mint 18.3 [\#595](https://github.com/tizonia/tizonia-openmax-il/issues/595)
+- Can't install Tizonia on ARMHF hardware [\#594](https://github.com/tizonia/tizonia-openmax-il/issues/594)
+- Cannot render audio on linux mint [\#588](https://github.com/tizonia/tizonia-openmax-il/issues/588)
+- OMX\_ErrorInsufficientResources - Speicherzugriffsfehler [\#587](https://github.com/tizonia/tizonia-openmax-il/issues/587)
+- \[Suggestion\] Shuffle option [\#585](https://github.com/tizonia/tizonia-openmax-il/issues/585)
+- YouTube Audio Steam Token Parameter [\#584](https://github.com/tizonia/tizonia-openmax-il/issues/584)
+- Advise adding a requirement to run script as normal user [\#573](https://github.com/tizonia/tizonia-openmax-il/issues/573)
+- release v0.19.0 [\#643](https://github.com/tizonia/tizonia-openmax-il/issues/643)
+
+**Merged pull requests:**
+
+- Added support for Ubuntu 19.04 \(Disco Dingo\) [\#630](https://github.com/tizonia/tizonia-openmax-il/pull/630) ([Aldin-SXR](https://github.com/Aldin-SXR))
 
 ## [v0.18.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.18.0) (2019-03-13)
+
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.17.0...v0.18.0)
 
 **Improvements:**
 
+- various graphs : add rewind, fast-forward functionality [\#125](https://github.com/tizonia/tizonia-openmax-il/issues/125)
 - Spotify: config option to allow/disallow 'explicit' tracks [\#568](https://github.com/tizonia/tizonia-openmax-il/issues/568)
 - Spotify: smarter  '--spotify-artist' search [\#538](https://github.com/tizonia/tizonia-openmax-il/issues/538)
 
@@ -20,12 +68,13 @@
 
 **Closed issues:**
 
+- release v0.18.0 [\#572](https://github.com/tizonia/tizonia-openmax-il/issues/572)
 - configure error [\#540](https://github.com/tizonia/tizonia-openmax-il/issues/540)
 - docs: document Tizonia's configuration system [\#368](https://github.com/tizonia/tizonia-openmax-il/issues/368)
 - docs: document player shortcuts [\#570](https://github.com/tizonia/tizonia-openmax-il/issues/570)
-- various graphs : add rewind, fast-forward functionality [\#125](https://github.com/tizonia/tizonia-openmax-il/issues/125)
 
 ## [v0.17.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.17.0) (2019-01-17)
+
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.16.0...v0.17.0)
 
 **Fixed bugs:**
@@ -44,6 +93,7 @@
 - Fixed the fetching of user likes & stream on soundcloud [\#548](https://github.com/tizonia/tizonia-openmax-il/pull/548) ([seifane](https://github.com/seifane))
 
 ## [v0.16.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.16.0) (2018-12-03)
+
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.15.0...v0.16.0)
 
 **Improvements:**
@@ -83,6 +133,7 @@
 - release v0.16.0 [\#537](https://github.com/tizonia/tizonia-openmax-il/issues/537)
 
 ## [v0.15.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.15.0) (2018-06-15)
+
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.14.0...v0.15.0)
 
 **Improvements:**
@@ -99,9 +150,7 @@
 - Spotify: tizonia stalls when trying to open a playlist [\#490](https://github.com/tizonia/tizonia-openmax-il/issues/490)
 - Google Music: playback stops at the end of a song and playlist stalls [\#489](https://github.com/tizonia/tizonia-openmax-il/issues/489)
 - player: Spotify playlist search stalls sometimes [\#487](https://github.com/tizonia/tizonia-openmax-il/issues/487)
-- Spotify Playlists with Single Quotes in Name Can't Be Found [\#486](https://github.com/tizonia/tizonia-openmax-il/issues/486)
 - AUR install depends on python2-eventlet-git which fails to build, instead of python2-eventlet which is in the default repository [\#484](https://github.com/tizonia/tizonia-openmax-il/issues/484)
-- spotify: unable to play some playlists [\#471](https://github.com/tizonia/tizonia-openmax-il/issues/471)
 - player: 'segmentation fault' while trying to get metadata of a track [\#433](https://github.com/tizonia/tizonia-openmax-il/issues/433)
 
 **Closed issues:**
@@ -109,6 +158,7 @@
 - release v0.15.0 [\#497](https://github.com/tizonia/tizonia-openmax-il/issues/497)
 
 ## [v0.14.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.14.0) (2018-04-20)
+
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.13.0...v0.14.0)
 
 **Improvements:**
@@ -137,6 +187,7 @@
 - release v0.14.0 [\#482](https://github.com/tizonia/tizonia-openmax-il/issues/482)
 
 ## [v0.13.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.13.0) (2018-03-11)
+
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.12.0...v0.13.0)
 
 **Improvements:**
@@ -175,6 +226,7 @@
 - Fixed path to default config file for standard install [\#448](https://github.com/tizonia/tizonia-openmax-il/pull/448) ([nlwstein](https://github.com/nlwstein))
 
 ## [v0.12.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.12.0) (2018-02-11)
+
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.11.0...v0.12.0)
 
 **Improvements:**
@@ -201,6 +253,7 @@
 - Make aac\_decoder optional [\#422](https://github.com/tizonia/tizonia-openmax-il/pull/422) ([luigino](https://github.com/luigino))
 
 ## [v0.11.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.11.0) (2017-12-17)
+
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.10.0...v0.11.0)
 
 **Improvements:**
@@ -247,6 +300,7 @@
 - Updating link to soundcloud docs page [\#415](https://github.com/tizonia/tizonia-openmax-il/pull/415) ([djsiddz2](https://github.com/djsiddz2))
 
 ## [v0.10.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.10.0) (2017-10-22)
+
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.9.0...v0.10.0)
 
 **Improvements:**
@@ -297,6 +351,7 @@
 - vp8\_decoder: add inport\_SetParameter to set nBufferSize [\#363](https://github.com/tizonia/tizonia-openmax-il/pull/363) ([CapOM](https://github.com/CapOM))
 
 ## [v0.9.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.9.0) (2017-08-04)
+
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.8.0...v0.9.0)
 
 **Improvements:**
@@ -319,15 +374,8 @@
 - libtizonia: allow registration of different egl validation hooks for different component roles [\#350](https://github.com/tizonia/tizonia-openmax-il/issues/350)
 - support mesa/gallium [\#116](https://github.com/tizonia/tizonia-openmax-il/issues/116)
 
-**Merged pull requests:**
-
-- Framerate [\#359](https://github.com/tizonia/tizonia-openmax-il/pull/359) ([CapOM](https://github.com/CapOM))
-- Display proper file path for systemwide configuration in help and README [\#355](https://github.com/tizonia/tizonia-openmax-il/pull/355) ([5nafu](https://github.com/5nafu))
-- tizavcport: Add support for OMX\_IndexParamVideoQuantization [\#352](https://github.com/tizonia/tizonia-openmax-il/pull/352) ([gpalsingh](https://github.com/gpalsingh))
-- Dev [\#344](https://github.com/tizonia/tizonia-openmax-il/pull/344) ([CapOM](https://github.com/CapOM))
-- Fix path to tizonia.conf file [\#342](https://github.com/tizonia/tizonia-openmax-il/pull/342) ([dbart](https://github.com/dbart))
-
 ## [v0.8.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.8.0) (2017-06-25)
+
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.7.0...v0.8.0)
 
 **Improvements:**
@@ -370,11 +418,8 @@
 
 - Can't find a supported Debian or Ubuntu-based distribution. [\#304](https://github.com/tizonia/tizonia-openmax-il/issues/304)
 
-**Merged pull requests:**
-
-- libtizonia: add AVC port [\#320](https://github.com/tizonia/tizonia-openmax-il/pull/320) ([gpalsingh](https://github.com/gpalsingh))
-
 ## [v0.7.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.7.0) (2017-03-02)
+
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.6.0...v0.7.0)
 
 **Improvements:**
@@ -397,6 +442,7 @@
 - Coverity Scan \(CID 1087266\) \[/libtizonia/src/tizutils.c:tiz\_fsm\_state\_to\_str\] : Mixing enum types [\#175](https://github.com/tizonia/tizonia-openmax-il/issues/175)
 
 ## [v0.6.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.6.0) (2017-01-16)
+
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.5.0...v0.6.0)
 
 **Improvements:**
@@ -463,7 +509,6 @@
 - pcm\_renderer\_pa: audio is muted after the component is destroyed and then recreated [\#283](https://github.com/tizonia/tizonia-openmax-il/issues/283)
 - opus\_decoder: handling port settings changes is missing [\#282](https://github.com/tizonia/tizonia-openmax-il/issues/282)
 - opus\_decoder: disable -\> enable sequence is broken [\#279](https://github.com/tizonia/tizonia-openmax-il/issues/279)
-- vorbis\\_decoder: handling of port flush, enable and disable events [\#278](https://github.com/tizonia/tizonia-openmax-il/issues/278)
 - player: spotify playback won't start after the spotify storage area has been cleaned \(or on a first install\) [\#276](https://github.com/tizonia/tizonia-openmax-il/issues/276)
 - spotify\_source: per-user and per-account spotify cache locations [\#275](https://github.com/tizonia/tizonia-openmax-il/issues/275)
 - player: spotify playback won't start if playlist name is not a perfect match AND "invalid" playlists exist in the container     [\#273](https://github.com/tizonia/tizonia-openmax-il/issues/273)
@@ -478,6 +523,7 @@
 - No pluginsdir variable in pkg-config file. [\#248](https://github.com/tizonia/tizonia-openmax-il/issues/248)
 
 ## [v0.5.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.5.0) (2016-06-17)
+
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.4.0...v0.5.0)
 
 **Improvements:**
@@ -495,6 +541,7 @@
 - release v0.4.0 [\#159](https://github.com/tizonia/tizonia-openmax-il/issues/159)
 
 ## [v0.4.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.4.0) (2016-05-04)
+
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.3.0...v0.4.0)
 
 **Improvements:**
@@ -537,6 +584,7 @@
 - tizmp3dec: OMX\_EventPortSettingsChanged not signalled correclty with mono streams [\#157](https://github.com/tizonia/tizonia-openmax-il/issues/157)
 
 ## [v0.3.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.3.0) (2015-12-24)
+
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.2.0...v0.3.0)
 
 **Improvements:**
@@ -555,6 +603,7 @@
 - tizspotifysrc: playlists are not found in the user library [\#148](https://github.com/tizonia/tizonia-openmax-il/issues/148)
 
 ## [v0.2.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.2.0) (2015-12-14)
+
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.1.0...v0.2.0)
 
 **Improvements:**
@@ -579,7 +628,6 @@
 
 - mp3\_decoder: output buffer size is too small and causes too many exchanges with the renderer [\#110](https://github.com/tizonia/tizonia-openmax-il/issues/110)
 - http\_source sometimes stalls when curl instructs to unregister the socket  [\#109](https://github.com/tizonia/tizonia-openmax-il/issues/109)
-- tizspotifysrc: playlist name matching improvements [\#146](https://github.com/tizonia/tizonia-openmax-il/issues/146)
 - tizplatform: tiz\_queue uses internally TIZ\_QUEUE\_MAX\_ITEMS instead of the 'capacity' argument provided [\#144](https://github.com/tizonia/tizonia-openmax-il/issues/144)
 - tizspotifysrc: don't allow the component's main event queue get full \(which leads to component stalling or crashing\)  [\#143](https://github.com/tizonia/tizonia-openmax-il/issues/143)
 - tizspotifysrc: fix various race conditions causing cracking sound problems [\#142](https://github.com/tizonia/tizonia-openmax-il/issues/142)
@@ -704,6 +752,4 @@
 
 - Add a Bitdeli Badge to README [\#5](https://github.com/tizonia/tizonia-openmax-il/pull/5) ([bitdeli-chef](https://github.com/bitdeli-chef))
 
-
-
-\* *This Change Log was automatically generated by [github_changelog_generator](https://github.com/skywinder/Github-Changelog-Generator)*
+\* *This Changelog was automatically generated by [github_changelog_generator](https://github.com/github-changelog-generator/github-changelog-generator)*
