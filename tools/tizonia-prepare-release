@@ -177,7 +177,7 @@ function update_sphinx_doc_version_strings {
 
 function update_changelog {
     cd "$TIZONIA_REPO_DIR"
-    github_changelog_generator --user=juanrubio --project=tizonia/tizonia-openmax-il --future-release "$TIZONIA_RELEASE_VERSION" --enhancement-label "**Improvements:**"
+    github_changelog_generator --user=tizonia --project=tizonia-openmax-il --future-release "$TIZONIA_RELEASE_VERSION" --enhancement-label "**Improvements:**"
 
     query_commit "release $TIZONIA_RELEASE_VERSION: update_changelog"
 }
