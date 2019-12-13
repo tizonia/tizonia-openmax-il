@@ -678,7 +678,7 @@ function do_python_package_debs {
     pkg_ver=$(ls *.gz | perl -pe 'if(($v)=/([0-9]+([.][0-9]+)+)/){print"$v\n";exit}$_=""')
 
     err_msg="[$pkg] : Error while running py2dsc."
-    py2dsc --dist-dir='.' "$pkg-$pkg_ver".tar.gz && cd "$pkg-$pkg_ver"
+    py2dsc --with-python2=False --with-python3=True --dist-dir='.' "$pkg-$pkg_ver".tar.gz && cd "$pkg-$pkg_ver"
     exit_status=$?
 
     if [[ "$exit_status" -eq 0 ]] ; then
