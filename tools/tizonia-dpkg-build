@@ -961,7 +961,7 @@ function do_uninstall_project_debs {
 function do_uninstall_all_debs {
     local exit_status=0
     sudo apt-get remove --purge tizonia-all -qq --force-yes && sudo apt-get autoremove -qq --force-yes
-    dpkg -l | grep -E 'ii\s*(libtiz|tiz|python-tiz|python3-tiz)' | awk '{ print $2 }' | xargs sudo apt-get remove --purge -qq
+    dpkg -l | grep -E '.*\s+(libtiz|tiz|python-tiz|python3-tiz)' | awk '{ print $2 }' | xargs sudo apt-get remove --purge -qq
     return "$exit_status"
 }
 
