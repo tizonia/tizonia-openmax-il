@@ -130,6 +130,7 @@ declare -ar TIZ_DEBIAN_PKGS=( \
     fakeroot \
     dh-autoreconf \
     equivs \
+    python-stdeb \
     python3-stdeb \
 )
 
