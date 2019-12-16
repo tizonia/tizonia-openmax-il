@@ -44,8 +44,10 @@ declare -ar TIZ_SUPPORTED_RELEASES=( \
     debian-jessie \
     debian-stretch \
     debian-buster \
+    debian-bullseye \
     raspbian-jessie \
     raspbian-stretch \
+    raspbian-buster \
 )
 
 declare -ar TIZ_LIBSPOTIFY_DEPS=( \
@@ -1124,7 +1126,9 @@ function main {
     obtain_distro_id_and_codename
     if [[ "$DISTRO_ID" == "raspbian" || "$DISTRO_ID" == "debian" ]]; then
         local version_id=$(cat /etc/*-release | grep -E '^VERSION_ID=' | cut -d'=' -f2)
-        if [[ "$version_id" == "\"10\"" ]]; then
+        if [[ "$version_id" == "\"11\"" ]]; then
+            DISTRO_CODENAME="bullseye"
+        elif [[ "$version_id" == "\"10\"" ]]; then
             DISTRO_CODENAME="buster"
         elif [[ "$version_id" == "\"9\"" ]]; then
             DISTRO_CODENAME="stretch"
