@@ -146,7 +146,7 @@ which tizonia > /dev/null
 if [[ "$?" -eq 0 ]]; then
     echo ; tizonia ; echo
     printf "Tizonia is now installed.\n\n"
-    printf "Please add Spotify, Google Music, Soundcloud, Dirble, and Plex credentials to : $TIZ_CONFIG_FILE\n"
+    printf "Please add Spotify, Google Music, Soundcloud, and Plex credentials to : $TIZ_CONFIG_FILE\n"
 else
     echo "Oops. Something went wrong!"
     exit 1
