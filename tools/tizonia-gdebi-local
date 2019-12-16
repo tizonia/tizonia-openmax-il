@@ -1,0 +1,64 @@
+#!/bin/bash
+
+source tizonia-common.inc
+
+declare -ar TIZ_ALL_PACKAGES=( \
+   tizilheaders \
+   libtizdbus-c++0 \
+   libtizdbus-c++-bin \
+   python3-tizgmusicproxy \
+   python3-tizsoundcloudproxy \
+   python3-tizyoutubeproxy \
+   python3-tizplexproxy \
+   python3-tizchromecastproxy \
+   python3-tizspotifyproxy \
+   libtizgmusic0 \
+   libtizsoundcloud0 \
+   libtizyoutube0 \
+   libtizplex0 \
+   libtizchromecast0 \
+   libtizspotify0 \
+   libtizplatform0 \
+   tizcastd \
+   libtizcastclient0 \
+   tizrmd \
+   libtizrmproxy0 \
+   libtizcore0 \
+   libtizonia0 \
+   libtizaacdec0 \
+   libtizchromecastrnd0 \
+   libtizfr0 \
+   libtizfw0 \
+   libtizflacdec0 \
+   libtizhttprnd0 \
+   libtizhttpsrc0 \
+   libtizmp3dec0 \
+   libtizmp3enc0 \
+   libtizmp3meta0 \
+   libtizmpgdec0 \
+   libtizoggdmux0 \
+   libtizwebmdmux0 \
+   libtizopusdec0 \
+   libtizopusfiledec0 \
+   libtizpcmdec0 \
+   libtizalsapcmrnd0 \
+   libtizpulsepcmrnd0 \
+   libtizspotifysrc0 \
+   libtizvorbisdec0 \
+   libtizvp8dec0 \
+   libtizsdlivrnd0 \
+   tizonia-player \
+   tizonia-config \
+)
+
+export TIZONIA_ROOTFS_DIR="$TIZONIA_CHROOT_ENVS_DIR/$DISTRO-$RELEASE-$ARCH"
+for pkg in "${TIZ_ALL_PACKAGES[@]}"; do
+    if [[ $pkg =~ ^python3 ]]; then
+        sudo gdebi -n $(find $TIZONIA_ROOTFS_DIR/root/work/debian -type f -name "${pkg}_${TIZONIA_RELEASE_VERSION}*_all.deb" -print)
+    elif [[ $pkg =~ ^tizilheaders ]]; then
+        sudo gdebi -n $(find $TIZONIA_ROOTFS_DIR/root/work/debian -type f -name "${pkg}_${TIZONIA_RELEASE_VERSION}*_all.deb" -print)
+    else
+        sudo gdebi -n $(find $TIZONIA_ROOTFS_DIR/root/work/debian -type f -name "${pkg}_${TIZONIA_RELEASE_VERSION}*${ARCH}.deb" -print)
+    fi
+done
+# sudo gdebi $TIZONIA_ROOTFS_DIR/$DISTRO-$RELEASE-$ARCH/root/work/debian
