@@ -34,13 +34,15 @@
 # News
 
 > NOTE: Please remember to also visit Tizonia's website at
-> http://www.tizonia.org There is always some more info on what is going on
-> with the latest releases.
+> http://tizonia.org There is always some additional info on what is going on
+> in the project and in the latest releases.
 
 - [2019-12-13] Tizonia
 [v0.19.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.19.0). Another
-maintenance release with a good bunch of improvements and bug fixes: e.g. Python 3 migration,
-Dirble removal (the service is sadly gone).
+maintenance release with a good bunch of improvements and bug fixes: Dirble
+removal (the service is sadly gone), Python 3 migration (please see the section
+[Upgrade (Debian / Ubuntu / Raspbian)](#upgrade-debian--ubuntu--raspbian) to learn
+how to install the new Python 3 dependencies!).
 
 - [2019-03-13] Tizonia
 [v0.18.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.18.0). Various
@@ -94,7 +96,7 @@ combinations:
 |        amd64          |     amd64, armhf      |     amd64, armhf   |        armhf         |       amd64          |
 | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-xenial/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-xenial/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-bionic/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-bionic/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-buster/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-buster/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/raspbian/tizonia-buster/images/download.svg) ](https://bintray.com/tizonia/raspbian/tizonia-buster/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-bullseye/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-bullseye/_latestVersion) |
 
-> NOTE: Elementary OS, Linux Mint, Kali Linux are supported on releases based on Ubuntu 'Xenial' or 'Bionic' and Debian 'Buster'. To install Tizonia on non-LTS Ubuntu releases, use the Snap package or have a look at [#631](https://github.com/tizonia/tizonia-openmax-il/issues/631).
+> NOTE: Elementary OS, Linux Mint, Kali Linux are supported on releases based on Ubuntu 'Xenial' or 'Bionic', Debian 'Buster' or 'Bullseye'. To install Tizonia on other Debian or Ubuntu-based OSes, use the Snap package or have a look at [#631](https://github.com/tizonia/tizonia-openmax-il/issues/631).
 
 Please note that the **recommended** way of installing Tizonia on a
 Debian-compatible system is by running the following command:
