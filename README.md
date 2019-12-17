@@ -96,7 +96,7 @@ combinations:
 
 > NOTE: Elementary OS, Linux Mint, Kali Linux are supported on releases based on Ubuntu 'Xenial' or 'Bionic' and Debian 'Buster'. To install Tizonia on non-LTS Ubuntu releases, use the Snap package or have a look at [#631](https://github.com/tizonia/tizonia-openmax-il/issues/631).
 
-Please note that the **recommended** way to install Tizonia on a
+Please note that the **recommended** way of installing Tizonia on a
 Debian-compatible system is by running the following command:
 
 ```bash
@@ -184,7 +184,6 @@ more information):
     ( NOTE: If Tizonia was installed from the 'snap' package, use this path instead )
     ( $HOME/snap/tizonia/current/.config/tizonia/tizonia.conf )
 
-
 ```
 
 ## Upgrade (Debian / Ubuntu / Raspbian)
@@ -193,21 +192,25 @@ To upgrade, simply re-run the install script. This is the most convienent way
 of upgrading the software and all its dependencies.
 
 If you prefer to do it manually, it is a two-step process. Run 'apt-get' as
-usual to upgrade the Debian packages, but also make sure the various Python 3
-dependencies are up-to-date, as follows:
+usual to upgrade the Debian packages, but also make sure that the various
+Python dependencies are up-to-date, as follows:
 
 ```bash
 
-    # Step1: This will update Tizonia's Debian packages
+    # Step1: update Tizonia's Debian packages
     $ sudo apt-get update && sudo apt-get upgrade
 
-    # Step2: Tizonia's Python 3 dependencies
-    # (Note that new versions of some of these Python packages are released frequently,
+    # Step2: update Tizonia's Python dependencies
+    # (Note that new versions of some of these Python dependencies are released often,
     # so you should do this frequently, even if there isn't a new Tizonia release)
+
+    # For Tizonia v0.19.0 or newer: Python 3 dependencies
     $ sudo -H pip3 install --upgrade gmusicapi soundcloud youtube-dl pafy pycountry titlecase pychromecast plexapi fuzzywuzzy eventlet python-Levenshtein && sudo -H pip3 install git+https://github.com/plamere/spotipy.git --upgrade
 
-```
+    # For Tizonia v0.18.0 or older: Python 2 dependencies
+    $ sudo -H pip2 install --upgrade gmusicapi soundcloud youtube-dl pafy pycountry titlecase pychromecast plexapi fuzzywuzzy eventlet python-Levenshtein && sudo -H pip2 install git+https://github.com/plamere/spotipy.git --upgrade
 
+```
 
 # Roadmap
 
