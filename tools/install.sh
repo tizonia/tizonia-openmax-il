@@ -46,32 +46,32 @@ RELIDS=$(cat /etc/*-release)
 if echo "$RELIDS" | grep raspbian; then
     DISTRO="raspbian"
     if echo "$RELIDS" | grep buster; then
-        RELEASE="buster"
+        RELEASE="buster" ; PYVER=3
     elif echo "$RELIDS" | grep stretch; then
-        RELEASE="stretch"
+        RELEASE="stretch"; PYVER=2
     elif echo "$RELIDS" | grep jessie; then
-        RELEASE="jessie"
+        RELEASE="jessie" ; PYVER=2
     else
         echo "Can't find a supported Raspbian distribution."
         exit 1
     fi
 elif echo "$RELIDS" | grep stretch; then
-  DISTRO="debian" ; RELEASE="stretch"
+  DISTRO="debian" ; RELEASE="stretch" ; PYVER=2
 elif echo "$RELIDS" | grep -E 'buster'; then
-  DISTRO="debian" ; RELEASE="buster"
+  DISTRO="debian" ; RELEASE="buster" ; PYVER=3
 elif echo "$RELIDS" | grep -E 'bullseye|kali-rolling'; then
   # NOTE: Kali Linux is based on Debian Testing, which is currently codenamed 'Bullseye'
-  DISTRO="debian" ; RELEASE="bullseye"
+  DISTRO="debian" ; RELEASE="bullseye" ; PYVER=3
 elif echo "$RELIDS" | grep -E 'trusty|freya|qiana|rebecca|rafaela|rosa'; then
   # NOTE: Elementary OS 'freya' is based on trusty
   # NOTE: LinuxMint 'qiana' 'rebecca' 'rafaela' 'rosa' are all based on trusty
-  DISTRO="ubuntu" ; RELEASE="trusty"
+  DISTRO="ubuntu" ; RELEASE="trusty" ; PYVER=2
 elif echo "$RELIDS" | grep vivid; then
-  DISTRO="ubuntu" ; RELEASE="vivid"
+  DISTRO="ubuntu" ; RELEASE="vivid" ; PYVER=2
 elif echo "$RELIDS" | grep -E 'xenial|loki|sarah|serena|sonya|sylvia'; then
   # NOTE: Elementary OS 'loki' is based on xenial
   # NOTE: Linux Mint 'sarah', 'serena', 'sonya' and 'sylvia' are based on xenial
-  DISTRO="ubuntu" ; RELEASE="xenial"
+  DISTRO="ubuntu" ; RELEASE="xenial" ; PYVER=2
 elif echo "$RELIDS" | grep -E 'bionic|juno|hera|tara|tessa|tina'; then
   # NOTE: Elementary OS 'juno', and 'hera' are based on bionic
   # NOTE: Linux Mint 'tara'. 'tessa' and 'tina' are based on bionic
@@ -79,7 +79,7 @@ elif echo "$RELIDS" | grep -E 'bionic|juno|hera|tara|tessa|tina'; then
   # releases, meaning you can try adding newer releases to the bionic conditional
   # (e.g. 'disco|bionic|juno|...'), to support installation on a newer system; 
   # however, do this 'at your own risk', as not all features will be guaranteed to work.
-  DISTRO="ubuntu" ; RELEASE="bionic"
+  DISTRO="ubuntu" ; RELEASE="bionic" ; PYVER=3
 else
   echo "Can't find a supported Debian or Ubuntu-based distribution."
   exit 1
@@ -88,7 +88,7 @@ fi
 # Let's make sure these packages are already installed before trying to install
 # anything else.  Some of these packages are needed to make sure that Tizonia's
 # Python dependencies are correctly installed from PIP.
-sudo apt-get -y --force-yes install build-essential git curl python3-dev apt-transport-https libffi-dev libssl-dev libxml2-dev libxslt1-dev
+sudo apt-get -y --force-yes install build-essential git curl apt-transport-https libffi-dev libssl-dev libxml2-dev libxslt1-dev
 if [[ "$?" -ne 0 ]]; then
     echo "Oops. Some important dependencies failed to install!."
     echo "Please re-run the install script."
@@ -113,22 +113,41 @@ fi
 # Resynchronize APT's package index files
 sudo apt-get update
 
-# Python dependencies (NOTE: using pip3 here, to make sure the Python 3
-# versions of these packages are installed).
-sudo apt-get -y install python3-pip \
-    && sudo -H pip3 install --upgrade \
-            gmusicapi \
-            soundcloud \
-            youtube-dl \
-            pafy \
-            pycountry \
-            titlecase \
-            pychromecast \
-            plexapi \
-            fuzzywuzzy \
-            eventlet \
-            python-Levenshtein \
-    && sudo -H pip3 install git+https://github.com/plamere/spotipy.git --upgrade
+# Python dependencies (NOTE: using pip2 or pip3 depending on which Python
+# version is required for the version of Tizonia being installed.
+if [[ PYVER=3 ]]; then
+    sudo apt-get -y remove python3-pip \
+        && sudo apt-get -y install python3-dev python3-pip \
+        && sudo -H pip3 install --upgrade \
+                gmusicapi \
+                soundcloud \
+                youtube-dl \
+                pafy \
+                pycountry \
+                titlecase \
+                pychromecast \
+                plexapi \
+                fuzzywuzzy \
+                eventlet \
+                python-Levenshtein \
+        && sudo -H pip3 install git+https://github.com/plamere/spotipy.git --upgrade
+else
+    sudo apt-get -y install python-dev python-pip \
+        && sudo -H pip2 install --upgrade \
+                gmusicapi \
+                soundcloud \
+                youtube-dl \
+                pafy \
+                pycountry \
+                titlecase \
+                pychromecast \
+                plexapi \
+                fuzzywuzzy \
+                eventlet \
+                python-Levenshtein \
+        && sudo -H pip2 install git+https://github.com/plamere/spotipy.git --upgrade
+fi
+
 
 # Install 'libspotify'
 if [[ "$?" -eq 0 ]]; then
