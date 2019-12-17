@@ -91,7 +91,7 @@ combinations:
 
 | Ubuntu Xenial (16.04) | Ubuntu Bionic (18.04) | Debian Buster (10) | Raspbian Buster (10) | Debian Bullseye (11) |
 |        :---:          |        :---:          |        :---:       |        :---:         |       :---:          |
-|     amd64, armhf      |     amd64, armhf      |     amd64, armhf   |        armhf         |       amd64          |
+|        amd64          |     amd64, armhf      |     amd64, armhf   |        armhf         |       amd64          |
 | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-xenial/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-xenial/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-bionic/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-bionic/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-buster/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-buster/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/raspbian/tizonia-buster/images/download.svg) ](https://bintray.com/tizonia/raspbian/tizonia-buster/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-bullseye/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-bullseye/_latestVersion) |
 
 > NOTE: Elementary OS, Linux Mint, Kali Linux are supported on releases based on Ubuntu 'Xenial' or 'Bionic' and Debian 'Buster'. To install Tizonia on non-LTS Ubuntu releases, use the Snap package or have a look at [#631](https://github.com/tizonia/tizonia-openmax-il/issues/631).
