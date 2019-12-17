@@ -64,6 +64,9 @@ Debian-compatible system to build Tizonia from source.
     $ export TIZONIA_INSTALL_DIR=/path/to/install/dir # (e.g. /usr or /home/user/temp)
     $ export PATH=$TIZONIA_REPO_DIR/tools:$PATH
 
+    Set the PYTHONPATH accordingly (replace X to match the python version on your system)
+    $ export PYTHONPATH=$TIZONIA_INSTALL_DIR/lib/python3.X/site-packages:$PYTHONPATH
+
     Now install everything that is required to build Tizonia from source (Debian derivative assumed)
     $ tizonia-dev-build --deps
 
