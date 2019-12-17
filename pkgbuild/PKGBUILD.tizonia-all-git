@@ -2,9 +2,9 @@
 
 _githubname=tizonia-openmax-il
 pkgname=tizonia-all-git
-pkgver=0.18.0.r0.g89a4d6a6
+pkgver=0.19.0.r10.ge97603a4
 pkgrel=1
-pkgdesc="Command-line cloud music player for Linux with support for Spotify, Google Play Music, YouTube, SoundCloud, Dirble Internet Radio, Plex servers and Chromecast devices."
+pkgdesc="Command-line cloud music player for Linux with support for Spotify, Google Play Music, YouTube, SoundCloud, Plex servers and Chromecast devices."
 arch=('x86_64')
 url="https://www.tizonia.org"
 license=('LGPL')
@@ -33,20 +33,20 @@ depends=(
     'libpulse'
     'boost'
     'check'
-    'python2-pafy'
-    'python2-eventlet'
+    'youtube-dl'
+    'python-levenshtein'
 
     # AUR:
     'log4c'
     'libspotify'
-    'python2-gmusicapi'
-    'python2-soundcloud-git'
-    'python2-youtube-dl-git'
-    'python2-pychromecast-git'
+    'python-pafy-git'
+    'python-eventlet-git'
+    'python-gmusicapi-git'
+    'python-soundcloud-git'
+    'python-pychromecast-git'
     'python-plexapi'
-    'python2-fuzzywuzzy'
-    'python2-eventlet'
-    'python2-spotipy'
+    'python-fuzzywuzzy-git'
+    'python-spotipy-git'
 )
 provides=('tizonia-all')
 conflicts=('tizonia-all')
@@ -68,14 +68,9 @@ prepare() {
       echo >&2 "See https://github.com/tizonia/tizonia-openmax-il/issues/485." ; \
       exit 1; }
   mkdir -p "$srcdir/path"
-  # Tizonia expects Python 2
-  ln -sf /usr/bin/python2 "$srcdir/path/python"
-  ln -sf /usr/bin/python2-config "$srcdir/path/python-config"
 }
 
 build() {
-    export PATH="$srcdir/path:$PATH"
-    export PYTHON="/usr/bin/python2"
     cd "$pkgname"
     autoreconf -ifs
     ./configure \
