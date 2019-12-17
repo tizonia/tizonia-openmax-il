@@ -65,7 +65,7 @@ Debian-compatible system to build Tizonia from source.
     $ export PATH=$TIZONIA_REPO_DIR/tools:$PATH
 
     Now install everything that is required to build Tizonia from source (Debian derivative assumed)
-    $ tools/tizonia-dev-build --deps
+    $ tizonia-dev-build --deps
 
 ```
 
@@ -82,7 +82,7 @@ flags, and then proceeds to build and install them.
 
 ```bash
 
-   $ tools/tizonia-dev-build --debug --install
+   $ tizonia-dev-build --debug --install
 
 ```
 
@@ -93,7 +93,7 @@ flags, builds and installs them.
 
 ```bash
 
-   $ tools/tizonia-dev-build --release --install
+   $ tizonia-dev-build --release --install
 
 ```
 
@@ -115,7 +115,7 @@ then be removed via 'dpkg' or even moved to another machine for testing.
 ```bash
 
    This produces and install a Debian package called 'tizonia-all-testing'
-   $ tools/tizonia-dev-build --debian
+   $ tizonia-dev-build --debian
 
    To remove from the system, run:
    $ dpkg -r tizonia-all-testing
@@ -157,7 +157,7 @@ disable configuration and build of the `tizonia` player.
 ```bash
 
    # Build and install in DEBUG mode without the command-line player program.
-   $ tools/tizonia-dev-build --no-player --debug --install
+   $ tizonia-dev-build --no-player --debug --install
 
 ```
 
