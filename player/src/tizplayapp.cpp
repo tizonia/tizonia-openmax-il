@@ -909,7 +909,7 @@ tiz::playapp::spotify_stream ()
   std::string proxy_pass = popts_.proxy_password ();
   const bool recover_lost_token = popts_.spotify_recover_lost_token ();
   const bool allow_explicit_tracks = popts_.spotify_allow_explicit_tracks ();
-  uint32_t preferred_bitrate = popts_.spotify_preferred_bitrate ();
+  const uint32_t preferred_bitrate = popts_.spotify_preferred_bitrate ();
   const uri_lst_t &uri_list = popts_.spotify_playlist_container ();
   const OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE playlist_type
       = popts_.spotify_playlist_type ();
@@ -935,10 +935,10 @@ tiz::playapp::spotify_stream ()
   playlist->set_loop_playback (true);
 
   tizgraphconfig_ptr_t config
-      = boost::make_shared< tiz::graph::spotifyconfig > (
+    = boost::shared_ptr< tiz::graph::spotifyconfig > (new tiz::graph::spotifyconfig(
           playlist, user, pass, proxy_server, proxy_user, proxy_pass,
           playlist_type, owner, recover_lost_token, allow_explicit_tracks,
-          preferred_bitrate);
+          preferred_bitrate));
 
   // Instantiate the streaming client manager
   tiz::graphmgr::mgr_ptr_t p_mgr
