@@ -19,17 +19,17 @@
 # Script that installs Tizonia's debian packages and their dependencies.
 #
 
+# NEWS banner is disabled until the time comes to re-enable it
+# echo "============================== NEWS =================================="
+# echo "Tizonia v0.XX.0 has just been recently released (XX/XX/20XX). However,"
+# echo "Debian packaging is still in progress and the new release is not yet"
+# echo "in the repos!. Please bear with us while we finalize the packaging."
+# echo "This message will be removed in the next few days, as soon as the"
+# echo "new binaries have been uploaded to Bintray. Please check back soon!."
+# echo "======================================================================"
+# exit 0
+
 # Make sure the installation happens safely
-
-echo "============================== NEWS =================================="
-echo "Tizonia v0.19.0 has just been recently released (13/12/2019). However,"
-echo "Debian packaging is still in progress and the new release is not yet"
-echo "in the repos!. Please bear with us while we finalize the packaging."
-echo "This message will be removed in the next few days, as soon as the"
-echo "new binaries have been uploaded to Bintray. Please check back soon!."
-echo "======================================================================"
-exit 0
-
 if [[ "$(id -u)" -eq 0 ]]; then
     if [[ ( -z "$1" ) || ( "$1" != "--safe" ) ]]; then
         echo "WARNING: Running as root; installation aborted."
