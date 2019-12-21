@@ -218,14 +218,16 @@ Python dependencies are up-to-date, as follows:
 
 Roughly in priority order:
 
-- Pandora support ([#340](https://github.com/tizonia/tizonia-openmax-il/issues/340)).
+- REPL command-line interface.
+- TuneIn support.
+- Colored output options/theming ([#586](https://github.com/tizonia/tizonia-openmax-il/issues/586)).
 - RPC interface / headless support ([#488](https://github.com/tizonia/tizonia-openmax-il/issues/488), [#509](https://github.com/tizonia/tizonia-openmax-il/issues/509), [#551](https://github.com/tizonia/tizonia-openmax-il/issues/551)).
+- Pandora support ([#340](https://github.com/tizonia/tizonia-openmax-il/issues/340)).
 - Airsonic/Subsonic support ([#496](https://github.com/tizonia/tizonia-openmax-il/issues/496)).
 - Deezer support ([#498](https://github.com/tizonia/tizonia-openmax-il/issues/498))
 - Tidal support ([#440](https://github.com/tizonia/tizonia-openmax-il/issues/440))
 - OS X port ([#316](https://github.com/tizonia/tizonia-openmax-il/issues/316)).
-- Support for YouTube live streams ([#391](https://github.com/tizonia/tizonia-openmax-il/issues/391)).
-- REPL command-line interface.
+- YouTube live streams ([#391](https://github.com/tizonia/tizonia-openmax-il/issues/391)).
 
 # Resources
 
