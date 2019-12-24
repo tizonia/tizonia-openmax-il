@@ -21,14 +21,13 @@ Access Plex servers to retrieve audio track URLs and create a playback queue.
 
 """
 
-
-
 import sys
 import os
 import logging
 import random
 import unicodedata
 import re
+import configparser
 from plexapi.exceptions import NotFound
 from plexapi.myplex import MyPlexAccount
 from plexapi.server import PlexServer
@@ -55,19 +54,18 @@ if os.environ.get('TIZONIA_PLEXPROXY_DEBUG'):
 else:
     logging.getLogger().addHandler(logging.NullHandler())
 
-class _Colors:
-    """A trivial class that defines various ANSI color codes.
+class ConfigColors():
+    def __init__(self):
+        self.config = configparser.ConfigParser()
+        self.config.read(os.path.join(os.getenv("HOME"), ".config/tizonia/tizonia.conf"))
+        self.FAIL = '\033[' + self.config.get('color-theme', 'C08', fallback='91').replace(',', ';') + 'm'
+        self.OKGREEN = '\033[' + self.config.get('color-theme', 'C09', fallback='92').replace(',', ';') + 'm'
+        self.WARNING = '\033[' + self.config.get('color-theme', 'C10', fallback='93').replace(',', ';') + 'm'
+        self.OKBLUE = '\033[' + self.config.get('color-theme', 'C11', fallback='94').replace(',', ';') + 'm'
+        self.ENDC = '\033[0m'
 
-    """
-    BOLD = '\033[1m'
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
+_Colors = ConfigColors()
 
-# This code is here for debugging purposes
 def pretty_print(color, msg=""):
     """Print message with color.
 

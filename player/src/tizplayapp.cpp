@@ -167,7 +167,8 @@ namespace
 
   void player_sig_term_hdlr (int sig)
   {
-    TIZ_PRINTF_BLU ("\n\n%s exiting (Ctrl-C).\n", APP_NAME);
+    printf ("\n\n");
+    TIZ_PRINTF_C04 ("%s exiting (Ctrl-C).", APP_NAME);
     player_exit_success ();
   }
 
@@ -365,14 +366,22 @@ namespace
     {
       if (OMX_ErrorNone != code)
       {
-        TIZ_PRINTF_BLU ("\n%s exiting (%s).\n", APP_NAME,
+        printf ("\n");
+        TIZ_PRINTF_C04 ("%s exiting (%s).", APP_NAME,
                         tiz_err_to_str (code));
-        TIZ_PRINTF_RED ("\n %s\n\n", msg.c_str ());
+        printf ("\n");
+        printf (" ");
+        TIZ_PRINTF_C01 ("%s", msg.c_str ());
+        printf ("\n");
         player_exit_failure ();
       }
       else
       {
-        TIZ_PRINTF_BLU ("\n\n%s exiting (Quit).\n\n", APP_NAME);
+        printf ("\n");
+        printf ("\n");
+        TIZ_PRINTF_C04 ("%s exiting (Quit).", APP_NAME);
+        printf ("\n");
+        printf ("\n");
         player_exit_success ();
       }
     }
@@ -551,10 +560,11 @@ tiz::playapp::daemonize_if_requested () const
 
   if (gb_daemon_mode)
   {
-    TIZ_PRINTF_BLU ("Starting daemon.\n\n");
+    TIZ_PRINTF_C04 ("Starting daemon.");
+    printf ("\n");
     if (-1 == tiz::daemon::daemonize ())
     {
-      TIZ_PRINTF_RED ("Could not daemonize.\n");
+      TIZ_PRINTF_C01 ("Could not daemonize.");
       player_exit_failure ();
     }
   }
@@ -734,7 +744,7 @@ tiz::playapp::decode_local ()
     if (!tizplaylist_t::assemble_play_list (
             uri, shuffle, recurse, extension_list, file_list, error_msg))
     {
-      TIZ_PRINTF_RED ("%s (%s).\n", error_msg.c_str (), uri.c_str ());
+      TIZ_PRINTF_C01 ("%s (%s).", error_msg.c_str (), uri.c_str ());
       player_exit_failure ();
     }
   }
@@ -796,7 +806,7 @@ tiz::playapp::serve_stream ()
     if (!tizplaylist_t::assemble_play_list (
             uri, shuffle, recurse, extension_list, file_list, error_msg))
     {
-      TIZ_PRINTF_RED ("%s (%s).\n", error_msg.c_str (), uri.c_str ());
+      TIZ_PRINTF_C01 ("%s (%s).", error_msg.c_str (), uri.c_str ());
       player_exit_failure ();
     }
   }
@@ -806,7 +816,7 @@ tiz::playapp::serve_stream ()
   // Retrieve the hostname and ip address
   if (!get_host_name_and_ip (hostname, ip_address, error_msg))
   {
-    TIZ_PRINTF_RED ("%s.\n", error_msg.c_str ());
+    TIZ_PRINTF_C01 ("%s.", error_msg.c_str ());
     player_exit_failure ();
   }
 
@@ -922,7 +932,7 @@ tiz::playapp::spotify_stream ()
     std::string msg (user);
     msg.append ("'s password:");
     pass.assign (getpass (msg.c_str ()));
-    TIZ_PRINTF_RED ("\n");
+    printf ("\n");
   }
 
   // daemon support
@@ -988,7 +998,7 @@ tiz::playapp::gmusic_stream ()
     std::string msg (user);
     msg.append ("'s password:");
     pass.assign (getpass (msg.c_str ()));
-    TIZ_PRINTF_RED ("\n");
+    printf ("\n");
   }
 
   // daemon support
@@ -1265,7 +1275,7 @@ tiz::playapp::gmusic_stream_chromecast ()
     std::string msg (user);
     msg.append ("'s password:");
     pass.assign (getpass (msg.c_str ()));
-    TIZ_PRINTF_RED ("\n");
+    printf ("\n");
   }
 
   // daemon support

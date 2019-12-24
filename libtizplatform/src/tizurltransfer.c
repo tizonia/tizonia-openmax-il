@@ -1356,9 +1356,9 @@ tiz_urltrans_on_timer_ready (tiz_urltrans_t * ap_trans,
   else if (ap_trans->awaiting_reconnect_timer_ev_
            && ap_ev_timer == ap_trans->p_ev_reconnect_timer_)
     {
-      TIZ_PRINTF_RED ("\rFailed to connect to '%s'.",
+      TIZ_PRINTF_C01 ("\rFailed to connect to '%s'.",
                       ap_trans->p_uri_param_->contentURI);
-      TIZ_PRINTF_RED ("Re-connecting in %.1f seconds.\n",
+      TIZ_PRINTF_C01 ("Re-connecting in %.1f seconds.\n",
                       ap_trans->reconnect_timeout_);
       curl_multi_remove_handle (ap_trans->p_curl_multi_, ap_trans->p_curl_);
       start_curl (ap_trans);

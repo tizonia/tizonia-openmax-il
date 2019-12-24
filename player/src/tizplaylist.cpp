@@ -537,7 +537,7 @@ int tiz::playlist::find_next_sub_list (const int index) const
 
 void tiz::playlist::print_info ()
 {
-  TIZ_PRINTF_BLU ("Playlist length: %lu. File extensions in playlist: %s\n",
+  TIZ_PRINTF_C04 ("Playlist length: %lu. File extensions in playlist: %s",
                   (long)uri_list_.size (),
                   boost::algorithm::join (extension_list_, ", ").c_str ());
 }

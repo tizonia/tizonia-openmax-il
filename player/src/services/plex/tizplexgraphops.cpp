@@ -250,8 +250,9 @@ void graph::plexops::do_retrieve_metadata ()
   OMX_GetParameter (handles_[2], OMX_IndexParamAudioPcm, &renderer_pcmtype_);
 
   // Now print renderer metadata
-  TIZ_PRINTF_MAG (
-      "     %ld Ch, %g KHz, %lu:%s:%s \n", renderer_pcmtype_.nChannels,
+  printf ("     ");
+  TIZ_PRINTF_C05 (
+      "%ld Ch, %g KHz, %lu:%s:%s \n", renderer_pcmtype_.nChannels,
       ((float)renderer_pcmtype_.nSamplingRate) / 1000,
       renderer_pcmtype_.nBitPerSample,
       renderer_pcmtype_.eNumData == OMX_NumericalDataSigned ? "s" : "u",
@@ -525,8 +526,9 @@ void graph::plexops::do_reconfigure_second_tunnel ()
       OMX_SetParameter (handles_[2], OMX_IndexParamAudioPcm, &renderer_pcmtype),
       "Unable to set the PCM settings on the audio renderer");
 
-  TIZ_PRINTF_MAG (
-      "     %ld Ch, %g KHz, %lu:%s:%s\n", renderer_pcmtype.nChannels,
+  printf ("     ");
+  TIZ_PRINTF_C05 (
+      "%ld Ch, %g KHz, %lu:%s:%s\n", renderer_pcmtype.nChannels,
       ((float)renderer_pcmtype.nSamplingRate) / 1000,
       renderer_pcmtype.nBitPerSample,
       renderer_pcmtype.eNumData == OMX_NumericalDataSigned ? "s" : "u",

@@ -929,7 +929,7 @@ start_playback (spfysrc_prc_t * ap_prc)
             {
               const int ntracks = tiz_spotify_get_current_queue_length_as_int (
                 ap_prc->p_spfy_web_);
-              TIZ_PRINTF_YEL ("[Spotify] [WARN ] '%s' : track not available.\n",
+              TIZ_PRINTF_C03 ("[Spotify] [WARN ] '%s' : track not available.",
                               sp_track_name (ap_prc->p_sp_track_));
               if (ntracks > 1)
                 {
@@ -940,7 +940,7 @@ start_playback (spfysrc_prc_t * ap_prc)
                 }
               else
                 {
-                  TIZ_PRINTF_RED ("[Spotify] [FATAL] 'The playback queue is empty.'\n");
+                  TIZ_PRINTF_C01 ("[Spotify] [FATAL] 'The playback queue is empty.'");
                   (void) tiz_srv_issue_err_event (
                     (OMX_PTR) ap_prc, OMX_ErrorInsufficientResources);
                 }
@@ -963,31 +963,31 @@ login_failure_handler (OMX_PTR ap_prc, tiz_event_pluggable_t * ap_event)
         {
         case SP_ERROR_CLIENT_TOO_OLD:
           {
-            TIZ_PRINTF_RED ("[Spotify] [FATAL] Login attempt failed. "
+            TIZ_PRINTF_C01 ("[Spotify] [FATAL] Login attempt failed. "
                             "Client too old.");
           }
           break;
         case SP_ERROR_UNABLE_TO_CONTACT_SERVER:
           {
-            TIZ_PRINTF_RED ("[Spotify] [FATAL] Login attempt failed. "
+            TIZ_PRINTF_C01 ("[Spotify] [FATAL] Login attempt failed. "
                             "Unable to contact server.");
           }
           break;
         case SP_ERROR_BAD_USERNAME_OR_PASSWORD:
           {
-            TIZ_PRINTF_RED ("[Spotify] [FATAL] Login attempt failed. "
+            TIZ_PRINTF_C01 ("[Spotify] [FATAL] Login attempt failed. "
                             "Bad user name or password.");
           }
           break;
         case SP_ERROR_USER_BANNED:
           {
-            TIZ_PRINTF_RED ("[Spotify] [FATAL] Login attempt failed. "
+            TIZ_PRINTF_C01 ("[Spotify] [FATAL] Login attempt failed. "
                             "User banned.");
           }
           break;
         case SP_ERROR_USER_NEEDS_PREMIUM:
           {
-            TIZ_PRINTF_RED ("[Spotify] [FATAL] Login attempt failed. "
+            TIZ_PRINTF_C01 ("[Spotify] [FATAL] Login attempt failed. "
                             "User needs premium.");
           }
           break;
@@ -995,7 +995,7 @@ login_failure_handler (OMX_PTR ap_prc, tiz_event_pluggable_t * ap_event)
         case SP_ERROR_OTHER_PERMANENT:
         default:
           {
-            TIZ_PRINTF_RED ("[Spotify] [FATAL] Login attempt failed.");
+            TIZ_PRINTF_C01 ("[Spotify] [FATAL] Login attempt failed.");
           }
           break;
         };
@@ -1019,7 +1019,7 @@ logged_in (sp_session * sess, sp_error error)
   if (SP_ERROR_OK == error)
     {
       sp_error sp_rc = SP_ERROR_OK;
-      TIZ_PRINTF_BLU ("[Spotify] [Login] '%s' logged in.\n",
+      TIZ_PRINTF_C02 ("[Spotify] [Login] '%s' logged in.",
                       sp_user_display_name (sp_session_user (sess)));
 
       set_spotify_session_options (p_prc);
@@ -1278,10 +1278,15 @@ play_token_lost_handler (OMX_PTR ap_prc, tiz_event_pluggable_t * ap_event)
       else
         {
           stop_spotify (p_prc);
-          TIZ_PRINTF_RED ("\n[Spotify] [FATAL] The play token has been lost\n");
-          TIZ_PRINTF_YEL ("To force recovery of the token when it gets lost, add the\n");
-          TIZ_PRINTF_YEL ("'--spotify-recover-lost-token' command-line flag\n");
-          TIZ_PRINTF_YEL ("or add 'spotify.recover_lost_token = true' in 'tizonia.conf'\n");
+          printf("\n");
+          TIZ_PRINTF_C01 ("[Spotify] [FATAL] The play token has been lost");
+          printf("\n");
+          TIZ_PRINTF_C03 ("To force recovery of the token when it gets lost, add the");
+          printf("\n");
+          TIZ_PRINTF_C03 ("'--spotify-recover-lost-token' command-line flag");
+          printf("\n");
+          TIZ_PRINTF_C03 ("or add 'spotify.recover_lost_token = true' in 'tizonia.conf'");
+          printf("\n");
           (void) tiz_srv_issue_err_event ((OMX_PTR) ap_prc,
                                           OMX_ErrorInsufficientResources);
         }
@@ -1611,7 +1616,7 @@ spfysrc_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
         = ((char *) p_prc->session_.cProxyPassword);
     }
 
-  TIZ_PRINTF_BLU ("[Spotify] [Cache]: '%s'\n",
+  TIZ_PRINTF_C02 ("[Spotify] [Cache]: '%s'",
                   p_prc->sp_config_.cache_location);
 
   /* Initiate the spotify session */

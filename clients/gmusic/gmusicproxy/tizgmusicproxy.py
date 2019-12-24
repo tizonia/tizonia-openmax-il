@@ -36,6 +36,7 @@ import logging
 import random
 import unicodedata
 import pickle
+import configparser
 from operator import itemgetter
 from gmusicapi import Mobileclient
 from gmusicapi.exceptions import CallFailure
@@ -61,17 +62,17 @@ else:
 MAX_TRACKS_NONE = None
 MAX_TRACKS = 100
 
-class _Colors:
-    """A trivial class that defines various ANSI color codes.
+class ConfigColors():
+    def __init__(self):
+        self.config = configparser.ConfigParser()
+        self.config.read(os.path.join(os.getenv("HOME"), ".config/tizonia/tizonia.conf"))
+        self.FAIL = '\033[' + self.config.get('color-theme', 'C08', fallback='91').replace(',', ';') + 'm'
+        self.OKGREEN = '\033[' + self.config.get('color-theme', 'C09', fallback='92').replace(',', ';') + 'm'
+        self.WARNING = '\033[' + self.config.get('color-theme', 'C10', fallback='93').replace(',', ';') + 'm'
+        self.OKBLUE = '\033[' + self.config.get('color-theme', 'C11', fallback='94').replace(',', ';') + 'm'
+        self.ENDC = '\033[0m'
 
-    """
-    BOLD = '\033[1m'
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
+_Colors = ConfigColors()
 
 def pretty_print(color, msg=""):
     """Print message with color.

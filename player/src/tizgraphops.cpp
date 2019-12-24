@@ -1127,11 +1127,13 @@ graph::ops::dump_metadata_item (const OMX_U32 index, const int comp_index,
     {
       if (0 == index && use_first_as_heading)
         {
-          TIZ_PRINTF_YEL ("   %s : %s\n", p_meta->nKey, p_meta->nValue);
+          printf ("   ");
+          TIZ_PRINTF_C03 ("%s : %s", p_meta->nKey, p_meta->nValue);
         }
       else
         {
-          TIZ_PRINTF_CYN ("     %s : %s\n", p_meta->nKey, p_meta->nValue);
+          printf ("     ");
+          TIZ_PRINTF_C06 ("%s : %s", p_meta->nKey, p_meta->nValue);
           std::string key;
           key.assign ((const char*)p_meta->nKey);
           if (boost::starts_with (key, "Duration"))

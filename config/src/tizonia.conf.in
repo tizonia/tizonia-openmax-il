@@ -52,6 +52,26 @@ OMX.Aratelia.audio_renderer.alsa.pcm.alsa_mixer = Master
 # OMX.Aratelia.audio_renderer.pulseaudio.pcm.default_volume = Value from 0
 #                                                             to 100 (Default: 75)
 
+[color-theme]
+# Tizonia's default color theme
+C01 = 31,49,22
+C02 = 32,49,22
+C03 = 33,49,22
+C04 = 34,49,22
+C05 = 35,49,22
+C06 = 36,49,22
+C07 = 37,49,22
+
+C08 = 91,49,22
+C09 = 92,49,22
+C10 = 93,49,22
+C11 = 94,49,22
+C12 = 95,49,22
+
+C13 = 36
+C14 = 37
+C15 = 41
+C16 = 46
 
 [tizonia]
 # Tizonia player section

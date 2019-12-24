@@ -1044,7 +1044,7 @@ void graph::util::dump_graph_info (const char *ap_coding_type_str,
                                    const char *ap_graph_type_str,
                                    const std::string &uri)
 {
-  TIZ_PRINTF_GRN ("[%s] [%s] : '%s'.\n", ap_coding_type_str, ap_graph_type_str,
+  TIZ_PRINTF_C02 ("[%s] [%s] : '%s'.", ap_coding_type_str, ap_graph_type_str,
                   uri.c_str ());
 }
 

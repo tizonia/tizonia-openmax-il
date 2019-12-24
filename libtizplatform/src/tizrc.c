@@ -212,6 +212,18 @@ get_node (const tiz_rcfile_t * ap_rc, char * str, keyval_t ** app_kv)
   TIZ_LOG (TIZ_PRIORITY_TRACE, "val : [%s]",
            trimlistseparator (trimwhitespace (value)));
 
+/*   if (strstr (value, "\"")) */
+/*     { */
+/*       char quoted[PATH_MAX]; */
+/*       printf ("vakue : %s\n", value); */
+/*       if (sscanf (str, "%*[^\"]\"%31[^\"]\"", quoted) == 1) */
+/*         { */
+/*           free (value); value = NULL; */
+/*           value = strdup (quoted); */
+/*           printf ("got '%s'\n", value); */
+/*         } */
+/*     } */
+
   /* Find if the key exists already */
   p_kv = find_node (ap_rc, key);
   if (!p_kv)

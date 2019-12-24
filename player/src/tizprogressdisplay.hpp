@@ -37,6 +37,28 @@ namespace tiz
 {
   namespace graph
   {
+    enum default_color
+    {
+      FG_MAGENTA = 36,
+      FG_LIGHT_GREY = 37,
+      BG_RED = 41,
+      BG_CYAN = 46
+    };
+
+    class ansi_color_sequence
+    {
+    public:
+      explicit ansi_color_sequence (const default_color color);
+
+      friend std::ostream &operator<< (std::ostream &os,
+                                       const ansi_color_sequence &mod)
+      {
+        return os << "\033[" << mod.m_code << "m";
+      }
+
+    private:
+      std::string m_code;
+    };
 
     class progress_display : private boost::noncopyable
     {
@@ -56,9 +78,9 @@ namespace tiz
       //  Postconditions: count()== original count() + increment
       //  Returns: count().
       {
-        if (_count < _expected_count)
+        if (m_count < m_expected_count)
         {
-          if ((_count += increment) >= _next_tic_count)
+          if ((m_count += increment) >= m_next_tic_count)
           {
             add_tic ();
           }
@@ -67,7 +89,7 @@ namespace tiz
             refresh_tic ();
           }
         }
-        return _count;
+        return m_count;
       }
 
       unsigned long operator++ ()
@@ -95,10 +117,15 @@ namespace tiz
       const std::string m_s3;  //  not issues
       std::string m_os_temp;
 
-      unsigned long _count;
-      unsigned long _expected_count;
-      unsigned long _next_tic_count;
-      unsigned int _tic;
+      unsigned long m_count;
+      unsigned long m_expected_count;
+      unsigned long m_next_tic_count;
+      unsigned int m_tic;
+
+      ansi_color_sequence m_pctg_bar_color;
+      ansi_color_sequence m_digits_color;
+      ansi_color_sequence m_time_bg_color;
+      ansi_color_sequence m_progress_bar_color;
     };
   }  // namespace graph
 }  // namespace tiz

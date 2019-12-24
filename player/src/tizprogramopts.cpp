@@ -509,7 +509,8 @@ int tiz::programopts::consume ()
       }
       print_version ();
       print_license ();
-      TIZ_PRINTF_RED ("%s\n\n", error_msg.c_str ());
+      TIZ_PRINTF_C01 ("%s", error_msg.c_str ());
+      printf ("\n\n");
     }
   }
 
@@ -518,10 +519,11 @@ int tiz::programopts::consume ()
 
 void tiz::programopts::print_version () const
 {
-  TIZ_PRINTF_BLU ("tizonia %s. Copyright (C) 2019 Juan A. Rubio\n",
+  TIZ_PRINTF_C04 ("tizonia %s. Copyright (C) 2019 Juan A. Rubio",
                   PACKAGE_VERSION);
-  TIZ_PRINTF_BLU (
-      "This software is part of the Tizonia project <http://tizonia.org>\n\n");
+  TIZ_PRINTF_C04 (
+      "This software is part of the Tizonia project <http://tizonia.org>");
+  printf ("\n");
 }
 
 void tiz::programopts::print_usage_help () const
@@ -1389,10 +1391,12 @@ uint32_t tiz::programopts::plex_buffer_seconds () const
 
 void tiz::programopts::print_license () const
 {
-  TIZ_PRINTF_GRN (
-      "GNU Lesser GPL version 3 <http://gnu.org/licenses/lgpl.html>\n"
-      "This is free software: you are free to change and redistribute it.\n"
-      "There is NO WARRANTY, to the extent permitted by law.\n\n");
+  TIZ_PRINTF_C02 (
+      "GNU Lesser GPL version 3 <http://gnu.org/licenses/lgpl.html>");
+  TIZ_PRINTF_C02 (
+      "This is free software: you are free to change and redistribute it.");
+  TIZ_PRINTF_C02 ("There is NO WARRANTY, to the extent permitted by law.");
+  printf ("\n");
 }
 
 void tiz::programopts::init_global_options ()

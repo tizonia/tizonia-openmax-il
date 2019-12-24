@@ -63,6 +63,73 @@ extern "C" {
 #define TIZ_PRINTF_WHT(format, args...) \
   tiz_printf (KWHT, NULL, -1, NULL, format, ##args);
 
+
+#define TIZ_COLOR_01 1
+#define TIZ_COLOR_02 2
+#define TIZ_COLOR_03 3
+#define TIZ_COLOR_04 4
+#define TIZ_COLOR_05 5
+#define TIZ_COLOR_06 6
+#define TIZ_COLOR_07 7
+#define TIZ_COLOR_08 8
+#define TIZ_COLOR_09 9
+#define TIZ_COLOR_10 10
+#define TIZ_COLOR_11 11
+#define TIZ_COLOR_12 12
+#define TIZ_COLOR_13 13
+#define TIZ_COLOR_14 14
+#define TIZ_COLOR_15 15
+#define TIZ_COLOR_16 16
+
+#define TIZ_PRINTF_C01(format, args...) \
+  tiz_printf_c (TIZ_COLOR_01, format, ##args);
+
+#define TIZ_PRINTF_C02(format, args...) \
+  tiz_printf_c (TIZ_COLOR_02, format, ##args);
+
+#define TIZ_PRINTF_C03(format, args...) \
+  tiz_printf_c (TIZ_COLOR_03, format, ##args);
+
+#define TIZ_PRINTF_C04(format, args...) \
+  tiz_printf_c (TIZ_COLOR_04, format, ##args);
+
+#define TIZ_PRINTF_C05(format, args...) \
+  tiz_printf_c (TIZ_COLOR_05, format, ##args);
+
+#define TIZ_PRINTF_C06(format, args...) \
+  tiz_printf_c (TIZ_COLOR_06, format, ##args);
+
+#define TIZ_PRINTF_C07(format, args...) \
+  tiz_printf_c (TIZ_COLOR_07, format, ##args);
+
+#define TIZ_PRINTF_C08(format, args...) \
+  tiz_printf_c (TIZ_COLOR_08, format, ##args);
+
+#define TIZ_PRINTF_C09(format, args...) \
+  tiz_printf_c (TIZ_COLOR_09, format, ##args);
+
+#define TIZ_PRINTF_C10(format, args...) \
+  tiz_printf_c (TIZ_COLOR_10, format, ##args);
+
+#define TIZ_PRINTF_C11(format, args...) \
+  tiz_printf_c (TIZ_COLOR_11, format, ##args);
+
+#define TIZ_PRINTF_C12(format, args...)                 \
+  tiz_printf_c (TIZ_COLOR_12, format, ##args);
+
+#define TIZ_PRINTF_C13(format, args...) \
+  tiz_printf_c (TIZ_COLOR_13, format, ##args);
+
+#define TIZ_PRINTF_C14(format, args...) \
+  tiz_printf_c (TIZ_COLOR_14, format, ##args);
+
+#define TIZ_PRINTF_C15(format, args...) \
+  tiz_printf_c (TIZ_COLOR_15, format, ##args);
+
+#define TIZ_PRINTF_C16(format, args...)                 \
+  tiz_printf_c (TIZ_COLOR_16, format, ##args);
+
+
 #ifdef NDEBUG
 
 #define TIZ_PRINTF_DBG_RED(format, args...)
@@ -98,9 +165,12 @@ extern "C" {
 
 #endif
 
-void
-tiz_printf (const char * ap_color, const char * ap_file, int a_line,
-            const char * ap_func, const char * ap_format, ...);
+  void
+  tiz_printf (const char * ap_color, const char * ap_file, int a_line,
+              const char * ap_func, const char * ap_format, ...);
+
+  void
+  tiz_printf_c (int a_kc, const char * ap_format, ...);
 
 #ifdef __cplusplus
 }

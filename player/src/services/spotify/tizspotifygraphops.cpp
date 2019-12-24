@@ -218,8 +218,9 @@ void graph::spotifyops::do_reconfigure_tunnel (const int tunnel_id)
                           &renderer_pcmtype),
         "Unable to set the PCM settings on the audio renderer");
 
-    TIZ_PRINTF_MAG (
-        "     %ld Ch, %g KHz, %lu:%s:%s\n", renderer_pcmtype.nChannels,
+    printf ("     ");
+    TIZ_PRINTF_C05 (
+        "%ld Ch, %g KHz, %lu:%s:%s\n", renderer_pcmtype.nChannels,
         ((float)renderer_pcmtype.nSamplingRate) / 1000,
         renderer_pcmtype.nBitPerSample,
         renderer_pcmtype.eNumData == OMX_NumericalDataSigned ? "s" : "u",
@@ -247,8 +248,9 @@ void graph::spotifyops::do_retrieve_metadata ()
   {
   };
 
-  TIZ_PRINTF_MAG (
-      "     %ld Ch, %g KHz, %lu:%s:%s \n", renderer_pcmtype_.nChannels,
+  printf ("     ");
+  TIZ_PRINTF_C05 (
+      "%ld Ch, %g KHz, %lu:%s:%s \n", renderer_pcmtype_.nChannels,
       ((float)renderer_pcmtype_.nSamplingRate) / 1000,
       renderer_pcmtype_.nBitPerSample,
       renderer_pcmtype_.eNumData == OMX_NumericalDataSigned ? "s" : "u",

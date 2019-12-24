@@ -33,6 +33,8 @@
 
 #include <algorithm>
 #include <boost/make_shared.hpp>
+#include <boost/chrono.hpp>
+#include <boost/thread/thread.hpp>
 
 #include <OMX_Component.h>
 
@@ -359,6 +361,7 @@ graphmgr::mgr::stop_mpris ()
   if (mpris_ptr_)
   {
     tiz_check_omx (mpris_ptr_->stop ());
+    boost::this_thread::sleep_for(boost::chrono::milliseconds(2000));
     mpris_ptr_->deinit ();
   }
   return rc;

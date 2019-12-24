@@ -220,15 +220,18 @@ graph::chromecastops::dump_metadata_item (
     {
       if (isspace (p_meta->nKey[0]) && isspace (p_meta->nKey[1]))
       {
-        TIZ_PRINTF_GRN ("   %s : %s\n", p_meta->nKey, p_meta->nValue);
+        printf ("   ");
+        TIZ_PRINTF_C02 ("%s : %s", p_meta->nKey, p_meta->nValue);
       }
       else if (0 == index && use_first_as_heading)
       {
-        TIZ_PRINTF_YEL ("   %s : %s\n", p_meta->nKey, p_meta->nValue);
+        printf ("   ");
+        TIZ_PRINTF_C03 ("%s : %s", p_meta->nKey, p_meta->nValue);
       }
       else
       {
-        TIZ_PRINTF_CYN ("     %s : %s\n", p_meta->nKey, p_meta->nValue);
+        printf ("     ");
+        TIZ_PRINTF_C06 ("%s : %s", p_meta->nKey, p_meta->nValue);
       }
     }
 
