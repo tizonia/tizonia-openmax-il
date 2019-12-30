@@ -54,17 +54,17 @@ if os.environ.get('TIZONIA_TUNEINPROXY_DEBUG'):
 else:
     logging.getLogger().addHandler(logging.NullHandler())
 
-class _Colors:
-    """A trivial class that defines various ANSI color codes.
+class ConfigColors():
+    def __init__(self):
+        self.config = configparser.ConfigParser()
+        self.config.read(os.path.join(os.getenv("HOME"), ".config/tizonia/tizonia.conf"))
+        self.FAIL = '\033[' + self.config.get('color-theme', 'C08', fallback='91').replace(',', ';') + 'm'
+        self.OKGREEN = '\033[' + self.config.get('color-theme', 'C09', fallback='92').replace(',', ';') + 'm'
+        self.WARNING = '\033[' + self.config.get('color-theme', 'C10', fallback='93').replace(',', ';') + 'm'
+        self.OKBLUE = '\033[' + self.config.get('color-theme', 'C11', fallback='94').replace(',', ';') + 'm'
+        self.ENDC = '\033[0m'
 
-    """
-    BOLD = '\033[1m'
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
+_Colors = ConfigColors()
 
 def pretty_print(color, msg=""):
     """Print message with color.
@@ -108,52 +108,154 @@ def exception_handler(exception_type, exception, traceback):
 
 sys.excepthook = exception_handler
 
-class m3u_station():
-    def __init__(self, length, title, path):
-        self.length = length
-        self.title = title
-        self.path = path
+def parse_m3u(data):
+    # Copied from mopidy.audio.playlists
+    # Mopidy version expects a header but it's not always present
+    for line in data.splitlines():
+        if not line.strip() or line.startswith(b"#"):
+            continue
 
-def parse_m3u(url):
-    """
-        Parse m3u file.
-    """
+        try:
+            line = line.decode()
+        except UnicodeDecodeError:
+            continue
 
-    content_type = ''
-    req = None
-    data = None
+        yield line.strip()
+
+def parse_pls(data):
+    # Copied from mopidy.audio.playlists
     try:
-        req = requests.get(url, timeout=0.2)
-    except:
-        pass
-    if req:
-        data = req.text
-
-    m3u = StringIO.StringIO(data)
-    line = m3u.readline()
-    if not line.startswith('#EXTM3U'):
+        cp = configparser.RawConfigParser()
+        cp.read_string(data.decode())
+    except configparser.Error:
         return
 
-    # initialize playlist variables before reading file
-    playlist = []
-    song = m3u_station(None, None, None)
+    for section in cp.sections():
+        if section.lower() != "playlist":
+            continue
+        for i in range(cp.getint(section, "numberofentries")):
+            try:
+                # TODO: Remove this horrible hack to avoid adverts
+                if cp.has_option(section, f"length{i + 1}"):
+                    if cp.get(section, f"length{i + 1}") == "-1":
+                        yield cp.get(section, f"file{i + 1}").strip("\"'")
+                else:
+                    yield cp.get(section, f"file{i + 1}").strip("\"'")
+            except configparser.NoOptionError:
+                return
 
-    for line in m3u.readlines():
-        line = line.strip()
-        if line.startswith('#EXTINF:'):
-            # length and title from #EXTINF line
-            length, title = line.split('#EXTINF:')[1].split(',',1)
-            song = m3u_station(length, title, None)
-        elif (len(line) != 0):
-            # song path from all other, non-blank lines
-            song.path = line
-            playlist.append(song)
-            # reset the song variable
-            song = m3u_station(None, None, None)
+def fix_asf_uri(uri):
+    return re.sub(r"http://(.+\?mswmext=\.asf)", r"mms://\1", uri, flags=re.I)
 
-    m3u.close()
+def parse_old_asx(data):
+    try:
+        cp = configparser.RawConfigParser()
+        cp.read_string(data.decode())
+    except configparser.Error:
+        return
 
-    return playlist
+    for section in cp.sections():
+        if section.lower() != "reference":
+            continue
+        for option in cp.options(section):
+            if option.lower().startswith("ref"):
+                uri = cp.get(section, option).lower()
+                yield fix_asf_uri(uri.strip())
+
+def parse_new_asx(data):
+    # Copied from mopidy.audio.playlists
+    try:
+        # Last element will be root.
+        for _event, element in elementtree.iterparse(io.BytesIO(data)):
+            element.tag = element.tag.lower()  # normalize
+    except elementtree.ParseError:
+        return
+
+    for ref in element.findall("entry/ref[@href]"):
+        yield fix_asf_uri(ref.get("href", "").strip())
+
+    for entry in element.findall("entry[@href]"):
+        yield fix_asf_uri(entry.get("href", "").strip())
+
+def parse_asx(data):
+    if b"asx" in data[0:50].lower():
+        return parse_new_asx(data)
+    else:
+        return parse_old_asx(data)
+
+def find_playlist_parser(extension, content_type):
+    extension_map = {
+        ".asx": parse_asx,
+        ".wax": parse_asx,
+        ".m3u": parse_m3u,
+        ".pls": parse_pls,
+    }
+    content_type_map = {
+        "video/x-ms-asf": parse_asx,
+        "application/x-mpegurl": parse_m3u,
+        "audio/x-mpegurl": parse_m3u,
+        "audio/x-scpls": parse_pls,
+    }
+
+    parser = extension_map.get(extension, None)
+    if not parser and content_type:
+        # Annoying case where the url gave us no hints so try and work it out
+        # from the header's content-type instead.
+        # This might turn out to be server-specific...
+        parser = content_type_map.get(content_type.lower(), None)
+    return parser
+
+def run_tunein_query (session, timeout, uri):
+    logger.debug(f"TuneIn request: {uri!r}")
+    try:
+        with closing(session.get(uri, timeout=timeout)) as r:
+            r.raise_for_status()
+            return r.json()["body"]
+    except Exception as e:
+        logger.info(f"TuneIn API request for {variant} failed: {e}")
+    return {}
+
+def run_playlist_query (session, timeout, url):
+    data, content_type = None, None
+    results = []
+    logger.debug(f"Extracting URIs from {url!r}")
+    extension = urlparse(url).path[-4:]
+    if extension in [".mp3", ".wma"]:
+        return [url]  # Catch these easy ones
+
+    try:
+        # Defer downloading the body until know it's not a stream
+        with closing(
+            session.get(url, timeout=timeout, stream=True)
+        ) as r:
+            r.raise_for_status()
+            content_type = r.headers.get("content-type", "audio/mpeg")
+            logger.debug(f"{url} has content-type: {content_type}")
+            content_type = content_type.split(';')[0].strip()
+            if content_type != "audio/mpeg":
+                data = r.content
+    except Exception as e:
+        logger.info(f"TuneIn playlist request for {url} failed: {e}")
+
+    if data:
+        parser = find_playlist_parser(extension, content_type)
+        if parser:
+            try:
+                results = [
+                    u for u in parser(data) if u and u != url
+                ]
+            except Exception as e:
+                logger.error(f"TuneIn playlist parsing failed {e}")
+            if not results:
+                playlist_str = data.decode(errors="ignore")
+                logger.debug(
+                    f"Parsing failure, malformed playlist: {playlist_str}"
+                )
+    elif content_type:
+        results = [url]
+
+    logger.debug(f"Got {results}")
+    return list(OrderedDict.fromkeys(results))
 
 class TizEnumeration(set):
     """A simple enumeration class.
@@ -164,38 +266,211 @@ class TizEnumeration(set):
             return name
         raise AttributeError
 
-def to_ascii(msg):
-    """Unicode to ascii helper.
+class TuneIn:
+    """Wrapper for the TuneIn API."""
 
-    """
+    ID_PROGRAM = "program"
+    ID_STATION = "station"
+    ID_GROUP = "group"
+    ID_TOPIC = "topic"
+    ID_CATEGORY = "category"
+    ID_REGION = "region"
+    ID_PODCAST = "podcast_category"
+    ID_AFFILIATE = "affiliate"
+    ID_STREAM = "stream"
+    ID_UNKNOWN = "unknown"
 
-    return unicodedata.normalize('NFKD', unicode(msg)).encode('ASCII', 'ignore')
+    def __init__(self, timeout, filter_=None, session=None):
+        self._base_uri = "http://opml.radiotime.com/%s"
+        self._session = session or requests.Session()
+        self._timeout = timeout / 1000.0
+        if filter_ in [TuneIn.ID_PROGRAM, TuneIn.ID_STATION]:
+            self._filter = f"&filter={filter_[0]}"
+        else:
+            self._filter = ""
+        self._stations = {}
+
+    def reload(self):
+        self._stations.clear()
+        self._tunein.clear()
+        self._get_playlist.clear()
+
+    def _flatten(self, data):
+        results = []
+        for item in data:
+            if "children" in item:
+                results.extend(item["children"])
+            else:
+                results.append(item)
+        return results
+
+    def _filter_results(self, data, section_name=None, map_func=None):
+        results = []
+
+        def grab_item(item):
+            if "guide_id" not in item:
+                return
+            if map_func:
+                station = map_func(item)
+            elif item.get("type", "link") == "link":
+                results.append(item)
+                return
+            else:
+                station = item
+            self._stations[station["guide_id"]] = station
+            results.append(station)
+
+        for item in data:
+            if section_name is not None:
+                section_key = item.get("key", "").lower()
+                if section_key.startswith(section_name.lower()):
+                    for child in item["children"]:
+                        grab_item(child)
+            else:
+                grab_item(item)
+        return results
+
+    def categories(self, category=""):
+        if category == "location":
+            args = "&id=r0"  # Annoying special case
+        elif category == "language":
+            args = "&c=lang"
+            return []  # TuneIn's API is a mess here, cba
+        else:
+            args = "&c=" + category
+
+        # Take a copy so we don't modify the cached data
+        results = list(self._tunein("Browse.ashx", args))
+        if category in ("podcast", "local"):
+            # Flatten the results!
+            results = self._filter_results(self._flatten(results))
+        elif category == "":
+            trending = {
+                "text": "Trending",
+                "key": "trending",
+                "type": "link",
+                "URL": self._base_uri % "Browse.ashx?c=trending",
+            }
+            # Filter out the language root category for now
+            results = [x for x in results if x["key"] != "language"]
+            results.append(trending)
+        else:
+            results = self._filter_results(results)
+        return results
+
+    def locations(self, location):
+        args = "&id=" + location
+        results = self._tunein("Browse.ashx", args)
+        # TODO: Support filters here
+        return [x for x in results if x.get("type", "") == "link"]
+
+    def _browse(self, section_name, guide_id):
+        args = "&id=" + guide_id
+        results = self._tunein("Browse.ashx", args)
+        return self._filter_results(results, section_name)
+
+    def featured(self, guide_id):
+        return self._browse("Featured", guide_id)
+
+    def local(self, guide_id):
+        return self._browse("Local", guide_id)
+
+    def stations(self, guide_id):
+        return self._browse("Station", guide_id)
+
+    def related(self, guide_id):
+        return self._browse("Related", guide_id)
+
+    def shows(self, guide_id):
+        return self._browse("Show", guide_id)
+
+    def episodes(self, guide_id):
+        args = f"&c=pbrowse&id={guide_id}"
+        results = self._tunein("Tune.ashx", args)
+        return self._filter_results(results, "Topic")
+
+    def _map_listing(self, listing):
+        # We've already checked 'guide_id' exists
+        url_args = f'Tune.ashx?id={listing["guide_id"]}'
+        return {
+            "text": listing.get("name", "???"),
+            "guide_id": listing["guide_id"],
+            "type": "audio",
+            "image": listing.get("logo", ""),
+            "subtext": listing.get("slogan", ""),
+            "URL": self._base_uri % url_args,
+        }
+
+    def _station_info(self, station_id):
+        logger.debug(f"Fetching info for station {station_id}")
+        args = f"&c=composite&detail=listing&id={station_id}"
+        results = self._tunein("Describe.ashx", args)
+        listings = self._filter_results(results, "Listing", self._map_listing)
+        if listings:
+            return listings[0]
+
+    def parse_stream_url(self, url):
+        playlist_query = memory.cache(run_playlist_query)
+        return playlist_query(self._session, self._timeout, url)
+
+    def tune(self, station):
+        logger.debug(f'Tuning station id {station["guide_id"]}')
+        args = f'&id={station["guide_id"]}'
+        stream_uris = []
+        for stream in self._tunein("Tune.ashx", args):
+            if "url" in stream:
+                stream_uris.append(stream["url"])
+        if not stream_uris:
+            logger.error(f'Failed to tune station id {station["guide_id"]}')
+        return list(OrderedDict.fromkeys(stream_uris))
+
+    def station(self, station_id):
+        if station_id in self._stations:
+            station = self._stations[station_id]
+        else:
+            station = self._station_info(station_id)
+            self._stations["station_id"] = station
+        return station
+
+    def search(self, query):
+        # "Search.ashx?query=" + query + filterVal
+        if not query:
+            logger.debug("Empty search query")
+            return []
+        logger.debug(f"Searching TuneIn for '{query}'")
+        args = f"&query={query}{self._filter}"
+        search_results = self._tunein("Search.ashx", args)
+        results = []
+        for item in self._flatten(search_results):
+            if item.get("type", "") == "audio":
+                # Only return stations
+                self._stations[item["guide_id"]] = item
+                results.append(item)
+
+        return results
+
+    def _tunein(self, variant, args):
+        uri = (self._base_uri % variant) + f"?render=json{args}"
+        pprint (uri)
+        tunein_query = memory.cache(run_tunein_query)
+        return tunein_query(self._session, self._timeout, uri)
+
 
 class tiztuneinproxy(object):
     """A class that accesses Tunein, retrieves station URLs and creates and manages
     a playback queue.
 
     """
-    base_url = 'http://api.tunein.com/v2/'
 
-    Station = namedtuple("Station", "id name country website category streamurl bitrate content_type")
-
-    def __init__(self, api_key):
-        self.key = api_key
-        self.base_url = tiztuneinproxy.base_url
+    def __init__(self):
         self.queue = list()
         self.queue_index = -1
         self.play_queue_order = list()
         self.play_modes = TizEnumeration(["NORMAL", "SHUFFLE"])
         self.current_play_mode = self.play_modes.NORMAL
-        self.now_playing_station = None
-
-        self._api = Session()
-        self._api.params = {'token': api_key}
-        self._api.headers['User-Agent'] = ' '.join([
-            'Tizonia',
-            self._api.headers['User-Agent']])
-        self._api.mount(self.base_url, HTTPAdapter(max_retries=3))
+        self.now_playing_radio = None
+        self.timeout = 5000
+        self._api = TuneIn(self.timeout)
 
     def set_play_mode(self, mode):
         """ Set the playback mode.
@@ -206,19 +481,16 @@ class tiztuneinproxy(object):
         self.current_play_mode = getattr(self.play_modes, mode)
         self.__update_play_queue_order()
 
-    def enqueue_popular_stations(self):
+    def enqueue_global_search(self):
         """Search Tunein for popular stations and add them to the playback
         queue.
 
         :param arg: a search string
 
         """
-        logging.info('enqueue_popular_stations')
+        logging.info('enqueue_global_search')
         try:
             count = len(self.queue)
-            self._api.params = {'token': self.key}
-            for d in self.api_call("stations/popular"):
-                self.add_to_playback_queue(d)
 
             logging.info("Added {0} stations to queue" \
                          .format(len(self.queue) - count))
@@ -229,7 +501,7 @@ class tiztuneinproxy(object):
             self.__update_play_queue_order()
 
         except ValueError:
-            raise ValueError(str("No stations found"))
+            raise ValueError(str("No stations/shows found"))
 
     def enqueue_category(self, arg):
         """Search Tunein for a station category and add its stations to the
@@ -240,22 +512,9 @@ class tiztuneinproxy(object):
         """
         logging.info('enqueue_category : %s', arg)
         try:
-            catids = list ()
-            self._api.params = {'token': self.key}
-            for d in self.api_call("categories"):
-                title = to_ascii(d["title"])
-                print_nfo("[Tunein] [Category] '{0}'.".format(title))
-                if arg.lower() in title.lower():
-                    catids.append(d["id"])
-
             count = len(self.queue)
-            for catid in catids:
-                for p in range(0, 10):
-                    self._api.params = {'token': self.key, 'page': p}
-                    for d in self.api_call("category/{0}/stations".format(catid)):
-                        self.add_to_playback_queue(d)
 
-            logging.info("Added {0} stations to queue" \
+            logging.info("Added {0} stations/shows to queue" \
                          .format(len(self.queue) - count))
 
             if count == len(self.queue):
@@ -264,121 +523,77 @@ class tiztuneinproxy(object):
             self.__update_play_queue_order()
 
         except ValueError:
-            raise ValueError(str("No stations found : %s" % arg))
+            raise ValueError(str("No stations/shows found : %s" % arg))
 
-    def enqueue_country(self, arg):
-        """Search Tunein for stations from a particular country code and add them to
-        the playback queue.
+# {'URL': 'http://opml.radiotime.com/Tune.ashx?id=s290003',
+#   'bitrate': '128',
+#   'element': 'outline',
+#   'formats': 'mp3',
+#   'genre_id': 'g2754',
+#   'guide_id': 's290003',
+#   'image': 'http://cdn-profiles.tunein.com/s290003/images/logoq.jpg?t=157607',
+#   'item': 'station',
+#   'now_playing_id': 's290003',
+#   'preset_id': 's290003',
+#   'reliability': '100',
+#   'subtext': 'Der Beste Musikmix - Gute Laune von der Südpfalz bis nach Köln',
+#   'text': 'RPR1.2000er Pop (Germany)',
+#   'type': 'audio'},
 
-        :param arg: a search string
-
-        """
-        logging.info('enqueue_country : %s', arg)
-        try:
-            country = arg
-
-            # Try to find the actual country code from the country name, but
-            # only if pycountry and titlecase are available
-            if len(arg) != 2 and len(arg) != 3:
-                pycountry_loader = pkgutil.find_loader('pycountry')
-                titlecase_loader = pkgutil.find_loader('titlecase')
-                if pycountry_loader and titlecase_loader:
-                    pycountry = pycountry_loader.load_module("pycountry")
-                    titlecase = titlecase_loader.load_module("titlecase")
-                    country = titlecase.titlecase(arg)
-                    try:
-                        country = pycountry.countries.get(name=country).alpha2
-                    except AttributeError:
-                        country = pycountry.countries.get(name=country).alpha_2
-
-            count = len(self.queue)
-            for p in range(0, 10):
-                self._api.params = {'token': self.key, 'page': p}
-                for d in self.api_call("countries/{0}/stations".format(country.upper())):
-                    self.add_to_playback_queue(d)
-
-            logging.info("Added {0} stations to queue" \
-                         .format(len(self.queue) - count))
-
-            if count == len(self.queue):
-                raise ValueError
-
-            self.__update_play_queue_order()
-
-        except ValueError:
-            raise ValueError(str("No stations found : %s" % arg))
-
-    def enqueue_stations(self, arg):
-        """Search Tunein for a station name and add all matches to the
-        playback queue.
-
-        :param arg: a search string
+    def current_radio_name(self):
+        """ Retrieve the current station's or show's name.
 
         """
-        logging.info('enqueue_stations : %s', arg)
-        try:
-            count = len(self.queue)
-            for p in range(0, 10):
-                self._api.params = {'token': self.key, 'page': p}
-                for d in self.api_call("search/{0}".format(arg)):
-                    self.add_to_playback_queue(d)
-
-            logging.info("Added {0} stations to queue" \
-                         .format(len(self.queue) - count))
-
-            if count == len(self.queue):
-                raise ValueError
-
-            self.__update_play_queue_order()
-
-        except ValueError:
-            raise ValueError(str("No stations found : %s" % arg))
-
-    def current_station_name_and_country(self):
-        """ Retrieve the current station's name and country.
-
-        """
-        logging.info("current_station_name")
-        station = self.now_playing_station
+        logging.info("current_radio_name")
+        radio = self.now_playing_radio
         name = ''
-        country = ''
-        if station:
-            name = to_ascii(station.name).encode("utf-8")
-            country = to_ascii(station.country).encode("utf-8")
-        return name, country
+        if radio:
+            name = radio['text']
+        return name
 
-    def current_station_category(self):
-        """ Retrieve the current station's category.
+    def current_radio_description(self):
+        """ Retrieve the current station's or show's description.
 
         """
-        logging.info("current_station_category")
-        station = self.now_playing_station
-        category = ''
-        if station:
-            category = to_ascii(station.category).encode("utf-8")
-        return category
+        logging.info("current_radio_description")
+        radio = self.now_playing_radio
+        description = ''
+        if radio:
+            description = radio['subtext']
+        return description
 
-    def current_station_website(self):
-        """ Retrieve the current station's website.
-
-        """
-        logging.info("current_station_website")
-        station = self.now_playing_station
-        website = ''
-        if station:
-            website = to_ascii(station.website).encode("utf-8")
-        return website
-
-    def current_station_bitrate(self):
-        """ Retrieve the current station's bitrate.
+    def current_radio_formats(self):
+        """ Retrieve the formats of the current station or show.
 
         """
-        logging.info("current_station_bitrate")
-        station = self.now_playing_station
-        bitrate = 0
-        if station:
-            bitrate = station.bitrate
+        logging.info("current_radio_formats")
+        radio = self.now_playing_radio
+        formats = ''
+        if radio:
+            formats = radio['formats']
+        return formats
+
+    def current_radio_bitrate(self):
+        """ Retrieve the bitrate of the current station or show.
+
+        """
+        logging.info("current_radio_bitrate")
+        radio = self.now_playing_radio
+        bitrate = ''
+        if radio:
+            bitrate = radio['bitrate']
         return bitrate
+
+    def current_radio_thumbnail_url(self):
+        """ Retrieve the url of the current station's or show's thumbnail image.
+
+        """
+        logging.info("current_radio_thumbnail_url")
+        radio = self.now_playing_radio
+        image = ''
+        if radio:
+            image = radio['image']
+        return image
 
     def clear_queue(self):
         """ Clears the playback queue.
@@ -468,7 +683,7 @@ class tiztuneinproxy(object):
 
         """
         try:
-            self.now_playing_station = station
+            self.now_playing_radio = station
             logging.info("__retrieve_station_url streamurl : {0}".format(station.streamurl))
             logging.info("__retrieve_station_url bitrate   : {0}".format(station.bitrate))
             logging.info("__retrieve_station_url content_type: {0}".format(station.content_type))
@@ -479,42 +694,6 @@ class tiztuneinproxy(object):
         except AttributeError:
             logging.info("Could not retrieve the station url!")
             raise
-
-    def api_call(self, path):
-        uri = self.base_url + urllib.quote(path)
-
-        logging.debug('Fetching: %s', uri)
-        try:
-            resp = self._api.get(uri)
-
-            if resp.status_code == 200:
-                data = resp.json(
-                    object_hook=lambda d: {k.lower(): v for k, v in d.items()})
-                return data
-
-            logging.debug('Fetch failed, HTTP %s', resp.status_code)
-
-            if resp.status_code == 404:
-                return []
-
-        except exceptions.RequestException as e:
-            logging.debug('Fetch failed: %s', e)
-        except ValueError as e:
-            logging.warning('Fetch failed: %s', e)
-
-        return []
-
-    def _examine_url(self, url):
-        content_type = ''
-        req = None
-        try:
-            with eventlet.Timeout(2):
-                req = requests.get(url, verify=False, timeout=0.1)
-        except:
-            pass
-        if req:
-            content_type = req.headers.get('Content-Type')
-        return content_type
 
     def add_to_playback_queue(self, d):
         catlist = list()
