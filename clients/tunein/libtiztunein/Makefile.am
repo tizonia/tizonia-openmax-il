@@ -15,21 +15,24 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-AC_PREREQ([2.67])
-AC_INIT([tizonia-clients], [0.19.0], [juan.rubio@aratelia.com])
-AC_CONFIG_AUX_DIR([.])
-AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
+if ENABLE_TEST
+SUBDIRS= src tests
+else
+SUBDIRS= src
+endif
 
-# Checks for programs.
+ACLOCAL_AMFLAGS = -I m4
 
-# Checks for libraries.
+EXTRA_DIST = debian
 
-# Checks for header files.
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = libtiztunein.pc
 
-# Checks for typedefs, structures, and compiler characteristics.
+BUILT_SOURCES = tizonia
 
-# Checks for library functions.
+DISTCLEANFILES = tizonia
 
-AC_CONFIG_FILES([Makefile])
-AC_CONFIG_SUBDIRS([gmusic soundcloud youtube plex chromecast spotify tunein])
-AC_OUTPUT
+noinst_HEADERS = tizonia
+
+tizonia:
+	ln -s $(srcdir)/src tizonia

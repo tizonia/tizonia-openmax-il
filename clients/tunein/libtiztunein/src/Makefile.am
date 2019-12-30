@@ -15,21 +15,29 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-AC_PREREQ([2.67])
-AC_INIT([tizonia-clients], [0.19.0], [juan.rubio@aratelia.com])
-AC_CONFIG_AUX_DIR([.])
-AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
+lib_LTLIBRARIES = libtiztunein.la
 
-# Checks for programs.
+libtiztunein_includedir = $(includedir)/tizonia
 
-# Checks for libraries.
+noinst_HEADERS =
 
-# Checks for header files.
+libtiztunein_include_HEADERS = \
+	tiztunein.hpp \
+	tiztunein_c.h
 
-# Checks for typedefs, structures, and compiler characteristics.
+libtiztunein_la_SOURCES = \
+	tiztunein.cpp \
+	tiztunein_c.cpp
 
-# Checks for library functions.
+libtiztunein_la_CPPFLAGS = \
+	@PYTHON_CPPFLAGS@ \
+	@BOOST_CPPFLAGS@
 
-AC_CONFIG_FILES([Makefile])
-AC_CONFIG_SUBDIRS([gmusic soundcloud youtube plex chromecast spotify tunein])
-AC_OUTPUT
+libtiztunein_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@
+
+libtiztunein_la_LIBADD = \
+	@BOOST_PYTHON_LIB@ \
+	@PYTHON_LDFLAGS@ \
+	-lboost_python
+
+

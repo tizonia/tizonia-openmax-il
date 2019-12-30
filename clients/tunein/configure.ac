@@ -15,14 +15,25 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-AC_PREREQ([2.67])
-AC_INIT([tizonia-clients], [0.19.0], [juan.rubio@aratelia.com])
+AC_PREREQ([2.68])
+AC_INIT([tiztunein], [0.18.0], [juan.rubio@aratelia.com])
 AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
+AC_CONFIG_SRCDIR([config.h.in])
+AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
+AC_PROG_CXX
+AC_PROG_AWK
+AC_PROG_CC
+AC_PROG_CPP
+AC_PROG_INSTALL
+AC_PROG_LN_S
+AC_PROG_MAKE_SET
+LT_INIT
 
 # Checks for libraries.
+AM_PATH_PYTHON([2.7])
 
 # Checks for header files.
 
@@ -30,6 +41,6 @@ AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
 
 # Checks for library functions.
 
-AC_CONFIG_FILES([Makefile])
-AC_CONFIG_SUBDIRS([gmusic soundcloud youtube plex chromecast spotify tunein])
+AC_CONFIG_FILES([Makefile tuneinproxy/Makefile])
+AC_CONFIG_SUBDIRS([libtiztunein])
 AC_OUTPUT
