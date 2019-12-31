@@ -18,28 +18,28 @@
  */
 
 /**
- * @file   dirblecfgport.h
+ * @file   tuneincfgport.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  A specialised config port class for the Dirble source component
+ * @brief  A specialised config port class for the Tunein source component
  *
  *
  */
 
-#ifndef DIRBLECFGPORT_H
-#define DIRBLECFGPORT_H
+#ifndef TUNEINCFGPORT_H
+#define TUNEINCFGPORT_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 void *
-dirble_cfgport_class_init (void * ap_tos, void * ap_hdl);
+tunein_cfgport_class_init (void * ap_tos, void * ap_hdl);
 void *
-dirble_cfgport_init (void * ap_tos, void * ap_hdl);
+tunein_cfgport_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* DIRBLECFGPORT_H */
+#endif /* TUNEINCFGPORT_H */

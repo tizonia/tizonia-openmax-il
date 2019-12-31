@@ -18,10 +18,10 @@
  */
 
 /**
- * @file   dirbleprc.c
+ * @file   tuneinprc.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Dirble streaming client - processor class
+ * @brief  Tunein streaming client - processor class
  *
  *
  */
@@ -43,36 +43,36 @@
 #include <tizscheduler.h>
 
 #include "httpsrc.h"
-#include "dirbleprc.h"
-#include "dirbleprc_decls.h"
+#include "tuneinprc.h"
+#include "tuneinprc_decls.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.http_source.prc.dirble"
+#define TIZ_LOG_CATEGORY_NAME "tiz.http_source.prc.tunein"
 #endif
 
 /* forward declarations */
 static OMX_ERRORTYPE
-dirble_prc_deallocate_resources (void *);
+tunein_prc_deallocate_resources (void *);
 static OMX_ERRORTYPE
-release_buffer (dirble_prc_t *);
+release_buffer (tunein_prc_t *);
 static OMX_ERRORTYPE
-prepare_for_port_auto_detection (dirble_prc_t * ap_prc);
+prepare_for_port_auto_detection (tunein_prc_t * ap_prc);
 static OMX_ERRORTYPE
-dirble_prc_prepare_to_transfer (void * ap_prc, OMX_U32 a_pid);
+tunein_prc_prepare_to_transfer (void * ap_prc, OMX_U32 a_pid);
 static OMX_ERRORTYPE
-dirble_prc_transfer_and_process (void * ap_prc, OMX_U32 a_pid);
+tunein_prc_transfer_and_process (void * ap_prc, OMX_U32 a_pid);
 
-#define on_dirble_error_ret_omx_oom(expr)                                    \
+#define on_tunein_error_ret_omx_oom(expr)                                    \
   do                                                                         \
     {                                                                        \
-      int dirble_error = 0;                                                  \
-      if (0 != (dirble_error = (expr)))                                      \
+      int tunein_error = 0;                                                  \
+      if (0 != (tunein_error = (expr)))                                      \
         {                                                                    \
           TIZ_ERROR (handleOf (p_prc),                                       \
                      "[OMX_ErrorInsufficientResources] : error while using " \
-                     "libtizdirble [error %d]",                              \
-                     dirble_error);                                          \
+                     "libtiztunein [error %d]",                              \
+                     tunein_error);                                          \
           return OMX_ErrorInsufficientResources;                             \
         }                                                                    \
     }                                                                        \
@@ -85,7 +85,7 @@ is_valid_character (const char c)
 }
 
 static OMX_ERRORTYPE
-obtain_coding_type (dirble_prc_t * ap_prc, char * ap_info)
+obtain_coding_type (tunein_prc_t * ap_prc, char * ap_info)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (ap_prc);
@@ -141,7 +141,7 @@ obtain_coding_type (dirble_prc_t * ap_prc, char * ap_info)
 }
 
 static OMX_ERRORTYPE
-set_audio_coding_on_port (dirble_prc_t * ap_prc)
+set_audio_coding_on_port (tunein_prc_t * ap_prc)
 {
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
   assert (ap_prc);
@@ -161,7 +161,7 @@ set_audio_coding_on_port (dirble_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
-set_auto_detect_on_port (dirble_prc_t * ap_prc)
+set_auto_detect_on_port (tunein_prc_t * ap_prc)
 {
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
   assert (ap_prc);
@@ -181,7 +181,7 @@ set_auto_detect_on_port (dirble_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
-store_metadata (dirble_prc_t * ap_prc, const char * ap_header_name,
+store_metadata (tunein_prc_t * ap_prc, const char * ap_header_name,
                 const char * ap_header_info)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
@@ -229,7 +229,7 @@ store_metadata (dirble_prc_t * ap_prc, const char * ap_header_name,
 }
 
 static void
-obtain_audio_encoding_from_headers (dirble_prc_t * ap_prc,
+obtain_audio_encoding_from_headers (tunein_prc_t * ap_prc,
                                     const char * ap_header, const size_t a_size)
 {
   assert (ap_prc);
@@ -280,7 +280,7 @@ obtain_audio_encoding_from_headers (dirble_prc_t * ap_prc,
 }
 
 static void
-send_port_auto_detect_events (dirble_prc_t * ap_prc)
+send_port_auto_detect_events (tunein_prc_t * ap_prc)
 {
   assert (ap_prc);
   if (ap_prc->audio_coding_type_ != OMX_AUDIO_CodingUnused
@@ -315,7 +315,7 @@ send_port_auto_detect_events (dirble_prc_t * ap_prc)
 }
 
 static inline void
-delete_uri (dirble_prc_t * ap_prc)
+delete_uri (tunein_prc_t * ap_prc)
 {
   assert (ap_prc);
   tiz_mem_free (ap_prc->p_uri_param_);
@@ -323,7 +323,7 @@ delete_uri (dirble_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
-update_metadata (dirble_prc_t * ap_prc)
+update_metadata (tunein_prc_t * ap_prc)
 {
   assert (ap_prc);
 
@@ -333,7 +333,7 @@ update_metadata (dirble_prc_t * ap_prc)
   /* Station Name */
   tiz_check_omx (
     store_metadata (ap_prc, "Station",
-                    tiz_dirble_get_current_station_name (ap_prc->p_dirble_)));
+                    tiz_tunein_get_current_station_name (ap_prc->p_tunein_)));
 
   /* Country */
   tiz_check_omx (store_metadata (
@@ -342,17 +342,17 @@ update_metadata (dirble_prc_t * ap_prc)
   /* Country */
   tiz_check_omx (store_metadata (
     ap_prc, "Country",
-    tiz_dirble_get_current_station_country (ap_prc->p_dirble_)));
+    tiz_tunein_get_current_station_country (ap_prc->p_tunein_)));
 
   /* Category */
   tiz_check_omx (store_metadata (
     ap_prc, "Categories",
-    tiz_dirble_get_current_station_category (ap_prc->p_dirble_)));
+    tiz_tunein_get_current_station_category (ap_prc->p_tunein_)));
 
   /* Website */
   tiz_check_omx (store_metadata (
     ap_prc, "Website",
-    tiz_dirble_get_current_station_website (ap_prc->p_dirble_)));
+    tiz_tunein_get_current_station_website (ap_prc->p_tunein_)));
 
   /* Signal that a new set of metatadata items is available */
   (void) tiz_srv_issue_event ((OMX_PTR) ap_prc, OMX_EventIndexSettingChanged,
@@ -366,13 +366,13 @@ update_metadata (dirble_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
-obtain_next_url (dirble_prc_t * ap_prc, int a_skip_value)
+obtain_next_url (tunein_prc_t * ap_prc, int a_skip_value)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   const long pathname_max = PATH_MAX + NAME_MAX;
 
   assert (ap_prc);
-  assert (ap_prc->p_dirble_);
+  assert (ap_prc->p_tunein_);
 
   if (!ap_prc->p_uri_param_)
     {
@@ -388,10 +388,10 @@ obtain_next_url (dirble_prc_t * ap_prc, int a_skip_value)
 
   {
     const char * p_next_url
-      = a_skip_value > 0 ? tiz_dirble_get_next_url (ap_prc->p_dirble_,
+      = a_skip_value > 0 ? tiz_tunein_get_next_url (ap_prc->p_tunein_,
                                                     ap_prc->remove_current_url_)
-                         : tiz_dirble_get_prev_url (
-                             ap_prc->p_dirble_, ap_prc->remove_current_url_);
+                         : tiz_tunein_get_prev_url (
+                             ap_prc->p_tunein_, ap_prc->remove_current_url_);
     ap_prc->remove_current_url_ = false;
     tiz_check_null_ret_oom (p_next_url);
 
@@ -422,7 +422,7 @@ obtain_next_url (dirble_prc_t * ap_prc, int a_skip_value)
 }
 
 static OMX_ERRORTYPE
-release_buffer (dirble_prc_t * ap_prc)
+release_buffer (tunein_prc_t * ap_prc)
 {
   assert (ap_prc);
 
@@ -444,7 +444,7 @@ release_buffer (dirble_prc_t * ap_prc)
 static void
 buffer_filled (OMX_BUFFERHEADERTYPE * ap_hdr, void * ap_arg)
 {
-  dirble_prc_t * p_prc = ap_arg;
+  tunein_prc_t * p_prc = ap_arg;
   assert (p_prc);
   assert (ap_hdr);
   assert (p_prc->p_outhdr_ == ap_hdr);
@@ -459,7 +459,7 @@ buffer_filled (OMX_BUFFERHEADERTYPE * ap_hdr, void * ap_arg)
 static OMX_BUFFERHEADERTYPE *
 buffer_emptied (OMX_PTR ap_arg)
 {
-  dirble_prc_t * p_prc = ap_arg;
+  tunein_prc_t * p_prc = ap_arg;
   OMX_BUFFERHEADERTYPE * p_hdr = NULL;
   assert (p_prc);
 
@@ -496,7 +496,7 @@ buffer_emptied (OMX_PTR ap_arg)
 static void
 header_available (OMX_PTR ap_arg, const void * ap_ptr, const size_t a_nbytes)
 {
-  dirble_prc_t * p_prc = ap_arg;
+  tunein_prc_t * p_prc = ap_arg;
   assert (p_prc);
   assert (ap_ptr);
   obtain_audio_encoding_from_headers (p_prc, ap_ptr, a_nbytes);
@@ -505,7 +505,7 @@ header_available (OMX_PTR ap_arg, const void * ap_ptr, const size_t a_nbytes)
 static bool
 data_available (OMX_PTR ap_arg, const void * ap_ptr, const size_t a_nbytes)
 {
-  dirble_prc_t * p_prc = ap_arg;
+  tunein_prc_t * p_prc = ap_arg;
   bool pause_needed = false;
   assert (p_prc);
   assert (ap_ptr);
@@ -531,7 +531,7 @@ data_available (OMX_PTR ap_arg, const void * ap_ptr, const size_t a_nbytes)
 static bool
 connection_lost (OMX_PTR ap_arg)
 {
-  dirble_prc_t * p_prc = ap_arg;
+  tunein_prc_t * p_prc = ap_arg;
   assert (p_prc);
   TIZ_PRINTF_DBG_RED ("connection_lost\n");
 
@@ -558,7 +558,7 @@ connection_lost (OMX_PTR ap_arg)
 }
 
 static OMX_ERRORTYPE
-prepare_for_port_auto_detection (dirble_prc_t * ap_prc)
+prepare_for_port_auto_detection (tunein_prc_t * ap_prc)
 {
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
   assert (ap_prc);
@@ -579,23 +579,23 @@ prepare_for_port_auto_detection (dirble_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
-retrieve_session_configuration (dirble_prc_t * ap_prc)
+retrieve_session_configuration (tunein_prc_t * ap_prc)
 {
   return tiz_api_GetParameter (
     tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
-    OMX_TizoniaIndexParamAudioDirbleSession, &(ap_prc->session_));
+    OMX_TizoniaIndexParamAudioTuneinSession, &(ap_prc->session_));
 }
 
 static OMX_ERRORTYPE
-retrieve_playlist (dirble_prc_t * ap_prc)
+retrieve_playlist (tunein_prc_t * ap_prc)
 {
   return tiz_api_GetParameter (
     tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
-    OMX_TizoniaIndexParamAudioDirblePlaylist, &(ap_prc->playlist_));
+    OMX_TizoniaIndexParamAudioTuneinPlaylist, &(ap_prc->playlist_));
 }
 
 static OMX_ERRORTYPE
-retrieve_buffer_size (dirble_prc_t * ap_prc)
+retrieve_buffer_size (tunein_prc_t * ap_prc)
 {
   TIZ_INIT_OMX_PORT_STRUCT (ap_prc->buffer_size_, ARATELIA_HTTP_SOURCE_PORT_INDEX);
   return tiz_api_GetParameter (
@@ -604,47 +604,47 @@ retrieve_buffer_size (dirble_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
-enqueue_playlist_items (dirble_prc_t * ap_prc)
+enqueue_playlist_items (tunein_prc_t * ap_prc)
 {
   int rc = 1;
 
   assert (ap_prc);
-  assert (ap_prc->p_dirble_);
+  assert (ap_prc->p_tunein_);
 
   {
     const char * p_playlist = (const char *) ap_prc->playlist_.cPlaylistName;
     const OMX_BOOL shuffle = ap_prc->playlist_.bShuffle;
 
-    tiz_dirble_set_playback_mode (
-      ap_prc->p_dirble_, (shuffle == OMX_TRUE ? ETIZDirblePlaybackModeShuffle
-                                              : ETIZDirblePlaybackModeNormal));
+    tiz_tunein_set_playback_mode (
+      ap_prc->p_tunein_, (shuffle == OMX_TRUE ? ETIZTuneinPlaybackModeShuffle
+                                              : ETIZTuneinPlaybackModeNormal));
 
     switch (ap_prc->playlist_.ePlaylistType)
       {
-        case OMX_AUDIO_DirblePlaylistTypeUnknown:
+        case OMX_AUDIO_TuneinPlaylistTypeUnknown:
           {
             /* TODO */
             assert (0);
           }
           break;
-        case OMX_AUDIO_DirblePlaylistTypePopularStations:
+        case OMX_AUDIO_TuneinPlaylistTypePopularStations:
           {
-            rc = tiz_dirble_play_popular_stations (ap_prc->p_dirble_);
+            rc = tiz_tunein_play_popular_stations (ap_prc->p_tunein_);
           }
           break;
-        case OMX_AUDIO_DirblePlaylistTypeStations:
+        case OMX_AUDIO_TuneinPlaylistTypeStations:
           {
-            rc = tiz_dirble_play_stations (ap_prc->p_dirble_, p_playlist);
+            rc = tiz_tunein_play_stations (ap_prc->p_tunein_, p_playlist);
           }
           break;
-        case OMX_AUDIO_DirblePlaylistTypeCategory:
+        case OMX_AUDIO_TuneinPlaylistTypeCategory:
           {
-            rc = tiz_dirble_play_category (ap_prc->p_dirble_, p_playlist);
+            rc = tiz_tunein_play_category (ap_prc->p_tunein_, p_playlist);
           }
           break;
-        case OMX_AUDIO_DirblePlaylistTypeCountry:
+        case OMX_AUDIO_TuneinPlaylistTypeCountry:
           {
-            rc = tiz_dirble_play_country (ap_prc->p_dirble_, p_playlist);
+            rc = tiz_tunein_play_country (ap_prc->p_tunein_, p_playlist);
           }
           break;
         default:
@@ -658,20 +658,20 @@ enqueue_playlist_items (dirble_prc_t * ap_prc)
 }
 
 /*
- * dirbleprc
+ * tuneinprc
  */
 
 static void *
-dirble_prc_ctor (void * ap_obj, va_list * app)
+tunein_prc_ctor (void * ap_obj, va_list * app)
 {
-  dirble_prc_t * p_prc = super_ctor (typeOf (ap_obj, "dirbleprc"), ap_obj, app);
+  tunein_prc_t * p_prc = super_ctor (typeOf (ap_obj, "tuneinprc"), ap_obj, app);
   p_prc->p_outhdr_ = NULL;
   TIZ_INIT_OMX_STRUCT (p_prc->session_);
   TIZ_INIT_OMX_STRUCT (p_prc->playlist_);
   TIZ_INIT_OMX_STRUCT (p_prc->playlist_skip_);
   p_prc->p_uri_param_ = NULL;
   p_prc->p_trans_ = NULL;
-  p_prc->p_dirble_ = NULL;
+  p_prc->p_tunein_ = NULL;
   p_prc->eos_ = false;
   p_prc->port_disabled_ = false;
   p_prc->uri_changed_ = false;
@@ -681,7 +681,7 @@ dirble_prc_ctor (void * ap_obj, va_list * app)
   p_prc->auto_detect_on_ = false;
   p_prc->bitrate_ = ARATELIA_HTTP_SOURCE_DEFAULT_BIT_RATE_KBITS;
   p_prc->buffer_bytes_ = ((p_prc->bitrate_ * 1000) / 8)
-    * ARATELIA_HTTP_SOURCE_DEFAULT_BUFFER_SECONDS_DIRBLE;
+    * ARATELIA_HTTP_SOURCE_DEFAULT_BUFFER_SECONDS_TUNEIN;
   p_prc->remove_current_url_ = false;
   p_prc->connection_closed_ = false;
   p_prc->first_buffer_delivered_ = false;
@@ -689,10 +689,10 @@ dirble_prc_ctor (void * ap_obj, va_list * app)
 }
 
 static void *
-dirble_prc_dtor (void * ap_obj)
+tunein_prc_dtor (void * ap_obj)
 {
-  (void) dirble_prc_deallocate_resources (ap_obj);
-  return super_dtor (typeOf (ap_obj, "dirbleprc"), ap_obj);
+  (void) tunein_prc_deallocate_resources (ap_obj);
+  return super_dtor (typeOf (ap_obj, "tuneinprc"), ap_obj);
 }
 
 /*
@@ -700,9 +700,9 @@ dirble_prc_dtor (void * ap_obj)
  */
 
 static OMX_ERRORTYPE
-dirble_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
+tunein_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
 {
-  dirble_prc_t * p_prc = ap_obj;
+  tunein_prc_t * p_prc = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
   assert (p_prc);
   tiz_check_omx (retrieve_session_configuration (p_prc));
@@ -714,8 +714,8 @@ dirble_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
         * p_prc->buffer_size_.nCapacity;
     }
 
-  on_dirble_error_ret_omx_oom (tiz_dirble_init (
-    &(p_prc->p_dirble_), (const char *) p_prc->session_.cApiKey));
+  on_tunein_error_ret_omx_oom (tiz_tunein_init (
+    &(p_prc->p_tunein_), (const char *) p_prc->session_.cApiKey));
 
   tiz_check_omx (enqueue_playlist_items (p_prc));
   tiz_check_omx (obtain_next_url (p_prc, 1));
@@ -747,22 +747,22 @@ dirble_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
 }
 
 static OMX_ERRORTYPE
-dirble_prc_deallocate_resources (void * ap_prc)
+tunein_prc_deallocate_resources (void * ap_prc)
 {
-  dirble_prc_t * p_prc = ap_prc;
+  tunein_prc_t * p_prc = ap_prc;
   assert (p_prc);
   tiz_urltrans_destroy (p_prc->p_trans_);
   p_prc->p_trans_ = NULL;
   delete_uri (p_prc);
-  tiz_dirble_destroy (p_prc->p_dirble_);
-  p_prc->p_dirble_ = NULL;
+  tiz_tunein_destroy (p_prc->p_tunein_);
+  p_prc->p_tunein_ = NULL;
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
-dirble_prc_prepare_to_transfer (void * ap_prc, OMX_U32 a_pid)
+tunein_prc_prepare_to_transfer (void * ap_prc, OMX_U32 a_pid)
 {
-  dirble_prc_t * p_prc = ap_prc;
+  tunein_prc_t * p_prc = ap_prc;
   assert (ap_prc);
   p_prc->eos_ = false;
   tiz_urltrans_cancel (p_prc->p_trans_);
@@ -771,9 +771,9 @@ dirble_prc_prepare_to_transfer (void * ap_prc, OMX_U32 a_pid)
 }
 
 static OMX_ERRORTYPE
-dirble_prc_transfer_and_process (void * ap_prc, OMX_U32 a_pid)
+tunein_prc_transfer_and_process (void * ap_prc, OMX_U32 a_pid)
 {
-  dirble_prc_t * p_prc = ap_prc;
+  tunein_prc_t * p_prc = ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (p_prc);
   if (p_prc->auto_detect_on_)
@@ -786,9 +786,9 @@ dirble_prc_transfer_and_process (void * ap_prc, OMX_U32 a_pid)
 }
 
 static OMX_ERRORTYPE
-dirble_prc_stop_and_return (void * ap_prc)
+tunein_prc_stop_and_return (void * ap_prc)
 {
-  dirble_prc_t * p_prc = ap_prc;
+  tunein_prc_t * p_prc = ap_prc;
   assert (p_prc);
   if (p_prc->p_trans_)
     {
@@ -803,47 +803,47 @@ dirble_prc_stop_and_return (void * ap_prc)
  */
 
 static OMX_ERRORTYPE
-dirble_prc_buffers_ready (const void * ap_prc)
+tunein_prc_buffers_ready (const void * ap_prc)
 {
-  dirble_prc_t * p_prc = (dirble_prc_t *) ap_prc;
+  tunein_prc_t * p_prc = (tunein_prc_t *) ap_prc;
   assert (p_prc);
   return tiz_urltrans_on_buffers_ready (p_prc->p_trans_);
 }
 
 static OMX_ERRORTYPE
-dirble_prc_io_ready (void * ap_prc, tiz_event_io_t * ap_ev_io, int a_fd,
+tunein_prc_io_ready (void * ap_prc, tiz_event_io_t * ap_ev_io, int a_fd,
                      int a_events)
 {
-  dirble_prc_t * p_prc = ap_prc;
+  tunein_prc_t * p_prc = ap_prc;
   assert (p_prc);
   return tiz_urltrans_on_io_ready (p_prc->p_trans_, ap_ev_io, a_fd, a_events);
 }
 
 static OMX_ERRORTYPE
-dirble_prc_timer_ready (void * ap_prc, tiz_event_timer_t * ap_ev_timer,
+tunein_prc_timer_ready (void * ap_prc, tiz_event_timer_t * ap_ev_timer,
                         void * ap_arg, const uint32_t a_id)
 {
-  dirble_prc_t * p_prc = ap_prc;
+  tunein_prc_t * p_prc = ap_prc;
   assert (p_prc);
   return tiz_urltrans_on_timer_ready (p_prc->p_trans_, ap_ev_timer);
 }
 
 static OMX_ERRORTYPE
-dirble_prc_pause (const void * ap_obj)
+tunein_prc_pause (const void * ap_obj)
 {
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
-dirble_prc_resume (const void * ap_obj)
+tunein_prc_resume (const void * ap_obj)
 {
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
-dirble_prc_port_flush (const void * ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
+tunein_prc_port_flush (const void * ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
 {
-  dirble_prc_t * p_prc = (dirble_prc_t *) ap_obj;
+  tunein_prc_t * p_prc = (tunein_prc_t *) ap_obj;
   if (p_prc->p_trans_)
     {
       tiz_urltrans_flush_buffer (p_prc->p_trans_);
@@ -852,9 +852,9 @@ dirble_prc_port_flush (const void * ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
 }
 
 static OMX_ERRORTYPE
-dirble_prc_port_disable (const void * ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
+tunein_prc_port_disable (const void * ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
 {
-  dirble_prc_t * p_prc = (dirble_prc_t *) ap_obj;
+  tunein_prc_t * p_prc = (tunein_prc_t *) ap_obj;
   assert (p_prc);
   p_prc->port_disabled_ = true;
   if (p_prc->p_trans_)
@@ -863,13 +863,13 @@ dirble_prc_port_disable (const void * ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
       tiz_urltrans_flush_buffer (p_prc->p_trans_);
     }
   /* Release any buffers held  */
-  return release_buffer ((dirble_prc_t *) ap_obj);
+  return release_buffer ((tunein_prc_t *) ap_obj);
 }
 
 static OMX_ERRORTYPE
-dirble_prc_port_enable (const void * ap_prc, OMX_U32 a_pid)
+tunein_prc_port_enable (const void * ap_prc, OMX_U32 a_pid)
 {
-  dirble_prc_t * p_prc = (dirble_prc_t *) ap_prc;
+  tunein_prc_t * p_prc = (tunein_prc_t *) ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (p_prc);
   if (p_prc->port_disabled_)
@@ -889,10 +889,10 @@ dirble_prc_port_enable (const void * ap_prc, OMX_U32 a_pid)
 }
 
 static OMX_ERRORTYPE
-dirble_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
+tunein_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
                           OMX_INDEXTYPE a_config_idx)
 {
-  dirble_prc_t * p_prc = ap_prc;
+  tunein_prc_t * p_prc = ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (p_prc);
@@ -928,14 +928,14 @@ dirble_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
 }
 
 /*
- * dirble_prc_class
+ * tunein_prc_class
  */
 
 static void *
-dirble_prc_class_ctor (void * ap_obj, va_list * app)
+tunein_prc_class_ctor (void * ap_obj, va_list * app)
 {
   /* NOTE: Class methods might be added in the future. None for now. */
-  return super_ctor (typeOf (ap_obj, "dirbleprc_class"), ap_obj, app);
+  return super_ctor (typeOf (ap_obj, "tuneinprc_class"), ap_obj, app);
 }
 
 /*
@@ -943,67 +943,67 @@ dirble_prc_class_ctor (void * ap_obj, va_list * app)
  */
 
 void *
-dirble_prc_class_init (void * ap_tos, void * ap_hdl)
+tunein_prc_class_init (void * ap_tos, void * ap_hdl)
 {
   void * tizprc = tiz_get_type (ap_hdl, "tizprc");
-  void * dirbleprc_class = factory_new
+  void * tuneinprc_class = factory_new
     /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-    (classOf (tizprc), "dirbleprc_class", classOf (tizprc),
-     sizeof (dirble_prc_class_t),
+    (classOf (tizprc), "tuneinprc_class", classOf (tizprc),
+     sizeof (tunein_prc_class_t),
      /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
      /* TIZ_CLASS_COMMENT: class constructor */
-     ctor, dirble_prc_class_ctor,
+     ctor, tunein_prc_class_ctor,
      /* TIZ_CLASS_COMMENT: stop value*/
      0);
-  return dirbleprc_class;
+  return tuneinprc_class;
 }
 
 void *
-dirble_prc_init (void * ap_tos, void * ap_hdl)
+tunein_prc_init (void * ap_tos, void * ap_hdl)
 {
   void * tizprc = tiz_get_type (ap_hdl, "tizprc");
-  void * dirbleprc_class = tiz_get_type (ap_hdl, "dirbleprc_class");
-  TIZ_LOG_CLASS (dirbleprc_class);
-  void * dirbleprc = factory_new
+  void * tuneinprc_class = tiz_get_type (ap_hdl, "tuneinprc_class");
+  TIZ_LOG_CLASS (tuneinprc_class);
+  void * tuneinprc = factory_new
     /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-    (dirbleprc_class, "dirbleprc", tizprc, sizeof (dirble_prc_t),
+    (tuneinprc_class, "tuneinprc", tizprc, sizeof (tunein_prc_t),
      /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
      /* TIZ_CLASS_COMMENT: class constructor */
-     ctor, dirble_prc_ctor,
+     ctor, tunein_prc_ctor,
      /* TIZ_CLASS_COMMENT: class destructor */
-     dtor, dirble_prc_dtor,
+     dtor, tunein_prc_dtor,
      /* TIZ_CLASS_COMMENT: */
-     tiz_srv_allocate_resources, dirble_prc_allocate_resources,
+     tiz_srv_allocate_resources, tunein_prc_allocate_resources,
      /* TIZ_CLASS_COMMENT: */
-     tiz_srv_deallocate_resources, dirble_prc_deallocate_resources,
+     tiz_srv_deallocate_resources, tunein_prc_deallocate_resources,
      /* TIZ_CLASS_COMMENT: */
-     tiz_srv_prepare_to_transfer, dirble_prc_prepare_to_transfer,
+     tiz_srv_prepare_to_transfer, tunein_prc_prepare_to_transfer,
      /* TIZ_CLASS_COMMENT: */
-     tiz_srv_transfer_and_process, dirble_prc_transfer_and_process,
+     tiz_srv_transfer_and_process, tunein_prc_transfer_and_process,
      /* TIZ_CLASS_COMMENT: */
-     tiz_srv_stop_and_return, dirble_prc_stop_and_return,
+     tiz_srv_stop_and_return, tunein_prc_stop_and_return,
      /* TIZ_CLASS_COMMENT: */
-     tiz_srv_io_ready, dirble_prc_io_ready,
+     tiz_srv_io_ready, tunein_prc_io_ready,
      /* TIZ_CLASS_COMMENT: */
-     tiz_srv_timer_ready, dirble_prc_timer_ready,
+     tiz_srv_timer_ready, tunein_prc_timer_ready,
      /* TIZ_CLASS_COMMENT: */
-     tiz_prc_buffers_ready, dirble_prc_buffers_ready,
+     tiz_prc_buffers_ready, tunein_prc_buffers_ready,
      /* TIZ_CLASS_COMMENT: */
-     tiz_prc_pause, dirble_prc_pause,
+     tiz_prc_pause, tunein_prc_pause,
      /* TIZ_CLASS_COMMENT: */
-     tiz_prc_resume, dirble_prc_resume,
+     tiz_prc_resume, tunein_prc_resume,
      /* TIZ_CLASS_COMMENT: */
-     tiz_prc_port_flush, dirble_prc_port_flush,
+     tiz_prc_port_flush, tunein_prc_port_flush,
      /* TIZ_CLASS_COMMENT: */
-     tiz_prc_port_disable, dirble_prc_port_disable,
+     tiz_prc_port_disable, tunein_prc_port_disable,
      /* TIZ_CLASS_COMMENT: */
-     tiz_prc_port_enable, dirble_prc_port_enable,
+     tiz_prc_port_enable, tunein_prc_port_enable,
      /* TIZ_CLASS_COMMENT: */
-     tiz_prc_config_change, dirble_prc_config_change,
+     tiz_prc_config_change, tunein_prc_config_change,
      /* TIZ_CLASS_COMMENT: stop value */
      0);
 
-  return dirbleprc;
+  return tuneinprc;
 }

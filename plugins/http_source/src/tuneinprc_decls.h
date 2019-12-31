@@ -17,16 +17,16 @@
  * along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file   dirbleprc_decls.h
+ * @file   tuneinprc_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Dirble client - processor declarations
+ * @brief  Tunein client - processor declarations
  *
  *
  */
 
-#ifndef DIRBLEPRC_DECLS_H
-#define DIRBLEPRC_DECLS_H
+#ifndef TUNEINPRC_DECLS_H
+#define TUNEINPRC_DECLS_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,21 +39,21 @@ extern "C" {
 #include <tizprc_decls.h>
 
 #include <tizplatform.h>
-#include <tizdirble_c.h>
+#include <tiztunein_c.h>
 
-typedef struct dirble_prc dirble_prc_t;
-struct dirble_prc
+typedef struct tunein_prc tunein_prc_t;
+struct tunein_prc
 {
   /* Object */
   const tiz_prc_t _;
   OMX_BUFFERHEADERTYPE * p_outhdr_;
-  OMX_TIZONIA_AUDIO_PARAM_DIRBLESESSIONTYPE session_;
-  OMX_TIZONIA_AUDIO_PARAM_DIRBLEPLAYLISTTYPE playlist_;
+  OMX_TIZONIA_AUDIO_PARAM_TUNEINSESSIONTYPE session_;
+  OMX_TIZONIA_AUDIO_PARAM_TUNEINPLAYLISTTYPE playlist_;
   OMX_TIZONIA_PLAYLISTSKIPTYPE playlist_skip_;
   OMX_TIZONIA_STREAMINGBUFFERTYPE buffer_size_;
   OMX_PARAM_CONTENTURITYPE * p_uri_param_;
   tiz_urltrans_t * p_trans_;
-  tiz_dirble_t * p_dirble_;
+  tiz_tunein_t * p_tunein_;
   bool eos_;
   bool port_disabled_;
   bool uri_changed_;
@@ -68,8 +68,8 @@ struct dirble_prc
   bool first_buffer_delivered_;
 };
 
-typedef struct dirble_prc_class dirble_prc_class_t;
-struct dirble_prc_class
+typedef struct tunein_prc_class tunein_prc_class_t;
+struct tunein_prc_class
 {
   /* Class */
   const tiz_prc_class_t _;
@@ -80,4 +80,4 @@ struct dirble_prc_class
 }
 #endif
 
-#endif /* DIRBLEPRC_DECLS_H */
+#endif /* TUNEINPRC_DECLS_H */

@@ -18,28 +18,45 @@
  */
 
 /**
- * @file   dirbleprc.h
+ * @file   tuneincfgport_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Dirble streaming client - processor class
+ * @brief  A specialised config port class for the Tunein source component
  *
  *
  */
 
-#ifndef DIRBLEPRC_H
-#define DIRBLEPRC_H
+#ifndef TUNEINCFGPORT_DECLS_H
+#define TUNEINCFGPORT_DECLS_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void *
-dirble_prc_class_init (void * ap_tos, void * ap_hdl);
-void *
-dirble_prc_init (void * ap_tos, void * ap_hdl);
+#include <OMX_TizoniaExt.h>
+#include <OMX_Types.h>
+
+#include <tizconfigport_decls.h>
+
+typedef struct tunein_cfgport tunein_cfgport_t;
+struct tunein_cfgport
+{
+  /* Object */
+  const tiz_configport_t _;
+  OMX_TIZONIA_AUDIO_PARAM_TUNEINSESSIONTYPE session_;
+  OMX_TIZONIA_AUDIO_PARAM_TUNEINPLAYLISTTYPE playlist_;
+};
+
+typedef struct tunein_cfgport_class tunein_cfgport_class_t;
+struct tunein_cfgport_class
+{
+  /* Class */
+  const tiz_configport_class_t _;
+  /* NOTE: Class methods might be added in the future */
+};
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* DIRBLEPRC_H */
+#endif /* TUNEINCFGPORT_DECLS_H */

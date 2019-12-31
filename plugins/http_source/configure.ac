@@ -113,15 +113,15 @@ AS_IF([test "x$tiz_found_soundcloud_headers" == "xyes"],
 	[PKG_CHECK_MODULES([TIZSOUNDCLOUD], [libtizsoundcloud >= 0.1.0])],
 	[AC_MSG_NOTICE([Not using pkg-config to find TIZSOUNDCLOUD cflags and libs])])
 
-dnl AC_CHECK_HEADERS([tizonia/tizdirble_c.h],
-dnl 	[tiz_found_dirble_headers=yes; break;])
-dnl AS_IF([test "x$tiz_found_dirble_headers" != "xyes"],
-dnl 	[AC_SUBST([TIZDIRBLE_CFLAGS], ['-I$(top_srcdir)/../../clients/dirble/libtizdirble/tizonia'])
-dnl 	AC_SUBST([TIZDIRBLE_LIBS], ['$(top_builddir)/../../clients/dirble/libtizdirble/tizonia/libtizdirble.la'])],
-dnl 	[AC_MSG_NOTICE([Not substituting TIZDIRBLE cflags and libs with local paths])])
-dnl AS_IF([test "x$tiz_found_dirble_headers" == "xyes"],
-dnl 	[PKG_CHECK_MODULES([TIZDIRBLE], [libtizdirble >= 0.1.0])],
-dnl 	[AC_MSG_NOTICE([Not using pkg-config to find TIZDIRBLE cflags and libs])])
+AC_CHECK_HEADERS([tizonia/tiztunein_c.h],
+	[tiz_found_tunein_headers=yes; break;])
+AS_IF([test "x$tiz_found_tunein_headers" != "xyes"],
+	[AC_SUBST([TIZTUNEIN_CFLAGS], ['-I$(top_srcdir)/../../clients/tunein/libtiztunein/tizonia'])
+	AC_SUBST([TIZTUNEIN_LIBS], ['$(top_builddir)/../../clients/tunein/libtiztunein/tizonia/libtiztunein.la'])],
+	[AC_MSG_NOTICE([Not substituting TIZTUNEIN cflags and libs with local paths])])
+AS_IF([test "x$tiz_found_tunein_headers" == "xyes"],
+	[PKG_CHECK_MODULES([TIZTUNEIN], [libtiztunein >= 0.1.0])],
+	[AC_MSG_NOTICE([Not using pkg-config to find TIZTUNEIN cflags and libs])])
 
 AC_CHECK_HEADERS([tizonia/tizyoutube_c.h],
 	[tiz_found_youtube_headers=yes; break;])
