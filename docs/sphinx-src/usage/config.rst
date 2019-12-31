@@ -115,15 +115,15 @@ tizonia.conf
    #                             Increase in case of cuts.
 
 
-   # Dirble configuration
+   # Tunein configuration
    # -------------------------------------------------------------------------
    # To avoid passing this information on the command line, uncomment and
-   # configure your Dirble Api Key here.
+   # configure your Tunein Api Key here.
    #
-   # To obtain your Dirble API key, go to https://dirble.com/developer/
+   # To obtain your Tunein API key, go to https://tunein.com/developer/
    #
-   # dirble.api_key = xxxxxxxxxxxxxx
-   # dirble.buffer_seconds = size of the audio buffer (in seconds) to use
+   # tunein.api_key = xxxxxxxxxxxxxx
+   # tunein.buffer_seconds = size of the audio buffer (in seconds) to use
    #                         while downloading streams. Default: 120.
    #                         Increase in case of cuts.
 

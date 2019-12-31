@@ -14,7 +14,7 @@ Usage
    spotify
    googlemusic
    soundcloud
-   dirble
+   tunein
    youtube
    plex
    chromecast

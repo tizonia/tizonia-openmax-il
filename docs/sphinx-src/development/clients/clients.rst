@@ -7,5 +7,5 @@ Streaming Client Libraries
    libtizgmusic
    libtizsoundcloud
    libtizyoutube
-   libtizdirble
+   libtiztunein
 

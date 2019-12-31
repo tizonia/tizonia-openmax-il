@@ -1,6 +1,6 @@
-Dirble
+Tunein
 ======
 
-.. image:: ../_static/screenshots/tizonia-help-dirble.png
+.. image:: ../_static/screenshots/tizonia-help-tunein.png
     :align: center
-    :alt: tizonia dirble help
+    :alt: tizonia tunein help

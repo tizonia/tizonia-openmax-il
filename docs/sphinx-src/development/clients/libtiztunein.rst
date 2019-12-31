@@ -1,6 +1,6 @@
-libtizdirble
+libtiztunein
 ============
 
-.. doxygengroup:: libtizdirble
+.. doxygengroup:: libtiztunein
    :project: tizonia
    :members:
