@@ -61,7 +61,7 @@ namespace tiz
       void do_configure_http ();
       void do_configure_gmusic ();
       void do_configure_scloud ();
-//       void do_configure_dirble ();
+//       void do_configure_tunein ();
       void do_configure_youtube ();
       void do_configure_plex ();
 

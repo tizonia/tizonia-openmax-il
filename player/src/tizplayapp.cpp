@@ -70,8 +70,8 @@
 #include <httpserv/tizhttpservmgr.hpp>
 #include <services/chromecast/tizchromecastconfig.hpp>
 #include <services/chromecast/tizchromecastmgr.hpp>
-// #include <services/dirble/tizdirbleconfig.hpp>
-// #include <services/dirble/tizdirblemgr.hpp>
+// #include <services/tunein/tiztuneinconfig.hpp>
+// #include <services/tunein/tiztuneinmgr.hpp>
 #include <services/googlemusic/tizgmusicconfig.hpp>
 #include <services/googlemusic/tizgmusicmgr.hpp>
 #include <services/soundcloud/tizscloudconfig.hpp>
@@ -518,9 +518,9 @@ void tiz::playapp::set_option_handlers ()
   // SoundCloud music streaming client program options
   popts_.set_option_handler ("scloud-stream",
                              boost::bind (&tiz::playapp::scloud_stream, this));
-//   // Dirble internet radio directory streaming client program options
-//   popts_.set_option_handler ("dirble-stream",
-//                              boost::bind (&tiz::playapp::dirble_stream, this));
+//   // Tunein internet radio directory streaming client program options
+//   popts_.set_option_handler ("tunein-stream",
+//                              boost::bind (&tiz::playapp::tunein_stream, this));
   // YouTube audio streaming client program options
   popts_.set_option_handler ("youtube-stream",
                              boost::bind (&tiz::playapp::youtube_stream, this));
@@ -539,10 +539,10 @@ void tiz::playapp::set_option_handlers ()
   popts_.set_option_handler (
       "scloud-stream-chromecast",
       boost::bind (&tiz::playapp::scloud_stream_chromecast, this));
-//   // Dirble audio streaming on Chromecast device
+//   // Tunein audio streaming on Chromecast device
 //   popts_.set_option_handler (
-//       "dirble-stream-chromecast",
-//       boost::bind (&tiz::playapp::dirble_stream_chromecast, this));
+//       "tunein-stream-chromecast",
+//       boost::bind (&tiz::playapp::tunein_stream_chromecast, this));
   // YouTube audio streaming on Chromecast device
   popts_.set_option_handler (
       "youtube-stream-chromecast",
@@ -1076,15 +1076,15 @@ tiz::playapp::scloud_stream ()
 }
 
 // OMX_ERRORTYPE
-// tiz::playapp::dirble_stream ()
+// tiz::playapp::tunein_stream ()
 // {
 //   OMX_ERRORTYPE rc = OMX_ErrorNone;
 //   const bool shuffle = popts_.shuffle ();
-//   const std::string api_key (popts_.dirble_api_key ());
-//   const uri_lst_t &uri_list = popts_.dirble_playlist_container ();
-//   const OMX_TIZONIA_AUDIO_DIRBLEPLAYLISTTYPE playlist_type
-//       = popts_.dirble_playlist_type ();
-//   const uint32_t buffer_seconds = popts_.dirble_buffer_seconds ();
+//   const std::string api_key (popts_.tunein_api_key ());
+//   const uri_lst_t &uri_list = popts_.tunein_playlist_container ();
+//   const OMX_TIZONIA_AUDIO_TUNEINPLAYLISTTYPE playlist_type
+//       = popts_.tunein_playlist_type ();
+//   const uint32_t buffer_seconds = popts_.tunein_buffer_seconds ();
 
 //   print_banner ();
 
@@ -1097,12 +1097,12 @@ tiz::playapp::scloud_stream ()
 //   assert (playlist);
 //   playlist->set_loop_playback (true);
 
-//   tizgraphconfig_ptr_t config = boost::make_shared< tiz::graph::dirbleconfig > (
+//   tizgraphconfig_ptr_t config = boost::make_shared< tiz::graph::tuneinconfig > (
 //       playlist, buffer_seconds, api_key, playlist_type);
 
 //   // Instantiate the streaming client manager
 //   tiz::graphmgr::mgr_ptr_t p_mgr
-//       = boost::make_shared< tiz::graphmgr::dirblemgr > (config);
+//       = boost::make_shared< tiz::graphmgr::tuneinmgr > (config);
 
 //   // TODO: Check return codes
 //   p_mgr->init (playlist, graphmgr_termination_cback ());
@@ -1366,14 +1366,14 @@ tiz::playapp::scloud_stream_chromecast ()
 }
 
 // OMX_ERRORTYPE
-// tiz::playapp::dirble_stream_chromecast ()
+// tiz::playapp::tunein_stream_chromecast ()
 // {
 //   OMX_ERRORTYPE rc = OMX_ErrorNone;
 //   const bool shuffle = popts_.shuffle ();
-//   const std::string api_key (popts_.dirble_api_key ());
-//   const uri_lst_t &uri_list = popts_.dirble_playlist_container ();
-//   const OMX_TIZONIA_AUDIO_DIRBLEPLAYLISTTYPE playlist_type
-//       = popts_.dirble_playlist_type ();
+//   const std::string api_key (popts_.tunein_api_key ());
+//   const uri_lst_t &uri_list = popts_.tunein_playlist_container ();
+//   const OMX_TIZONIA_AUDIO_TUNEINPLAYLISTTYPE playlist_type
+//       = popts_.tunein_playlist_type ();
 //   const std::string cc_name_or_ip (popts_.chromecast_name_or_ip ());
 //   const uint32_t unused_buffer_seconds = 0; // this is not used during casting
 
@@ -1389,13 +1389,13 @@ tiz::playapp::scloud_stream_chromecast ()
 //   playlist->set_loop_playback (true);
 
 //   tizgraphconfig_ptr_t service_config
-//       = boost::make_shared< tiz::graph::dirbleconfig > (
+//       = boost::make_shared< tiz::graph::tuneinconfig > (
 //           playlist, unused_buffer_seconds, api_key, playlist_type);
 
 //   tizgraphconfig_ptr_t config
 //       = boost::make_shared< tiz::graph::chromecastconfig > (
 //           cc_name_or_ip, service_config,
-//           tiz::graph::chromecastconfig::ConfigDirble);
+//           tiz::graph::chromecastconfig::ConfigTunein);
 
 //   // Instantiate the chromecast client manager
 //   tiz::graphmgr::mgr_ptr_t p_mgr

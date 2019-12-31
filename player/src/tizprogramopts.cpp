@@ -321,7 +321,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     spotify_ ("Spotify options (Spotify Premium required)"),
     gmusic_ ("Google Play Music options"),
     scloud_ ("SoundCloud options"),
-//     dirble_ ("Dirble options"),
+//     tunein_ ("Tunein options"),
     youtube_ ("YouTube options"),
     plex_ ("Plex options"),
     chromecast_ ("Chromecast options"),
@@ -404,14 +404,14 @@ tiz::programopts::programopts (int argc, char *argv[])
     scloud_playlist_container_ (),
     scloud_playlist_type_ (OMX_AUDIO_SoundCloudPlaylistTypeUnknown),
     scloud_buffer_seconds_ (0),
-//     dirble_api_key_ (),
-//     dirble_popular_stations_ (),
-//     dirble_stations_ (),
-//     dirble_category_ (),
-//     dirble_country_ (),
-//     dirble_playlist_container_ (),
-//     dirble_playlist_type_ (OMX_AUDIO_DirblePlaylistTypeUnknown),
-//     dirble_buffer_seconds_ (0),
+//     tunein_api_key_ (),
+//     tunein_popular_stations_ (),
+//     tunein_stations_ (),
+//     tunein_category_ (),
+//     tunein_country_ (),
+//     tunein_playlist_container_ (),
+//     tunein_playlist_type_ (OMX_AUDIO_TuneinPlaylistTypeUnknown),
+//     tunein_buffer_seconds_ (0),
     youtube_audio_stream_ (),
     youtube_audio_playlist_ (),
     youtube_audio_mix_ (),
@@ -441,7 +441,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     all_spotify_client_options_ (),
     all_gmusic_client_options_ (),
     all_scloud_client_options_ (),
-//     all_dirble_client_options_ (),
+//     all_tunein_client_options_ (),
     all_youtube_client_options_ (),
     all_plex_client_options_ (),
     all_input_uri_options_ (),
@@ -455,7 +455,7 @@ tiz::programopts::programopts (int argc, char *argv[])
   init_spotify_options ();
   init_gmusic_options ();
   init_scloud_options ();
-//   init_dirble_options ();
+//   init_tunein_options ();
   init_youtube_options ();
   init_plex_options ();
   init_input_uri_option ();
@@ -558,7 +558,7 @@ void tiz::programopts::print_usage_help () const
             << "soundcloud    SoundCloud options."
             << "\n";
 //   std::cout << "  "
-//             << "dirble        Dirble options."
+//             << "tunein        Tunein options."
 //             << "\n";
   std::cout << "  "
             << "youtube       YouTube options."
@@ -1170,67 +1170,67 @@ uint32_t tiz::programopts::scloud_buffer_seconds () const
   return buffer_seconds_ ? buffer_seconds_ : scloud_buffer_seconds_;
 }
 
-// const std::string &tiz::programopts::dirble_api_key () const
+// const std::string &tiz::programopts::tunein_api_key () const
 // {
-//   return dirble_api_key_;
+//   return tunein_api_key_;
 // }
 
-// const std::vector< std::string > &tiz::programopts::dirble_playlist_container ()
+// const std::vector< std::string > &tiz::programopts::tunein_playlist_container ()
 // {
-//   dirble_playlist_container_.clear ();
-//   if (!dirble_popular_stations_.empty ())
+//   tunein_playlist_container_.clear ();
+//   if (!tunein_popular_stations_.empty ())
 //   {
-//     dirble_playlist_container_.push_back (dirble_popular_stations_);
+//     tunein_playlist_container_.push_back (tunein_popular_stations_);
 //   }
-//   else if (!dirble_stations_.empty ())
+//   else if (!tunein_stations_.empty ())
 //   {
-//     dirble_playlist_container_.push_back (dirble_stations_);
+//     tunein_playlist_container_.push_back (tunein_stations_);
 //   }
-//   else if (!dirble_category_.empty ())
+//   else if (!tunein_category_.empty ())
 //   {
-//     dirble_playlist_container_.push_back (dirble_category_);
+//     tunein_playlist_container_.push_back (tunein_category_);
 //   }
-//   else if (!dirble_country_.empty ())
+//   else if (!tunein_country_.empty ())
 //   {
-//     dirble_playlist_container_.push_back (dirble_country_);
+//     tunein_playlist_container_.push_back (tunein_country_);
 //   }
 //   else
 //   {
 //     assert (0);
 //   }
-//   return dirble_playlist_container_;
+//   return tunein_playlist_container_;
 // }
 
-// OMX_TIZONIA_AUDIO_DIRBLEPLAYLISTTYPE
-// tiz::programopts::dirble_playlist_type ()
+// OMX_TIZONIA_AUDIO_TUNEINPLAYLISTTYPE
+// tiz::programopts::tunein_playlist_type ()
 // {
-//   if (!dirble_popular_stations_.empty ())
+//   if (!tunein_popular_stations_.empty ())
 //   {
-//     dirble_playlist_type_ = OMX_AUDIO_DirblePlaylistTypePopularStations;
+//     tunein_playlist_type_ = OMX_AUDIO_TuneinPlaylistTypePopularStations;
 //   }
-//   else if (!dirble_stations_.empty ())
+//   else if (!tunein_stations_.empty ())
 //   {
-//     dirble_playlist_type_ = OMX_AUDIO_DirblePlaylistTypeStations;
+//     tunein_playlist_type_ = OMX_AUDIO_TuneinPlaylistTypeStations;
 //   }
-//   else if (!dirble_category_.empty ())
+//   else if (!tunein_category_.empty ())
 //   {
-//     dirble_playlist_type_ = OMX_AUDIO_DirblePlaylistTypeCategory;
+//     tunein_playlist_type_ = OMX_AUDIO_TuneinPlaylistTypeCategory;
 //   }
-//   else if (!dirble_country_.empty ())
+//   else if (!tunein_country_.empty ())
 //   {
-//     dirble_playlist_type_ = OMX_AUDIO_DirblePlaylistTypeCountry;
+//     tunein_playlist_type_ = OMX_AUDIO_TuneinPlaylistTypeCountry;
 //   }
 //   else
 //   {
-//     dirble_playlist_type_ = OMX_AUDIO_DirblePlaylistTypeUnknown;
+//     tunein_playlist_type_ = OMX_AUDIO_TuneinPlaylistTypeUnknown;
 //   }
 
-//   return dirble_playlist_type_;
+//   return tunein_playlist_type_;
 // }
 
-// uint32_t tiz::programopts::dirble_buffer_seconds () const
+// uint32_t tiz::programopts::tunein_buffer_seconds () const
 // {
-//   return buffer_seconds_ ? buffer_seconds_ : dirble_buffer_seconds_;
+//   return buffer_seconds_ ? buffer_seconds_ : tunein_buffer_seconds_;
 // }
 
 const std::vector< std::string >
@@ -1799,26 +1799,26 @@ void tiz::programopts::init_scloud_options ()
             .convert_to_container< std::vector< std::string > > ();
 }
 
-// void tiz::programopts::init_dirble_options ()
+// void tiz::programopts::init_tunein_options ()
 // {
-//   dirble_.add_options ()
+//   tunein_.add_options ()
 //       /* TIZ_CLASS_COMMENT: */
-//       ("dirble-api-key", po::value (&dirble_api_key_),
-//        "Dirble Api Key (not required if provided via config file).")
+//       ("tunein-api-key", po::value (&tunein_api_key_),
+//        "Tunein Api Key (not required if provided via config file).")
 //       /* TIZ_CLASS_COMMENT: */
-//       ("dirble-popular-stations", "Play Dirble's popular stations.")
+//       ("tunein-popular-stations", "Play Tunein's popular stations.")
 //       /* TIZ_CLASS_COMMENT: */
-//       ("dirble-station", po::value (&dirble_stations_),
-//        "Dirble station search.") ("dirble-category",
-//                                   po::value (&dirble_category_),
-//                                   "Dirble category search.") (
-//           "dirble-country", po::value (&dirble_country_),
-//           "Dirble country search.");
+//       ("tunein-station", po::value (&tunein_stations_),
+//        "Tunein station search.") ("tunein-category",
+//                                   po::value (&tunein_category_),
+//                                   "Tunein category search.") (
+//           "tunein-country", po::value (&tunein_country_),
+//           "Tunein country search.");
 
-//   register_consume_function (&tiz::programopts::consume_dirble_client_options);
-//   all_dirble_client_options_
-//       = boost::assign::list_of ("dirble-api-key") ("dirble-popular-stations") (
-//             "dirble-station") ("dirble-category") ("dirble-country")
+//   register_consume_function (&tiz::programopts::consume_tunein_client_options);
+//   all_tunein_client_options_
+//       = boost::assign::list_of ("tunein-api-key") ("tunein-popular-stations") (
+//             "tunein-station") ("tunein-category") ("tunein-country")
 //             .convert_to_container< std::vector< std::string > > ();
 // }
 
@@ -1921,7 +1921,7 @@ uint32_t tiz::programopts::parse_command_line (int argc, char *argv[])
 #endif
       .add (gmusic_)
       .add (scloud_)
-//       .add (dirble_)
+//       .add (tunein_)
       .add (youtube_)
       .add (plex_)
       .add (input_);
@@ -2009,9 +2009,9 @@ int tiz::programopts::consume_global_options (bool &done,
     {
       print_usage_feature (scloud_);
     }
-//     else if (0 == help_option_.compare ("dirble"))
+//     else if (0 == help_option_.compare ("tunein"))
 //     {
-//       print_usage_feature (dirble_);
+//       print_usage_feature (tunein_);
 //     }
     else if (0 == help_option_.compare ("youtube"))
     {
@@ -2523,44 +2523,44 @@ int tiz::programopts::consume_scloud_client_options (bool &done,
   return rc;
 }
 
-// int tiz::programopts::consume_dirble_client_options (bool &done,
+// int tiz::programopts::consume_tunein_client_options (bool &done,
 //                                                      std::string &msg)
 // {
 //   int rc = EXIT_FAILURE;
 //   done = false;
 
-//   if (validate_dirble_client_options ())
+//   if (validate_tunein_client_options ())
 //   {
 //     done = true;
 
 //     const int playlist_option_count
-//         = vm_.count ("dirble-popular-stations") + vm_.count ("dirble-station")
-//           + vm_.count ("dirble-category") + vm_.count ("dirble-country");
+//         = vm_.count ("tunein-popular-stations") + vm_.count ("tunein-station")
+//           + vm_.count ("tunein-category") + vm_.count ("tunein-country");
 
-//     if (dirble_api_key_.empty ())
+//     if (tunein_api_key_.empty ())
 //     {
-//       retrieve_string_from_rc_file ("tizonia", "dirble.api_key",
-//                                     dirble_api_key_);
+//       retrieve_string_from_rc_file ("tizonia", "tunein.api_key",
+//                                     tunein_api_key_);
 //     }
 //     if (!buffer_seconds_)
 //       {
-//         retrieve_tizonia_uint_from_rc_file ("dirble.buffer_seconds",
-//                                               dirble_buffer_seconds_);
+//         retrieve_tizonia_uint_from_rc_file ("tunein.buffer_seconds",
+//                                               tunein_buffer_seconds_);
 //       }
 
-//     if (vm_.count ("dirble-popular-stations"))
+//     if (vm_.count ("tunein-popular-stations"))
 //     {
 //       // This is not going to be used by the client code, but will help
-//       // in dirble_playlist_type() to decide which playlist type value is
+//       // in tunein_playlist_type() to decide which playlist type value is
 //       // returned.
-//       dirble_popular_stations_.assign ("Dirble popular stations");
+//       tunein_popular_stations_.assign ("Tunein popular stations");
 //     }
 
-//     if (dirble_api_key_.empty ())
+//     if (tunein_api_key_.empty ())
 //     {
 //       rc = EXIT_FAILURE;
 //       std::ostringstream oss;
-//       oss << "Need to provide a Dirble API key.";
+//       oss << "Need to provide a Tunein API key.";
 //       msg.assign (oss.str ());
 //     }
 //     else if (playlist_option_count > 1)
@@ -2577,7 +2577,7 @@ int tiz::programopts::consume_scloud_client_options (bool &done,
 //       oss << "A playlist must be specified.";
 //       msg.assign (oss.str ());
 //     }
-//     else if (OMX_AUDIO_DirblePlaylistTypeUnknown == dirble_playlist_type ())
+//     else if (OMX_AUDIO_TuneinPlaylistTypeUnknown == tunein_playlist_type ())
 //     {
 //       rc = EXIT_FAILURE;
 //       std::ostringstream oss;
@@ -2588,16 +2588,16 @@ int tiz::programopts::consume_scloud_client_options (bool &done,
 //     {
 //       if (chromecast_name_or_ip_.empty ())
 //       {
-//         rc = call_handler (option_handlers_map_.find ("dirble-stream"));
+//         rc = call_handler (option_handlers_map_.find ("tunein-stream"));
 //       }
 //       else
 //       {
 //         rc = call_handler (
-//             option_handlers_map_.find ("dirble-stream-chromecast"));
+//             option_handlers_map_.find ("tunein-stream-chromecast"));
 //       }
 //     }
 //   }
-//   TIZ_PRINTF_DBG_RED ("dirble ; rc = [%s]\n",
+//   TIZ_PRINTF_DBG_RED ("tunein ; rc = [%s]\n",
 //                       rc == EXIT_SUCCESS ? "SUCCESS" : "FAILURE");
 //   return rc;
 // }
@@ -2942,19 +2942,19 @@ bool tiz::programopts::validate_scloud_client_options () const
   return outcome;
 }
 
-// bool tiz::programopts::validate_dirble_client_options () const
+// bool tiz::programopts::validate_tunein_client_options () const
 // {
 //   bool outcome = false;
-//   uint32_t dirble_opts_count
-//       = vm_.count ("dirble-api-key") + vm_.count ("dirble-popular-stations")
-//         + vm_.count ("dirble-station") + vm_.count ("dirble-category")
-//         + vm_.count ("dirble-country") + vm_.count ("log-directory");
+//   uint32_t tunein_opts_count
+//       = vm_.count ("tunein-api-key") + vm_.count ("tunein-popular-stations")
+//         + vm_.count ("tunein-station") + vm_.count ("tunein-category")
+//         + vm_.count ("tunein-country") + vm_.count ("log-directory");
 
-//   std::vector< std::string > all_valid_options = all_dirble_client_options_;
+//   std::vector< std::string > all_valid_options = all_tunein_client_options_;
 //   concat_option_lists (all_valid_options, all_global_options_);
 //   concat_option_lists (all_valid_options, all_debug_options_);
 
-//   if (dirble_opts_count > 0
+//   if (tunein_opts_count > 0
 //       && is_valid_options_combination (all_valid_options, all_given_options_))
 //   {
 //     outcome = true;

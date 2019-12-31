@@ -863,35 +863,35 @@ graph::util::set_scloud_playlist (
 }
 
 // OMX_ERRORTYPE
-// graph::util::set_dirble_api_key (const OMX_HANDLETYPE handle,
+// graph::util::set_tunein_api_key (const OMX_HANDLETYPE handle,
 //                                  const std::string &api_key)
 // {
-//   // Set the Dirble user and pass
-//   OMX_TIZONIA_AUDIO_PARAM_DIRBLESESSIONTYPE sessiontype;
+//   // Set the Tunein user and pass
+//   OMX_TIZONIA_AUDIO_PARAM_TUNEINSESSIONTYPE sessiontype;
 //   TIZ_INIT_OMX_STRUCT (sessiontype);
 //   tiz_check_omx (OMX_GetParameter (
 //       handle,
-//       static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioDirbleSession),
+//       static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioTuneinSession),
 //       &sessiontype));
 //   tiz::graph::util::copy_omx_string (sessiontype.cApiKey, api_key);
 //   return OMX_SetParameter (
 //       handle,
-//       static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioDirbleSession),
+//       static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioTuneinSession),
 //       &sessiontype);
 // }
 
 // OMX_ERRORTYPE
-// graph::util::set_dirble_playlist (
+// graph::util::set_tunein_playlist (
 //     const OMX_HANDLETYPE handle, const std::string &playlist,
-//     const OMX_TIZONIA_AUDIO_DIRBLEPLAYLISTTYPE playlist_type,
+//     const OMX_TIZONIA_AUDIO_TUNEINPLAYLISTTYPE playlist_type,
 //     const bool shuffle)
 // {
-//   // Set the Dirble playlist
-//   OMX_TIZONIA_AUDIO_PARAM_DIRBLEPLAYLISTTYPE playlisttype;
+//   // Set the Tunein playlist
+//   OMX_TIZONIA_AUDIO_PARAM_TUNEINPLAYLISTTYPE playlisttype;
 //   TIZ_INIT_OMX_STRUCT (playlisttype);
 //   tiz_check_omx (OMX_GetParameter (
 //       handle,
-//       static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioDirblePlaylist),
+//       static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioTuneinPlaylist),
 //       &playlisttype));
 //   tiz::graph::util::copy_omx_string (playlisttype.cPlaylistName, playlist);
 
@@ -900,7 +900,7 @@ graph::util::set_scloud_playlist (
 
 //   return OMX_SetParameter (
 //       handle,
-//       static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioDirblePlaylist),
+//       static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioTuneinPlaylist),
 //       &playlisttype);
 // }
 
