@@ -68,8 +68,8 @@
 #define OMX_TizoniaIndexConfigPlaylistSkip           OMX_IndexVendorStartUnused + 12 /**< reference: OMX_TIZONIA_PLAYLISTSKIPTYPE */
 #define OMX_TizoniaIndexParamAudioSoundCloudSession  OMX_IndexVendorStartUnused + 13 /**< reference: OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDSESSIONTYPE */
 #define OMX_TizoniaIndexParamAudioSoundCloudPlaylist OMX_IndexVendorStartUnused + 14 /**< reference: OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDPLAYLISTTYPE */
-#define OMX_TizoniaIndexParamAudioDirbleSession      OMX_IndexVendorStartUnused + 15 /**< reference: OMX_TIZONIA_AUDIO_PARAM_DIRBLESESSIONTYPE */
-#define OMX_TizoniaIndexParamAudioDirblePlaylist     OMX_IndexVendorStartUnused + 16 /**< reference: OMX_TIZONIA_AUDIO_PARAM_DIRBLEPLAYLISTTYPE */
+#define OMX_TizoniaIndexParamAudioTuneinSession      OMX_IndexVendorStartUnused + 15 /**< reference: OMX_TIZONIA_AUDIO_PARAM_TUNEINSESSIONTYPE */
+#define OMX_TizoniaIndexParamAudioTuneinPlaylist     OMX_IndexVendorStartUnused + 16 /**< reference: OMX_TIZONIA_AUDIO_PARAM_TUNEINPLAYLISTTYPE */
 #define OMX_TizoniaIndexParamAudioYoutubeSession     OMX_IndexVendorStartUnused + 17 /**< reference: OMX_TIZONIA_AUDIO_PARAM_YOUTUBESESSIONTYPE */
 #define OMX_TizoniaIndexParamAudioYoutubePlaylist    OMX_IndexVendorStartUnused + 18 /**< reference: OMX_TIZONIA_AUDIO_PARAM_YOUTUBEPLAYLISTTYPE */
 #define OMX_TizoniaIndexParamAudioDeezerSession      OMX_IndexVendorStartUnused + 19 /**< reference: OMX_TIZONIA_AUDIO_PARAM_DEEZERSESSIONTYPE */
@@ -442,34 +442,34 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDPLAYLISTTYPE {
 } OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDPLAYLISTTYPE;
 
 /**
- * Dirble source component
+ * Tunein source component
  *
  */
 
-typedef enum OMX_TIZONIA_AUDIO_DIRBLEPLAYLISTTYPE {
-    OMX_AUDIO_DirblePlaylistTypeUnknown = 0, /**< Playlist type unknown (Default). */
-    OMX_AUDIO_DirblePlaylistTypePopularStations, /**< The service's popular stations playlist. */
-    OMX_AUDIO_DirblePlaylistTypeStations, /**< Station search. */
-    OMX_AUDIO_DirblePlaylistTypeCategory, /**< Category search. */
-    OMX_AUDIO_DirblePlaylistTypeCountry, /**< Country search. */
-    OMX_AUDIO_DirblePlaylistTypeKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
-    OMX_AUDIO_DirblePlaylistTypeVendorStartUnused = 0x7F000000, /**< Reserved region for introducing Vendor Extensions */
-    OMX_AUDIO_DirblePlaylistTypeMax = 0x7FFFFFFF
-} OMX_TIZONIA_AUDIO_DIRBLEPLAYLISTTYPE;
+typedef enum OMX_TIZONIA_AUDIO_TUNEINPLAYLISTTYPE {
+    OMX_AUDIO_TuneinPlaylistTypeUnknown = 0, /**< Playlist type unknown (Default). */
+    OMX_AUDIO_TuneinPlaylistTypePopularStations, /**< The service's popular stations playlist. */
+    OMX_AUDIO_TuneinPlaylistTypeStations, /**< Station search. */
+    OMX_AUDIO_TuneinPlaylistTypeCategory, /**< Category search. */
+    OMX_AUDIO_TuneinPlaylistTypeCountry, /**< Country search. */
+    OMX_AUDIO_TuneinPlaylistTypeKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
+    OMX_AUDIO_TuneinPlaylistTypeVendorStartUnused = 0x7F000000, /**< Reserved region for introducing Vendor Extensions */
+    OMX_AUDIO_TuneinPlaylistTypeMax = 0x7FFFFFFF
+} OMX_TIZONIA_AUDIO_TUNEINPLAYLISTTYPE;
 
-typedef struct OMX_TIZONIA_AUDIO_PARAM_DIRBLESESSIONTYPE {
+typedef struct OMX_TIZONIA_AUDIO_PARAM_TUNEINSESSIONTYPE {
     OMX_U32 nSize;
     OMX_VERSIONTYPE nVersion;
     OMX_U8 cApiKey[OMX_MAX_STRINGNAME_SIZE];
-} OMX_TIZONIA_AUDIO_PARAM_DIRBLESESSIONTYPE;
+} OMX_TIZONIA_AUDIO_PARAM_TUNEINSESSIONTYPE;
 
-typedef struct OMX_TIZONIA_AUDIO_PARAM_DIRBLEPLAYLISTTYPE {
+typedef struct OMX_TIZONIA_AUDIO_PARAM_TUNEINPLAYLISTTYPE {
     OMX_U32 nSize;
     OMX_VERSIONTYPE nVersion;
-    OMX_TIZONIA_AUDIO_DIRBLEPLAYLISTTYPE ePlaylistType;
+    OMX_TIZONIA_AUDIO_TUNEINPLAYLISTTYPE ePlaylistType;
     OMX_BOOL bShuffle;            /**< Default: OMX_FALSE */
     OMX_U8 cPlaylistName[OMX_MAX_STRINGNAME_SIZE];
-} OMX_TIZONIA_AUDIO_PARAM_DIRBLEPLAYLISTTYPE;
+} OMX_TIZONIA_AUDIO_PARAM_TUNEINPLAYLISTTYPE;
 
 /**
  * Youtube source component
