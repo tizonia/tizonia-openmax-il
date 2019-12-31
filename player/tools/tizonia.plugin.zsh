@@ -224,27 +224,27 @@ soundcloud-tags() {
     eval tizonia "$(tiz-grab-env-options)" --soundcloud-tags=\""$@"\"
 }
 
-# Tizonia's Dirble popular radio station search
-dirble-popular() {
-    eval tizonia "$(tiz-grab-env-options)" --dirble-popular-stations
+# Tizonia's Tunein popular radio station search
+tunein-popular() {
+    eval tizonia "$(tiz-grab-env-options)" --tunein-popular-stations
 }
 
-# Tizonia's Dirble station search
-dirble-station() {
+# Tizonia's Tunein station search
+tunein-station() {
     tiz-check-empty-params "$@" || return
-    eval tizonia "$(tiz-grab-env-options)" --dirble-station=\""$@"\"
+    eval tizonia "$(tiz-grab-env-options)" --tunein-station=\""$@"\"
 }
 
-# Tizonia's Dirble category search
-dirble-category() {
+# Tizonia's Tunein category search
+tunein-category() {
     tiz-check-empty-params "$@" || return
-    eval tizonia "$(tiz-grab-env-options)" --dirble-category=\""$@"\"
+    eval tizonia "$(tiz-grab-env-options)" --tunein-category=\""$@"\"
 }
 
-# Tizonia's Dirble country search
-dirble-country() {
+# Tizonia's Tunein country search
+tunein-country() {
     tiz-check-empty-params "$@" || return
-    eval tizonia "$(tiz-grab-env-options)" --dirble-country=\""$@"\"
+    eval tizonia "$(tiz-grab-env-options)" --tunein-country=\""$@"\"
 }
 
 # Tizonia's YouTube audio playback (using a YouTube video id)

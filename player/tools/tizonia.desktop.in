@@ -2,7 +2,7 @@
 Type=Application
 Encoding=UTF-8
 Name=Tizonia
-Comment=Cloud music player with support for Spotify, Google Play Music, SoundCloud, YouTube and Dirble.
+Comment=Cloud music player with support for Spotify, Google Play Music, SoundCloud, YouTube, Plex, Tunein and Chromecast devices.
 Exec=@bindir@/tizonia --youtube-audio-mix-search "Top 100 Most Streamed Songs"
 Icon=tizonia
 Terminal=true

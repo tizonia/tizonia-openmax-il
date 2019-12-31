@@ -31,15 +31,15 @@ _tizonia()
     spotify="--spotify-user --spotify-password --spotify-owner --spotify-recover-lost-token --spotify-allow-explicit-tracks --spotify-preferred-bitrate --spotify-tracks --spotify-artist --spotify-album --spotify-playlist --spotify-track-id --spotify-artist-id --spotify-album-id --spotify-playlist-id --spotify-related-artists --spotify-featured-playlist --spotify-new-releases --spotify-recommendations-by-track-id --spotify-recommendations-by-artist-id --spotify-recommendations-by-genre"
     gmusic="--gmusic-user --gmusic-password --gmusic-device-id --gmusic-album --gmusic-artist --gmusic-library --gmusic-playlist --gmusic-podcast --gmusic-station --gmusic-tracks --gmusic-unlimited-station --gmusic-unlimited-album --gmusic-unlimited-artist --gmusic-unlimited-tracks --gmusic-unlimited-playlist --gmusic-unlimited-genre --gmusic-unlimited-activity --gmusic-unlimited-feeling-lucky-station --gmusic-unlimited-promoted-tracks"
     scloud="--soundcloud-oauth-token --soundcloud-user-stream --soundcloud-user-likes --soundcloud-user-playlist --soundcloud-creator --soundcloud-tracks --soundcloud-playlists --soundcloud-genres --soundcloud-tags"
-    dirble="--dirble-api-key --dirble-popular-stations --dirble-station --dirble-category --dirble-country"
+    tunein="--tunein-api-key --tunein-popular-stations --tunein-station --tunein-category --tunein-country"
     youtube="--youtube-audio-stream --youtube-audio-playlist --youtube-audio-mix --youtube-audio-search --youtube-audio-mix-search --youtube-audio-channel-playlist --youtube-audio-channel-uploads"
     plex="--plex-server-base-url --plex-auth-token --plex-music-section --plex-audio-tracks --plex-audio-artist --plex-audio-album --plex-audio-playlist"
 
     diropts="--recurse"
-    opts="${global} ${omx} ${server} ${client} ${spotify} ${gmusic} ${scloud} ${dirble} ${youtube} ${plex}"
+    opts="${global} ${omx} ${server} ${client} ${spotify} ${gmusic} ${scloud} ${tunein} ${youtube} ${plex}"
 
     helpkeyword="help"
-    helpopts="global openmax server client spotify googlemusic soundcloud dirble youtube keyboard config examples"
+    helpopts="global openmax server client spotify googlemusic soundcloud tunein youtube keyboard config examples"
 
     roleskeyword="roles-of-comp"
 
