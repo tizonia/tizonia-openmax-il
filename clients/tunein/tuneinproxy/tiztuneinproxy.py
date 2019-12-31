@@ -504,7 +504,7 @@ class tiztuneinproxy(object):
             raise ValueError(str("No stations/shows found"))
 
     def enqueue_category(self, arg):
-        """Search Tunein for a station category and add its stations to the
+        """Search Tunein for a station/show category and add its stations to the
         playback queue.
 
         :param arg: a search string
