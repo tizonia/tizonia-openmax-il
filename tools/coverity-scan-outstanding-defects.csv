@@ -80,4 +80,3 @@ CID,Type,Impact,Status,First Detected,Owner,Classification,Severity,Action,Compo
 1352371,Uninitialized scalar field,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,player,Uninitialized members,/player/src/services/spotify/tizspotifygraphops.cpp,spotifyops
 1352372,Uninitialized scalar field,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,player,Uninitialized members,/player/src/services/soundcloud/tizscloudgraphops.cpp,scloudops
 1352373,Uninitialized scalar field,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,player,Uninitialized members,/player/src/services/googlemusic/tizgmusicgraphops.cpp,gmusicops
-1352374,Uninitialized scalar field,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,player,Uninitialized members,/player/src/services/dirble/tizdirblegraphops.cpp,dirbleops

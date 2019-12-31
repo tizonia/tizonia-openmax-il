@@ -26,7 +26,7 @@ readonly DEBIAN_DIR=/root/work/debian
 readonly TIZ_PYTHON_PROJECTS=( \
     tizgmusicproxy \
     tizsoundcloudproxy \
-    tizdirbleproxy \
+    tiztuneinproxy \
     tizyoutubeproxy \
     tizchromecastproxy \
     tizplexproxy \
