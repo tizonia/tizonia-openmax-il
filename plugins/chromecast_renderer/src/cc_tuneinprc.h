@@ -18,28 +18,28 @@
  */
 
 /**
- * @file   cc_dirbleprc.h
+ * @file   cc_tuneinprc.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Dirble Chromecast renderer - processor class
+ * @brief  Tunein Chromecast renderer - processor class
  *
  *
  */
 
-#ifndef CC_DIRBLEPRC_H
-#define CC_DIRBLEPRC_H
+#ifndef CC_TUNEINPRC_H
+#define CC_TUNEINPRC_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 void *
-cc_dirble_prc_class_init (void * ap_tos, void * ap_hdl);
+cc_tunein_prc_class_init (void * ap_tos, void * ap_hdl);
 void *
-cc_dirble_prc_init (void * ap_tos, void * ap_hdl);
+cc_tunein_prc_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* CC_DIRBLEPRC_H */
+#endif /* CC_TUNEINPRC_H */

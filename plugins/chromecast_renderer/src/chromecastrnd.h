@@ -40,7 +40,7 @@ extern "C" {
 #define ARATELIA_CHROMECAST_RENDERER_DEFAULT_ROLE "audio_renderer.chromecast"
 #define ARATELIA_GMUSIC_SOURCE_DEFAULT_ROLE "audio_renderer.chromecast.gmusic"
 #define ARATELIA_SCLOUD_SOURCE_DEFAULT_ROLE "audio_renderer.chromecast.scloud"
-/* #define ARATELIA_DIRBLE_SOURCE_DEFAULT_ROLE "audio_renderer.chromecast.dirble" */
+/* #define ARATELIA_TUNEIN_SOURCE_DEFAULT_ROLE "audio_renderer.chromecast.tunein" */
 #define ARATELIA_YOUTUBE_SOURCE_DEFAULT_ROLE "audio_renderer.chromecast.youtube"
 #define ARATELIA_PLEX_SOURCE_DEFAULT_ROLE "audio_renderer.chromecast.plex"
 #define ARATELIA_CHROMECAST_RENDERER_COMPONENT_NAME \

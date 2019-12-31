@@ -17,16 +17,16 @@
  * along with Tizonia.  If not, see <chromecast://www.gnu.org/licenses/>.
  */
 /**
- * @file   cc_dirbleprc_decls.h
+ * @file   cc_tuneinprc_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Dirble Chromecast renderer - processor declarations
+ * @brief  Tunein Chromecast renderer - processor declarations
  *
  *
  */
 
-#ifndef CC_DIRBLEPRC_DECLS_H
-#define CC_DIRBLEPRC_DECLS_H
+#ifndef CC_TUNEINPRC_DECLS_H
+#define CC_TUNEINPRC_DECLS_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -38,24 +38,24 @@ extern "C" {
 
 #include <tizplatform.h>
 
-#include <tizdirble_c.h>
+#include <tiztunein_c.h>
 
 #include "cc_prc_decls.h"
 #include "cc_prc.h"
 
-typedef struct cc_dirble_prc cc_dirble_prc_t;
-struct cc_dirble_prc
+typedef struct cc_tunein_prc cc_tunein_prc_t;
+struct cc_tunein_prc
 {
   /* Object */
   const cc_prc_t _;
-  OMX_TIZONIA_AUDIO_PARAM_DIRBLESESSIONTYPE db_session_;
-  OMX_TIZONIA_AUDIO_PARAM_DIRBLEPLAYLISTTYPE db_playlist_;
-  tiz_dirble_t * p_db_;
+  OMX_TIZONIA_AUDIO_PARAM_TUNEINSESSIONTYPE db_session_;
+  OMX_TIZONIA_AUDIO_PARAM_TUNEINPLAYLISTTYPE db_playlist_;
+  tiz_tunein_t * p_db_;
   bool remove_current_url_;
 };
 
-typedef struct cc_dirble_prc_class cc_dirble_prc_class_t;
-struct cc_dirble_prc_class
+typedef struct cc_tunein_prc_class cc_tunein_prc_class_t;
+struct cc_tunein_prc_class
 {
   /* Class */
   const cc_prc_class_t _;
@@ -66,4 +66,4 @@ struct cc_dirble_prc_class
 }
 #endif
 
-#endif /* CC_DIRBLEPRC_DECLS_H */
+#endif /* CC_TUNEINPRC_DECLS_H */

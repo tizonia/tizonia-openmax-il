@@ -18,16 +18,16 @@
  */
 
 /**
- * @file   cc_dirblecfgport_decls.h
+ * @file   cc_tuneincfgport_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  A specialised config port class for the Dirble renderer component
+ * @brief  A specialised config port class for the Tunein renderer component
  *
  *
  */
 
-#ifndef CC_DIRBLECFGPORT_DECLS_H
-#define CC_DIRBLECFGPORT_DECLS_H
+#ifndef CC_TUNEINCFGPORT_DECLS_H
+#define CC_TUNEINCFGPORT_DECLS_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -38,17 +38,17 @@ extern "C" {
 
 #include "cc_cfgport_decls.h"
 
-typedef struct cc_dirble_cfgport cc_dirble_cfgport_t;
-struct cc_dirble_cfgport
+typedef struct cc_tunein_cfgport cc_tunein_cfgport_t;
+struct cc_tunein_cfgport
 {
   /* Object */
   const cc_cfgport_t _;
-  OMX_TIZONIA_AUDIO_PARAM_DIRBLESESSIONTYPE session_;
-  OMX_TIZONIA_AUDIO_PARAM_DIRBLEPLAYLISTTYPE playlist_;
+  OMX_TIZONIA_AUDIO_PARAM_TUNEINSESSIONTYPE session_;
+  OMX_TIZONIA_AUDIO_PARAM_TUNEINPLAYLISTTYPE playlist_;
 };
 
-typedef struct cc_dirble_cfgport_class cc_dirble_cfgport_class_t;
-struct cc_dirble_cfgport_class
+typedef struct cc_tunein_cfgport_class cc_tunein_cfgport_class_t;
+struct cc_tunein_cfgport_class
 {
   /* Class */
   const cc_cfgport_class_t _;
@@ -59,4 +59,4 @@ struct cc_dirble_cfgport_class
 }
 #endif
 
-#endif /* CC_DIRBLECFGPORT_DECLS_H */
+#endif /* CC_TUNEINCFGPORT_DECLS_H */
