@@ -477,6 +477,9 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_TUNEINPLAYLISTTYPE {
     OMX_TIZONIA_AUDIO_TUNEINSEARCHTYPE eSearchType; /**< Default: OMX_AUDIO_TuneinSearchTypeAll */
     OMX_BOOL bShuffle;            /**< Default: OMX_FALSE */
     OMX_U8 cPlaylistName[OMX_MAX_STRINGNAME_SIZE];
+    OMX_U8 cAdditionalKeywords1[OMX_MAX_STRINGNAME_SIZE];
+    OMX_U8 cAdditionalKeywords2[OMX_MAX_STRINGNAME_SIZE];
+    OMX_U8 cAdditionalKeywords3[OMX_MAX_STRINGNAME_SIZE];
 } OMX_TIZONIA_AUDIO_PARAM_TUNEINPLAYLISTTYPE;
 
 /**
