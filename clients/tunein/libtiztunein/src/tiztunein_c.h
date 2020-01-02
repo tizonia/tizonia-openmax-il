@@ -138,11 +138,17 @@ extern "C"
    *
    * @param ap_tunein The tunein handle.
    * @param ap_category The category.
+   * @param ap_keywords1 First set of optional keywords.
+   * @param ap_keywords2 Second set of optional keywords.
+   * @param ap_keywords3 Third set of optional keywords.
    *
    * @return 0 on success
    */
   int tiz_tunein_play_category (tiz_tunein_t *ap_tunein,
-                                const char *ap_category);
+                                const char *ap_category,
+                                const char *ap_keywords1,
+                                const char *ap_keywords2,
+                                const char *ap_keywords3);
 
   /**
    * Clear the playback queue.

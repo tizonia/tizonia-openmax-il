@@ -124,11 +124,15 @@ int tiztunein::play_radios (const std::string &query)
   return rc;
 }
 
-int tiztunein::play_category (const std::string &category)
+int tiztunein::play_category (const std::string &category,
+                              const std::string &keywords1,
+                              const std::string &keywords2,
+                              const std::string &keywords3)
 {
   int rc = 0;
-  try_catch_wrapper (
-      py_tunein_proxy_.attr ("enqueue_category") (bp::object (category)));
+  try_catch_wrapper (py_tunein_proxy_.attr ("enqueue_category") (
+      bp::object (category), bp::object (keywords1), bp::object (keywords2),
+      bp::object (keywords3)));
   return rc;
 }
 

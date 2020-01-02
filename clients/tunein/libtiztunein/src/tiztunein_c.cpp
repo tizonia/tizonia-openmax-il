@@ -125,11 +125,15 @@ extern "C" int tiz_tunein_play_radios (tiz_tunein_t *ap_tunein,
 }
 
 extern "C" int tiz_tunein_play_category (tiz_tunein_t *ap_tunein,
-                                         const char *ap_category)
+                                         const char *ap_category,
+                                         const char *ap_keywords1,
+                                         const char *ap_keywords2,
+                                         const char *ap_keywords3)
 {
   assert (ap_tunein);
   assert (ap_tunein->p_proxy_);
-  return ap_tunein->p_proxy_->play_category (ap_category);
+  return ap_tunein->p_proxy_->play_category (ap_category, ap_keywords1,
+                                             ap_keywords2, ap_keywords3);
 }
 
 extern "C" void tiz_tunein_clear_queue (tiz_tunein_t *ap_tunein)
