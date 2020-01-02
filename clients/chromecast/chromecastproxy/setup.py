@@ -42,7 +42,7 @@ setup(
     version              = version,
     author               = 'Juan A. Rubio',
     author_email         = 'juan.rubio@aratelia.com',
-    url                  = 'http://www.tizonia.org',
+    url                  = 'http://tizonia.org',
     py_modules           = ['tizchromecastproxy'],
     scripts              = [],
     license              = "Apache License, Version 2.0",

@@ -122,7 +122,7 @@ breathe_domain_by_extension = {
 html_theme = 'alabaster'
 
 extra_nav_links = OrderedDict()
-extra_nav_links['Tizonia Website']  = 'http://www.tizonia.org'
+extra_nav_links['Tizonia Website']  = 'http://tizonia.org'
 extra_nav_links['Source (GitHub)'] = 'https://github.com/tizonia/tizonia-openmax-il'
 extra_nav_links['Issues (GitHub)'] = 'https://github.com/tizonia/tizonia-openmax-il/issues'
 extra_nav_links['Binaries (Bintray)']  = 'https://bintray.com/tizonia'
