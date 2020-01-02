@@ -467,7 +467,9 @@ class tiztuneinproxy(object):
         self.queue_index = -1
         self.play_queue_order = list()
         self.play_modes = TizEnumeration(["NORMAL", "SHUFFLE"])
+        self.search_modes = TizEnumeration(["ALL", "STATIONS", "SHOWS"])
         self.current_play_mode = self.play_modes.NORMAL
+        self.current_search_mode = self.play_modes.ALL
         self.now_playing_radio = None
         self.timeout = 5000
         self.tunein = TuneIn(self.timeout)
@@ -480,6 +482,14 @@ class tiztuneinproxy(object):
         """
         self.current_play_mode = getattr(self.play_modes, mode)
         self.__update_play_queue_order()
+
+    def set_search_mode(self, mode):
+        """ Set the search mode.
+
+        :param mode: current valid values are "ALL", "STATIONS" and "SHOWS"
+
+        """
+        self.current_search_mode = getattr(self.search_modes, mode)
 
     def enqueue_radios(self, arg):
         """Search Tunein for popular stations or shows and add them to the playback
