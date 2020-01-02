@@ -335,24 +335,34 @@ update_metadata (tunein_prc_t * ap_prc)
     store_metadata (ap_prc, "Station",
                     tiz_tunein_get_current_radio_name (ap_prc->p_tunein_)));
 
-  /* Country */
-  tiz_check_omx (store_metadata (
-    ap_prc, "URL", (const char *) ap_prc->p_uri_param_->contentURI));
+  /* Station Description */
+  tiz_check_omx (
+    store_metadata (ap_prc, "Description",
+                    tiz_tunein_get_current_radio_description (ap_prc->p_tunein_)));
 
-  /* Country */
-  tiz_check_omx (store_metadata (
-    ap_prc, "Country",
-    tiz_tunein_get_current_radio_country (ap_prc->p_tunein_)));
+  /* Station Bitrate */
+  tiz_check_omx (
+    store_metadata (ap_prc, "Bitrate",
+                    tiz_tunein_get_current_radio_bitrate (ap_prc->p_tunein_)));
 
-  /* Category */
-  tiz_check_omx (store_metadata (
-    ap_prc, "Categories",
-    tiz_tunein_get_current_radio_category (ap_prc->p_tunein_)));
+  /* Type */
+  tiz_check_omx (
+    store_metadata (ap_prc, "Type",
+                    tiz_tunein_get_current_radio_type (ap_prc->p_tunein_)));
 
-  /* Website */
+  /* Reliability */
   tiz_check_omx (store_metadata (
-    ap_prc, "Website",
-    tiz_tunein_get_current_radio_website (ap_prc->p_tunein_)));
+    ap_prc, "Reliability",
+    tiz_tunein_get_current_radio_reliability (ap_prc->p_tunein_)));
+
+  /* Streaming URL */
+  tiz_check_omx (store_metadata (
+    ap_prc, "Streaming URL", (const char *) ap_prc->p_uri_param_->contentURI));
+
+  /* Thumbnail */
+  tiz_check_omx (store_metadata (
+    ap_prc, "Thumbnail URL",
+    tiz_tunein_get_current_radio_thumbnail_url (ap_prc->p_tunein_)));
 
   /* Signal that a new set of metatadata items is available */
   (void) tiz_srv_issue_event ((OMX_PTR) ap_prc, OMX_EventIndexSettingChanged,
