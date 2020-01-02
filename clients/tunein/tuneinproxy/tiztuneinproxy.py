@@ -23,24 +23,28 @@ Access Tunein to retrieve station URLs and create a play queue for streaming.
 
 from __future__ import unicode_literals
 
+import configparser
 import sys
 import os
+import io
+import re
+import time
+import json
 import logging
 import random
-import unicodedata
-import urllib
-import pkgutil
 import requests
-import StringIO
-import eventlet
-from collections import namedtuple
+from collections import OrderedDict
+from contextlib import closing
 from requests import Session, exceptions
-from requests.adapters import HTTPAdapter
+from urllib.parse import urlparse
 from operator import itemgetter
-eventlet.monkey_patch()
+from joblib import Memory
 
 # For use during debugging
-# import pprint
+from pprint import pprint
+
+tunein_cache_location = os.path.join(os.getenv("HOME"), ".config/tizonia/tunein-cache")
+memory = Memory(tunein_cache_location, verbose=0)
 
 FORMAT = '[%(asctime)s] [%(levelname)5s] [%(thread)d] ' \
          '[%(module)s:%(funcName)s:%(lineno)d] - %(message)s'
@@ -70,7 +74,7 @@ def pretty_print(color, msg=""):
     """Print message with color.
 
     """
-    print color + msg + _Colors.ENDC
+    print(color + msg + _Colors.ENDC)
 
 def print_msg(msg=""):
     """Print a normal message.
@@ -206,19 +210,19 @@ def find_playlist_parser(extension, content_type):
     return parser
 
 def run_tunein_query (session, timeout, uri):
-    logger.debug(f"TuneIn request: {uri!r}")
+    logging.debug(f"TuneIn request: {uri!r}")
     try:
         with closing(session.get(uri, timeout=timeout)) as r:
             r.raise_for_status()
             return r.json()["body"]
     except Exception as e:
-        logger.info(f"TuneIn API request for {variant} failed: {e}")
+        logging.info(f"TuneIn API request for {variant} failed: {e}")
     return {}
 
 def run_playlist_query (session, timeout, url):
     data, content_type = None, None
     results = []
-    logger.debug(f"Extracting URIs from {url!r}")
+    logging.debug(f"Extracting URIs from {url!r}")
     extension = urlparse(url).path[-4:]
     if extension in [".mp3", ".wma"]:
         return [url]  # Catch these easy ones
@@ -230,12 +234,12 @@ def run_playlist_query (session, timeout, url):
         ) as r:
             r.raise_for_status()
             content_type = r.headers.get("content-type", "audio/mpeg")
-            logger.debug(f"{url} has content-type: {content_type}")
+            logging.debug(f"{url} has content-type: {content_type}")
             content_type = content_type.split(';')[0].strip()
             if content_type != "audio/mpeg":
                 data = r.content
     except Exception as e:
-        logger.info(f"TuneIn playlist request for {url} failed: {e}")
+        logging.info(f"TuneIn playlist request for {url} failed: {e}")
 
     if data:
         parser = find_playlist_parser(extension, content_type)
@@ -245,16 +249,16 @@ def run_playlist_query (session, timeout, url):
                     u for u in parser(data) if u and u != url
                 ]
             except Exception as e:
-                logger.error(f"TuneIn playlist parsing failed {e}")
+                logging.error(f"TuneIn playlist parsing failed {e}")
             if not results:
                 playlist_str = data.decode(errors="ignore")
-                logger.debug(
+                logging.debug(
                     f"Parsing failure, malformed playlist: {playlist_str}"
                 )
     elif content_type:
         results = [url]
 
-    logger.debug(f"Got {results}")
+    logging.debug(f"Got {results}")
     return list(OrderedDict.fromkeys(results))
 
 class TizEnumeration(set):
@@ -402,7 +406,7 @@ class TuneIn:
         }
 
     def _station_info(self, station_id):
-        logger.debug(f"Fetching info for station {station_id}")
+        logging.debug(f"Fetching info for station {station_id}")
         args = f"&c=composite&detail=listing&id={station_id}"
         results = self._tunein("Describe.ashx", args)
         listings = self._filter_results(results, "Listing", self._map_listing)
@@ -414,14 +418,14 @@ class TuneIn:
         return playlist_query(self._session, self._timeout, url)
 
     def tune(self, station):
-        logger.debug(f'Tuning station id {station["guide_id"]}')
+        logging.debug(f'Tuning station id {station["guide_id"]}')
         args = f'&id={station["guide_id"]}'
         stream_uris = []
         for stream in self._tunein("Tune.ashx", args):
             if "url" in stream:
                 stream_uris.append(stream["url"])
         if not stream_uris:
-            logger.error(f'Failed to tune station id {station["guide_id"]}')
+            logging.error(f'Failed to tune station id {station["guide_id"]}')
         return list(OrderedDict.fromkeys(stream_uris))
 
     def station(self, station_id):
@@ -435,9 +439,9 @@ class TuneIn:
     def search(self, query):
         # "Search.ashx?query=" + query + filterVal
         if not query:
-            logger.debug("Empty search query")
+            logging.debug("Empty search query")
             return []
-        logger.debug(f"Searching TuneIn for '{query}'")
+        logging.debug(f"Searching TuneIn for '{query}'")
         args = f"&query={query}{self._filter}"
         search_results = self._tunein("Search.ashx", args)
         results = []
@@ -451,7 +455,6 @@ class TuneIn:
 
     def _tunein(self, variant, args):
         uri = (self._base_uri % variant) + f"?render=json{args}"
-        pprint (uri)
         tunein_query = memory.cache(run_tunein_query)
         return tunein_query(self._session, self._timeout, uri)
 
@@ -469,7 +472,7 @@ class tiztuneinproxy(object):
         self.play_modes = TizEnumeration(["NORMAL", "SHUFFLE"])
         self.search_modes = TizEnumeration(["ALL", "STATIONS", "SHOWS"])
         self.current_play_mode = self.play_modes.NORMAL
-        self.current_search_mode = self.play_modes.ALL
+        self.current_search_mode = self.search_modes.ALL
         self.now_playing_radio = None
         self.timeout = 5000
         self.tunein = TuneIn(self.timeout)
@@ -560,7 +563,7 @@ class tiztuneinproxy(object):
         logging.info("current_radio_name")
         radio = self.now_playing_radio
         name = ''
-        if radio:
+        if radio and radio.get('text'):
             name = radio['text']
         return name
 
@@ -571,9 +574,20 @@ class tiztuneinproxy(object):
         logging.info("current_radio_description")
         radio = self.now_playing_radio
         description = ''
-        if radio:
+        if radio and radio.get('subtext'):
             description = radio['subtext']
         return description
+
+    def current_radio_type(self):
+        """ Retrieve whether the current radio is a station or show.
+
+        """
+        logging.info("current_radio_type")
+        radio = self.now_playing_radio
+        radiotype = ''
+        if radio and radio.get('item'):
+            radiotype = radio['item']
+        return radiotype
 
     def current_radio_formats(self):
         """ Retrieve the formats of the current station or show.
@@ -582,7 +596,7 @@ class tiztuneinproxy(object):
         logging.info("current_radio_formats")
         radio = self.now_playing_radio
         formats = ''
-        if radio:
+        if radio and radio.get('formats'):
             formats = radio['formats']
         return formats
 
@@ -593,9 +607,20 @@ class tiztuneinproxy(object):
         logging.info("current_radio_bitrate")
         radio = self.now_playing_radio
         bitrate = ''
-        if radio:
+        if radio and radio.get('bitrate'):
             bitrate = radio['bitrate']
         return bitrate
+
+    def current_radio_reliability(self):
+        """ Retrieve the reliability of the current station or show.
+
+        """
+        logging.info("current_radio_reliability")
+        radio = self.now_playing_radio
+        reliability = ''
+        if radio and radio.get('reliability'):
+            reliability = radio['reliability']
+        return reliability
 
     def current_radio_thumbnail_url(self):
         """ Retrieve the url of the current station's or show's thumbnail image.
@@ -604,7 +629,7 @@ class tiztuneinproxy(object):
         logging.info("current_radio_thumbnail_url")
         radio = self.now_playing_radio
         image = ''
-        if radio:
+        if radio and radio.get('image'):
             image = radio['image']
         return image
 
@@ -623,7 +648,7 @@ class tiztuneinproxy(object):
         if len(self.queue) and self.queue_index:
             station = self.queue[self.queue_index]
             print_err("[Tunein] '{0}' removed from queue." \
-                      .format(station.name))
+                      .format(station['text']))
             del self.queue[self.queue_index]
             self.queue_index -= 1
             if self.queue_index < 0:
@@ -642,7 +667,7 @@ class tiztuneinproxy(object):
                    and (self.queue_index >= 0):
                     next_station = self.queue[self.play_queue_order \
                                             [self.queue_index]]
-                    return self.__retrieve_station_url(next_station).rstrip()
+                    return self.__retrieve_station_url(next_station)
                 else:
                     self.queue_index = -1
                     return self.next_url()
@@ -664,7 +689,7 @@ class tiztuneinproxy(object):
                    and (self.queue_index >= 0):
                     prev_station = self.queue[self.play_queue_order \
                                             [self.queue_index]]
-                    return self.__retrieve_station_url(prev_station).rstrip()
+                    return self.__retrieve_station_url(prev_station)
                 else:
                     self.queue_index = len(self.queue)
                     return self.prev_url()
@@ -695,22 +720,36 @@ class tiztuneinproxy(object):
         """ Retrieve a station url
 
         """
+        logging.info("__retrieve_station_url")
         try:
             self.now_playing_radio = station
             name = station['text'].rstrip()
-            formats = station['formats'].rstrip()
-            streamurl = self.tunein.tune(station)
+            formats = ''
+            if station.get("formats"):
+                formats = station['formats'].rstrip()
+            streamurls = self.tunein.tune(station)
             print_wrn("[Tunein] Playing '{0} ({1})'." \
                           .format(name, formats))
-            return streamurl
+            if len(streamurls) > 0:
+                pprint (station)
+                return streamurls[0]
+            else:
+                return ""
         except AttributeError:
             logging.info("Could not retrieve the station url!")
             raise
+        except Exception as e:
+            logging.info(f"TuneIn API request failed: {e}")
+
 
     def add_to_playback_queue(self, r):
-        print_nfo("[Tunein] [Radio/Show] '{0}' [{1}] ({2})." \
-                  .format(r['text'], r['subtext'], r['formats']))
-        self.queue.append(d)
+        if r.get('formats'):
+            print_nfo("[Tunein] [Station/Show] '{0}' [{1}] ({2})." \
+                      .format(r['text'], r['subtext'], r['formats']))
+        else:
+            print_nfo("[Tunein] [Station/Show] '{0}' [{1}]." \
+                      .format(r['text'], r['subtext']))
+        self.queue.append(r)
 
 if __name__ == "__main__":
     tiztuneinproxy()
