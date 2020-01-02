@@ -470,7 +470,7 @@ class tiztuneinproxy(object):
         self.current_play_mode = self.play_modes.NORMAL
         self.now_playing_radio = None
         self.timeout = 5000
-        self._api = TuneIn(self.timeout)
+        self.tunein = TuneIn(self.timeout)
 
     def set_play_mode(self, mode):
         """ Set the playback mode.
@@ -481,18 +481,21 @@ class tiztuneinproxy(object):
         self.current_play_mode = getattr(self.play_modes, mode)
         self.__update_play_queue_order()
 
-    def enqueue_global_search(self):
-        """Search Tunein for popular stations and add them to the playback
+    def enqueue_radios(self, arg):
+        """Search Tunein for popular stations or shows and add them to the playback
         queue.
 
         :param arg: a search string
 
         """
-        logging.info('enqueue_global_search')
+        logging.info('enqueue_radios : %s', arg)
         try:
             count = len(self.queue)
+            results = self.tunein.search(arg)
+            for r in results:
+                self.add_to_playback_queue(r)
 
-            logging.info("Added {0} stations to queue" \
+            logging.info("Added {0} statios/shows to queue" \
                          .format(len(self.queue) - count))
 
             if count == len(self.queue):
@@ -610,7 +613,7 @@ class tiztuneinproxy(object):
         if len(self.queue) and self.queue_index:
             station = self.queue[self.queue_index]
             print_err("[Tunein] '{0}' removed from queue." \
-                      .format(to_ascii(station.name).encode("utf-8")))
+                      .format(station.name))
             del self.queue[self.queue_index]
             self.queue_index -= 1
             if self.queue_index < 0:
@@ -618,7 +621,7 @@ class tiztuneinproxy(object):
             self.__update_play_queue_order()
 
     def next_url(self):
-        """ Retrieve the url of the next station in the playback queue.
+        """ Retrieve the url of the next station/show in the playback queue.
 
         """
         logging.info("next_url")
@@ -684,55 +687,20 @@ class tiztuneinproxy(object):
         """
         try:
             self.now_playing_radio = station
-            logging.info("__retrieve_station_url streamurl : {0}".format(station.streamurl))
-            logging.info("__retrieve_station_url bitrate   : {0}".format(station.bitrate))
-            logging.info("__retrieve_station_url content_type: {0}".format(station.content_type))
+            name = station['text'].rstrip()
+            formats = station['formats'].rstrip()
+            streamurl = self.tunein.tune(station)
             print_wrn("[Tunein] Playing '{0} ({1})'." \
-                          .format(to_ascii(station.name).encode("utf-8").rstrip(),
-                          to_ascii(station.streamurl).encode("utf-8").rstrip()))
-            return station.streamurl.encode("utf-8")
+                          .format(name, formats))
+            return streamurl
         except AttributeError:
             logging.info("Could not retrieve the station url!")
             raise
 
-    def add_to_playback_queue(self, d):
-        catlist = list()
-        for cat in d["categories"]:
-            catlist.append(cat["title"])
-        separator = ', '
-        category = separator.join(catlist)
-
-        streamurl = ''
-        bitrate = ''
-        for stream in d['streams']:
-            streamurl = stream['stream']
-            bitrate = stream['bitrate']
-            content_type = stream['content_type']
-            if content_type:
-                content_type = content_type.rstrip()
-                if content_type == '?':
-                    content_type = self._examine_url(streamurl)
-                if content_type:
-                    if content_type == 'audio/x-mpegurl' \
-                       or content_type == 'application/mpegurl' \
-                       or content_type == 'application/x-mpegurl' \
-                       or content_type == 'audio/mpegurl':
-                        playlist = parse_m3u(streamurl)
-                        if playlist:
-                            # TODO: loop through the available urls in the playlist
-                            streamurl = playlist[0].path.rstrip()
-
-                    streamurl = streamurl.rstrip()
-                    print_nfo("[Tunein] [Station] '{0}' [{1}] ({2})." \
-                              .format(to_ascii(d['name']), \
-                                      to_ascii(content_type), to_ascii(streamurl)))
-                    self.queue.append(
-                        tiztuneinproxy.Station(d['id'], d['name'], d['country'], \
-                                               d['website'], \
-                                               category, \
-                                               streamurl, \
-                                               bitrate,
-                                               content_type))
+    def add_to_playback_queue(self, r):
+        print_nfo("[Tunein] [Radio/Show] '{0}' [{1}] ({2})." \
+                  .format(r['text'], r['subtext'], r['formats']))
+        self.queue.append(d)
 
 if __name__ == "__main__":
     tiztuneinproxy()
