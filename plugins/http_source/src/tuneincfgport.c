@@ -69,6 +69,7 @@ tunein_cfgport_ctor (void * ap_obj, va_list * app)
   snprintf ((char *) p_obj->playlist_.cPlaylistName,
             sizeof (p_obj->playlist_.cPlaylistName), "playlist");
   p_obj->playlist_.ePlaylistType = OMX_AUDIO_TuneinPlaylistTypeUnknown;
+  p_obj->playlist_.eSearchType = OMX_AUDIO_TuneinSearchTypeAll;
   p_obj->playlist_.bShuffle = OMX_FALSE;
 
   return p_obj;

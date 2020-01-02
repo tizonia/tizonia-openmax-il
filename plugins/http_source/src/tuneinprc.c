@@ -619,6 +619,33 @@ enqueue_playlist_items (tunein_prc_t * ap_prc)
       ap_prc->p_tunein_, (shuffle == OMX_TRUE ? ETIZTuneinPlaybackModeShuffle
                                               : ETIZTuneinPlaybackModeNormal));
 
+    switch (ap_prc->playlist_.eSearchType)
+      {
+        case OMX_AUDIO_TuneinSearchTypeAll:
+          {
+            tiz_tunein_set_search_mode (ap_prc->p_tunein_,
+                                        ETIZTuneinSearchModeAll);
+          }
+          break;
+        case OMX_AUDIO_TuneinSearchTypeStations:
+          {
+            tiz_tunein_set_search_mode (ap_prc->p_tunein_,
+                                        ETIZTuneinSearchModeStations);
+          }
+          break;
+        case OMX_AUDIO_TuneinSearchTypeShows:
+          {
+            tiz_tunein_set_search_mode (ap_prc->p_tunein_,
+                                        ETIZTuneinSearchModeShows);
+          }
+          break;
+        default:
+          {
+            assert (0);
+          }
+          break;
+      };
+
     switch (ap_prc->playlist_.ePlaylistType)
       {
         case OMX_AUDIO_TuneinPlaylistTypeUnknown:
@@ -627,24 +654,14 @@ enqueue_playlist_items (tunein_prc_t * ap_prc)
             assert (0);
           }
           break;
-        case OMX_AUDIO_TuneinPlaylistTypePopularStations:
+        case OMX_AUDIO_TuneinPlaylistTypeRadios:
           {
-            rc = tiz_tunein_play_popular_stations (ap_prc->p_tunein_);
-          }
-          break;
-        case OMX_AUDIO_TuneinPlaylistTypeStations:
-          {
-            rc = tiz_tunein_play_stations (ap_prc->p_tunein_, p_playlist);
+            rc = tiz_tunein_play_radios (ap_prc->p_tunein_, p_playlist);
           }
           break;
         case OMX_AUDIO_TuneinPlaylistTypeCategory:
           {
             rc = tiz_tunein_play_category (ap_prc->p_tunein_, p_playlist);
-          }
-          break;
-        case OMX_AUDIO_TuneinPlaylistTypeCountry:
-          {
-            rc = tiz_tunein_play_country (ap_prc->p_tunein_, p_playlist);
           }
           break;
         default:
