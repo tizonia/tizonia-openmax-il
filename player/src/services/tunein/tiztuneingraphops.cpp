@@ -102,8 +102,10 @@ void graph::tuneinops::do_configure_comp (const int comp_id)
 
     G_OPS_BAIL_IF_ERROR (
         tiz::graph::util::set_tunein_playlist (
-            handles_[0], playlist_->get_current_uri (),
-            tunein_config->get_playlist_type (), playlist_->shuffle ()),
+            handles_[0], playlist_->get_uri_list (),
+            tunein_config->get_playlist_type (),
+            tunein_config->get_search_type (),
+            playlist_->shuffle ()),
         "Unable to set OMX_TizoniaIndexParamAudioTuneinPlaylist");
 
     const OMX_U32 port_id = 0;

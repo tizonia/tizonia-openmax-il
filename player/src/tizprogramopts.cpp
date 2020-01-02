@@ -404,10 +404,22 @@ tiz::programopts::programopts (int argc, char *argv[])
     scloud_playlist_container_ (),
     scloud_playlist_type_ (OMX_AUDIO_SoundCloudPlaylistTypeUnknown),
     scloud_buffer_seconds_ (0),
-    tunein_radios_ (),
+    tunein_search_ (),
     tunein_category_ (),
+    tunein_local_ (),
+    tunein_music_ (),
+    tunein_talk_ (),
+    tunein_sports_ (),
+    tunein_location_ (),
+    tunein_podcasts_ (),
+    tunein_trending_ (),
+    tunein_search_filter_(),
+    tunein_keywords1_ (),
+    tunein_keywords2_ (),
+    tunein_keywords3_ (),
     tunein_playlist_container_ (),
     tunein_playlist_type_ (OMX_AUDIO_TuneinPlaylistTypeUnknown),
+    tunein_search_filter_type_ (OMX_AUDIO_TuneinSearchTypeAll),
     tunein_buffer_seconds_ (0),
     youtube_audio_stream_ (),
     youtube_audio_playlist_ (),
@@ -1170,13 +1182,25 @@ uint32_t tiz::programopts::scloud_buffer_seconds () const
 const std::vector< std::string > &tiz::programopts::tunein_playlist_container ()
 {
   tunein_playlist_container_.clear ();
-  if (!tunein_radios_.empty ())
+  if (!tunein_search_.empty ())
   {
-    tunein_playlist_container_.push_back (tunein_radios_);
+    tunein_playlist_container_.push_back (tunein_search_);
   }
   else if (!tunein_category_.empty ())
   {
     tunein_playlist_container_.push_back (tunein_category_);
+    if (!tunein_keywords1_.empty ())
+    {
+      tunein_playlist_container_.push_back (tunein_keywords1_);
+    }
+    if (!tunein_keywords2_.empty ())
+    {
+      tunein_playlist_container_.push_back (tunein_keywords2_);
+    }
+    if (!tunein_keywords3_.empty ())
+    {
+      tunein_playlist_container_.push_back (tunein_keywords3_);
+    }
   }
   else
   {
@@ -1188,7 +1212,7 @@ const std::vector< std::string > &tiz::programopts::tunein_playlist_container ()
 OMX_TIZONIA_AUDIO_TUNEINPLAYLISTTYPE
 tiz::programopts::tunein_playlist_type ()
 {
-  if (!tunein_radios_.empty ())
+  if (!tunein_search_.empty ())
   {
     tunein_playlist_type_ = OMX_AUDIO_TuneinPlaylistTypeRadios;
   }
@@ -1202,6 +1226,25 @@ tiz::programopts::tunein_playlist_type ()
   }
 
   return tunein_playlist_type_;
+}
+
+OMX_TIZONIA_AUDIO_TUNEINSEARCHTYPE
+tiz::programopts::tunein_search_filter_type ()
+{
+  if (!tunein_search_filter_.compare ("stations"))
+  {
+    tunein_search_filter_type_ = OMX_AUDIO_TuneinSearchTypeStations;
+  }
+  else if (!tunein_search_filter_.compare ("shows"))
+  {
+    tunein_search_filter_type_ = OMX_AUDIO_TuneinSearchTypeShows;
+  }
+  else
+  {
+    tunein_search_filter_type_ = OMX_AUDIO_TuneinSearchTypeAll;
+  }
+
+  return tunein_search_filter_type_ ;
 }
 
 uint32_t tiz::programopts::tunein_buffer_seconds () const
@@ -1779,15 +1822,47 @@ void tiz::programopts::init_tunein_options ()
 {
   tunein_.add_options ()
       /* TIZ_CLASS_COMMENT: */
-      ("tunein-radios", po::value (&tunein_radios_),
-       "Tunein station/show search.")
+      ("tunein-search", po::value (&tunein_search_),
+       "Tunein station/show global search.")
       /* TIZ_CLASS_COMMENT: */
-      ("tunein-category", po::value (&tunein_category_),
-       "Tunein category search.");
+      ("tunein-filter", po::value (&tunein_search_filter_),
+       "Return results of type: 'stations', 'shows', or 'all (default: all). Optional.")
+      /* TIZ_CLASS_COMMENT: */
+      ("tunein-local", po::value (&tunein_local_),
+       "Tunein 'local' category search.")
+      /* TIZ_CLASS_COMMENT: */
+      ("tunein-music", po::value (&tunein_music_),
+       "Tunein 'music' category search.")
+      /* TIZ_CLASS_COMMENT: */
+      ("tunein-talk", po::value (&tunein_talk_),
+       "Tunein 'talk' category search.")
+      /* TIZ_CLASS_COMMENT: */
+      ("tunein-sports", po::value (&tunein_sports_),
+       "Tunein 'sports' category search.")
+      /* TIZ_CLASS_COMMENT: */
+      ("tunein-location", po::value (&tunein_location_),
+       "Tunein 'location' category search.")
+      /* TIZ_CLASS_COMMENT: */
+      ("tunein-podcasts", po::value (&tunein_podcasts_),
+       "Tunein 'podcasts' category search.")
+      /* TIZ_CLASS_COMMENT: */
+      ("tunein-trending", po::value (&tunein_trending_),
+       "Tunein 'trending' category search.")
+    /* TIZ_CLASS_COMMENT: */
+      ("tunein-additional-keywords1", po::value (&tunein_keywords1_),
+       "Tunein additional search keywords 1.")
+    /* TIZ_CLASS_COMMENT: */
+      ("tunein-additional-keywords1", po::value (&tunein_keywords2_),
+       "Tunein additional search keywords 2.")
+    /* TIZ_CLASS_COMMENT: */
+      ("tunein-additional-keywords1", po::value (&tunein_keywords3_),
+       "Tunein additional search keywords 3.");
 
   register_consume_function (&tiz::programopts::consume_tunein_client_options);
   all_tunein_client_options_
-      = boost::assign::list_of ("tunein-radios") ("tunein-category")
+    = boost::assign::list_of ("tunein-search") ("tunein-filter") ("tunein-local") (
+            "tunein-music") ("tunein-talk") ("tunein-sports") (
+            "tunein-location") ("tunein-podcasts") ("tunein-trending")
             .convert_to_container< std::vector< std::string > > ();
 }
 
@@ -2503,14 +2578,50 @@ int tiz::programopts::consume_tunein_client_options (bool &done,
     done = true;
 
     const int playlist_option_count
-        = vm_.count ("tunein-radios")
-          + vm_.count ("tunein-category") + vm_.count ("tunein-country");
+        = vm_.count ("tunein-search") + vm_.count ("tunein-local")
+          + vm_.count ("tunein-music") + vm_.count ("tunein-talk")
+          + vm_.count ("tunein-sports") + vm_.count ("tunein-location")
+          + vm_.count ("tunein-podcasts") + vm_.count ("tunein-trending");
 
     if (!buffer_seconds_)
-      {
-        retrieve_tizonia_uint_from_rc_file ("tunein.buffer_seconds",
-                                              tunein_buffer_seconds_);
-      }
+    {
+      retrieve_tizonia_uint_from_rc_file ("tunein.buffer_seconds",
+                                          tunein_buffer_seconds_);
+    }
+
+    if (vm_.count ("tunein-local"))
+    {
+      tunein_category_.assign ("local");
+    }
+    else if (vm_.count ("tunein-music"))
+    {
+      tunein_category_.assign ("music");
+    }
+    else if (vm_.count ("tunein-talk"))
+    {
+      tunein_category_.assign ("talk");
+    }
+    else if (vm_.count ("tunein-sports"))
+    {
+      tunein_category_.assign ("sports");
+    }
+    else if (vm_.count ("tunein-location"))
+    {
+      tunein_category_.assign ("location");
+    }
+    else if (vm_.count ("tunein-podcasts"))
+    {
+      tunein_category_.assign ("podcasts");
+    }
+    else if (vm_.count ("tunein-trending"))
+    {
+      tunein_category_.assign ("trending");
+    }
+
+    if (!vm_.count ("tunein-filter"))
+    {
+      tunein_search_filter_.assign ("all");
+    }
 
     if (playlist_option_count > 1)
     {
@@ -2531,6 +2642,16 @@ int tiz::programopts::consume_tunein_client_options (bool &done,
       rc = EXIT_FAILURE;
       std::ostringstream oss;
       oss << "A playlist value must be specified.";
+      msg.assign (oss.str ());
+    }
+    else if (!(0 == tunein_search_filter_.compare ("all")
+               || 0 == tunein_search_filter_.compare ("stations")
+               || 0 == tunein_search_filter_.compare ("shows")))
+    {
+      rc = EXIT_FAILURE;
+      std::ostringstream oss;
+      oss << "tunein-filter: only one of 'station', 'shows', or 'all' may be "
+             "specified.";
       msg.assign (oss.str ());
     }
     else
@@ -2894,9 +3015,12 @@ bool tiz::programopts::validate_scloud_client_options () const
 bool tiz::programopts::validate_tunein_client_options () const
 {
   bool outcome = false;
-  uint32_t tunein_opts_count = vm_.count ("tunein-radios")
-                               + vm_.count ("tunein-category")
-                               + vm_.count ("log-directory");
+  uint32_t tunein_opts_count
+      = vm_.count ("tunein-search") + vm_.count ("tunein-filter")
+        + vm_.count ("tunein-local") + vm_.count ("tunein-music")
+        + vm_.count ("tunein-talk") + vm_.count ("tunein-sports")
+        + vm_.count ("tunein-location") + vm_.count ("tunein-podcasts")
+        + vm_.count ("tunein-trending") + vm_.count ("log-directory");
 
   std::vector< std::string > all_valid_options = all_tunein_client_options_;
   concat_option_lists (all_valid_options, all_global_options_);

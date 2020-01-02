@@ -207,8 +207,9 @@ namespace tiz
                                                const std::string &api_key);
 
       static OMX_ERRORTYPE set_tunein_playlist (
-          const OMX_HANDLETYPE handle, const std::string &playlist,
+          const OMX_HANDLETYPE handle, const uri_lst_t &search_keywords,
           const OMX_TIZONIA_AUDIO_TUNEINPLAYLISTTYPE playlist_type,
+          const OMX_TIZONIA_AUDIO_TUNEINSEARCHTYPE search_type,
           const bool shuffle);
 
       static OMX_ERRORTYPE set_youtube_playlist (

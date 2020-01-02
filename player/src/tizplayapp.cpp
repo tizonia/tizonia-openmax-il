@@ -1084,6 +1084,8 @@ tiz::playapp::tunein_stream ()
   const uri_lst_t &uri_list = popts_.tunein_playlist_container ();
   const OMX_TIZONIA_AUDIO_TUNEINPLAYLISTTYPE playlist_type
       = popts_.tunein_playlist_type ();
+  const OMX_TIZONIA_AUDIO_TUNEINSEARCHTYPE search_type
+      = popts_.tunein_search_filter_type ();
   const uint32_t buffer_seconds = popts_.tunein_buffer_seconds ();
 
   print_banner ();
@@ -1098,7 +1100,7 @@ tiz::playapp::tunein_stream ()
   playlist->set_loop_playback (true);
 
   tizgraphconfig_ptr_t config = boost::make_shared< tiz::graph::tuneinconfig > (
-      playlist, buffer_seconds, api_key, playlist_type);
+      playlist, buffer_seconds, api_key, playlist_type, search_type);
 
   // Instantiate the streaming client manager
   tiz::graphmgr::mgr_ptr_t p_mgr
@@ -1374,6 +1376,8 @@ tiz::playapp::tunein_stream_chromecast ()
   const uri_lst_t &uri_list = popts_.tunein_playlist_container ();
   const OMX_TIZONIA_AUDIO_TUNEINPLAYLISTTYPE playlist_type
       = popts_.tunein_playlist_type ();
+  const OMX_TIZONIA_AUDIO_TUNEINSEARCHTYPE search_type
+      = popts_.tunein_search_filter_type ();
   const std::string cc_name_or_ip (popts_.chromecast_name_or_ip ());
   const uint32_t unused_buffer_seconds = 0; // this is not used during casting
 
@@ -1390,7 +1394,7 @@ tiz::playapp::tunein_stream_chromecast ()
 
   tizgraphconfig_ptr_t service_config
       = boost::make_shared< tiz::graph::tuneinconfig > (
-          playlist, unused_buffer_seconds, api_key, playlist_type);
+          playlist, unused_buffer_seconds, api_key, playlist_type, search_type);
 
   tizgraphconfig_ptr_t config
       = boost::make_shared< tiz::graph::chromecastconfig > (

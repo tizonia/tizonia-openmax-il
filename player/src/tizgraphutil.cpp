@@ -882,9 +882,9 @@ graph::util::set_tunein_api_key (const OMX_HANDLETYPE handle,
 
 OMX_ERRORTYPE
 graph::util::set_tunein_playlist (
-    const OMX_HANDLETYPE handle, const std::string &playlist,
+    const OMX_HANDLETYPE handle, const uri_lst_t &search_keywords,
     const OMX_TIZONIA_AUDIO_TUNEINPLAYLISTTYPE playlist_type,
-    const bool shuffle)
+    const OMX_TIZONIA_AUDIO_TUNEINSEARCHTYPE search_type, const bool shuffle)
 {
   // Set the Tunein playlist
   OMX_TIZONIA_AUDIO_PARAM_TUNEINPLAYLISTTYPE playlisttype;
@@ -893,9 +893,27 @@ graph::util::set_tunein_playlist (
       handle,
       static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioTuneinPlaylist),
       &playlisttype));
-  tiz::graph::util::copy_omx_string (playlisttype.cPlaylistName, playlist);
+  assert (search_keywords.size () > 0);
+  tiz::graph::util::copy_omx_string (playlisttype.cPlaylistName,
+                                     search_keywords[0]);
+  if (search_keywords.size () > 1)
+  {
+    tiz::graph::util::copy_omx_string (playlisttype.cAdditionalKeywords1,
+                                       search_keywords[1]);
+  }
+  if (search_keywords.size () > 2)
+  {
+    tiz::graph::util::copy_omx_string (playlisttype.cAdditionalKeywords2,
+                                       search_keywords[2]);
+  }
+  if (search_keywords.size () > 3)
+  {
+    tiz::graph::util::copy_omx_string (playlisttype.cAdditionalKeywords3,
+                                       search_keywords[3]);
+  }
 
   playlisttype.ePlaylistType = playlist_type;
+  playlisttype.eSearchType = search_type;
   playlisttype.bShuffle = shuffle ? OMX_TRUE : OMX_FALSE;
 
   return OMX_SetParameter (
