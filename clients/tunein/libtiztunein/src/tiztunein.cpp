@@ -188,17 +188,17 @@ const char *tiztunein::get_current_radio_description ()
   return current_radio_description_.empty () ? NULL : current_radio_description_.c_str ();
 }
 
-const char *tiztunein::get_current_radio_country ()
+const char *tiztunein::get_current_radio_reliability ()
 {
-  return current_radio_country_.empty () ? NULL
-                                           : current_radio_country_.c_str ();
+  return current_radio_reliability_.empty () ? NULL
+                                           : current_radio_reliability_.c_str ();
 }
 
-const char *tiztunein::get_current_radio_category ()
+const char *tiztunein::get_current_radio_type ()
 {
-  return current_radio_category_.empty ()
+  return current_radio_type_.empty ()
              ? NULL
-             : current_radio_category_.c_str ();
+             : current_radio_type_.c_str ();
 }
 
 const char *tiztunein::get_current_radio_website ()
@@ -291,7 +291,6 @@ void tiztunein::set_search_mode (const search_mode mode)
 void tiztunein::get_current_radio ()
 {
   current_radio_name_.clear ();
-  current_radio_country_.clear ();
 
   current_radio_name_ = bp::extract< std::string > (
       py_tunein_proxy_.attr ("current_radio_name") ());
@@ -299,13 +298,14 @@ void tiztunein::get_current_radio ()
   current_radio_description_ = bp::extract< std::string > (
       py_tunein_proxy_.attr ("current_radio_description") ());
 
-  current_radio_category_ = bp::extract< std::string > (
-      py_tunein_proxy_.attr ("current_radio_category") ());
+  current_radio_reliability_ = bp::extract< std::string > (
+      py_tunein_proxy_.attr ("current_radio_reliability") ());
 
-  const int bitrate = bp::extract< int > (
+  current_radio_type_ = bp::extract< std::string > (
+      py_tunein_proxy_.attr ("current_radio_type") ());
+
+  current_radio_bitrate_ = bp::extract< std::string > (
       py_tunein_proxy_.attr ("current_radio_bitrate") ());
-  current_radio_bitrate_.assign (
-      boost::lexical_cast< std::string > (bitrate));
 
   current_radio_thumbnail_url_ = bp::extract< std::string > (
       py_tunein_proxy_.attr ("current_radio_thumbnail_url") ());

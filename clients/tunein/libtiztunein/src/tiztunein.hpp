@@ -77,8 +77,8 @@ public:
   const char * get_prev_url (const bool a_remove_current_url);
   const char * get_current_radio_name ();
   const char * get_current_radio_description ();
-  const char * get_current_radio_country ();
-  const char * get_current_radio_category ();
+  const char * get_current_radio_reliability ();
+  const char * get_current_radio_type ();
   const char * get_current_radio_website ();
   const char * get_current_radio_bitrate ();
   const char * get_current_radio_stream_url ();
@@ -91,8 +91,8 @@ private:
   std::string current_url_;
   std::string current_radio_name_;
   std::string current_radio_description_;
-  std::string current_radio_country_;
-  std::string current_radio_category_;
+  std::string current_radio_reliability_;
+  std::string current_radio_type_;
   std::string current_radio_website_;
   std::string current_radio_bitrate_;
   std::string current_radio_thumbnail_url_;

@@ -171,20 +171,20 @@ extern "C" const char *tiz_tunein_get_current_radio_description (
   return ap_tunein->p_proxy_->get_current_radio_description ();
 }
 
-extern "C" const char *tiz_tunein_get_current_radio_country (
+extern "C" const char *tiz_tunein_get_current_radio_reliability (
     tiz_tunein_t *ap_tunein)
 {
   assert (ap_tunein);
   assert (ap_tunein->p_proxy_);
-  return ap_tunein->p_proxy_->get_current_radio_country ();
+  return ap_tunein->p_proxy_->get_current_radio_reliability ();
 }
 
-extern "C" const char *tiz_tunein_get_current_radio_category (
+extern "C" const char *tiz_tunein_get_current_radio_type (
     tiz_tunein_t *ap_tunein)
 {
   assert (ap_tunein);
   assert (ap_tunein->p_proxy_);
-  return ap_tunein->p_proxy_->get_current_radio_category ();
+  return ap_tunein->p_proxy_->get_current_radio_type ();
 }
 
 extern "C" const char *tiz_tunein_get_current_radio_website (
