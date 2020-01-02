@@ -333,7 +333,7 @@ update_metadata (tunein_prc_t * ap_prc)
   /* Station Name */
   tiz_check_omx (
     store_metadata (ap_prc, "Station",
-                    tiz_tunein_get_current_station_name (ap_prc->p_tunein_)));
+                    tiz_tunein_get_current_radio_name (ap_prc->p_tunein_)));
 
   /* Country */
   tiz_check_omx (store_metadata (
@@ -342,17 +342,17 @@ update_metadata (tunein_prc_t * ap_prc)
   /* Country */
   tiz_check_omx (store_metadata (
     ap_prc, "Country",
-    tiz_tunein_get_current_station_country (ap_prc->p_tunein_)));
+    tiz_tunein_get_current_radio_country (ap_prc->p_tunein_)));
 
   /* Category */
   tiz_check_omx (store_metadata (
     ap_prc, "Categories",
-    tiz_tunein_get_current_station_category (ap_prc->p_tunein_)));
+    tiz_tunein_get_current_radio_category (ap_prc->p_tunein_)));
 
   /* Website */
   tiz_check_omx (store_metadata (
     ap_prc, "Website",
-    tiz_tunein_get_current_station_website (ap_prc->p_tunein_)));
+    tiz_tunein_get_current_radio_website (ap_prc->p_tunein_)));
 
   /* Signal that a new set of metatadata items is available */
   (void) tiz_srv_issue_event ((OMX_PTR) ap_prc, OMX_EventIndexSettingChanged,
@@ -715,7 +715,7 @@ tunein_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
     }
 
   on_tunein_error_ret_omx_oom (tiz_tunein_init (
-    &(p_prc->p_tunein_), (const char *) p_prc->session_.cApiKey));
+    &(p_prc->p_tunein_)));
 
   tiz_check_omx (enqueue_playlist_items (p_prc));
   tiz_check_omx (obtain_next_url (p_prc, 1));

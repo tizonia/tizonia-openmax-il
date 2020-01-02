@@ -63,8 +63,6 @@ tunein_cfgport_ctor (void * ap_obj, va_list * app)
 
   /* Initialize the OMX_TIZONIA_AUDIO_PARAM_TUNEINSESSIONTYPE structure */
   TIZ_INIT_OMX_STRUCT (p_obj->session_);
-  snprintf ((char *) p_obj->session_.cApiKey, sizeof (p_obj->session_.cApiKey),
-            "xyzxyzxyzxyzxyz");
 
   /* Initialize the OMX_TIZONIA_AUDIO_PARAM_TUNEINPLAYLISTTYPE structure */
   TIZ_INIT_OMX_STRUCT (p_obj->playlist_);
@@ -134,8 +132,6 @@ tunein_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
     {
       memcpy (&(p_obj->session_), ap_struct,
               sizeof (OMX_TIZONIA_AUDIO_PARAM_TUNEINSESSIONTYPE));
-      p_obj->session_.cApiKey[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
-      TIZ_TRACE (ap_hdl, "Tunein Api Key [%s]...", p_obj->session_.cApiKey);
     }
   else if (OMX_TizoniaIndexParamAudioTuneinPlaylist == a_index)
     {
