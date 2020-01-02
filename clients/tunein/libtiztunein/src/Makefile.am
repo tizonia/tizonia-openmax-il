@@ -37,7 +37,7 @@ libtiztunein_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG
 
 libtiztunein_la_LIBADD = \
 	@BOOST_PYTHON_LIB@ \
-	@PYTHON_LDFLAGS@ \
-	-lboost_python
+	@PYTHON_LIBS@ \
+	-lboost_python3
 
 
