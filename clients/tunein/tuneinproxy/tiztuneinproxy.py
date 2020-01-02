@@ -519,14 +519,14 @@ class tiztuneinproxy(object):
         except ValueError:
             raise ValueError(str("No stations/shows found"))
 
-    def enqueue_category(self, arg):
+    def enqueue_category(self, category, keywords1="", keywords2="", keywords3=""):
         """Search Tunein for a station/show category and add its stations to the
         playback queue.
 
-        :param arg: a search string
+        :param category: a search string
 
         """
-        logging.info('enqueue_category : %s', arg)
+        logging.info('enqueue_category : %s', category)
         try:
             count = len(self.queue)
 
@@ -539,7 +539,7 @@ class tiztuneinproxy(object):
             self.__update_play_queue_order()
 
         except ValueError:
-            raise ValueError(str("No stations/shows found : %s" % arg))
+            raise ValueError(str("No stations/shows found : %s" % category))
 
 # {'URL': 'http://opml.radiotime.com/Tune.ashx?id=s290003',
 #   'bitrate': '128',
