@@ -116,18 +116,11 @@ void tiztunein::deinit ()
   // boost::python doesn't support Py_Finalize() yet!
 }
 
-int tiztunein::play_popular_stations ()
-{
-  int rc = 0;
-  try_catch_wrapper (py_tunein_proxy_.attr ("enqueue_popular_stations") ());
-  return rc;
-}
-
-int tiztunein::play_stations (const std::string &query)
+int tiztunein::play_radios (const std::string &query)
 {
   int rc = 0;
   try_catch_wrapper (
-      py_tunein_proxy_.attr ("enqueue_stations") (bp::object (query)));
+      py_tunein_proxy_.attr ("enqueue_radios") (bp::object (query)));
   return rc;
 }
 
@@ -136,14 +129,6 @@ int tiztunein::play_category (const std::string &category)
   int rc = 0;
   try_catch_wrapper (
       py_tunein_proxy_.attr ("enqueue_category") (bp::object (category)));
-  return rc;
-}
-
-int tiztunein::play_country (const std::string &country_code)
-{
-  int rc = 0;
-  try_catch_wrapper (
-      py_tunein_proxy_.attr ("enqueue_country") (bp::object (country_code)));
   return rc;
 }
 
@@ -158,7 +143,7 @@ const char *tiztunein::get_next_url (const bool a_remove_current_url)
         }
       current_url_
           = bp::extract< std::string > (py_tunein_proxy_.attr ("next_url") ());
-      get_current_station ();
+      get_current_radio ();
     }
   catch (bp::error_already_set &e)
     {
@@ -181,7 +166,7 @@ const char *tiztunein::get_prev_url (const bool a_remove_current_url)
         }
       current_url_
           = bp::extract< std::string > (py_tunein_proxy_.attr ("prev_url") ());
-      get_current_station ();
+      get_current_radio ();
     }
   catch (bp::error_already_set &e)
     {
@@ -193,39 +178,49 @@ const char *tiztunein::get_prev_url (const bool a_remove_current_url)
   return current_url_.empty () ? NULL : current_url_.c_str ();
 }
 
-const char *tiztunein::get_current_station_name ()
+const char *tiztunein::get_current_radio_name ()
 {
-  return current_station_name_.empty () ? NULL : current_station_name_.c_str ();
+  return current_radio_name_.empty () ? NULL : current_radio_name_.c_str ();
 }
 
-const char *tiztunein::get_current_station_country ()
+const char *tiztunein::get_current_radio_description ()
 {
-  return current_station_country_.empty () ? NULL
-                                           : current_station_country_.c_str ();
+  return current_radio_description_.empty () ? NULL : current_radio_description_.c_str ();
 }
 
-const char *tiztunein::get_current_station_category ()
+const char *tiztunein::get_current_radio_country ()
 {
-  return current_station_category_.empty ()
+  return current_radio_country_.empty () ? NULL
+                                           : current_radio_country_.c_str ();
+}
+
+const char *tiztunein::get_current_radio_category ()
+{
+  return current_radio_category_.empty ()
              ? NULL
-             : current_station_category_.c_str ();
+             : current_radio_category_.c_str ();
 }
 
-const char *tiztunein::get_current_station_website ()
+const char *tiztunein::get_current_radio_website ()
 {
-  return current_station_website_.empty () ? NULL
-                                           : current_station_website_.c_str ();
+  return current_radio_website_.empty () ? NULL
+                                           : current_radio_website_.c_str ();
 }
 
-const char *tiztunein::get_current_station_bitrate ()
+const char *tiztunein::get_current_radio_bitrate ()
 {
-  return current_station_bitrate_.empty () ? NULL
-                                           : current_station_bitrate_.c_str ();
+  return current_radio_bitrate_.empty () ? NULL
+                                           : current_radio_bitrate_.c_str ();
 }
 
-const char *tiztunein::get_current_station_stream_url ()
+const char *tiztunein::get_current_radio_stream_url ()
 {
   return current_url_.empty () ? NULL : current_url_.c_str ();
+}
+
+const char *tiztunein::get_current_radio_thumbnail_url ()
+{
+  return current_radio_thumbnail_url_.empty () ? NULL : current_radio_thumbnail_url_.c_str ();
 }
 
 void tiztunein::clear_queue ()
@@ -261,24 +256,26 @@ void tiztunein::set_playback_mode (const playback_mode mode)
   (void)rc;
 }
 
-void tiztunein::get_current_station ()
+void tiztunein::get_current_radio ()
 {
-  current_station_name_.clear ();
-  current_station_country_.clear ();
+  current_radio_name_.clear ();
+  current_radio_country_.clear ();
 
-  const bp::tuple &info1 = bp::extract< bp::tuple > (
-      py_tunein_proxy_.attr ("current_station_name_and_country") ());
-  current_station_name_ = bp::extract< std::string > (info1[0]);
-  current_station_country_ = bp::extract< std::string > (info1[1]);
+  current_radio_name_ = bp::extract< std::string > (
+      py_tunein_proxy_.attr ("current_radio_name") ());
 
-  current_station_category_ = bp::extract< std::string > (
-      py_tunein_proxy_.attr ("current_station_category") ());
+  current_radio_description_ = bp::extract< std::string > (
+      py_tunein_proxy_.attr ("current_radio_description") ());
 
-  current_station_website_ = bp::extract< std::string > (
-      py_tunein_proxy_.attr ("current_station_website") ());
+  current_radio_category_ = bp::extract< std::string > (
+      py_tunein_proxy_.attr ("current_radio_category") ());
 
   const int bitrate = bp::extract< int > (
-      py_tunein_proxy_.attr ("current_station_bitrate") ());
-  current_station_bitrate_.assign (
+      py_tunein_proxy_.attr ("current_radio_bitrate") ());
+  current_radio_bitrate_.assign (
       boost::lexical_cast< std::string > (bitrate));
+
+  current_radio_thumbnail_url_ = bp::extract< std::string > (
+      py_tunein_proxy_.attr ("current_radio_thumbnail_url") ());
+
 }

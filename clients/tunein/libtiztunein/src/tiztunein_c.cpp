@@ -107,19 +107,12 @@ extern "C" void tiz_tunein_set_playback_mode (
       static_cast< tiztunein::playback_mode >(mode));
 }
 
-extern "C" int tiz_tunein_play_popular_stations (tiz_tunein_t *ap_tunein)
+extern "C" int tiz_tunein_play_radios (tiz_tunein_t *ap_tunein,
+                                       const char *ap_query)
 {
   assert (ap_tunein);
   assert (ap_tunein->p_proxy_);
-  return ap_tunein->p_proxy_->play_popular_stations ();
-}
-
-extern "C" int tiz_tunein_play_stations (tiz_tunein_t *ap_tunein,
-                                         const char *ap_query)
-{
-  assert (ap_tunein);
-  assert (ap_tunein->p_proxy_);
-  return ap_tunein->p_proxy_->play_stations (ap_query);
+  return ap_tunein->p_proxy_->play_radios (ap_query);
 }
 
 extern "C" int tiz_tunein_play_category (tiz_tunein_t *ap_tunein,
@@ -128,14 +121,6 @@ extern "C" int tiz_tunein_play_category (tiz_tunein_t *ap_tunein,
   assert (ap_tunein);
   assert (ap_tunein->p_proxy_);
   return ap_tunein->p_proxy_->play_category (ap_category);
-}
-
-extern "C" int tiz_tunein_play_country (tiz_tunein_t *ap_tunein,
-                                        const char *ap_country_code)
-{
-  assert (ap_tunein);
-  assert (ap_tunein->p_proxy_);
-  return ap_tunein->p_proxy_->play_country (ap_country_code);
 }
 
 extern "C" void tiz_tunein_clear_queue (tiz_tunein_t *ap_tunein)
@@ -161,52 +146,68 @@ extern "C" const char *tiz_tunein_get_prev_url (tiz_tunein_t *ap_tunein,
   return ap_tunein->p_proxy_->get_prev_url (a_remove_current_url);
 }
 
-extern "C" const char *tiz_tunein_get_current_station_name (
+extern "C" const char *tiz_tunein_get_current_radio_name (
     tiz_tunein_t *ap_tunein)
 {
   assert (ap_tunein);
   assert (ap_tunein->p_proxy_);
-  return ap_tunein->p_proxy_->get_current_station_name ();
+  return ap_tunein->p_proxy_->get_current_radio_name ();
 }
 
-extern "C" const char *tiz_tunein_get_current_station_country (
+extern "C" const char *tiz_tunein_get_current_radio_description (
     tiz_tunein_t *ap_tunein)
 {
   assert (ap_tunein);
   assert (ap_tunein->p_proxy_);
-  return ap_tunein->p_proxy_->get_current_station_country ();
+  return ap_tunein->p_proxy_->get_current_radio_description ();
 }
 
-extern "C" const char *tiz_tunein_get_current_station_category (
+extern "C" const char *tiz_tunein_get_current_radio_country (
     tiz_tunein_t *ap_tunein)
 {
   assert (ap_tunein);
   assert (ap_tunein->p_proxy_);
-  return ap_tunein->p_proxy_->get_current_station_category ();
+  return ap_tunein->p_proxy_->get_current_radio_country ();
 }
 
-extern "C" const char *tiz_tunein_get_current_station_website (
+extern "C" const char *tiz_tunein_get_current_radio_category (
     tiz_tunein_t *ap_tunein)
 {
   assert (ap_tunein);
   assert (ap_tunein->p_proxy_);
-  return ap_tunein->p_proxy_->get_current_station_website ();
+  return ap_tunein->p_proxy_->get_current_radio_category ();
 }
 
-extern "C" const char *tiz_tunein_get_current_station_stream_url (
+extern "C" const char *tiz_tunein_get_current_radio_website (
     tiz_tunein_t *ap_tunein)
 {
   assert (ap_tunein);
   assert (ap_tunein->p_proxy_);
-  return ap_tunein->p_proxy_->get_current_station_stream_url ();
+  return ap_tunein->p_proxy_->get_current_radio_website ();
 }
 
-extern "C" const char *tiz_tunein_get_current_station_bitrate (
+extern "C" const char *tiz_tunein_get_current_radio_bitrate (
     tiz_tunein_t *ap_tunein)
 {
   assert (ap_tunein);
   assert (ap_tunein->p_proxy_);
-  return ap_tunein->p_proxy_->get_current_station_bitrate ();
+  return ap_tunein->p_proxy_->get_current_radio_bitrate ();
+}
+
+extern "C" const char *tiz_tunein_get_current_radio_stream_url (
+    tiz_tunein_t *ap_tunein)
+{
+  assert (ap_tunein);
+  assert (ap_tunein->p_proxy_);
+  return ap_tunein->p_proxy_->get_current_radio_stream_url ();
+}
+
+extern "C" const char *tiz_tunein_get_current_radio_thumbnail_url (
+    tiz_tunein_t *ap_tunein)
+{
+  assert (ap_tunein);
+  assert (ap_tunein->p_proxy_);
+  return ap_tunein->p_proxy_->get_current_radio_thumbnail_url ();
 }
 
 extern "C" void tiz_tunein_destroy (tiz_tunein_t *ap_tunein)

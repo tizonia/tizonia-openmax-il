@@ -30,228 +30,221 @@
 #define TIZTUNEIN_C_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <stdbool.h>
 
-/**
-* @defgroup libtiztunein 'libtiztunein' : Tizonia's Tunein client
-* library
-*
-* A C library to access the Tunein streaming service.
-*
-* @ingroup Tizonia
-*/
+  /**
+   * @defgroup libtiztunein 'libtiztunein' : Tizonia's Tunein client
+   * library
+   *
+   * A C library to access the Tunein streaming service.
+   *
+   * @ingroup Tizonia
+   */
 
-/**
- * The tunein opaque structure
- * @ingroup libtiztunein
- */
-typedef struct tiz_tunein tiz_tunein_t;
-typedef /*@null@ */ tiz_tunein_t *tiz_tunein_ptr_t;
+  /**
+   * The tunein opaque structure
+   * @ingroup libtiztunein
+   */
+  typedef struct tiz_tunein tiz_tunein_t;
+  typedef /*@null@ */ tiz_tunein_t *tiz_tunein_ptr_t;
 
-/**
- * Various playback modes that control the playback queue.
- * @ingroup libtiztunein
- */
-typedef enum tiz_tunein_playback_mode
-{
-  ETIZTuneinPlaybackModeNormal,
-  ETIZTuneinPlaybackModeShuffle,
-  ETIZTuneinPlaybackModeMax
-} tiz_tunein_playback_mode_t;
+  /**
+   * Various playback modes that control the playback queue.
+   * @ingroup libtiztunein
+   */
+  typedef enum tiz_tunein_playback_mode
+  {
+    ETIZTuneinPlaybackModeNormal,
+    ETIZTuneinPlaybackModeShuffle,
+    ETIZTuneinPlaybackModeMax
+  } tiz_tunein_playback_mode_t;
 
-/**
- * Initialize the tunein handle.
- *
- * @ingroup libtiztunein
- *
- * @param app_tunein A pointer to the tunein handle which will be
- * initialised.
- *
- * @return 0 on success.
- */
-int tiz_tunein_init (/*@null@ */ tiz_tunein_ptr_t *app_tunein);
+  /**
+   * Initialize the tunein handle.
+   *
+   * @ingroup libtiztunein
+   *
+   * @param app_tunein A pointer to the tunein handle which will be
+   * initialised.
+   *
+   * @return 0 on success.
+   */
+  int tiz_tunein_init (/*@null@ */ tiz_tunein_ptr_t *app_tunein);
 
-/**
- * Clear the playback queue.
- *
- * @ingroup libtiztunein
- *
- * @param ap_tunein The tunein handle.
- */
-void tiz_tunein_set_playback_mode (tiz_tunein_t *ap_tunein,
-                                   const tiz_tunein_playback_mode_t mode);
+  /**
+   * Clear the playback queue.
+   *
+   * @ingroup libtiztunein
+   *
+   * @param ap_tunein The tunein handle.
+   */
+  void tiz_tunein_set_playback_mode (tiz_tunein_t *ap_tunein,
+                                     const tiz_tunein_playback_mode_t mode);
 
-/**
- * Add popular stations to the playback queue.
- *
- * After calling this method, the various tiz_tunein_get* methods can be
- * used to interact with the playback queue.
- *
- * @ingroup libtiztunein
- *
- * @param ap_tunein The tunein handle.
- *
- * @return 0 on success
- */
-int tiz_tunein_play_popular_stations (tiz_tunein_t *ap_tunein);
+  /**
+   * Add radio stations or podcast shows matching the query string to the
+   * playback queue.
+   *
+   * After calling this method, the various tiz_tunein_get* methods can be
+   * used to interact with the playback queue.
+   *
+   * @ingroup libtiztunein
+   *
+   * @param ap_tunein The tunein handle.
+   * @param ap_query The query string.
+   *
+   * @return 0 on success
+   */
+  int tiz_tunein_play_radios (tiz_tunein_t *ap_tunein, const char *ap_query);
 
-/**
- * Search Tunein for stations matching the query string and add them to the
- * playback queue.
- *
- * After calling this method, the various tiz_tunein_get* methods can be
- * used to interact with the playback queue.
- *
- * @ingroup libtiztunein
- *
- * @param ap_tunein The tunein handle.
- * @param ap_query The query string.
- *
- * @return 0 on success
- */
-int tiz_tunein_play_stations (tiz_tunein_t *ap_tunein, const char *ap_query);
+  /**
+   * Search Tunein for a category and add matching stations to the playback
+   * queue.
+   *
+   * After calling this method, the various tiz_tunein_get* methods can be
+   * used to interact with the playback queue.
+   *
+   * @ingroup libtiztunein
+   *
+   * @param ap_tunein The tunein handle.
+   * @param ap_category The category.
+   *
+   * @return 0 on success
+   */
+  int tiz_tunein_play_category (tiz_tunein_t *ap_tunein,
+                                const char *ap_category);
 
-/**
- * Search Tunein for a category and add matching stations to the playback
- * queue.
- *
- * After calling this method, the various tiz_tunein_get* methods can be
- * used to interact with the playback queue.
- *
- * @ingroup libtiztunein
- *
- * @param ap_tunein The tunein handle.
- * @param ap_category The category.
- *
- * @return 0 on success
- */
-int tiz_tunein_play_category (tiz_tunein_t *ap_tunein, const char *ap_category);
+  /**
+   * Clear the playback queue.
+   *
+   * @ingroup libtiztunein
+   *
+   * @param ap_tunein The tunein handle.
+   */
+  void tiz_tunein_clear_queue (tiz_tunein_t *ap_tunein);
 
-/**
-* Search Tunein for a country code and add its stations to the playback queue.
-*
-* After calling this method, the various tiz_tunein_get* methods can be
-* used to interact with the playback queue.
-*
-* @ingroup libtiztunein
-*
-* @param ap_tunein The tunein handle.
-* @param ap_country_code A two-letter country code.
-*
-* @return 0 on success
-*/
-int tiz_tunein_play_country (tiz_tunein_t *ap_tunein,
-                             const char *ap_country_code);
+  /**
+   * Retrieve the next station url
+   *
+   * The playback queue pointer moves one position forwards.
+   *
+   * @ingroup libtiztunein
+   *
+   * @param ap_tunein The tunein handle.
+   * @param a_remove_current_url If true, delete the current url from the
+   * playback queue before moving to the next url.
+   *
+   * @return The next url in the playback queue or NULL if the playback queue is
+   * empty.
+   */
+  const char *tiz_tunein_get_next_url (tiz_tunein_t *ap_tunein,
+                                       const bool a_remove_current_url);
 
-/**
- * Clear the playback queue.
- *
- * @ingroup libtiztunein
- *
- * @param ap_tunein The tunein handle.
- */
-void tiz_tunein_clear_queue (tiz_tunein_t *ap_tunein);
+  /**
+   * Retrieve the previous station url.
+   *
+   * The playback queue pointer moves one position backwards.
+   *
+   * @ingroup libtiztunein
+   *
+   * @param ap_tunein The tunein handle.
+   * @param a_remove_current_url If true, delete the current url from the
+   * playback queue before moving to the previous url.
+   *
+   * @return The previous url in the playback queue or NULL if the playback
+   * queue is empty.
+   */
+  const char *tiz_tunein_get_prev_url (tiz_tunein_t *ap_tunein,
+                                       const bool a_remove_current_url);
 
-/**
- * Retrieve the next station url
- *
- * The playback queue pointer moves one position forwards.
- *
- * @ingroup libtiztunein
- *
- * @param ap_tunein The tunein handle.
- * @param a_remove_current_url If true, delete the current url from the
- * playback queue before moving to the next url.
- *
- * @return The next url in the playback queue or NULL if the playback queue is
- * empty.
- */
-const char *tiz_tunein_get_next_url (tiz_tunein_t *ap_tunein,
-                                     const bool a_remove_current_url);
+  /**
+   * Retrieve the current station's name.
+   *
+   * @ingroup libtiztunein
+   *
+   * @param ap_tunein The tunein handle.
+   */
+  const char *tiz_tunein_get_current_radio_name (tiz_tunein_t *ap_tunein);
 
-/**
- * Retrieve the previous station url.
- *
- * The playback queue pointer moves one position backwards.
- *
- * @ingroup libtiztunein
- *
- * @param ap_tunein The tunein handle.
- * @param a_remove_current_url If true, delete the current url from the
- * playback queue before moving to the previous url.
- *
- * @return The previous url in the playback queue or NULL if the playback queue
- * is empty.
- */
-const char *tiz_tunein_get_prev_url (tiz_tunein_t *ap_tunein,
-                                     const bool a_remove_current_url);
+  /**
+   * Retrieve the current station's description.
+   *
+   * @ingroup libtiztunein
+   *
+   * @param ap_tunein The tunein handle.
+   */
+  const char *tiz_tunein_get_current_radio_description (
+      tiz_tunein_t *ap_tunein);
 
-/**
- * Retrieve the current station's name.
- *
- * @ingroup libtiztunein
- *
- * @param ap_tunein The tunein handle.
- */
-const char *tiz_tunein_get_current_station_name (tiz_tunein_t *ap_tunein);
+  /**
+   * Retrieve the current station's country.
+   *
+   * @ingroup libtiztunein
+   *
+   * @param ap_tunein The tunein handle.
+   */
+  const char *tiz_tunein_get_current_radio_country (tiz_tunein_t *ap_tunein);
 
-/**
-* Retrieve the current station's country.
-*
-* @ingroup libtiztunein
-*
-* @param ap_tunein The tunein handle.
-*/
-const char *tiz_tunein_get_current_station_country (tiz_tunein_t *ap_tunein);
+  /**
+   * Retrieve the current station's category.
+   *
+   * @ingroup libtiztunein
+   *
+   * @param ap_tunein The tunein handle.
+   */
+  const char *tiz_tunein_get_current_radio_category (tiz_tunein_t *ap_tunein);
 
-/**
- * Retrieve the current station's category.
- *
- * @ingroup libtiztunein
- *
- * @param ap_tunein The tunein handle.
- */
-const char *tiz_tunein_get_current_station_category (tiz_tunein_t *ap_tunein);
+  /**
+   * Retrieve the current station's website.
+   *
+   * @ingroup libtiztunein
+   *
+   * @param ap_tunein The tunein handle.
+   */
+  const char *tiz_tunein_get_current_radio_website (tiz_tunein_t *ap_tunein);
 
-/**
- * Retrieve the current station's website.
- *
- * @ingroup libtiztunein
- *
- * @param ap_tunein The tunein handle.
- */
-const char *tiz_tunein_get_current_station_website (tiz_tunein_t *ap_tunein);
+  /**
+   * Retrieve the current station's bitrate.
+   *
+   * @ingroup libtiztunein
+   *
+   * @param ap_tunein The tunein handle.
+   */
+  const char *tiz_tunein_get_current_radio_bitrate (tiz_tunein_t *ap_tunein);
 
-/**
- * Retrieve the current station's bitrate.
- *
- * @ingroup libtiztunein
- *
- * @param ap_tunein The tunein handle.
- */
-const char *tiz_tunein_get_current_station_bitrate (tiz_tunein_t *ap_tunein);
+  /**
+   * Retrieve the current station's stream url.
+   *
+   * @ingroup libtiztunein
+   *
+   * @param ap_tunein The tunein handle.
+   */
+  const char *tiz_tunein_get_current_radio_stream_url (
+      tiz_tunein_t *ap_tunein);
 
-/**
- * Retrieve the current station's stream url.
- *
- * @ingroup libtiztunein
- *
- * @param ap_tunein The tunein handle.
- */
-const char *tiz_tunein_get_current_station_stream_url (tiz_tunein_t *ap_tunein);
+  /**
+   * Retrieve the current station's thumbnail image url.
+   *
+   * @ingroup libtiztunein
+   *
+   * @param ap_tunein The tunein handle.
+   */
+  const char *tiz_tunein_get_current_radio_thumbnail_url (
+      tiz_tunein_t *ap_tunein);
 
-/**
- * Destroy the tunein handle.
- *
- * @ingroup libtiztunein
- *
- * @param ap_tunein The tunein handle.
- */
+  /**
+   * Destroy the tunein handle.
+   *
+   * @ingroup libtiztunein
+   *
+   * @param ap_tunein The tunein handle.
+   */
 
-void tiz_tunein_destroy (tiz_tunein_t *ap_tunein);
+  void tiz_tunein_destroy (tiz_tunein_t *ap_tunein);
 
 #ifdef __cplusplus
 }
