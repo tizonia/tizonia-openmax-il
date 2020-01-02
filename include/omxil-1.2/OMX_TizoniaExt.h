@@ -448,14 +448,21 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDPLAYLISTTYPE {
 
 typedef enum OMX_TIZONIA_AUDIO_TUNEINPLAYLISTTYPE {
     OMX_AUDIO_TuneinPlaylistTypeUnknown = 0, /**< Playlist type unknown (Default). */
-    OMX_AUDIO_TuneinPlaylistTypePopularStations, /**< The service's popular stations playlist. */
-    OMX_AUDIO_TuneinPlaylistTypeStations, /**< Station search. */
+    OMX_AUDIO_TuneinPlaylistTypeRadios, /**< General search (may be restricted down to stations, shows or all, see OMX_TIZONIA_AUDIO_TUNEINSEARCHTYPE) */
     OMX_AUDIO_TuneinPlaylistTypeCategory, /**< Category search. */
-    OMX_AUDIO_TuneinPlaylistTypeCountry, /**< Country search. */
     OMX_AUDIO_TuneinPlaylistTypeKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
     OMX_AUDIO_TuneinPlaylistTypeVendorStartUnused = 0x7F000000, /**< Reserved region for introducing Vendor Extensions */
     OMX_AUDIO_TuneinPlaylistTypeMax = 0x7FFFFFFF
 } OMX_TIZONIA_AUDIO_TUNEINPLAYLISTTYPE;
+
+typedef enum OMX_TIZONIA_AUDIO_TUNEINSEARCHTYPE {
+    OMX_AUDIO_TuneinSearchTypeAll = 0, /**< Search type all (Default). */
+    OMX_AUDIO_TuneinSearchTypeStations, /**< Station search. */
+    OMX_AUDIO_TuneinSearchTypeShows, /**< Shows search. */
+    OMX_AUDIO_TuneinSearchTypeKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
+    OMX_AUDIO_TuneinSearchTypeVendorStartUnused = 0x7F000000, /**< Reserved region for introducing Vendor Extensions */
+    OMX_AUDIO_TuneinSearchTypeMax = 0x7FFFFFFF
+} OMX_TIZONIA_AUDIO_TUNEINSEARCHTYPE;
 
 typedef struct OMX_TIZONIA_AUDIO_PARAM_TUNEINSESSIONTYPE {
     OMX_U32 nSize;
@@ -467,6 +474,7 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_TUNEINPLAYLISTTYPE {
     OMX_U32 nSize;
     OMX_VERSIONTYPE nVersion;
     OMX_TIZONIA_AUDIO_TUNEINPLAYLISTTYPE ePlaylistType;
+    OMX_TIZONIA_AUDIO_TUNEINSEARCHTYPE eSearchType; /**< Default: OMX_AUDIO_TuneinSearchTypeAll */
     OMX_BOOL bShuffle;            /**< Default: OMX_FALSE */
     OMX_U8 cPlaylistName[OMX_MAX_STRINGNAME_SIZE];
 } OMX_TIZONIA_AUDIO_PARAM_TUNEINPLAYLISTTYPE;
