@@ -20,11 +20,11 @@
 from setuptools import setup, find_packages
 import re
 import sys
+import warnings
 
-# Only 2.6-2.7 are supported.
-if not ((2, 6, 0) <= sys.version_info[:3] < (2, 8)):
-    sys.stderr.write('tuneinproxy does not officially support this Python version.\n')
-    # try to continue anyway
+if sys.version_info[:3] < (3, 5, 1):
+    warnings.warn("tizyoutubeproxy does not officially support versions below "
+                  "Python 3.5.1", RuntimeWarning)
 
 VERSIONFILE = '_version.py'
 
@@ -54,8 +54,8 @@ setup(
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.6',
-        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Multimedia :: Sound/Audio',
         'Topic :: Software Development :: Libraries :: Python Modules',

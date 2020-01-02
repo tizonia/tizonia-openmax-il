@@ -100,7 +100,7 @@ int tiztunein::init ()
 int tiztunein::start ()
 {
   int rc = 0;
-  try_catch_wrapper (start_tunein (py_global_, py_tunein_proxy_, api_key_));
+  try_catch_wrapper (start_tunein (py_global_, py_tunein_proxy_));
   return rc;
 }
 

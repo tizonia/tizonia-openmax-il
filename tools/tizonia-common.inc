@@ -49,6 +49,8 @@ declare -Ar TIZ_PROJECT_DIRS=( \
     [tizchromecast]="clients/chromecast/libtizchromecast" \
     [tizspotifyproxy]="clients/spotify/spotifyproxy" \
     [tizspotify]="clients/spotify/libtizspotify" \
+    [tiztuneinproxy]="clients/tunein/tuneinproxy" \
+    [tiztunein]="clients/tunein/libtiztunein" \
     [tizplatform]="libtizplatform" \
     [tizcastd]="cast/tizcastd" \
     [tizcastclient]="cast/libtizcastclient" \
@@ -98,6 +100,8 @@ readonly TIZ_PROJECTS_ORDERED=( \
     tizchromecast \
     tizspotifyproxy \
     tizspotify \
+    tiztuneinproxy \
+    tiztunein \
     tizplatform \
     tizcastd \
     tizcastclient \

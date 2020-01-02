@@ -2,12 +2,13 @@ Source: tiztuneinproxy
 Maintainer: Juan A. Rubio <juan.rubio@aratelia.com>
 Section: python
 Priority: optional
-Build-Depends: python-setuptools (>= 0.6b3), python-all (>= 2.6.6-3), debhelper (>= 7)
-Standards-Version: 3.9.1
+Build-Depends: dh-python, python3-setuptools, python3-all, debhelper (>= 9)
+Standards-Version: 3.9.6
+Homepage: http://tizonia.org
 
-Package: python-tiztuneinproxy
+Package: python3-tiztuneinproxy
 Architecture: all
-Depends: ${misc:Depends}, ${python:Depends}
+Depends: ${misc:Depends}, ${python3:Depends}
 Description: Tizonia Tunein proxy
  Tizonia's Tunein proxy.
  .
