@@ -46,6 +46,17 @@ public:
       PlaybackModeMax
     };
 
+  /**
+   * Various search modes to filter the contents added to the playback queue.
+   */
+  enum search_mode
+  {
+    SearchModeAll,
+    SearchModeStations,
+    SearchModeShows,
+    SearchModeMax
+  };
+
 public:
   tiztunein ();
   ~tiztunein ();
@@ -60,6 +71,7 @@ public:
 
   void clear_queue ();
   void set_playback_mode (const playback_mode mode);
+  void set_search_mode (const search_mode mode);
 
   const char * get_next_url (const bool a_remove_current_url);
   const char * get_prev_url (const bool a_remove_current_url);

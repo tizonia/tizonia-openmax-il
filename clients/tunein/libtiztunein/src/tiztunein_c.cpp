@@ -107,6 +107,15 @@ extern "C" void tiz_tunein_set_playback_mode (
       static_cast< tiztunein::playback_mode >(mode));
 }
 
+extern "C" void tiz_tunein_set_search_mode (
+    tiz_tunein_t *ap_tunein, const tiz_tunein_search_mode_t mode)
+{
+  assert (ap_tunein);
+  assert (ap_tunein->p_proxy_);
+  return ap_tunein->p_proxy_->set_search_mode (
+      static_cast< tiztunein::search_mode >(mode));
+}
+
 extern "C" int tiz_tunein_play_radios (tiz_tunein_t *ap_tunein,
                                        const char *ap_query)
 {

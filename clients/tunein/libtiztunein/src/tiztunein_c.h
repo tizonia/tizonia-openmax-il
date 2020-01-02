@@ -64,6 +64,20 @@ extern "C"
   } tiz_tunein_playback_mode_t;
 
   /**
+   * Various search modes that act as a way to filter the elements that are
+   * added to the queue.
+   *
+   * @ingroup libtiztunein
+   */
+  typedef enum tiz_tunein_search_mode
+  {
+    ETIZTuneinSearchModeAll,
+    ETIZTuneinSearchModeStations,
+    ETIZTuneinSearchModeShows,
+    ETIZTuneinSearchModeMax
+  } tiz_tunein_search_mode_t;
+
+  /**
    * Initialize the tunein handle.
    *
    * @ingroup libtiztunein
@@ -76,17 +90,29 @@ extern "C"
   int tiz_tunein_init (/*@null@ */ tiz_tunein_ptr_t *app_tunein);
 
   /**
-   * Clear the playback queue.
+   * Set the playback mode.
    *
    * @ingroup libtiztunein
    *
    * @param ap_tunein The tunein handle.
+   * @param a_mode The playback mode.
    */
   void tiz_tunein_set_playback_mode (tiz_tunein_t *ap_tunein,
-                                     const tiz_tunein_playback_mode_t mode);
+                                     const tiz_tunein_playback_mode_t a_mode);
 
   /**
-   * Add radio stations or podcast shows matching the query string to the
+   * Set the search mode.
+   *
+   * @ingroup libtiztunein
+   *
+   * @param ap_tunein The tunein handle.
+   * @param a_mode The search mode.
+   */
+  void tiz_tunein_set_search_mode (tiz_tunein_t *ap_tunein,
+                                   const tiz_tunein_search_mode_t mode);
+
+  /**
+   * Add radio stations/shows matching the query string to the
    * playback queue.
    *
    * After calling this method, the various tiz_tunein_get* methods can be
