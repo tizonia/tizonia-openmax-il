@@ -16,7 +16,7 @@
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
 AC_PREREQ([2.68])
-AC_INIT([tiztunein], [0.18.0], [juan.rubio@aratelia.com])
+AC_INIT([tiztunein], [0.19.0], [juan.rubio@aratelia.com])
 AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
 AC_CONFIG_SRCDIR([config.h.in])
@@ -63,10 +63,8 @@ LT_INIT
 # Checks for libraries.
 AC_LANG([C++])
 PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
-AM_PATH_PYTHON([2.7])
-AX_PYTHON_DEVEL([>= '2.7'])
-# AX_PYTHON_MODULE(pycountry, [libtiztunein needs pycountry])
-# AX_PYTHON_MODULE(titlecase, [libtiztunein needs titlecase])
+AM_PATH_PYTHON([3.5])
+AX_PYTHON_DEVEL([>= '3.5'])
 AX_BOOST_BASE([1.54],, [AC_MSG_ERROR([libtiztunein needs Boost 1.54])])
 AX_BOOST_PYTHON
 

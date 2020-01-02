@@ -16,7 +16,7 @@
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
 AC_PREREQ([2.68])
-AC_INIT([tiztunein], [0.18.0], [juan.rubio@aratelia.com])
+AC_INIT([tiztunein], [0.19.0], [juan.rubio@aratelia.com])
 AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
 AC_CONFIG_SRCDIR([config.h.in])
@@ -33,7 +33,7 @@ AC_PROG_MAKE_SET
 LT_INIT
 
 # Checks for libraries.
-AM_PATH_PYTHON([2.7])
+AM_PATH_PYTHON([3.5])
 
 # Checks for header files.
 

@@ -7,5 +7,5 @@ Name: libtiztunein
 Description: Tizonia Tunein client library
 Version: @PACKAGE_VERSION@
 Libs: -L${libdir} -ltiztunein
-Libs.private: -lpython2.7 -lboost_python
-Cflags: -I${includedir} -I${includedir}/python2.7 -I${includedir}/tizonia
+Libs.private: -lpython3.6 -lboost_python3
+Cflags: -I${includedir} -I${includedir}/python3.6 -I${includedir}/tizonia
