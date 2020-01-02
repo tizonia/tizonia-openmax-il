@@ -104,6 +104,11 @@ noinst_HEADERS = \
 	services/plex/tizplexgraphops.hpp \
 	services/plex/tizplexconfig.hpp \
 	services/plex/tizplexmgr.hpp \
+	services/tunein/tiztuneingraph.hpp \
+	services/tunein/tiztuneingraphfsm.hpp \
+	services/tunein/tiztuneingraphops.hpp \
+	services/tunein/tiztuneinconfig.hpp \
+	services/tunein/tiztuneinmgr.hpp \
 	mpris/tizmpriscbacks.hpp \
 	mpris/tizmprisprops.hpp \
 	mpris/tizmprisif.hpp \
@@ -169,6 +174,10 @@ tizonia_SOURCES = \
 	services/plex/tizplexgraph.cpp \
 	services/plex/tizplexgraphops.cpp \
 	services/plex/tizplexmgr.cpp \
+	services/tunein/tiztuneingraph.cpp \
+	services/tunein/tiztuneingraphfsm.cpp \
+	services/tunein/tiztuneingraphops.cpp \
+	services/tunein/tiztuneinmgr.cpp \
 	services/chromecast/tizchromecastgraph.cpp \
 	services/chromecast/tizchromecastgraphfsm.cpp \
 	services/chromecast/tizchromecastgraphops.cpp \
@@ -190,6 +199,7 @@ tizonia_CPPFLAGS = \
 	-I$(top_srcdir)/src/services/soundcloud \
 	-I$(top_srcdir)/src/services/youtube \
 	-I$(top_srcdir)/src/services/plex \
+	-I$(top_srcdir)/src/services/tunein \
 	-I/usr/include/taglib \
 	@LIBMEDIAINFO_CFLAGS@ \
 	@TIZDBUSCPLUSPLUS_CFLAGS@ \

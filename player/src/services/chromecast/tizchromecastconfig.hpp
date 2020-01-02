@@ -48,7 +48,7 @@ namespace tiz
          ConfigHttpStreaming,
          ConfigGoogleMusic,
          ConfigSoundCloud,
-//          ConfigTunein,
+         ConfigTunein,
          ConfigYouTube,
          ConfigPlex,
          ConfigUnknown

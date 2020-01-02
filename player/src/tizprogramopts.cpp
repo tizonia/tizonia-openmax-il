@@ -321,7 +321,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     spotify_ ("Spotify options (Spotify Premium required)"),
     gmusic_ ("Google Play Music options"),
     scloud_ ("SoundCloud options"),
-//     tunein_ ("Tunein options"),
+    tunein_ ("Tunein options"),
     youtube_ ("YouTube options"),
     plex_ ("Plex options"),
     chromecast_ ("Chromecast options"),
@@ -404,14 +404,11 @@ tiz::programopts::programopts (int argc, char *argv[])
     scloud_playlist_container_ (),
     scloud_playlist_type_ (OMX_AUDIO_SoundCloudPlaylistTypeUnknown),
     scloud_buffer_seconds_ (0),
-//     tunein_api_key_ (),
-//     tunein_popular_stations_ (),
-//     tunein_stations_ (),
-//     tunein_category_ (),
-//     tunein_country_ (),
-//     tunein_playlist_container_ (),
-//     tunein_playlist_type_ (OMX_AUDIO_TuneinPlaylistTypeUnknown),
-//     tunein_buffer_seconds_ (0),
+    tunein_radios_ (),
+    tunein_category_ (),
+    tunein_playlist_container_ (),
+    tunein_playlist_type_ (OMX_AUDIO_TuneinPlaylistTypeUnknown),
+    tunein_buffer_seconds_ (0),
     youtube_audio_stream_ (),
     youtube_audio_playlist_ (),
     youtube_audio_mix_ (),
@@ -441,7 +438,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     all_spotify_client_options_ (),
     all_gmusic_client_options_ (),
     all_scloud_client_options_ (),
-//     all_tunein_client_options_ (),
+    all_tunein_client_options_ (),
     all_youtube_client_options_ (),
     all_plex_client_options_ (),
     all_input_uri_options_ (),
@@ -455,7 +452,7 @@ tiz::programopts::programopts (int argc, char *argv[])
   init_spotify_options ();
   init_gmusic_options ();
   init_scloud_options ();
-//   init_tunein_options ();
+  init_tunein_options ();
   init_youtube_options ();
   init_plex_options ();
   init_input_uri_option ();
@@ -557,9 +554,9 @@ void tiz::programopts::print_usage_help () const
   std::cout << "  "
             << "soundcloud    SoundCloud options."
             << "\n";
-//   std::cout << "  "
-//             << "tunein        Tunein options."
-//             << "\n";
+  std::cout << "  "
+            << "tunein        Tunein options."
+            << "\n";
   std::cout << "  "
             << "youtube       YouTube options."
             << "\n";
@@ -1170,68 +1167,47 @@ uint32_t tiz::programopts::scloud_buffer_seconds () const
   return buffer_seconds_ ? buffer_seconds_ : scloud_buffer_seconds_;
 }
 
-// const std::string &tiz::programopts::tunein_api_key () const
-// {
-//   return tunein_api_key_;
-// }
+const std::vector< std::string > &tiz::programopts::tunein_playlist_container ()
+{
+  tunein_playlist_container_.clear ();
+  if (!tunein_radios_.empty ())
+  {
+    tunein_playlist_container_.push_back (tunein_radios_);
+  }
+  else if (!tunein_category_.empty ())
+  {
+    tunein_playlist_container_.push_back (tunein_category_);
+  }
+  else
+  {
+    assert (0);
+  }
+  return tunein_playlist_container_;
+}
 
-// const std::vector< std::string > &tiz::programopts::tunein_playlist_container ()
-// {
-//   tunein_playlist_container_.clear ();
-//   if (!tunein_popular_stations_.empty ())
-//   {
-//     tunein_playlist_container_.push_back (tunein_popular_stations_);
-//   }
-//   else if (!tunein_stations_.empty ())
-//   {
-//     tunein_playlist_container_.push_back (tunein_stations_);
-//   }
-//   else if (!tunein_category_.empty ())
-//   {
-//     tunein_playlist_container_.push_back (tunein_category_);
-//   }
-//   else if (!tunein_country_.empty ())
-//   {
-//     tunein_playlist_container_.push_back (tunein_country_);
-//   }
-//   else
-//   {
-//     assert (0);
-//   }
-//   return tunein_playlist_container_;
-// }
+OMX_TIZONIA_AUDIO_TUNEINPLAYLISTTYPE
+tiz::programopts::tunein_playlist_type ()
+{
+  if (!tunein_radios_.empty ())
+  {
+    tunein_playlist_type_ = OMX_AUDIO_TuneinPlaylistTypeRadios;
+  }
+  else if (!tunein_category_.empty ())
+  {
+    tunein_playlist_type_ = OMX_AUDIO_TuneinPlaylistTypeCategory;
+  }
+  else
+  {
+    tunein_playlist_type_ = OMX_AUDIO_TuneinPlaylistTypeUnknown;
+  }
 
-// OMX_TIZONIA_AUDIO_TUNEINPLAYLISTTYPE
-// tiz::programopts::tunein_playlist_type ()
-// {
-//   if (!tunein_popular_stations_.empty ())
-//   {
-//     tunein_playlist_type_ = OMX_AUDIO_TuneinPlaylistTypePopularStations;
-//   }
-//   else if (!tunein_stations_.empty ())
-//   {
-//     tunein_playlist_type_ = OMX_AUDIO_TuneinPlaylistTypeStations;
-//   }
-//   else if (!tunein_category_.empty ())
-//   {
-//     tunein_playlist_type_ = OMX_AUDIO_TuneinPlaylistTypeCategory;
-//   }
-//   else if (!tunein_country_.empty ())
-//   {
-//     tunein_playlist_type_ = OMX_AUDIO_TuneinPlaylistTypeCountry;
-//   }
-//   else
-//   {
-//     tunein_playlist_type_ = OMX_AUDIO_TuneinPlaylistTypeUnknown;
-//   }
+  return tunein_playlist_type_;
+}
 
-//   return tunein_playlist_type_;
-// }
-
-// uint32_t tiz::programopts::tunein_buffer_seconds () const
-// {
-//   return buffer_seconds_ ? buffer_seconds_ : tunein_buffer_seconds_;
-// }
+uint32_t tiz::programopts::tunein_buffer_seconds () const
+{
+  return buffer_seconds_ ? buffer_seconds_ : tunein_buffer_seconds_;
+}
 
 const std::vector< std::string >
     &tiz::programopts::youtube_playlist_container ()
@@ -1799,28 +1775,21 @@ void tiz::programopts::init_scloud_options ()
             .convert_to_container< std::vector< std::string > > ();
 }
 
-// void tiz::programopts::init_tunein_options ()
-// {
-//   tunein_.add_options ()
-//       /* TIZ_CLASS_COMMENT: */
-//       ("tunein-api-key", po::value (&tunein_api_key_),
-//        "Tunein Api Key (not required if provided via config file).")
-//       /* TIZ_CLASS_COMMENT: */
-//       ("tunein-popular-stations", "Play Tunein's popular stations.")
-//       /* TIZ_CLASS_COMMENT: */
-//       ("tunein-station", po::value (&tunein_stations_),
-//        "Tunein station search.") ("tunein-category",
-//                                   po::value (&tunein_category_),
-//                                   "Tunein category search.") (
-//           "tunein-country", po::value (&tunein_country_),
-//           "Tunein country search.");
+void tiz::programopts::init_tunein_options ()
+{
+  tunein_.add_options ()
+      /* TIZ_CLASS_COMMENT: */
+      ("tunein-radios", po::value (&tunein_radios_),
+       "Tunein station/show search.")
+      /* TIZ_CLASS_COMMENT: */
+      ("tunein-category", po::value (&tunein_category_),
+       "Tunein category search.");
 
-//   register_consume_function (&tiz::programopts::consume_tunein_client_options);
-//   all_tunein_client_options_
-//       = boost::assign::list_of ("tunein-api-key") ("tunein-popular-stations") (
-//             "tunein-station") ("tunein-category") ("tunein-country")
-//             .convert_to_container< std::vector< std::string > > ();
-// }
+  register_consume_function (&tiz::programopts::consume_tunein_client_options);
+  all_tunein_client_options_
+      = boost::assign::list_of ("tunein-radios") ("tunein-category")
+            .convert_to_container< std::vector< std::string > > ();
+}
 
 void tiz::programopts::init_youtube_options ()
 {
@@ -1921,7 +1890,7 @@ uint32_t tiz::programopts::parse_command_line (int argc, char *argv[])
 #endif
       .add (gmusic_)
       .add (scloud_)
-//       .add (tunein_)
+      .add (tunein_)
       .add (youtube_)
       .add (plex_)
       .add (input_);
@@ -2009,10 +1978,10 @@ int tiz::programopts::consume_global_options (bool &done,
     {
       print_usage_feature (scloud_);
     }
-//     else if (0 == help_option_.compare ("tunein"))
-//     {
-//       print_usage_feature (tunein_);
-//     }
+    else if (0 == help_option_.compare ("tunein"))
+    {
+      print_usage_feature (tunein_);
+    }
     else if (0 == help_option_.compare ("youtube"))
     {
       print_usage_feature (youtube_);
@@ -2523,84 +2492,64 @@ int tiz::programopts::consume_scloud_client_options (bool &done,
   return rc;
 }
 
-// int tiz::programopts::consume_tunein_client_options (bool &done,
-//                                                      std::string &msg)
-// {
-//   int rc = EXIT_FAILURE;
-//   done = false;
+int tiz::programopts::consume_tunein_client_options (bool &done,
+                                                     std::string &msg)
+{
+  int rc = EXIT_FAILURE;
+  done = false;
 
-//   if (validate_tunein_client_options ())
-//   {
-//     done = true;
+  if (validate_tunein_client_options ())
+  {
+    done = true;
 
-//     const int playlist_option_count
-//         = vm_.count ("tunein-popular-stations") + vm_.count ("tunein-station")
-//           + vm_.count ("tunein-category") + vm_.count ("tunein-country");
+    const int playlist_option_count
+        = vm_.count ("tunein-radios")
+          + vm_.count ("tunein-category") + vm_.count ("tunein-country");
 
-//     if (tunein_api_key_.empty ())
-//     {
-//       retrieve_string_from_rc_file ("tizonia", "tunein.api_key",
-//                                     tunein_api_key_);
-//     }
-//     if (!buffer_seconds_)
-//       {
-//         retrieve_tizonia_uint_from_rc_file ("tunein.buffer_seconds",
-//                                               tunein_buffer_seconds_);
-//       }
+    if (!buffer_seconds_)
+      {
+        retrieve_tizonia_uint_from_rc_file ("tunein.buffer_seconds",
+                                              tunein_buffer_seconds_);
+      }
 
-//     if (vm_.count ("tunein-popular-stations"))
-//     {
-//       // This is not going to be used by the client code, but will help
-//       // in tunein_playlist_type() to decide which playlist type value is
-//       // returned.
-//       tunein_popular_stations_.assign ("Tunein popular stations");
-//     }
-
-//     if (tunein_api_key_.empty ())
-//     {
-//       rc = EXIT_FAILURE;
-//       std::ostringstream oss;
-//       oss << "Need to provide a Tunein API key.";
-//       msg.assign (oss.str ());
-//     }
-//     else if (playlist_option_count > 1)
-//     {
-//       rc = EXIT_FAILURE;
-//       std::ostringstream oss;
-//       oss << "Only one playlist type must be specified.";
-//       msg.assign (oss.str ());
-//     }
-//     else if (!playlist_option_count)
-//     {
-//       rc = EXIT_FAILURE;
-//       std::ostringstream oss;
-//       oss << "A playlist must be specified.";
-//       msg.assign (oss.str ());
-//     }
-//     else if (OMX_AUDIO_TuneinPlaylistTypeUnknown == tunein_playlist_type ())
-//     {
-//       rc = EXIT_FAILURE;
-//       std::ostringstream oss;
-//       oss << "A playlist value must be specified.";
-//       msg.assign (oss.str ());
-//     }
-//     else
-//     {
-//       if (chromecast_name_or_ip_.empty ())
-//       {
-//         rc = call_handler (option_handlers_map_.find ("tunein-stream"));
-//       }
-//       else
-//       {
-//         rc = call_handler (
-//             option_handlers_map_.find ("tunein-stream-chromecast"));
-//       }
-//     }
-//   }
-//   TIZ_PRINTF_DBG_RED ("tunein ; rc = [%s]\n",
-//                       rc == EXIT_SUCCESS ? "SUCCESS" : "FAILURE");
-//   return rc;
-// }
+    if (playlist_option_count > 1)
+    {
+      rc = EXIT_FAILURE;
+      std::ostringstream oss;
+      oss << "Only one playlist type must be specified.";
+      msg.assign (oss.str ());
+    }
+    else if (!playlist_option_count)
+    {
+      rc = EXIT_FAILURE;
+      std::ostringstream oss;
+      oss << "A playlist must be specified.";
+      msg.assign (oss.str ());
+    }
+    else if (OMX_AUDIO_TuneinPlaylistTypeUnknown == tunein_playlist_type ())
+    {
+      rc = EXIT_FAILURE;
+      std::ostringstream oss;
+      oss << "A playlist value must be specified.";
+      msg.assign (oss.str ());
+    }
+    else
+    {
+      if (chromecast_name_or_ip_.empty ())
+      {
+        rc = call_handler (option_handlers_map_.find ("tunein-stream"));
+      }
+      else
+      {
+        rc = call_handler (
+            option_handlers_map_.find ("tunein-stream-chromecast"));
+      }
+    }
+  }
+  TIZ_PRINTF_DBG_RED ("tunein ; rc = [%s]\n",
+                      rc == EXIT_SUCCESS ? "SUCCESS" : "FAILURE");
+  return rc;
+}
 
 int tiz::programopts::consume_youtube_client_options (bool &done,
                                                       std::string &msg)
@@ -2942,26 +2891,25 @@ bool tiz::programopts::validate_scloud_client_options () const
   return outcome;
 }
 
-// bool tiz::programopts::validate_tunein_client_options () const
-// {
-//   bool outcome = false;
-//   uint32_t tunein_opts_count
-//       = vm_.count ("tunein-api-key") + vm_.count ("tunein-popular-stations")
-//         + vm_.count ("tunein-station") + vm_.count ("tunein-category")
-//         + vm_.count ("tunein-country") + vm_.count ("log-directory");
+bool tiz::programopts::validate_tunein_client_options () const
+{
+  bool outcome = false;
+  uint32_t tunein_opts_count = vm_.count ("tunein-radios")
+                               + vm_.count ("tunein-category")
+                               + vm_.count ("log-directory");
 
-//   std::vector< std::string > all_valid_options = all_tunein_client_options_;
-//   concat_option_lists (all_valid_options, all_global_options_);
-//   concat_option_lists (all_valid_options, all_debug_options_);
+  std::vector< std::string > all_valid_options = all_tunein_client_options_;
+  concat_option_lists (all_valid_options, all_global_options_);
+  concat_option_lists (all_valid_options, all_debug_options_);
 
-//   if (tunein_opts_count > 0
-//       && is_valid_options_combination (all_valid_options, all_given_options_))
-//   {
-//     outcome = true;
-//   }
-//   TIZ_PRINTF_DBG_RED ("outcome = [%s]\n", outcome ? "SUCCESS" : "FAILURE");
-//   return outcome;
-// }
+  if (tunein_opts_count > 0
+      && is_valid_options_combination (all_valid_options, all_given_options_))
+  {
+    outcome = true;
+  }
+  TIZ_PRINTF_DBG_RED ("outcome = [%s]\n", outcome ? "SUCCESS" : "FAILURE");
+  return outcome;
+}
 
 bool tiz::programopts::validate_youtube_client_options () const
 {

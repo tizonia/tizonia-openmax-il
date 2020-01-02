@@ -203,13 +203,13 @@ namespace tiz
           const OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE playlist_type,
           const bool shuffle);
 
-//       static OMX_ERRORTYPE set_tunein_api_key (const OMX_HANDLETYPE handle,
-//                                                const std::string &api_key);
+      static OMX_ERRORTYPE set_tunein_api_key (const OMX_HANDLETYPE handle,
+                                               const std::string &api_key);
 
-//       static OMX_ERRORTYPE set_tunein_playlist (
-//           const OMX_HANDLETYPE handle, const std::string &playlist,
-//           const OMX_TIZONIA_AUDIO_TUNEINPLAYLISTTYPE playlist_type,
-//           const bool shuffle);
+      static OMX_ERRORTYPE set_tunein_playlist (
+          const OMX_HANDLETYPE handle, const std::string &playlist,
+          const OMX_TIZONIA_AUDIO_TUNEINPLAYLISTTYPE playlist_type,
+          const bool shuffle);
 
       static OMX_ERRORTYPE set_youtube_playlist (
           const OMX_HANDLETYPE handle, const std::string &playlist,
