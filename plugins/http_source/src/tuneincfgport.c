@@ -68,6 +68,12 @@ tunein_cfgport_ctor (void * ap_obj, va_list * app)
   TIZ_INIT_OMX_STRUCT (p_obj->playlist_);
   snprintf ((char *) p_obj->playlist_.cPlaylistName,
             sizeof (p_obj->playlist_.cPlaylistName), "playlist");
+  snprintf ((char *) p_obj->playlist_.cAdditionalKeywords1,
+            sizeof (p_obj->playlist_.cAdditionalKeywords1), "keywords1");
+  snprintf ((char *) p_obj->playlist_.cAdditionalKeywords2,
+            sizeof (p_obj->playlist_.cAdditionalKeywords2), "keywords2");
+  snprintf ((char *) p_obj->playlist_.cAdditionalKeywords3,
+            sizeof (p_obj->playlist_.cAdditionalKeywords3), "keywords3");
   p_obj->playlist_.ePlaylistType = OMX_AUDIO_TuneinPlaylistTypeUnknown;
   p_obj->playlist_.eSearchType = OMX_AUDIO_TuneinSearchTypeAll;
   p_obj->playlist_.bShuffle = OMX_FALSE;
@@ -139,6 +145,9 @@ tunein_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
       memcpy (&(p_obj->playlist_), ap_struct,
               sizeof (OMX_TIZONIA_AUDIO_PARAM_TUNEINPLAYLISTTYPE));
       p_obj->playlist_.cPlaylistName[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
+      p_obj->playlist_.cAdditionalKeywords1[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
+      p_obj->playlist_.cAdditionalKeywords2[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
+      p_obj->playlist_.cAdditionalKeywords3[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
       TIZ_TRACE (ap_hdl, "Tunein playlist [%s]...",
                  p_obj->playlist_.cPlaylistName);
     }

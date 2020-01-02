@@ -623,6 +623,9 @@ enqueue_playlist_items (tunein_prc_t * ap_prc)
 
   {
     const char * p_playlist = (const char *) ap_prc->playlist_.cPlaylistName;
+    const char * p_keywords1 = (const char *) ap_prc->playlist_.cAdditionalKeywords1;
+    const char * p_keywords2 = (const char *) ap_prc->playlist_.cAdditionalKeywords2;
+    const char * p_keywords3 = (const char *) ap_prc->playlist_.cAdditionalKeywords3;
     const OMX_BOOL shuffle = ap_prc->playlist_.bShuffle;
 
     tiz_tunein_set_playback_mode (
@@ -671,7 +674,9 @@ enqueue_playlist_items (tunein_prc_t * ap_prc)
           break;
         case OMX_AUDIO_TuneinPlaylistTypeCategory:
           {
-            rc = tiz_tunein_play_category (ap_prc->p_tunein_, p_playlist);
+            rc = tiz_tunein_play_category (ap_prc->p_tunein_, p_playlist,
+                                           p_keywords1, p_keywords2,
+                                           p_keywords3);
           }
           break;
         default:
