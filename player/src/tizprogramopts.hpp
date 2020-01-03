@@ -276,9 +276,7 @@ namespace tiz
     std::string tunein_podcasts_;
     std::string tunein_trending_;
     std::string tunein_search_filter_;
-    std::string tunein_keywords1_;
-    std::string tunein_keywords2_;
-    std::string tunein_keywords3_;
+    std::vector< std::string > tunein_additional_keywords_;
     std::vector< std::string > tunein_playlist_container_;
     OMX_TIZONIA_AUDIO_TUNEINPLAYLISTTYPE tunein_playlist_type_;
     OMX_TIZONIA_AUDIO_TUNEINSEARCHTYPE tunein_search_filter_type_;

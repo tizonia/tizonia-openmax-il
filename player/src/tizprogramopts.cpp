@@ -414,9 +414,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     tunein_podcasts_ (),
     tunein_trending_ (),
     tunein_search_filter_(),
-    tunein_keywords1_ (),
-    tunein_keywords2_ (),
-    tunein_keywords3_ (),
+    tunein_additional_keywords_ (),
     tunein_playlist_container_ (),
     tunein_playlist_type_ (OMX_AUDIO_TuneinPlaylistTypeUnknown),
     tunein_search_filter_type_ (OMX_AUDIO_TuneinSearchTypeAll),
@@ -1181,25 +1179,15 @@ uint32_t tiz::programopts::scloud_buffer_seconds () const
 
 const std::vector< std::string > &tiz::programopts::tunein_playlist_container ()
 {
-  tunein_playlist_container_.clear ();
   if (!tunein_search_.empty ())
   {
     tunein_playlist_container_.push_back (tunein_search_);
   }
   else if (!tunein_category_.empty ())
   {
-    tunein_playlist_container_.push_back (tunein_category_);
-    if (!tunein_keywords1_.empty ())
+    BOOST_FOREACH (std::string keyword, tunein_additional_keywords_)
     {
-      tunein_playlist_container_.push_back (tunein_keywords1_);
-    }
-    if (!tunein_keywords2_.empty ())
-    {
-      tunein_playlist_container_.push_back (tunein_keywords2_);
-    }
-    if (!tunein_keywords3_.empty ())
-    {
-      tunein_playlist_container_.push_back (tunein_keywords3_);
+      tunein_playlist_container_.push_back (keyword);
     }
   }
   else
@@ -1826,7 +1814,8 @@ void tiz::programopts::init_tunein_options ()
        "Tunein station/show global search.")
       /* TIZ_CLASS_COMMENT: */
       ("tunein-filter", po::value (&tunein_search_filter_),
-       "Return results of type: 'stations', 'shows', or 'all (default: all). Optional.")
+       "Limit results to specific type: 'stations', 'shows', or 'all (default: all). "
+       "Optional.")
       /* TIZ_CLASS_COMMENT: */
       ("tunein-local", po::value (&tunein_local_),
        "Tunein 'local' category search.")
@@ -1848,21 +1837,20 @@ void tiz::programopts::init_tunein_options ()
       /* TIZ_CLASS_COMMENT: */
       ("tunein-trending", po::value (&tunein_trending_),
        "Tunein 'trending' category search.")
-    /* TIZ_CLASS_COMMENT: */
-      ("tunein-additional-keywords1", po::value (&tunein_keywords1_),
-       "Tunein additional search keywords 1.")
-    /* TIZ_CLASS_COMMENT: */
-      ("tunein-additional-keywords1", po::value (&tunein_keywords2_),
-       "Tunein additional search keywords 2.")
-    /* TIZ_CLASS_COMMENT: */
-      ("tunein-additional-keywords1", po::value (&tunein_keywords3_),
-       "Tunein additional search keywords 3.");
+      /* TIZ_CLASS_COMMENT: */
+      ("tunein-additional-keywords",
+       po::value< std::vector< std::string > > (&tunein_additional_keywords_)
+           ->multitoken ()
+           ->composing (),
+       "Additional keywords to be used in conjunction with any of the category "
+       "search options. Optional.");
 
   register_consume_function (&tiz::programopts::consume_tunein_client_options);
   all_tunein_client_options_
-    = boost::assign::list_of ("tunein-search") ("tunein-filter") ("tunein-local") (
-            "tunein-music") ("tunein-talk") ("tunein-sports") (
-            "tunein-location") ("tunein-podcasts") ("tunein-trending")
+      = boost::assign::list_of ("tunein-search") ("tunein-filter") (
+            "tunein-local") ("tunein-music") ("tunein-talk") ("tunein-sports") (
+            "tunein-location") ("tunein-podcasts") ("tunein-trending") (
+            "tunein-additional-keywords")
             .convert_to_container< std::vector< std::string > > ();
 }
 
@@ -2592,30 +2580,44 @@ int tiz::programopts::consume_tunein_client_options (bool &done,
     if (vm_.count ("tunein-local"))
     {
       tunein_category_.assign ("local");
+      tunein_playlist_container_.push_back (tunein_category_);
+      tunein_playlist_container_.push_back (tunein_local_);
     }
     else if (vm_.count ("tunein-music"))
     {
       tunein_category_.assign ("music");
+      tunein_playlist_container_.push_back (tunein_category_);
+      tunein_playlist_container_.push_back (tunein_music_);
     }
     else if (vm_.count ("tunein-talk"))
     {
       tunein_category_.assign ("talk");
+      tunein_playlist_container_.push_back (tunein_category_);
+      tunein_playlist_container_.push_back (tunein_talk_);
     }
     else if (vm_.count ("tunein-sports"))
     {
       tunein_category_.assign ("sports");
+      tunein_playlist_container_.push_back (tunein_category_);
+      tunein_playlist_container_.push_back (tunein_sports_);
     }
     else if (vm_.count ("tunein-location"))
     {
       tunein_category_.assign ("location");
+      tunein_playlist_container_.push_back (tunein_category_);
+      tunein_playlist_container_.push_back (tunein_location_);
     }
     else if (vm_.count ("tunein-podcasts"))
     {
       tunein_category_.assign ("podcasts");
+      tunein_playlist_container_.push_back (tunein_category_);
+      tunein_playlist_container_.push_back (tunein_podcasts_);
     }
     else if (vm_.count ("tunein-trending"))
     {
       tunein_category_.assign ("trending");
+      tunein_playlist_container_.push_back (tunein_category_);
+      tunein_playlist_container_.push_back (tunein_trending_);
     }
 
     if (!vm_.count ("tunein-filter"))
