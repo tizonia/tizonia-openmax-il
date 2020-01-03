@@ -399,7 +399,7 @@ class TuneIn:
                     child_key = child.get("key", "").lower()
                     if child_key.startswith('popular'):
                         args = "&" + child['URL'].split("?",2)[1]
-                        return self._tunein("Browse.ashx", args)
+                        return self._tunein("Browse.ashx", args), args
 
     def stations_next(self, guide_id):
         results = self._browse_unfiltered(guide_id)
@@ -410,7 +410,7 @@ class TuneIn:
                     child_key = child.get("key", "")
                     if child_key.startswith('nextStations'):
                         args = "&" + child['URL'].split("?",2)[1]
-                        return self._tunein("Browse.ashx", args)
+                        return self._tunein("Browse.ashx", args), args
 
     def related(self, guide_id):
         return self._browse("Related", guide_id)
@@ -614,14 +614,14 @@ class tiztuneinproxy(object):
                 if s['type'] == 'audio':
                     self.add_to_playback_queue(s)
 
-            # Enqueue popular stations
-            next_stations = self.tunein.stations_next(music['guide_id'])
+            # Enqueue more stations
+            next_stations, _ = self.tunein.stations_next(music['guide_id'])
             for n in next_stations:
                 if n['type'] == 'audio':
                     self.add_to_playback_queue(n)
 
-            # Enqueue popular stations
-            popular = self.tunein.stations_popular(music['guide_id'])
+            # Enqueue some popular stations
+            popular, _ = self.tunein.stations_popular(music['guide_id'])
             for p in popular:
                 if p['type'] == 'audio':
                     self.add_to_playback_queue(p)
@@ -795,7 +795,7 @@ class tiztuneinproxy(object):
         if total_stations:
             if not len(self.play_queue_order):
                 # Create a sequential play order, if empty
-                self.play_queue_order = range(total_stations)
+                self.play_queue_order = list(range(total_stations))
             if self.current_play_mode == self.play_modes.SHUFFLE:
                 random.shuffle(self.play_queue_order)
             print_nfo("[Tunein] [Stations in queue] '{0}'." \
