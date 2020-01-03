@@ -68,12 +68,9 @@ tunein_cfgport_ctor (void * ap_obj, va_list * app)
   TIZ_INIT_OMX_STRUCT (p_obj->playlist_);
   snprintf ((char *) p_obj->playlist_.cPlaylistName,
             sizeof (p_obj->playlist_.cPlaylistName), "playlist");
-  snprintf ((char *) p_obj->playlist_.cAdditionalKeywords1,
-            sizeof (p_obj->playlist_.cAdditionalKeywords1), "keywords1");
-  snprintf ((char *) p_obj->playlist_.cAdditionalKeywords2,
-            sizeof (p_obj->playlist_.cAdditionalKeywords2), "keywords2");
-  snprintf ((char *) p_obj->playlist_.cAdditionalKeywords3,
-            sizeof (p_obj->playlist_.cAdditionalKeywords3), "keywords3");
+  p_obj->playlist_.cAdditionalKeywords1[0] = '\0';
+  p_obj->playlist_.cAdditionalKeywords2[0] = '\0';
+  p_obj->playlist_.cAdditionalKeywords3[0] = '\0';
   p_obj->playlist_.ePlaylistType = OMX_AUDIO_TuneinPlaylistTypeUnknown;
   p_obj->playlist_.eSearchType = OMX_AUDIO_TuneinSearchTypeAll;
   p_obj->playlist_.bShuffle = OMX_FALSE;
