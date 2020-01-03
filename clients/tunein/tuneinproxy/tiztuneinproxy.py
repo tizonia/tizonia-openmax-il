@@ -39,6 +39,8 @@ from requests import Session, exceptions
 from urllib.parse import urlparse
 from operator import itemgetter
 from joblib import Memory
+from fuzzywuzzy import process
+from fuzzywuzzy import fuzz
 
 # For use during debugging
 from pprint import pprint
@@ -316,7 +318,7 @@ class TuneIn:
                 return
             if map_func:
                 station = map_func(item)
-            elif item.get("type", "link") == "link":
+            elif item.get("type") == "link":
                 results.append(item)
                 return
             else:
@@ -330,8 +332,10 @@ class TuneIn:
                 if section_key.startswith(section_name.lower()):
                     for child in item["children"]:
                         grab_item(child)
+
             else:
                 grab_item(item)
+
         return results
 
     def categories(self, category=""):
@@ -373,6 +377,10 @@ class TuneIn:
         results = self._tunein("Browse.ashx", args)
         return self._filter_results(results, section_name)
 
+    def _browse_unfiltered(self, guide_id):
+        args = "&id=" + guide_id
+        return self._tunein("Browse.ashx", args)
+
     def featured(self, guide_id):
         return self._browse("Featured", guide_id)
 
@@ -381,6 +389,28 @@ class TuneIn:
 
     def stations(self, guide_id):
         return self._browse("Station", guide_id)
+
+    def stations_popular(self, guide_id):
+        results = self._browse_unfiltered(guide_id)
+        for item in results:
+            item_key = item.get("key", "").lower()
+            if item_key.startswith('related'):
+                for child in item["children"]:
+                    child_key = child.get("key", "").lower()
+                    if child_key.startswith('popular'):
+                        args = "&" + child['URL'].split("?",2)[1]
+                        return self._tunein("Browse.ashx", args)
+
+    def stations_next(self, guide_id):
+        results = self._browse_unfiltered(guide_id)
+        for item in results:
+            item_key = item.get("key", "").lower()
+            if item_key.startswith('stations'):
+                for child in item["children"]:
+                    child_key = child.get("key", "")
+                    if child_key.startswith('nextStations'):
+                        args = "&" + child['URL'].split("?",2)[1]
+                        return self._tunein("Browse.ashx", args)
 
     def related(self, guide_id):
         return self._browse("Related", guide_id)
@@ -495,7 +525,7 @@ class tiztuneinproxy(object):
         self.current_search_mode = getattr(self.search_modes, mode)
 
     def enqueue_radios(self, arg):
-        """Search Tunein for popular stations or shows and add them to the playback
+        """Search Tunein for stations or shows and add them to the playback
         queue.
 
         :param arg: a search string
@@ -524,11 +554,18 @@ class tiztuneinproxy(object):
         playback queue.
 
         :param category: a search string
+        :param keywords1: additional keywords
+        :param keywords2: additional keywords
+        :param keywords3: additional keywords
 
         """
-        logging.info('enqueue_category : %s', category)
+        logging.info('enqueue_category : %s : 1: %s 2: %s 3: %s', \
+                     category, keywords1, keywords2, keywords3)
         try:
             count = len(self.queue)
+
+            if category == "music":
+                self._enqueue_music(keywords1, keywords2, keywords3)
 
             logging.info("Added {0} stations/shows to queue" \
                          .format(len(self.queue) - count))
@@ -540,6 +577,54 @@ class tiztuneinproxy(object):
 
         except ValueError:
             raise ValueError(str("No stations/shows found : %s" % category))
+
+    def _enqueue_music(self, keywords1="", keywords2="", keywords3=""):
+        """Search Tunein's Music category and add its stations to the
+        playback queue.
+
+        :param keywords1: additional keywords
+        :param keywords2: additional keywords
+        :param keywords3: additional keywords
+
+        """
+        logging.info('enqueue_music : 1: %s 2: %s 3: %s', \
+                     keywords1, keywords2, keywords3)
+        music_dict = dict()
+        music_names = list()
+        results = self.tunein.categories('music')
+        for r in results:
+            print_nfo("[Tunein] [Music] '{0}'." \
+                      .format(r['text']))
+            music_names.append(r['text'])
+            music_dict[r['text']] = r
+
+        if len(music_names) > 1:
+            music_name = process.extractOne(keywords1, music_names)[0]
+            music = music_dict[music_name]
+        elif len(music_names) == 1:
+            music_name = music_names[0]
+            music = music_dict[music_name]
+
+        if music:
+            print_wrn("[Tunein] [Music] Adding stations '{0}'." \
+                      .format(music['text']))
+
+            stations = self.tunein.stations(music['guide_id'])
+            for s in stations:
+                if s['type'] == 'audio':
+                    self.add_to_playback_queue(s)
+
+            # Enqueue popular stations
+            next_stations = self.tunein.stations_next(music['guide_id'])
+            for n in next_stations:
+                if n['type'] == 'audio':
+                    self.add_to_playback_queue(n)
+
+            # Enqueue popular stations
+            popular = self.tunein.stations_popular(music['guide_id'])
+            for p in popular:
+                if p['type'] == 'audio':
+                    self.add_to_playback_queue(p)
 
 # {'URL': 'http://opml.radiotime.com/Tune.ashx?id=s290003',
 #   'bitrate': '128',
@@ -731,7 +816,6 @@ class tiztuneinproxy(object):
             print_wrn("[Tunein] Playing '{0} ({1})'." \
                           .format(name, formats))
             if len(streamurls) > 0:
-                pprint (station)
                 return streamurls[0]
             else:
                 return ""
@@ -743,9 +827,9 @@ class tiztuneinproxy(object):
 
 
     def add_to_playback_queue(self, r):
-        if r.get('formats'):
-            print_nfo("[Tunein] [Station/Show] '{0}' [{1}] ({2})." \
-                      .format(r['text'], r['subtext'], r['formats']))
+        if r.get('formats') and r.get('bitrate'):
+            print_nfo("[Tunein] [Station/Show] '{0}' [{1}] ({2}, {3}kbps)." \
+                      .format(r['text'], r['subtext'], r['formats'], r['bitrate']))
         else:
             print_nfo("[Tunein] [Station/Show] '{0}' [{1}]." \
                       .format(r['text'], r['subtext']))
