@@ -399,7 +399,7 @@ class TuneIn:
                     child_key = child.get("key", "").lower()
                     if child_key.startswith('popular'):
                         args = "&" + child['URL'].split("?",2)[1]
-                        return self._tunein("Browse.ashx", args), args
+                        return self._tunein("Browse.ashx", args)
 
     def stations_next(self, guide_id):
         results = self._browse_unfiltered(guide_id)
@@ -410,7 +410,7 @@ class TuneIn:
                     child_key = child.get("key", "")
                     if child_key.startswith('nextStations'):
                         args = "&" + child['URL'].split("?",2)[1]
-                        return self._tunein("Browse.ashx", args), args
+                        return self._tunein("Browse.ashx", args)
 
     def related(self, guide_id):
         return self._browse("Related", guide_id)
@@ -564,8 +564,7 @@ class tiztuneinproxy(object):
         try:
             count = len(self.queue)
 
-            if category == "music":
-                self._enqueue_music(keywords1, keywords2, keywords3)
+            self._enqueue_cat(category, keywords1, keywords2, keywords3)
 
             logging.info("Added {0} stations/shows to queue" \
                          .format(len(self.queue) - count))
@@ -578,53 +577,57 @@ class tiztuneinproxy(object):
         except ValueError:
             raise ValueError(str("No stations/shows found : %s" % category))
 
-    def _enqueue_music(self, keywords1="", keywords2="", keywords3=""):
+    def _enqueue_cat(self, category, keywords1="", keywords2="", keywords3=""):
         """Search Tunein's Music category and add its stations to the
         playback queue.
 
+        :param category: the category name
         :param keywords1: additional keywords
         :param keywords2: additional keywords
         :param keywords3: additional keywords
 
         """
-        logging.info('enqueue_music : 1: %s 2: %s 3: %s', \
-                     keywords1, keywords2, keywords3)
-        music_dict = dict()
-        music_names = list()
-        results = self.tunein.categories('music')
+        logging.info('_enqueue_cat : %s 1: %s 2: %s 3: %s', \
+                     category, keywords1, keywords2, keywords3)
+        cat_dict = dict()
+        cat_names = list()
+        results = self.tunein.categories(category)
+        pprint(results)
         for r in results:
-            print_nfo("[Tunein] [Music] '{0}'." \
-                      .format(r['text']))
-            music_names.append(r['text'])
-            music_dict[r['text']] = r
+            print_nfo("[Tunein] [{0}] '{1}'." \
+                      .format(category, r['text']))
+            cat_names.append(r['text'])
+            cat_dict[r['text']] = r
 
-        if len(music_names) > 1:
-            music_name = process.extractOne(keywords1, music_names)[0]
-            music = music_dict[music_name]
-        elif len(music_names) == 1:
-            music_name = music_names[0]
-            music = music_dict[music_name]
+        if len(cat_names) > 1:
+            cat_name = process.extractOne(keywords1, cat_names)[0]
+            cat = cat_dict[cat_name]
+        elif len(cat_names) == 1:
+            cat_name = cat_names[0]
+            cat = cat_dict[cat_name]
 
-        if music:
-            print_wrn("[Tunein] [Music] Adding stations '{0}'." \
-                      .format(music['text']))
+        if cat:
+            print_wrn("[Tunein] [{0}] Adding stations '{1}'." \
+                      .format(category, cat['text']))
 
-            stations = self.tunein.stations(music['guide_id'])
+            stations = self.tunein.stations(cat['guide_id'])
             for s in stations:
                 if s['type'] == 'audio':
                     self.add_to_playback_queue(s)
 
             # Enqueue more stations
-            next_stations, _ = self.tunein.stations_next(music['guide_id'])
-            for n in next_stations:
-                if n['type'] == 'audio':
-                    self.add_to_playback_queue(n)
+            next_stations = self.tunein.stations_next(cat['guide_id'])
+            if next_stations:
+                for n in next_stations:
+                    if n['type'] == 'audio':
+                        self.add_to_playback_queue(n)
 
             # Enqueue some popular stations
-            popular, _ = self.tunein.stations_popular(music['guide_id'])
-            for p in popular:
-                if p['type'] == 'audio':
-                    self.add_to_playback_queue(p)
+            popular = self.tunein.stations_popular(cat['guide_id'])
+            if popular:
+                for p in popular:
+                    if p['type'] == 'audio':
+                        self.add_to_playback_queue(p)
 
 # {'URL': 'http://opml.radiotime.com/Tune.ashx?id=s290003',
 #   'bitrate': '128',
