@@ -87,7 +87,7 @@ void tiz_youtube_clear_queue (tiz_youtube_t *ap_youtube);
  *
  * @ingroup libtizyoutube
  *
- * @param ap_gmusic The tiz_youtube handle.
+ * @param ap_youtube The tiz_youtube handle.
  */
 const char *tiz_youtube_get_current_audio_stream_index (tiz_youtube_t *ap_youtube);
 
@@ -96,7 +96,7 @@ const char *tiz_youtube_get_current_audio_stream_index (tiz_youtube_t *ap_youtub
  *
  * @ingroup libtizyoutube
  *
- * @param ap_gmusic The tiz_youtube handle.
+ * @param ap_youtube The tiz_youtube handle.
  */
 const char *tiz_youtube_get_current_queue_length (tiz_youtube_t *ap_youtube);
 
@@ -106,7 +106,7 @@ const char *tiz_youtube_get_current_queue_length (tiz_youtube_t *ap_youtube);
  *
  * @ingroup libtizyoutube
  *
- * @param ap_gmusic The tiz_youtube handle.
+ * @param ap_youtube The tiz_youtube handle.
  */
 const char *tiz_youtube_get_current_queue_progress (tiz_youtube_t *ap_youtube);
 
@@ -276,7 +276,7 @@ const char *tiz_youtube_get_prev_url (tiz_youtube_t *ap_youtube,
  *
  * @ingroup libtizyoutube
  *
- * @param ap_gmusic The tiz_youtube handle.
+ * @param ap_youtube The tiz_youtube handle.
  */
 const char *tiz_youtube_get_current_audio_stream_title (
     tiz_youtube_t *ap_youtube);
@@ -286,7 +286,7 @@ const char *tiz_youtube_get_current_audio_stream_title (
  *
  * @ingroup libtizyoutube
  *
- * @param ap_gmusic The tiz_youtube handle.
+ * @param ap_youtube The tiz_youtube handle.
  */
 const char *tiz_youtube_get_current_audio_stream_author (
     tiz_youtube_t *ap_youtube);
@@ -296,7 +296,7 @@ const char *tiz_youtube_get_current_audio_stream_author (
  *
  * @ingroup libtizyoutube
  *
- * @param ap_gmusic The tiz_youtube handle.
+ * @param ap_youtube The tiz_youtube handle.
  */
 const char *tiz_youtube_get_current_audio_stream_file_size (
     tiz_youtube_t *ap_youtube);
@@ -306,7 +306,7 @@ const char *tiz_youtube_get_current_audio_stream_file_size (
  *
  * @ingroup libtizyoutube
  *
- * @param ap_gmusic The tiz_youtube handle.
+ * @param ap_youtube The tiz_youtube handle.
  */
 const char *tiz_youtube_get_current_audio_stream_duration (
     tiz_youtube_t *ap_youtube);
@@ -316,7 +316,7 @@ const char *tiz_youtube_get_current_audio_stream_duration (
  *
  * @ingroup libtizyoutube
  *
- * @param ap_gmusic The tiz_youtube handle.
+ * @param ap_youtube The tiz_youtube handle.
  */
 const char *tiz_youtube_get_current_audio_stream_bitrate (
     tiz_youtube_t *ap_youtube);
@@ -326,7 +326,7 @@ const char *tiz_youtube_get_current_audio_stream_bitrate (
  *
  * @ingroup libtizyoutube
  *
- * @param ap_gmusic The tiz_youtube handle.
+ * @param ap_youtube The tiz_youtube handle.
  */
 const char *tiz_youtube_get_current_audio_stream_view_count (
     tiz_youtube_t *ap_youtube);
@@ -336,7 +336,7 @@ const char *tiz_youtube_get_current_audio_stream_view_count (
  *
  * @ingroup libtizyoutube
  *
- * @param ap_gmusic The tiz_youtube handle.
+ * @param ap_youtube The tiz_youtube handle.
  */
 const char *tiz_youtube_get_current_audio_stream_description (
     tiz_youtube_t *ap_youtube);
@@ -346,7 +346,7 @@ const char *tiz_youtube_get_current_audio_stream_description (
  *
  * @ingroup libtizyoutube
  *
- * @param ap_gmusic The tiz_youtube handle.
+ * @param ap_youtube The tiz_youtube handle.
  */
 const char *tiz_youtube_get_current_audio_stream_file_extension (
     tiz_youtube_t *ap_youtube);
@@ -356,7 +356,7 @@ const char *tiz_youtube_get_current_audio_stream_file_extension (
  *
  * @ingroup libtizyoutube
  *
- * @param ap_gmusic The tiz_youtube handle.
+ * @param ap_youtube The tiz_youtube handle.
  */
 const char *tiz_youtube_get_current_audio_stream_video_id (
     tiz_youtube_t *ap_youtube);
@@ -366,7 +366,7 @@ const char *tiz_youtube_get_current_audio_stream_video_id (
  *
  * @ingroup libtizyoutube
  *
- * @param ap_gmusic The tiz_youtube handle.
+ * @param ap_youtube The tiz_youtube handle.
  */
 const char *tiz_youtube_get_current_audio_stream_published (
     tiz_youtube_t *ap_youtube);
