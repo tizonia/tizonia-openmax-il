@@ -355,7 +355,7 @@ update_metadata (youtube_prc_t * ap_prc)
     ap_prc, tiz_youtube_get_current_audio_stream_author (ap_prc->p_youtube_),
     tiz_youtube_get_current_audio_stream_title (ap_prc->p_youtube_)));
 
-  /*  */
+  /* Playback queue progress */
   tiz_check_omx (store_metadata (
     ap_prc, "Stream #",
     tiz_youtube_get_current_queue_progress (ap_prc->p_youtube_)));
