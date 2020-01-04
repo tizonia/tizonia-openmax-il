@@ -28,7 +28,6 @@ import sys
 import os
 import io
 import re
-import time
 import json
 import logging
 import random
@@ -41,12 +40,13 @@ from operator import itemgetter
 from joblib import Memory
 from fuzzywuzzy import process
 from fuzzywuzzy import fuzz
+import xml.etree.ElementTree as elementtree
 
 # For use during debugging
 from pprint import pprint
 
-tunein_cache_location = os.path.join(os.getenv("HOME"), ".config/tizonia/tunein-cache")
-memory = Memory(tunein_cache_location, verbose=0)
+TUNEIN_CACHE_LOCATION = os.path.join(os.getenv("HOME"), ".config/tizonia/tunein-cache")
+MEMORY = Memory(TUNEIN_CACHE_LOCATION, verbose=0)
 
 FORMAT = '[%(asctime)s] [%(levelname)5s] [%(thread)d] ' \
          '[%(module)s:%(funcName)s:%(lineno)d] - %(message)s'
@@ -64,10 +64,14 @@ class ConfigColors():
     def __init__(self):
         self.config = configparser.ConfigParser()
         self.config.read(os.path.join(os.getenv("HOME"), ".config/tizonia/tizonia.conf"))
-        self.FAIL = '\033[' + self.config.get('color-theme', 'C08', fallback='91').replace(',', ';') + 'm'
-        self.OKGREEN = '\033[' + self.config.get('color-theme', 'C09', fallback='92').replace(',', ';') + 'm'
-        self.WARNING = '\033[' + self.config.get('color-theme', 'C10', fallback='93').replace(',', ';') + 'm'
-        self.OKBLUE = '\033[' + self.config.get('color-theme', 'C11', fallback='94').replace(',', ';') + 'm'
+        self.FAIL = '\033[' \
+            + self.config.get('color-theme', 'C08', fallback='91').replace(',', ';') + 'm'
+        self.OKGREEN = '\033[' \
+            + self.config.get('color-theme', 'C09', fallback='92').replace(',', ';') + 'm'
+        self.WARNING = '\033[' \
+            + self.config.get('color-theme', 'C10', fallback='93').replace(',', ';') + 'm'
+        self.OKBLUE = '\033[' \
+            + self.config.get('color-theme', 'C11', fallback='94').replace(',', ';') + 'm'
         self.ENDC = '\033[0m'
 
 _Colors = ConfigColors()
@@ -186,8 +190,7 @@ def parse_new_asx(data):
 def parse_asx(data):
     if b"asx" in data[0:50].lower():
         return parse_new_asx(data)
-    else:
-        return parse_old_asx(data)
+    return parse_old_asx(data)
 
 def find_playlist_parser(extension, content_type):
     extension_map = {
@@ -211,7 +214,7 @@ def find_playlist_parser(extension, content_type):
         parser = content_type_map.get(content_type.lower(), None)
     return parser
 
-def run_tunein_query (session, timeout, uri):
+def run_tunein_query(session, timeout, uri):
     logging.debug(f"TuneIn request: {uri!r}")
     try:
         with closing(session.get(uri, timeout=timeout)) as r:
@@ -221,7 +224,7 @@ def run_tunein_query (session, timeout, uri):
         logging.info(f"TuneIn API request for {variant} failed: {e}")
     return {}
 
-def run_playlist_query (session, timeout, url):
+def run_playlist_query(session, timeout, url):
     data, content_type = None, None
     results = []
     logging.debug(f"Extracting URIs from {url!r}")
@@ -232,7 +235,7 @@ def run_playlist_query (session, timeout, url):
     try:
         # Defer downloading the body until know it's not a stream
         with closing(
-            session.get(url, timeout=timeout, stream=True)
+                session.get(url, timeout=timeout, stream=True)
         ) as r:
             r.raise_for_status()
             content_type = r.headers.get("content-type", "audio/mpeg")
@@ -295,6 +298,7 @@ class TuneIn:
         else:
             self._filter = ""
         self._stations = {}
+        self.nextStationsURL = ""
 
     def reload(self):
         self._stations.clear()
@@ -398,19 +402,30 @@ class TuneIn:
                 for child in item["children"]:
                     child_key = child.get("key", "").lower()
                     if child_key.startswith('popular'):
-                        args = "&" + child['URL'].split("?",2)[1]
+                        args = "&" + child['URL'].split("?", 2)[1]
                         return self._tunein("Browse.ashx", args)
 
     def stations_next(self, guide_id):
-        results = self._browse_unfiltered(guide_id)
-        for item in results:
-            item_key = item.get("key", "").lower()
-            if item_key.startswith('stations'):
-                for child in item["children"]:
-                    child_key = child.get("key", "")
-                    if child_key.startswith('nextStations'):
-                        args = "&" + child['URL'].split("?",2)[1]
-                        return self._tunein("Browse.ashx", args)
+        if self.nextStationsURL == "":
+            results = self._browse_unfiltered(guide_id)
+            for item in results:
+                item_key = item.get("key", "").lower()
+                if item_key.startswith('stations'):
+                    for child in item["children"]:
+                        child_key = child.get("key", "")
+                        if child_key.startswith('nextStations'):
+                            args = "&" + child['URL'].split("?", 2)[1]
+                            self.nextStationsURL = args
+                            return self._tunein("Browse.ashx", args)
+
+        else:
+            results = self._tunein("Browse.ashx", self.nextStationsURL)
+            for item in results:
+                item_key = item.get("key", "")
+                if item_key.startswith('nextStations'):
+                    args = "&" + item['URL'].split("?", 2)[1]
+                    self.nextStationsURL = args
+                    return self._tunein("Browse.ashx", args)
 
     def related(self, guide_id):
         return self._browse("Related", guide_id)
@@ -444,7 +459,7 @@ class TuneIn:
             return listings[0]
 
     def parse_stream_url(self, url):
-        playlist_query = memory.cache(run_playlist_query)
+        playlist_query = MEMORY.cache(run_playlist_query)
         return playlist_query(self._session, self._timeout, url)
 
     def tune(self, station):
@@ -485,7 +500,7 @@ class TuneIn:
 
     def _tunein(self, variant, args):
         uri = (self._base_uri % variant) + f"?render=json{args}"
-        tunein_query = memory.cache(run_tunein_query)
+        tunein_query = MEMORY.cache(run_tunein_query)
         return tunein_query(self._session, self._timeout, uri)
 
 
@@ -592,7 +607,6 @@ class tiztuneinproxy(object):
         cat_dict = dict()
         cat_names = list()
         results = self.tunein.categories(category)
-        pprint(results)
         for r in results:
             print_nfo("[Tunein] [{0}] '{1}'." \
                       .format(category, r['text']))
@@ -614,6 +628,13 @@ class tiztuneinproxy(object):
             for s in stations:
                 if s['type'] == 'audio':
                     self.add_to_playback_queue(s)
+
+            # Enqueue more stations
+            next_stations = self.tunein.stations_next(cat['guide_id'])
+            if next_stations:
+                for n in next_stations:
+                    if n['type'] == 'audio':
+                        self.add_to_playback_queue(n)
 
             # Enqueue more stations
             next_stations = self.tunein.stations_next(cat['guide_id'])
@@ -721,6 +742,13 @@ class tiztuneinproxy(object):
             image = radio['image']
         return image
 
+    def current_radio_queue_index_and_queue_length(self):
+        """ Retrieve index in the queue (starting from 1) of the current radio and the
+        length of the playback queue.
+
+        """
+        return self.play_queue_order[self.queue_index] + 1, len(self.queue)
+
     def clear_queue(self):
         """ Clears the playback queue.
 
@@ -801,7 +829,7 @@ class tiztuneinproxy(object):
                 self.play_queue_order = list(range(total_stations))
             if self.current_play_mode == self.play_modes.SHUFFLE:
                 random.shuffle(self.play_queue_order)
-            print_nfo("[Tunein] [Stations in queue] '{0}'." \
+            print_nfo("[Tunein] [Items in queue] '{0}'." \
                       .format(total_stations))
 
     def __retrieve_station_url(self, station):
@@ -830,12 +858,17 @@ class tiztuneinproxy(object):
 
 
     def add_to_playback_queue(self, r):
+        st_or_pod = r['item']
+        if st_or_pod == 'topic':
+            st_or_pod = "podcast"
+
         if r.get('formats') and r.get('bitrate'):
-            print_nfo("[Tunein] [Station/Show] '{0}' [{1}] ({2}, {3}kbps)." \
-                      .format(r['text'], r['subtext'], r['formats'], r['bitrate']))
+            print_nfo("[Tunein] [{0}] '{1}' [{2}] ({3}, {4}kbps)." \
+                      .format(st_or_pod, r['text'], r['subtext'], \
+                              r['formats'], r['bitrate']))
         else:
-            print_nfo("[Tunein] [Station/Show] '{0}' [{1}]." \
-                      .format(r['text'], r['subtext']))
+            print_nfo("[Tunein] [{0}] '{1}' [{2}]." \
+                      .format(st_or_pod, r['text'], r['subtext']))
         self.queue.append(r)
 
 if __name__ == "__main__":
