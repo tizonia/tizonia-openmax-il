@@ -83,6 +83,9 @@ namespace
 }
 
 tiztunein::tiztunein ()
+  : current_url_ (),
+    current_radio_index_ (),
+    current_queue_length_ ()
 {
 }
 
@@ -234,6 +237,24 @@ void tiztunein::clear_queue ()
   (void)rc;
 }
 
+const char *tiztunein::get_current_radio_index ()
+{
+  return current_radio_index_.empty () ? NULL : current_radio_index_.c_str ();
+}
+
+const char *tiztunein::get_current_queue_length ()
+{
+  return current_queue_length_.empty () ? NULL : current_queue_length_.c_str ();
+}
+
+const char *tiztunein::get_current_queue_progress ()
+{
+  current_queue_progress_.assign (get_current_radio_index ());
+  current_queue_progress_.append (" of ");
+  current_queue_progress_.append (get_current_queue_length ());
+  return current_queue_progress_.c_str ();
+}
+
 void tiztunein::set_playback_mode (const playback_mode mode)
 {
   int rc = 0;
@@ -295,6 +316,17 @@ void tiztunein::set_search_mode (const search_mode mode)
 void tiztunein::get_current_radio ()
 {
   current_radio_name_.clear ();
+  current_radio_index_.clear ();
+  current_queue_length_.clear ();
+
+  const bp::tuple &queue_info = bp::extract< bp::tuple > (
+      py_tunein_proxy_.attr ("current_radio_queue_index_and_queue_length") ());
+  const int queue_index = bp::extract< int > (queue_info[0]);
+  const int queue_length = bp::extract< int > (queue_info[1]);
+  current_radio_index_.assign (
+      boost::lexical_cast< std::string > (queue_index));
+  current_queue_length_.assign (
+      boost::lexical_cast< std::string > (queue_length));
 
   current_radio_name_ = bp::extract< std::string > (
       py_tunein_proxy_.attr ("current_radio_name") ());

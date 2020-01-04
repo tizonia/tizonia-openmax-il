@@ -29,8 +29,8 @@
 #include <config.h>
 #endif
 
-#include <stdlib.h>
 #include <assert.h>
+#include <stdlib.h>
 
 #include "tiztunein.hpp"
 #include "tiztunein_c.h"
@@ -72,7 +72,7 @@ extern "C" int tiz_tunein_init (tiz_tunein_ptr_t *app_tunein)
 
   assert (app_tunein);
 
-  if ((p_tunein = (tiz_tunein_t *)calloc (1, sizeof(tiz_tunein_t))))
+  if ((p_tunein = (tiz_tunein_t *)calloc (1, sizeof (tiz_tunein_t))))
     {
       if (!tunein_alloc_data (p_tunein))
         {
@@ -104,16 +104,16 @@ extern "C" void tiz_tunein_set_playback_mode (
   assert (ap_tunein);
   assert (ap_tunein->p_proxy_);
   return ap_tunein->p_proxy_->set_playback_mode (
-      static_cast< tiztunein::playback_mode >(mode));
+      static_cast< tiztunein::playback_mode > (mode));
 }
 
-extern "C" void tiz_tunein_set_search_mode (
-    tiz_tunein_t *ap_tunein, const tiz_tunein_search_mode_t mode)
+extern "C" void tiz_tunein_set_search_mode (tiz_tunein_t *ap_tunein,
+                                            const tiz_tunein_search_mode_t mode)
 {
   assert (ap_tunein);
   assert (ap_tunein->p_proxy_);
   return ap_tunein->p_proxy_->set_search_mode (
-      static_cast< tiztunein::search_mode >(mode));
+      static_cast< tiztunein::search_mode > (mode));
 }
 
 extern "C" int tiz_tunein_play_radios (tiz_tunein_t *ap_tunein,
@@ -141,6 +141,30 @@ extern "C" void tiz_tunein_clear_queue (tiz_tunein_t *ap_tunein)
   assert (ap_tunein);
   assert (ap_tunein->p_proxy_);
   ap_tunein->p_proxy_->clear_queue ();
+}
+
+extern "C" const char *tiz_tunein_get_current_radio_index (
+    tiz_tunein_t *ap_tunein)
+{
+  assert (ap_tunein);
+  assert (ap_tunein->p_proxy_);
+  return ap_tunein->p_proxy_->get_current_radio_index ();
+}
+
+extern "C" const char *tiz_tunein_get_current_queue_length (
+    tiz_tunein_t *ap_tunein)
+{
+  assert (ap_tunein);
+  assert (ap_tunein->p_proxy_);
+  return ap_tunein->p_proxy_->get_current_queue_length ();
+}
+
+extern "C" const char *tiz_tunein_get_current_queue_progress (
+    tiz_tunein_t *ap_tunein)
+{
+  assert (ap_tunein);
+  assert (ap_tunein->p_proxy_);
+  return ap_tunein->p_proxy_->get_current_queue_progress ();
 }
 
 extern "C" const char *tiz_tunein_get_next_url (tiz_tunein_t *ap_tunein,

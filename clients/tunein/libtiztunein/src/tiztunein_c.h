@@ -160,6 +160,35 @@ extern "C"
   void tiz_tunein_clear_queue (tiz_tunein_t *ap_tunein);
 
   /**
+   * Retrieve the index in the playback queue of the stream currently selected.
+   *
+   * @ingroup libtiztunein
+   *
+   * @param ap_tunein The tiz_tunein handle.
+   */
+  const char *tiz_tunein_get_current_radio_index (
+      tiz_tunein_t *ap_tunein);
+
+  /**
+   * Retrieve the current length of playback queue.
+   *
+   * @ingroup libtiztunein
+   *
+   * @param ap_tunein The tiz_tunein handle.
+   */
+  const char *tiz_tunein_get_current_queue_length (tiz_tunein_t *ap_tunein);
+
+  /**
+   * Retrieve the current queue progress (e.g. '5 of 17', where 5 is the current
+   * stream index, and 17 is the total streams in the queue).
+   *
+   * @ingroup libtiztunein
+   *
+   * @param ap_tunein The tiz_tunein handle.
+   */
+  const char *tiz_tunein_get_current_queue_progress (tiz_tunein_t *ap_tunein);
+
+  /**
    * Retrieve the next station url
    *
    * The playback queue pointer moves one position forwards.
@@ -219,7 +248,8 @@ extern "C"
    *
    * @param ap_tunein The tunein handle.
    */
-  const char *tiz_tunein_get_current_radio_reliability (tiz_tunein_t *ap_tunein);
+  const char *tiz_tunein_get_current_radio_reliability (
+      tiz_tunein_t *ap_tunein);
 
   /**
    * Retrieve the type of the current radio (usually 'station' or 'show').
@@ -255,8 +285,7 @@ extern "C"
    *
    * @param ap_tunein The tunein handle.
    */
-  const char *tiz_tunein_get_current_radio_stream_url (
-      tiz_tunein_t *ap_tunein);
+  const char *tiz_tunein_get_current_radio_stream_url (tiz_tunein_t *ap_tunein);
 
   /**
    * Retrieve the current station's thumbnail image url.
