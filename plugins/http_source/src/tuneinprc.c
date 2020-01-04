@@ -335,6 +335,11 @@ update_metadata (tunein_prc_t * ap_prc)
     store_metadata (ap_prc, "Station",
                     tiz_tunein_get_current_radio_name (ap_prc->p_tunein_)));
 
+  /* Playback queue progress */
+  tiz_check_omx (
+    store_metadata (ap_prc, "Item #",
+                    tiz_tunein_get_current_queue_progress (ap_prc->p_tunein_)));
+
   /* Station Description */
   tiz_check_omx (
     store_metadata (ap_prc, "Description",
