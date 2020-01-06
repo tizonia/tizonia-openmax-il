@@ -58,7 +58,7 @@ PROJECT_LOGO           = @abs_top_builddir@/logo/tizonia_logo_200.gif
 # entered, it will be relative to the location where doxygen was started. If
 # left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       =
+OUTPUT_DIRECTORY       = @abs_builddir@
 
 # If the CREATE_SUBDIRS tag is set to YES, then doxygen will create 4096 sub-
 # directories (in 2 levels) under the output directory of each output format and
@@ -743,7 +743,7 @@ WARN_LOGFILE           =
 # spaces.
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = mainpage.dox
+INPUT                  = @abs_builddir@/mainpage.dox
 INPUT                 += @abs_top_builddir@/../clients/gmusic
 INPUT                 += @abs_top_builddir@/../clients/soundcloud
 INPUT                 += @abs_top_builddir@/../clients/youtube
@@ -751,10 +751,10 @@ INPUT                 += @abs_top_builddir@/../clients/dirble
 INPUT                 += @abs_top_builddir@/../libtizcore
 INPUT                 += @abs_top_builddir@/../libtizonia
 INPUT                 += @abs_top_builddir@/../libtizplatform
-INPUT                 += resourcemanagement.dox
+INPUT                 += @abs_builddir@/resourcemanagement.dox
 INPUT                 += @abs_top_builddir@/../rm/libtizrmproxy
 INPUT                 += @abs_top_builddir@/../rm/tizrmd
-INPUT                 += plugins.dox
+INPUT                 += @abs_builddir@/plugins.dox
 INPUT                 += @abs_top_builddir@/../plugins
 
 # This tag can be used to specify the character encoding of the source files
@@ -1054,7 +1054,7 @@ HTML_FILE_EXTENSION    = .html
 # of the possible markers and block names see the documentation.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_HEADER            = header.html
+HTML_HEADER            = @abs_builddir@/header.html
 
 # The HTML_FOOTER tag can be used to specify a user-defined HTML footer for each
 # generated HTML page. If the tag is left blank doxygen will generate a standard
@@ -1064,7 +1064,7 @@ HTML_HEADER            = header.html
 # that doxygen normally uses.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_FOOTER            = footer.html
+HTML_FOOTER            = @abs_builddir@/footer.html
 
 # The HTML_STYLESHEET tag can be used to specify a user-defined cascading style
 # sheet that is used by each HTML page. It can be used to fine-tune the look of

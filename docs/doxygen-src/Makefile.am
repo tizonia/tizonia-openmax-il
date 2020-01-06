@@ -39,6 +39,7 @@ doxyfile.stamp: doxyfile mainpage.dox plugins.dox resourcemanagement.dox footer.
 	echo Timestamp > doxyfile.stamp
 
 do_subst = sed -e 's,[@]abs_top_builddir[@],$(abs_top_builddir),g' \
+	-e 's,[@]abs_builddir[@],$(abs_builddir),g' \
 	-e 's,[@]VERSION[@],$(VERSION),g'
 
 doxyfile: doxyfile.in Makefile
