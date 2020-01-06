@@ -1,0 +1,2 @@
+subdir('soundcloudproxy')
+subdir('libtizsoundcloud')

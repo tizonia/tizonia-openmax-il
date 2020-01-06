@@ -1,0 +1,2 @@
+subdir('spotifyproxy')
+subdir('libtizspotify')

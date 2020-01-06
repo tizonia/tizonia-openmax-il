@@ -1,0 +1,2 @@
+subdir('chromecastproxy')
+subdir('libtizchromecast')

@@ -1,0 +1,2 @@
+subdir('plexproxy')
+subdir('libtizplex')
