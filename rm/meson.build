@@ -1,0 +1,2 @@
+subdir('tizrmd')
+subdir('libtizrmproxy')

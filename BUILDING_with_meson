@@ -1,0 +1,25 @@
+Building tizonia with meson is easy.
+
+First, declare flags you wish (in CFLAGS, CXXFLAGS, FFLAGSand FCFLAGS).
+Then invoke meson with the various parameters you might want to specify, e.g:
+
+ /usr/bin/meson --buildtype=plain --prefix=/usr --libdir=/usr/lib64 --libexecdir=/usr/lib \
+ --bindir=/usr/bin --sbindir=/usr/sbin --includedir=/usr/include --datadir=/usr/share \
+ --mandir=/usr/share/man --infodir=/usr/share/info --localedir=/usr/share/locale \
+ --sysconfdir=/etc --localstatedir=/var --sharedstatedir=/var/lib --wrap-mode=nodownload \
+ --auto-features=enabled . build
+
+(some distributions will use /usr/lib on every architecture, use your best judgment)
+
+If you wish to set options (as per meson_options.txt), you can pass them with -D to the configuration line.
+
+Then build with:
+
+ /usr/bin/ninja -v -j1 -C build
+
+And install with:
+ DESTDIR=<mydir> /usr/bin/ninja install -v -j1 -C build
+
+On OSX things are still experimental. You'll have to install the required dependencies with brew and
+therefore use /usr/local as prefix and adjust everything else accordingly. Also you will have to
+pass -Dpkg_config_path=/usr/local/lib and -Dcmake_prefix_path=/usr/local/lib, plus other modifications.
