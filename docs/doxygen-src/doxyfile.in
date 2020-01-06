@@ -790,9 +790,9 @@ RECURSIVE              = YES
 # Note that relative paths are relative to the directory from which doxygen is
 # run.
 
-EXCLUDE                = @abs_top_srcdir@/include
-EXCLUDE               += @abs_top_srcdir@/.hg
-EXCLUDE               += @abs_top_srcdir@/.git
+EXCLUDE                = @abs_top_srcdir@/../include
+EXCLUDE               += @abs_top_srcdir@/../.hg
+EXCLUDE               += @abs_top_srcdir@/../.git
 EXCLUDE               += @abs_top_srcdir@/../player
 EXCLUDE               += @abs_top_srcdir@/../plugins/templates
 EXCLUDE               += @abs_top_srcdir@/../libtizplatform/src/http-parser
