@@ -130,6 +130,7 @@ if [[ PYVER=3 ]]; then
                 fuzzywuzzy \
                 eventlet \
                 python-Levenshtein \
+                joblib \
         && sudo -H pip3 install git+https://github.com/plamere/spotipy.git --upgrade
 else
     sudo apt-get -y install python-dev python-pip \

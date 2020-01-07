@@ -63,11 +63,52 @@ namespace bp = boost::python;
 
 namespace
 {
+  int check_deps ()
+  {
+    int rc = 1;
+    Py_Initialize ();
+
+    try
+      {
+        // Import the Tizonia Plex proxy module
+        bp::object py_main = bp::import ("__main__");
+
+        // Retrieve the main module's namespace
+        bp::object py_global = py_main.attr ("__dict__");
+
+        // Check the existence of the 'joblib' module
+        bp::object ignored = exec (
+            "import importlib\n"
+            "spec = importlib.util.find_spec('joblib')\n"
+            "if not spec:\n raise ValueError\n",
+            py_global);
+
+        // Check the existence of the 'fuzzywuzzy' module
+        bp::object ignored2 = exec (
+            "import importlib\n"
+            "spec = importlib.util.find_spec('fuzzywuzzy')\n"
+            "if not spec:\n raise ValueError\n",
+            py_global);
+
+        rc = 0;
+      }
+    catch (bp::error_already_set &e)
+      {
+        PyErr_PrintEx (0);
+        std::cerr << std::string (
+            "\nPython modules 'joblib' or 'fuzzywuzzy' not found."
+            "\nPlease make sure these are installed correctly.\n");
+      }
+    catch (...)
+      {
+        std::cerr << std::string ("Unknown exception caught");
+      }
+    return rc;
+  }
+
   void init_tunein (boost::python::object &py_main,
                     boost::python::object &py_global)
   {
-    Py_Initialize ();
-
     // Import the Tunein proxy module
     py_main = bp::import ("tiztuneinproxy");
 
@@ -97,7 +138,10 @@ tiztunein::~tiztunein ()
 int tiztunein::init ()
 {
   int rc = 0;
-  try_catch_wrapper (init_tunein (py_main_, py_global_));
+  if (0 == (rc = check_deps ()))
+    {
+      try_catch_wrapper (init_tunein (py_main_, py_global_));
+    }
   return rc;
 }
 
