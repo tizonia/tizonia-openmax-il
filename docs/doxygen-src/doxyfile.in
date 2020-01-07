@@ -51,14 +51,14 @@ PROJECT_BRIEF          =
 # and the maximum width should not exceed 200 pixels. Doxygen will copy the logo
 # to the output directory.
 
-PROJECT_LOGO           = @abs_top_builddir@/logo/tizonia_logo_200.gif
+PROJECT_LOGO           = @abs_top_srcdir@/logo/tizonia_logo_200.gif
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) path
 # into which the generated documentation will be written. If a relative path is
 # entered, it will be relative to the location where doxygen was started. If
 # left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       =
+OUTPUT_DIRECTORY       = @abs_builddir@
 
 # If the CREATE_SUBDIRS tag is set to YES, then doxygen will create 4096 sub-
 # directories (in 2 levels) under the output directory of each output format and
@@ -743,19 +743,19 @@ WARN_LOGFILE           =
 # spaces.
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = mainpage.dox
-INPUT                 += @abs_top_builddir@/../clients/gmusic
-INPUT                 += @abs_top_builddir@/../clients/soundcloud
-INPUT                 += @abs_top_builddir@/../clients/youtube
-INPUT                 += @abs_top_builddir@/../clients/dirble
-INPUT                 += @abs_top_builddir@/../libtizcore
-INPUT                 += @abs_top_builddir@/../libtizonia
-INPUT                 += @abs_top_builddir@/../libtizplatform
-INPUT                 += resourcemanagement.dox
-INPUT                 += @abs_top_builddir@/../rm/libtizrmproxy
-INPUT                 += @abs_top_builddir@/../rm/tizrmd
-INPUT                 += plugins.dox
-INPUT                 += @abs_top_builddir@/../plugins
+INPUT                  = @abs_srcdir@/mainpage.dox
+INPUT                 += @abs_top_srcdir@/../clients/gmusic
+INPUT                 += @abs_top_srcdir@/../clients/soundcloud
+INPUT                 += @abs_top_srcdir@/../clients/youtube
+INPUT                 += @abs_top_srcdir@/../clients/dirble
+INPUT                 += @abs_top_srcdir@/../libtizcore
+INPUT                 += @abs_top_srcdir@/../libtizonia
+INPUT                 += @abs_top_srcdir@/../libtizplatform
+INPUT                 += @abs_srcdir@/resourcemanagement.dox
+INPUT                 += @abs_top_srcdir@/../rm/libtizrmproxy
+INPUT                 += @abs_top_srcdir@/../rm/tizrmd
+INPUT                 += @abs_srcdir@/plugins.dox
+INPUT                 += @abs_top_srcdir@/../plugins
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
@@ -790,14 +790,14 @@ RECURSIVE              = YES
 # Note that relative paths are relative to the directory from which doxygen is
 # run.
 
-EXCLUDE                = @abs_top_builddir@/include
-EXCLUDE               += @abs_top_builddir@/.hg
-EXCLUDE               += @abs_top_builddir@/.git
-EXCLUDE               += @abs_top_builddir@/../player
-EXCLUDE               += @abs_top_builddir@/../plugins/templates
-EXCLUDE               += @abs_top_builddir@/../libtizplatform/src/http-parser
-EXCLUDE               += @abs_top_builddir@/../libtizplatform/src/avl
-EXCLUDE               += @abs_top_builddir@/../libtizplatform/src/utarray
+EXCLUDE                = @abs_top_srcdir@/../include
+EXCLUDE               += @abs_top_srcdir@/../.hg
+EXCLUDE               += @abs_top_srcdir@/../.git
+EXCLUDE               += @abs_top_srcdir@/../player
+EXCLUDE               += @abs_top_srcdir@/../plugins/templates
+EXCLUDE               += @abs_top_srcdir@/../libtizplatform/src/http-parser
+EXCLUDE               += @abs_top_srcdir@/../libtizplatform/src/avl
+EXCLUDE               += @abs_top_srcdir@/../libtizplatform/src/utarray
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded
@@ -830,7 +830,7 @@ EXCLUDE_SYMBOLS        =
 # that contain example code fragments that are included (see the \include
 # command).
 
-EXAMPLE_PATH           = examples
+EXAMPLE_PATH           = @abs_srcdir@/examples
 
 # If the value of the EXAMPLE_PATH tag contains directories, you can use the
 # EXAMPLE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp and
@@ -1054,7 +1054,7 @@ HTML_FILE_EXTENSION    = .html
 # of the possible markers and block names see the documentation.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_HEADER            = header.html
+HTML_HEADER            = @abs_srcdir@/header.html
 
 # The HTML_FOOTER tag can be used to specify a user-defined HTML footer for each
 # generated HTML page. If the tag is left blank doxygen will generate a standard
@@ -1064,7 +1064,7 @@ HTML_HEADER            = header.html
 # that doxygen normally uses.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_FOOTER            = footer.html
+HTML_FOOTER            = @abs_srcdir@/footer.html
 
 # The HTML_STYLESHEET tag can be used to specify a user-defined cascading style
 # sheet that is used by each HTML page. It can be used to fine-tune the look of
