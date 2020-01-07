@@ -389,6 +389,13 @@ obtain_next_url (tunein_prc_t * ap_prc, int a_skip_value)
   assert (ap_prc);
   assert (ap_prc->p_tunein_);
 
+  if (0 == tiz_tunein_get_current_queue_length_as_int (ap_prc->p_tunein_))
+    {
+      TIZ_ERROR (handleOf (ap_prc),
+                 "No more URLs in queue (OMX_ErrorInsufficientResources)");
+      return OMX_ErrorInsufficientResources;
+    }
+
   if (!ap_prc->p_uri_param_)
     {
       ap_prc->p_uri_param_ = tiz_mem_calloc (
@@ -936,12 +943,15 @@ tunein_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
 
   if (OMX_TizoniaIndexConfigPlaylistSkip == a_config_idx && p_prc->p_trans_)
     {
+      int skip_value = 0;
       TIZ_INIT_OMX_STRUCT (p_prc->playlist_skip_);
       tiz_check_omx (tiz_api_GetConfig (
         tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
         OMX_TizoniaIndexConfigPlaylistSkip, &p_prc->playlist_skip_));
-      p_prc->playlist_skip_.nValue > 0 ? obtain_next_url (p_prc, 1)
-                                       : obtain_next_url (p_prc, -1);
+
+      p_prc->playlist_skip_.nValue > 0 ? (skip_value = 1) : (skip_value = -1);
+      tiz_check_omx (obtain_next_url (p_prc, skip_value));
+
       /* Changing the URL has the side effect of halting the current
          download */
       tiz_urltrans_set_uri (p_prc->p_trans_, p_prc->p_uri_param_);
