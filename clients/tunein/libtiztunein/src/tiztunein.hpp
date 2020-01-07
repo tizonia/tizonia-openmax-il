@@ -77,6 +77,7 @@ public:
 
   const char *get_current_radio_index ();
   const char *get_current_queue_length ();
+  int get_current_queue_length_as_int ();
   const char *get_current_queue_progress ();
   const char *get_next_url (const bool a_remove_current_url);
   const char *get_prev_url (const bool a_remove_current_url);
@@ -90,6 +91,7 @@ public:
   const char *get_current_radio_thumbnail_url ();
 
 private:
+  void obtain_current_queue_progress();
   void get_current_radio ();
 
 private:

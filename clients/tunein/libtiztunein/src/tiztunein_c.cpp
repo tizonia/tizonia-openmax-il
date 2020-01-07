@@ -159,6 +159,14 @@ extern "C" const char *tiz_tunein_get_current_queue_length (
   return ap_tunein->p_proxy_->get_current_queue_length ();
 }
 
+extern "C" int tiz_tunein_get_current_queue_length_as_int (
+    tiz_tunein_t *ap_tunein)
+{
+  assert (ap_tunein);
+  assert (ap_tunein->p_proxy_);
+  return ap_tunein->p_proxy_->get_current_queue_length_as_int ();
+}
+
 extern "C" const char *tiz_tunein_get_current_queue_progress (
     tiz_tunein_t *ap_tunein)
 {

@@ -30,6 +30,7 @@
 #endif
 
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string/trim.hpp>
 #include <iostream>
 
 #include "tiztunein.hpp"
@@ -239,16 +240,38 @@ void tiztunein::clear_queue ()
 
 const char *tiztunein::get_current_radio_index ()
 {
+  obtain_current_queue_progress ();
   return current_radio_index_.empty () ? NULL : current_radio_index_.c_str ();
 }
 
 const char *tiztunein::get_current_queue_length ()
 {
+  obtain_current_queue_progress ();
   return current_queue_length_.empty () ? NULL : current_queue_length_.c_str ();
+}
+
+int tiztunein::get_current_queue_length_as_int ()
+{
+  obtain_current_queue_progress ();
+  if (current_queue_length_.empty())
+    {
+      return 0;
+    }
+  boost::algorithm::trim(current_queue_length_);
+  return boost::lexical_cast< int > (current_queue_length_);
 }
 
 const char *tiztunein::get_current_queue_progress ()
 {
+    const bp::tuple &queue_info = bp::extract< bp::tuple > (
+      py_tunein_proxy_.attr ("current_radio_queue_index_and_queue_length") ());
+  const int queue_index = bp::extract< int > (queue_info[0]);
+  const int queue_length = bp::extract< int > (queue_info[1]);
+  current_radio_index_.assign (
+      boost::lexical_cast< std::string > (queue_index));
+  current_queue_length_.assign (
+      boost::lexical_cast< std::string > (queue_length));
+
   current_queue_progress_.assign (get_current_radio_index ());
   current_queue_progress_.append (" of ");
   current_queue_progress_.append (get_current_queue_length ());
@@ -316,17 +339,8 @@ void tiztunein::set_search_mode (const search_mode mode)
 void tiztunein::get_current_radio ()
 {
   current_radio_name_.clear ();
-  current_radio_index_.clear ();
-  current_queue_length_.clear ();
 
-  const bp::tuple &queue_info = bp::extract< bp::tuple > (
-      py_tunein_proxy_.attr ("current_radio_queue_index_and_queue_length") ());
-  const int queue_index = bp::extract< int > (queue_info[0]);
-  const int queue_length = bp::extract< int > (queue_info[1]);
-  current_radio_index_.assign (
-      boost::lexical_cast< std::string > (queue_index));
-  current_queue_length_.assign (
-      boost::lexical_cast< std::string > (queue_length));
+  obtain_current_queue_progress ();
 
   current_radio_name_ = bp::extract< std::string > (
       py_tunein_proxy_.attr ("current_radio_name") ());
@@ -346,4 +360,19 @@ void tiztunein::get_current_radio ()
   current_radio_thumbnail_url_ = bp::extract< std::string > (
       py_tunein_proxy_.attr ("current_radio_thumbnail_url") ());
 
+}
+
+void tiztunein::obtain_current_queue_progress ()
+{
+  current_radio_index_.clear ();
+  current_queue_length_.clear ();
+
+  const bp::tuple &queue_info = bp::extract< bp::tuple > (
+      py_tunein_proxy_.attr ("current_radio_queue_index_and_queue_length") ());
+  const int queue_index = bp::extract< int > (queue_info[0]);
+  const int queue_length = bp::extract< int > (queue_info[1]);
+  current_radio_index_.assign (
+      boost::lexical_cast< std::string > (queue_index));
+  current_queue_length_.assign (
+      boost::lexical_cast< std::string > (queue_length));
 }

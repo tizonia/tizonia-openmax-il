@@ -179,6 +179,15 @@ extern "C"
   const char *tiz_tunein_get_current_queue_length (tiz_tunein_t *ap_tunein);
 
   /**
+   * Retrieve the current length of playback queue.
+   *
+   * @ingroup libtiztunein
+   *
+   * @param ap_tunein The tiz_tunein handle.
+   */
+  int tiz_tunein_get_current_queue_length_as_int (tiz_tunein_t *ap_tunein);
+
+  /**
    * Retrieve the current queue progress (e.g. '5 of 17', where 5 is the current
    * stream index, and 17 is the total streams in the queue).
    *
