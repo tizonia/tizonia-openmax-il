@@ -1835,7 +1835,7 @@ void tiz::programopts::init_tunein_options ()
       ("tunein-podcasts", po::value (&tunein_podcasts_),
        "Tunein 'podcasts' category search.")
       /* TIZ_CLASS_COMMENT: */
-      ("tunein-trending", po::value (&tunein_trending_),
+      ("tunein-trending", po::value (&tunein_trending_)->implicit_value(""),
        "Tunein 'trending' category search.")
       /* TIZ_CLASS_COMMENT: */
       ("tunein-additional-keywords",
