@@ -650,7 +650,7 @@ class tiztuneinproxy(object):
             popular = self.tunein.stations_popular(cat['guide_id'])
             if popular:
                 for p in popular:
-                    if p['type'] == 'audio':
+                    if p.get('type') and p['type'] == 'audio':
                         self.add_to_playback_queue(p)
 
     def _enqueue_location(self, keywords1="", keywords2="", keywords3=""):
@@ -666,34 +666,47 @@ class tiztuneinproxy(object):
                      keywords1, keywords2, keywords3)
 
         results = self.tunein.categories('location')
-        country = self.select_one(results, keywords1, 'region')
+        region = self.select_one(results, keywords1, 'Region')
 
-        if country:
-            print_wrn("[Tunein] [location] Adding stations '{0}'." \
-                      .format(country['text']))
-            guide_id = country['guide_id']
+        if region:
+            print_wrn("[Tunein] [Location] Looking up stations from '{0}'." \
+                      .format(region['text']))
+            guide_id = region['guide_id']
             args = "&id=" + guide_id
             results = self.tunein._tunein("Browse.ashx", args)
-            region = self.select_one(results, keywords2, 'country')
+            country = self.select_one(results, keywords2, 'Country')
 
-            if region:
-                guide_id = region['guide_id']
-                print_wrn("[Tunein] [location] Adding stations '{0}'." \
-                          .format(region['text']))
-                guide_id = region['guide_id']
+            if country:
+                print_wrn("[Tunein] [Location] Looking up stations from '{0}'." \
+                          .format(country['text']))
+                guide_id = country['guide_id']
                 args = "&id=" + guide_id
                 results = self.tunein._tunein("Browse.ashx", args)
-                results = self.select_one(results, keywords3, 'region')
+                area = self.select_one(results, keywords3, 'Area')
+
+                if area.get("type") and area["type"] == "link":
+                    print_wrn("[Tunein] [Location] Looking up stations from '{0}'." \
+                              .format(area['text']))
+                    guide_id = area['guide_id']
+                    args = "&id=" + guide_id
+                    area = self.tunein._tunein("Browse.ashx", args)
+                    pprint (area)
 
                 args = ''
-                for child in results['children']:
-                    audio_type = child.get("type", "")
-                    if audio_type == "audio":
-                        self.add_to_playback_queue(child)
-                        continue
-                    child_key = child.get("key", "")
-                    if child_key.startswith('popular'):
-                        args = "&" + child['URL'].split("?", 2)[1]
+
+                for item in area:
+                    for child in item['children']:
+                        audio_type = child.get("type", "")
+                        if audio_type == "audio":
+                            self.add_to_playback_queue(child)
+                            continue
+                        child_key = child.get("key", "")
+                        if child_key.startswith('popular'):
+                            args = "&" + child['URL'].split("?", 2)[1]
+                            break
+                        if child_key.startswith('stations'):
+                            args = "&" + child['URL'].split("?", 2)[1]
+                            break
 
                 while len(self.queue) < 100 and args != '':
                     newargs = args
@@ -703,7 +716,6 @@ class tiztuneinproxy(object):
                             self.add_to_playback_queue(s)
                         elif s['type'] == 'link' and s['key'] == 'nextStations':
                             newargs = "&" + s['URL'].split("?", 2)[1]
-                            pprint(newargs)
 
                     if newargs != args:
                         args = newargs
