@@ -581,6 +581,8 @@ class tiztuneinproxy(object):
 
             if category == "location":
                 self._enqueue_location(keywords1, keywords2, keywords3)
+            elif category == "trending":
+                self._enqueue_trending(keywords1)
             else:
                 self._enqueue_category(category, keywords1, keywords2, keywords3)
 
@@ -682,6 +684,7 @@ class tiztuneinproxy(object):
                 guide_id = country['guide_id']
                 args = "&id=" + guide_id
                 results = self.tunein._tunein("Browse.ashx", args)
+                pprint (results)
                 area = self.select_one(results, keywords3, 'Area')
 
                 if area.get("type") and area["type"] == "link":
@@ -721,6 +724,26 @@ class tiztuneinproxy(object):
                         args = newargs
                     else:
                         break
+
+    def _enqueue_trending(self, keywords1=""):
+        """Search Tunein's Music category and add its stations to the
+        playback queue.
+
+        :param keywords1: additional keywords
+
+        """
+        logging.info('_enqueue_trending : 1: %s', keywords1)
+        category = 'trending'
+        stations = self.tunein.categories(category)
+
+        if keywords1 != "":
+            s = self.select_one(stations, keywords1, 'Trending')
+            self.add_to_playback_queue(s)
+
+        elif stations:
+            for s in stations:
+                if s['type'] == 'audio':
+                    self.add_to_playback_queue(s)
 
 # {'URL': 'http://opml.radiotime.com/Tune.ashx?id=s290003',
 #   'bitrate': '128',
