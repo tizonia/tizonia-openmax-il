@@ -49,7 +49,11 @@ tizdocdir = join_paths(datadir, 'doc', meson.project_name())
 tizversion = meson.project_version()
 
 # this one wasn't present in the original
-log4c_dep = declare_dependency(dependencies: cc.find_library('log4c', has_header: 'log4c.h', required: true))
+log4c_dep = dependency('log4c', required: false)
+# fallback for ubuntu Bionic (also fix has_header)
+if not log4c_dep.found()
+   log4c_dep = declare_dependency(dependencies: cc.find_library('log4c', has_headers: 'log4c.h', required: true))
+endif
 
 # perhaps move it with the subdir() ?
 if enable_test
