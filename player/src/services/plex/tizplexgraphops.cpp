@@ -71,8 +71,6 @@ void graph::plexops::do_enable_auto_detection (const int handle_id,
       = boost::dynamic_pointer_cast< plexconfig > (config_);
   assert (plex_config);
   tiz::graph::ops::do_enable_auto_detection (handle_id, port_id);
-  tiz::graph::util::dump_graph_info ("Plex", "Connecting",
-                                     plex_config->get_base_url ().c_str ());
 }
 
 void graph::plexops::do_disable_comp_ports (const int comp_id,
@@ -159,6 +157,10 @@ void graph::plexops::do_configure ()
                          "Unable to override decoder/renderer sampling rates");
     G_OPS_BAIL_IF_ERROR (apply_pcm_codec_info_from_decoder (),
                          "Unable to set OMX_IndexParamAudioPcm");
+    std::string coding_type_str ("Plex");
+    tiz::graph::util::dump_graph_info (coding_type_str.c_str (), "Connected",
+                                       playlist_->get_current_uri ().c_str ());
+
   }
 }
 
@@ -435,10 +437,6 @@ graph::plexops::set_channels_and_rate_on_renderer (
   // Set the new pcm settings
   tiz_check_omx (
       OMX_SetParameter (handle, OMX_IndexParamAudioPcm, &renderer_pcmtype_));
-
-  std::string coding_type_str ("Plex");
-  tiz::graph::util::dump_graph_info (coding_type_str.c_str (), "Connected",
-                                     playlist_->get_current_uri ().c_str ());
 
   return OMX_ErrorNone;
 }
