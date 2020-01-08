@@ -557,7 +557,7 @@ try_open_file (char * p_file_name)
 /* $XDG_CONFIG_DIRS
    defines the preference-ordered set of base directories
    to search for configuration files in addition to the $XDG_CONFIG_HOME
-   base directory. The directories in $XDG_CONFIG_DIRS should be seperated
+   base directory. The directories in $XDG_CONFIG_DIRS should be separated
    with a colon ':'. */
 /* If $XDG_CONFIG_DIRS is either not set or empty, a value equal to
    /etc/xdg/tizonia/tizonia.conf should be used. */
