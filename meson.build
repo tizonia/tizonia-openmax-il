@@ -3,7 +3,7 @@ project('tizonia', ['c', 'cpp'], version: '0.19.0', license: 'LGPLv3.0+', meson_
 ## note to self:
 ## * patch docs/sphinx-src/conf.py once the xml issue is fixed upstream
 ## * check for warnings during the configuration phase of meson
-## * recheck cc.compiles prototype, looks like it passes even with non-esistent
+## * recheck cc.compiles prototype, looks like it passes even with non-existent
 ##   attributes
 ## * try to understand where the path duplication mentioned on launch
 ##   (xdg_file : /etc/xdg/etc/xdg/tizonia/tizonia.conf) comes from
@@ -175,7 +175,7 @@ if enable_test
 endif
 
 # summary() instead of the message at the bottom would be neat, but it will be
-# available only on 0.53.0
+# available only in 0.53.0
 message(
 '\n------------------------------------------------------------------------\n'+
 '  '+meson.project_name()+' ' +meson.project_version()+':  Automatic configuration OK.'+'\n'+
