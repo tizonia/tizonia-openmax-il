@@ -170,6 +170,9 @@ void graph::tuneinops::do_configure ()
                          "Unable to override decoder/renderer sampling rates");
     G_OPS_BAIL_IF_ERROR (apply_pcm_codec_info_from_decoder (),
                          "Unable to set OMX_IndexParamAudioPcm");
+    const std::string coding_type_str ("Tunein");
+    tiz::graph::util::dump_graph_info (coding_type_str.c_str (), "Connected",
+                                       playlist_->get_current_uri ().c_str ());
   }
 }
 
@@ -560,10 +563,6 @@ graph::tuneinops::set_channels_and_rate_on_renderer (
   // Set the new pcm settings
   tiz_check_omx (
       OMX_SetParameter (handle, OMX_IndexParamAudioPcm, &renderer_pcmtype_));
-
-  std::string coding_type_str ("Tunein");
-  tiz::graph::util::dump_graph_info (coding_type_str.c_str (), "Connected",
-                                     playlist_->get_current_uri ().c_str ());
 
   return OMX_ErrorNone;
 }

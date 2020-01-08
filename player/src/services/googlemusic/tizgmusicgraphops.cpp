@@ -162,6 +162,13 @@ void graph::gmusicops::do_configure ()
                          "Unable to override decoder/renderer sampling rates");
     G_OPS_BAIL_IF_ERROR (apply_pcm_codec_info_from_decoder (),
                          "Unable to set OMX_IndexParamAudioPcm");
+    tizgmusicconfig_ptr_t gmusic_config
+      = boost::dynamic_pointer_cast< gmusicconfig >(config_);
+    assert (gmusic_config);
+    std::string coding_type_str ("Google Play Music");
+    tiz::graph::util::dump_graph_info (coding_type_str.c_str (),
+                                       "Connected",
+                                       gmusic_config->get_user_name ().c_str ());
   }
 }
 
@@ -434,15 +441,6 @@ graph::gmusicops::set_channels_and_rate_on_renderer (
   // Set the new pcm settings
   tiz_check_omx (
       OMX_SetParameter (handle, OMX_IndexParamAudioPcm, &renderer_pcmtype_));
-
-  tizgmusicconfig_ptr_t gmusic_config
-    = boost::dynamic_pointer_cast< gmusicconfig >(config_);
-  assert (gmusic_config);
-
-  std::string coding_type_str ("Google Play Music");
-  tiz::graph::util::dump_graph_info (coding_type_str.c_str (),
-                                     "Connected",
-                                     gmusic_config->get_user_name ().c_str ());
 
   return OMX_ErrorNone;
 }
