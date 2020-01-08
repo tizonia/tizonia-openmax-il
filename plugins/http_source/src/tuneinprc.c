@@ -560,7 +560,7 @@ connection_lost (OMX_PTR ap_arg)
   if (p_prc->auto_detect_on_)
     {
       /* Oops... unable to connect to the station */
-
+      TIZ_PRINTF_C01("[Tunein] Unable to connect/connection lost.");
       /* Make sure this url will not get processed again... */
       p_prc->remove_current_url_ = true;
 
