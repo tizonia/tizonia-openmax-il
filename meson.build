@@ -7,6 +7,7 @@ project('tizonia', ['c', 'cpp'], version: '0.19.0', license: 'LGPLv3.0+', meson_
 ##   attributes
 ## * try to understand where the path duplication mentioned on launch
 ##   (xdg_file : /etc/xdg/etc/xdg/tizonia/tizonia.conf) comes from
+##   2020-01-08 update: couldn't reproduce the bug
 
 host_os = host_machine.system()
 
