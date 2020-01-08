@@ -36,8 +36,8 @@ extern "C" {
 #include <stdbool.h>
 
 #define VPX_CODEC_DISABLE_COMPAT 1
-#include <vpx_decoder.h>
-#include <vp8dx.h>
+#include <vpx/vpx_decoder.h>
+#include <vpx/vp8dx.h>
 
 #include <tizprc_decls.h>
 
