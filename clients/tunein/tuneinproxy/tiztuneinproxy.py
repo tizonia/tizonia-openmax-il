@@ -307,7 +307,13 @@ class TuneIn:
 
     def _flatten(self, data):
         results = []
-        for item in data:
+        if type(data) is not list:
+            non_list_data = data
+            list_data = []
+            list_data.append(non_list_data)
+        else:
+            list_data = data
+        for item in list_data:
             if "children" in item:
                 results.extend(item["children"])
             else:
@@ -671,7 +677,7 @@ class tiztuneinproxy(object):
         region = self.select_one(results, keywords1, 'Region')
 
         if region:
-            print_wrn("[Tunein] [Location] Looking up stations from '{0}'." \
+            print_wrn("[Tunein] [Region] Selecting stations from '{0}'." \
                       .format(region['text']))
             guide_id = region['guide_id']
             args = "&id=" + guide_id
@@ -679,37 +685,33 @@ class tiztuneinproxy(object):
             country = self.select_one(results, keywords2, 'Country')
 
             if country:
-                print_wrn("[Tunein] [Location] Looking up stations from '{0}'." \
+                print_wrn("[Tunein] [Country] Selecting stations from '{0}'." \
                           .format(country['text']))
                 guide_id = country['guide_id']
                 args = "&id=" + guide_id
                 results = self.tunein._tunein("Browse.ashx", args)
-                pprint (results)
                 area = self.select_one(results, keywords3, 'Area')
 
                 if area.get("type") and area["type"] == "link":
-                    print_wrn("[Tunein] [Location] Looking up stations from '{0}'." \
+                    print_wrn("[Tunein] [Area] Selecting stations from '{0}'." \
                               .format(area['text']))
                     guide_id = area['guide_id']
                     args = "&id=" + guide_id
                     area = self.tunein._tunein("Browse.ashx", args)
-                    pprint (area)
 
                 args = ''
-
-                for item in area:
-                    for child in item['children']:
-                        audio_type = child.get("type", "")
-                        if audio_type == "audio":
-                            self.add_to_playback_queue(child)
-                            continue
-                        child_key = child.get("key", "")
-                        if child_key.startswith('popular'):
-                            args = "&" + child['URL'].split("?", 2)[1]
-                            break
-                        if child_key.startswith('stations'):
-                            args = "&" + child['URL'].split("?", 2)[1]
-                            break
+                for item in self.tunein._flatten(area):
+                    item_type = item.get("type", "")
+                    if item_type == "audio":
+                        self.add_to_playback_queue(item)
+                        continue
+                    item_key = item.get("key", "")
+                    if item_key.startswith('popular'):
+                        args = "&" + item['URL'].split("?", 2)[1]
+                        break
+                    if item_key.startswith('stations'):
+                        args = "&" + item['URL'].split("?", 2)[1]
+                        break
 
                 while len(self.queue) < 100 and args != '':
                     newargs = args
@@ -937,12 +939,15 @@ class tiztuneinproxy(object):
         try:
             self.now_playing_radio = station
             name = station['text'].rstrip()
-            formats = ''
+            formats = 'Unknown'
+            reliability = 'Unknown'
             if station.get("formats"):
                 formats = station['formats'].rstrip()
+            if station.get("reliability"):
+                reliability = station['reliability'].rstrip()
             streamurls = self.tunein.tune(station)
-            print_wrn("[Tunein] Playing '{0} ({1})'." \
-                          .format(name, formats))
+            print_wrn("[Tunein] Playing '{0} ({1}, reliability: {2})'." \
+                          .format(name, formats, reliability))
             if len(streamurls) > 0:
                 return streamurls[0]
             else:
@@ -978,17 +983,22 @@ class tiztuneinproxy(object):
         res_dict = dict()
         res_names = list()
         for r in results:
-            print_nfo("[Tunein] [{0}] '{1}'." \
-                      .format(name, r['text']))
-            res_names.append(r['text'])
-            res_dict[r['text']] = r
+            if r['text'] != 'By Genre':
+                print_nfo("[Tunein] [{0}] '{1}'." \
+                          .format(name, r['text']))
+                res_names.append(r['text'])
+                res_dict[r['text']] = r
 
-        if len(res_names) > 1:
-            res_name = process.extractOne(keywords, res_names)[0]
+        if not keywords:
+            res_name = random.choice(res_names)
             res = res_dict[res_name]
-        elif len(res_names) == 1:
-            res_name = res_names[0]
-            res = res_dict[res_name]
+        else:
+            if len(res_names) > 1:
+                res_name = process.extractOne(keywords, res_names)[0]
+                res = res_dict[res_name]
+            elif len(res_names) == 1:
+                res_name = res_names[0]
+                res = res_dict[res_name]
 
         return res
 
