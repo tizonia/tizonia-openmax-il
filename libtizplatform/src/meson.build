@@ -13,7 +13,6 @@ configure_file(input: 'tizplatform_config.h.in',
 libtizplatform_sources = [
    'http-parser/http_parser.c',
    'avl/avl.c',
-   'ev/ev.c',
    'tizplatform.c',
    'tizlog.c',
    'tizomxutils.c',
@@ -39,10 +38,6 @@ libtizplatform_sources = [
 install_headers(
    'utarray/utarray.h',
    'avl/avl.h',
-   'ev/ev.h',
-   'ev/ev_vars.h',
-   'ev/ev_wrap.h',
-   'ev/ev_epoll.c',
    'http-parser/http_parser.h',
    'tizplatform.h',
    'tizmacros.h',
@@ -69,18 +64,37 @@ install_headers(
    install_dir: tizincludedir
 )
 
+libtizplatform_deps = [
+   tizilheaders_dep,
+   libcurl_dep,
+   pthread_dep,
+   uuid_dep,
+   log4c_dep
+]
+
+if have_system_libev
+   libtizplatform_sources += [
+      'ev/ev.c'
+   ]
+   install_headers(
+      'ev/ev.h',
+      'ev/ev_vars.h',
+      'ev/ev_wrap.h',
+      'ev/ev_epoll.c',
+      install_dir: tizincludedir
+   )
+   libtizplatform_deps += [
+      libev_dep
+   ]
+endif
+
+
 
 libtizplatform = library(
    'tizplatform',
    version: tizversion,
    sources: libtizplatform_sources,
-   dependencies: [
-      tizilheaders_dep,
-      libcurl_dep,
-      pthread_dep,
-      uuid_dep,
-      log4c_dep
-   ],
+   dependencies: libtizplatform_deps,
    install: true
 )
 
@@ -89,4 +103,3 @@ libtizplatform_dep = declare_dependency(
     link_with: libtizplatform,
     dependencies: pthread_dep
 )
-
