@@ -84,6 +84,8 @@ else
    python3 = pymod.find_installation('python3', required: true)
 endif
 
+libev_dep = dependency('libev', required: false)
+have_system_libev = libev_dep.found()
 
 # there is also a config.h created in 3rdparty/dbus-cplusplus
 # see if unifying them would be preferable
@@ -112,6 +114,11 @@ endif
 
 if enable_blocking_sendcommand
    config_h.set10('SENDCOMMAND_SHOULD_BLOCK', true, description: 'Blocking behaviour of SendCommand API is enabled')
+endif
+
+# not present in the original
+if have_system_libev
+   config_h.set10('HAVE_SYSTEM_LIBEV', true, description: 'Define this to 1 if you have libev on your system')
 endif
 
 config_h.set_quoted('PACKAGE_VERSION', meson.project_version(), description: 'Define to the version of this package.')
