@@ -55,7 +55,11 @@
 #define EV_FORK_ENABLE 0
 #define EV_VERIFY 1
 
+#ifdef HAVE_SYSTEM_LIBEV
+#include <ev.h>
+#else
 #include "ev/ev.c"
+#endif
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
