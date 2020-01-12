@@ -65,7 +65,7 @@ uuid_dep = dependency('uuid', required: true, version: '>=2.19.0')
 
 # it builds without boost_thread, although player requires it in the original
 boost_dep = dependency(
-   'boost', modules: ['filesystem', 'program_options', 'python3'],
+   'boost', modules: ['filesystem', 'system', 'program_options', 'python3'],
    required: true, version: '>=1.54'
 )
 
