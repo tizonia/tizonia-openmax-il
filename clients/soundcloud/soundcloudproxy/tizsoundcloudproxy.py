@@ -158,7 +158,7 @@ class tizsoundcloudproxy(object):
 
         """
         self.current_play_mode = getattr(self.play_modes, mode)
-        self.__update_play_queue_order()
+        self._update_play_queue_order()
 
     def enqueue_user_stream(self):
         """Adds the tracks in the user stream to the playback queue.
@@ -190,7 +190,7 @@ class tizsoundcloudproxy(object):
 
             logging.info("Added {0} stream tracks to queue" \
                          .format(count))
-            self.__update_play_queue_order()
+            self._update_play_queue_order()
 
         except KeyError:
             raise
@@ -223,7 +223,7 @@ class tizsoundcloudproxy(object):
 
             logging.info("Added {0} stream tracks to queue" \
                          .format(count))
-            self.__update_play_queue_order()
+            self._update_play_queue_order()
 
         except KeyError:
             raise
@@ -258,7 +258,7 @@ class tizsoundcloudproxy(object):
 
             logging.info("Added {0} stream tracks to queue" \
                          .format(count))
-            self.__update_play_queue_order()
+            self._update_play_queue_order()
 
         except KeyError:
             raise KeyError(str("Playlist not found : %s" % arg))
@@ -307,7 +307,7 @@ class tizsoundcloudproxy(object):
 
             logging.info("Added {0} user tracks to queue" \
                          .format(count))
-            self.__update_play_queue_order()
+            self._update_play_queue_order()
 
         except KeyError:
             raise
@@ -344,7 +344,7 @@ class tizsoundcloudproxy(object):
             except KeyError:
                 pass
 
-            self.__update_play_queue_order()
+            self._update_play_queue_order()
 
         except KeyError:
             raise KeyError(str("No tracks found : %s" % arg))
@@ -401,7 +401,7 @@ class tizsoundcloudproxy(object):
 
             logging.info("Added {0} playlist tracks to queue" \
                          .format(count))
-            self.__update_play_queue_order()
+            self._update_play_queue_order()
 
         except KeyError:
             raise KeyError(str("No playlists found : %s" % arg))
@@ -438,7 +438,7 @@ class tizsoundcloudproxy(object):
             except KeyError:
                 pass
 
-            self.__update_play_queue_order()
+            self._update_play_queue_order()
 
         except KeyError:
             raise KeyError(str("Genre not found : %s" % arg))
@@ -478,7 +478,7 @@ class tizsoundcloudproxy(object):
             except KeyError:
                 pass
 
-            self.__update_play_queue_order()
+            self._update_play_queue_order()
 
         except KeyError:
             raise KeyError(str("Tag(s) not found : %s" % arg))
@@ -630,7 +630,7 @@ class tizsoundcloudproxy(object):
                    and (self.queue_index >= 0):
                     next_track = self.queue[self.play_queue_order \
                                             [self.queue_index]]
-                    return self.__retrieve_track_url(next_track)
+                    return self._retrieve_track_url(next_track)
                 else:
                     self.queue_index = -1
                     return self.next_url()
@@ -653,7 +653,7 @@ class tizsoundcloudproxy(object):
                    and (self.queue_index >= 0):
                     prev_track = self.queue[self.play_queue_order \
                                             [self.queue_index]]
-                    return self.__retrieve_track_url(prev_track)
+                    return self._retrieve_track_url(prev_track)
                 else:
                     self.queue_index = len(self.queue)
                     return self.prev_url()
@@ -663,7 +663,7 @@ class tizsoundcloudproxy(object):
             del self.queue[self.queue_index]
             return self.prev_url()
 
-    def __update_play_queue_order(self):
+    def _update_play_queue_order(self):
         """ Update the queue playback order.
 
         A sequential order is applied if the current play mode is "NORMAL" or a
@@ -680,11 +680,11 @@ class tizsoundcloudproxy(object):
             print_nfo("[SoundCloud] [Tracks in queue] '{0}'." \
                       .format(total_tracks))
 
-    def __retrieve_track_url(self, track):
+    def _retrieve_track_url(self, track):
         """ Retrieve a track url
 
         """
-        logging.info("__retrieve_track_url : {0}".format(track['id']))
+        logging.info("_retrieve_track_url : {0}".format(track['id']))
         try:
             self.now_playing_track = track
             #pprint.pprint(track)
