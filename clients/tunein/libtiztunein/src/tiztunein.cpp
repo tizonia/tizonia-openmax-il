@@ -256,13 +256,18 @@ const char *tiztunein::get_current_radio_type ()
 const char *tiztunein::get_current_radio_website ()
 {
   return current_radio_website_.empty () ? NULL
-                                           : current_radio_website_.c_str ();
+                                         : current_radio_website_.c_str ();
 }
 
 const char *tiztunein::get_current_radio_bitrate ()
 {
   return current_radio_bitrate_.empty () ? NULL
-                                           : current_radio_bitrate_.c_str ();
+                                         : current_radio_bitrate_.c_str ();
+}
+
+const char *tiztunein::get_current_radio_format ()
+{
+  return current_radio_format_.empty () ? NULL : current_radio_format_.c_str ();
 }
 
 const char *tiztunein::get_current_radio_stream_url ()
@@ -400,6 +405,9 @@ void tiztunein::get_current_radio ()
 
   current_radio_bitrate_ = bp::extract< std::string > (
       py_tunein_proxy_.attr ("current_radio_bitrate") ());
+
+  current_radio_format_ = bp::extract< std::string > (
+      py_tunein_proxy_.attr ("current_radio_formats") ());
 
   current_radio_thumbnail_url_ = bp::extract< std::string > (
       py_tunein_proxy_.attr ("current_radio_thumbnail_url") ());

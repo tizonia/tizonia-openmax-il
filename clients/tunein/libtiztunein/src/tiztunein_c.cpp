@@ -239,6 +239,14 @@ extern "C" const char *tiz_tunein_get_current_radio_bitrate (
   return ap_tunein->p_proxy_->get_current_radio_bitrate ();
 }
 
+extern "C" const char *tiz_tunein_get_current_radio_format (
+    tiz_tunein_t *ap_tunein)
+{
+  assert (ap_tunein);
+  assert (ap_tunein->p_proxy_);
+  return ap_tunein->p_proxy_->get_current_radio_format ();
+}
+
 extern "C" const char *tiz_tunein_get_current_radio_stream_url (
     tiz_tunein_t *ap_tunein)
 {

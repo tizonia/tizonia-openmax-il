@@ -288,6 +288,15 @@ extern "C"
   const char *tiz_tunein_get_current_radio_bitrate (tiz_tunein_t *ap_tunein);
 
   /**
+   * Retrieve the current station's format.
+   *
+   * @ingroup libtiztunein
+   *
+   * @param ap_tunein The tunein handle.
+   */
+  const char *tiz_tunein_get_current_radio_format (tiz_tunein_t *ap_tunein);
+
+  /**
    * Retrieve the current station's stream url.
    *
    * @ingroup libtiztunein

@@ -87,6 +87,7 @@ public:
   const char *get_current_radio_type ();
   const char *get_current_radio_website ();
   const char *get_current_radio_bitrate ();
+  const char *get_current_radio_format ();
   const char *get_current_radio_stream_url ();
   const char *get_current_radio_thumbnail_url ();
 
@@ -104,6 +105,7 @@ private:
   std::string current_radio_type_;
   std::string current_radio_website_;
   std::string current_radio_bitrate_;
+  std::string current_radio_format_;
   std::string current_radio_thumbnail_url_;
   std::string current_queue_progress_;
   boost::python::object py_main_;
