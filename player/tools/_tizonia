@@ -69,10 +69,16 @@ _arguments -S -s \
   '--soundcloud-playlists[Search and play playlists by title.]' \
   '--soundcloud-genres[Search and play genres top tracks (arg is a command-separated list).]' \
   '--soundcloud-tags[Search and play tags top tracks (arg is a command-separated list).]' \
-  '--tunein-popular-stations[Play Tuneins popular stations.]' \
-  '--tunein-station[Tunein station search.]' \
-  '--tunein-category[Tunein category search.]' \
-  '--tunein-country[Tunein country search.]' \
+  '--tunein-search[TuneIn global station/podcast search.]' \
+  '--tunein-filter[Limit results to specific type: 'stations', 'shows', or 'all' (default: all). Optional.]' \
+  '--tunein-local[TuneIn 'local' category search.]' \
+  '--tunein-music[TuneIn 'music' category search.]' \
+  '--tunein-talk[TuneIn 'talk' category search.]' \
+  '--tunein-sports[TuneIn 'sports' category search.]' \
+  '--tunein-location[TuneIn 'location' category search.]' \
+  '--tunein-podcasts[TuneIn 'podcasts' category search.]' \
+  '--tunein-trending[TuneIn 'trending' category search.]' \
+  '--tunein-additional-keywords[Additional keywords to be used in conjunction with other TuneIn search options. Optional..]' \
   '--youtube-audio-mix[Play a YouTube mix from a video url or video id.]' \
   '--youtube-audio-mix-search[Play a YouTube mix from a search term.]' \
   '--youtube-audio-playlist[Play a YouTube audio playlist from a playlist url or playlist id.]' \

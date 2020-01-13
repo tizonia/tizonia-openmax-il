@@ -321,7 +321,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     spotify_ ("Spotify options (Spotify Premium required)"),
     gmusic_ ("Google Play Music options"),
     scloud_ ("SoundCloud options"),
-    tunein_ ("Tunein options"),
+    tunein_ ("TuneIn options"),
     youtube_ ("YouTube options"),
     plex_ ("Plex options"),
     chromecast_ ("Chromecast options"),
@@ -565,7 +565,7 @@ void tiz::programopts::print_usage_help () const
             << "soundcloud    SoundCloud options."
             << "\n";
   std::cout << "  "
-            << "tunein        Tunein options."
+            << "tunein        TuneIn options."
             << "\n";
   std::cout << "  "
             << "youtube       YouTube options."
@@ -1811,38 +1811,38 @@ void tiz::programopts::init_tunein_options ()
   tunein_.add_options ()
       /* TIZ_CLASS_COMMENT: */
       ("tunein-search", po::value (&tunein_search_),
-       "Tunein station/show global search.")
+       "TuneIn global station/podcast search.")
       /* TIZ_CLASS_COMMENT: */
       ("tunein-filter", po::value (&tunein_search_filter_),
-       "Limit results to specific type: 'stations', 'shows', or 'all (default: all). "
+       "Limit results to specific type: 'stations', 'shows', or 'all' (default: all). "
        "Optional.")
       /* TIZ_CLASS_COMMENT: */
       ("tunein-local", po::value (&tunein_local_),
-       "Tunein 'local' category search.")
+       "TuneIn 'local' category search.")
       /* TIZ_CLASS_COMMENT: */
       ("tunein-music", po::value (&tunein_music_),
-       "Tunein 'music' category search.")
+       "TuneIn 'music' category search.")
       /* TIZ_CLASS_COMMENT: */
       ("tunein-talk", po::value (&tunein_talk_),
-       "Tunein 'talk' category search.")
+       "TuneIn 'talk' category search.")
       /* TIZ_CLASS_COMMENT: */
       ("tunein-sports", po::value (&tunein_sports_),
-       "Tunein 'sports' category search.")
+       "TuneIn 'sports' category search.")
       /* TIZ_CLASS_COMMENT: */
       ("tunein-location", po::value (&tunein_location_),
-       "Tunein 'location' category search.")
+       "TuneIn 'location' category search.")
       /* TIZ_CLASS_COMMENT: */
       ("tunein-podcasts", po::value (&tunein_podcasts_),
-       "Tunein 'podcasts' category search.")
+       "TuneIn 'podcasts' category search.")
       /* TIZ_CLASS_COMMENT: */
       ("tunein-trending", po::value (&tunein_trending_)->implicit_value(""),
-       "Tunein 'trending' category search.")
+       "TuneIn 'trending' category search.")
       /* TIZ_CLASS_COMMENT: */
       ("tunein-additional-keywords",
        po::value< std::vector< std::string > > (&tunein_additional_keywords_)
            ->multitoken ()
            ->composing (),
-       "Additional keywords to be used in conjunction with any of the category "
+       "Additional keywords to be used in conjunction with other TuneIn "
        "search options. Optional.");
 
   register_consume_function (&tiz::programopts::consume_tunein_client_options);
