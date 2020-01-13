@@ -457,9 +457,6 @@ dispatch_msg (tiz_event_loop_msg_t * ap_msg)
   assert (ap_msg);
   assert (ap_msg->class < ETIZEventLoopMsgMax);
 
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "msg [%p] class [%s]", ap_msg,
-           tiz_event_loop_msg_to_str (ap_msg->class));
-
   (void) tiz_event_loop_msg_to_fnt_tbl[ap_msg->class](ap_msg);
 }
 
