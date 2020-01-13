@@ -1185,9 +1185,11 @@ class tiztuneinproxy(object):
 
             if r.get("formats") and r.get("bitrate"):
                 # Make sure we allow only mp3 stations for now
-                if "mp3" not in r.get("formats"):
-                    logging.info("Ignoring non-mp3 station")
-                    return
+                if "mp3" not in r.get("formats") and "ogg" not in r.get("formats"):
+                    logging.info(
+                        "Ignoring non-mp3/ogg station : {0}".format(r.get("formats"))
+                    )
+                    continue
 
                 print_nfo(
                     "[TuneIn] [{0}] '{1}' [{2}] ({3}, {4}kbps).".format(
