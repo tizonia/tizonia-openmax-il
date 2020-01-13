@@ -33,6 +33,7 @@ import logging
 import random
 import requests
 import datetime
+import xml.etree.ElementTree as elementtree
 from collections import OrderedDict
 from contextlib import closing
 from requests import Session, exceptions
@@ -41,7 +42,7 @@ from operator import itemgetter
 from joblib import Memory
 from fuzzywuzzy import process
 from fuzzywuzzy import fuzz
-import xml.etree.ElementTree as elementtree
+from functools import reduce
 
 # FOR REFERENCE
 # {'URL': 'http://opml.radiotime.com/Tune.ashx?id=s290003',
@@ -567,6 +568,7 @@ class tiztuneinproxy(object):
     def __init__(self):
         self.queue = list()
         self.queue_index = -1
+        self.unique_names = set()
         self.play_queue_order = list()
         self.play_modes = TizEnumeration(["NORMAL", "SHUFFLE"])
         self.search_modes = TizEnumeration(["ALL", "STATIONS", "SHOWS"])
@@ -831,6 +833,12 @@ class tiztuneinproxy(object):
             keywords2,
             keywords3,
         )
+        print_msg(
+            "[TuneIn] [TuneIn {0} search] : '{1}' (additional keywords: {2} {3}). ".format(
+                category, keywords1, keywords2, keywords3
+            )
+        )
+
         cat_dict = dict()
         cat_names = list()
         results = self.tunein.categories(category)
@@ -993,6 +1001,11 @@ class tiztuneinproxy(object):
         logging.info(
             "_enqueue_podcasts : 1: %s 2: %s 3: %s", keywords1, keywords2, keywords3
         )
+        print_msg(
+            "[TuneIn] [TuneIn podcast search] : '{0}' (additional keywords: {1} {2}). ".format(
+                keywords1, keywords2, keywords3
+            )
+        )
 
         results = self.tunein.categories("podcast")
         topic = self._select_one(results, keywords1, "Topic")
@@ -1107,6 +1120,15 @@ class tiztuneinproxy(object):
         print_nfo("[TuneIn] [Items in queue] '{0}'.".format(total_stations))
 
     def _add_to_playback_queue(self, r):
+
+        # Check station uniqueness
+        names_len = len(self.unique_names)
+        self.unique_names.add(r["text"] + r["subtext"])
+        if names_len == len(self.unique_names):
+            # Station/show exist in the queue
+            logging.info("Ignoring duplicate station/show")
+            return
+
         st_or_pod = r["item"]
 
         if (
