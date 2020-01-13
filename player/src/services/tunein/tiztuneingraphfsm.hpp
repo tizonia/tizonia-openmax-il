@@ -245,7 +245,7 @@ namespace tiz
           //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+--------------------------------+
           bmf::Row < tg::idle2exe                   , tg::omx_trans_evt         , tg::enabling_tunnel             , tg::do_enable_tunnel<0>       , tg::is_trans_complete          >,
           //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+--------------------------------+
-          bmf::Row < tg::enabling_tunnel            , tg::omx_port_enabled_evt  , updating_graph_exit             , bmf::none                     , tg::is_port_enabling_complete  >
+          bmf::Row < tg::enabling_tunnel            , tg::omx_port_enabled_evt  , updating_graph_exit             , tg::do_restore_volume         , tg::is_port_enabling_complete  >
           //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+--------------------------------+
           > {};
 
