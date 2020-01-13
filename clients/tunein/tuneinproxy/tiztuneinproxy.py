@@ -1080,6 +1080,8 @@ class tiztuneinproxy(object):
                 urls = self.tunein.parse_stream_url(streamurls[0])
                 if len(urls) > 0:
                     station_url = urls[0]
+                else:
+                    station_url = streamurls[0]
             # Add the url key
             station["streamurl"] = station_url
             self.queue[station_idx] = station
@@ -1126,7 +1128,12 @@ class tiztuneinproxy(object):
         self.unique_names.add(r["text"] + r["subtext"])
         if names_len == len(self.unique_names):
             # Station/show exist in the queue
-            logging.info("Ignoring duplicate station/show")
+            logging.info("Ignoring duplicate")
+            return
+
+        # Ignore georestricted items
+        if r["subtext"].lower().startswith("not available in your country"):
+            logging.info("Ignoring georestricted station/show")
             return
 
         st_or_pod = r["item"]
@@ -1135,7 +1142,7 @@ class tiztuneinproxy(object):
             st_or_pod == "topic"
             and self.current_search_mode == self.search_modes.STATIONS
         ):
-            logging.info("Ignoring podcast/show")
+            logging.info("Ignoring podcast")
             return
 
         if (
