@@ -345,15 +345,20 @@ update_metadata (tunein_prc_t * ap_prc)
     store_metadata (ap_prc, "Description",
                     tiz_tunein_get_current_radio_description (ap_prc->p_tunein_)));
 
-  /* Station Bitrate */
-  tiz_check_omx (
-    store_metadata (ap_prc, "Bitrate",
-                    tiz_tunein_get_current_radio_bitrate (ap_prc->p_tunein_)));
-
   /* Type */
   tiz_check_omx (
     store_metadata (ap_prc, "Type",
                     tiz_tunein_get_current_radio_type (ap_prc->p_tunein_)));
+
+  /* Station formats */
+  tiz_check_omx (
+    store_metadata (ap_prc, "Format",
+                    tiz_tunein_get_current_radio_format (ap_prc->p_tunein_)));
+
+  /* Station Bitrate */
+  tiz_check_omx (
+    store_metadata (ap_prc, "Bitrate",
+                    tiz_tunein_get_current_radio_bitrate (ap_prc->p_tunein_)));
 
   /* Reliability */
   tiz_check_omx (store_metadata (
