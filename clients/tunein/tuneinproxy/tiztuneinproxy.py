@@ -624,6 +624,8 @@ class tiztuneinproxy(object):
 
             if category == "location":
                 self._enqueue_location(keywords1, keywords2, keywords3)
+            elif category == "podcasts":
+                self._enqueue_podcasts(keywords1, keywords2, keywords3)
             elif category == "trending":
                 self._enqueue_trending(keywords1)
             else:
@@ -799,6 +801,69 @@ class tiztuneinproxy(object):
             for s in stations:
                 if s["type"] == "audio":
                     self.add_to_playback_queue(s)
+
+    def _enqueue_podcasts(self, keywords1="", keywords2="", keywords3=""):
+        """Search Tunein's Location category and add its stations to the
+        playback queue.
+
+        :param keywords1: additional keywords
+        :param keywords2: additional keywords
+        :param keywords3: additional keywords
+
+        """
+        logging.info(
+            "_enqueue_podcasts : 1: %s 2: %s 3: %s", keywords1, keywords2, keywords3
+        )
+
+        results = self.tunein.categories("podcast")
+        topic = self.select_one(results, keywords1, "Topic")
+
+        if topic:
+            print_wrn(
+                "[Tunein] [Shows] Selecting podcast topic '{0}'.".format(
+                    topic["text"]
+                )
+            )
+            guide_id = topic["guide_id"]
+            shows = self.tunein.shows(guide_id)
+            show = self.select_one(shows, keywords2, "Podcast")
+
+            if show:
+                print_wrn(
+                    "[Tunein] [Show] Selecting episodes from '{0}'.".format(
+                        show["text"]
+                    )
+                )
+                guide_id = show["guide_id"]
+                episodes = self.tunein.episodes(guide_id)
+
+                args = ""
+                for item in self.tunein._flatten(episodes):
+                    item_type = item.get("type", "")
+                    if item_type == "audio":
+                        self.add_to_playback_queue(item)
+                        continue
+                    item_key = item.get("key", "")
+                    if item_key.startswith("popular"):
+                        args = "&" + item["URL"].split("?", 2)[1]
+                        break
+                    if item_key.startswith("stations"):
+                        args = "&" + item["URL"].split("?", 2)[1]
+                        break
+
+                while len(self.queue) < 100 and args != "":
+                    newargs = args
+                    stations = self.tunein._tunein("Browse.ashx", args)
+                    for s in stations:
+                        if s["type"] == "audio":
+                            self.add_to_playback_queue(s)
+                        elif s["type"] == "link" and s["key"] == "nextStations":
+                            newargs = "&" + s["URL"].split("?", 2)[1]
+
+                    if newargs != args:
+                        args = newargs
+                    else:
+                        break
 
     # {'URL': 'http://opml.radiotime.com/Tune.ashx?id=s290003',
     #   'bitrate': '128',
@@ -1011,7 +1076,21 @@ class tiztuneinproxy(object):
     def add_to_playback_queue(self, r):
         st_or_pod = r["item"]
         if st_or_pod == "topic":
-            st_or_pod = "podcast"
+            st_or_pod = "episode"
+
+        if (
+            st_or_pod == "episode"
+            and self.current_search_mode == self.search_modes.STATIONS
+        ):
+            logging.info("Ignoring podcast/show")
+            return
+
+        if (
+            st_or_pod == "station"
+            and self.current_search_mode == self.search_modes.SHOWS
+        ):
+            logging.info("Ignoring station")
+            return
 
         if r.get("formats") and r.get("bitrate"):
             # Make sure we allow only mp3 stations for now
@@ -1028,6 +1107,7 @@ class tiztuneinproxy(object):
             print_nfo(
                 "[Tunein] [{0}] '{1}' [{2}].".format(st_or_pod, r["text"], r["subtext"])
             )
+
         self.queue.append(r)
 
     def select_one(self, results, keywords, name=""):
