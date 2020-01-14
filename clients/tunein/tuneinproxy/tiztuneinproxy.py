@@ -662,7 +662,13 @@ class tiztuneinproxy(object):
             self._update_play_queue_order()
 
         except ValueError:
-            raise ValueError(str("No stations/shows found : %s" % category))
+            raise ValueError(
+                str(
+                    "No stations/shows found : {0} {1} {2} {3} ".format(
+                        category, keywords1, keywords2, keywords3
+                    )
+                )
+            )
 
     def current_radio_name(self):
         """ Retrieve the current station's or show's name.
@@ -840,20 +846,8 @@ class tiztuneinproxy(object):
             )
         )
 
-        cat_dict = dict()
-        cat_names = list()
         results = self.tunein.categories(category)
-        for r in results:
-            print_nfo("[TuneIn] [{0}] '{1}'.".format(category, r["text"]))
-            cat_names.append(r["text"])
-            cat_dict[r["text"]] = r
-
-        if len(cat_names) > 1:
-            cat_name = process.extractOne(keywords1, cat_names)[0]
-            cat = cat_dict[cat_name]
-        elif len(cat_names) == 1:
-            cat_name = cat_names[0]
-            cat = cat_dict[cat_name]
+        cat = self._select_one(results, keywords1, category)
 
         if cat:
             print_wrn("[TuneIn] [{0}] Adding '{1}'.".format(category, cat["text"]))
@@ -881,6 +875,13 @@ class tiztuneinproxy(object):
                     for p in popular:
                         if p.get("type") and p["type"] == "audio":
                             self._add_to_playback_queue(p)
+
+                # Try an unfiltered search if nothing return results so far
+                if not len(self.queue):
+                    stations = self.tunein._browse_unfiltered(cat["guide_id"])
+                    for s in stations:
+                        if s.get("type") and s["type"] == "audio":
+                            self._add_to_playback_queue(s)
 
             # Enqueue podcasts
             if (
