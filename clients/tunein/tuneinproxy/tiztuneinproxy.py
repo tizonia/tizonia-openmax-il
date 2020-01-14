@@ -595,7 +595,7 @@ class tiztuneinproxy(object):
         """
         self.current_search_mode = getattr(self.search_modes, mode)
 
-    def enqueue_radios(self, arg):
+    def enqueue_radios(self, arg, keywords1="", keywords2="", keywords3=""):
         """Search Tunein for stations or shows and add them to the playback
         queue.
 
@@ -610,6 +610,9 @@ class tiztuneinproxy(object):
             results = self.tunein.search(arg)
             for r in results:
                 self._add_to_playback_queue(r)
+
+            remaining_keywords = [keywords1, keywords2, keywords3]
+            self._filter_play_queue('global', remaining_keywords)
 
             logging.info(
                 "Added {0} stations/shows to queue".format(len(self.queue) - count)
@@ -1082,6 +1085,8 @@ class tiztuneinproxy(object):
                         args = newargs
                     else:
                         break
+
+            self._filter_play_queue('podcast', list(keywords3))
 
     def _retrieve_station_url(self, station_idx):
         """ Retrieve a station url
