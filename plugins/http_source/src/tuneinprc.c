@@ -686,7 +686,8 @@ enqueue_playlist_items (tunein_prc_t * ap_prc)
           break;
         case OMX_AUDIO_TuneinPlaylistTypeRadios:
           {
-            rc = tiz_tunein_play_radios (ap_prc->p_tunein_, p_playlist);
+            rc = tiz_tunein_play_radios (ap_prc->p_tunein_, p_playlist,
+                                         p_keywords1, p_keywords2, p_keywords3);
           }
           break;
         case OMX_AUDIO_TuneinPlaylistTypeCategory:
