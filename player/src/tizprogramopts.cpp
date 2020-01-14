@@ -413,11 +413,11 @@ tiz::programopts::programopts (int argc, char *argv[])
     tunein_location_ (),
     tunein_podcasts_ (),
     tunein_trending_ (),
-    tunein_search_filter_(),
-    tunein_additional_keywords_ (),
+    tunein_search_type_filter_(),
+    tunein_keywords_ (),
     tunein_playlist_container_ (),
     tunein_playlist_type_ (OMX_AUDIO_TuneinPlaylistTypeUnknown),
-    tunein_search_filter_type_ (OMX_AUDIO_TuneinSearchTypeAll),
+    tunein_search_type_ (OMX_AUDIO_TuneinSearchTypeAll),
     tunein_buffer_seconds_ (0),
     youtube_audio_stream_ (),
     youtube_audio_playlist_ (),
@@ -1182,10 +1182,14 @@ const std::vector< std::string > &tiz::programopts::tunein_playlist_container ()
   if (!tunein_search_.empty ())
   {
     tunein_playlist_container_.push_back (tunein_search_);
+    BOOST_FOREACH (std::string keyword, tunein_keywords_)
+    {
+      tunein_playlist_container_.push_back (keyword);
+    }
   }
   else if (!tunein_category_.empty ())
   {
-    BOOST_FOREACH (std::string keyword, tunein_additional_keywords_)
+    BOOST_FOREACH (std::string keyword, tunein_keywords_)
     {
       tunein_playlist_container_.push_back (keyword);
     }
@@ -1217,22 +1221,22 @@ tiz::programopts::tunein_playlist_type ()
 }
 
 OMX_TIZONIA_AUDIO_TUNEINSEARCHTYPE
-tiz::programopts::tunein_search_filter_type ()
+tiz::programopts::tunein_search_type ()
 {
-  if (!tunein_search_filter_.compare ("stations"))
+  if (!tunein_search_type_filter_.compare ("stations"))
   {
-    tunein_search_filter_type_ = OMX_AUDIO_TuneinSearchTypeStations;
+    tunein_search_type_ = OMX_AUDIO_TuneinSearchTypeStations;
   }
-  else if (!tunein_search_filter_.compare ("shows"))
+  else if (!tunein_search_type_filter_.compare ("shows"))
   {
-    tunein_search_filter_type_ = OMX_AUDIO_TuneinSearchTypeShows;
+    tunein_search_type_ = OMX_AUDIO_TuneinSearchTypeShows;
   }
   else
   {
-    tunein_search_filter_type_ = OMX_AUDIO_TuneinSearchTypeAll;
+    tunein_search_type_ = OMX_AUDIO_TuneinSearchTypeAll;
   }
 
-  return tunein_search_filter_type_ ;
+  return tunein_search_type_ ;
 }
 
 uint32_t tiz::programopts::tunein_buffer_seconds () const
@@ -1813,10 +1817,6 @@ void tiz::programopts::init_tunein_options ()
       ("tunein-search", po::value (&tunein_search_),
        "TuneIn global station/podcast search.")
       /* TIZ_CLASS_COMMENT: */
-      ("tunein-filter", po::value (&tunein_search_filter_),
-       "Limit results to specific type: 'stations', 'shows', or 'all' (default: all). "
-       "Optional.")
-      /* TIZ_CLASS_COMMENT: */
       ("tunein-local", po::value (&tunein_local_),
        "TuneIn 'local' category search.")
       /* TIZ_CLASS_COMMENT: */
@@ -1835,22 +1835,27 @@ void tiz::programopts::init_tunein_options ()
       ("tunein-podcasts", po::value (&tunein_podcasts_),
        "TuneIn 'podcasts' category search.")
       /* TIZ_CLASS_COMMENT: */
-      ("tunein-trending", po::value (&tunein_trending_)->implicit_value(""),
+      ("tunein-trending", po::value (&tunein_trending_)->implicit_value (""),
        "TuneIn 'trending' category search.")
       /* TIZ_CLASS_COMMENT: */
-      ("tunein-additional-keywords",
-       po::value< std::vector< std::string > > (&tunein_additional_keywords_)
+      ("tunein-type", po::value (&tunein_search_type_filter_),
+       "Narrow down the search to specific type: 'stations', 'shows', or 'all' "
+       "(default: all). "
+       "Optional.")
+      /* TIZ_CLASS_COMMENT: */
+      ("tunein-keywords",
+       po::value< std::vector< std::string > > (&tunein_keywords_)
            ->multitoken ()
            ->composing (),
-       "Additional keywords to be used in conjunction with other TuneIn "
-       "search options. Optional.");
+       "Additional keywords that may be used in conjunction with the TuneIn "
+       "options. Optional (may be repeated).");
 
   register_consume_function (&tiz::programopts::consume_tunein_client_options);
   all_tunein_client_options_
-      = boost::assign::list_of ("tunein-search") ("tunein-filter") (
+      = boost::assign::list_of ("tunein-search") ("tunein-type") (
             "tunein-local") ("tunein-music") ("tunein-talk") ("tunein-sports") (
             "tunein-location") ("tunein-podcasts") ("tunein-trending") (
-            "tunein-additional-keywords")
+            "tunein-keywords")
             .convert_to_container< std::vector< std::string > > ();
 }
 
@@ -2620,9 +2625,9 @@ int tiz::programopts::consume_tunein_client_options (bool &done,
       tunein_playlist_container_.push_back (tunein_trending_);
     }
 
-    if (!vm_.count ("tunein-filter"))
+    if (!vm_.count ("tunein-type"))
     {
-      tunein_search_filter_.assign ("all");
+      tunein_search_type_filter_.assign ("all");
     }
 
     if (playlist_option_count > 1)
@@ -2646,13 +2651,13 @@ int tiz::programopts::consume_tunein_client_options (bool &done,
       oss << "A playlist value must be specified.";
       msg.assign (oss.str ());
     }
-    else if (!(0 == tunein_search_filter_.compare ("all")
-               || 0 == tunein_search_filter_.compare ("stations")
-               || 0 == tunein_search_filter_.compare ("shows")))
+    else if (!(0 == tunein_search_type_filter_.compare ("all")
+               || 0 == tunein_search_type_filter_.compare ("stations")
+               || 0 == tunein_search_type_filter_.compare ("shows")))
     {
       rc = EXIT_FAILURE;
       std::ostringstream oss;
-      oss << "tunein-filter: only one of 'station', 'shows', or 'all' must be "
+      oss << "tunein-type: only one of 'station', 'shows', or 'all' must be "
              "specified.";
       msg.assign (oss.str ());
     }
@@ -3018,7 +3023,7 @@ bool tiz::programopts::validate_tunein_client_options () const
 {
   bool outcome = false;
   uint32_t tunein_opts_count
-      = vm_.count ("tunein-search") + vm_.count ("tunein-filter")
+      = vm_.count ("tunein-search") + vm_.count ("tunein-type")
         + vm_.count ("tunein-local") + vm_.count ("tunein-music")
         + vm_.count ("tunein-talk") + vm_.count ("tunein-sports")
         + vm_.count ("tunein-location") + vm_.count ("tunein-podcasts")

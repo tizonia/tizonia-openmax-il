@@ -1085,7 +1085,7 @@ tiz::playapp::tunein_stream ()
   const OMX_TIZONIA_AUDIO_TUNEINPLAYLISTTYPE playlist_type
       = popts_.tunein_playlist_type ();
   const OMX_TIZONIA_AUDIO_TUNEINSEARCHTYPE search_type
-      = popts_.tunein_search_filter_type ();
+      = popts_.tunein_search_type ();
   const uint32_t buffer_seconds = popts_.tunein_buffer_seconds ();
 
   print_banner ();
@@ -1377,7 +1377,7 @@ tiz::playapp::tunein_stream_chromecast ()
   const OMX_TIZONIA_AUDIO_TUNEINPLAYLISTTYPE playlist_type
       = popts_.tunein_playlist_type ();
   const OMX_TIZONIA_AUDIO_TUNEINSEARCHTYPE search_type
-      = popts_.tunein_search_filter_type ();
+      = popts_.tunein_search_type ();
   const std::string cc_name_or_ip (popts_.chromecast_name_or_ip ());
   const uint32_t unused_buffer_seconds = 0; // this is not used during casting
 

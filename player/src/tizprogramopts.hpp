@@ -100,7 +100,7 @@ namespace tiz
     uint32_t scloud_buffer_seconds() const;
     const std::vector< std::string > &tunein_playlist_container ();
     OMX_TIZONIA_AUDIO_TUNEINPLAYLISTTYPE tunein_playlist_type ();
-    OMX_TIZONIA_AUDIO_TUNEINSEARCHTYPE tunein_search_filter_type ();
+    OMX_TIZONIA_AUDIO_TUNEINSEARCHTYPE tunein_search_type ();
     uint32_t tunein_buffer_seconds() const;
     const std::vector< std::string > &youtube_playlist_container ();
     OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE youtube_playlist_type ();
@@ -275,11 +275,11 @@ namespace tiz
     std::string tunein_location_;
     std::string tunein_podcasts_;
     std::string tunein_trending_;
-    std::string tunein_search_filter_;
-    std::vector< std::string > tunein_additional_keywords_;
+    std::string tunein_search_type_filter_;
+    std::vector< std::string > tunein_keywords_;
     std::vector< std::string > tunein_playlist_container_;
     OMX_TIZONIA_AUDIO_TUNEINPLAYLISTTYPE tunein_playlist_type_;
-    OMX_TIZONIA_AUDIO_TUNEINSEARCHTYPE tunein_search_filter_type_;
+    OMX_TIZONIA_AUDIO_TUNEINSEARCHTYPE tunein_search_type_;
     uint32_t tunein_buffer_seconds_;
     std::string youtube_audio_stream_;
     std::string youtube_audio_playlist_;
