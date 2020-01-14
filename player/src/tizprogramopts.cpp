@@ -2652,7 +2652,7 @@ int tiz::programopts::consume_tunein_client_options (bool &done,
     {
       rc = EXIT_FAILURE;
       std::ostringstream oss;
-      oss << "tunein-filter: only one of 'station', 'shows', or 'all' may be "
+      oss << "tunein-filter: only one of 'station', 'shows', or 'all' must be "
              "specified.";
       msg.assign (oss.str ());
     }
