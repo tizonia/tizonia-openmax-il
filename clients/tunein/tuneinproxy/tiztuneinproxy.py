@@ -63,6 +63,7 @@ from functools import reduce
 # For use during debugging
 from pprint import pprint
 
+NOW = datetime.datetime.now()
 TUNEIN_CACHE_LOCATION = os.path.join(os.getenv("HOME"), ".config/tizonia/tunein-cache")
 MEMORY = Memory(TUNEIN_CACHE_LOCATION, verbose=0)
 
@@ -856,34 +857,46 @@ class tiztuneinproxy(object):
 
         if cat:
             print_wrn(
-                "[TuneIn] [{0}] Adding stations '{1}'.".format(category, cat["text"])
+                "[TuneIn] [{0}] Adding '{1}'.".format(category, cat["text"])
             )
 
-            stations = self.tunein.stations(cat["guide_id"])
-            for s in stations:
-                if s["type"] == "audio":
-                    self._add_to_playback_queue(s)
+            # Enqueue stations
+            if self.current_search_mode == self.search_modes.ALL or \
+               self.current_search_mode == self.search_modes.STATIONS:
+                stations = self.tunein.stations(cat["guide_id"])
+                for s in stations:
+                    if s["type"] == "audio":
+                        self._add_to_playback_queue(s)
 
-            # Enqueue more stations
-            next_stations = self.tunein.stations_next(cat["guide_id"])
-            if next_stations:
-                for n in next_stations:
-                    if n["type"] == "audio":
-                        self._add_to_playback_queue(n)
+                # Enqueue more stations
+                next_stations = self.tunein.stations_next(cat["guide_id"])
+                if next_stations:
+                    for n in next_stations:
+                        if n["type"] == "audio":
+                            self._add_to_playback_queue(n)
 
-            # Enqueue more stations
-            next_stations = self.tunein.stations_next(cat["guide_id"])
-            if next_stations:
-                for n in next_stations:
-                    if n["type"] == "audio":
-                        self._add_to_playback_queue(n)
+                # Enqueue some popular stations
+                popular = self.tunein.stations_popular(cat["guide_id"])
+                if popular:
+                    for p in popular:
+                        if p.get("type") and p["type"] == "audio":
+                            self._add_to_playback_queue(p)
 
-            # Enqueue some popular stations
-            popular = self.tunein.stations_popular(cat["guide_id"])
-            if popular:
-                for p in popular:
-                    if p.get("type") and p["type"] == "audio":
-                        self._add_to_playback_queue(p)
+            # Enqueue podcasts
+            if self.current_search_mode == self.search_modes.ALL or \
+               self.current_search_mode == self.search_modes.SHOWS:
+                podcasts = self.tunein.shows(cat["guide_id"])
+                if podcasts:
+                    for p in podcasts:
+                        print_wrn(
+                            "[TuneIn] [{0}] Adding '{1}' podcast show.".format(category, p["text"])
+                        )
+                        guide_id = p["guide_id"]
+                        episodes = self.tunein.episodes(guide_id)
+                        for e in episodes:
+                            if e["type"] == "audio":
+                                e['text'] = p["text"] + ': ' + e['text']
+                                self._add_to_playback_queue(e)
 
     def _enqueue_location(self, keywords1="", keywords2="", keywords3=""):
         """Search Tunein's Location category and add its stations to the
@@ -1117,7 +1130,7 @@ class tiztuneinproxy(object):
                 random.shuffle(self.play_queue_order)
 
         if verbose:
-            self._print_playqueue()
+            self._print_play_queue()
 
         print_nfo("[TuneIn] [Items in queue] '{0}'.".format(total_stations))
 
@@ -1152,6 +1165,15 @@ class tiztuneinproxy(object):
             logging.info("Ignoring station")
             return
 
+        if (st_or_pod == "topic"
+            and (self.current_search_mode == self.search_modes.ALL
+                 or self.current_search_mode == self.search_modes.SHOWS)):
+            new_date = self._ensure_expected_date_format(r["subtext"])
+            if not new_date:
+                logging.info("Ignoring podcast with unknown date format : {0}".format(new_date))
+                return
+            r["subtext"] = new_date
+
         self.queue.append(r)
 
     def _select_one(self, results, keywords, name=""):
@@ -1177,7 +1199,7 @@ class tiztuneinproxy(object):
 
         return res
 
-    def _print_playqueue(self):
+    def _print_play_queue(self):
         for r in self.queue:
             st_or_pod = r["item"]
             if st_or_pod == "topic":
@@ -1202,6 +1224,26 @@ class tiztuneinproxy(object):
                         st_or_pod, r["text"], r["subtext"]
                     )
                 )
+
+    def _ensure_expected_date_format(self, date):
+
+        correct_date = None
+        try:
+            d = datetime.datetime.strptime(date, "%d %b %Y")
+            correct_date = date
+        except ValueError:
+            logging.debug("Unexpected date format: {0}".format(date))
+
+        if correct_date:
+            return correct_date
+
+        try:
+            d = datetime.datetime.strptime(date, "%A %b %d")
+            correct_date = d.strftime('%d %b {0}'.format(NOW.year))
+        except ValueError:
+            logging.debug("Unexpected date format: {0}".format(date))
+
+        return correct_date
 
 
 if __name__ == "__main__":
