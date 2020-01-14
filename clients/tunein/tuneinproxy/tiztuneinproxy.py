@@ -760,6 +760,9 @@ class tiztuneinproxy(object):
         """
         self.queue = list()
         self.queue_index = -1
+        self.unique_names = set()
+        self.play_queue_order = list()
+        self.now_playing_radio = None
 
     def remove_current_url(self):
         """Remove the currently active url from the playback queue.
