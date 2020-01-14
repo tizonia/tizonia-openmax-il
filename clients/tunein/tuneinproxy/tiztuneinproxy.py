@@ -604,7 +604,7 @@ class tiztuneinproxy(object):
         """
         logging.info("enqueue_radios : %s", arg)
         try:
-            print_msg("[TuneIn] [TuneIn global search] : '{0}'. ".format(arg))
+            print_msg("[TuneIn] [TuneIn 'global' search] : '{0}'. ".format(arg))
 
             count = len(self.queue)
             results = self.tunein.search(arg)
@@ -612,7 +612,7 @@ class tiztuneinproxy(object):
                 self._add_to_playback_queue(r)
 
             logging.info(
-                "Added {0} statios/shows to queue".format(len(self.queue) - count)
+                "Added {0} stations/shows to queue".format(len(self.queue) - count)
             )
 
             if count == len(self.queue):
@@ -844,7 +844,7 @@ class tiztuneinproxy(object):
             keywords3,
         )
         print_msg(
-            "[TuneIn] [TuneIn {0} search] : '{1}' (additional keywords: {2} {3}). ".format(
+            "[TuneIn] [TuneIn '{0}' category search] : '{1}' (additional keywords: {2} {3}). ".format(
                 category, keywords1, keywords2, keywords3
             )
         )
@@ -879,7 +879,7 @@ class tiztuneinproxy(object):
                         if p.get("type") and p["type"] == "audio":
                             self._add_to_playback_queue(p)
 
-                # Try an unfiltered search if nothing return results so far
+                # Try an unfiltered search if nothing returned results so far
                 if not len(self.queue):
                     stations = self.tunein._browse_unfiltered(cat["guide_id"])
                     for s in stations:
@@ -906,6 +906,9 @@ class tiztuneinproxy(object):
                                 e["text"] = p["text"] + ": " + e["text"]
                                 self._add_to_playback_queue(e)
 
+            remaining_keywords = [keywords2, keywords3]
+            self._filter_play_queue(category, remaining_keywords)
+
     def _enqueue_location(self, keywords1="", keywords2="", keywords3=""):
         """Search Tunein's Location category and add its stations to the
         playback queue.
@@ -920,7 +923,7 @@ class tiztuneinproxy(object):
         )
 
         print_msg(
-            "[TuneIn] [TuneIn location search] : '{0}' (additional keywords: {1} {2}). ".format(
+            "[TuneIn] [TuneIn 'location' category search] : '{0}' (additional keywords: {1} {2}). ".format(
                 keywords1, keywords2, keywords3
             )
         )
@@ -988,27 +991,31 @@ class tiztuneinproxy(object):
                     else:
                         break
 
-    def _enqueue_trending(self, keywords1=""):
+    def _enqueue_trending(self, keywords1="", keywords2="", keywords3=""):
         """Search Tunein's Music category and add its stations to the
         playback queue.
 
         :param keywords1: additional keywords
+        :param keywords2: additional keywords
+        :param keywords3: additional keywords
 
         """
-        logging.info("_enqueue_trending : 1: %s", keywords1)
-        print_msg("[TuneIn] [TuneIn trending search] : '{0}'. ".format(keywords1))
+        logging.info(
+            "_enqueue_trending : 1: %s 2: %s 3: %s", keywords1, keywords2, keywords3
+        )
+        print_msg("[TuneIn] [TuneIn 'trending' category search] : '{0}'. ".format(keywords1))
 
         category = "trending"
         stations = self.tunein.categories(category)
 
-        if keywords1 != "":
-            s = self._select_one(stations, keywords1, "Trending")
-            self._add_to_playback_queue(s)
-
-        elif stations:
+        if stations:
             for s in stations:
                 if s["type"] == "audio":
                     self._add_to_playback_queue(s)
+
+        remaining_keywords = [keywords1, keywords2, keywords3]
+        self._filter_play_queue(category, remaining_keywords)
+
 
     def _enqueue_podcasts(self, keywords1="", keywords2="", keywords3=""):
         """Search Tunein's Location category and add its stations to the
@@ -1023,7 +1030,7 @@ class tiztuneinproxy(object):
             "_enqueue_podcasts : 1: %s 2: %s 3: %s", keywords1, keywords2, keywords3
         )
         print_msg(
-            "[TuneIn] [TuneIn podcast search] : '{0}' (additional keywords: {1} {2}). ".format(
+            "[TuneIn] [TuneIn 'podcast' category search] : '{0}' (additional keywords: {1} {2}). ".format(
                 keywords1, keywords2, keywords3
             )
         )
@@ -1084,19 +1091,9 @@ class tiztuneinproxy(object):
         try:
             station = self.queue[station_idx]
             station_url = ""
-            name = station["text"].rstrip()
-            formats = "Unknown"
-            reliability = "Unknown"
-            if station.get("formats"):
-                formats = station["formats"].rstrip()
-            if station.get("reliability"):
-                reliability = station["reliability"].rstrip()
+            name = station["text"]
             streamurls = self.tunein.tune(station)
-            print_wrn(
-                "[TuneIn] Playing '{0} ({1}, reliability: {2})'.".format(
-                    name, formats, reliability
-                )
-            )
+            print_wrn("[TuneIn] Playing '{0}'.".format(name))
             if len(streamurls) > 0:
                 urls = self.tunein.parse_stream_url(streamurls[0])
                 if len(urls) > 0:
@@ -1266,6 +1263,23 @@ class tiztuneinproxy(object):
 
         return correct_date
 
+    def _filter_play_queue(self, category, keyword_list):
+
+        if not len(self.queue) or not len(keyword_list):
+            return
+
+        for k in keyword_list:
+            phrase = k.rstrip()
+            if phrase:
+                filtered_queue = list()
+                print_wrn("[TuneIn] [{0}] Filtering search results: '{1}'.".format(category, phrase))
+                for item in self.queue:
+                    title = item['text'] if item.get('text') else ''
+                    title = title + ' ' + item['subtext'] if item.get('subtext') else ''
+                    if fuzz.partial_ratio(phrase, title) > 50:
+                        filtered_queue.append(item)
+                if len(filtered_queue):
+                    self.queue = filtered_queue
 
 if __name__ == "__main__":
     tiztuneinproxy()
