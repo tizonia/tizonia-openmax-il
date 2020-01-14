@@ -164,11 +164,15 @@ void tiztunein::deinit ()
   // boost::python doesn't support Py_Finalize() yet!
 }
 
-int tiztunein::play_radios (const std::string &query)
+int tiztunein::play_radios (const std::string &query,
+                            const std::string &keywords1,
+                            const std::string &keywords2,
+                            const std::string &keywords3)
 {
   int rc = 0;
-  try_catch_wrapper (
-      py_tunein_proxy_.attr ("enqueue_radios") (bp::object (query)));
+  try_catch_wrapper (py_tunein_proxy_.attr ("enqueue_radios") (
+      bp::object (query), bp::object (keywords1), bp::object (keywords2),
+      bp::object (keywords3)));
   return rc;
 }
 

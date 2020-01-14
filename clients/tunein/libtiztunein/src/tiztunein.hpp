@@ -66,7 +66,8 @@ public:
   void stop ();
   void deinit ();
 
-  int play_radios (const std::string &query);
+  int play_radios (const std::string &query, const std::string &keywords1,
+                   const std::string &keywords2, const std::string &keywords3);
   int play_category (const std::string &category, const std::string &keywords1,
                      const std::string &keywords2,
                      const std::string &keywords3);

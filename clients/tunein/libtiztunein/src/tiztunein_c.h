@@ -121,11 +121,17 @@ extern "C"
    * @ingroup libtiztunein
    *
    * @param ap_tunein The tunein handle.
-   * @param ap_query The query string.
+   * @param ap_query The main query string.
+   * @param ap_keywords1 First set of optional keywords.
+   * @param ap_keywords2 Second set of optional keywords.
+   * @param ap_keywords3 Third set of optional keywords.
    *
    * @return 0 on success
    */
-  int tiz_tunein_play_radios (tiz_tunein_t *ap_tunein, const char *ap_query);
+  int tiz_tunein_play_radios (tiz_tunein_t *ap_tunein, const char *ap_query,
+                              const char *ap_keywords1,
+                              const char *ap_keywords2,
+                              const char *ap_keywords3);
 
   /**
    * Search Tunein for a category and add matching stations to the playback

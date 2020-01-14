@@ -117,11 +117,15 @@ extern "C" void tiz_tunein_set_search_mode (tiz_tunein_t *ap_tunein,
 }
 
 extern "C" int tiz_tunein_play_radios (tiz_tunein_t *ap_tunein,
-                                       const char *ap_query)
+                                       const char *ap_query,
+                                       const char *ap_keywords1,
+                                       const char *ap_keywords2,
+                                       const char *ap_keywords3)
 {
   assert (ap_tunein);
   assert (ap_tunein->p_proxy_);
-  return ap_tunein->p_proxy_->play_radios (ap_query);
+  return ap_tunein->p_proxy_->play_radios (ap_query, ap_keywords1, ap_keywords2,
+                                           ap_keywords3);
 }
 
 extern "C" int tiz_tunein_play_category (tiz_tunein_t *ap_tunein,
