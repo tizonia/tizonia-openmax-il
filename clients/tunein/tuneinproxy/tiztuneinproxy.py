@@ -856,13 +856,13 @@ class tiztuneinproxy(object):
             cat = cat_dict[cat_name]
 
         if cat:
-            print_wrn(
-                "[TuneIn] [{0}] Adding '{1}'.".format(category, cat["text"])
-            )
+            print_wrn("[TuneIn] [{0}] Adding '{1}'.".format(category, cat["text"]))
 
             # Enqueue stations
-            if self.current_search_mode == self.search_modes.ALL or \
-               self.current_search_mode == self.search_modes.STATIONS:
+            if (
+                self.current_search_mode == self.search_modes.ALL
+                or self.current_search_mode == self.search_modes.STATIONS
+            ):
                 stations = self.tunein.stations(cat["guide_id"])
                 for s in stations:
                     if s["type"] == "audio":
@@ -883,19 +883,23 @@ class tiztuneinproxy(object):
                             self._add_to_playback_queue(p)
 
             # Enqueue podcasts
-            if self.current_search_mode == self.search_modes.ALL or \
-               self.current_search_mode == self.search_modes.SHOWS:
+            if (
+                self.current_search_mode == self.search_modes.ALL
+                or self.current_search_mode == self.search_modes.SHOWS
+            ):
                 podcasts = self.tunein.shows(cat["guide_id"])
                 if podcasts:
                     for p in podcasts:
                         print_wrn(
-                            "[TuneIn] [{0}] Adding '{1}' podcast show.".format(category, p["text"])
+                            "[TuneIn] [{0}] Adding '{1}' podcast show.".format(
+                                category, p["text"]
+                            )
                         )
                         guide_id = p["guide_id"]
                         episodes = self.tunein.episodes(guide_id)
                         for e in episodes:
                             if e["type"] == "audio":
-                                e['text'] = p["text"] + ': ' + e['text']
+                                e["text"] = p["text"] + ": " + e["text"]
                                 self._add_to_playback_queue(e)
 
     def _enqueue_location(self, keywords1="", keywords2="", keywords3=""):
@@ -1119,6 +1123,11 @@ class tiztuneinproxy(object):
             if not len(self.play_queue_order):
                 # Create a sequential play order, if empty
                 self.play_queue_order = list(range(total_stations))
+            if self.current_search_mode == self.search_modes.STATIONS:
+                # order stations by reliability (most reliable first)
+                self.queue = sorted(
+                    self.queue, key=lambda k: int(k["reliability"]), reverse=True,
+                )
             if self.current_search_mode == self.search_modes.SHOWS:
                 # order shows by date (newest first)
                 self.queue = sorted(
@@ -1165,12 +1174,15 @@ class tiztuneinproxy(object):
             logging.info("Ignoring station")
             return
 
-        if (st_or_pod == "topic"
-            and (self.current_search_mode == self.search_modes.ALL
-                 or self.current_search_mode == self.search_modes.SHOWS)):
+        if st_or_pod == "topic" and (
+            self.current_search_mode == self.search_modes.ALL
+            or self.current_search_mode == self.search_modes.SHOWS
+        ):
             new_date = self._ensure_expected_date_format(r["subtext"])
             if not new_date:
-                logging.info("Ignoring podcast with unknown date format : {0}".format(new_date))
+                logging.info(
+                    "Ignoring podcast with unknown date format : {0}".format(new_date)
+                )
                 return
             r["subtext"] = new_date
 
@@ -1214,8 +1226,13 @@ class tiztuneinproxy(object):
                     continue
 
                 print_nfo(
-                    "[TuneIn] [{0}] '{1}' [{2}] ({3}, {4}kbps).".format(
-                        st_or_pod, r["text"], r["subtext"], r["formats"], r["bitrate"]
+                    "[TuneIn] [{0}] '{1}' [{2}] ({3}, {4}kbps, reliability: {5}%).".format(
+                        st_or_pod,
+                        r["text"],
+                        r["subtext"],
+                        r["formats"],
+                        r["bitrate"],
+                        r["reliability"],
                     )
                 )
             else:
@@ -1239,7 +1256,7 @@ class tiztuneinproxy(object):
 
         try:
             d = datetime.datetime.strptime(date, "%A %b %d")
-            correct_date = d.strftime('%d %b {0}'.format(NOW.year))
+            correct_date = d.strftime("%d %b {0}".format(NOW.year))
         except ValueError:
             logging.debug("Unexpected date format: {0}".format(date))
 
