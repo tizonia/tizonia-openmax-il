@@ -861,7 +861,7 @@ class tiztuneinproxy(object):
         cat = self._select_one(results, keywords1, category)
 
         if cat:
-            print_wrn("[TuneIn] [{0}] Adding '{1}'.".format(category, cat["text"]))
+            print_wrn("[TuneIn] [{0}] Searching '{1}'.".format(category, cat["text"]))
 
             # Enqueue stations
             if (
@@ -903,7 +903,7 @@ class tiztuneinproxy(object):
                 if podcasts:
                     for p in podcasts:
                         print_wrn(
-                            "[TuneIn] [{0}] Adding '{1}' podcast show.".format(
+                            "[TuneIn] [{0}] Searching '{1}' podcast show.".format(
                                 category, p["text"]
                             )
                         )
@@ -1286,7 +1286,7 @@ class tiztuneinproxy(object):
             if phrase:
                 filtered_queue = list()
                 print_wrn(
-                    "[TuneIn] [{0}] Filtering search results: '{1}'.".format(
+                    "[TuneIn] [{0}] Filtering results: '{1}'.".format(
                         category, phrase
                     )
                 )
