@@ -1,0 +1,37 @@
+option('blocking-etb-ftb', type: 'boolean', value: 'false', description: 'Enable fully conformant blocking behaviour of ETB and FTB APIs')
+option('blocking-sendcommand', type: 'boolean', value: 'false', description: 'Enable fully conformant blocking behaviour of SendCommand API')
+option('player', type: 'boolean', value: 'true', description: 'build the command-line player program (default: enabled)')
+option('libspotify', type: 'boolean', value: 'true', description: 'build the libspotify-based OpenMAX IL plugin (default: yes)')
+option('alsa', type: 'boolean', value: 'true', description: 'build the ALSA-based OpenMAX IL plugin (default: yes)')
+option('aac', type: 'boolean', value: 'true', description: 'build the AAC-based OpenMAX IL plugin (default: yes)')
+option('gcc-warnings', type: 'boolean', value: 'false', description: 'turn on lots of GCC warnings (for developers)')
+option('test', type: 'boolean', value: 'false', description: 'build the test programs (default: disabled)')
+option('bashcompletiondir', type: 'string', value: '', description: 'Bash completions directory')
+option('zshcompletiondir', type: 'string', value: '', description: 'Zsh completions directory')
+# this was not present in the original
+option('docs', type: 'boolean', value: 'false', description: 'build the documentation (default: disabled)')
+# likewise
+option('docs_options', type: 'array', description: 'which documentation to build',
+   choices: [
+   'html',
+   'dirhtml',
+   'singlehtml',
+   'pickle',
+   'json',
+   'htmlhelp',
+   'qthelp',
+   'devhelp',
+   'epub',
+   'latex',
+   'latexpdf',
+   'text',
+   'man',
+   'texinfo',
+   'info',
+   'gettext',
+   'changes',
+   'linkcheck'
+   ],
+   value: ['man', 'html']
+)
+option('docs_paper', type: 'combo', choices: ['a4', 'legal'], value: 'a4')
