@@ -292,8 +292,12 @@ def run_playlist_query(session, timeout, url):
             content_type = r.headers.get("content-type", "audio/mpeg")
             logging.debug(f"{url} has content-type: {content_type}")
             content_type = content_type.split(";")[0].strip()
-            if content_type != "audio/mpeg":
-                data = r.content
+            # TODO: review this. There is a case of aac station that hangs in
+            # r.content
+            if not content_type.startswith("audio/aacp"):
+                if content_type != "audio/mpeg":
+                    data = r.content
+
     except Exception as e:
         logging.info(f"TuneIn playlist request for {url} failed: {e}")
 
@@ -612,7 +616,7 @@ class tiztuneinproxy(object):
                 self._add_to_playback_queue(r)
 
             remaining_keywords = [keywords1, keywords2, keywords3]
-            self._filter_play_queue('global', remaining_keywords)
+            self._filter_play_queue("global", remaining_keywords)
 
             logging.info(
                 "Added {0} stations/shows to queue".format(len(self.queue) - count)
@@ -703,7 +707,8 @@ class tiztuneinproxy(object):
         radio = self.now_playing_radio
         radiotype = ""
         if radio and radio.get("item"):
-            radiotype = radio["item"]
+            radiotype = "podcast" if radio["item"] == "topic" else radio["item"]
+
         return radiotype
 
     def current_radio_formats(self):
@@ -906,7 +911,7 @@ class tiztuneinproxy(object):
                         episodes = self.tunein.episodes(guide_id)
                         for e in episodes:
                             if e["type"] == "audio":
-                                e["text"] = p["text"] + ": " + e["text"]
+                                e["text"] = p["text"] + " - " + e["text"]
                                 self._add_to_playback_queue(e)
 
             remaining_keywords = [keywords2, keywords3]
@@ -980,7 +985,7 @@ class tiztuneinproxy(object):
                         args = "&" + item["URL"].split("?", 2)[1]
                         break
 
-                while len(self.queue) < 100 and args != "":
+                while len(self.queue) < 200 and args != "":
                     newargs = args
                     stations = self.tunein._tunein("Browse.ashx", args)
                     for s in stations:
@@ -1006,7 +1011,9 @@ class tiztuneinproxy(object):
         logging.info(
             "_enqueue_trending : 1: %s 2: %s 3: %s", keywords1, keywords2, keywords3
         )
-        print_msg("[TuneIn] [TuneIn 'trending' category search] : '{0}'. ".format(keywords1))
+        print_msg(
+            "[TuneIn] [TuneIn 'trending' category search] : '{0}'. ".format(keywords1)
+        )
 
         category = "trending"
         stations = self.tunein.categories(category)
@@ -1018,7 +1025,6 @@ class tiztuneinproxy(object):
 
         remaining_keywords = [keywords1, keywords2, keywords3]
         self._filter_play_queue(category, remaining_keywords)
-
 
     def _enqueue_podcasts(self, keywords1="", keywords2="", keywords3=""):
         """Search Tunein's Location category and add its stations to the
@@ -1062,6 +1068,7 @@ class tiztuneinproxy(object):
                 for item in self.tunein._flatten(episodes):
                     item_type = item.get("type", "")
                     if item_type == "audio":
+                        item["text"] = show["text"] + " - " + item["text"]
                         self._add_to_playback_queue(item)
                         continue
                     item_key = item.get("key", "")
@@ -1077,6 +1084,7 @@ class tiztuneinproxy(object):
                     stations = self.tunein._tunein("Browse.ashx", args)
                     for s in stations:
                         if s["type"] == "audio":
+                            item["text"] = show["text"] + " - " + item["text"]
                             self._add_to_playback_queue(s)
                         elif s["type"] == "link" and s["key"] == "nextStations":
                             newargs = "&" + s["URL"].split("?", 2)[1]
@@ -1086,7 +1094,7 @@ class tiztuneinproxy(object):
                     else:
                         break
 
-            self._filter_play_queue('podcast', list(keywords3))
+            self._filter_play_queue("podcast", list(keywords3))
 
     def _retrieve_station_url(self, station_idx):
         """ Retrieve a station url
@@ -1227,7 +1235,7 @@ class tiztuneinproxy(object):
                 # Make sure we allow only mp3 stations for now
                 if "mp3" not in r.get("formats") and "ogg" not in r.get("formats"):
                     logging.info(
-                        "Ignoring non-mp3/ogg station : {0}".format(r.get("formats"))
+                        "Ignoring non-mp3/non-ogg station : {0}".format(r["formats"])
                     )
                     continue
 
@@ -1277,14 +1285,19 @@ class tiztuneinproxy(object):
             phrase = k.rstrip()
             if phrase:
                 filtered_queue = list()
-                print_wrn("[TuneIn] [{0}] Filtering search results: '{1}'.".format(category, phrase))
+                print_wrn(
+                    "[TuneIn] [{0}] Filtering search results: '{1}'.".format(
+                        category, phrase
+                    )
+                )
                 for item in self.queue:
-                    title = item['text'] if item.get('text') else ''
-                    title = title + ' ' + item['subtext'] if item.get('subtext') else ''
+                    title = item["text"] if item.get("text") else ""
+                    title = title + " " + item["subtext"] if item.get("subtext") else ""
                     if fuzz.partial_ratio(phrase, title) > 50:
                         filtered_queue.append(item)
                 if len(filtered_queue):
                     self.queue = filtered_queue
+
 
 if __name__ == "__main__":
     tiztuneinproxy()
