@@ -9,7 +9,9 @@ libtizhttpsrc_sources = [
    'youtubeprc.c',
    'youtubecfgport.c',
    'plexprc.c',
-   'plexcfgport.c'
+   'plexcfgport.c',
+   'tuneinprc.c',
+   'tuneincfgport.c'
 ]
 
 libtizhttpsrc = library(
@@ -21,7 +23,8 @@ libtizhttpsrc = library(
       libtizgmusic_dep,
       libtizsoundcloud_dep,
       libtizyoutube_dep,
-      libtizplex_dep
+      libtizplex_dep,
+      libtiztunein_dep
    ],
    install: true,
    install_dir: tizplugindir

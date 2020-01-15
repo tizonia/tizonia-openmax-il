@@ -74,6 +74,10 @@ tizonia_sources = [
    'services/plex/tizplexgraph.cpp',
    'services/plex/tizplexgraphops.cpp',
    'services/plex/tizplexmgr.cpp',
+   'services/tunein/tiztuneingraph.cpp',
+   'services/tunein/tiztuneingraphfsm.cpp',
+   'services/tunein/tiztuneingraphops.cpp',
+   'services/tunein/tiztuneinmgr.cpp',
    'services/chromecast/tizchromecastgraph.cpp',
    'services/chromecast/tizchromecastgraphfsm.cpp',
    'services/chromecast/tizchromecastgraphops.cpp',
@@ -91,7 +95,8 @@ tizonia_inc = [
    include_directories('services/googlemusic'),
    include_directories('services/soundcloud'),
    include_directories('services/youtube'),
-   include_directories('services/plex')
+   include_directories('services/plex'),
+   include_directories('services/tunein')
 ]
 
 tizonia = executable(
