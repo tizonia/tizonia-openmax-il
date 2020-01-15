@@ -7,7 +7,7 @@ project('tizonia', ['c', 'cpp'], version: '0.19.0', license: 'LGPLv3.0+', meson_
 ##   (xdg_file : /etc/xdg/etc/xdg/tizonia/tizonia.conf) comes from
 ##   2020-01-08 update: couldn't reproduce the bug
 ##   2020-01-15 update: I saw it fleetingly on osx
-##   3rdparty/dbus-cplusplus/src/meson.build sets -DDBUS_API_SUBJECT_TO_CHANGE
+## * 3rdparty/dbus-cplusplus/src/meson.build sets -DDBUS_API_SUBJECT_TO_CHANGE
 ##   unconditionally, on account of libtizdbus-c++.pc.in: shouldn't this
 ##   reflect what is set in config.h or better yet, have it only in the latter?
 
@@ -69,7 +69,6 @@ pthread_dep = dependency('threads', required: true)
 uuid_dep = dependency('uuid', required: true, version: '>=2.19.0')
 
 boost_dep = dependency(
-#   'boost', modules: ['filesystem', 'system', 'program_options', 'python3'],
    'boost', modules: ['chrono', 'filesystem', 'system', 'thread', 'program_options', 'python3'],
    required: true, version: '>=1.54'
 )
