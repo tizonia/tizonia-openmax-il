@@ -2657,7 +2657,7 @@ int tiz::programopts::consume_tunein_client_options (bool &done,
     {
       rc = EXIT_FAILURE;
       std::ostringstream oss;
-      oss << "tunein-type: only one of 'station', 'shows', or 'all' must be "
+      oss << "tunein-type: only one of 'stations', 'shows', or 'all' must be "
              "specified.";
       msg.assign (oss.str ());
     }
