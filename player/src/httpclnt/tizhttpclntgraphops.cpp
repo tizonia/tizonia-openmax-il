@@ -221,6 +221,7 @@ void graph::httpclntops::do_reconfigure_tunnel (const int tunnel_id)
         renderer_pcmtype.nBitPerSample,
         renderer_pcmtype.eNumData == OMX_NumericalDataSigned ? "s" : "u",
         renderer_pcmtype.eEndian == OMX_EndianBig ? "b" : "l");
+    printf ("\n");
   }
 }
 
@@ -549,6 +550,7 @@ graph::httpclntops::set_channels_and_rate_on_renderer (
       renderer_pcmtype.nBitPerSample,
       renderer_pcmtype.eNumData == OMX_NumericalDataSigned ? "s" : "u",
       renderer_pcmtype.eEndian == OMX_EndianBig ? "b" : "l");
+  printf ("\n");
 
   return OMX_ErrorNone;
 }
