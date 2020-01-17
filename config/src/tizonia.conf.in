@@ -53,25 +53,47 @@ OMX.Aratelia.audio_renderer.alsa.pcm.alsa_mixer = Master
 #                                                             to 100 (Default: 75)
 
 [color-theme]
-# Tizonia's default color theme
-C01 = 31,49,22
-C02 = 32,49,22
-C03 = 33,49,22
-C04 = 34,49,22
-C05 = 35,49,22
-C06 = 36,49,22
-C07 = 37,49,22
+# Tizonia's default color theme.
+#
+# The theme color codes refer to the common ANSI color escape codes.  For
+# reference, see https://en.wikipedia.org/wiki/ANSI_escape_code.
+#
+# The default color theme is specified using the simplest 3/4 bit color
+# codes. See table at https://en.wikipedia.org/wiki/ANSI_escape_code#3/4_bit
+# E.g.: 30-37 select the foreground color, while 40-47 select the
+# background. Specify the "bright" colors with 90-97 (FG) and 100-107 (BG).
+#
+# Colors 01 through 07 are typically used by Tizonia to display various
+# informational messages. For these colors, FG, BG and decoration may be
+# specified, separated by commas.
 
-C08 = 91,49,22
-C09 = 92,49,22
-C10 = 93,49,22
-C11 = 94,49,22
-C12 = 95,49,22
+# C01 = 31,49,22 # Red     FG, Reset BG, Reset Decoration
+# C02 = 32,49,22 # Green   FG, Reset BG, Reset Decoration
+# C03 = 33,49,22 # Yellow  FG, Reset BG, Reset Decoration
+# C04 = 34,49,22 # Blue    FG, Reset BG, Reset Decoration
+# C05 = 35,49,22 # Magenta FG, Reset BG, Reset Decoration
+# C06 = 36,49,22 # Cyan    FG, Reset BG, Reset Decoration
+# C07 = 37,49,22 # White   FG, Reset BG, Reset Decoration
 
-C13 = 36
-C14 = 37
-C15 = 41
-C16 = 46
+# Colors 08 through 12 are normally used to highlight messages with relatively
+# higher importance. For that reason bright versions are used. For these colors
+# also FG, BG and decoration may be specified, separated by commas.
+
+# C08 = 91,49,22 # Bright Red     FG, Reset BG, Reset Decoration
+# C09 = 92,49,22 # Bright Green   FG, Reset BG, Reset Decoration
+# C10 = 93,49,22 # Bright Yellow  FG, Reset BG, Reset Decoration
+# C11 = 94,49,22 # Bright Blue    FG, Reset BG, Reset Decoration
+# C12 = 95,49,22 # Bright Magenta FG, Reset BG, Reset Decoration
+
+# Colors 12 through 16 are the colors used by the progress bar display. They
+# are a bit special. For these colors, the expectation is that only a FG color
+# or a BG color will be specified, as below:
+
+# C13 = 36 # Cyan FG  -> the percentage bar (expected: a 3/4 bit foreground color code).
+# C14 = 37 # White FG -> The numbers in the percentage bar (expected: a 3/4 bit foreground color code).
+# C15 = 41 # Red BG   -> The background of the current song time (expected: a 3/4 bit background color code).
+# C16 = 46 # Cyan BG  -> The color of the progress bar itself (expected: a 3/4 bit background color code).
+
 
 [tizonia]
 # Tizonia player section
