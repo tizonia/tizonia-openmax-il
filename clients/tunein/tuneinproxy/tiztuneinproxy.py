@@ -498,6 +498,10 @@ class TuneIn:
         results = self._tunein("Tune.ashx", args)
         return self._filter_results(results, "Topic")
 
+    def episodes_unfiltered(self, guide_id):
+        args = f"&c=pbrowse&id={guide_id}"
+        return self._tunein("Tune.ashx", args)
+
     def _map_listing(self, listing):
         # We've already checked 'guide_id' exists
         url_args = f'Tune.ashx?id={listing["guide_id"]}'
@@ -628,7 +632,7 @@ class tiztuneinproxy(object):
             self._update_play_queue_order()
 
         except ValueError:
-            raise ValueError(str("No stations/shows found"))
+            raise ValueError(str("No stations/shows/episodes found"))
 
     def enqueue_category(self, category, keywords1="", keywords2="", keywords3=""):
         """Search Tunein for a station/show category and add its stations to the
@@ -671,7 +675,7 @@ class tiztuneinproxy(object):
         except ValueError:
             raise ValueError(
                 str(
-                    "No stations/shows found : {0} {1} {2} {3} ".format(
+                    "No stations/shows/episodes found : {0} {1} {2} {3} ".format(
                         category, keywords1, keywords2, keywords3
                     )
                 )
@@ -1057,7 +1061,7 @@ class tiztuneinproxy(object):
 
             if show:
                 print_wrn(
-                    "[TuneIn] [Show] Selecting episodes from '{0}'.".format(
+                    "[TuneIn] [Podcast] Selecting episodes from '{0}'.".format(
                         show["text"]
                     )
                 )
@@ -1079,7 +1083,7 @@ class tiztuneinproxy(object):
                         args = "&" + item["URL"].split("?", 2)[1]
                         break
 
-                while len(self.queue) < 100 and args != "":
+                while len(self.queue) < 200 and args != "":
                     newargs = args
                     stations = self.tunein._tunein("Browse.ashx", args)
                     for s in stations:
@@ -1094,7 +1098,16 @@ class tiztuneinproxy(object):
                     else:
                         break
 
-            self._filter_play_queue("podcast", list(keywords3))
+                # Try an unfiltered search if nothing returned results so far
+                if not len(self.queue):
+                    episodes = self.tunein.episodes_unfiltered(guide_id)
+                    pprint (episodes)
+                    for s in episodes:
+                        if s.get("type") and s["type"] == "audio":
+                            self._add_to_playback_queue(s)
+
+            remaining_keywords = [keywords3]
+            self._filter_play_queue("Podcast", remaining_keywords)
 
     def _retrieve_station_url(self, station_idx):
         """ Retrieve a station url
@@ -1172,6 +1185,8 @@ class tiztuneinproxy(object):
             logging.info("Ignoring georestricted station/show")
             return
 
+        if not r.get("item"):
+            r["item"] = "station"
         st_or_pod = r["item"]
 
         if (

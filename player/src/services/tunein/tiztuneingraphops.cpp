@@ -266,11 +266,12 @@ void graph::tuneinops::do_retrieve_metadata ()
   // Now print renderer metadata
   printf ("     ");
   TIZ_PRINTF_C05 (
-      "%ld Ch, %g KHz, %lu:%s:%s \n", renderer_pcmtype_.nChannels,
+      "%ld Ch, %g KHz, %lu:%s:%s", renderer_pcmtype_.nChannels,
       ((float)renderer_pcmtype_.nSamplingRate) / 1000,
       renderer_pcmtype_.nBitPerSample,
       renderer_pcmtype_.eNumData == OMX_NumericalDataSigned ? "s" : "u",
       renderer_pcmtype_.eEndian == OMX_EndianBig ? "b" : "l");
+  printf ("\n");
 }
 
 // TODO: Move this implementation to the base class (and remove also from
@@ -668,9 +669,10 @@ void graph::tuneinops::do_reconfigure_second_tunnel ()
 
   printf ("     ");
   TIZ_PRINTF_C05 (
-      "%ld Ch, %g KHz, %lu:%s:%s\n", renderer_pcmtype.nChannels,
+      "%ld Ch, %g KHz, %lu:%s:%s", renderer_pcmtype.nChannels,
       ((float)renderer_pcmtype.nSamplingRate) / 1000,
       renderer_pcmtype.nBitPerSample,
       renderer_pcmtype.eNumData == OMX_NumericalDataSigned ? "s" : "u",
       renderer_pcmtype.eEndian == OMX_EndianBig ? "b" : "l");
+  printf ("\n");
 }
