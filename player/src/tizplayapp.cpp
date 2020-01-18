@@ -48,6 +48,7 @@
 #include <cstdlib>
 
 #include <boost/algorithm/string/join.hpp>
+#include <boost/algorithm/string/trim.hpp>
 #include <boost/system/error_code.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/foreach.hpp>
@@ -370,9 +371,9 @@ namespace
         TIZ_PRINTF_C04 ("%s exiting (%s).", APP_NAME,
                         tiz_err_to_str (code));
         printf ("\n");
-        printf (" ");
-        TIZ_PRINTF_C01 ("%s", msg.c_str ());
-        printf ("\n");
+        boost::algorithm::trim(msg);
+        TIZ_PRINTF_C01 (" %s", msg.c_str ());
+        std::cout << std::endl;
         player_exit_failure ();
       }
       else
