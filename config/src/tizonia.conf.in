@@ -111,16 +111,41 @@ OMX.Aratelia.audio_renderer.alsa.pcm.alsa_mixer = Master
 # C06 = 36   # Cyan    FG, no BG or Decoration - Hint: various song/stream infos (e.g. album, duration, etc).
 # C07 = 37   # White   FG, no BG or Decoration - Hint: seldom used. For future use.
 #
-# C08 = 91   # Bright Red     FG, no BG or Decoration
-# C09 = 92   # Bright Green   FG, no BG or Decoration
-# C10 = 93   # Bright Yellow  FG, no BG or Decoration
-# C11 = 94   # Bright Blue    FG, no BG or Decoration
-# C12 = 95   # Bright Magenta FG, no BG or Decoration
+# C08 = 91   # Bright Red     FG, no BG or Decoration - Hint: additional error messages.
+# C09 = 92   # Bright Green   FG, no BG or Decoration - Hint: additional higher importance info messages.
+# C10 = 93   # Bright Yellow  FG, no BG or Decoration - Hint: useful data, highlighted messages.
+# C11 = 94   # Bright Blue    FG, no BG or Decoration - Hint: tracks the in playlist.
+# C12 = 95   # Bright Magenta FG, no BG or Decoration - Hint: other useful data messages.
 #
 # C13 = 36   # Cyan FG  - Hint: the percentage bar.
 # C14 = 37   # White FG - Hint: the digits in the percentage bar.
 # C15 = 41   # Red BG   - Hint: the song's elapsed time.
 # C16 = 46   # Cyan BG  - Hint: the moving progress bar itself (IMPORTANT: This must a BG code, no FG or attr.).
+
+# A 'grey' color theme.
+# =========================
+# NOTE: C01-C07 -> Misc. colors.
+# NOTE: C08-C12 -> These usually are bright FG colors, for some important messages.
+# NOTE: C13-C16 -> The colors used in the progress bar display.
+# -------------------------
+# C01 = 38,5,9     # Hint: error messages.
+# C02 = 38,5,249   # Hint: higher importance info messages.
+# C03 = 38,5,253,1 # Hint: song/stream title.
+# C04 = 38,5,243   # Hint: normal importance info messages.
+# C05 = 38,5,241   # Hint: other info messages (e.g. '2 Ch, 44.1 KHz, 16:s:b').
+# C06 = 38,5,238   # Hint: various song/stream infos (e.g. album, duration, etc).
+# C07 = 38,5,255   # Hint: seldom used. For future use.
+#
+# C08 = 38,5,9               # Hint: additional error messages.
+# C09 = 38,5,230,48,5,233    # Hint: additional higher importance info messages.
+# C10 = 38,5,245,48,5,233    # Hint: useful data, highlighted messages.
+# C11 = 38,5,251,48,5,233,3  # Hint: tracks the in playlist.
+# C12 = 38,5,245,48,5,233    # Hint: other useful data messages.
+#
+# C13 = 38,5,231  # Hint: the percentage bar.
+# C14 = 38,5,244  # Hint: the digits in the percentage bar.
+# C15 = 48,5,243  # Hint: the song's elapsed time (a BG code).
+# C16 = 48,5,237  # Hint: the moving progress bar itself (a BG code).
 
 # A 'funky' color theme.
 # =========================
@@ -136,14 +161,14 @@ OMX.Aratelia.audio_renderer.alsa.pcm.alsa_mixer = Master
 # C06 = 38,2,235,171,21,48,2,57,58,59,3    # Hint: various song/stream infos (e.g. album, duration, etc)  (default theme: cyan)
 # C07 = 37,49,22                           # Hint: seldom used. For future use (default theme: white)
 #
-# C08 = 38,2,255,255,255,48,2,235,21,25
-# C09 = 38,2,27,227,147
-# C10 = 93,49,22
-# C11 = 38,2,214,55,219
-# C12 = 95,49,22
+# C08 = 38,2,255,255,255,48,2,235,21,25    # Hint: additional error messages.
+# C09 = 38,2,27,227,147                    # Hint: additional higher importance info messages.
+# C10 = 93,49,22                           # Hint: useful data, highlighted messages.
+# C11 = 38,2,214,55,219                    # Hint: tracks the in playlist.
+# C12 = 95,49,22                           # Hint: other useful data messages.
 #
 # C13 = 33                                 # Hint: the percentage bar.
-# C14 = 38,5,241                           # Hint: the digits in the percentage bar.
+# C14 = 38,5,241,5                         # Hint: the digits in the percentage bar. (NOTE: decoration: 5 -> blink)
 # C15 = 38,2,93,213,222,48,2,46,38,140,1   # Hint: the song's elapsed time.
 # C16 = 106,1                              # Hint: the moving progress bar itself (IMPORTANT: This must a BG code, no FG or attr.).
 
