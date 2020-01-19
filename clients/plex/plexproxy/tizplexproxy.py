@@ -173,7 +173,7 @@ class tizplexproxy(object):
 
         """
         self.current_play_mode = getattr(self.play_modes, mode)
-        self.__update_play_queue_order()
+        self._update_play_queue_order()
 
     def enqueue_audio_tracks(self, arg):
         """Search the Plex server for audio tracks and add them to the playback queue.
@@ -191,7 +191,7 @@ class tizplexproxy(object):
                 tracks = self._music.searchTracks(title=arg)
                 for track in tracks:
                     track_info = TrackInfo(track, track.artist(), track.album())
-                    self.add_to_playback_queue(track_info)
+                    self._add_to_playback_queue(track_info)
 
             except (NotFound):
                 pass
@@ -202,12 +202,12 @@ class tizplexproxy(object):
                     track_name = track.title
                     if fuzz.partial_ratio(arg, track_name) > 60:
                         track_info = TrackInfo(track, track.artist(), track.album())
-                        self.add_to_playback_queue(track_info)
+                        self._add_to_playback_queue(track_info)
 
             if count == len(self.queue):
                 raise ValueError
 
-            self.__update_play_queue_order()
+            self._update_play_queue_order()
 
         except ValueError:
             raise ValueError(str("Track not found : %s" % arg))
@@ -236,7 +236,7 @@ class tizplexproxy(object):
                     for album in artist.albums():
                         for track in album.tracks():
                             track_info = TrackInfo(track, artist, album)
-                            self.add_to_playback_queue(track_info)
+                            self._add_to_playback_queue(track_info)
 
             except (NotFound):
                 pass
@@ -264,12 +264,12 @@ class tizplexproxy(object):
                     for album in artist.albums():
                         for track in album.tracks():
                             track_info = TrackInfo(track, artist, album)
-                            self.add_to_playback_queue(track_info)
+                            self._add_to_playback_queue(track_info)
 
             if count == len(self.queue):
                 raise ValueError
 
-            self.__update_play_queue_order()
+            self._update_play_queue_order()
 
         except ValueError:
             raise ValueError(str("Artist not found : %s" % arg))
@@ -297,7 +297,7 @@ class tizplexproxy(object):
                               .format(album_name))
                     for track in album.tracks():
                         track_info = TrackInfo(track, track.artist(), album)
-                        self.add_to_playback_queue(track_info)
+                        self._add_to_playback_queue(track_info)
 
             except (NotFound):
                 pass
@@ -324,12 +324,12 @@ class tizplexproxy(object):
                                       album_name))
                     for track in album.tracks():
                         track_info = TrackInfo(track, album, album)
-                        self.add_to_playback_queue(track_info)
+                        self._add_to_playback_queue(track_info)
 
             if count == len(self.queue):
                 raise ValueError
 
-            self.__update_play_queue_order()
+            self._update_play_queue_order()
 
         except ValueError:
             raise ValueError(str("Album not found : %s" % arg))
@@ -359,7 +359,7 @@ class tizplexproxy(object):
                             track = item
                             track_info = TrackInfo(track, track.artist(), \
                                                    track.album())
-                            self.add_to_playback_queue(track_info)
+                            self._add_to_playback_queue(track_info)
                         if count == len(self.queue):
                             print_wrn("[Plex] '{0}' No audio tracks found." \
                                       .format(playlist_title))
@@ -393,7 +393,7 @@ class tizplexproxy(object):
                             track = item
                             track_info = TrackInfo(track, track.artist(), \
                                                    track.album())
-                            self.add_to_playback_queue(track_info)
+                            self._add_to_playback_queue(track_info)
                         if count == len(self.queue):
                             print_wrn("[Plex] '{0}' No audio tracks found." \
                                       .format(playlist_title))
@@ -401,7 +401,7 @@ class tizplexproxy(object):
             if count == len(self.queue):
                 raise ValueError
 
-            self.__update_play_queue_order()
+            self._update_play_queue_order()
 
         except (ValueError, NotFound):
             raise ValueError(str("Playlist not found or no audio tracks in playlist : %s" % arg))
@@ -533,7 +533,7 @@ class tizplexproxy(object):
             self.queue_index -= 1
             if self.queue_index < 0:
                 self.queue_index = 0
-            self.__update_play_queue_order()
+            self._update_play_queue_order()
 
     def next_url(self):
         """ Retrieve the url of the next track in the playback queue.
@@ -547,7 +547,7 @@ class tizplexproxy(object):
                    and (self.queue_index >= 0):
                     next_track = self.queue[self.play_queue_order \
                                             [self.queue_index]]
-                    return self.__retrieve_track_url(next_track)
+                    return self._retrieve_track_url(next_track)
                 else:
                     self.queue_index = -1
                     return self.next_url()
@@ -571,7 +571,7 @@ class tizplexproxy(object):
                    and (self.queue_index >= 0):
                     prev_track = self.queue[self.play_queue_order \
                                             [self.queue_index]]
-                    return self.__retrieve_track_url(prev_track)
+                    return self._retrieve_track_url(prev_track)
                 else:
                     self.queue_index = len(self.queue)
                     return self.prev_url()
@@ -583,7 +583,7 @@ class tizplexproxy(object):
             logging.info("exception")
             return self.prev_url()
 
-    def __update_play_queue_order(self):
+    def _update_play_queue_order(self):
         """ Update the queue playback order.
 
         A sequential order is applied if the current play mode is "NORMAL" or a
@@ -600,7 +600,7 @@ class tizplexproxy(object):
             print_nfo("[Plex] [Tracks in queue] '{0}'." \
                       .format(total_tracks))
 
-    def __retrieve_track_url(self, track):
+    def _retrieve_track_url(self, track):
         """ Retrieve a track url
 
         """
@@ -612,7 +612,7 @@ class tizplexproxy(object):
             logging.info("Could not retrieve the track url!")
             raise
 
-    def add_to_playback_queue(self, track):
+    def _add_to_playback_queue(self, track):
         """ Add to the playback queue. """
 
         print_nfo("[Plex] [Track] '{0}' [{1}]." \
