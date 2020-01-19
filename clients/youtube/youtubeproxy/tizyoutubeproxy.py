@@ -62,10 +62,10 @@ class ConfigColors():
     def __init__(self):
         self.config = configparser.ConfigParser()
         self.config.read(os.path.join(os.getenv("HOME"), ".config/tizonia/tizonia.conf"))
-        self.FAIL = '\033[' + self.config.get('color-theme', 'C08', fallback='91').replace(',', ';') + 'm'
-        self.OKGREEN = '\033[' + self.config.get('color-theme', 'C09', fallback='92').replace(',', ';') + 'm'
-        self.WARNING = '\033[' + self.config.get('color-theme', 'C10', fallback='93').replace(',', ';') + 'm'
-        self.OKBLUE = '\033[' + self.config.get('color-theme', 'C11', fallback='94').replace(',', ';') + 'm'
+        self.FAIL = '\033[' + self.config.get('color-theme', 'C08', fallback='91').replace(',', ';').split('#', 1)[0].strip() + 'm'
+        self.OKGREEN = '\033[' + self.config.get('color-theme', 'C09', fallback='92').replace(',', ';').split('#', 1)[0].strip() + 'm'
+        self.WARNING = '\033[' + self.config.get('color-theme', 'C10', fallback='93').replace(',', ';').split('#', 1)[0].strip() + 'm'
+        self.OKBLUE = '\033[' + self.config.get('color-theme', 'C11', fallback='94').replace(',', ';').split('#', 1)[0].strip() + 'm'
         self.ENDC = '\033[0m'
 
 _Colors = ConfigColors()
