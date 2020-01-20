@@ -441,13 +441,17 @@ static int
 analyze_pattern (FILE * ap_file, char * ap_str, keyval_t ** app_last_kv,
                  tiz_rcfile_t * ap_tiz_rcfile)
 {
-  if (strstr (ap_str, "#"))
+  char *p_comment_ptr = NULL;
+  if ((p_comment_ptr = strstr (ap_str, "#")))
     {
       char * str = trimcommenting (trimwhitespace (ap_str));
       TIZ_LOG (TIZ_PRIORITY_TRACE, "Comment : [%s]", trimwhitespace (str));
       (void) str;
+      /* Ignore the commented section of this line */
+      *p_comment_ptr = '\0';
     }
-  else if ('[' == ap_str[0] && ']' == ap_str[strlen (ap_str) - 1])
+
+  if ('[' == ap_str[0] && ']' == ap_str[strlen (ap_str) - 1])
     {
       char * str = trimsectioning (ap_str);
       TIZ_LOG (TIZ_PRIORITY_TRACE, "Section : [%s]", str);

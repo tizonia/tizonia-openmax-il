@@ -30,6 +30,7 @@
 #include <vector>
 
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string/replace.hpp>
 #include <boost/progress.hpp>
 
 #include <tizplatform.h>
@@ -41,8 +42,7 @@
 #define C14 "C14"
 #define C15 "C15"
 #define C16 "C16"
-#define DEF_FG_COLOR "\033[39m"
-#define DEF_BG_COLOR "\033[49m"
+#define RESET_COLOR "\x1B[0m"
 
 namespace graph = tiz::graph;
 
@@ -81,6 +81,7 @@ graph::ansi_color_sequence::ansi_color_sequence (const graph::default_color colo
   if (p)
   {
     m_code.assign (p);
+    boost::replace_all (m_code, ",", ";");
   }
   else
   {
@@ -94,7 +95,7 @@ graph::progress_display::progress_display (unsigned long expected_count,
                                            const std::string &s2,
                                            const std::string &s3)
   : noncopyable (), m_os (os), m_s1 (s1), m_s2 (s2), m_s3 (s3), m_os_temp (), m_count(0), m_expected_count(0), m_next_tic_count(0), m_tic(0),
-    m_pctg_bar_color (FG_MAGENTA), m_digits_color (FG_LIGHT_GREY), m_time_bg_color (BG_RED), m_progress_bar_color (BG_CYAN)
+    m_pctg_bar_color (FG_MAGENTA), m_pctg_digits_color (FG_LIGHT_GREY), m_elapsed_time_color (BG_RED), m_progress_bar_color (BG_CYAN)
 {
   restart (expected_count);
 }
@@ -112,12 +113,22 @@ void graph::progress_display::restart (unsigned long expected_count)
   m_expected_count = expected_count;
   m_os_temp.clear ();
   std::string _total_elapsed_time = calc_len (expected_count);
-  m_os << m_s1 << m_digits_color
-       << "   0%   10   20   30   40   50   60   70   80   90   100%" << DEF_FG_COLOR
+  m_os << m_s1 << "   "
+       << m_pctg_digits_color << "0%" << RESET_COLOR << "   "
+       << m_pctg_digits_color << "10" << RESET_COLOR << "   "
+       << m_pctg_digits_color << "20" << RESET_COLOR << "   "
+       << m_pctg_digits_color << "30" << RESET_COLOR << "   "
+       << m_pctg_digits_color << "40" << RESET_COLOR << "   "
+       << m_pctg_digits_color << "50" << RESET_COLOR << "   "
+       << m_pctg_digits_color << "60" << RESET_COLOR << "   "
+       << m_pctg_digits_color << "70" << RESET_COLOR << "   "
+       << m_pctg_digits_color << "80" << RESET_COLOR << "   "
+       << m_pctg_digits_color << "90" << RESET_COLOR << "   "
+       << m_pctg_digits_color << "100%" << RESET_COLOR
        << "\n"
-       << m_digits_color << m_s2 << DEF_FG_COLOR << m_pctg_bar_color
-       << "|----|----|----|----|----|----|----|----|----|----| " << DEF_FG_COLOR << m_digits_color
-       << _total_elapsed_time << DEF_FG_COLOR
+       << m_pctg_digits_color << m_s2 << RESET_COLOR
+       << m_pctg_bar_color << "|----|----|----|----|----|----|----|----|----|----|" << RESET_COLOR << " "
+       << m_pctg_digits_color << _total_elapsed_time << RESET_COLOR
        << std::endl  // endl implies flush, which ensures display
        << m_s3;
   if (!m_expected_count)
@@ -201,6 +212,6 @@ void graph::progress_display::draw_tic ()
 
 void graph::progress_display::refresh_tic ()
 {
-  m_os << "\r" << m_s3 << m_progress_bar_color << m_os_temp << DEF_BG_COLOR << " " << m_time_bg_color
-       << calc_len (m_count) << DEF_BG_COLOR << std::flush;
+  m_os << "\r" << m_s3 << m_progress_bar_color << m_os_temp << RESET_COLOR << " " << m_elapsed_time_color
+       << calc_len (m_count) << RESET_COLOR << std::flush;
 }

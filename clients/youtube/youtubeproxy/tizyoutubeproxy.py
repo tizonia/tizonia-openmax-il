@@ -36,9 +36,9 @@ from fuzzywuzzy import fuzz
 # For use during debugging
 # from pprint import pprint
 
-ISO8601_TIMEDUR_EX = re.compile(r'PT((\d{1,3})H)?((\d{1,3})M)?((\d{1,2})S)?')
+ISO8601_TIMEDUR_EX = re.compile(r"PT((\d{1,3})H)?((\d{1,3})M)?((\d{1,2})S)?")
 
-API_KEY = 'AIzaSyAv9KX5r5WfzfAKlf4mhQMHKmHr-Uw-WOc'
+API_KEY = "AIzaSyAv9KX5r5WfzfAKlf4mhQMHKmHr-Uw-WOc"
 
 NOT_UTF8_ENVIRONMENT = "UTF-8" not in os.environ.get("LANG", "")
 
@@ -46,27 +46,61 @@ WORKER_PROCESSES = 4
 
 STREAM_OBJECT_ACQUISITION_MAX_ATTEMPTS = 5
 
-FORMAT = '[%(asctime)s] [%(levelname)5s] [%(thread)d] ' \
-         '[%(module)s:%(funcName)s:%(lineno)d] - %(message)s'
+FORMAT = (
+    "[%(asctime)s] [%(levelname)5s] [%(thread)d] "
+    "[%(module)s:%(funcName)s:%(lineno)d] - %(message)s"
+)
 
 logging.captureWarnings(True)
 logging.getLogger().setLevel(logging.DEBUG)
 
-if os.environ.get('TIZONIA_YOUTUBEPROXY_DEBUG'):
+if os.environ.get("TIZONIA_YOUTUBEPROXY_DEBUG"):
     logging.basicConfig(format=FORMAT)
     from traceback import print_exception
 else:
     logging.getLogger().addHandler(logging.NullHandler())
 
-class ConfigColors():
+
+class ConfigColors:
     def __init__(self):
         self.config = configparser.ConfigParser()
-        self.config.read(os.path.join(os.getenv("HOME"), ".config/tizonia/tizonia.conf"))
-        self.FAIL = '\033[' + self.config.get('color-theme', 'C08', fallback='91').replace(',', ';') + 'm'
-        self.OKGREEN = '\033[' + self.config.get('color-theme', 'C09', fallback='92').replace(',', ';') + 'm'
-        self.WARNING = '\033[' + self.config.get('color-theme', 'C10', fallback='93').replace(',', ';') + 'm'
-        self.OKBLUE = '\033[' + self.config.get('color-theme', 'C11', fallback='94').replace(',', ';') + 'm'
-        self.ENDC = '\033[0m'
+        self.config.read(
+            os.path.join(os.getenv("HOME"), ".config/tizonia/tizonia.conf")
+        )
+        self.FAIL = (
+            "\033["
+            + self.config.get("color-theme", "C08", fallback="91")
+            .replace(",", ";")
+            .split("#", 1)[0]
+            .strip()
+            + "m"
+        )
+        self.OKGREEN = (
+            "\033["
+            + self.config.get("color-theme", "C09", fallback="92")
+            .replace(",", ";")
+            .split("#", 1)[0]
+            .strip()
+            + "m"
+        )
+        self.WARNING = (
+            "\033["
+            + self.config.get("color-theme", "C10", fallback="93")
+            .replace(",", ";")
+            .split("#", 1)[0]
+            .strip()
+            + "m"
+        )
+        self.OKBLUE = (
+            "\033["
+            + self.config.get("color-theme", "C11", fallback="94")
+            .replace(",", ";")
+            .split("#", 1)[0]
+            .strip()
+            + "m"
+        )
+        self.ENDC = "\033[0m"
+
 
 _Colors = ConfigColors()
 
@@ -77,6 +111,7 @@ def utf8_replace(txt):
     txt = txt.encode(sse, "replace").decode("utf8", "ignore")
     return txt
 
+
 # This code is here for debugging purposes
 def xenc(stuff):
     """ Replace unsupported characters. """
@@ -86,10 +121,12 @@ def xenc(stuff):
     else:
         return stuff.encode("utf8", errors="replace")
 
+
 # This code is here for debugging purposes
 def xprint(stuff, end=None):
     """ Compatible print. """
     print(xenc(stuff), end=end)
+
 
 # This code is here for debugging purposes
 def dump_stream_info(streams):
@@ -105,7 +142,9 @@ def dump_stream_info(streams):
         sys.stdout.flush()
         megs = "%3.f" % (stream.get_filesize() / 1024 ** 2) + " MB"
         qual = "[%s]" % stream.quality
-        out.append(fstring.format(num + 1, stream.mediatype, stream.extension, qual, megs))
+        out.append(
+            fstring.format(num + 1, stream.mediatype, stream.extension, qual, megs)
+        )
 
     sys.stdout.write("\r")
     xprint(fstring.format("Stream", "Type", "Format", "Quality", " Size"))
@@ -114,11 +153,13 @@ def dump_stream_info(streams):
     for line in out:
         xprint(line)
 
+
 def pretty_print(color, msg=""):
     """Print message with color.
 
     """
     print(color + msg + _Colors.ENDC)
+
 
 def print_msg(msg=""):
     """Print a normal message.
@@ -126,11 +167,13 @@ def print_msg(msg=""):
     """
     pretty_print(_Colors.OKGREEN + msg + _Colors.ENDC)
 
+
 def print_nfo(msg=""):
     """Print an info message.
 
     """
     pretty_print(_Colors.OKBLUE + msg + _Colors.ENDC)
+
 
 def print_wrn(msg=""):
     """Print a warning message.
@@ -138,62 +181,71 @@ def print_wrn(msg=""):
     """
     pretty_print(_Colors.WARNING + msg + _Colors.ENDC)
 
+
 def print_err(msg=""):
     """Print an error message.
 
     """
     pretty_print(_Colors.FAIL + msg + _Colors.ENDC)
 
+
 def exception_handler(exception_type, exception, traceback):
     """A simple handler that prints the exception message.
 
     """
-    if 'The uploader has not made this video available' in str(exception):
-        if os.environ.get('TIZONIA_YOUTUBEPROXY_DEBUG'):
+    if "The uploader has not made this video available" in str(exception):
+        if os.environ.get("TIZONIA_YOUTUBEPROXY_DEBUG"):
             print_err("[YouTube] (%s) : %s" % (exception_type.__name__, exception))
     else:
         print_err("[YouTube] (%s) : %s" % (exception_type.__name__, exception))
 
-    if os.environ.get('TIZONIA_YOUTUBEPROXY_DEBUG'):
+    if os.environ.get("TIZONIA_YOUTUBEPROXY_DEBUG"):
         print_exception(exception_type, exception, traceback)
 
+
 sys.excepthook = exception_handler
+
 
 class TizEnumeration(set):
     """A simple enumeration class.
 
     """
+
     def __getattr__(self, name):
         if name in self:
             return name
         raise AttributeError
+
 
 def to_ascii(msg):
     """Unicode to ascii helper.
 
     """
 
-    if sys.version[0] == '2':
-        return unicodedata.normalize('NFKD', str(msg)).encode('ASCII', 'ignore')
+    if sys.version[0] == "2":
+        return unicodedata.normalize("NFKD", str(msg)).encode("ASCII", "ignore")
     return msg
 
 
 def get_track_id_from_json(item):
     """ Try to extract a video Id from a pafy query response """
-    fields = ['contentDetails/videoId',
-              'snippet/resourceId/videoId',
-              'id/videoId',
-              'id']
+    fields = [
+        "contentDetails/videoId",
+        "snippet/resourceId/videoId",
+        "id/videoId",
+        "id",
+    ]
     for field in fields:
         node = item
-        for part in field.split('/'):
+        for part in field.split("/"):
             if node and isinstance(node, dict):
                 node = node.get(part)
         if node:
             # Make sure that what we are returning is a string
             if isinstance(node, str):
                 return node
-    return ''
+    return ""
+
 
 def get_tracks_from_json(jsons, howmany=0):
     """ Get search results from pafy's call_gdata response
@@ -209,12 +261,14 @@ def get_tracks_from_json(jsons, howmany=0):
         return ()
 
     # fetch detailed information about items from videos API
-    query_string = {'part':'contentDetails,statistics,snippet',
-                    'id': ','.join([get_track_id_from_json(i) for i in items])}
+    query_string = {
+        "part": "contentDetails,statistics,snippet",
+        "id": ",".join([get_track_id_from_json(i) for i in items]),
+    }
 
-    wdata = pafy.call_gdata('videos', query_string)
+    wdata = pafy.call_gdata("videos", query_string)
 
-    items_vidinfo = wdata.get('items', [])
+    items_vidinfo = wdata.get("items", [])
     # enhance search results by adding information from videos API response
     for searchresult, vidinfoitem in zip(items, items_vidinfo):
         searchresult.update(vidinfoitem)
@@ -226,14 +280,16 @@ def get_tracks_from_json(jsons, howmany=0):
         try:
 
             ytid = get_track_id_from_json(item)
-            snippet = item.get('snippet', {})
-            title = snippet.get('title', '').strip()
+            snippet = item.get("snippet", {})
+            title = snippet.get("title", "").strip()
             info = VideoInfo(ytid=ytid, title=title)
 
         except Exception as exception:
 
-            logging.info('Error during metadata extraction/instantiation of ' +
-                         'search result {}\n{}'.format(ytid, exception))
+            logging.info(
+                "Error during metadata extraction/instantiation of "
+                + "search result {}\n{}".format(ytid, exception)
+            )
 
         songs.append(info)
         if howmany != 0 and len(songs) == howmany:
@@ -242,62 +298,68 @@ def get_tracks_from_json(jsons, howmany=0):
     # return video objects
     return songs
 
+
 def generate_search_query(term):
     """ Return the query string for pafy's call_gdata. """
 
     query_string = {
-        'q': term,
-        'maxResults': 50,
-        'safeSearch': "none",
-        'order': 'relevance',
-        'part': 'id,snippet',
-        'type': 'video',
-        'videoDuration': 'any',
-        'key': API_KEY,
-        'videoCategoryId' : 10 # search music
+        "q": term,
+        "maxResults": 50,
+        "safeSearch": "none",
+        "order": "relevance",
+        "part": "id,snippet",
+        "type": "video",
+        "videoDuration": "any",
+        "key": API_KEY,
+        "videoCategoryId": 10,  # search music
     }
 
     return query_string
 
+
 def obtain_stream(inqueue, outqueue):
     """ Return the stream object after instantiating the pafy object. """
 
-    for stream in iter(inqueue.get, 'STOP'):
+    for stream in iter(inqueue.get, "STOP"):
         x = 0
         audioFound = False
         while not audioFound and x < STREAM_OBJECT_ACQUISITION_MAX_ATTEMPTS:
-            x +=1
+            x += 1
             try:
-                logging.info("index     : %d", stream['q'])
-                if not stream.get('v') or not stream.get('a'):
-                    logging.info("ytid : %s", stream['i'].ytid)
-                    video = stream.get('v')
+                logging.info("index     : %d", stream["q"])
+                if not stream.get("v") or not stream.get("a"):
+                    logging.info("ytid : %s", stream["i"].ytid)
+                    video = stream.get("v")
                     if not video:
-                        video = pafy.new(stream['i'].ytid)
+                        video = pafy.new(stream["i"].ytid)
                     audio = video.getbestaudio(preftype="webm")
                     if not audio:
                         logging.info("no suitable audio found")
                         continue
-                    stream.update({'a': audio, 'v': video})
+                    stream.update({"a": audio, "v": video})
 
                 # streams = stream.get('v').audiostreams[::-1]
                 # pprint.pprint(streams)
                 # dump_stream_info(streams)
 
-                logging.info("index     : %d", stream['q'])
-                logging.info("url       : %s", stream['a'].url)
-                logging.info("title     : %s", to_ascii(stream['a'].title))
-                logging.info("bitrate   : %s", stream['a'].bitrate)
-                logging.info("extension : %s", stream['a'].extension)
+                logging.info("index     : %d", stream["q"])
+                logging.info("url       : %s", stream["a"].url)
+                logging.info("title     : %s", to_ascii(stream["a"].title))
+                logging.info("bitrate   : %s", stream["a"].bitrate)
+                logging.info("extension : %s", stream["a"].extension)
                 outqueue.put(stream)
                 audioFound = True
 
             except IOError as e:
-                if 'The uploader has not made this video available' not in str(e):
-                    logging.error("[YouTube] Could not retrieve the audio stream URL for '{}' " \
-                                  "(Attempt {} of {})."\
-                                  .format(to_ascii(stream['i'].ytid),
-                                          x, STREAM_OBJECT_ACQUISITION_MAX_ATTEMPTS))
+                if "The uploader has not made this video available" not in str(e):
+                    logging.error(
+                        "[YouTube] Could not retrieve the audio stream URL for '{}' "
+                        "(Attempt {} of {}).".format(
+                            to_ascii(stream["i"].ytid),
+                            x,
+                            STREAM_OBJECT_ACQUISITION_MAX_ATTEMPTS,
+                        )
+                    )
                 else:
                     break
 
@@ -311,6 +373,7 @@ class VideoInfo(object):
         """ class members. """
         self.ytid = ytid
         self.title = title
+
 
 class tizyoutubeproxy(object):
     """A class that accesses YouTube, retrieves stream URLs and creates and manages
@@ -338,7 +401,7 @@ class tizyoutubeproxy(object):
 
         """
         self.current_play_mode = getattr(self.play_modes, mode)
-        self.__update_play_queue_order()
+        self._update_play_queue_order()
 
     def enqueue_audio_stream(self, arg):
         """Add the audio stream of a YouTube video to the
@@ -347,8 +410,9 @@ class tizyoutubeproxy(object):
         :param arg: a search string
 
         """
-        logging.info('arg : %s', arg)
+        logging.info("arg : %s", arg)
         try:
+            print_msg("[YouTube] [Audio strean] : '{0}'. ".format(arg))
 
             yt_video = pafy.new(arg)
             yt_audio = yt_video.getbestaudio(preftype="webm")
@@ -356,9 +420,9 @@ class tizyoutubeproxy(object):
                 raise ValueError(str("No WebM audio stream for : %s" % arg))
 
             yt_info = VideoInfo(ytid=arg, title=yt_audio.title)
-            self.add_to_playback_queue(audio=yt_audio, video=yt_video, info=yt_info)
+            self._add_to_playback_queue(audio=yt_audio, video=yt_video, info=yt_info)
 
-            self.__update_play_queue_order()
+            self._update_play_queue_order()
 
         except ValueError:
             raise ValueError(str("Video not found : %s" % arg))
@@ -369,21 +433,23 @@ class tizyoutubeproxy(object):
         :param arg: a YouTube playlist id
 
         """
-        logging.info('arg : %s', arg)
+        logging.info("arg : %s", arg)
         try:
+            print_msg("[YouTube] [Audio playlist] : '{0}'. ".format(arg))
             count = len(self.queue)
 
             playlist = pafy.get_playlist2(arg)
             if len(playlist) > 0:
                 for yt_video in playlist:
-                    self.add_to_playback_queue(video=yt_video, \
-                                               info=VideoInfo(ytid=yt_video.videoid, \
-                                                              title=yt_video.title))
+                    self._add_to_playback_queue(
+                        video=yt_video,
+                        info=VideoInfo(ytid=yt_video.videoid, title=yt_video.title),
+                    )
 
             if count == len(self.queue):
                 raise ValueError
 
-            self.__update_play_queue_order()
+            self._update_play_queue_order()
 
         except ValueError:
             raise ValueError(str("Playlist not found : %s" % arg))
@@ -395,26 +461,27 @@ class tizyoutubeproxy(object):
         :param arg: a search string
 
         """
-        logging.info('arg : %s', arg)
+        logging.info("arg : %s", arg)
         try:
+            print_msg("[YouTube] [Audio search] : '{0}'. ".format(arg))
             query = generate_search_query(arg)
-            wdata = pafy.call_gdata('search', query)
+            wdata = pafy.call_gdata("search", query)
 
             wdata2 = wdata
             count = 0
             while True:
                 for track_info in get_tracks_from_json(wdata2):
-                    self.add_to_playback_queue(info=track_info)
+                    self._add_to_playback_queue(info=track_info)
                     count += 1
 
                 if count > 100:
                     break
-                if not wdata2.get('nextPageToken'):
+                if not wdata2.get("nextPageToken"):
                     break
-                query['pageToken'] = wdata2['nextPageToken']
-                wdata2 = pafy.call_gdata('search', query)
+                query["pageToken"] = wdata2["nextPageToken"]
+                wdata2 = pafy.call_gdata("search", query)
 
-            self.__update_play_queue_order()
+            self._update_play_queue_order()
 
         except ValueError:
             raise ValueError(str("Could not find any mixes : %s" % arg))
@@ -429,9 +496,10 @@ class tizyoutubeproxy(object):
         alternatives if the original mix cannot be found.
 
         """
-        logging.info('arg : %s', arg)
+        logging.info("arg : %s", arg)
         yt_video = None
         try:
+            print_msg("[YouTube] [Audio mix] : '{0}'. ".format(arg))
             count = len(self.queue)
 
             yt_video = pafy.new(arg)
@@ -441,20 +509,23 @@ class tizyoutubeproxy(object):
                     video_id = yt_video.videoid
                     video_title = yt_video.title
                     yt_info = VideoInfo(ytid=video_id, title=video_title)
-                    self.add_to_playback_queue(video=yt_video, info=yt_info)
+                    self._add_to_playback_queue(video=yt_video, info=yt_info)
 
             if count == len(self.queue):
                 raise ValueError
 
-            self.__update_play_queue_order()
+            self._update_play_queue_order()
 
         except IndexError:
             if not feelinglucky:
                 raise ValueError
             else:
-                print_wrn("[YouTube] Could not find a mix for '{0}'. "\
-                          "Searching YouTube instead. Feeling lucky?." \
-                          .format(arg.encode('utf-8')))
+                print_wrn(
+                    "[YouTube] Could not find a mix for '{0}'. "
+                    "Searching YouTube instead. Feeling lucky?.".format(
+                        arg.encode("utf-8")
+                    )
+                )
                 if yt_video.title:
                     self.enqueue_audio_search(yt_video.title)
                 else:
@@ -467,10 +538,12 @@ class tizyoutubeproxy(object):
         :param arg: a search string
 
         """
-        logging.info('arg : %s', arg)
+        logging.info("arg : %s", arg)
         try:
+            print_msg("[YouTube] [Audio mix search] : '{0}'. ".format(arg))
+
             query = generate_search_query(arg)
-            wdata = pafy.call_gdata('search', query)
+            wdata = pafy.call_gdata("search", query)
 
             wdata2 = wdata
             count = len(self.queue)
@@ -480,7 +553,7 @@ class tizyoutubeproxy(object):
                         self.enqueue_audio_mix(track_info.ytid, feelinglucky=False)
                         break
                     except ValueError:
-                        logging.info('Could not find a mix. Trying another video')
+                        logging.info("Could not find a mix. Trying another video")
 
             if count == len(self.queue):
                 raise ValueError
@@ -494,21 +567,23 @@ class tizyoutubeproxy(object):
         :param arg: a YouTube channel url
 
         """
-        logging.info('arg : %s', arg)
+        logging.info("arg : %s", arg)
         try:
+            print_msg("[YouTube] [Audio channel uploads] : '{0}'. ".format(arg))
             count = len(self.queue)
 
             channel = pafy.get_channel(arg)
             if channel:
                 for yt_video in channel.uploads:
-                    self.add_to_playback_queue(video=yt_video, \
-                                               info=VideoInfo(ytid=yt_video.videoid, \
-                                                              title=yt_video.title))
+                    self._add_to_playback_queue(
+                        video=yt_video,
+                        info=VideoInfo(ytid=yt_video.videoid, title=yt_video.title),
+                    )
 
             if count == len(self.queue):
                 raise ValueError
 
-            self.__update_play_queue_order()
+            self._update_play_queue_order()
 
         except ValueError:
             raise ValueError(str("Channel not found : %s" % arg))
@@ -520,18 +595,22 @@ class tizyoutubeproxy(object):
         :param arg: a YouTube playlist id
 
         """
-        logging.info('args : %s - %s', channel_name, playlist_name)
+        logging.info("args : %s - %s", channel_name, playlist_name)
         try:
+            print_msg(
+                "[YouTube] [Audio channel playlist] : '{0} - {1}'. ".format(
+                    channel_name, playlist_name
+                )
+            )
             count = len(self.queue)
             channel = pafy.get_channel(channel_name)
             if channel:
                 pl_dict = dict()
                 pl_titles = list()
-                pl_name = ''
+                pl_name = ""
                 playlist = None
                 for pl in channel.playlists:
-                    print_nfo("[YouTube] [Playlist] '{0}'." \
-                              .format(to_ascii(pl.title)))
+                    print_nfo("[YouTube] [Playlist] '{0}'.".format(to_ascii(pl.title)))
                     if fuzz.partial_ratio(playlist_name, pl.title) > 50:
                         pl_dict[pl.title] = pl
                         pl_titles.append(pl.title)
@@ -545,19 +624,22 @@ class tizyoutubeproxy(object):
 
                 if pl_name:
                     if pl_name.lower() != playlist_name.lower():
-                        print_wrn("[YouTube] Playlist '{0}' not found. " \
-                                  "Playing '{1}' instead." \
-                                  .format(to_ascii(playlist_name), \
-                                          to_ascii(pl_name)))
+                        print_wrn(
+                            "[YouTube] Playlist '{0}' not found. "
+                            "Playing '{1}' instead.".format(
+                                to_ascii(playlist_name), to_ascii(pl_name)
+                            )
+                        )
                     for yt_video in playlist:
-                        self.add_to_playback_queue(video=yt_video, \
-                                                   info=VideoInfo(ytid=yt_video.videoid, \
-                                                                  title=yt_video.title))
+                        self._add_to_playback_queue(
+                            video=yt_video,
+                            info=VideoInfo(ytid=yt_video.videoid, title=yt_video.title),
+                        )
 
             if count == len(self.queue):
                 raise ValueError
 
-            self.__update_play_queue_order()
+            self._update_play_queue_order()
 
         except ValueError:
             raise ValueError(str("Channel not found : %s" % channel_name))
@@ -567,9 +649,9 @@ class tizyoutubeproxy(object):
 
         """
         stream = self.now_playing_stream
-        title = ''
+        title = ""
         if stream:
-            title = to_ascii(stream['a'].title)
+            title = to_ascii(stream["a"].title)
         return title
 
     def current_audio_stream_author(self):
@@ -577,9 +659,9 @@ class tizyoutubeproxy(object):
 
         """
         stream = self.now_playing_stream
-        author = ''
+        author = ""
         if stream:
-            author = to_ascii(stream['v'].author)
+            author = to_ascii(stream["v"].author)
         return author
 
     def current_audio_stream_file_size(self):
@@ -589,7 +671,7 @@ class tizyoutubeproxy(object):
         stream = self.now_playing_stream
         size = 0
         if stream:
-            size = stream['a'].get_filesize()
+            size = stream["a"].get_filesize()
         return size
 
     def current_audio_stream_duration(self):
@@ -597,9 +679,9 @@ class tizyoutubeproxy(object):
 
         """
         stream = self.now_playing_stream
-        duration = ''
+        duration = ""
         if stream:
-            duration = to_ascii(stream['v'].duration)
+            duration = to_ascii(stream["v"].duration)
         return duration
 
     def current_audio_stream_bitrate(self):
@@ -607,9 +689,9 @@ class tizyoutubeproxy(object):
 
         """
         stream = self.now_playing_stream
-        bitrate = ''
+        bitrate = ""
         if stream:
-            bitrate = stream['a'].bitrate
+            bitrate = stream["a"].bitrate
         return bitrate
 
     def current_audio_stream_view_count(self):
@@ -619,7 +701,7 @@ class tizyoutubeproxy(object):
         stream = self.now_playing_stream
         viewcount = 0
         if stream:
-            viewcount = stream['v'].viewcount
+            viewcount = stream["v"].viewcount
         return viewcount
 
     def current_audio_stream_description(self):
@@ -627,9 +709,9 @@ class tizyoutubeproxy(object):
 
         """
         stream = self.now_playing_stream
-        description = ''
+        description = ""
         if stream:
-            description = to_ascii(stream['v'].description)
+            description = to_ascii(stream["v"].description)
         return description
 
     def current_audio_stream_file_extension(self):
@@ -637,9 +719,9 @@ class tizyoutubeproxy(object):
 
         """
         stream = self.now_playing_stream
-        file_extension = ''
+        file_extension = ""
         if stream:
-            file_extension = to_ascii(stream['a'].extension)
+            file_extension = to_ascii(stream["a"].extension)
         return file_extension
 
     def current_audio_stream_video_id(self):
@@ -647,9 +729,9 @@ class tizyoutubeproxy(object):
 
         """
         stream = self.now_playing_stream
-        video_id = ''
+        video_id = ""
         if stream:
-            video_id = to_ascii(stream['i'].ytid)
+            video_id = to_ascii(stream["i"].ytid)
         return video_id
 
     def current_audio_stream_published(self):
@@ -658,7 +740,7 @@ class tizyoutubeproxy(object):
         """
         stream = self.now_playing_stream
         if stream:
-            published = to_ascii(stream['v'].published)
+            published = to_ascii(stream["v"].published)
         return published
 
     def current_audio_stream_queue_index_and_queue_length(self):
@@ -682,13 +764,14 @@ class tizyoutubeproxy(object):
         logging.info("")
         if len(self.queue) and self.queue_index:
             stream = self.queue[self.queue_index]
-            print_nfo("[YouTube] [Stream] '{0}' removed." \
-                      .format(to_ascii(stream['i'].title)))
+            print_nfo(
+                "[YouTube] [Stream] '{0}' removed.".format(to_ascii(stream["i"].title))
+            )
             del self.queue[self.queue_index]
             self.queue_index -= 1
             if self.queue_index < 0:
                 self.queue_index = 0
-            self.__update_play_queue_order()
+            self._update_play_queue_order()
 
     def next_url(self):
         """ Retrieve the url of the next stream in the playback queue.
@@ -698,18 +781,16 @@ class tizyoutubeproxy(object):
         try:
             if len(self.queue):
                 self.queue_index += 1
-                if (self.queue_index < len(self.queue)) \
-                   and (self.queue_index >= 0):
-                    next_stream = self.queue[self.play_queue_order \
-                                            [self.queue_index]]
-                    return self.__retrieve_stream_url(next_stream, \
-                                                      self.play_queue_order \
-                                                      [self.queue_index]).rstrip()
+                if (self.queue_index < len(self.queue)) and (self.queue_index >= 0):
+                    next_stream = self.queue[self.play_queue_order[self.queue_index]]
+                    return self._retrieve_stream_url(
+                        next_stream, self.play_queue_order[self.queue_index]
+                    ).rstrip()
                 else:
                     self.queue_index = -1
                     return self.next_url()
             else:
-                return ''
+                return ""
         except (KeyError, AttributeError):
             # TODO: We don't remove this for now
             # del self.queue[self.queue_index]
@@ -729,18 +810,16 @@ class tizyoutubeproxy(object):
         try:
             if len(self.queue):
                 self.queue_index -= 1
-                if (self.queue_index < len(self.queue)) \
-                   and (self.queue_index >= 0):
-                    prev_stream = self.queue[self.play_queue_order \
-                                            [self.queue_index]]
-                    return self.__retrieve_stream_url(prev_stream, \
-                                                      self.play_queue_order \
-                                                      [self.queue_index]).rstrip()
+                if (self.queue_index < len(self.queue)) and (self.queue_index >= 0):
+                    prev_stream = self.queue[self.play_queue_order[self.queue_index]]
+                    return self._retrieve_stream_url(
+                        prev_stream, self.play_queue_order[self.queue_index]
+                    ).rstrip()
                 else:
                     self.queue_index = len(self.queue)
                     return self.prev_url()
             else:
-                return ''
+                return ""
         except (KeyError, AttributeError):
             # TODO: We don't remove this for now
             # del self.queue[self.queue_index]
@@ -752,7 +831,7 @@ class tizyoutubeproxy(object):
             logging.info("IOError exception")
             return self.next_url()
 
-    def __update_play_queue_order(self):
+    def _update_play_queue_order(self):
         """ Update the queue playback order.
 
         A sequential order is applied if the current play mode is "NORMAL" or a
@@ -766,62 +845,62 @@ class tizyoutubeproxy(object):
                 self.play_queue_order = list(range(total_streams))
             if self.current_play_mode == self.play_modes.SHUFFLE:
                 random.shuffle(self.play_queue_order)
-            print_nfo("[YouTube] [Streams in queue] '{0}'." \
-                      .format(total_streams))
+            print_nfo("[YouTube] [Streams in queue] '{0}'.".format(total_streams))
 
-    def __retrieve_stream_url(self, stream, queue_index):
+    def _retrieve_stream_url(self, stream, queue_index):
         """ Retrieve a stream url
 
         """
         try:
             if not len(self.workers):
                 for _ in range(WORKER_PROCESSES):
-                    proc = Process(target=obtain_stream, \
-                                   args=(self.task_queue, \
-                                         self.done_queue)).start()
+                    proc = Process(
+                        target=obtain_stream, args=(self.task_queue, self.done_queue)
+                    ).start()
                     self.workers.append(proc)
 
             while not self.done_queue.empty():
                 stream = self.done_queue.get()
-                self.queue[stream['q']] = stream
+                self.queue[stream["q"]] = stream
 
             stream = self.queue[queue_index]
-            if not stream.get('v') or not stream.get('a'):
-                logging.info("ytid : %s", stream['i'].ytid)
-                video = stream.get('v')
+            if not stream.get("v") or not stream.get("a"):
+                logging.info("ytid : %s", stream["i"].ytid)
+                video = stream.get("v")
                 if not video:
-                    video = pafy.new(stream['i'].ytid)
+                    video = pafy.new(stream["i"].ytid)
                 audio = video.getbestaudio(preftype="webm")
                 if not audio:
                     logging.info("no suitable audio found")
                     raise AttributeError()
-                stream.update({'a': audio, 'v': video})
+                stream.update({"a": audio, "v": video})
 
             # streams = stream.get('v').audiostreams[::-1]
             # pprint.pprint(streams)
             # dump_stream_info(streams)
 
             self.now_playing_stream = stream
-            return stream['a'].url
+            return stream["a"].url
 
         except AttributeError:
             logging.info("Could not retrieve the stream url!")
             raise
 
-    def add_to_playback_queue(self, audio=None, video=None, info=None):
+    def _add_to_playback_queue(self, audio=None, video=None, info=None):
         """ Add to the playback queue. """
 
         if audio:
-            print_nfo("[YouTube] [Stream] '{0}' [{1}]." \
-                      .format(to_ascii(audio.title), \
-                              to_ascii(audio.extension)))
+            print_nfo(
+                "[YouTube] [Stream] '{0}' [{1}].".format(
+                    to_ascii(audio.title), to_ascii(audio.extension)
+                )
+            )
         if info:
-            print_nfo("[YouTube] [Stream] '{0}'." \
-                      .format(to_ascii(info.title)))
+            print_nfo("[YouTube] [Stream] '{0}'.".format(to_ascii(info.title)))
         queue_index = len(self.queue)
         self.task_queue.put(dict(a=audio, v=video, i=info, q=queue_index))
-        self.queue.append(
-            dict(a=audio, v=video, i=info, q=queue_index))
+        self.queue.append(dict(a=audio, v=video, i=info, q=queue_index))
+
 
 if __name__ == "__main__":
     tizyoutubeproxy()

@@ -123,8 +123,8 @@ namespace tiz
       unsigned int m_tic;
 
       ansi_color_sequence m_pctg_bar_color;
-      ansi_color_sequence m_digits_color;
-      ansi_color_sequence m_time_bg_color;
+      ansi_color_sequence m_pctg_digits_color;
+      ansi_color_sequence m_elapsed_time_color;
       ansi_color_sequence m_progress_bar_color;
     };
   }  // namespace graph
