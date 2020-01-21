@@ -46,7 +46,8 @@
 #include "tizprintf.h"
 #include "tizrc.h"
 
-#define COLOR_THEME "color-theme"
+#define COLOR_THEMES "color-themes"
+#define ACTIVE_THEME "active-theme"
 #define C01 "C01"
 #define C02 "C02"
 #define C03 "C03"
@@ -64,22 +65,22 @@
 #define C15 "C15"
 #define C16 "C16"
 
-static char * gp_def_c01 = "31;49;22";
-static char * gp_def_c02 = "32;49;22";
-static char * gp_def_c03 = "33;49;22";
-static char * gp_def_c04 = "34;49;22";
-static char * gp_def_c05 = "35;49;22";
-static char * gp_def_c06 = "36;49;22";
-static char * gp_def_c07 = "37;49;22";
-static char * gp_def_c08 = "91;49;22";
-static char * gp_def_c09 = "92;49;22";
-static char * gp_def_c10 = "93;49;22";
-static char * gp_def_c11 = "94;49;22";
-static char * gp_def_c12 = "95;49;22";
-static char * gp_def_c13 = "36";
-static char * gp_def_c14 = "37";
-static char * gp_def_c15 = "41";
-static char * gp_def_c16 = "46";
+static char * gp_def_C01 = "31;49;22";
+static char * gp_def_C02 = "32;49;22";
+static char * gp_def_C03 = "33;49;22";
+static char * gp_def_C04 = "34;49;22";
+static char * gp_def_C05 = "35;49;22";
+static char * gp_def_C06 = "36;49;22";
+static char * gp_def_C07 = "37;49;22";
+static char * gp_def_C08 = "91;49;22";
+static char * gp_def_C09 = "92;49;22";
+static char * gp_def_C10 = "93;49;22";
+static char * gp_def_C11 = "94;49;22";
+static char * gp_def_C12 = "95;49;22";
+static char * gp_def_C13 = "36";
+static char * gp_def_C14 = "37";
+static char * gp_def_C15 = "41";
+static char * gp_def_C16 = "46";
 
 void
 tiz_printf (const char * ap_color, const char * ap_file, int a_line,
@@ -122,121 +123,66 @@ replacechar (char * ap_str, char a_orig, char a_rep)
 void
 tiz_printf_c (int a_kc, const char * ap_format, ...)
 {
+
+#define CASE_TIZ_COLOR_(COLOR_ENUM, COLOR, DEFAULT)                     \
+  case COLOR_ENUM:                                                      \
+    {                                                                   \
+      if (p_active_theme)                                               \
+        {                                                               \
+          (void) strncat (color_name, COLOR, OMX_MAX_STRINGNAME_SIZE);  \
+          p = (char *) tiz_rcfile_get_value (COLOR_THEMES, color_name); \
+        }                                                               \
+      if (!p)                                                           \
+        {                                                               \
+          p_ansi_color = DEFAULT;                                       \
+        }                                                               \
+    }                                                                   \
+    break
+
+  char color_name[OMX_MAX_STRINGNAME_SIZE];
   char * p = NULL;
   char * p_ansi_color = NULL;
+  const char * p_active_theme
+    = tiz_rcfile_get_value (COLOR_THEMES, ACTIVE_THEME);
+  if (p_active_theme)
+    {
+      (void) strcpy (color_name, p_active_theme);
+      (void) strcat (color_name, ".");
+    }
+
   switch (a_kc)
     {
-    case TIZ_COLOR_01:
-      {
-        p = (char *) tiz_rcfile_get_value (COLOR_THEME, C01);
-        if (!p) p_ansi_color = gp_def_c01;
-      }
-      break;
-    case TIZ_COLOR_02:
-      {
-        p = (char *) tiz_rcfile_get_value (COLOR_THEME, C02);
-        if (!p) p_ansi_color = gp_def_c02;
-      }
-      break;
-    case TIZ_COLOR_03:
-      {
-        p = (char *) tiz_rcfile_get_value (COLOR_THEME, C03);
-        if (!p) p_ansi_color = gp_def_c03;
-      }
-      break;
-    case TIZ_COLOR_04:
-      {
-        p = (char *) tiz_rcfile_get_value (COLOR_THEME, C04);
-        if (!p) p_ansi_color = gp_def_c04;
-      }
-      break;
-    case TIZ_COLOR_05:
-      {
-        p = (char *) tiz_rcfile_get_value (COLOR_THEME, C05);
-        if (!p) p_ansi_color = gp_def_c05;
-      }
-      break;
-    case TIZ_COLOR_06:
-      {
-        p = (char *) tiz_rcfile_get_value (COLOR_THEME, C06);
-        if (!p) p_ansi_color = gp_def_c06;
-      }
-      break;
-    case TIZ_COLOR_07:
-      {
-        p = (char *) tiz_rcfile_get_value (COLOR_THEME, C07);
-        if (!p) p_ansi_color = gp_def_c07;
-      }
-      break;
-    case TIZ_COLOR_08:
-      {
-        p = (char *) tiz_rcfile_get_value (COLOR_THEME, C08);
-        if (!p) p_ansi_color = gp_def_c08;
-      }
-      break;
-    case TIZ_COLOR_09:
-      {
-        p = (char *) tiz_rcfile_get_value (COLOR_THEME, C09);
-        if (!p) p_ansi_color = gp_def_c09;
-      }
-      break;
-    case TIZ_COLOR_10:
-      {
-        p = (char *) tiz_rcfile_get_value (COLOR_THEME, C10);
-        if (!p) p_ansi_color = gp_def_c10;
-      }
-      break;
-    case TIZ_COLOR_11:
-      {
-        p = (char *) tiz_rcfile_get_value (COLOR_THEME, C11);
-        if (!p) p_ansi_color = gp_def_c11;
-      }
-      break;
-    case TIZ_COLOR_12:
-      {
-        p = (char *) tiz_rcfile_get_value (COLOR_THEME, C12);
-        if (!p) p_ansi_color = gp_def_c12;
-      }
-      break;
-    case TIZ_COLOR_13:
-      {
-        p = (char *) tiz_rcfile_get_value (COLOR_THEME, C13);
-        if (!p) p_ansi_color = gp_def_c13;
-      }
-      break;
-    case TIZ_COLOR_14:
-      {
-        p = (char *) tiz_rcfile_get_value (COLOR_THEME, C14);
-        if (!p) p_ansi_color = gp_def_c14;
-      }
-      break;
-    case TIZ_COLOR_15:
-      {
-        p = (char *) tiz_rcfile_get_value (COLOR_THEME, C15);
-        if (!p) p_ansi_color = gp_def_c15;
-      }
-      break;
-    case TIZ_COLOR_16:
-      {
-        p = (char *) tiz_rcfile_get_value (COLOR_THEME, C16);
-        if (!p) p_ansi_color = gp_def_c16;
-      }
-      break;
-    default:
-      {
-        assert (0);
-      };
+      CASE_TIZ_COLOR_ (TIZ_COLOR_01, C01, gp_def_C01);
+      CASE_TIZ_COLOR_ (TIZ_COLOR_02, C02, gp_def_C02);
+      CASE_TIZ_COLOR_ (TIZ_COLOR_03, C03, gp_def_C03);
+      CASE_TIZ_COLOR_ (TIZ_COLOR_04, C04, gp_def_C04);
+      CASE_TIZ_COLOR_ (TIZ_COLOR_05, C05, gp_def_C05);
+      CASE_TIZ_COLOR_ (TIZ_COLOR_06, C06, gp_def_C06);
+      CASE_TIZ_COLOR_ (TIZ_COLOR_07, C07, gp_def_C07);
+      CASE_TIZ_COLOR_ (TIZ_COLOR_08, C08, gp_def_C08);
+      CASE_TIZ_COLOR_ (TIZ_COLOR_09, C09, gp_def_C09);
+      CASE_TIZ_COLOR_ (TIZ_COLOR_10, C10, gp_def_C10);
+      CASE_TIZ_COLOR_ (TIZ_COLOR_11, C11, gp_def_C11);
+      CASE_TIZ_COLOR_ (TIZ_COLOR_12, C12, gp_def_C12);
+      CASE_TIZ_COLOR_ (TIZ_COLOR_13, C13, gp_def_C13);
+      CASE_TIZ_COLOR_ (TIZ_COLOR_14, C14, gp_def_C14);
+      CASE_TIZ_COLOR_ (TIZ_COLOR_15, C15, gp_def_C15);
+      CASE_TIZ_COLOR_ (TIZ_COLOR_16, C16, gp_def_C16);
+      default:
+        {
+          assert (0);
+        };
     };
 
   if (p)
     {
-      (void)replacechar(p, ',', ';');
+      (void) replacechar (p, ',', ';');
       p_ansi_color = p;
     }
 
   if (p_ansi_color)
     {
-      size_t size = 256;
+      size_t size = OMX_MAX_STRINGNAME_SIZE;
       char * p_buffer = alloca (size);
       va_list va;
       va_start (va, ap_format);

@@ -37,7 +37,8 @@
 
 #include "tizprogressdisplay.hpp"
 
-#define COLOR_THEME "color-theme"
+#define COLOR_THEMES "color-themes"
+#define ACTIVE_THEME "active-theme"
 #define C13 "C13"
 #define C14 "C14"
 #define C15 "C15"
@@ -46,32 +47,37 @@
 
 namespace graph = tiz::graph;
 
-graph::ansi_color_sequence::ansi_color_sequence (const graph::default_color color)
-: m_code ()
+graph::ansi_color_sequence::ansi_color_sequence (
+    const graph::default_color color)
+  : m_code ()
 {
+#define CASE_COLOR_(COLOR_ENUM, COLOR)                             \
+  case COLOR_ENUM:                                                 \
+  {                                                                \
+    if (p_active_theme)                                            \
+    {                                                              \
+      (void)strncat (color_name, COLOR, OMX_MAX_STRINGNAME_SIZE);  \
+      p = (char *)tiz_rcfile_get_value (COLOR_THEMES, color_name); \
+    }                                                              \
+  }                                                                \
+  break
+
+  char color_name[OMX_MAX_STRINGNAME_SIZE];
   char *p = NULL;
+  const char *p_active_theme
+      = tiz_rcfile_get_value (COLOR_THEMES, ACTIVE_THEME);
+  if (p_active_theme)
+  {
+    (void)strcpy (color_name, p_active_theme);
+    (void)strcat (color_name, ".");
+  }
+
   switch (color)
   {
-    case FG_MAGENTA:
-    {
-      p = (char *)tiz_rcfile_get_value (COLOR_THEME, C13);
-    }
-    break;
-    case FG_LIGHT_GREY:
-    {
-      p = (char *)tiz_rcfile_get_value (COLOR_THEME, C14);
-    }
-    break;
-    case BG_RED:
-    {
-      p = (char *)tiz_rcfile_get_value (COLOR_THEME, C15);
-    }
-    break;
-    case BG_CYAN:
-    {
-      p = (char *)tiz_rcfile_get_value (COLOR_THEME, C16);
-    }
-    break;
+    CASE_COLOR_ (FG_MAGENTA, C13);
+    CASE_COLOR_ (FG_LIGHT_GREY, C14);
+    CASE_COLOR_ (BG_RED, C15);
+    CASE_COLOR_ (BG_CYAN, C16);
     default:
     {
       assert (0);

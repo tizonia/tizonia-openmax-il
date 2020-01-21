@@ -57,9 +57,13 @@ class ConfigColors:
         self.config.read(
             os.path.join(os.getenv("HOME"), ".config/tizonia/tizonia.conf")
         )
+        active_theme = self.config.get(
+            "color-themes", "active-theme", fallback="tizonia"
+        )
+        active_theme = active_theme + "."
         self.FAIL = (
             "\033["
-            + self.config.get("color-theme", "C08", fallback="91")
+            + self.config.get("color-themes", active_theme + "C08", fallback="91")
             .replace(",", ";")
             .split("#", 1)[0]
             .strip()
@@ -67,7 +71,7 @@ class ConfigColors:
         )
         self.OKGREEN = (
             "\033["
-            + self.config.get("color-theme", "C09", fallback="92")
+            + self.config.get("color-themes", active_theme + "C09", fallback="92")
             .replace(",", ";")
             .split("#", 1)[0]
             .strip()
@@ -75,7 +79,7 @@ class ConfigColors:
         )
         self.WARNING = (
             "\033["
-            + self.config.get("color-theme", "C10", fallback="93")
+            + self.config.get("color-themes", active_theme + "C10", fallback="93")
             .replace(",", ";")
             .split("#", 1)[0]
             .strip()
@@ -83,7 +87,7 @@ class ConfigColors:
         )
         self.OKBLUE = (
             "\033["
-            + self.config.get("color-theme", "C11", fallback="94")
+            + self.config.get("color-themes", active_theme + "C11", fallback="94")
             .replace(",", ";")
             .split("#", 1)[0]
             .strip()
