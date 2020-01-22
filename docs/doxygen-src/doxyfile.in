@@ -744,10 +744,13 @@ WARN_LOGFILE           =
 # Note: If this tag is empty the current directory is searched.
 
 INPUT                  = @abs_srcdir@/mainpage.dox
+INPUT                 += @abs_top_srcdir@/../clients/chromecast
 INPUT                 += @abs_top_srcdir@/../clients/gmusic
+INPUT                 += @abs_top_srcdir@/../clients/plex
 INPUT                 += @abs_top_srcdir@/../clients/soundcloud
-INPUT                 += @abs_top_srcdir@/../clients/youtube
+INPUT                 += @abs_top_srcdir@/../clients/spotify
 INPUT                 += @abs_top_srcdir@/../clients/tunein
+INPUT                 += @abs_top_srcdir@/../clients/youtube
 INPUT                 += @abs_top_srcdir@/../libtizcore
 INPUT                 += @abs_top_srcdir@/../libtizonia
 INPUT                 += @abs_top_srcdir@/../libtizplatform
