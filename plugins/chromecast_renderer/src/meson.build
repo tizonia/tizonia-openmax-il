@@ -7,6 +7,8 @@ libtizchromecastrnd_sources = [
    'cc_gmusiccfgport.c',
    'cc_scloudprc.c',
    'cc_scloudcfgport.c',
+   'cc_tuneinprc.c',
+   'cc_tuneincfgport.c',
    'cc_youtubeprc.c',
    'cc_youtubecfgport.c',
    'cc_plexprc.c',
