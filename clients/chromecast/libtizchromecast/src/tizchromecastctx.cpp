@@ -97,7 +97,7 @@ bp::object &tizchromecastctx::create_cc_proxy (const std::string &name_or_ip) co
     {
       instances_.erase (name_or_ip);
     }
-  instances_[name_or_ip] = py_chromecastproxy_ (name_or_ip.c_str ());
+  try_catch_wrapper (instances_[name_or_ip] = py_chromecastproxy_ (name_or_ip.c_str ()));
   return instances_[name_or_ip];
 }
 
