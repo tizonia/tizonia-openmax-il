@@ -22,7 +22,9 @@ Access a Chromecast device to initiate and manage audio streaming sessions..
 """
 
 import select
+import time
 import sys
+import os
 import logging
 import unicodedata
 import pychromecast
@@ -44,7 +46,7 @@ from pychromecast.config import (
 )
 
 # For use during debugging
-import pprint
+from pprint import pprint
 from traceback import print_exception
 
 DEFAULT_THUMB="https://avatars0.githubusercontent.com/u/3161606?v=3&s=400"
@@ -52,9 +54,13 @@ FORMAT = '[%(asctime)s] [%(levelname)5s] [%(thread)d] ' \
          '[%(module)s:%(funcName)s:%(lineno)d] - %(message)s'
 
 logging.captureWarnings(True)
-#logging.getLogger().addHandler(logging.NullHandler())
-logging.basicConfig(format=FORMAT)
 logging.getLogger().setLevel(logging.DEBUG)
+
+if os.environ.get("TIZONIA_CHROMECASTPROXY_DEBUG"):
+    logging.basicConfig(format=FORMAT)
+    from traceback import print_exception
+else:
+    logging.getLogger().addHandler(logging.NullHandler())
 
 class ConfigColors:
     def __init__(self):
@@ -106,7 +112,7 @@ def pretty_print(color, msg=""):
     """Print message with color.
 
     """
-    print(color + msg + _Colors.ENDC)
+    print((color + msg + _Colors.ENDC))
 
 def print_msg(msg=""):
     """Print a normal message.
@@ -148,8 +154,9 @@ def to_ascii(msg):
 
     """
 
-    return unicodedata.normalize('NFKD', str(msg)).encode('ASCII', 'ignore')
-
+    if sys.version[0] == "2":
+        return unicodedata.normalize("NFKD", str(msg)).encode("ASCII", "ignore")
+    return msg
 
 class tizchromecastproxy(object):
     """A class that interfaces with a Chromecast device to initiate and manage
@@ -171,7 +178,10 @@ class tizchromecastproxy(object):
         self.cast.media_controller.register_status_listener(self)
         print_nfo("[Chromecast] [{0}] [Activating]" \
                   .format(to_ascii(self.name_or_ip)))
-        self.cast.start_app(APP_MEDIA_RECEIVER)
+        time.sleep(5)
+        self.active = True
+        self.cast.start()
+        time.sleep(5)
         self.active = True
 
     def deactivate(self):
@@ -251,7 +261,9 @@ class tizchromecastproxy(object):
         """
 
         # CastStatus(is_active_input=None, is_stand_by=None, volume_level=0.8999999761581421, volume_muted=False, app_id=u'CC1AD845', display_name=u'Default Media Receiver', namespaces=[u'urn:x-cast:com.google.cast.debugoverlay', u'urn:x-cast:com.google.cast.broadcast', u'urn:x-cast:com.google.cast.media'], session_id=u'2f63312e-4777-454f-acc7-8be72572c7c8', transport_id=u'2f63312e-4777-454f-acc7-8be72572c7c8', status_text=u'Now Casting: Tizonia Audio Stream')
+        #pprint("new_cast_status")
         if not self.active:
+            #pprint("new_cast_status: not active!")
             return
         if status:
             logging.info("new_cast_status: %r" % (status,))
@@ -278,7 +290,9 @@ class tizchromecastproxy(object):
 
         # <MediaStatus {'player_state': u'BUFFERING', 'volume_level': 1, 'images': [MediaImage(url=u'https://avatars0.githubusercontent.com/u/3161606?v=3&s=400', height=None, width=None)], 'media_custom_data': {}, 'duration': None, 'current_time': 0, 'playback_rate': 1, 'title': u'Tizonia Audio Stream', 'media_session_id': 4, 'volume_muted': False, 'supports_skip_forward': False, 'track': None, 'season': None, 'idle_reason': None, 'stream_type': u'LIVE', 'supports_stream_mute': True, 'supports_stream_volume': True, 'content_type': u'audio/mpeg', 'metadata_type': None, 'subtitle_tracks': {}, 'album_name': None, 'series_title': None, 'album_artist': None, 'media_metadata': {u'images': [{u'url': u'https://avatars0.githubusercontent.com/u/3161606?v=3&s=400'}], u'thumb': u'https://avatars0.githubusercontent.com/u/3161606?v=3&s=400', u'title': u'Tizonia Audio Stream'}, 'episode': None, 'artist': None, 'supported_media_commands': 15, 'supports_seek': True, 'current_subtitle_tracks': [], 'content_id': u'http://streams.radiobob.de/bob-acdc/mp3-192/dirble/', 'supports_skip_backward': False, 'supports_pause': True}>
 
+        #pprint("new_media_status")
         if not self.active:
+            #pprint("new_media_status: not active!")
             return
         if status:
             logging.info("new_media_status: %r" % (status,))
