@@ -48,9 +48,9 @@ struct cc_tunein_prc
 {
   /* Object */
   const cc_prc_t _;
-  OMX_TIZONIA_AUDIO_PARAM_TUNEINSESSIONTYPE db_session_;
-  OMX_TIZONIA_AUDIO_PARAM_TUNEINPLAYLISTTYPE db_playlist_;
-  tiz_tunein_t * p_db_;
+  OMX_TIZONIA_AUDIO_PARAM_TUNEINSESSIONTYPE tunein_session_;
+  OMX_TIZONIA_AUDIO_PARAM_TUNEINPLAYLISTTYPE tunein_playlist_;
+  tiz_tunein_t * p_tunein_;
   bool remove_current_url_;
 };
 

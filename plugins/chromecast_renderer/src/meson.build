@@ -25,7 +25,8 @@ libtizchromecastrnd = library(
       libtizgmusic_dep,
       libtizplex_dep,
       libtizyoutube_dep,
-      libtizsoundcloud_dep
+      libtizsoundcloud_dep,
+      libtiztunein_dep
    ],
    install: true,
    install_dir: tizplugindir

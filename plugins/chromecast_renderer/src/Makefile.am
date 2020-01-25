@@ -35,6 +35,10 @@ noinst_HEADERS = \
 	cc_scloudprc_decls.h \
 	cc_scloudcfgport.h \
 	cc_scloudcfgport_decls.h \
+	cc_tuneinprc.h \
+	cc_tuneinprc_decls.h \
+	cc_tuneincfgport.h \
+	cc_tuneincfgport_decls.h \
 	cc_youtubeprc.h \
 	cc_youtubeprc_decls.h \
 	cc_youtubecfgport.h \
@@ -53,6 +57,8 @@ libtizchromecastrnd_la_SOURCES = \
 	cc_gmusiccfgport.c \
 	cc_scloudprc.c \
 	cc_scloudcfgport.c \
+	cc_tuneinprc.c \
+	cc_tuneincfgport.c \
 	cc_youtubeprc.c \
 	cc_youtubecfgport.c \
 	cc_plexprc.c \
@@ -64,6 +70,7 @@ libtizchromecastrnd_la_CFLAGS = \
 	@TIZONIA_CFLAGS@ \
 	@TIZGMUSIC_CFLAGS@ \
 	@TIZSOUNDCLOUD_CFLAGS@ \
+	@TIZTUNEIN_CFLAGS@ \
 	@TIZYOUTUBE_CFLAGS@ \
 	@TIZPLEX_CFLAGS@ \
 	@TIZCASTCLIENT_CFLAGS@ \
@@ -76,6 +83,7 @@ libtizchromecastrnd_la_LIBADD = \
 	@TIZONIA_LIBS@ \
 	@TIZGMUSIC_LIBS@ \
 	@TIZSOUNDCLOUD_LIBS@ \
+	@TIZTUNEIN_LIBS@ \
 	@TIZYOUTUBE_LIBS@ \
 	@TIZPLEX_LIBS@ \
 	@TIZCASTCLIENT_LIBS@
