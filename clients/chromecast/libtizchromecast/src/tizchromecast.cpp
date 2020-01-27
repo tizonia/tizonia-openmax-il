@@ -110,7 +110,7 @@ tiz_chromecast_error_t tizchromecast::start ()
           bp::make_function (cast_status_handler),
           bp::make_function (media_status_handler)));
     }
-  std::cout << "tizchromecast::start: rc " << rc << std::endl;
+  // std::cout << "tizchromecast::start: rc " << rc << std::endl;
   return rc;
 }
 
@@ -134,6 +134,7 @@ void tizchromecast::deinit ()
 tiz_chromecast_error_t tizchromecast::poll_socket (int a_poll_time_ms)
 {
   tiz_chromecast_error_t rc = ETizCcErrorNoError;
+
   if (cc_ctx_.cc_proxy_exists (name_or_ip_))
     {
       try_catch_wrapper (
@@ -148,6 +149,8 @@ tiz_chromecast_error_t tizchromecast::media_load (
     const std::string &title, const std::string &album_art)
 {
   tiz_chromecast_error_t rc = ETizCcErrorNoError;
+  // std::cout << "tizchromecast::media_load: " << url << std::endl;
+
   if (cc_ctx_.cc_proxy_exists (name_or_ip_))
     {
       try_catch_wrapper (cc_ctx_.get_cc_proxy (name_or_ip_)
@@ -161,6 +164,7 @@ tiz_chromecast_error_t tizchromecast::media_load (
 tiz_chromecast_error_t tizchromecast::media_play ()
 {
   tiz_chromecast_error_t rc = ETizCcErrorNoError;
+  // std::cout << "tizchromecast::media_play: " << std::endl;
   if (cc_ctx_.cc_proxy_exists (name_or_ip_))
     {
       try_catch_wrapper (
@@ -172,6 +176,7 @@ tiz_chromecast_error_t tizchromecast::media_play ()
 tiz_chromecast_error_t tizchromecast::media_stop ()
 {
   tiz_chromecast_error_t rc = ETizCcErrorNoError;
+  // std::cout << "tizchromecast::media_stop: " << std::endl;
   if (cc_ctx_.cc_proxy_exists (name_or_ip_))
     {
       try_catch_wrapper (
@@ -250,8 +255,8 @@ void tizchromecast::new_cast_status (const std::string &status,
                                      const float &volume)
 {
   const int vol = volume * (float)100;
-  std::cout << "tizchromecast::new_cast_status: " << status << " volume "
-            << volume << " pid " << getpid () << std::endl;
+  // std::cout << "tizchromecast::new_cast_status: " << status << " volume "
+//             << volume << " pid " << getpid () << std::endl;
   if (!status.compare ("UNKNOWN"))
     {
       cbacks_.pf_cast_status (p_user_data_, ETizCcCastStatusUnknown, vol);
@@ -273,8 +278,8 @@ void tizchromecast::new_cast_status (const std::string &status,
 void tizchromecast::new_media_status (const std::string &status,
                                       const int &volume)
 {
-  std::cout << "tizchromecast::new_media_status: " << status << " volume "
-            << volume << " pid " << getpid () << std::endl;
+  // std::cout << "tizchromecast::new_media_status: " << status << " volume "
+//             << volume << " pid " << getpid () << std::endl;
   if (!status.compare ("UNKNOWN"))
     {
       cbacks_.pf_media_status (p_user_data_, ETizCcMediaStatusUnknown, volume);
