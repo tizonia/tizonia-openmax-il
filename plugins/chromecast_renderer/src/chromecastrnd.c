@@ -51,8 +51,8 @@
 #include "cc_gmusiccfgport.h"
 #include "cc_scloudprc.h"
 #include "cc_scloudcfgport.h"
-/* #include "cc_tuneinprc.h" */
-/* #include "cc_tuneincfgport.h" */
+#include "cc_tuneinprc.h"
+#include "cc_tuneincfgport.h"
 #include "cc_youtubeprc.h"
 #include "cc_youtubecfgport.h"
 #include "cc_plexprc.h"
@@ -175,20 +175,20 @@ instantiate_scloud_processor (OMX_HANDLETYPE ap_hdl)
   return factory_new (tiz_get_type (ap_hdl, "cc_scloudprc"));
 }
 
-/* static OMX_PTR */
-/* instantiate_tunein_config_port (OMX_HANDLETYPE ap_hdl) */
-/* { */
-/*   return factory_new (tiz_get_type (ap_hdl, "cc_tuneincfgport"), */
-/*                       NULL, /\* this port does not take options *\/ */
-/*                       ARATELIA_CHROMECAST_RENDERER_COMPONENT_NAME, */
-/*                       chromecast_renderer_version); */
-/* } */
+static OMX_PTR
+instantiate_tunein_config_port (OMX_HANDLETYPE ap_hdl)
+{
+  return factory_new (tiz_get_type (ap_hdl, "cc_tuneincfgport"),
+                      NULL, /* this port does not take options */
+                      ARATELIA_CHROMECAST_RENDERER_COMPONENT_NAME,
+                      chromecast_renderer_version);
+}
 
-/* static OMX_PTR */
-/* instantiate_tunein_processor (OMX_HANDLETYPE ap_hdl) */
-/* { */
-/*   return factory_new (tiz_get_type (ap_hdl, "cc_tuneinprc")); */
-/* } */
+static OMX_PTR
+instantiate_tunein_processor (OMX_HANDLETYPE ap_hdl)
+{
+  return factory_new (tiz_get_type (ap_hdl, "cc_tuneinprc"));
+}
 
 static OMX_PTR
 instantiate_youtube_config_port (OMX_HANDLETYPE ap_hdl)
@@ -226,12 +226,12 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   tiz_role_factory_t http_client_role;
   tiz_role_factory_t gmusic_client_role;
   tiz_role_factory_t scloud_client_role;
-/*   tiz_role_factory_t tunein_client_role; */
+  tiz_role_factory_t tunein_client_role;
   tiz_role_factory_t youtube_client_role;
   tiz_role_factory_t plex_client_role;
   const tiz_role_factory_t * rf_list[]
     = {&http_client_role, &gmusic_client_role, &scloud_client_role,
-       /* &tunein_client_role, */ &youtube_client_role, &plex_client_role};
+       &tunein_client_role, &youtube_client_role, &plex_client_role};
   tiz_type_factory_t cc_prc_type;
   tiz_type_factory_t cc_cfgport_type;
   tiz_type_factory_t cc_httpprc_type;
@@ -239,8 +239,8 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   tiz_type_factory_t cc_gmusiccfgport_type;
   tiz_type_factory_t cc_scloudprc_type;
   tiz_type_factory_t cc_scloudcfgport_type;
-/*   tiz_type_factory_t cc_tuneinprc_type; */
-/*   tiz_type_factory_t cc_tuneincfgport_type; */
+  tiz_type_factory_t cc_tuneinprc_type;
+  tiz_type_factory_t cc_tuneincfgport_type;
   tiz_type_factory_t cc_youtubeprc_type;
   tiz_type_factory_t cc_youtubecfgport_type;
   tiz_type_factory_t cc_plexprc_type;
@@ -248,7 +248,7 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   const tiz_type_factory_t * tf_list[]
     = {&cc_prc_type,           &cc_cfgport_type,       &cc_httpprc_type,
        &cc_gmusicprc_type,     &cc_gmusiccfgport_type, &cc_scloudprc_type,
-       &cc_scloudcfgport_type, /* &cc_tuneinprc_type,     &cc_tuneincfgport_type, */
+       &cc_scloudcfgport_type, &cc_tuneinprc_type,     &cc_tuneincfgport_type,
        &cc_youtubeprc_type,    &cc_youtubecfgport_type, &cc_plexprc_type,    &cc_plexcfgport_type};
 
   strcpy ((OMX_STRING) http_client_role.role,
@@ -272,12 +272,12 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   scloud_client_role.nports = 1;
   scloud_client_role.pf_proc = instantiate_scloud_processor;
 
-/*   strcpy ((OMX_STRING) tunein_client_role.role, */
-/*           ARATELIA_TUNEIN_SOURCE_DEFAULT_ROLE); */
-/*   tunein_client_role.pf_cport = instantiate_tunein_config_port; */
-/*   tunein_client_role.pf_port[0] = instantiate_pcm_port; */
-/*   tunein_client_role.nports = 1; */
-/*   tunein_client_role.pf_proc = instantiate_tunein_processor; */
+  strcpy ((OMX_STRING) tunein_client_role.role,
+          ARATELIA_TUNEIN_SOURCE_DEFAULT_ROLE);
+  tunein_client_role.pf_cport = instantiate_tunein_config_port;
+  tunein_client_role.pf_port[0] = instantiate_pcm_port;
+  tunein_client_role.nports = 1;
+  tunein_client_role.pf_proc = instantiate_tunein_processor;
 
   strcpy ((OMX_STRING) youtube_client_role.role,
           ARATELIA_YOUTUBE_SOURCE_DEFAULT_ROLE);
@@ -330,16 +330,16 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   strcpy ((OMX_STRING) cc_scloudcfgport_type.object_name, "cc_scloudcfgport");
   cc_scloudcfgport_type.pf_object_init = cc_scloud_cfgport_init;
 
-/*   strcpy ((OMX_STRING) cc_tuneinprc_type.class_name, "cc_tuneinprc_class"); */
-/*   cc_tuneinprc_type.pf_class_init = cc_tunein_prc_class_init; */
-/*   strcpy ((OMX_STRING) cc_tuneinprc_type.object_name, "cc_tuneinprc"); */
-/*   cc_tuneinprc_type.pf_object_init = cc_tunein_prc_init; */
+  strcpy ((OMX_STRING) cc_tuneinprc_type.class_name, "cc_tuneinprc_class");
+  cc_tuneinprc_type.pf_class_init = cc_tunein_prc_class_init;
+  strcpy ((OMX_STRING) cc_tuneinprc_type.object_name, "cc_tuneinprc");
+  cc_tuneinprc_type.pf_object_init = cc_tunein_prc_init;
 
-/*   strcpy ((OMX_STRING) cc_tuneincfgport_type.class_name, */
-/*           "cc_tuneincfgport_class"); */
-/*   cc_tuneincfgport_type.pf_class_init = cc_tunein_cfgport_class_init; */
-/*   strcpy ((OMX_STRING) cc_tuneincfgport_type.object_name, "cc_tuneincfgport"); */
-/*   cc_tuneincfgport_type.pf_object_init = cc_tunein_cfgport_init; */
+  strcpy ((OMX_STRING) cc_tuneincfgport_type.class_name,
+          "cc_tuneincfgport_class");
+  cc_tuneincfgport_type.pf_class_init = cc_tunein_cfgport_class_init;
+  strcpy ((OMX_STRING) cc_tuneincfgport_type.object_name, "cc_tuneincfgport");
+  cc_tuneincfgport_type.pf_object_init = cc_tunein_cfgport_init;
 
   strcpy ((OMX_STRING) cc_youtubeprc_type.class_name, "cc_youtubeprc_class");
   cc_youtubeprc_type.pf_class_init = cc_youtube_prc_class_init;
@@ -368,10 +368,10 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
     tiz_comp_init (ap_hdl, ARATELIA_CHROMECAST_RENDERER_COMPONENT_NAME));
 
   /* Register the various classes */
-  tiz_check_omx (tiz_comp_register_types (ap_hdl, tf_list, 11));
+  tiz_check_omx (tiz_comp_register_types (ap_hdl, tf_list, 13));
 
   /* Register the component roles */
-  tiz_check_omx (tiz_comp_register_roles (ap_hdl, rf_list, 5));
+  tiz_check_omx (tiz_comp_register_roles (ap_hdl, rf_list, 6));
 
   return OMX_ErrorNone;
 }
