@@ -122,8 +122,16 @@ cast::uuid_t cast::ops::uuid () const
 
 void cast::ops::do_connect (const std::string &name_or_ip)
 {
-  // Make sure a previous client has been disconnected
   TIZ_LOG (TIZ_PRIORITY_NOTICE, "do_connect");
+
+  // NOTE: For now, we will handle just one client. In the future, this may
+  // change.
+  // Make sure a previous client has been disconnected
+  if (p_cc_)
+  {
+    do_disconnect ();
+  }
+
   tiz_chromecast_callbacks_t cc_cbacks
       = { tiz::cast::cc_cast_status_cback, tiz::cast::cc_media_status_cback };
   tiz_chromecast_error_t rc = tiz_chromecast_init (
