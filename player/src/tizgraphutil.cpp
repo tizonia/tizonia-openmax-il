@@ -863,24 +863,6 @@ graph::util::set_scloud_playlist (
 }
 
 OMX_ERRORTYPE
-graph::util::set_tunein_api_key (const OMX_HANDLETYPE handle,
-                                 const std::string &api_key)
-{
-  // Set the Tunein user and pass
-  OMX_TIZONIA_AUDIO_PARAM_TUNEINSESSIONTYPE sessiontype;
-  TIZ_INIT_OMX_STRUCT (sessiontype);
-  tiz_check_omx (OMX_GetParameter (
-      handle,
-      static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioTuneinSession),
-      &sessiontype));
-  tiz::graph::util::copy_omx_string (sessiontype.cApiKey, api_key);
-  return OMX_SetParameter (
-      handle,
-      static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioTuneinSession),
-      &sessiontype);
-}
-
-OMX_ERRORTYPE
 graph::util::set_tunein_playlist (
     const OMX_HANDLETYPE handle, const uri_lst_t &search_keywords,
     const OMX_TIZONIA_AUDIO_TUNEINPLAYLISTTYPE playlist_type,

@@ -43,7 +43,7 @@
 
 #include "tizchromecastconfig.hpp"
 #include "tizchromecastgraphops.hpp"
-// #include <tiztuneinconfig.hpp>
+#include <tiztuneinconfig.hpp>
 #include <tizgmusicconfig.hpp>
 #include <tizgraph.hpp>
 #include <tizgraphutil.hpp>
@@ -109,12 +109,12 @@ void graph::chromecastops::do_load ()
     config_service_func_
         = boost::bind (&tiz::graph::chromecastops::do_configure_scloud, this);
   }
-//   else if (config_type == cc_cfg_t::ConfigTunein)
-//   {
-//     role_lst_.push_back ("audio_renderer.chromecast.tunein");
-//     config_service_func_
-//         = boost::bind (&tiz::graph::chromecastops::do_configure_tunein, this);
-//   }
+  else if (config_type == cc_cfg_t::ConfigTunein)
+  {
+    role_lst_.push_back ("audio_renderer.chromecast.tunein");
+    config_service_func_
+        = boost::bind (&tiz::graph::chromecastops::do_configure_tunein, this);
+  }
   else if (config_type == cc_cfg_t::ConfigYouTube)
   {
     role_lst_.push_back ("audio_renderer.chromecast.youtube");
@@ -323,24 +323,22 @@ void graph::chromecastops::do_configure_scloud ()
       "Unable to set OMX_TizoniaIndexParamAudioSoundCloudPlaylist");
 }
 
-// void graph::chromecastops::do_configure_tunein ()
-// {
-//   assert (cc_config_);
-//   tiztuneinconfig_ptr_t tunein_config
-//       = boost::dynamic_pointer_cast< tuneinconfig > (
-//           cc_config_->get_service_config ());
-//   assert (tunein_config);
+void graph::chromecastops::do_configure_tunein ()
+{
+  assert (cc_config_);
+  tiztuneinconfig_ptr_t tunein_config
+      = boost::dynamic_pointer_cast< tuneinconfig > (
+          cc_config_->get_service_config ());
+  assert (tunein_config);
 
-//   G_OPS_BAIL_IF_ERROR (tiz::graph::util::set_tunein_api_key (
-//                            handles_[0], tunein_config->get_api_key ()),
-//                        "Unable to set OMX_TizoniaIndexParamAudioTuneinSession");
-
-//   G_OPS_BAIL_IF_ERROR (
-//       tiz::graph::util::set_tunein_playlist (
-//           handles_[0], playlist_->get_current_uri (),
-//           tunein_config->get_playlist_type (), playlist_->shuffle ()),
-//       "Unable to set OMX_TizoniaIndexParamAudioTuneinPlaylist");
-// }
+  G_OPS_BAIL_IF_ERROR (
+      tiz::graph::util::set_tunein_playlist (
+          handles_[0], playlist_->get_uri_list (),
+          tunein_config->get_playlist_type (),
+          tunein_config->get_search_type (),
+          playlist_->shuffle ()),
+      "Unable to set OMX_TizoniaIndexParamAudioTuneinPlaylist");
+}
 
 void graph::chromecastops::do_configure_youtube ()
 {

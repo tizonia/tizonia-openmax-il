@@ -96,11 +96,6 @@ void graph::tuneinops::do_configure_comp (const int comp_id)
     assert (tunein_config);
 
     G_OPS_BAIL_IF_ERROR (
-        tiz::graph::util::set_tunein_api_key (handles_[0],
-                                              tunein_config->get_api_key ()),
-        "Unable to set OMX_TizoniaIndexParamAudioTuneinSession");
-
-    G_OPS_BAIL_IF_ERROR (
         tiz::graph::util::set_tunein_playlist (
             handles_[0], playlist_->get_uri_list (),
             tunein_config->get_playlist_type (),
