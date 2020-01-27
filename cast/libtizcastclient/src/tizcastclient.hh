@@ -98,6 +98,8 @@ private:
   void
   unregister_client (const cast_client_id_ptr_t ap_cast_clnt);
 
+  void unregister_all_clients();
+
   // DBUS Signals
   void
   cast_status (const std::vector< uint8_t > & uuid, const uint32_t & status,

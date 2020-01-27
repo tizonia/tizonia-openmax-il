@@ -90,7 +90,7 @@ tizcastclient::connect (const char * ap_device_name_or_ip, const uint8_t uuid[],
       if (TIZ_CAST_SUCCESS != rc)
         {
           TIZ_LOG (TIZ_PRIORITY_ERROR, "Connect error [%d]", rc);
-          (void) unregister_client (client_id);
+          unregister_client (client_id);
           client_id = NULL;
         }
     }
@@ -253,6 +253,10 @@ tizcastclient::register_client (const char * ap_device_name_or_ip,
   cast_client_id_t uuid_vec;
   uuid_vec.assign (&uuid[0], &uuid[0] + 128);
 
+  // NOTE: For now, we will handle just one client. In the future, this may
+  // change.
+  unregister_all_clients();
+
   tiz_uuid_str (uuid, uuid_str);
   TIZ_LOG (TIZ_PRIORITY_TRACE, "'%s' : Registering client with uuid [%s]...",
            ap_device_name_or_ip, uuid_str);
@@ -297,6 +301,25 @@ tizcastclient::unregister_client (const cast_client_id_ptr_t ap_cast_clnt)
 }
 
 void
+tizcastclient::unregister_all_clients ()
+{
+  while (clients_.size() > 0)
+    {
+      typedef std::pair< const cast_client_id_t, client_data > client_pair_t;
+      BOOST_FOREACH (const client_pair_t & clnt, clients_)
+        {
+          char uuid_str[128];
+          tiz_uuid_str (&(clnt.second.uuid_[0]), uuid_str);
+          TIZ_LOG (TIZ_PRIORITY_TRACE, "unregistering uuid [%s] - ip/name [%s]",
+                   uuid_str, clnt.second.cname_.c_str ());
+          const cast_client_id_ptr_t client_id = (const cast_client_id_ptr_t) &(clnt.first);
+          unregister_client (client_id);
+          break;
+        }
+    }
+}
+
+void
 tizcastclient::cast_status (const cast_client_id_t & uuid,
                             const uint32_t & status, const int32_t & volume)
 {
@@ -331,14 +354,13 @@ tizcastclient::cast_status (const cast_client_id_t & uuid,
 
   char uuid_str[128];
   tiz_uuid_str (&(uuid[0]), uuid_str);
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "cast status received for uuid [%s]", uuid_str);
 
   typedef std::pair< const cast_client_id_t, client_data > client_pair_t;
   BOOST_FOREACH (const client_pair_t & clnt, clients_)
     {
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "ip/name [%s]", clnt.second.cname_.c_str ());
+//       TIZ_LOG (TIZ_PRIORITY_TRACE, "ip/name [%s]", clnt.second.cname_.c_str ());
       tiz_uuid_str (&(clnt.second.uuid_[0]), uuid_str);
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "uuid [%s]", uuid_str);
+//       TIZ_LOG (TIZ_PRIORITY_TRACE, "uuid [%s]", uuid_str);
     }
 
   if (clients_.count (uuid))
@@ -394,7 +416,7 @@ tizcastclient::media_status (const std::vector< uint8_t > & uuid,
 
   char uuid_str[128];
   tiz_uuid_str (&(uuid[0]), uuid_str);
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "media status received for uuid [%s]", uuid_str);
+  // TIZ_LOG (TIZ_PRIORITY_TRACE, "media status received for uuid [%s]", uuid_str);
 
   if (clients_.count (uuid))
     {
@@ -435,7 +457,7 @@ tizcastclient::error_status (const std::vector< uint8_t > & uuid,
 
   char uuid_str[128];
   tiz_uuid_str (&(uuid[0]), uuid_str);
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "error status received for uuid [%s]", uuid_str);
+  // TIZ_LOG (TIZ_PRIORITY_TRACE, "error status received for uuid [%s]", uuid_str);
 
   if (clients_.count (uuid))
     {
