@@ -49,12 +49,6 @@ if not enabled_plugins.contains('aac_decoder')
    enable_aac = false
 endif
 
-message('enabled plugins:')
-foreach p: enabled_plugins
-   message(p)
-endforeach
-message('')
-
 if host_os.startswith('darwin')
    enable_alsa = false
 endif
