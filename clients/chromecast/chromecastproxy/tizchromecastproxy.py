@@ -21,6 +21,7 @@ Access a Chromecast device to initiate and manage audio streaming sessions..
 
 """
 
+import socket
 import select
 import time
 import sys
@@ -167,6 +168,33 @@ def to_ascii(msg):
     return msg
 
 
+def ensure_ip_addr(ip_or_name):
+    """Helper function to obtain an ip address if the argument is a hostname
+
+    """
+
+    try:
+        socket.inet_aton(ip_or_name)
+        # A valid ip
+        return ip_or_name
+    except socket.error:
+        # Not a valid ip
+        pass
+    try:
+        ip = socket.gethostbyname(ip_or_name)
+        # A valid hostname
+        return ip
+    except socket.gaierror:
+        # Not a valid hostname
+        pass
+    chromecasts = pychromecast.get_chromecasts()
+    for ch in chromecasts:
+        if ip_or_name.lower() in ch.name.lower():
+            return ch.uri.split(":", 1)[0]
+
+    return ip_or_name
+
+
 class tizchromecastproxy(object):
     """A class that interfaces with a Chromecast device to initiate and manage
     audio streaming sessions.
@@ -174,19 +202,14 @@ class tizchromecastproxy(object):
     """
 
     def __init__(self, name_or_ip):
-        self.name_or_ip = name_or_ip
+        self.ip_addr = ensure_ip_addr(name_or_ip)
         self.active = False
         self.cast = None
         self.cast_status_listener = None
         self.media_status_listener = None
 
-    def activate(self, cast_status_listener, media_status_listener):
-        print_nfo("[Chromecast] [{0}] [Activating]".format(to_ascii(self.name_or_ip)))
-        self.cast = pychromecast.Chromecast(
-            self.name_or_ip, timeout=0.5, blocking=False
-        )
-        self.cast_status_listener = cast_status_listener
-        self.media_status_listener = media_status_listener
+    def _do_activate(self):
+        self.cast = pychromecast.Chromecast(self.ip_addr, timeout=0.5, blocking=False)
         self.cast.register_status_listener(self)
         self.cast.media_controller.register_status_listener(self)
         self.cast.start()
@@ -198,8 +221,14 @@ class tizchromecastproxy(object):
             except Exception as e:
                 exc_type, value, traceback = sys.exc_info()
                 print_exception(exc_type, value, traceback)
+
+    def activate(self, cast_status_listener, media_status_listener):
+        print_nfo("[Chromecast] [{0}] [Activating]".format(to_ascii(self.ip_addr)))
+        self.cast_status_listener = cast_status_listener
+        self.media_status_listener = media_status_listener
+        self._do_activate()
         self.active = True
-        print_wrn("[Chromecast] [{0}] [Active]".format(to_ascii(self.name_or_ip)))
+        print_wrn("[Chromecast] [{0}] [Active]".format(to_ascii(self.ip_addr)))
 
     def deactivate(self):
         self.active = False
@@ -211,7 +240,7 @@ class tizchromecastproxy(object):
 
     def poll_socket(self, polltime_ms):
         print_nfo(
-            "[Chromecast] [{0}] [poll_socket start]".format(to_ascii(self.name_or_ip))
+            "[Chromecast] [{0}] [poll_socket start]".format(to_ascii(self.ip_addr))
         )
         polltime_s = polltime_ms / 1000
         sock = self.cast.socket_client.get_socket()
@@ -221,7 +250,7 @@ class tizchromecastproxy(object):
             if can_read:
                 print_nfo(
                     "[Chromecast] [{0}] [poll_socket can_read]".format(
-                        to_ascii(self.name_or_ip)
+                        to_ascii(self.ip_addr)
                     )
                 )
                 # Received something on the socket, gets handled with run_once()
@@ -229,14 +258,12 @@ class tizchromecastproxy(object):
                     self.cast.socket_client.run_once()
                     print_nfo(
                         "[Chromecast] [{0}] [poll_socket read_once]".format(
-                            to_ascii(self.name_or_ip)
+                            to_ascii(self.ip_addr)
                         )
                     )
                 except Exception as exception:
                     pass
-        print_wrn(
-            "[Chromecast] [{0}] [poll_socket end]".format(to_ascii(self.name_or_ip))
-        )
+        print_wrn("[Chromecast] [{0}] [poll_socket end]".format(to_ascii(self.ip_addr)))
 
     def media_load(
         self,
@@ -249,9 +276,11 @@ class tizchromecastproxy(object):
         stream_type=STREAM_TYPE_UNKNOWN,
     ):
         print_nfo(
-            "[Chromecast] [{0}] [media_load start]".format(to_ascii(self.name_or_ip))
+            "[Chromecast] [{0}] [media_load start]".format(to_ascii(self.ip_addr))
         )
         mc = self.cast.media_controller
+        if not mc.is_active:
+            self._do_activate()
         st = mc.status
         try:
             if not thumb or thumb == "":
@@ -267,9 +296,7 @@ class tizchromecastproxy(object):
             exc_type, value, traceback = sys.exc_info()
             print_exception(exc_type, value, traceback)
 
-        print_wrn(
-            "[Chromecast] [{0}] [media_load end]".format(to_ascii(self.name_or_ip))
-        )
+        print_wrn("[Chromecast] [{0}] [media_load end]".format(to_ascii(self.ip_addr)))
 
     def media_play(self):
         if self.cast.media_controller.is_active:
@@ -323,16 +350,14 @@ class tizchromecastproxy(object):
 
         # CastStatus(is_active_input=None, is_stand_by=None, volume_level=0.8999999761581421, volume_muted=False, app_id=u'CC1AD845', display_name=u'Default Media Receiver', namespaces=[u'urn:x-cast:com.google.cast.debugoverlay', u'urn:x-cast:com.google.cast.broadcast', u'urn:x-cast:com.google.cast.media'], session_id=u'2f63312e-4777-454f-acc7-8be72572c7c8', transport_id=u'2f63312e-4777-454f-acc7-8be72572c7c8', status_text=u'Now Casting: Tizonia Audio Stream')
         print_nfo(
-            "[Chromecast] [{0}] [new_cast_status start]".format(
-                to_ascii(self.name_or_ip)
-            )
+            "[Chromecast] [{0}] [new_cast_status start]".format(to_ascii(self.ip_addr))
         )
         if status:
             try:
                 if not status.app_id:
                     print_nfo(
                         "[Chromecast] [UNKNOWN] [new_cast_status]".format(
-                            to_ascii(self.name_or_ip)
+                            to_ascii(self.ip_addr)
                         )
                     )
                     self.cast_status_listener(to_ascii("UNKNOWN"), status.volume_level)
@@ -342,7 +367,7 @@ class tizchromecastproxy(object):
                 ):
                     print_nfo(
                         "[Chromecast] [READY_TO_CAST] [new_cast_status]".format(
-                            to_ascii(self.name_or_ip)
+                            to_ascii(self.ip_addr)
                         )
                     )
                     self.cast_status_listener(
@@ -354,7 +379,7 @@ class tizchromecastproxy(object):
                 ):
                     print_nfo(
                         "[Chromecast] [NOW_CASTING] [new_cast_status]".format(
-                            to_ascii(self.name_or_ip)
+                            to_ascii(self.ip_addr)
                         )
                     )
                     self.cast_status_listener(
@@ -363,14 +388,14 @@ class tizchromecastproxy(object):
                 else:
                     print_nfo(
                         "[Chromecast] [UNKNOWN] [new_cast_status]".format(
-                            to_ascii(self.name_or_ip)
+                            to_ascii(self.ip_addr)
                         )
                     )
                     self.cast_status_listener(to_ascii("UNKNOWN"), status.volume_level)
             except Exception as exception:
                 logging.info("Unable to deliver cast status callback %s", exception)
         print_wrn(
-            "[Chromecast] [{0}] [new_cast_status end]".format(to_ascii(self.name_or_ip))
+            "[Chromecast] [{0}] [new_cast_status end]".format(to_ascii(self.ip_addr))
         )
 
     def new_media_status(self, status):
@@ -381,9 +406,7 @@ class tizchromecastproxy(object):
         # <MediaStatus {'player_state': u'BUFFERING', 'volume_level': 1, 'images': [MediaImage(url=u'https://avatars0.githubusercontent.com/u/3161606?v=3&s=400', height=None, width=None)], 'media_custom_data': {}, 'duration': None, 'current_time': 0, 'playback_rate': 1, 'title': u'Tizonia Audio Stream', 'media_session_id': 4, 'volume_muted': False, 'supports_skip_forward': False, 'track': None, 'season': None, 'idle_reason': None, 'stream_type': u'LIVE', 'supports_stream_mute': True, 'supports_stream_volume': True, 'content_type': u'audio/mpeg', 'metadata_type': None, 'subtitle_tracks': {}, 'album_name': None, 'series_title': None, 'album_artist': None, 'media_metadata': {u'images': [{u'url': u'https://avatars0.githubusercontent.com/u/3161606?v=3&s=400'}], u'thumb': u'https://avatars0.githubusercontent.com/u/3161606?v=3&s=400', u'title': u'Tizonia Audio Stream'}, 'episode': None, 'artist': None, 'supported_media_commands': 15, 'supports_seek': True, 'current_subtitle_tracks': [], 'content_id': u'http://streams.radiobob.de/bob-acdc/mp3-192/dirble/', 'supports_skip_backward': False, 'supports_pause': True}>
 
         print_nfo(
-            "[Chromecast] [{0}] [new_media_status start]".format(
-                to_ascii(self.name_or_ip)
-            )
+            "[Chromecast] [{0}] [new_media_status start]".format(to_ascii(self.ip_addr))
         )
         if not self.active:
             print_wrn("new_media_status: not active!")
@@ -392,7 +415,7 @@ class tizchromecastproxy(object):
             try:
                 print_nfo(
                     "[Chromecast] [{0}] [new_media_status : {1}]".format(
-                        to_ascii(self.name_or_ip), to_ascii(status.player_state)
+                        to_ascii(self.ip_addr), to_ascii(status.player_state)
                     )
                 )
                 self.media_status_listener(
@@ -401,9 +424,7 @@ class tizchromecastproxy(object):
             except Exception as exception:
                 logging.info("Unable to deliver media status callback %s", exception)
         print_wrn(
-            "[Chromecast] [{0}] [new_media_status end]".format(
-                to_ascii(self.name_or_ip)
-            )
+            "[Chromecast] [{0}] [new_media_status end]".format(to_ascii(self.ip_addr))
         )
 
 
