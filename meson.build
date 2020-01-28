@@ -10,7 +10,7 @@ project('tizonia', ['c', 'cpp'], version: '0.19.0', license: 'LGPLv3.0+', meson_
 ## * 3rdparty/dbus-cplusplus/src/meson.build sets -DDBUS_API_SUBJECT_TO_CHANGE
 ##   unconditionally, on account of libtizdbus-c++.pc.in: shouldn't this
 ##   reflect what is set in config.h or better yet, have it only in the latter?
-
+## * see if all generated .pc files are actually necessary
 
 host_os = host_machine.system()
 
@@ -28,6 +28,32 @@ enable_gcc_warnings = get_option('gcc-warnings') #false
 enable_test = get_option('test') #false
 # not present in the original
 enable_docs = get_option('docs') #false
+enable_clients = get_option('clients') #true
+# disabling plugins implies disabling libspotify
+if not enable_clients
+   enable_libspotify = false
+endif
+
+enabled_plugins = []
+foreach p: get_option('plugins')
+   if (p == 'spotify' and enable_libspotify) or p != 'spotify'
+      enabled_plugins += p
+   endif
+endforeach
+
+if not enabled_plugins.contains('pcm_renderer_alsa')
+   enable_alsa = false
+endif
+
+if not enabled_plugins.contains('aac_decoder')
+   enable_aac = false
+endif
+
+message('enabled plugins:')
+foreach p: enabled_plugins
+   message(p)
+endforeach
+message('')
 
 if host_os.startswith('darwin')
    enable_alsa = false
@@ -54,7 +80,7 @@ tizversion = meson.project_version()
 
 # this one wasn't present in the original
 log4c_dep = dependency('log4c', required: false)
-# fallback for ubuntu Bionic (also fix has_header)
+# fallback for ubuntu Bionic
 if not log4c_dep.found()
    log4c_dep = declare_dependency(dependencies: cc.find_library('log4c', has_headers: 'log4c.h', required: true))
 endif
@@ -163,8 +189,10 @@ subdir('libtizplatform')
 subdir('rm')
 subdir('libtizcore')
 subdir('libtizonia')
-subdir('clients')
-subdir('cast')
+if enable_clients
+   subdir('clients')
+   subdir('cast')
+endif
 subdir('plugins')
 subdir('config')
 if enable_player
@@ -177,14 +205,16 @@ if enable_test
    subdir('libtizonia/tests')
    subdir('libtizplatform/tests')
    subdir('rm/libtizrmproxy/tests')
-# "too many arguments to function"
-#   subdir('clients/chromecast/libtizchromecast/tests')
-   subdir('clients/gmusic/libtizgmusic/tests')
-# "too many arguments to function"
-#   subdir('clients/soundcloud/libtizsoundcloud/tests')
-# "too few arguments to function"
-#   subdir('clients/tunein/libtiztunein/tests')
-   subdir('clients/youtube/libtizyoutube/tests')
+   if enable_clients
+   # "too many arguments to function"
+   #   subdir('clients/chromecast/libtizchromecast/tests')
+      subdir('clients/gmusic/libtizgmusic/tests')
+   # "too many arguments to function"
+   #   subdir('clients/soundcloud/libtizsoundcloud/tests')
+   # "too few arguments to function"
+   #   subdir('clients/tunein/libtiztunein/tests')
+      subdir('clients/youtube/libtizyoutube/tests')
+   endif
 endif
 
 # summary() instead of the message at the bottom would be neat, but it will be
