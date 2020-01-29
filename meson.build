@@ -88,10 +88,18 @@ rt_dep = cc.find_library('rt', required: true)
 pthread_dep = dependency('threads', required: true)
 uuid_dep = dependency('uuid', required: true, version: '>=2.19.0')
 
-boost_dep = dependency(
-   'boost', modules: ['chrono', 'filesystem', 'system', 'thread', 'program_options', 'python3'],
-   required: true, version: '>=1.54'
-)
+# perhaps fine tune this one for enable_player
+if enable_clients
+   boost_dep = dependency(
+      'boost', modules: ['chrono', 'filesystem', 'system', 'thread', 'program_options', 'python3'],
+      required: true, version: '>=1.54'
+   )
+else
+   boost_dep = dependency(
+      'boost', modules: ['chrono', 'filesystem', 'system', 'thread', 'program_options'],
+      required: true, version: '>=1.54'
+   )
+endif
 
 sqlite3_dep = dependency('sqlite3', required: true, version: '>=3.7.1')
 
