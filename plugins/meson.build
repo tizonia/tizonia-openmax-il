@@ -1,5 +1,10 @@
-mpg123_dep = dependency('libmpg123', required: true, version: '>=1.16.0')
-oggz_dep = dependency('oggz', required: true, version: '>=1.1.1')
+if enabled_plugins.contains('mpeg_audio_decoder') or enabled_plugins.contains('mp3_metadata')
+   mpg123_dep = dependency('libmpg123', required: true, version: '>=1.16.0')
+endif
+
+if enabled_plugins.contains('ogg_demuxer') or enabled_plugins.contains('ogg_muxer')
+   oggz_dep = dependency('oggz', required: true, version: '>=1.1.1')
+endif
 
 if enable_clients and enabled_plugins.contains('chromecast_renderer')
    subdir('chromecast_renderer')
