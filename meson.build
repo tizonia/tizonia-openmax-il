@@ -101,6 +101,18 @@ else
          'boost', modules: ['chrono', 'filesystem', 'system', 'thread', 'program_options'],
          required: true, version: '>=1.54'
       )
+   else
+      cxx.has_header('boost/any.hpp', required: true)
+      cxx.has_header('boost/assert.hpp', required: true)
+      cxx.has_header('boost/bind.hpp', required: true)
+      cxx.has_header('boost/foreach.hpp', required: true)
+      cxx.has_header('boost/function.hpp', required: true)
+      cxx.has_header('boost/utility.hpp', required: true)
+      cxx.has_header('boost/msm/back/state_machine.hpp', required: true)
+      cxx.has_header('boost/msm/back/tools.hpp', required: true)
+      cxx.has_header('boost/msm/front/euml/operator.hpp', required: true)
+      cxx.has_header('boost/msm/front/functor_row.hpp', required: true)
+      cxx.has_header('boost/msm/front/state_machine_def.hpp', required: true)
    endif
 endif
 
