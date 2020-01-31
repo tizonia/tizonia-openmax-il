@@ -30,14 +30,12 @@
 #endif
 
 #include <stdlib.h>
-
+#include <assert.h>
 #include <sqlite3.h>
 
 #include <vector>
 #include <sstream>
 #include <iostream>
-
-#include <boost/assert.hpp>
 
 #include <tizplatform.h>
 
@@ -121,7 +119,7 @@ tiz_rm_error_t tizrmdb::disconnect ()
 
 int tizrmdb::open (char const *ap_dbname)
 {
-  BOOST_ASSERT (ap_dbname);
+  assert (ap_dbname);
   close ();
   return sqlite3_open (ap_dbname, &pdb_);
 }
@@ -707,7 +705,7 @@ int tizrmdb::run_query (char const *ap_sql)
   char **pp_result;
   int nrow, ncol;
 
-  BOOST_ASSERT (ap_sql);
+  assert (ap_sql);
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Running query [%s]", ap_sql);
 
