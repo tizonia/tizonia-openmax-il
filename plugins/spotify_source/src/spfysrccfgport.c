@@ -68,12 +68,9 @@ spfysrc_cfgport_ctor (void * ap_obj, va_list * app)
             sizeof (p_obj->spotifysession_.cUserName), "tizonia");
   snprintf ((char *) p_obj->spotifysession_.cUserPassword,
             sizeof (p_obj->spotifysession_.cUserPassword), "pass");
-  snprintf ((char *) p_obj->spotifysession_.cProxyServer,
-            sizeof (p_obj->spotifysession_.cProxyServer), "");
-  snprintf ((char *) p_obj->spotifysession_.cProxyUserName,
-            sizeof (p_obj->spotifysession_.cProxyUserName), "");
-  snprintf ((char *) p_obj->spotifysession_.cProxyPassword,
-            sizeof (p_obj->spotifysession_.cProxyPassword), "");
+  p_obj->spotifysession_.cProxyServer[0] = '\0';
+  p_obj->spotifysession_.cProxyUserName[0] = '\0';
+  p_obj->spotifysession_.cProxyPassword[0] = '\0';
   p_obj->spotifysession_.bRememberCredentials = OMX_TRUE;
   p_obj->spotifysession_.bRecoverLostToken = OMX_FALSE;
   p_obj->spotifysession_.bAllowExplicitTracks = OMX_FALSE;

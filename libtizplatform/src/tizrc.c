@@ -56,6 +56,7 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.platform.rc"
 #endif
 
+#define FILE_PATH_MAX (PATH_MAX + NAME_MAX - 2)
 #define PAT_SIZE PATH_MAX
 
 static char delim[2] = {';', '\0'};
@@ -583,7 +584,7 @@ static void
 obtain_xdg_config_dir (void)
 {
   int found = -1;
-  char rcfile[PATH_MAX + NAME_MAX];
+  char rcfile[PATH_MAX + NAME_MAX - 2];
   char * p_env_str = NULL;
 
   if ((p_env_str = getenv ("XDG_CONFIG_DIRS")))
@@ -594,7 +595,7 @@ obtain_xdg_config_dir (void)
       while (pch != NULL && found != 0)
         {
           TIZ_LOG (TIZ_PRIORITY_TRACE, "XDG_CONFIG_DIR - [%s] ...", pch);
-          snprintf (rcfile, PATH_MAX + NAME_MAX - 1, "%s/tizonia/tizonia.conf",
+          snprintf (rcfile, FILE_PATH_MAX, "%s/tizonia/tizonia.conf",
                     pch);
           found = try_open_file (rcfile);
           pch = strtok (NULL, ":");
@@ -605,7 +606,7 @@ obtain_xdg_config_dir (void)
   if (found)
     {
       TIZ_LOG (TIZ_PRIORITY_TRACE, "Trying /etc/xdg");
-      snprintf (rcfile, PATH_MAX + NAME_MAX - 1,
+      snprintf (rcfile, FILE_PATH_MAX,
                 "/etc/xdg/tizonia/tizonia.conf");
       found = try_open_file (rcfile);
     }
@@ -614,11 +615,11 @@ obtain_xdg_config_dir (void)
   if (found)
     {
       TIZ_LOG (TIZ_PRIORITY_TRACE, "Trying /etc");
-      snprintf (rcfile, PATH_MAX + NAME_MAX - 1, "/etc/tizonia/tizonia.conf");
+      snprintf (rcfile, PATH_MAX + NAME_MAX - 4, "/etc/tizonia/tizonia.conf");
     }
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Using config location %s", rcfile);
-  snprintf (g_rcfiles[0].name, PATH_MAX + NAME_MAX - 1, "%s", rcfile);
+  snprintf (g_rcfiles[0].name, FILE_PATH_MAX, "%s", rcfile);
 }
 
 /* XDG_CONFIG_HOME
@@ -633,7 +634,7 @@ obtain_xdg_config_home (void)
   if ((p_env_str = getenv ("XDG_CONFIG_HOME")))
     {
       TIZ_LOG (TIZ_PRIORITY_TRACE, "XDG_CONFIG_HOME [%s]", p_env_str);
-      snprintf (g_rcfiles[1].name, PATH_MAX + NAME_MAX - 1,
+      snprintf (g_rcfiles[1].name, FILE_PATH_MAX,
                 "%s/tizonia/tizonia.conf", p_env_str);
     }
   else
@@ -641,7 +642,7 @@ obtain_xdg_config_home (void)
       if ((p_env_str = getenv ("HOME")))
         {
           TIZ_LOG (TIZ_PRIORITY_TRACE, "HOME [%s]", p_env_str);
-          snprintf (g_rcfiles[1].name, PATH_MAX + NAME_MAX - 1,
+          snprintf (g_rcfiles[1].name, FILE_PATH_MAX,
                     "%s/.config/tizonia/tizonia.conf", p_env_str);
         }
     }
@@ -653,7 +654,7 @@ obtain_tizonia_rc_file_config (void)
   char * p_env_str = NULL;
   if ((p_env_str = getenv ("TIZONIA_RC_FILE")))
     {
-      snprintf (g_rcfiles[2].name, PATH_MAX + NAME_MAX - 1, "%s", p_env_str);
+      snprintf (g_rcfiles[2].name, FILE_PATH_MAX, "%s", p_env_str);
     }
 }
 

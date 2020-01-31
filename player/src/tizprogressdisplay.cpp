@@ -51,15 +51,15 @@ graph::ansi_color_sequence::ansi_color_sequence (
     const graph::default_color color)
   : m_code ()
 {
-#define CASE_COLOR_(COLOR_ENUM, COLOR)                             \
-  case COLOR_ENUM:                                                 \
-  {                                                                \
-    if (p_active_theme)                                            \
-    {                                                              \
-      (void)strncat (color_name, COLOR, OMX_MAX_STRINGNAME_SIZE);  \
-      p = (char *)tiz_rcfile_get_value (COLOR_THEMES, color_name); \
-    }                                                              \
-  }                                                                \
+#define CASE_COLOR_(COLOR_ENUM, COLOR)                                 \
+  case COLOR_ENUM:                                                     \
+  {                                                                    \
+    if (p_active_theme)                                                \
+    {                                                                  \
+      (void)strncat (color_name, COLOR, OMX_MAX_STRINGNAME_SIZE - 2);  \
+      p = (char *)tiz_rcfile_get_value (COLOR_THEMES, color_name);     \
+    }                                                                  \
+  }                                                                    \
   break
 
   char color_name[OMX_MAX_STRINGNAME_SIZE];

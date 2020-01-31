@@ -124,19 +124,19 @@ void
 tiz_printf_c (int a_kc, const char * ap_format, ...)
 {
 
-#define CASE_TIZ_COLOR_(COLOR_ENUM, COLOR, DEFAULT)                     \
-  case COLOR_ENUM:                                                      \
-    {                                                                   \
-      if (p_active_theme)                                               \
-        {                                                               \
-          (void) strncat (color_name, COLOR, OMX_MAX_STRINGNAME_SIZE);  \
-          p = (char *) tiz_rcfile_get_value (COLOR_THEMES, color_name); \
-        }                                                               \
-      if (!p)                                                           \
-        {                                                               \
-          p_ansi_color = DEFAULT;                                       \
-        }                                                               \
-    }                                                                   \
+#define CASE_TIZ_COLOR_(COLOR_ENUM, COLOR, DEFAULT)                         \
+  case COLOR_ENUM:                                                          \
+    {                                                                       \
+      if (p_active_theme)                                                   \
+        {                                                                   \
+          (void) strncat (color_name, COLOR, OMX_MAX_STRINGNAME_SIZE - 2);  \
+          p = (char *) tiz_rcfile_get_value (COLOR_THEMES, color_name);     \
+        }                                                                   \
+      if (!p)                                                               \
+        {                                                                   \
+          p_ansi_color = DEFAULT;                                           \
+        }                                                                   \
+    }                                                                       \
     break
 
   char color_name[OMX_MAX_STRINGNAME_SIZE];
