@@ -1,4 +1,4 @@
-project('tizonia', ['c', 'cpp'], version: '0.19.0', license: 'LGPLv3.0+', meson_version: '>=0.51.0')
+project('tizonia', ['c', 'cpp'], version: '0.19.0', license: 'LGPLv3.0+', meson_version: '>=0.53.0')
 
 ## note to self:
 ## * patch docs/sphinx-src/conf.py once the xml issue is fixed upstream
@@ -222,28 +222,27 @@ if enable_test
    endif
 endif
 
-# summary() instead of the message at the bottom would be neat, but it will be
-# available only in 0.53.0
-message(
-'\n------------------------------------------------------------------------\n'+
-'  '+meson.project_name()+' ' +meson.project_version()+':  Automatic configuration OK.'+'\n'+
-'\n  General configuration:'+'\n'+
-'\n    Tizonia player: .............. '+enable_player.to_string('yes', 'no')+
-'\n    libspotify plugin: ........... '+enable_libspotify.to_string('yes', 'no')+
-'\n    ALSA plugin: ................. '+enable_alsa.to_string('yes', 'no')+
-'\n    Blocking ETB/FTB: ............ '+enable_blocking_etb_ftb.to_string('yes', 'no')+
-'\n    Blocking OMX_SendCommand: .... '+enable_blocking_sendcommand.to_string('yes', 'no')+'\n'+
-'\n  Installation paths:'+'\n\n'+
-'\n    libraries: ................... '+libdir+
-'\n    plugins: ..................... '+tizplugindir+
-'\n    tizonia: ..................... '+bindir+
-'\n    Header files: ................ '+tizincludedir+
-'\n    Documentation: ............... '+tizdocdir+'\n'+
-'\n  Building:\n'+
-'\n    Type \'ninja\' to compile all '+meson.project_name()+' sub-projects.\n'+
-'\n    Type \'ninja install\' to install all '+meson.project_name()+' sub-projects.\n'+
-'\n    Type \'ninja test\' to test all '+meson.project_name()+' sub-projects using the tests'+
-'\n    contained in the various src/tests directories.\n\n'+
-'\n NOTE: \'docs\' folders is not currently being processed by meson.'+
-'\n The Doxygen/Sphinx documentation can still be manually generated, whenever is needed.\n'
-)
+# printing a list of the enabled plugins doesn't look right,
+# plus https://github.com/mesonbuild/meson/issues/6557
+summary({'Tizonia player': enable_player,
+         'libspotify plugin': enable_libspotify,
+         'clients': enable_clients,
+         'number of enabled plugins': enabled_plugins.length(),
+         'ALSA plugin': enable_alsa,
+         'Blocking ETB/FTB': enable_blocking_etb_ftb,
+         'Blocking OMX_SendCommand': enable_blocking_sendcommand,
+        }, section: 'General configuration', bool_yn: true)
+summary({'libraries': libdir,
+         'plugins': tizplugindir,
+         'tizonia': bindir,
+         'Header files': tizincludedir,
+         'Documentation': tizdocdir,
+       }, section: 'Installation paths')
+# need to rephrase messages because it's currently impossible to remove the colon at the end
+summary({'To compile all tizonia sub-projects, type': 'ninja',
+         'To install all tizonia sub-projects, type': 'ninja install',
+         'To test all tizonia sub-projects, type': 'ninja test',
+        }, section: 'Building')
+summary({'Doc generation is not currently functional': 'run Doxygen/Sphinx manually'
+        }, section: 'NOTE')
+
