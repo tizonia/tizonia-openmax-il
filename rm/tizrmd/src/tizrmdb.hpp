@@ -32,13 +32,11 @@ class sqlite3;
 
 #include <string>
 
-#include <boost/utility.hpp>
-
 #include <tizrmtypes.h>
 
 #include "tizrmowner.hpp"
 
-class tizrmdb : boost::noncopyable
+class tizrmdb
 {
 
 public:
@@ -83,6 +81,10 @@ public:
                                     const unsigned int &rid) const;
 
 private:
+  // Disallow copy constructor
+  tizrmdb(const tizrmdb&);
+  // Disallow assignment operator
+  tizrmdb& operator=(tizrmdb const&);
   int open (char const *ap_dbname);
   int close ();
   int reset_alloc_table ();
