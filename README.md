@@ -12,11 +12,24 @@
 
 ---
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-[![](https://travis-ci.org/tizonia/tizonia-openmax-il.png)](https://travis-ci.org/tizonia/tizonia-openmax-il)
-[![](https://scan.coverity.com/projects/594/badge.svg)](https://scan.coverity.com/projects/594)
-[![](https://img.shields.io/codecov/c/github/tizonia/tizonia-openmax-il.svg)](https://codecov.io/gh/tizonia/tizonia-openmax-il)
-[![](https://img.shields.io/github/commits-since/tizonia/tizonia-openmax-il/v0.19.0.svg)](https://github.com/tizonia/tizonia-openmax-il/compare/v0.19.0...master)
+<div align="center">
+  <a href="https://travis-ci.org/tizonia/tizonia-openmax-il">
+    <img src="https://travis-ci.org/tizonia/tizonia-openmax-il.png" />
+  </a>
+
+  <a href="https://scan.coverity.com/projects/594">
+    <img src="https://scan.coverity.com/projects/594/badge.svg" />
+  </a>
+
+  <a href="https://codecov.io/gh/tizonia/tizonia-openmax-il">
+    <img src="https://img.shields.io/codecov/c/github/tizonia/tizonia-openmax-il.svg" />
+  </a>
+
+  <a href="https://github.com/tizonia/tizonia-openmax-il/compare/v0.19.0...master">
+    <img src="https://img.shields.io/github/commits-since/tizonia/tizonia-openmax-il/v0.19.0.svg" />
+  </a>
+
+</div>
 
 <div align="center">
   <a href="https://github.com/tizonia/tizonia-openmax-il/issues">
@@ -24,15 +37,25 @@
   </a>
 </div>
 
-<!-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -->
-<!-- [![](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/dwyl/esta/issues) -->
+<div align="center">
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-[![](https://api.codacy.com/project/badge/Grade/b002a7f1ba464093b48fb7c9620f8ae7)](https://www.codacy.com/app/tizonia/tizonia-openmax-il?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=tizonia/tizonia-openmax-il&amp;utm_campaign=Badge_Grade)
-[![](https://img.shields.io/github/license/tizonia/tizonia-openmax-il.svg)](https://github.com/tizonia/tizonia-openmax-il/blob/master/COPYING.LESSER)
-[![](https://bestpractices.coreinfrastructure.org/projects/1359/badge)](https://bestpractices.coreinfrastructure.org/projects/1359)
-[![](https://badges.gitter.im/tizonia/tizonia-openmax-il.svg)](https://gitter.im/tizonia/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge)
+  <a href="https://www.codacy.com/app/tizonia/tizonia-openmax-il?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=tizonia/tizonia-openmax-il&amp;utm_campaign=Badge_Grade">
+    <img src="https://api.codacy.com/project/badge/Grade/b002a7f1ba464093b48fb7c9620f8ae7" />
+  </a>
 
+  <a href="https://github.com/tizonia/tizonia-openmax-il/blob/master/COPYING.LESSER">
+    <img src="https://img.shields.io/github/license/tizonia/tizonia-openmax-il.svg" />
+  </a>
+
+  <a href="https://bestpractices.coreinfrastructure.org/projects/1359">
+    <img src="https://bestpractices.coreinfrastructure.org/projects/1359/badge" />
+  </a>
+
+  <a href="https://gitter.im/tizonia/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge">
+    <img src="https://badges.gitter.im/tizonia/tizonia-openmax-il.svg" />
+  </a>
+
+</div>
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 [![](https://raw.githubusercontent.com/tizonia/tizonia-openmax-il/master/docs/animated-gifs/tizonia-usage-screencast.gif)](https://raw.githubusercontent.com/tizonia/tizonia-openmax-il/master/docs/animated-gifs/tizonia-usage-screencast.gif)
@@ -57,10 +80,6 @@
 
 # News
 
-> NOTE: Please remember to also visit Tizonia's website at
-> https://tizonia.org There is always some additional info on what is going on
-> in the project and in the latest releases.
-
 **Latest news**
 
 - [2019-12-13] Tizonia
@@ -70,7 +89,11 @@ removal (the service is sadly gone), Python 3 migration (please see the section
 [Upgrade (Debian / Ubuntu / Raspbian)](#upgrade-debian--ubuntu--raspbian) to learn
 how to install the new Python 3 dependencies!).
 
-<details><summary><b>Show more news</b></summary>
+> NOTE: Please remember to also visit Tizonia's website at
+> https://tizonia.org There is always some additional info on what is going on
+> in the project and in the latest releases.
+
+<details><summary><b>Show more</b></summary>
 
 - [2019-03-13] Tizonia
 [v0.18.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.18.0). Various
@@ -153,7 +176,7 @@ $ curl -kL https://goo.gl/Vu8qGR | bash
 - [tizonia-all (for the latest released version)](https://aur.archlinux.org/packages/tizonia-all/)
 - [tizonia-all-git (HEAD of master branch)](https://aur.archlinux.org/packages/tizonia-all-git/)
 
-<details><summary><b>Show instructions</b></summary>
+<details><summary><b>Show details</b></summary>
 
 ```bash
 # Please note that if you are upgrading your existing
@@ -182,7 +205,7 @@ A 'snap' package is now available to download from the 'Global' snap store
 
 - Tizonia's landing page on [Snapcraft.io](https://snapcraft.io/tizonia)
 
-<details><summary><b>Show instructions</b></summary>
+<details><summary><b>Show details</b></summary>
 
 To install, first visit [Install
 Snapd](https://docs.snapcraft.io/core/install?_ga=2.41936226.1106178805.1514500852-128158267.1514500852)
@@ -216,7 +239,7 @@ To use *Spotify*, *Google Play Music*, *SoundCloud* and *Plex* you need to
 introduce your credentials in Tizonia's config file. No credentials needed to
 stream from YouTube or TuneIn.
 
-<details><summary><b>Show instructions</b></summary>
+<details><summary><b>Show details</b></summary>
 
 ```bash
 ( On first use, Tizonia outputs its configuration file, if it is not there yet )
@@ -243,7 +266,7 @@ If you prefer to do it manually, it is a two-step process. Run 'apt-get' as
 usual to upgrade the Debian packages, but also make sure that the various
 Python dependencies are up-to-date.
 
-<details><summary><b>Show instructions</b></summary>
+<details><summary><b>Show details</b></summary>
 
 ```bash
 
