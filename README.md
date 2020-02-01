@@ -45,17 +45,23 @@
     <img src="https://bestpractices.coreinfrastructure.org/projects/1359/badge" />
   </a>
 
+</div>
+
+<div align="center">
+
   <a href="https://gitter.im/tizonia/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge">
     <img src="https://badges.gitter.im/tizonia/tizonia-openmax-il.svg" />
   </a>
 
-</div>
-
-<div align="center">
   <a href="https://github.com/tizonia/tizonia-openmax-il/issues">
     <img src="https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat" />
   </a>
+
 </div>
+
+
+---
+
 
 <div align="center">
   <img src="https://raw.githubusercontent.com/tizonia/tizonia-openmax-il/master/docs/animated-gifs/tizonia-usage-screencast.gif" />
@@ -143,12 +149,30 @@ Foundation project, with Gurkirpal Singh and Julien Isorce).
 
 ## Debian / Ubuntu / Raspbian
 
-Available from [Bintray](https://bintray.com/tizonia), with the following distro/arch
+Debian packages for the latest release of Tizonia are available from
+[Bintray](https://bintray.com/tizonia), with the following distro/arch
 combinations:
 
-| Ubuntu Xenial (16.04) | Ubuntu Bionic (18.04) | Debian Buster (10) | Raspbian Buster (10) | Debian Bullseye (11) |
-|        :---:          |        :---:          |        :---:       |        :---:         |       :---:          |
-|        amd64          |     amd64, armhf      |     amd64, armhf   |        armhf         |       amd64          |
+<table>
+    <thead>
+        <tr>
+            <th align="center">Ubuntu Xenial (16.04)</th>
+            <th align="center">Ubuntu Bionic (18.04)</th>
+            <th align="center">Debian Buster (10)</th>
+            <th align="center">Debian Bullseye (11)</th>
+            <th align="center">Raspbian Buster (10)</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td align="center">amd64</td>
+            <td align="center">amd64, armhf</td>
+            <td align="center">amd64, armhf</td>
+            <td align="center">amd64</td>
+            <td align="center">armhf</td>
+        </tr>
+    </tbody>
+</table>
 
 <!-- | [ ![](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-xenial/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-xenial/_latestVersion) | [ ![](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-bionic/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-bionic/_latestVersion) | [ ![](https://api.bintray.com/packages/tizonia/debian/tizonia-buster/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-buster/_latestVersion) | [ ![](https://api.bintray.com/packages/tizonia/raspbian/tizonia-buster/images/download.svg) ](https://bintray.com/tizonia/raspbian/tizonia-buster/_latestVersion) | [ ![](https://api.bintray.com/packages/tizonia/debian/tizonia-bullseye/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-bullseye/_latestVersion) | -->
 
