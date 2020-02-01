@@ -311,6 +311,7 @@ def run_doxygen(app):
               [ 'README.md', 'overview/README.md' ] , \
               [ 'PROJECT.md', 'overview/PROJECT.md' ] , \
               [ 'BUILDING.md', 'overview/BUILDING.md' ] , \
+              [ 'BUILDING_with_meson.md', 'overview/BUILDING_with_meson.md' ] , \
               [ 'CONTRIBUTING.md', 'overview/CONTRIBUTING.md' ] , \
               [ 'ISSUE_TEMPLATE.md', 'overview/ISSUE_TEMPLATE.md' ] , \
               [ 'PROJECT.md', 'overview/PROJECT.md' ] , \

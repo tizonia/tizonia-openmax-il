@@ -19,6 +19,7 @@ Overview
    overview/CONTRIBUTING
    overview/ISSUE_TEMPLATE
    overview/BUILDING
+   overview/BUILDING_with_meson
    overview/CODE_OF_CONDUCT
    overview/CHANGELOG
    overview/COPYING.LESSER

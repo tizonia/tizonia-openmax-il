@@ -180,6 +180,7 @@ docs/doxygen-src/html/
 docs/doxygen-src/xml/
 docs/sphinx-src/_build/
 docs/sphinx-src/overview/BUILDING.md
+docs/sphinx-src/overview/BUILDING_with_meson.md
 docs/sphinx-src/overview/CHANGELOG.md
 docs/sphinx-src/overview/CODE_OF_CONDUCT.md
 docs/sphinx-src/overview/CONTRIBUTING.md
