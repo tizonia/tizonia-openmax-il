@@ -32,12 +32,6 @@
 </div>
 
 <div align="center">
-  <a href="https://github.com/tizonia/tizonia-openmax-il/issues">
-    <img src="https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat" />
-  </a>
-</div>
-
-<div align="center">
 
   <a href="https://www.codacy.com/app/tizonia/tizonia-openmax-il?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=tizonia/tizonia-openmax-il&amp;utm_campaign=Badge_Grade">
     <img src="https://api.codacy.com/project/badge/Grade/b002a7f1ba464093b48fb7c9620f8ae7" />
@@ -57,8 +51,15 @@
 
 </div>
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-[![](https://raw.githubusercontent.com/tizonia/tizonia-openmax-il/master/docs/animated-gifs/tizonia-usage-screencast.gif)](https://raw.githubusercontent.com/tizonia/tizonia-openmax-il/master/docs/animated-gifs/tizonia-usage-screencast.gif)
+<div align="center">
+  <a href="https://github.com/tizonia/tizonia-openmax-il/issues">
+    <img src="https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat" />
+  </a>
+</div>
+
+<div align="center">
+  <img src="https://raw.githubusercontent.com/tizonia/tizonia-openmax-il/master/docs/animated-gifs/tizonia-usage-screencast.gif" />
+</div>
 
 <!-- [![](https://raw.githubusercontent.com/tizonia/tizonia-openmax-il/master/docs/animated-gifs/tizonia-usage-screencast2.gif)](https://raw.githubusercontent.com/tizonia/tizonia-openmax-il/master/docs/animated-gifs/tizonia-usage-screencast2.gif) -->
 
