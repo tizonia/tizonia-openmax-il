@@ -1,15 +1,15 @@
-# The Project's Building Blocks
+# Project Overview
 
 #### Table Of Contents
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-- [The Project's Building Blocks](#the-projects-building-blocks)
-  - [`tizonia`: A command-line cloud music player and audio streaming client/server.](#tizonia-a-command-line-cloud-music-player-and-audio-streaming-clientserver)
-  - [A fully-featured OpenMAX IL 1.2 multimedia framework](#a-fully-featured-openmax-il-12-multimedia-framework)
-  - [Tizonia's OpenMAX IL 1.2 plugins](#tizonias-openmax-il-12-plugins)
-  - [Skema: Tizonia's test execution framework for OpenMAX IL components.](#skema-tizonias-test-execution-framework-for-openmax-il-components)
+
+- [`tizonia`: A command-line cloud music player and audio streaming client/server.](#tizonia-a-command-line-cloud-music-player-and-audio-streaming-clientserver)
+- [A fully-featured OpenMAX IL 1.2 multimedia framework](#a-fully-featured-openmax-il-12-multimedia-framework)
+- [Tizonia's OpenMAX IL 1.2 plugins](#tizonias-openmax-il-12-plugins)
+- [Skema: Tizonia's test execution framework for OpenMAX IL components.](#skema-tizonias-test-execution-framework-for-openmax-il-components)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 

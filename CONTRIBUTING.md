@@ -20,12 +20,7 @@ definitely not rules. Use your best judgment, and feel free to suggest changes.
 ### Reporting Bugs
 
 When you are creating a bug report, please include as many details as
-possible. Have a look at the [issue template](ISSUE_TEMPLATE.md) for ideas.
-
-> **Note:** If you find a **Closed** issue that seems like it is the same thing
-> that you're experiencing, open a new issue and include a link to the original
-> issue in the body of your new one.
-
+possible.
 
 ### Suggesting New Features
 
@@ -45,11 +40,11 @@ or `help-wanted` issues:
 
 Have a look at the [project's components](PROJECT.md), and follow the
 instructions on how to [build Tizonia from source](BUILDING.md). And of course,
-don't hesitate to ask.
+don't hesitate to ask!.
 
 #### Documentation
 
-- See [docs.tizonia.org](http://docs.tizonia.org/) for the project's official documentation.
+- See [docs.tizonia.org](https://docs.tizonia.org/) for the project's official documentation.
 
 - The [Wiki](https://github.com/tizonia/tizonia-openmax-il/wiki) may also
 contain some useful information (although in need of an update).

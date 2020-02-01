@@ -72,14 +72,16 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
+
 - [News](#news)
 - [Installation](#installation)
   - [Debian / Ubuntu / Raspbian](#debian--ubuntu--raspbian)
   - [Arch User Repository (AUR)](#arch-user-repository-aur)
   - [Snap Package](#snap-package)
   - [Docker Image](#docker-image)
-  - [Configuration](#configuration)
-  - [Upgrade (Debian / Ubuntu / Raspbian)](#upgrade-debian--ubuntu--raspbian)
+- [Configuration](#configuration)
+- [Upgrade](#upgrade)
+  - [Debian / Ubuntu / Raspbian](#debian--ubuntu--raspbian-1)
 - [Roadmap](#roadmap)
 - [Resources](#resources)
 
@@ -153,28 +155,38 @@ Debian packages for the latest release of Tizonia are available from
 [Bintray](https://bintray.com/tizonia), with the following distro/arch
 combinations:
 
-<table>
-    <thead>
-        <tr>
-            <th align="center">Ubuntu Xenial (16.04)</th>
-            <th align="center">Ubuntu Bionic (18.04)</th>
-            <th align="center">Debian Buster (10)</th>
-            <th align="center">Debian Bullseye (11)</th>
-            <th align="center">Raspbian Buster (10)</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td align="center">amd64</td>
-            <td align="center">amd64, armhf</td>
-            <td align="center">amd64, armhf</td>
-            <td align="center">amd64</td>
-            <td align="center">armhf</td>
-        </tr>
-    </tbody>
-</table>
+<div align="center">
+    <table>
+        <thead>
+            <tr>
+                <th align="center">Ubuntu Xenial</th>
+                <th align="center">Ubuntu Bionic</th>
+                <th align="center">Debian Buster</th>
+                <th align="center">Debian Bullseye</th>
+                <th align="center">Raspbian Buster</th>
+            </tr>
+            <tr>
+                <th align="center">(16.04)</th>
+                <th align="center">(18.04)</th>
+                <th align="center">(10)</th>
+                <th align="center">(11)</th>
+                <th align="center">(10)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td align="center">amd64</td>
+                <td align="center">amd64, armhf</td>
+                <td align="center">amd64, armhf</td>
+                <td align="center">amd64</td>
+                <td align="center">armhf</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 
 <!-- | [ ![](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-xenial/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-xenial/_latestVersion) | [ ![](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-bionic/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-bionic/_latestVersion) | [ ![](https://api.bintray.com/packages/tizonia/debian/tizonia-buster/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-buster/_latestVersion) | [ ![](https://api.bintray.com/packages/tizonia/raspbian/tizonia-buster/images/download.svg) ](https://bintray.com/tizonia/raspbian/tizonia-buster/_latestVersion) | [ ![](https://api.bintray.com/packages/tizonia/debian/tizonia-bullseye/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-bullseye/_latestVersion) | -->
+
 
 > NOTE: Elementary OS, Linux Mint, Kali Linux are supported on releases based
 > on Ubuntu 'Xenial' or 'Bionic', Debian 'Buster' or 'Bullseye'. To install
@@ -192,7 +204,7 @@ $ curl -kL https://goo.gl/Vu8qGR | bash
 
 > NOTE: This script installs the
 > [latest](https://github.com/tizonia/tizonia-openmax-il/releases/latest)
-> release and all the dependencies. DISCLAIMER: trust no-one. Please have a
+> release and all the dependencies. DISCLAIMER: Trust no-one. Please have a
 > look at the installation script before running it on your system!.
 
 
@@ -247,7 +259,7 @@ $ sudo snap install tizonia
 </details>
 
 
-Tizonia's snapcraft.yaml file is hosted in its own repository:
+Tizonia's snapcraft.yaml file is hosted in a separate repository:
 
 - [tizonia-snap](https://github.com/tizonia/tizonia-snap/)
 
@@ -258,11 +270,11 @@ Tizonia can also be run from a Docker container. A Docker image is available fro
 
 - [docker-tizonia](https://hub.docker.com/r/tizonia/docker-tizonia/)
 
-## Configuration
+# Configuration
 
 To use *Spotify*, *Google Play Music*, *SoundCloud* and *Plex* you need to
 introduce your credentials in Tizonia's config file. No credentials needed to
-stream from YouTube or TuneIn.
+stream from *YouTube* or *TuneIn*.
 
 <details><summary><b>Show details</b></summary>
 
@@ -282,14 +294,16 @@ $ tizonia --help
 </details>
 
 
-## Upgrade (Debian / Ubuntu / Raspbian)
+# Upgrade
+
+## Debian / Ubuntu / Raspbian
 
 To upgrade, simply re-run the installation script. This is the most convienent
 way of upgrading the software and all its dependencies.
 
 If you prefer to do it manually, it is a two-step process. Run 'apt-get' as
-usual to upgrade the Debian packages, but also make sure that the various
-Python dependencies are up-to-date.
+usual to upgrade the Debian packages. Finally make sure that the various Python
+dependencies are up-to-date.
 
 <details><summary><b>Show details</b></summary>
 
