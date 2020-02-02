@@ -1,8 +1,16 @@
-Developer Guides
-================
+Developer Guide
+===============
 
 .. toctree::
    :maxdepth: 2
+
+Coding Guidelines
+-----------------
+
+.. toctree::
+   :maxdepth: 2
+
+   style
 
 API Documentation
 -----------------
@@ -13,11 +21,3 @@ API Documentation
    openmaxil/openmaxil
    plugins/plugins
    clients/clients
-
-Coding Guidelines
------------------
-
-.. toctree::
-   :maxdepth: 2
-
-   style

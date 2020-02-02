@@ -28,8 +28,8 @@ User Manual
 
    manual/manual
 
-Developer Guides
-================
+Developer Guide
+===============
 
 .. toctree::
    :maxdepth: 2
