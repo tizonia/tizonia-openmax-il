@@ -5,7 +5,7 @@ TOP_REPO_DIR := $(realpath ../..)
 
 # You can set these variables from the command line.
 SPHINXOPTS    =
-SPHINXBUILD   = sphinx-build -W
+SPHINXBUILD   = sphinx-build
 PAPER         =
 BUILDDIR      = _build
 
