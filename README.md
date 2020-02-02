@@ -59,6 +59,33 @@
 
 </div>
 
+<div align="center">
+  <h3>
+    <a href="https://tizonia.org">
+      Website
+    </a>
+    <span> | </span>
+    <a href="https://docs.tizonia.org">
+      Documentation
+    </a>
+    <span> | </span>
+    <a href="https://github.com/tizonia/tizonia-openmax-il/blob/master/CONTRIBUTING.md">
+      Contributing
+    </a>
+    <span> | </span>
+    <a href="https://gitter.im/tizonia/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge">
+      Chat
+    </a>
+  </h3>
+</div>
+
+<div align="center">
+  <sub>Brought to you by
+  <a href="https://juanrubio.org">Juan A. Rubio</a> and
+  <a href="https://github.com/tizonia/tizonia-openmax-il/graphs/contributors">
+    contributors
+  </a>
+</div>
 
 ---
 
@@ -98,9 +125,9 @@ removal (the service is sadly gone), Python 3 migration (please see the section
 [Upgrade (Debian / Ubuntu / Raspbian)](#upgrade-debian--ubuntu--raspbian) to learn
 how to install the new Python 3 dependencies!).
 
-> NOTE: Please remember to also visit Tizonia's website at
-> https://tizonia.org There is always some additional info on what is going on
-> in the project and in the latest releases.
+> NOTE: See Tizonia's website for more info:
+> [Global Spotify playlist search and other improvements in Tizonia
+> 0.19.0](https://tizonia.org/news/2019/03/19/release-0-19-0/)
 
 <details><summary><b>Show more</b></summary>
 
@@ -146,14 +173,14 @@ Foundation project, with Gurkirpal Singh and Julien Isorce).
 
 </details>
 
+&nbsp;&nbsp;
 
 # Installation
 
 ## Debian / Ubuntu / Raspbian
 
-Debian packages for the latest release of Tizonia are available from
-[Bintray](https://bintray.com/tizonia), with the following distro/arch
-combinations:
+Debian packages are available from [Bintray](https://bintray.com/tizonia), with
+the following distro/arch combinations:
 
 <div align="center">
     <table>
@@ -190,8 +217,9 @@ combinations:
 
 > NOTE: Elementary OS, Linux Mint, Kali Linux are supported on releases based
 > on Ubuntu 'Xenial' or 'Bionic', Debian 'Buster' or 'Bullseye'. To install
-> Tizonia on other Debian or Ubuntu-based OSes, use the Snap package or have a
-> look at [#631](https://github.com/tizonia/tizonia-openmax-il/issues/631).
+> Tizonia on other versions of Debian or Ubuntu-based distros, use the Snap
+> package or have a look at
+> [#631](https://github.com/tizonia/tizonia-openmax-il/issues/631).
 
 Please note that the **recommended** way of installing Tizonia on a
 Debian-compatible system is by running the following command:
@@ -270,6 +298,8 @@ Tizonia can also be run from a Docker container. A Docker image is available fro
 
 - [docker-tizonia](https://hub.docker.com/r/tizonia/docker-tizonia/)
 
+&nbsp;&nbsp;
+
 # Configuration
 
 To use *Spotify*, *Google Play Music*, *SoundCloud* and *Plex* you need to
@@ -293,6 +323,7 @@ $ tizonia --help
 
 </details>
 
+&nbsp;&nbsp;
 
 # Upgrade
 
@@ -326,6 +357,7 @@ $ sudo -H pip2 install --upgrade gmusicapi soundcloud youtube-dl pafy pycountry 
 
 </details>
 
+&nbsp;&nbsp;
 
 # Roadmap
 
@@ -340,6 +372,7 @@ Roughly in priority order:
 - OS X port ([#316](https://github.com/tizonia/tizonia-openmax-il/issues/316)).
 - YouTube live streams ([#391](https://github.com/tizonia/tizonia-openmax-il/issues/391)).
 
+&nbsp;&nbsp;
 
 # Resources
 

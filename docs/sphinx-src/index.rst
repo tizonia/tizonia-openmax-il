@@ -12,27 +12,24 @@ Overview
 ========
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    overview/README
-   overview/CHANGELOG
-   overview/PROJECT
    overview/CONTRIBUTING
-   overview/BUILDING
-   overview/BUILDING_with_meson
-   overview/CODE_OF_CONDUCT
+   overview/PROJECT
+   overview/CHANGELOG
    overview/COPYING.LESSER
 
-Usage
-=====
+User Manual
+===========
 
 .. toctree::
    :maxdepth: 2
 
    usage/usage
 
-Development
-===========
+Developer Guides
+================
 
 .. toctree::
    :maxdepth: 2

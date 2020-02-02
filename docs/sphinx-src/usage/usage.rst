@@ -1,7 +1,7 @@
 .. Tizonia documentation
 
-Usage
-=====
+User Manual
+===========
 
 .. toctree::
    :maxdepth: 2

@@ -269,7 +269,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'tizoniaopenmaxil', u'Tizonia Documentation',
+    ('index', 'tizonia', u'Tizonia Documentation',
      [u'Juan A. Rubio'], 1)
 ]
 
@@ -309,14 +309,13 @@ def run_doxygen(app):
         links = \
             [ \
               [ 'README.md', 'overview/README.md' ] , \
-              [ 'PROJECT.md', 'overview/PROJECT.md' ] , \
-              [ 'BUILDING.md', 'overview/BUILDING.md' ] , \
-              [ 'BUILDING_with_meson.md', 'overview/BUILDING_with_meson.md' ] , \
+              [ 'CHANGELOG.md', 'overview/CHANGELOG.md' ] , \
               [ 'CONTRIBUTING.md', 'overview/CONTRIBUTING.md' ] , \
               [ 'PROJECT.md', 'overview/PROJECT.md' ] , \
-              [ 'CODE_OF_CONDUCT.md', 'overview/CODE_OF_CONDUCT.md' ] , \
-              [ 'CHANGELOG.md', 'overview/CHANGELOG.md' ] , \
               [ 'COPYING.LESSER.md', 'overview/COPYING.LESSER.md' ] , \
+              [ 'BUILDING.md', 'overview/BUILDING.md' ] , \
+              [ 'BUILDING_with_meson.md', 'overview/BUILDING_with_meson.md' ] , \
+              [ 'CODE_OF_CONDUCT.md', 'overview/CODE_OF_CONDUCT.md' ] , \
             ]
 
         for link in links:
