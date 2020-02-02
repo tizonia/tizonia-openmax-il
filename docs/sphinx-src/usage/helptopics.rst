@@ -6,7 +6,6 @@ TODO
 .. code-block:: bash
 
    $ tizonia --help
-   tizonia 0.20.0. Copyright (C) 2020 Juan A. Rubio
    This software is part of the Tizonia project <http://tizonia.org>
 
    GNU Lesser GPL version 3 <http://gnu.org/licenses/lgpl.html>

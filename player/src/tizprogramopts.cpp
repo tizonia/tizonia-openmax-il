@@ -1435,7 +1435,7 @@ void tiz::programopts::init_global_options ()
       ("cast,c", po::value (&chromecast_name_or_ip_),
        "Cast to a Chromecast device (arg: device name or ip address). "
        "Available in combination with Google Play Music, SoundCloud, "
-       "YouTube, Plex and HTTP radio stations.")
+       "YouTube, TuneIn and HTTP radio stations.")
       /* TIZ_CLASS_COMMENT: */
       ("buffer-seconds,b", po::value (&buffer_seconds_),
        "Size of the buffer (in seconds) to be used while downloading streams. "
