@@ -1,7 +1,10 @@
 Plex
 ====
 
-TODO
+Tizonia can stream audio from a Plex server. To stream from a Plex server, it
+is necessary to provide the base URL where the server can be contacted and the
+authentication token. These two elements must be provided on the command-line
+or via configuration file.
 
 OPTIONS
 -------

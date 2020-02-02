@@ -269,12 +269,11 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'tizonia', u'Tizonia Documentation',
-     [u'Juan A. Rubio'], 1)
+    ('manual/manual', 'tizonia', u'A command-line streaming music client/server for Linux with support for Spotify (Premium), Google Play Music (free and paid tiers), YouTube, SoundCloud, TuneIn Internet Radio, Plex servers and Chromecast devices.', [u'Juan A. Rubio'], 1)
 ]
 
 # If true, show URL addresses after external links.
-#man_show_urls = False
+man_show_urls = False
 
 
 # -- Options for Texinfo output ------------------------------------------------

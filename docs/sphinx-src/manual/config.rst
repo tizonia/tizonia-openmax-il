@@ -1,10 +1,11 @@
-Configuration Files
-===================
+Configuration File
+==================
 
-Tizonia uses a configuration file. Tizonia is shipped with an example/template
-configuration file (see below for the location). The user is expected to copy
-this file to his or her local configuration directory and customize it as
-required, usually adding the credentials for the subscribed services.
+Tizonia ships with an example/template configuration file (see below for the
+system locations where the template is usually installed). The application also
+copies this file on first use to the user's local configuration directory
+($HOME/.config/tizonia/tizonia.conf).  Customization of this file is typically
+required, e.g. to add credentials for the subscribed services.
 
 .. code-block:: bash
 
@@ -29,6 +30,17 @@ required, usually adding the credentials for the subscribed services.
 
 tizonia.conf
 ############
+
+.. note:: When Tizonia is upgraded, a new version of the ``tizonia.conf``
+          template is installed in its system locations (see above). However,
+          an exising configuration file located in the user's HOME
+          configuration directory will not be modified. In order to access any
+          new features, the user is expected to manually update the local
+          configuration file. This is optional however, as an old configuration
+          file will remain functional when used by a newer version of the
+          software.
+
+This is the template that ship with the latest version of Tizonia.
 
 .. code-block:: ini
    :linenos:

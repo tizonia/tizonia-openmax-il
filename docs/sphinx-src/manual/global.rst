@@ -1,7 +1,9 @@
 Global Options
 ==============
 
-TODO
+There are a number of features that may be used globally with all the included
+services, or at a minumum, with more than one. Command-line options that fall
+under this categoray are listed below.
 
 OPTIONS
 -------

@@ -1,7 +1,9 @@
 OpenMAX IL Options
 ==================
 
-TODO
+The section describes a number of options that are more typically used during
+development. These command-line options allow querying the OpenMAX IL subsystem
+and learn about the installed OpenMAX IL components and their supported roles.
 
 OPTIONS
 -------

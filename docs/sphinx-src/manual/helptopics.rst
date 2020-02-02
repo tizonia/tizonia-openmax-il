@@ -1,7 +1,13 @@
 Help Topics
 ===========
 
-TODO
+Tizonia includes a fairly comprehensive help system with information about
+general usage, included streaming services, configuration elements, and
+command-line options supported.
+
+To obtain a list of the available help topics, just invoke ``tizonia --help``
+and to retrieve information about a particular topic, use ``tizonia --help
+<topic>``.
 
 .. code-block:: bash
 
@@ -29,6 +35,3 @@ TODO
      keyboard      Keyboard control.
      config        Configuration files.
      examples      Some command-line examples.
-
-   Use "tizonia --help topic".
-

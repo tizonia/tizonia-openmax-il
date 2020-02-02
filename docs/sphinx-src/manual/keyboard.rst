@@ -1,7 +1,9 @@
 Keyboard Shortcuts
 ==================
 
-TODO
+Keyboard controls are listed by issuing the command: ``tizonia --help
+keyboard``. Tizonia is very minimalistic and offers just a few controls. There
+is no fast-foward of rewind options. These may be added in the future.
 
 .. code-block:: bash
 

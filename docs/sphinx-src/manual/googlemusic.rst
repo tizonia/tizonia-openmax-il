@@ -1,10 +1,10 @@
 Google Play Music
 =================
 
-Music streaming from the Google Play Music service is supported in both free
+Music streaming from the Google Play Music service is supported on both free
 and paid tiers. Command-line options that contain ``unlimited`` represent those
-that require a paid subscription. Credentials are required to be input via
-command-line or configuration file.
+that require a 'Premium' subscription. In both cases, credentials are required
+to be input via command-line or configuration file.
 
 OPTIONS
 -------
