@@ -310,11 +310,14 @@ def run_doxygen(app):
               [ 'README.md', 'overview/README.md' ] , \
               [ 'CHANGELOG.md', 'overview/CHANGELOG.md' ] , \
               [ 'CONTRIBUTING.md', 'overview/CONTRIBUTING.md' ] , \
-              [ 'PROJECT.md', 'overview/PROJECT.md' ] , \
               [ 'COPYING.LESSER.md', 'overview/COPYING.LESSER.md' ] , \
+              [ 'CODE_OF_CONDUCT.md', 'overview/CODE_OF_CONDUCT.md' ] , \
+              [ 'PROJECT.md', 'overview/PROJECT.md' ] , \
               [ 'BUILDING.md', 'overview/BUILDING.md' ] , \
               [ 'BUILDING_with_meson.md', 'overview/BUILDING_with_meson.md' ] , \
-              [ 'CODE_OF_CONDUCT.md', 'overview/CODE_OF_CONDUCT.md' ] , \
+              [ 'PROJECT.md', 'development/PROJECT.md' ] , \
+              [ 'BUILDING.md', 'development/BUILDING.md' ] , \
+              [ 'BUILDING_with_meson.md', 'development/BUILDING_with_meson.md' ] , \
             ]
 
         for link in links:

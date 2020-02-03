@@ -1,7 +1,7 @@
 .. Tizonia documentation
 
-User Manual
-===========
+User Guide
+==========
 
 .. toctree::
    :maxdepth: 1
@@ -20,4 +20,5 @@ User Manual
    chromecast
    keyboard
    config
+   themes
    localmedia

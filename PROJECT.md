@@ -1,6 +1,4 @@
-# Project Overview
-
-#### Table Of Contents
+# Components
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -13,51 +11,75 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-## `tizonia`: A command-line cloud music player and audio streaming client/server.
+## Command-line cloud music player and audio streaming client/server.
 
-* Stream playlists from Spotify (Spotify Premium required).
-* Search and stream audio from Google Play Music (free and paid tiers).
-* Search and stream audio from YouTube.
-* Search and stream audio from SoundCloud.
-* Search and stream Internet radio stations with Dirble.
-* Search and stream audio from Plex servers.
-* Cast cloud music to your Chromecast devices.
-* Playback of local media files (mp3, mp2, mpa, m2a, aac, ogg/vorbis, opus,
-  wav, aiff, and flac).
-* Icecast/SHOUTcast streaming LAN server (mp3) (*experimental*).
-* Icecast/SHOUTcast streaming client (mp3, aac, and opus).
-* Daemon and command line modes (no GUI).
-* MPRIS D-BUS v2 media player remote control interface (basic controls only).
-* Based on Tizonia's own OpenMAX IL-based multimedia framework. That means, no
-  gstreamer, libav, or ffmpeg dependencies.
+`tizonia` is a command-line application that can:
+
+  * Stream playlists from Spotify (Spotify Premium required).
+  * Search and stream audio from Google Play Music (free and paid tiers).
+  * Search and stream audio from YouTube.
+  * Search and stream audio from SoundCloud.
+  * Search and stream Internet radio stations from the TuneIn directory.
+  * Search and stream audio from Plex servers.
+  * Cast cloud music to your Chromecast devices.
+  * Playback of local media files (mp3, mp2, mpa, m2a, aac, ogg/vorbis, opus,
+    wav, aiff, and flac).
+  * Act as an Icecast/SHOUTcast LAN server (mp3) (*experimental*).
+  * Stream Icecast/SHOUTcast radio stations as a client (mp3, aac, and opus).
+  * Be used as daemon or as an interactive command-line application.
+  * Be remote-controlled via its MPRIS D-BUS v2 media player remote control interface (basic playback controls only).
 
 ## A fully-featured OpenMAX IL 1.2 multimedia framework
 
-1. 'libtizonia' : OpenMAX IL 1.2 component framework
-  * A C library for creating OpenMAX IL 1.2 plugins (encoders, decoders,
-  parsers, sinks, etc, for audio/video/other).
-  * Full support for OpenMAX IL 1.2 Base and Interop profiles.
-2. 'libtizcore' : OpenMAX IL 1.2 Core implementation
-  * A C library for discovery and dynamic loading of OpenMAX IL 1.2 plugins.
-  * Support for all of the OMX IL 1.2 standard Core APIs, including *OMX_SetupTunnel* and *OMX_TeardownTunnel*.
-3. 'libtizplatform' : OS abstraction/utility library
-  * A C library with wrappers and utilities for:
-    * memory allocation,
-    * threading and synchronization primitives,
-    * evented I/O (via libev)
-    * FIFO and priority queues,
-    * dynamic arrays,
-    * associative arrays,
-    * small object allocation,
-    * config file parsing,
-    * HTTP parser,
-    * uuids,
-    * etc..
-4. OpenMAX IL 1.2 Resource Management (RM)
-  * 'tizrmd' : a D-Bus-based Resource Manager daemon server.
-  * 'libtizrmproxy' : a C client library to interface with the RM daemon.
+Tizonia is the first open-source implementation of [OpenMAX IL
+  1.2](https://www.khronos.org/news/press/khronos-group-releases-openmax-il-1.2-provisional-specification).
 
-## Tizonia's OpenMAX IL 1.2 plugins
+Tizonia contains its own OpenMAX IL-based multimedia framework, therefore no
+gstreamer, libav, or ffmpeg dependencies are required.
+
+### 'libtizcore' : OpenMAX IL 1.2 Core implementation
+
+The OpenMAX IL Core is the central piece defined by the OpenMAX IL Standard.
+
+  * A C library for discovery and dynamic loading of OpenMAX IL 1.2 plugins.
+  * It has support for all of the OMX IL 1.2 standard Core APIs, including *OMX_SetupTunnel* and *OMX_TeardownTunnel*.
+
+### 'libtizonia' : OpenMAX IL 1.2 component framework
+
+`libtizonia` is the name of the library that contains the plugin construction
+framework. This library provides all the features required to implement OpenMAX
+IL 1.2 plugins.
+
+  * A C library for creating OpenMAX IL 1.2 plugins (encoders, decoders, parsers, sinks, etc, for audio/video/other).
+  * Full support for OpenMAX IL 1.2 Base and Interop profiles, as required by the OpenMAX IL 1.2 standard.
+
+### 'libtizplatform' : An OS abstraction/utility library
+
+A C library with wrappers and utilities for:
+
+  * memory allocation,
+  * threading and synchronization primitives,
+  * evented I/O (via libev)
+  * FIFO and priority queues,
+  * dynamic arrays,
+  * associative arrays,
+  * small object allocation,
+  * config file parsing,
+  * HTTP parser,
+  * uuids,
+  * etc..
+
+### OpenMAX IL 1.2 Resource Management (RM)
+
+The Resource Management framework is another core piece that is specified in the OpenMAX IL standard.
+
+  * 'tizrmd' : a D-Bus-based Resource Manager (RM) daemon server.
+  * 'libtizrmproxy' : a C client library to interface with the RM server.
+
+## OpenMAX IL 1.2 plugins
+
+There is a large list of OpenMAX IL plugins that implement all the audio and
+multimedia functions used by Tizonia. Here is a (incomplete) list:
 
   * Spotify streaming service client ([libspotify](https://github.com/mopidy/libspotify-deb)),
   * Google Play Music streaming service client (based on [gmusicapi](https://github.com/simon-weber/gmusicapi)),
@@ -85,7 +107,11 @@
   * etc...
 
 ## Skema: Tizonia's test execution framework for OpenMAX IL components.
-  * Test execution framework to build and test arbitrary OpenMAX IL graphs (tunneled and
-    non-tunneled) using a custom, [easy-to-write XML syntax](http://github.com/tizonia/tizonia-openmax-il/wiki/Mp3Playback101).
-  * Skema's Github repo: http://github.com/tizonia/skema
-  * Skema's documentation is located in Tizonia's wiki: https://github.com/tizonia/tizonia-openmax-il/wiki/Skema
+
+There is also a bespoke test execution framework for testing the
+graphs/pipelines of OpenMAX IL components used in Tizonia:
+
+  * Test execution framework to build and test arbitrary OpenMAX IL graphs/pipelines (tunneled and
+    non-tunneled) using a custom, [easy-to-write XML syntax](https://github.com/tizonia/tizonia-openmax-il/wiki/Mp3Playback101).
+  * Skema's Github repo: [https://github.com/tizonia/skema](https://github.com/tizonia/skema)
+  * Skema's documentation is located in Tizonia's wiki: [https://github.com/tizonia/tizonia-openmax-il/wiki/Skema](https://github.com/tizonia/tizonia-openmax-il/wiki/Skema)

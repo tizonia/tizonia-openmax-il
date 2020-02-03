@@ -1,6 +1,4 @@
-# Building from Source (with Meson)
-
-#### Table Of Contents
+# Building from Source (with Meson) [RECOMMENDED]
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->

@@ -54,7 +54,7 @@
   </a>
 
   <a href="https://github.com/tizonia/tizonia-openmax-il/issues">
-    <img src="https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat" />
+    <img src="https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=plastic" />
   </a>
 
 </div>
@@ -69,7 +69,7 @@
       Documentation
     </a>
     <span> | </span>
-    <a href="https://github.com/tizonia/tizonia-openmax-il/blob/master/CONTRIBUTING.md">
+    <a href="https://github.com/tizonia/tizonia-openmax-il/contribute">
       Contributing
     </a>
     <span> | </span>
@@ -179,8 +179,24 @@ Foundation project, with Gurkirpal Singh and Julien Isorce).
 
 ## Debian / Ubuntu / Raspbian
 
-Debian packages are available from [Bintray](https://bintray.com/tizonia), with
-the following distro/arch combinations:
+Run the following command to install Tizonia on a Debian-compatible system:
+
+```bash
+$ curl -kL https://github.com/tizonia/tizonia-openmax-il/raw/master/tools/install.sh | bash
+# Or its shortened version:
+$ curl -kL https://goo.gl/Vu8qGR | bash
+```
+
+> NOTE: This script installs the
+> [latest](https://github.com/tizonia/tizonia-openmax-il/releases/latest)
+> release and all the dependencies.
+
+> DISCLAIMER: Trust no-one. Please have a look at the installation script
+> before running it on your system!.
+
+
+Debian packages are stored in [Bintray](https://bintray.com/tizonia), with the
+following distro/arch combinations:
 
 <div align="center">
     <table>
@@ -221,20 +237,6 @@ the following distro/arch combinations:
 > package or have a look at
 > [#631](https://github.com/tizonia/tizonia-openmax-il/issues/631).
 
-Please note that the **recommended** way of installing Tizonia on a
-Debian-compatible system is by running the following command:
-
-```bash
-$ curl -kL https://github.com/tizonia/tizonia-openmax-il/raw/master/tools/install.sh | bash
-# Or its shortened version:
-$ curl -kL https://goo.gl/Vu8qGR | bash
-```
-
-> NOTE: This script installs the
-> [latest](https://github.com/tizonia/tizonia-openmax-il/releases/latest)
-> release and all the dependencies. DISCLAIMER: Trust no-one. Please have a
-> look at the installation script before running it on your system!.
-
 
 ## Arch User Repository (AUR)
 
@@ -245,7 +247,7 @@ $ curl -kL https://goo.gl/Vu8qGR | bash
 
 ```bash
 # Please note that if you are upgrading your existing
-# Tizonia installation, you *need* to uninstall it before installing a new version.
+# Tizonia installation, you *need* to uninstall it before building a new version.
 # See GitHub issue https://github.com/tizonia/tizonia-openmax-il/issues/485
 
 # For the latest stable release
@@ -253,7 +255,7 @@ $ git clone https://aur.archlinux.org/tizonia-all.git
 $ cd tizonia-all
 $ makepkg -si
 
-# or for the bleeding edge
+# There is also a -git package:
 $ git clone https://aur.archlinux.org/tizonia-all-git.git
 $ cd tizonia-all
 $ makepkg -si
@@ -274,9 +276,9 @@ A 'snap' package is now available to download from the 'Global' snap store
 
 To install, first visit [Install
 Snapd](https://docs.snapcraft.io/core/install?_ga=2.41936226.1106178805.1514500852-128158267.1514500852)
-and make sure that your Linux distro is supported. Follow the instructions
-to get the 'snapd' service running on your system, and finally use this command
-to install Tizonia:
+and make sure that your Linux distro is supported. Follow the instructions to
+get the 'snapd' service running on your system, and finally use this command to
+install Tizonia:
 
 ```bash
 
@@ -294,7 +296,8 @@ Tizonia's snapcraft.yaml file is hosted in a separate repository:
 
 ## Docker Image
 
-Tizonia can also be run from a Docker container. A Docker image is available from the Docker hub:
+Tizonia can also be run from a Docker container. A Docker image is available
+from the Docker hub:
 
 - [docker-tizonia](https://hub.docker.com/r/tizonia/docker-tizonia/)
 
@@ -319,7 +322,7 @@ $ tizonia --help
 ( $HOME/snap/tizonia/current/.config/tizonia/tizonia.conf )
 ```
 
-> NOTE: see instructions inside this file for more information.
+> NOTE: See full instructions inside [tizonia.conf](https://docs.tizonia.org/manual/config.html).
 
 </details>
 
@@ -329,8 +332,8 @@ $ tizonia --help
 
 ## Debian / Ubuntu / Raspbian
 
-To upgrade, simply re-run the installation script. This is the most convienent
-way of upgrading the software and all its dependencies.
+To upgrade Tizonia and all its dependencies, simply re-run the installation
+script.
 
 If you prefer to do it manually, it is a two-step process. Run 'apt-get' as
 usual to upgrade the Debian packages. Finally make sure that the various Python
