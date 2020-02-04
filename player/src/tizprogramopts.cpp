@@ -529,7 +529,7 @@ void tiz::programopts::print_version () const
   TIZ_PRINTF_C04 ("tizonia %s. Copyright (C) 2019 Juan A. Rubio",
                   PACKAGE_VERSION);
   TIZ_PRINTF_C04 (
-      "This software is part of the Tizonia project <http://tizonia.org>");
+      "This software is part of the Tizonia project <https://tizonia.org>");
   printf ("\n");
 }
 
@@ -1467,7 +1467,7 @@ void tiz::programopts::init_global_options ()
   chromecast_.add_options ()
       /* TIZ_CLASS_COMMENT: */
       ("cast,c", po::value (&chromecast_name_or_ip_),
-       "Cast to a Chromecast device (arg: device name or ip address). "
+       "Cast to a Chromecast device (arg: device name, 'friendly' name or ip address). "
        "Available in combination with Google Play Music, SoundCloud, "
        "YouTube, Plex and HTTP radio stations.");
 
@@ -1538,7 +1538,8 @@ void tiz::programopts::init_streaming_server_options ()
        "Stream media files using the SHOUTcast/ICEcast streaming protocol.")
       /* TIZ_CLASS_COMMENT: */
       ("port,p", po::value (&port_),
-       "TCP port to be used for Icecast/SHOUTcast streaming. Default: 8010.")
+       "TCP port to be used for Icecast/SHOUTcast streaming. Optional. "
+       "Default: 8010.")
       /* TIZ_CLASS_COMMENT: */
       ("station-name", po::value (&station_name_),
        "The Icecast/SHOUTcast station name. Optional.")
@@ -1547,22 +1548,17 @@ void tiz::programopts::init_streaming_server_options ()
        "The Icecast/SHOUTcast station genre. Optional.")
       /* TIZ_CLASS_COMMENT: */
       ("no-icy-metadata", po::bool_switch (&no_icy_metadata_),
-       "Disables Icecast/SHOUTcast metadata in the stream.")
+       "Disables Icecast/SHOUTcast metadata in the stream. Optional.")
       /* TIZ_CLASS_COMMENT: */
       ("bitrate-modes", po::value (&bitrates_),
        "A comma-separated list of "
-       /* TIZ_CLASS_COMMENT: */
        "bitrate modes (e.g. 'CBR,VBR'). Only media with these bitrate modes "
-       "will be "
-       "in the playlist. Default: any.")
+       "will be streamed. Optional. Default: any.")
       /* TIZ_CLASS_COMMENT: */
       ("sampling-rates", po::value (&sampling_rates_),
-       "A comma-separated list "
-       /* TIZ_CLASS_COMMENT: */
-       "of sampling rates. Only media with these rates will in the "
-       "playlist. Default: any.")
-      /* TIZ_CLASS_COMMENT: */
-      ;
+       "A comma-separated list of sampling rates. Only media with these rates "
+       "will be streamed."
+       "Optional. Default: any.");
 
   // Give a default value to the bitrate list
   bitrates_ = std::string ("CBR,VBR");
@@ -1581,7 +1577,7 @@ void tiz::programopts::init_streaming_client_options ()
   client_.add_options ()
       /* TIZ_CLASS_COMMENT: */
       ("station-id", po::value (&station_name_),
-       "Give a name/id to the remote stream.");
+       "Give a name/id to the remote stream. Optional.");
   register_consume_function (
       &tiz::programopts::consume_streaming_client_options);
   all_streaming_client_options_

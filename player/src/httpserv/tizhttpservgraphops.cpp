@@ -186,7 +186,7 @@ graph::httpservops::configure_station ()
   snprintf ((char *)mount.cStationGenre, sizeof(mount.cStationGenre), "%s",
             srv_config->get_station_genre ().c_str ());
   snprintf ((char *)mount.cStationUrl, sizeof(mount.cStationUrl),
-            "http://tizonia.org");
+            "https://tizonia.org");
 
   mount.nIcyMetadataPeriod = (srv_config->get_icy_metadata_enabled () ?
                               TIZ_DEFAULT_ICY_METADATA_INTERVAL : 0);

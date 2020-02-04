@@ -10,7 +10,7 @@ local rc=1
 _arguments -S -s \
   '--help[Help topics.]:Help topics by area:(global openmax server client spotify googlemusic soundcloud tunein youtube plex chromecast keyboard config examples)' \
   '(-b)--buffer-seconds[Size of the audio buffer to use while downloading streams.]' \
-  '(-c)--cast[Cast to a Chromecast device (arg: device name or ip address).]' \
+  '(-c)--cast[Cast to a Chromecast device (arg: device name, fiendly name or ip address).]' \
   '(-d)--daemon[Run in the brackground.]' \
   '(-r)--recurse[Recursively process a given path.]' \
   '(-s)--shuffle[Shuffle the playlist.]' \
@@ -94,12 +94,12 @@ _arguments -S -s \
   '--plex-audio-album[Search and play a music album from a Plex server.]' \
   '--plex-audio-playlist[Search and play playlists from a Plex server.]' \
   '--server[Stream media files using the SHOUTcast/ICEcast streaming protocol.]' \
-  '(-p)--port[TCP port to be used for Icecast/SHOUTcast streaming. Default: 8010.]' \
+  '(-p)--port[TCP port to be used for Icecast/SHOUTcast streaming. Optional. Default: 8010.]' \
   '--station-name[The Icecast/SHOUTcast station name. Optional.]' \
   '--station-genre[The Icecast/SHOUTcast station genre. Optional.]' \
-  '--no-icy-metadata[Disables Icecast/SHOUTcast metadata in the stream.]' \
-  '--bitrate-modes[A comma-separated list of bitrate modes (e.g. 'CBR,VBR'). Only media with these bitrate modes will be in the playlist. Default: any.]' \
-  '--sampling-rates[A comma-separated list of sampling rates. Only media with these rates will in the playlist. Default: any.]' \
+  '--no-icy-metadata[Disables Icecast/SHOUTcast metadata in the stream. Optional.]' \
+  '--bitrate-modes[A comma-separated list of bitrate modes (e.g. 'CBR,VBR'). Only media with these bitrate modes will be streamed. Optional. Default: any.]' \
+  '--sampling-rates[A comma-separated list of sampling rates. Only media with these rates will be streamed. Optional. Default: any.]' \
   '*:files:->mfiles' && rc=0
 
 case $state in
