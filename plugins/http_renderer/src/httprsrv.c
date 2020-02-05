@@ -759,8 +759,8 @@ srv_build_http_negative_response (char * ap_buf, size_t len, int status,
   strftime (currenttime_buffer, sizeof (currenttime_buffer),
             "Date: %a, %d-%b-%Y %X GMT\r\n", gmtime_result);
 
-  ret = snprintf (ap_buf, len, "%sServer: %s\r\n%s%s%s%s", status_buffer,
-                  "Tizonia HTTP Server 0.1.0", currenttime_buffer,
+  ret = snprintf (ap_buf, len, "%sServer: %s%s\r\n%s%s%s%s", status_buffer,
+                  "Tizonia HTTP Server ", PACKAGE_VERSION, currenttime_buffer,
                   contenttype_buffer, (ap_msg ? "\r\n" : ""),
                   (ap_msg ? ap_msg : ""));
 
@@ -869,11 +869,11 @@ srv_build_http_positive_response (httpr_server_t * ap_server, char * ap_buf,
     }
 
   ret = snprintf (
-    ap_buf, len, "%s%s%s%s%s%s%s%s%s%s%s%s\r\n", status_buffer,
+    ap_buf, len, "%s%s%s%s%s%s%s%s%s%s%s%s%s\r\n", status_buffer,
     contenttype_buffer, icybr_buffer, iceaudioinfo_buffer, icyname_buffer,
     icydescription_buffer, icygenre_buffer, icyurl_buffer, icypub_buffer,
     (metadata_needed ? icymetaint_buffer : ""),
-    "Server: Tizonia HTTP Renderer 0.1.0\r\n", "Cache-Control: no-cache\r\n");
+    "Server: Tizonia HTTP Renderer ", PACKAGE_VERSION, "\r\nCache-Control: no-cache\r\n");
 
   return ret;
 }
