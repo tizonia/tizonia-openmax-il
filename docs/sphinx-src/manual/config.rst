@@ -10,7 +10,7 @@ required, e.g. to add credentials for the subscribed services.
 .. code-block:: bash
 
    $ tizonia --help config
-   This software is part of the Tizonia project <http://tizonia.org>
+   This software is part of the Tizonia project <https://tizonia.org>
 
    GNU Lesser GPL version 3 <http://gnu.org/licenses/lgpl.html>
    This is free software: you are free to change and redistribute it.
@@ -163,7 +163,7 @@ This is the template that ship with the latest version of Tizonia.
    # configure your SoundCloud OAuth token here.
    #
    # To obtain your OAuth token, Tizonia needs to be granted access to your
-   # SoundCloud account. Visit http://tizonia.org/docs/soundcloud/ for the
+   # SoundCloud account. Visit https://tizonia.org/docs/soundcloud/ for the
    # details.
    #
    # soundcloud.oauth_token = X-XXXXXX-XXXXXXXX-XXXXXXXXXXXXXX

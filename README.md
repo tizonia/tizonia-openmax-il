@@ -125,8 +125,8 @@ removal (the service is sadly gone), Python 3 migration (please see the section
 [Upgrade (Debian / Ubuntu / Raspbian)](#upgrade-debian--ubuntu--raspbian) to learn
 how to install the new Python 3 dependencies!).
 
-> NOTE: See Tizonia's website for more info:
-> [Global Spotify playlist search and other improvements in Tizonia
+> See Tizonia's website: [Global Spotify playlist search and
+> other improvements in Tizonia
 > 0.19.0](https://tizonia.org/news/2019/03/19/release-0-19-0/)
 
 <details><summary><b>Show more</b></summary>
@@ -135,11 +135,15 @@ how to install the new Python 3 dependencies!).
 [v0.18.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.18.0). Various
 improvements and bug fixes in Google Music and Spotify.
 
+> See Tizonia's website: [Fixed 'Google Play Music tracks cut short' in Tizonia 0.18.0](https://tizonia.org/news/2019/03/17/release-0-18-0/)
+
 - [2019-01-17] Tizonia
 [v0.17.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.17.0). Fixed
 Spotify login issues. A regression introduced in v0.16.0. This issue was
 identified and fixed thanks to the great feedback provided by the users in
 issue [#531](https://github.com/tizonia/tizonia-openmax-il/issues/531).
+
+> See Tizonia's website: [Spotify login issues fixed in Tizonia 0.17.0](https://tizonia.org/news/2019/01/17/release-0-17-0/)
 
 - [2018-12-03] Tizonia
 [v0.16.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.16.0). Improved
@@ -148,11 +152,15 @@ the content that you know and love. Last but not least,
 [docker-tizonia](https://hub.docker.com/r/tizonia/docker-tizonia/) has been
 updated! (many thanks to [Josh5](https://github.com/Josh5)).
 
+> See Tizonia's website: [More ways to discover music on Spotify with Tizonia 0.16.0](https://tizonia.org/news/2018/12/03/release-0-16-0/)
+
 - [2018-06-15] Tizonia
 [v0.15.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.15.0). Reworked
 Spotify support to overcome playlist search problems that arised in
 libspotify. Now [spotipy](https://github.com/plamere/spotipy) is being used to
 retrieve track, artist, album, and playlist metadata from Spotify.
+
+> See Tizonia's website: [Totally revamped Spotify support in Tizonia 0.15.0](https://tizonia.org/news/2018/06/15/release-0-15-0/)
 
 - [2018-04-20] Tizonia
 [v0.14.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.14.0). Added
@@ -161,10 +169,16 @@ non-subscribers](https://support.google.com/googleplaymusic/answer/6250894?hl=en
 and YouTube channels (uploads and playlists). Also added option to play the
 user's entire Google Play Music library.
 
+> See Tizonia's website: [Tizonia v0.14.0 adds YouTube Channels and Google Play Music stations for non-subscribers](https://tizonia.org/news/2018/04/21/release-0-14-0/)
+
 - [2017-12-28]
 [Snap Package](#snap-package) and [Docker Image](#docker-image) available.
 
+> See Tizonia's website: [Tizonia v0.13.0 adds support for Plex media servers](https://tizonia.org/news/2018/03/09/release-0-13-0/)
+
 - [2017-08-26] [tizonia-all](https://aur.archlinux.org/packages/tizonia-all/) and [tizonia-all-git](https://aur.archlinux.org/packages/tizonia-all-git/) packages submitted to the [Arch User Repository](https://aur.archlinux.org/)
+
+> See Tizonia's website: [Snap package and Docker image available now!](https://tizonia.org/news/2017/12/30/snap-package-and-docker-image/)
 
 - [2017-05-04] [Summer of Code 2017: Add OpenMAX state tracker
 in Mesa/Gallium that uses

@@ -9,10 +9,13 @@ To obtain a list of the available help topics, just invoke ``tizonia --help``
 and to retrieve information about a particular topic, use ``tizonia --help
 <topic>``.
 
+EXAMPLES
+--------
+
 .. code-block:: bash
 
    $ tizonia --help
-   This software is part of the Tizonia project <http://tizonia.org>
+   This software is part of the Tizonia project <https://tizonia.org>
 
    GNU Lesser GPL version 3 <http://gnu.org/licenses/lgpl.html>
    This is free software: you are free to change and redistribute it.
