@@ -420,7 +420,7 @@ class tizspotifyproxy(object):
 
             if playlist:
                 if arg_dec.lower() != playlist_name.lower():
-                    print_wrn(
+                    print_adv(
                         "[Spotify] '{0}' not found. "
                         "Playing '{1}' instead.".format(arg_dec, playlist_name)
                     )
@@ -466,7 +466,7 @@ class tizspotifyproxy(object):
                     self._enqueue_playlist(results)
 
             if count == len(self.queue) and owner != "anyuser":
-                print_wrn(
+                print_adv(
                     "[Spotify] [Playlist search] '{0}' not found in the user's library. ".format(
                         arg_dec
                     )
@@ -591,7 +591,7 @@ class tizspotifyproxy(object):
 
             if album:
                 if arg_dec.lower() != album_name.lower():
-                    print_wrn(
+                    print_adv(
                         "[Spotify] '{0}' not found. "
                         "Playing '{1}' instead.".format(arg_dec, album_name)
                     )
@@ -1208,7 +1208,7 @@ class tizspotifyproxy(object):
 
             if playlist_name:
                 if arg.lower() != playlist_name.lower():
-                    print_wrn(
+                    print_adv(
                         "[Spotify] [Playlist search] '{0}' not found. "
                         "Playing '{1}' instead.".format(arg, playlist_name)
                     )
