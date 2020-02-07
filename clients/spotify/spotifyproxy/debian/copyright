@@ -3,7 +3,7 @@ Upstream-Name: tizspotifyproxy
 Source: http://tizonia.org
 
 Files: *
-Copyright (C) 2011-2019 Aratelia Limited - Juan A. Rubio
+Copyright (C) 2011-2020 Aratelia Limited - Juan A. Rubio
 License: Apache
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ License: Apache
  limitations under the License.
 
 Files: debian/*
-Copyright: 2019 Juan A. Rubio <juan.rubio@aratelia.com>
+Copyright: 2020 Juan A. Rubio <juan.rubio@aratelia.com>
 License: GPL-2+
  This package is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by

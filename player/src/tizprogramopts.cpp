@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2019 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2020 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
@@ -518,7 +518,7 @@ int tiz::programopts::consume ()
 
 void tiz::programopts::print_version () const
 {
-  TIZ_PRINTF_BLU ("tizonia %s. Copyright (C) 2019 Juan A. Rubio\n",
+  TIZ_PRINTF_BLU ("tizonia %s. Copyright (C) 2020 Juan A. Rubio\n",
                   PACKAGE_VERSION);
   TIZ_PRINTF_BLU (
       "This software is part of the Tizonia project <http://tizonia.org>\n\n");
