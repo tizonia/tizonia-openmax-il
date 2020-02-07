@@ -271,6 +271,8 @@ class tizsoundcloudproxy(object):
             for resource in likes_resource:
                 like = resource.fields()
                 if like and like["streamable"]:
+                    title = to_ascii(like.get("title"))
+                    print_nfo("[SoundCloud] [Track] '{0}'.".format(title))
                     self.queue.append(like)
                     count += 1
                 playlist = like.get("playlist")
@@ -279,6 +281,8 @@ class tizsoundcloudproxy(object):
                     if isinstance(tracks, collections.Iterable):
                         for track in tracks:
                             if track["streamable"]:
+                                title = to_ascii(track.get("title"))
+                                print_nfo("[SoundCloud] [Track] '{0}'.".format(title))
                                 self.queue.append(track)
                                 count += 1
 
@@ -314,6 +318,8 @@ class tizsoundcloudproxy(object):
                     tracks = playlist_resource.tracks
                     for track in tracks:
                         if track["streamable"]:
+                            title = to_ascii(track.get("title"))
+                            print_nfo("[SoundCloud] [Track] '{0}'.".format(title))
                             self.queue.append(track)
                             count += 1
 
@@ -361,6 +367,8 @@ class tizsoundcloudproxy(object):
                     for track_resource in track_resources:
                         track = track_resource.fields()
                         if track["streamable"]:
+                            title = to_ascii(track.get("title"))
+                            print_nfo("[SoundCloud] [Track] '{0}'.".format(title))
                             self.queue.append(track)
                             count += 1
                     if count > 0:
