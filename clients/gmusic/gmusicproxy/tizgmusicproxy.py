@@ -406,7 +406,7 @@ class tizgmusicproxy(object):
                     track_hits.append(song)
 
             if not len(track_hits):
-                print_wrn(
+                print_adv(
                     "[Google Play Music] '{0}' not found. "
                     "Feeling lucky?.".format(to_ascii(arg))
                 )
@@ -465,7 +465,7 @@ class tizgmusicproxy(object):
                     random.seed()
                     artist = random.choice(list(self.library.keys()))
                     artist_dict = self.library[artist]
-                    print_wrn(
+                    print_adv(
                         "[Google Play Music] '{0}' not found. "
                         "Feeling lucky?.".format(to_ascii(arg))
                     )
@@ -510,7 +510,7 @@ class tizgmusicproxy(object):
                 random.seed()
                 artist = random.choice(list(self.library.keys()))
                 album = random.choice(list(self.library[artist].keys()))
-                print_wrn(
+                print_adv(
                     "[Google Play Music] '{0}' not found. "
                     "Feeling lucky?.".format(to_ascii(arg))
                 )
@@ -578,7 +578,7 @@ class tizgmusicproxy(object):
                 playlist = self.playlists[arg]
 
             if not playlist and len(list(self.playlists.keys())) > 0:
-                print_wrn(
+                print_adv(
                     "[Google Play Music] '{0}' not found (or is empty). "
                     "Feeling lucky?.".format(to_ascii(arg))
                 )
@@ -770,7 +770,7 @@ class tizgmusicproxy(object):
                     # Play some random genre from the search results
                     random.seed()
                     genre = random.choice(all_genres)
-                    print_wrn(
+                    print_adv(
                         "[Google Play Music] '{0}' not found. "
                         "Feeling lucky?.".format(to_ascii(arg))
                     )
@@ -919,7 +919,7 @@ class tizgmusicproxy(object):
             if not len(track_hits):
                 # Do another search with an empty string
                 track_hits = self.__gmusic.search("", max_results)["song_hits"]
-                print_wrn(
+                print_adv(
                     "[Google Play Music] '{0}' not found. "
                     "Feeling lucky?.".format(to_ascii(arg))
                 )
@@ -1608,7 +1608,7 @@ class tizgmusicproxy(object):
             random.seed()
             result = random.choice(search_results)
             if not quiet:
-                print_wrn(
+                print_adv(
                     "[Google Play Music] '{0}' not found. "
                     "Feeling lucky?.".format(query)
                 )
