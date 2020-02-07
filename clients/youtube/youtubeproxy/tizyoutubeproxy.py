@@ -539,7 +539,7 @@ class tizyoutubeproxy(object):
             if not feelinglucky:
                 raise ValueError
             else:
-                print_wrn(
+                print_adv(
                     "[YouTube] Could not find a mix for '{0}'. "
                     "Searching YouTube instead. Feeling lucky?.".format(
                         arg.encode("utf-8")
@@ -643,7 +643,7 @@ class tizyoutubeproxy(object):
 
                 if pl_name:
                     if pl_name.lower() != playlist_name.lower():
-                        print_wrn(
+                        print_adv(
                             "[YouTube] Playlist '{0}' not found. "
                             "Playing '{1}' instead.".format(
                                 to_ascii(playlist_name), to_ascii(pl_name)
