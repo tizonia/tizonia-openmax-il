@@ -93,6 +93,14 @@ class ConfigColors:
             .strip()
             + "m"
         )
+        self.OKMAGENTA = (
+            "\033["
+            + self.config.get("color-themes", active_theme + "C12", fallback="95")
+            .replace(",", ";")
+            .split("#", 1)[0]
+            .strip()
+            + "m"
+        )
         self.ENDC = "\033[0m"
 
 
@@ -118,6 +126,13 @@ def print_nfo(msg=""):
 
     """
     pretty_print(_Colors.OKBLUE + msg + _Colors.ENDC)
+
+
+def print_adv(msg=""):
+    """Print an advisory message.
+
+    """
+    pretty_print(_Colors.OKMAGENTA + msg + _Colors.ENDC)
 
 
 def print_wrn(msg=""):
