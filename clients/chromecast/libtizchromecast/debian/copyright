@@ -3,7 +3,7 @@ Upstream-Name: tizchromecast
 Source: http://tizonia.org
 
 Files: *
-Copyright (C) 2011-2019 Aratelia Limited - Juan A. Rubio
+Copyright (C) 2011-2020 Aratelia Limited - Juan A. Rubio
 License: LGPL-3
  Tizonia is free software: you can redistribute it and/or modify it under the
  terms of the GNU Lesser General Public License as published by the Free
@@ -22,7 +22,7 @@ License: LGPL-3
  Public License can be found in `/usr/share/common-licenses/LGPL-3'.
 
 Files: debian/*
-Copyright: 2019 Juan A. Rubio <juan.rubio@aratelia.com>
+Copyright: 2020 Juan A. Rubio <juan.rubio@aratelia.com>
 License: GPL-2+
  This package is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by

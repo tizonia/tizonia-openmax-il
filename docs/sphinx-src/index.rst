@@ -6,7 +6,7 @@
 Tizonia documentation
 =====================
 
-The Tizonia Project - Copyright (C) 2019 Juan A. Rubio and contributors
+The Tizonia Project - Copyright (C) 2020 Juan A. Rubio and contributors
 
 Overview
 ========
