@@ -643,7 +643,7 @@ class tiztuneinproxy(object):
         """
         logging.info("enqueue_radios : %s", arg)
         try:
-            print_msg("[TuneIn] [TuneIn 'global' search] : '{0}'. ".format(arg))
+            print_msg("[TuneIn] [TuneIn search] : '{0}'. ".format(arg))
 
             count = len(self.queue)
             results = self.tunein.search(arg)
@@ -651,7 +651,7 @@ class tiztuneinproxy(object):
                 self._add_to_playback_queue(r)
 
             remaining_keywords = [keywords1, keywords2, keywords3]
-            self._filter_play_queue("global", remaining_keywords)
+            self._filter_play_queue("Search", remaining_keywords)
 
             logging.info(
                 "Added {0} stations/shows to queue".format(len(self.queue) - count)
@@ -896,7 +896,7 @@ class tiztuneinproxy(object):
         cat = self._select_one(results, keywords1, category)
 
         if cat:
-            print_wrn("[TuneIn] [{0}] Searching '{1}'.".format(category, cat["text"]))
+            print_adv("[TuneIn] [{0}] Searching '{1}'.".format(category, cat["text"]))
 
             # Enqueue stations
             if (
@@ -937,7 +937,7 @@ class tiztuneinproxy(object):
                 podcasts = self.tunein.shows(cat["guide_id"])
                 if podcasts:
                     for p in podcasts:
-                        print_wrn(
+                        print_adv(
                             "[TuneIn] [{0}] Searching '{1}' podcast show.".format(
                                 category, p["text"]
                             )
@@ -975,7 +975,7 @@ class tiztuneinproxy(object):
         region = self._select_one(results, keywords1, "Region")
 
         if region:
-            print_wrn(
+            print_adv(
                 "[TuneIn] [Region] Selecting stations from '{0}'.".format(
                     region["text"]
                 )
@@ -986,7 +986,7 @@ class tiztuneinproxy(object):
             country = self._select_one(results, keywords2, "Country")
 
             if country:
-                print_wrn(
+                print_adv(
                     "[TuneIn] [Country] Selecting stations from '{0}-{1}'.".format(
                         region["text"], country["text"]
                     )
@@ -997,7 +997,7 @@ class tiztuneinproxy(object):
                 area = self._select_one(results, keywords3, "Area")
 
                 if area.get("type") and area["type"] == "link":
-                    print_wrn(
+                    print_adv(
                         "[TuneIn] [Area] Selecting stations from '{0}'.".format(
                             area["text"]
                         )
@@ -1083,7 +1083,7 @@ class tiztuneinproxy(object):
         topic = self._select_one(results, keywords1, "Topic")
 
         if topic:
-            print_wrn(
+            print_adv(
                 "[TuneIn] [Shows] Selecting podcast topic '{0}'.".format(topic["text"])
             )
             guide_id = topic["guide_id"]
@@ -1091,7 +1091,7 @@ class tiztuneinproxy(object):
             show = self._select_one(shows, keywords2, "Podcast")
 
             if show:
-                print_wrn(
+                print_adv(
                     "[TuneIn] [Podcast] Selecting episodes from '{0}'.".format(
                         show["text"]
                     )
@@ -1331,7 +1331,7 @@ class tiztuneinproxy(object):
             phrase = k.rstrip()
             if phrase:
                 filtered_queue = list()
-                print_wrn(
+                print_adv(
                     "[TuneIn] [{0}] Filtering results: '{1}'.".format(
                         category, phrase
                     )
