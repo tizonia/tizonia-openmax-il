@@ -319,7 +319,7 @@ class tizplexproxy(object):
                     artist = artist_dict[artist_name]
 
                 if artist:
-                    print_wrn(
+                    print_adv(
                         "[Plex] '{0}' not found. "
                         "Playing '{1}' instead.".format(arg, artist_name)
                     )
@@ -378,7 +378,7 @@ class tizplexproxy(object):
                     album = album_dict[album_name]
 
                 if album:
-                    print_wrn(
+                    print_adv(
                         "[Plex] '{0}' not found. "
                         "Playing '{1}' instead.".format(arg, album_name)
                     )
@@ -444,7 +444,7 @@ class tizplexproxy(object):
                     playlist = playlist_dict[playlist_title]
 
                 if playlist:
-                    print_wrn(
+                    print_adv(
                         "[Plex] '{0}' not found. "
                         "Playing '{1}' instead.".format(arg, playlist_title)
                     )
