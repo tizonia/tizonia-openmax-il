@@ -1085,6 +1085,18 @@ std::string graph::util::get_default_pcm_renderer ()
   return renderer_name;
 }
 
+OMX_ERRORTYPE
+graph::util::get_volume_from_audio_port (const OMX_HANDLETYPE handle,
+                                         const OMX_U32 pid, int &vol)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  OMX_AUDIO_CONFIG_VOLUMETYPE volume;
+  TIZ_INIT_OMX_PORT_STRUCT (volume, pid);
+  tiz_check_omx (OMX_GetConfig (handle, OMX_IndexConfigAudioVolume, &volume));
+  vol = volume.sVolume.nValue;
+  return rc;
+}
+
 bool graph::util::is_mpris_enabled ()
 {
   bool is_enabled = false;

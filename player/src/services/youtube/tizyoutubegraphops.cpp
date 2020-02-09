@@ -61,7 +61,8 @@ graph::youtubeops::youtubeops (graph *p_graph,
   : tiz::graph::ops (p_graph, comp_lst, role_lst),
     encoding_ (OMX_AUDIO_CodingAutoDetect),
     container_ (OMX_AUDIO_CodingAutoDetect),
-    inital_graph_load_ (false)
+    inital_source_load_ (true),
+    inital_renderer_load_ (true)
 {
   TIZ_INIT_OMX_PORT_STRUCT (renderer_pcmtype_, 0);
 }
@@ -282,9 +283,9 @@ void graph::youtubeops::do_load_http_source ()
   comp_lst_.insert (comp_lst_.begin (), comp_list.begin (), comp_list.end ());
   role_lst_.insert (role_lst_.begin (), role_list.begin (), role_list.end ());
 
-  if (inital_graph_load_)
+  if (inital_source_load_)
   {
-    inital_graph_load_ = false;
+    inital_source_load_ = false;
     tiz::graph::util::dump_graph_info ("Youtube", "Connecting", "");
   }
 }
@@ -382,6 +383,17 @@ void graph::youtubeops::do_load_renderer ()
   // Now add the new components to the base class lists
   comp_lst_.insert (comp_lst_.begin (), comp_list.begin (), comp_list.end ());
   role_lst_.insert (role_lst_.begin (), role_list.begin (), role_list.end ());
+
+  if (inital_renderer_load_)
+  {
+    inital_renderer_load_ = false;
+    // Obtain the current volume
+    OMX_U32 input_port = 0;
+    G_OPS_BAIL_IF_ERROR (
+        util::get_volume_from_audio_port (handles_[handles_.size () - 1],
+                                          input_port, volume_),
+        "Unable to obtain the current volume");
+  }
 }
 
 OMX_ERRORTYPE

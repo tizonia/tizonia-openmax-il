@@ -532,6 +532,12 @@ void graph::ops::do_mute ()
   {
     OMX_U32 input_port = 0;
     assert (!handles_.empty ());
+    // Obtain the current volume
+    G_OPS_BAIL_IF_ERROR (
+        util::get_volume_from_audio_port (handles_[handles_.size () - 1],
+                                          input_port, volume_),
+        "Unable to obtain the current volume");
+    // Now mute the audio port
     G_OPS_BAIL_IF_ERROR (
         util::apply_mute (handles_[handles_.size () - 1], input_port),
         "Unable to apply mute");

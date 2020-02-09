@@ -147,6 +147,11 @@ void graph::plexops::do_load ()
   // Now add the new components to the base class lists
   comp_lst_.insert (comp_lst_.begin (), comp_list.begin (), comp_list.end ());
   role_lst_.insert (role_lst_.begin (), role_list.begin (), role_list.end ());
+
+  OMX_U32 input_port = 0;
+  G_OPS_BAIL_IF_ERROR (util::get_volume_from_audio_port (
+                           handles_[handles_.size () - 1], input_port, volume_),
+                       "Unable to obtain the current volume");
 }
 
 void graph::plexops::do_configure ()

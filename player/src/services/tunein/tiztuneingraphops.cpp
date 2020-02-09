@@ -60,7 +60,7 @@ graph::tuneinops::tuneinops (graph *p_graph,
                              const omx_comp_role_lst_t &role_lst)
   : tiz::graph::ops (p_graph, comp_lst, role_lst),
     encoding_ (OMX_AUDIO_CodingAutoDetect),
-    inital_graph_load_ (false)
+    inital_graph_load_ (true)
 {
   TIZ_INIT_OMX_PORT_STRUCT (renderer_pcmtype_, 0);
   TIZ_INIT_OMX_PORT_STRUCT (decoder_mp3type_, 0);
@@ -149,6 +149,13 @@ void graph::tuneinops::do_load ()
   if (inital_graph_load_)
   {
     inital_graph_load_ = false;
+
+    OMX_U32 input_port = 0;
+    G_OPS_BAIL_IF_ERROR (
+        util::get_volume_from_audio_port (handles_[handles_.size () - 1],
+                                          input_port, volume_),
+        "Unable to obtain the current volume");
+
     tiztuneinconfig_ptr_t tunein_config
         = boost::dynamic_pointer_cast< tuneinconfig > (config_);
     assert (tunein_config);

@@ -343,7 +343,7 @@ namespace tiz
                                                                                                                         > >                          , tg::is_port_disabling_complete >,
           bmf::Row < tg::awaiting_port_disabled_evt , tg::skip_evt              , bmf::none                       , bmf::Defer                                                        >,
           //    +--+--------------------------------+---------------------------+---------------------------------+----------------------------------+--------------------------------+
-          bmf::Row < tg::enabling_tunnel            , tg::omx_port_enabled_evt  , reconfiguring_tunnel_exit       , bmf::none                        , tg::is_port_enabling_complete  >
+          bmf::Row < tg::enabling_tunnel            , tg::omx_port_enabled_evt  , reconfiguring_tunnel_exit       , tg::do_restore_volume            , tg::is_port_enabling_complete  >
           //    +--+--------------------------------+---------------------------+---------------------------------+----------------------------------+--------------------------------+
           > {};
 
@@ -552,17 +552,17 @@ namespace tiz
         bmf::Row < reconfiguring_tunnel_0
                    ::exit_pt
                    <reconfiguring_tunnel_<0>
-                    ::reconfiguring_tunnel_exit>, tg::tunnel_reconfigured_evt, tg::executing          , tg::do_mute                                                >,
+                    ::reconfiguring_tunnel_exit>, tg::tunnel_reconfigured_evt, tg::executing          , tg::do_restore_volume                                      >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < reconfiguring_tunnel_1
                    ::exit_pt
                    <reconfiguring_tunnel_<1>
-                    ::reconfiguring_tunnel_exit> , tg::tunnel_reconfigured_evt, tg::executing           , tg::do_mute                                              >,
+                    ::reconfiguring_tunnel_exit> , tg::tunnel_reconfigured_evt, tg::executing           , tg::do_restore_volume                                    >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < reconfiguring_tunnel_2
                    ::exit_pt
                    <reconfiguring_tunnel_<2>
-                    ::reconfiguring_tunnel_exit> , tg::tunnel_reconfigured_evt, tg::executing           , tg::do_mute                                              >,
+                    ::reconfiguring_tunnel_exit> , tg::tunnel_reconfigured_evt, tg::executing           , tg::do_restore_volume                                    >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < skipping
                    ::exit_pt

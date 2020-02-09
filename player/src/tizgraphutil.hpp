@@ -241,6 +241,9 @@ namespace tiz
 
       static std::string get_default_pcm_renderer ();
 
+      static OMX_ERRORTYPE get_volume_from_audio_port (
+          const OMX_HANDLETYPE handle, const OMX_U32 port_id, int &volume);
+
       static bool is_mpris_enabled ();
 
       static void copy_omx_string (OMX_U8 *p_dest,

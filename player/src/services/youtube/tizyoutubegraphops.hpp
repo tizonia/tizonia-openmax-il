@@ -92,7 +92,8 @@ namespace tiz
       OMX_AUDIO_CODINGTYPE encoding_;
       OMX_AUDIO_CODINGTYPE container_;
       OMX_AUDIO_PARAM_PCMMODETYPE renderer_pcmtype_;
-      bool inital_graph_load_;
+      bool inital_source_load_;
+      bool inital_renderer_load_;
     };
   }  // namespace graph
 }  // namespace tiz
