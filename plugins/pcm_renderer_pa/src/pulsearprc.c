@@ -1051,6 +1051,7 @@ pulsear_prc_ctor (void * ap_prc, va_list * app)
   p_prc->ramp_step_ = 0;
   p_prc->ramp_step_count_ = ARATELIA_PCM_RENDERER_DEFAULT_RAMP_STEP_COUNT;
   p_prc->ramp_volume_ = 0;
+  (void)set_component_volume(p_prc);
   return p_prc;
 }
 
