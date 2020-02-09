@@ -286,7 +286,8 @@ void graph::youtubeops::do_load_http_source ()
   if (inital_source_load_)
   {
     inital_source_load_ = false;
-    tiz::graph::util::dump_graph_info ("Youtube", "Connecting", "");
+    tiz::graph::util::dump_graph_info ("Youtube", "Connecting",
+                                       playlist_->get_current_uri ().c_str ());
   }
 }
 
