@@ -61,7 +61,7 @@ from functools import reduce
 #   'type': 'audio'},
 
 # For use during debugging
-from pprint import pprint
+# from pprint import pprint
 
 NOW = datetime.datetime.now()
 TUNEIN_CACHE_LOCATION = os.path.join(os.getenv("HOME"), ".config/tizonia/tunein-cache")
@@ -1132,7 +1132,6 @@ class tiztuneinproxy(object):
                 # Try an unfiltered search if nothing returned results so far
                 if not len(self.queue):
                     episodes = self.tunein.episodes_unfiltered(guide_id)
-                    pprint (episodes)
                     for s in episodes:
                         if s.get("type") and s["type"] == "audio":
                             self._add_to_playback_queue(s)
