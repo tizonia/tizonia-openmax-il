@@ -5,7 +5,6 @@ Music streaming from the Google Play Music service is supported on both free
 and paid tiers. In both cases, credentials are required to be input via
 command-line or configuration file.
 
-
 CONFIGURATION
 -------------
 
@@ -15,9 +14,9 @@ like the one pictured below (see also :ref:`tizonia-config-label`).
 .. warning:: When user names and passwords are stored in your local
              ``tizonia.conf``, please ensure that this file has the correct
              file system permissions to prevent other users from accessing your
-             credentials!.
+             credentials.
 
-             E.g.: ``$ chmod -og-rx $HOME/.config/tizonia/tizonia.conf``
+             E.g.: ``$ chmod og-rwx $HOME/.config/tizonia/tizonia.conf``
 
 
 .. code-block:: bash
@@ -35,6 +34,20 @@ like the one pictured below (see also :ref:`tizonia-config-label`).
    #                         downloading streams. Default: 720. Increase in
    #                         case of cuts.
 
+``gmusic.user``
+  The Google Play Music account username, e.g. 'user@gmail.com' or just 'user'.
+
+``gmusic.password``
+  Account password or app-specific password for 2-factor users
+
+``gmusic.device_id``
+  An Android device id associated to your account. This is a 16-digit
+  hexadecimal number, e.g. '1234567890abcdef'.
+
+``gmusic.buffer_seconds``
+  This is the minimum size of the audio buffer (in seconds) that Tizonia will
+  use while downloading the audio streams. It may be increased in case of
+  cuts, but usually not required. Default: 720.
 
 OPTIONS
 -------

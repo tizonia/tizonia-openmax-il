@@ -21,6 +21,11 @@ like the one pictured below (see also :ref:`tizonia-config-label`).
    #                          while downloading streams. Default: 60.
    #                          Increase in case of cuts.
 
+``youtube.buffer_seconds``
+  This is the minimum size of the audio buffer (in seconds) that Tizonia will
+  use while downloading the audio streams. It may be increased in case of
+  cuts, but usually not required. Default: 60.
+
 
 OPTIONS
 -------

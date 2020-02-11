@@ -5,22 +5,22 @@ Configuration File
 
 Tizonia ships with a configuration file template. See below for the system
 locations where this template is usually installed. On first use, Tizonia
-copies this file to the user's local configuration directory, usually in one of
-these locations:
+copies this file into the user's local configuration directory, usually in one
+of these locations:
 
 * ``$HOME/.config/tizonia/tizonia.conf`` (Debian and AUR installations)
 * ``$HOME/snap/tizonia/current/.config/tizonia/tizonia.conf`` (Snap installation)
 
 Customization of this file by the user is typically required, e.g. to add
-credentials for the subscribed streaming services. Please note that tizonia
-only reads this file, never writes to it.
+credentials for the subscribed streaming services. Note that Tizonia only reads
+this file, never writes to it.
 
 .. warning:: When user names and passwords are stored in your local
              ``tizonia.conf``, please ensure that this file has the correct
              file system permissions to prevent other users from accessing your
-             credentials!.
+             credentials.
 
-             E.g.: ``$ chmod -og-rx $HOME/.config/tizonia/tizonia.conf``
+             E.g.: ``$ chmod og-rwx $HOME/.config/tizonia/tizonia.conf``
 
 
 Use ``tizonia --help config`` for a reminder of the location of the

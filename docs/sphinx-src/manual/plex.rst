@@ -15,9 +15,9 @@ like the one pictured below (see also :ref:`tizonia-config-label`).
 .. warning:: When credentials are stored in your local
              ``tizonia.conf``, please ensure that this file has the correct
              file system permissions to prevent other users from accessing your
-             credentials!.
+             credentials.
 
-             E.g.: ``$ chmod -og-rx $HOME/.config/tizonia/tizonia.conf``
+             E.g.: ``$ chmod og-rwx $HOME/.config/tizonia/tizonia.conf``
 
 .. code-block:: bash
 
@@ -37,6 +37,38 @@ like the one pictured below (see also :ref:`tizonia-config-label`).
    # plex.music_section_name = name of the music section in your plex library
    #                           (default: Music)
 
+``plex.base_url``
+  The base URL of the Plex server, e.g. http://plexserver:32400.
+
+``plex.auth_token``
+  The user authentication token to be used during communication with the Plex server. To find the token:
+
+  - Sign in to your Plex account in the Plex Web App.
+
+  - Browse to a library item and click on the Get Info menu item.
+
+    .. image:: ../_static/screenshots/tizonia-plex-token-get-info.png
+
+  - From the Media Info screen, click on View XML.
+
+    .. image:: ../_static/screenshots/tizonia-plex-token-view-xml.png
+
+  - Look in the URL and find the token as the X-Plex-Token value
+
+    .. image:: ../_static/screenshots/tizonia-plex-token-url.png
+
+  For more details see https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/
+
+``plex.buffer_seconds``
+  This is the minimum size of the audio buffer (in seconds) that Tizonia will
+  use while downloading the audio streams. It may be increased in case of
+  cuts, but usually not required. Default: 60.
+
+``plex.music_section_name``
+  The name of the 'music' section in the Plex library that will be used by
+  Tizonia for searching and streaming. Defaults: Music. Useful for users that
+  have renamed their music library to something different from the default or
+  users that have more than one music library.
 
 OPTIONS
 -------

@@ -1,7 +1,9 @@
 TuneIn
 ======
 
-TODO
+It is not necessary to add any credentials to `tizonia.conf`` to search and
+stream any radio stations from the TuneIn Internet radio directory.
+
 
 CONFIGURATION
 -------------
@@ -21,6 +23,10 @@ like the one pictured below (see also :ref:`tizonia-config-label`).
    #                         while downloading streams. Default: 120.
    #                         Increase in case of cuts.
 
+``tunein.buffer_seconds``
+  This is the minimum size of the audio buffer (in seconds) that Tizonia will
+  use while downloading the audio streams. It may be increased in case of
+  cuts, but usually not required. Default: 120.
 
 OPTIONS
 -------

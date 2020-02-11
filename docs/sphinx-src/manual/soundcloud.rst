@@ -26,9 +26,9 @@ like the one pictured below (see also :ref:`tizonia-config-label`).
 .. warning:: When credentials are stored in your local
              ``tizonia.conf``, please ensure that this file has the correct
              file system permissions to prevent other users from accessing your
-             credentials!.
+             credentials.
 
-             E.g.: ``$ chmod -og-rx $HOME/.config/tizonia/tizonia.conf``
+             E.g.: ``$ chmod og-rwx $HOME/.config/tizonia/tizonia.conf``
 
 .. code-block:: bash
 
@@ -45,6 +45,11 @@ like the one pictured below (see also :ref:`tizonia-config-label`).
    # soundcloud.buffer_seconds = size of the audio buffer (in seconds) to use
    #                             while downloading streams. Default: 600.
    #                             Increase in case of cuts.
+
+``soundcloud.buffer_seconds``
+  This is the minimum size of the audio buffer (in seconds) that Tizonia will
+  use while downloading the audio streams. It may be increased in case of
+  cuts, but usually not required. Default: 600.
 
 OPTIONS
 -------

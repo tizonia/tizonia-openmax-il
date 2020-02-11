@@ -3,30 +3,31 @@
 User Guide
 ==========
 
-Tizonia puts the emphasis on the music listening experience, by adhering to a
-few principles:
+Tizonia provides an efficient and unbstrusive music search and listening
+experience:
 
-**Command-line is the simplest UI**
+**Simplest CLI UI**
   Because the keyboard is faster than
-  the mouse you get to listen to your music in less time.
+  the mouse you get to listen to the music you want in less time.
 
 **Play the music, not matter what**
-  Tizonia uses approximate string matching techniques to match your
-  search keywords against the data provided by the streaming
-  services. And 'Feeling Lucky' guesses for when no results are returned.
+  Tizonia uses fuzzy string matching techniques to match your search keywords
+  against the data provided by the streaming services. Music plays
+  immediately. When a search returns no results Tizonia may try a 'Feeling
+  Lucky' guess.
 
-**Music never stops**
+**Non-stop music**
   Tizonia only mode of operation for its play queue is **looped**
   mode. Tizonia does not currently provide non-looped playback.
 
 **Limit the distractions**
-  No fast-forward or rewind. Only skip to
-  next/previous track. No fancy 'ncurses' CLI interface to get
-  distracted with. Only some track info and a visual progress bar.
+  By limiting the interactions. No fast-forward or rewind. Only skip to
+  next/previous track. No elaborate 'ncurses' CLI interface to get
+  distracted with. There is some track info and a simple visual progress bar.
 
 **Reduce 'muscle-memory'**
-  Finding the music that you want and listening to it should (the majority of the time)
-  require only one command-line option on the console. E.g.:
+  Finding the music that you want and listening to it should (for the most part)
+  require a single command-line option typed on the terminal. E.g.:
   ``tizonia --spotify-album "Islands"``
 
 .. toctree::
