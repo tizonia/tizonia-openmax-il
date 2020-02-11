@@ -2,12 +2,45 @@ Google Play Music
 =================
 
 Music streaming from the Google Play Music service is supported on both free
-and paid tiers. Command-line options that contain ``unlimited`` represent those
-that require a 'Premium' subscription. In both cases, credentials are required
-to be input via command-line or configuration file.
+and paid tiers. In both cases, credentials are required to be input via
+command-line or configuration file.
+
+
+CONFIGURATION
+-------------
+
+The Tizonia configuration file contains a block under the ``[tizonia]`` section
+like the one pictured below (see also :ref:`tizonia-config-label`).
+
+.. warning:: When user names and passwords are stored in your local
+             ``tizonia.conf``, please ensure that this file has the correct
+             file system permissions to prevent other users from accessing your
+             credentials!.
+
+             E.g.: ``$ chmod -og-rx $HOME/.config/tizonia/tizonia.conf``
+
+
+.. code-block:: bash
+
+   # Google Play Music configuration
+   # -------------------------------------------------------------------------
+   # To avoid passing this information on the command line, uncomment and
+   # configure here.
+   #
+   # gmusic.user       = user@gmail.com
+   # gmusic.password   = pass (account password or app-specific password for
+   #                          2-factor users)
+   # gmusic.device_id  = deviceid (16 hex digits, e.g. '1234567890abcdef')
+   # gmusic.buffer_seconds = size of the audio buffer (in seconds) to use while
+   #                         downloading streams. Default: 720. Increase in
+   #                         case of cuts.
+
 
 OPTIONS
 -------
+
+.. note:: Command-line options that contain ``unlimited`` represent those
+          that require a 'Premium' subscription to operate.
 
 ``--gmusic-user arg``
     Google Play Music user name (not required if provided via config file).
@@ -70,3 +103,8 @@ OPTIONS
 
 ``--gmusic-unlimited-promoted-tracks``
     Play Google Play Music Unlimited promoted tracks.
+
+EXAMPLES
+--------
+
+.. code-block:: bash

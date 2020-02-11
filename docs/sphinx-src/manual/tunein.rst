@@ -3,6 +3,25 @@ TuneIn
 
 TODO
 
+CONFIGURATION
+-------------
+
+The Tizonia configuration file contains a block under the ``[tizonia]`` section
+like the one pictured below (see also :ref:`tizonia-config-label`).
+
+.. code-block:: bash
+
+   # Tunein configuration
+   # -------------------------------------------------------------------------
+   # To avoid passing this information on the command line, uncomment and
+   # configure here.
+   #
+   #
+   # tunein.buffer_seconds = size of the audio buffer (in seconds) to use
+   #                         while downloading streams. Default: 120.
+   #                         Increase in case of cuts.
+
+
 OPTIONS
 -------
 
@@ -35,3 +54,9 @@ OPTIONS
 
 ``--tunein-keywords arg``
     Additional keywords that may be used in conjunction with the TuneIn options. Optional (may be repeated).
+
+
+EXAMPLES
+--------
+
+.. code-block:: bash

@@ -1,11 +1,30 @@
+.. _tizonia-config-label:
+
 Configuration File
 ==================
 
-Tizonia ships with an example/template configuration file (see below for the
-system locations where the template is usually installed). The application also
-copies this file on first use to the user's local configuration directory
-($HOME/.config/tizonia/tizonia.conf).  Customization of this file is typically
-required, e.g. to add credentials for the subscribed services.
+Tizonia ships with a configuration file template. See below for the system
+locations where this template is usually installed. On first use, Tizonia
+copies this file to the user's local configuration directory, usually in one of
+these locations:
+
+* ``$HOME/.config/tizonia/tizonia.conf`` (Debian and AUR installations)
+* ``$HOME/snap/tizonia/current/.config/tizonia/tizonia.conf`` (Snap installation)
+
+Customization of this file by the user is typically required, e.g. to add
+credentials for the subscribed streaming services. Please note that tizonia
+only reads this file, never writes to it.
+
+.. warning:: When user names and passwords are stored in your local
+             ``tizonia.conf``, please ensure that this file has the correct
+             file system permissions to prevent other users from accessing your
+             credentials!.
+
+             E.g.: ``$ chmod -og-rx $HOME/.config/tizonia/tizonia.conf``
+
+
+Use ``tizonia --help config`` for a reminder of the location of the
+configuration files in the system:
 
 .. code-block:: bash
 
@@ -32,15 +51,16 @@ tizonia.conf
 ############
 
 .. note:: When Tizonia is upgraded, a new version of the ``tizonia.conf``
-          template is installed in its system locations (see above). However,
-          an exising configuration file located in the user's HOME
-          configuration directory will not be modified. In order to access any
-          new features, the user is expected to manually update the local
-          configuration file. This is optional however, as an old configuration
-          file will remain functional when used by a newer version of the
-          software.
+          template is installed in the corresponding system location. An
+          exising configuration file located under the user's local
+          configuration directory will remain unmodified. In order to access
+          the new features, the user is expected to manually update his/her
+          local configuration file. This is optional however, as an old
+          configuration file will remain functional and backguard-compatible
+          when used by a newer version of the software. Please note the version
+          information at the top of ``tizonia.conf``.
 
-This is the template that ship with the latest version of Tizonia.
+This is the template that ships with the latest version of Tizonia:
 
 .. code-block:: ini
    :linenos:

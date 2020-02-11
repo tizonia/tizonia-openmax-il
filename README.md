@@ -91,7 +91,7 @@
 
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/tizonia/tizonia-openmax-il/master/docs/animated-gifs/tizonia-usage-screencast.gif" />
+  <img src="https://raw.githubusercontent.com/tizonia/tizonia-openmax-il/develop/docs/animated-gifs/tizonia-usage-screencast.gif" />
 </div>
 
 <!-- [![](https://raw.githubusercontent.com/tizonia/tizonia-openmax-il/master/docs/animated-gifs/tizonia-usage-screencast2.gif)](https://raw.githubusercontent.com/tizonia/tizonia-openmax-il/master/docs/animated-gifs/tizonia-usage-screencast2.gif) -->

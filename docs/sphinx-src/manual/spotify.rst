@@ -1,7 +1,71 @@
 Spotify
 =======
 
-TODO
+A Spotify Premium account is required to stream audio from Spotify. Tizonia
+will not work with a Spotify Free account. Please introduce your Premium
+account's user name and password into ``tizonia.conf``, or alternatively, use
+the corresponding command-line options available.
+
+CONFIGURATION
+-------------
+
+The Tizonia configuration file contains a block under the ``[tizonia]`` section
+like the one pictured below (see also :ref:`tizonia-config-label`).
+
+.. warning:: When user names and passwords are stored in your local
+             ``tizonia.conf``, please ensure that this file has the correct
+             file system permissions to prevent other users from accessing your
+             credentials!.
+
+             E.g.: ``$ chmod -og-rx $HOME/.config/tizonia/tizonia.conf``
+
+
+.. code-block:: bash
+
+   # Spotify configuration
+   # -------------------------------------------------------------------------
+   # To avoid passing this information on the command line, uncomment
+   # and configure accordingly
+   #
+   # spotify.user     = user
+   # spotify.password = pass
+   # spotify.recover_lost_token = false (set to true to continue playback after
+   #                                     the token has been [spuriously?] lost)
+   # spotify.allow_explicit_tracks = false (set to true to allow explicit tracks)
+   # spotify.preferred_bitrate = Three possible values: 96, 160, or 320 ; default: 320
+
+``spotify.user``
+   The username of the Spotify Premium account. For older accounts, the
+   username may be related to account email address (i.e. same as the email
+   address without the @domain). For newer accounts, the username is a random
+   string of around 25 characters allocated by Spotify.
+
+.. note:: If you created your account through Facebook you will need to create
+          a "device password" to stream from Spotify using Tizonia. Note that
+          the device password option is only available for Facebook-created
+          accounts. Please read the Spotify documentation at
+          http://www.spotify.com/account/set-device-password/.
+
+``spotify.password``
+   Password of the Premium account. Please do not allow '#' in
+   the password. There is a bug in Tizonia that prevents this character in the
+   password field.
+
+``spotify.recover_lost_token``
+  Set to ``true`` to allow Tizonia to resume playback and recover the token
+  automatically when the playback token is lost. This can occur if for example,
+  another device starts streaming using your account (e.g. listening to Spotify
+  on an Echo device while Tizonia is already streaming on your
+  computer). Optional (Default: false).
+
+``spotify.allow_explicit_tracks``
+  Set to ``true`` to allow explicit tracks in Tizonia's play queue. Otherwise,
+  explicit tracks are removed from the queue before playback. Optional
+  (Default: false).
+
+``spotify.preferred_bitrate``
+  Select the preferred bitrate while streaming from Spotify. Three possible
+  values: 96, 160, or 320. Optional (Default: 320).
 
 OPTIONS
 -------
@@ -65,3 +129,16 @@ OPTIONS
 
 ``--spotify-recommendations-by-genre arg``
     Play Spotify recommendations by genre name.
+
+EXAMPLES
+--------
+
+.. code-block:: bash
+
+   $ tizonia --spotify-artist 'enya'
+
+   $ tizonia --spotify-album 'the greatest showman'
+
+   $ tizonia --spotify-recommendations-by-track-id 3MrRksHupTVEQ7YbA0FsZK
+
+   $ tizonia --spotify-playlist 'best metal 2000s' --spotify-owner 'anyuser'

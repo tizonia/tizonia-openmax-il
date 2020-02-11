@@ -72,7 +72,7 @@ terminal supports the corresponding color bit-depth).
    #
    # To activate a color theme, add its name and uncomment the following line.
    #
-   # active-theme = tizonia
+   active-theme = tizonia
 
 
 Color-theme: tizonia
