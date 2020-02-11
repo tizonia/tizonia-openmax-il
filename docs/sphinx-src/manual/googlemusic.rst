@@ -121,3 +121,21 @@ EXAMPLES
 --------
 
 .. code-block:: bash
+
+   $ tizonia --gmusic-unlimited-album 'the division bell'
+
+   $ tizonia --gmusic-unlimited-feeling-lucky-station
+
+   $ tizonia --gmusic-unlimited-genre "alt metal"
+
+   $ tizonia --gmusic-unlimited-playlist 'new metal'
+
+   $ tizonia --gmusic-unlimited-promoted-tracks
+
+   $ tizonia --gmusic-unlimited-station "top christmas songs"
+
+   $ tizonia --gmusic-unlimited-tracks 'gun word up'
+
+   $ tizonia --gmusic-unlimited-activity "working out" --gmusic-additional-keywords 'chart'
+
+   $ tizonia --gmusic-unlimited-activity "working out" --gmusic-additional-keywords 'chart'

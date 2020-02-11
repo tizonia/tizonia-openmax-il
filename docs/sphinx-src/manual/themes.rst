@@ -1,17 +1,17 @@
 Color Themes
 ============
 
-Tizonia now supports color-themes. That means, tizonia's output on the terminal
-can now be customized. There are 4 color themes shipped within ``tizonia.conf``
-(from 0.20.0+). The color themes are:
+Tizonia supports color-themes. To customize the colors of Tizonia's output on
+the terminal, simply select one of the four color themes shipped within
+``tizonia.conf`` (available from 0.20.0+). The color themes are:
 
 * tizonia (the default theme),
 * black,
 * blink,
 * and monokai
 
-Use these color themes as examples/templates. Adding a new color theme should
-be relatively straightforward with a bit of experimentation.
+Use these color themes as examples/templates. Adding new color themes should be
+relatively straightforward with a bit of experimentation.
 
 To activate a particular color theme within ``tizonia.conf``, simply select it
 using the ``active-theme`` element in ``tizonia.conf`` (please check that your

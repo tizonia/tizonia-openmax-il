@@ -1,9 +1,9 @@
 TuneIn
 ======
 
-It is not necessary to add any credentials to `tizonia.conf`` to search and
-stream any radio stations from the TuneIn Internet radio directory.
-
+Streaming from TuneIn is possible without credentials. Simply use one of the
+command-line options provided to search and stream any radio station from the
+TuneIn Internet radio directory.
 
 CONFIGURATION
 -------------

@@ -100,3 +100,12 @@ EXAMPLES
 
 .. code-block:: bash
 
+   $ tizonia --plex-audio-artist 'Santana'
+
+   $ tizonia --plex-audio-track 'five miles out'
+
+   $ tizonia --plex-audio-album "Draconian Times"
+
+   $ tizonia --plex-audio-playlist "Mike oldfield popular tracks"
+
+

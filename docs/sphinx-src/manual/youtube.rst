@@ -1,8 +1,8 @@
 YouTube
 =======
 
-It is not necessary to add any credentials to `tizonia.conf`` to stream audio
-from YouTube.
+Streaming from YouTube is possible without credentials. Simply use one of the
+command-line options provided.
 
 CONFIGURATION
 -------------
@@ -56,3 +56,11 @@ EXAMPLES
 --------
 
 .. code-block:: bash
+
+   $ tizonia --youtube-audio-mix-search 'the final countdown'
+
+   $ tizonia --youtube-audio-channel-playlist 'UCGJdzJQ3R1BpahSvcFq23HA masters of metal'
+
+   $ tizonia --youtube-audio-channel-uploads 'UCGJdzJQ3R1BpahSvcFq23HA'
+
+   $ tizonia --youtube-audio-stream v2AC41dglnM
