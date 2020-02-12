@@ -11,7 +11,6 @@ experience:
   you want in less time. Music plays almost immediately.
 
 **Play the music, not matter what**
-
   Tizonia uses fuzzy string matching techniques to match your search keywords
   against the data provided by the streaming services. And when a search
   returns no results Tizonia may try a 'Feeling Lucky' guess.

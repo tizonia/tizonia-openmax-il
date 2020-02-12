@@ -51,3 +51,19 @@ EXAMPLES
    Component at index [23] -> [OMX.Aratelia.audio_source.http]
    Component at index [24] -> [OMX.Aratelia.audio_decoder.flac]
 
+
+   $ tizonia --roles-of-comp OMX.Aratelia.audio_renderer.chromecast
+   This software is part of the Tizonia project <https://tizonia.org>
+
+   Component [OMX.Aratelia.audio_renderer.chromecast] : role #0 -> [audio_renderer.chromecast]
+   Component [OMX.Aratelia.audio_renderer.chromecast] : role #1 -> [audio_renderer.chromecast.gmusic]
+   Component [OMX.Aratelia.audio_renderer.chromecast] : role #2 -> [audio_renderer.chromecast.scloud]
+   Component [OMX.Aratelia.audio_renderer.chromecast] : role #3 -> [audio_renderer.chromecast.tunein]
+   Component [OMX.Aratelia.audio_renderer.chromecast] : role #4 -> [audio_renderer.chromecast.youtube]
+   Component [OMX.Aratelia.audio_renderer.chromecast] : role #5 -> [audio_renderer.chromecast.plex]
+
+
+   $ tizonia --comps-of-role audio_renderer.chromecast.gmusic
+   This software is part of the Tizonia project <https://tizonia.org>
+
+   Role [audio_renderer.chromecast.gmusic] found in [OMX.Aratelia.audio_renderer.chromecast]

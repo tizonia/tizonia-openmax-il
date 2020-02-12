@@ -1,9 +1,9 @@
 TuneIn
 ======
 
-Streaming from TuneIn is possible without credentials. Simply use one of the
-command-line options provided to search and stream any radio station from the
-TuneIn Internet radio directory.
+User credentials are not need to stream radio stations from TuneIn. Simply use
+one of the command-line options provided to searchand liste to radio stations
+from the TuneIn Internet radio directory.
 
 CONFIGURATION
 -------------
@@ -66,3 +66,21 @@ EXAMPLES
 --------
 
 .. code-block:: bash
+
+   $ tizonia --tunein-trending 'heart UK'
+
+   $ tizonia --tunein-search 'radio marca' --tunein-type "stations" --tunein-keywords "tenerife"
+
+   $ tizonia --tunein-location "Europe" --tunein-keywords "Spain" --tunein-keywords "Madrid"
+
+   $ tizonia --tunein-local "Cambridge"  --tunein-type "stations" --tunein-keywords "BBC"
+
+   $ tizonia --tunein-music 'rock' --tunein-keywords "181.FM"  --tunein-keywords "US" --tunein-type "stations"
+
+   $ tizonia --tunein-sports "news" --tunein-type "shows"
+
+   $ tizonia --tunein-talk 'de noticias' --tunein-keywords "esradio" --tunein-keywords "spain"
+
+   $ tizonia --tunein-podcasts "Classical Music" --tunein-keywords "global"
+
+   $ tizonia --tunein-search "TWIT" --tunein-type "shows"
