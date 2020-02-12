@@ -33,6 +33,7 @@ import logging
 import random
 import requests
 import datetime
+import getpass
 import xml.etree.ElementTree as elementtree
 from collections import OrderedDict
 from contextlib import closing
@@ -64,8 +65,12 @@ from functools import reduce
 # from pprint import pprint
 
 NOW = datetime.datetime.now()
-TUNEIN_CACHE_LOCATION = os.path.join(os.getenv("HOME"), ".config/tizonia/tunein-cache")
-MEMORY = Memory(TUNEIN_CACHE_LOCATION, verbose=0)
+TMPDIR = "/var/tmp"
+CACHE_DIR_PREFIX = os.getenv("SNAP_USER_COMMON") or TMPDIR
+
+TUNEIN_CACHE_LOCATION = os.path.join(CACHE_DIR_PREFIX, "tizonia-" + getpass.getuser() + "-tunein")
+MEMORY = Memory(TUNEIN_CACHE_LOCATION, compress=9, verbose=0, bytes_limit=10485760)
+MEMORY.reduce_size()
 
 FORMAT = (
     "[%(asctime)s] [%(levelname)5s] [%(thread)d] "
