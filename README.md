@@ -118,6 +118,16 @@
 
 **Latest news**
 
+- [2020-01-14] Tizonia
+[v0.20.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.20.0). Added
+support for TuneIn Internet radios, color-themes and a new build system based
+on Meson. Man page and the documentation site has been completely
+refreshed. Also a good bunch of fixes, including reviving Chromecast support.
+
+> See Tizonia's website: [TODO](https://tizonia.org/news/2019/03/19/release-0-19-0/)
+
+<details><summary><b>Show more</b></summary>
+
 - [2019-12-13] Tizonia
 [v0.19.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.19.0). Another
 maintenance release with a good bunch of improvements and bug fixes: Dirble
@@ -128,8 +138,6 @@ how to install the new Python 3 dependencies!).
 > See Tizonia's website: [Global Spotify playlist search and
 > other improvements in Tizonia
 > 0.19.0](https://tizonia.org/news/2019/03/19/release-0-19-0/)
-
-<details><summary><b>Show more</b></summary>
 
 - [2019-03-13] Tizonia
 [v0.18.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.18.0). Various
