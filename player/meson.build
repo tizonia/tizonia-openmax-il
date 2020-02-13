@@ -3,6 +3,7 @@ libmediainfo_dep = dependency('libmediainfo', required: true, version: '>=0.7.65
 
 subdir('tools')
 subdir('dbus')
+subdir('man')
 subdir('src')
 
 

@@ -1,5 +1,7 @@
 usr/bin/tizonia                                           usr/bin
+usr/bin/tizonia-remote                                    usr/bin
 usr/share/bash-completion/completions/tizonia
 usr/share/zsh/vendor-completions/_tizonia
 usr/share/applications/tizonia.desktop
 usr/share/icons/hicolor/256x256/apps/tizonia.png
+usr/share/man/man1/tizonia.1

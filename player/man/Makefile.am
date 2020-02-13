@@ -15,10 +15,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-
-SUBDIRS = tools dbus man src
-
-ACLOCAL_AMFLAGS = -I m4
-
-EXTRA_DIST = debian
-
+man_MANS = tizonia.1
+dist_man_mans = $(manfile)
+EXTRA_DIST = $(man_MANS)

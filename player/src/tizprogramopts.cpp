@@ -526,7 +526,7 @@ int tiz::programopts::consume ()
 
 void tiz::programopts::print_version () const
 {
-  TIZ_PRINTF_C04 ("tizonia %s. Copyright (C) 2020 Juan A. Rubio",
+  TIZ_PRINTF_C04 ("tizonia %s. Copyright (C) 2020 Juan A. Rubio and contributors",
                   PACKAGE_VERSION);
   TIZ_PRINTF_C04 (
       "This software is part of the Tizonia project <https://tizonia.org>");

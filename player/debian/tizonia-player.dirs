@@ -3,3 +3,4 @@ var/lib/tizonia
 usr/share/bash-completion/completions
 usr/share/applications
 usr/share/icons/hicolor/256x256/apps
+usr/share/man/man1

@@ -149,6 +149,7 @@ AM_CONDITIONAL(WITH_LIBSPOTIFY, test "x$with_libspotify" = xyes)
 AC_CONFIG_FILES([Makefile
                 tools/Makefile
                 dbus/Makefile
+                man/Makefile
                 src/Makefile])
 
 if test "$with_libspotify" = yes; then
