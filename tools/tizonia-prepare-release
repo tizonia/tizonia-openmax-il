@@ -95,7 +95,7 @@ function update_package_versions {
         $(find -L "$TIZONIA_REPO_DIR" -type f \( -path "./tools/*" -prune \) -o \( -name '*.ac' \) -print)
     pretty_print "$BLU" "[DONE] : updating package versions."
 
-    query_commit "release $TIZONIA_RELEASE_VERSION: update_package_versions"
+    query_commit "update_package_versions"
 }
 
 function update_shared_lib_versions {
@@ -109,7 +109,7 @@ function update_shared_lib_versions {
         \( -name '*.ac' \) -print)
     pretty_print "$BLU" "[DONE] : updating shared lib versions."
 
-    query_commit "release $TIZONIA_RELEASE_VERSION: update_shared_lib_versions"
+    query_commit "update_shared_lib_versions"
 }
 
 function update_plugin_shared_lib_versions {
@@ -121,7 +121,7 @@ function update_plugin_shared_lib_versions {
         $(find -L . -type f \( -path "./tools/*" -prune \) -o \( -name '*.ac' \) -print)
     pretty_print "$BLU" "[DONE] : updating plugins shared lib versions."
 
-    query_commit "release $TIZONIA_RELEASE_VERSION: update_plugin_shared_lib_versions"
+    query_commit "update_plugin_shared_lib_versions"
 }
 
 function update_python_version_strings {
@@ -133,7 +133,7 @@ function update_python_version_strings {
         $(find -L . -type f \( -path "./tools/*" -prune \) -o \( -name '_version.py' \) -print)
     pretty_print "$BLU" "[DONE] : updating python version strings."
 
-    query_commit "release $TIZONIA_RELEASE_VERSION: update_python_version_strings"
+    query_commit "update_python_version_strings"
 }
 
 function update_debian_changelog_files {
@@ -148,7 +148,7 @@ function update_debian_changelog_files {
     done
     pretty_print "$BLU" "[DONE] : updating Debian changelog files."
 
-    query_commit "release $TIZONIA_RELEASE_VERSION: update_debian_changelog_files"
+    query_commit "update_debian_changelog_files"
 }
 
 function update_doxygen_doc_version_strings {
@@ -160,7 +160,7 @@ function update_doxygen_doc_version_strings {
         $(find -L "$TIZONIA_REPO_DIR" -type f -name 'doxyfile.rtd' -print)
     pretty_print "$BLU" "[DONE] : updating Doxygen doc versions."
 
-    query_commit "release $TIZONIA_RELEASE_VERSION: update_doxygen_doc_version_strings"
+    query_commit "update_doxygen_doc_version_strings"
 }
 
 function update_sphinx_doc_version_strings {
@@ -172,14 +172,14 @@ function update_sphinx_doc_version_strings {
         $(find -L "$TIZONIA_REPO_DIR" -type f -name 'conf.py' -print)
     pretty_print "$BLU" "[DONE] : updating Sphinx doc versions."
 
-    query_commit "release $TIZONIA_RELEASE_VERSION: update_sphinx_doc_version_strings"
+    query_commit "update_sphinx_doc_version_strings"
 }
 
 function update_changelog {
     cd "$TIZONIA_REPO_DIR"
     github_changelog_generator --since-tag v0.1.0 --user=tizonia --project=tizonia-openmax-il --future-release "$TIZONIA_RELEASE_VERSION" --enhancement-label "**Improvements:**"
 
-    query_commit "release $TIZONIA_RELEASE_VERSION: update_changelog"
+    query_commit "update_changelog"
 }
 
 function query_commit {
@@ -188,7 +188,7 @@ function query_commit {
     read -p "Commmit? " -n 1 -r
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         git reset -- $TIZONIA_REPO_DIR/tools/tizonia-prepare-release
-        git commit -a --message="$1"
+        git commit -a --message="release $TIZONIA_RELEASE_VERSION: $1 (#${TIZONIA_DEBIAN_CHANGELOG_CLOSING_BUG})"
     else
         git-clear
     fi
