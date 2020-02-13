@@ -396,8 +396,8 @@ Roughly in priority order:
 - See [PROJECT.md](PROJECT.md) to discover other facts about the project.
 - See [CONTRIBUTING.md](CONTRIBUTING.md) to learn how to contribute to Tizonia.
 - See [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) to keep Tizonia an open and welcoming environment.
+- See [BUILDING_with_meson.md (RECOMMENDED)](BUILDING_with_meson.md) for instructions on how to build Tizonia from source (with the new Meson build system).
 - See [BUILDING.md](BUILDING.md) for instructions on how to build Tizonia from source (with the legacy Autotools build system).
-- See [BUILDING_with_meson.md](BUILDING_with_meson.md) for instructions on how to build Tizonia from source (with the new Meson build system).
 - See [docs.tizonia.org](https://docs.tizonia.org/) for the project's official documentation.
 - The [Wiki](https://github.com/tizonia/tizonia-openmax-il/wiki) may also
 contain some useful information (although in need of an update).
