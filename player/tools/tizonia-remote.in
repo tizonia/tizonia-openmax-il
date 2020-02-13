@@ -134,11 +134,11 @@ Usage: $0 [command]
 
     org.mpris.MediaPlayer2.TrackList interface
     ------------------------------------------
-    TODO
+    NOT IMPLEMENTED
 
     org.mpris.MediaPlayer2.Playlists interface
     ------------------------------------------
-    TODO
+    NOT IMPLEMENTED
 
 EOF
 tput sgr 0

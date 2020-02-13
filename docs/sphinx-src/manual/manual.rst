@@ -8,26 +8,30 @@ experience:
 
 **Simplest CLI UI**
   Because the keyboard is faster than the mouse you get to listen to the music
-  you want in less time. Music plays almost immediately.
+  that you want in less time. Music plays almost immediately.
 
 **Play the music, not matter what**
   Tizonia uses fuzzy string matching techniques to match your search keywords
-  against the data provided by the streaming services. And when a search
-  returns no results Tizonia may try a 'Feeling Lucky' guess.
+  against the data provided by the streaming services. This maximizes the
+  chances of finding the music that you want. And for when a search returns no
+  results Tizonia may try a 'I'm Feeling Lucky' guess.
 
 **Non-stop music**
-  Tizonia only mode of operation for its play queue is **looped**
-  mode. Tizonia does not currently provide non-looped playback.
+  Tizonia's play queue always runs in **looped** mode. There is currently no
+  way to configure non-looped playback (see [#f1]_).
 
 **Limit the distractions**
   By limiting the interactions. No fast-forward or rewind. Only skip to
-  next/previous track. No elaborate 'ncurses' CLI interface to play with. There
-  is some track info and a simple visual progress bar.
+  next/previous track (see [#f2]_). No elaborate 'ncurses' CLI interface to
+  play with. There is some track info and a simple visual progress bar.
 
-**Reduce 'muscle-memory'**
-  Finding the music that you want and listening to it should (for the most part)
-  require a single command-line option typed on the terminal. E.g.:
-  ``tizonia --spotify-album "Islands"``
+**Reduced 'muscle-memory'**
+  Finding the music that you want and listening to it should only require a
+  single command-line option typed on the terminal. E.g.:
+  ``tizonia --spotify-album "Islands"``. Bash and Zsh completions are
+  available. There is also a `Oh-my-zsh <https://ohmyz.sh/>`_ plugin available
+  `here
+  <https://github.com/tizonia/tizonia-openmax-il/blob/master/player/tools/tizonia.plugin.zsh>_.
 
 .. toctree::
    :maxdepth: 1
@@ -49,3 +53,9 @@ experience:
    openmax
    localmedia
    mprisv2
+   raspberrypi
+
+.. rubric:: Footnotes
+
+.. [#f1] There are plans to add an option to disable looped playback: `https://github.com/tizonia/tizonia-openmax-il/issues/491 <https://github.com/tizonia/tizonia-openmax-il/issues/491>`_.
+.. [#f2] There are plans to add seeking, useful for long shows and podcasts: `https://github.com/tizonia/tizonia-openmax-il/issues/438 <https://github.com/tizonia/tizonia-openmax-il/issues/438>`_.

@@ -4,15 +4,17 @@ Chromecast
 Tizonia can cast audio to Chromecast devices from most of the supported
 services. The services for which casting is not yet supported are:
 
-* Spotify
-* Plex
+* Spotify (see [#f1]_)
+* Plex (see [#f2]_)
 * Local Media
 
 OPTIONS
 -------
 
 ``-c [ --cast ] arg``
-    Cast to a Chromecast device (arg: device name, 'friendly' name or ip address). Available in combination with Google Play Music, SoundCloud, YouTube, TuneIn and regular HTTP radio stations.
+    Cast to a Chromecast device (arg: device name, 'friendly' name or ip
+    address). Available in combination with Google Play Music, SoundCloud,
+    YouTube, TuneIn and regular HTTP radio stations.
 
 EXAMPLES
 --------
@@ -27,3 +29,8 @@ EXAMPLES
 
    # Using Chromecast device's 'friendly' name
    $ tizonia --gmusic-artist "dire straits" --cast "kitchen"
+
+.. rubric:: Footnotes
+
+.. [#f1] There are plans to add casting of Spotify streams: `https://github.com/tizonia/tizonia-openmax-il/issues/461 <https://github.com/tizonia/tizonia-openmax-il/issues/461>`_.
+.. [#f2] There are plans to add casting of Plex streams: `https://github.com/tizonia/tizonia-openmax-il/issues/462 <https://github.com/tizonia/tizonia-openmax-il/issues/462>`_.
