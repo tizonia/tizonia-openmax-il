@@ -2,10 +2,10 @@ Shoutcast Client
 ================
 
 Tizonia can act as client of Icecast/SHOUTcast streaming servers. In this mode,
-Tizonia can be used to listen to Internet radio stations from Internet servers
-or from another instance of Tizonia acting as a streaming server in the same
-LAN. The supported media formats while operating in this mode are ``mp3``,
-``aac``, ``flac``, ``ogg`` and ``opus``.
+Tizonia can stream Internet radio stations from Internet servers or from
+another instance of Tizonia acting as a streaming server in the same LAN. The
+supported media formats while operating in this mode are ``mp3``, ``aac``,
+``flac``, ``ogg`` and ``opus``.
 
 OPTIONS
 -------

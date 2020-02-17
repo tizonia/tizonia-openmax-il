@@ -309,6 +309,7 @@ def run_doxygen(app):
             [ \
               [ 'README.md', 'overview/README.md' ] , \
               [ 'CHANGELOG.md', 'overview/CHANGELOG.md' ] , \
+              [ 'ROADMAP.md', 'overview/ROADMAP.md' ] , \
               [ 'CONTRIBUTING.md', 'overview/CONTRIBUTING.md' ] , \
               [ 'COPYING.LESSER.md', 'overview/COPYING.LESSER.md' ] , \
               [ 'CODE_OF_CONDUCT.md', 'overview/CODE_OF_CONDUCT.md' ] , \

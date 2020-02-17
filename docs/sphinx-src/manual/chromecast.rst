@@ -2,7 +2,8 @@ Chromecast
 ==========
 
 Tizonia can cast audio to Chromecast devices from most of the supported
-services. The services for which casting is not yet supported are:
+services. A number of services for which casting is not yet supported
+are:
 
 * Spotify (see [#f1]_)
 * Plex (see [#f2]_)

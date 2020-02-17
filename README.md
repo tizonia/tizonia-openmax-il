@@ -80,7 +80,7 @@
 </div>
 
 <div align="center">
-  <sub>Brought to you by
+  <sub>By
   <a href="https://juanrubio.org">Juan A. Rubio</a> and
   <a href="https://github.com/tizonia/tizonia-openmax-il/graphs/contributors">
     contributors
@@ -109,8 +109,7 @@
 - [Configuration](#configuration)
 - [Upgrade](#upgrade)
   - [Debian / Ubuntu / Raspbian](#debian--ubuntu--raspbian-1)
-- [Roadmap](#roadmap)
-- [Resources](#resources)
+- [Hall of Fame](#hall-of-fame)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -121,8 +120,9 @@
 - [2020-01-14] Tizonia
 [v0.20.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.20.0). Added
 support for TuneIn Internet radios, color-themes and a new build system based
-on Meson. Man page and the documentation site has been completely
-refreshed. Also a good bunch of fixes, including reviving Chromecast support.
+on Meson (thanks [@lgbaldoni!](https://github.com/lgbaldoni)). A man page has
+been added and the documentation site has been refreshed. Also a good number of
+fixes, including reviving Chromecast support (still more work needed).
 
 > See Tizonia's website: [TODO](https://tizonia.org/news/2019/03/19/release-0-19-0/)
 
@@ -318,7 +318,7 @@ Tizonia's snapcraft.yaml file is hosted in a separate repository:
 
 ## Docker Image
 
-Tizonia can also be run from a Docker container. A Docker image is available
+Tizonia may also be run from a Docker container. A Docker image is available
 from the Docker hub:
 
 - [docker-tizonia](https://hub.docker.com/r/tizonia/docker-tizonia/)
@@ -384,34 +384,13 @@ $ sudo -H pip2 install --upgrade gmusicapi soundcloud youtube-dl pafy pycountry 
 
 &nbsp;&nbsp;
 
-# Roadmap
+# Hall of Fame
 
-Roughly in priority order:
+If you are interested in participating, please read our [contribution
+guidelines](CONTRIBUTING.md) and don't hesitate to ask (via the bug tracker or
+any other means!).
 
-- REPL command-line interface.
-- RPC interface / headless support ([#488](https://github.com/tizonia/tizonia-openmax-il/issues/488), [#509](https://github.com/tizonia/tizonia-openmax-il/issues/509), [#551](https://github.com/tizonia/tizonia-openmax-il/issues/551)).
-- Pandora support ([#340](https://github.com/tizonia/tizonia-openmax-il/issues/340)).
-- Airsonic/Subsonic support ([#496](https://github.com/tizonia/tizonia-openmax-il/issues/496)).
-- Deezer support ([#498](https://github.com/tizonia/tizonia-openmax-il/issues/498))
-- Tidal support ([#440](https://github.com/tizonia/tizonia-openmax-il/issues/440))
-- OS X port ([#316](https://github.com/tizonia/tizonia-openmax-il/issues/316)).
-- YouTube live streams ([#391](https://github.com/tizonia/tizonia-openmax-il/issues/391)).
+Here is are some of our contributors.
 
-&nbsp;&nbsp;
+[![](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/images/0)](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/links/0)[![](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/images/1)](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/links/1)[![](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/images/2)](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/links/2)[![](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/images/3)](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/links/3)[![](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/images/4)](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/links/4)[![](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/images/5)](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/links/5)[![](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/images/6)](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/links/6)[![](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/images/7)](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/links/7)
 
-# Resources
-
-- See [PROJECT.md](PROJECT.md) to discover other facts about the project.
-- See [CONTRIBUTING.md](CONTRIBUTING.md) to learn how to contribute to Tizonia.
-- See [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) to keep Tizonia an open and welcoming environment.
-- See [BUILDING_with_meson.md (RECOMMENDED)](BUILDING_with_meson.md) for instructions on how to build Tizonia from source (with the new Meson build system).
-- See [BUILDING.md](BUILDING.md) for instructions on how to build Tizonia from source (with the legacy Autotools build system).
-- See [docs.tizonia.org](https://docs.tizonia.org/) for the project's official documentation.
-- The [Wiki](https://github.com/tizonia/tizonia-openmax-il/wiki) may also
-contain some useful information (although in need of an update).
-- See [CHANGELOG.md](CHANGELOG.md) for details on what has gone into each
-release of the project.
-- Tizonia OpenMAX IL is released under the [GNU Lesser General Public
-License](COPYING.LESSER) version 3.
-
-- Finally, please visit the project web site at https://tizonia.org

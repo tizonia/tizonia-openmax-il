@@ -17,8 +17,7 @@ changes.
   - [Improving the Documentation](#improving-the-documentation)
   - [Contributing with Code](#contributing-with-code)
   - [Spreading the Word](#spreading-the-word)
-- [Code of Conduct](#code-of-conduct)
-- [License](#license)
+- [Resources](#resources)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -91,10 +90,20 @@ Or simply starring any of the repositories in the Tizonia
 [organization](https://github.com/tizonia) would be a good way of showing your
 appreciation.
 
-## Code of Conduct
+## Resources
 
-Please read our [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md).
+- See [PROJECT.md](PROJECT.md) to learn about the various parts of project.
+- See [ROADMAP.md](ROADMAP.md) for a view on what things are coming next.
+- See [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) to keep Tizonia an open and welcoming environment.
+- See [BUILDING_with_meson.md (RECOMMENDED)](BUILDING_with_meson.md) for instructions on how to build Tizonia from source (with the new Meson build system).
+- See [BUILDING.md](BUILDING.md) for instructions on how to build Tizonia from source (with the legacy Autotools build system).
+- See [docs.tizonia.org](https://docs.tizonia.org/) for the project's official documentation.
+- The [Wiki](https://github.com/tizonia/tizonia-openmax-il/wiki) may also
+contain some useful information (although in need of an update).
+- See [CHANGELOG.md](CHANGELOG.md) for details on what has gone into each
+release of the project.
+- Tizonia OpenMAX IL is released under the [GNU Lesser General Public
+License](COPYING.LESSER) version 3.
 
-## License
+- Finally, please visit the project web site at https://tizonia.org
 
-Please familiarize yourself with our [LGPLv3](COPYING.LESSER.md) license.
