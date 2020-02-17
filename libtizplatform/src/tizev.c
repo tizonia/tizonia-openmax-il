@@ -39,6 +39,9 @@
 #include "tizplatform.h"
 #include "tizplatform_internal.h"
 
+#ifdef HAVE_SYSTEM_LIBEV
+#include <ev.h>
+#else
 #define EV_API_STATIC 1
 #define EV_STANDALONE 1
 #define EV_SIGNAL_ENABLE 1
@@ -54,10 +57,6 @@
 #define EV_PREPARE_ENABLE 0
 #define EV_FORK_ENABLE 0
 #define EV_VERIFY 1
-
-#ifdef HAVE_SYSTEM_LIBEV
-#include <ev.h>
-#else
 #include "ev/ev.c"
 #endif
 

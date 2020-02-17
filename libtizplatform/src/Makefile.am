@@ -27,13 +27,23 @@ lib_LTLIBRARIES = libtizplatform.la
 
 libtizplatform_includedir = $(includedir)/tizonia
 
-libtizplatform_include_HEADERS = \
-	utarray/utarray.h \
-	avl/avl.h \
+if HAVE_SYSTEM_LIBEV
+LIBEV_SRC=
+LIBEV_HDR=
+else
+LIBEV_SRC= \
+	ev/ev.c
+LIBEV_HDR= \
 	ev/ev.h \
 	ev/ev_vars.h \
 	ev/ev_wrap.h \
-	ev/ev_epoll.c \
+	ev/ev_epoll.c
+endif
+
+libtizplatform_include_HEADERS = \
+	utarray/utarray.h \
+	avl/avl.h \
+	${LIBEV_HDR} \
 	http-parser/http_parser.h \
 	tizplatform.h \
 	tizmacros.h \
@@ -61,7 +71,7 @@ libtizplatform_include_HEADERS = \
 libtizplatform_la_SOURCES = \
 	http-parser/http_parser.c \
 	avl/avl.c \
-	ev/ev.c \
+	${LIBEV_SRC} \
 	tizplatform.c \
 	tizlog.c \
 	tizomxutils.c \
@@ -91,11 +101,20 @@ libtizplatform_la_CFLAGS = \
 
 libtizplatform_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@
 
+if HAVE_SYSTEM_LIBEV
+libtizplatform_la_LIBADD = \
+	-lpthread \
+	-lev \
+	@LOG4C_LIBS@ \
+	@LIBCURL_LIBS@ \
+	@UUID_LIBS@
+else
 libtizplatform_la_LIBADD = \
 	-lpthread \
 	@LOG4C_LIBS@ \
 	@LIBCURL_LIBS@ \
 	@UUID_LIBS@
+endif
 
 do_subst = sed -e 's,[@]abs_top_builddir[@],$(abs_top_builddir),g' \
 	-e 's,[@]localstatedir[@],$(localstatedir),g' \

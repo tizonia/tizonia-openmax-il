@@ -74,6 +74,14 @@ PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
 # support for pausing transfers.
 PKG_CHECK_MODULES([LIBCURL], [libcurl >= 7.18.0])
 
+AC_CHECK_LIB([ev], [ev_loop_new],libev_found="yes",
+                   AC_MSG_WARN([System libev not found; it's Internally embedded for now. Please note that libev will soon be required to build libtizplatform.]))
+if test "${libev_found}" = "yes"; then
+	AC_CHECK_HEADERS([ev.h])
+	AC_DEFINE_UNQUOTED([HAVE_SYSTEM_LIBEV],[1],[libev flag])
+fi
+AM_CONDITIONAL(HAVE_SYSTEM_LIBEV, test "x$libev_found" = xyes)
+
 AC_CHECK_HEADERS([tizonia/OMX_Core.h tizonia/OMX_Component.h],
 	[tizrmd_found_omx_headers=yes; break;])
 AS_IF([test "x$tizrmd_found_omx_headers" != "xyes"],
