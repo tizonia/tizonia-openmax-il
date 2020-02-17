@@ -143,6 +143,7 @@ readonly TIZ_PYTHON_PROJECTS=( \
     tizplexproxy \
     tizchromecastproxy \
     tizspotifyproxy \
+    tiztuneinproxy \
 )
 
 # dpkg-dev package is required to have dpkg-architecture available
@@ -172,6 +173,8 @@ declare -Ar TIZ_PROJECT_DIST_CMD=( \
     [tizchromecast]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizspotifyproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
     [tizspotify]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
+    [tiztuneinproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
+    [tiztunein]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizplatform]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizcastd]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizcastclient]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
@@ -223,6 +226,8 @@ declare -Ar TIZ_PROJECT_DH_MAKE_CMD=( \
     [tizchromecast]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizspotifyproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
     [tizspotify]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
+    [tiztuneinproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
+    [tiztunein]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizplatform]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizcastd]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizcastclient]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
@@ -271,6 +276,8 @@ declare -Ar TIZ_PROJECT_MAIN_PKG=( \
     [tizchromecast]="libtizchromecast0" \
     [tizspotifyproxy]="python3-tizspotifyproxy" \
     [tizspotify]="libtizspotify0" \
+    [tiztuneinproxy]="python3-tiztuneinproxy" \
+    [tiztunein]="libtiztunein0" \
     [tizplatform]="libtizplatform0" \
     [tizcastd]="tizcastd" \
     [tizcastclient]="libtizcastclient0" \
