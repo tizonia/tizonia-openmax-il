@@ -42,7 +42,7 @@ setup(
     version              = version,
     author               = 'Juan A. Rubio',
     author_email         = 'juan.rubio@aratelia.com',
-    url                  = 'http://tizonia.org',
+    url                  = 'https://tizonia.org',
     py_modules           = ['tizspotifyproxy'],
     scripts              = [],
     license              = "Apache License, Version 2.0",

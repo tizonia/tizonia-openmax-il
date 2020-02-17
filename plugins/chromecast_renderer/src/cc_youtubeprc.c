@@ -233,7 +233,7 @@ cc_youtube_prc_get_current_stream_album_art_url (const void * p_obj)
   cc_youtube_prc_t * p_prc = (cc_youtube_prc_t *) p_obj;
   assert (p_prc);
   assert (p_prc->p_yt_);
-#define YT_LOGO "http://tizonia.org/img/youtube-logo.png"
+#define YT_LOGO "https://tizonia.org/img/youtube-logo.png"
   return YT_LOGO;
 }
 

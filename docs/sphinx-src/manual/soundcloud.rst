@@ -38,7 +38,7 @@ like the one pictured below (see also :ref:`tizonia-config-label`).
    # configure your SoundCloud OAuth token here.
    #
    # To obtain your OAuth token, Tizonia needs to be granted access to your
-   # SoundCloud account. Visit http://tizonia.org/docs/soundcloud/ for the
+   # SoundCloud account. Visit https://tizonia.org/docs/soundcloud/ for the
    # details.
    #
    # soundcloud.oauth_token = X-XXXXXX-XXXXXXXX-XXXXXXXXXXXXXX

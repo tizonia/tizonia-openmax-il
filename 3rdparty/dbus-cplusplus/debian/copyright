@@ -1,6 +1,6 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: tizdbus-c++
-Source: http://tizonia.org
+Source: https://tizonia.org
 
 Files: *
 Copyright: 2005-2008 Paolo Durante <shackan@gmail.com>

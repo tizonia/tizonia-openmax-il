@@ -9,7 +9,7 @@ Build-Depends: debhelper (>= 8.0.0),
                libvpx-dev
 Standards-Version: 3.9.4
 Section: libs
-Homepage: http://tizonia.org
+Homepage: https://tizonia.org
 Vcs-Git: git://github.com/tizonia/tizonia-openmax-il.git
 Vcs-Browser: https://github.com/tizonia/tizonia-openmax-il
 

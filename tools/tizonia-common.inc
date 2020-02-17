@@ -223,7 +223,7 @@ function print_dashes {
 ##################################################################
 function print_banner_and_license {
     pretty_print "$BLU" "$1. Copyright (C) 2020 Juan A. Rubio"
-    pretty_print "$BLU" "This software is part of the Tizonia project <http://tizonia.org>."
+    pretty_print "$BLU" "This software is part of the Tizonia project <https://tizonia.org>."
 
     echo
     pretty_print "$BLU" "GNU Lesser GPL version 3 <http://gnu.org/licenses/lgpl.html>"

@@ -242,7 +242,7 @@ cc_tunein_prc_get_current_stream_album_art_url (const void * p_obj)
   cc_tunein_prc_t * p_prc = (cc_tunein_prc_t *) p_obj;
   assert (p_prc);
   assert (p_prc->p_tunein_);
-#define TUNEIN_LOGO "http://tizonia.org/img/tunein-logo.png"
+#define TUNEIN_LOGO "https://tizonia.org/img/tunein-logo.png"
   return TUNEIN_LOGO;
 }
 

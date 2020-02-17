@@ -238,7 +238,7 @@ cc_scloud_prc_get_current_stream_album_art_url (const void * p_obj)
   const char * p_avatar_url = NULL;
   assert (p_prc);
   assert (p_prc->p_sc_);
-#define SC_LOGO "http://tizonia.org/img/soundcloud-logo.png"
+#define SC_LOGO "https://tizonia.org/img/soundcloud-logo.png"
   p_avatar_url = tiz_scloud_get_current_track_user_avatar (p_prc->p_sc_);
   return (p_avatar_url ? p_avatar_url : SC_LOGO);
 }

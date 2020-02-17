@@ -73,7 +73,7 @@ httpr_mp3port_ctor (void * ap_obj, va_list * app)
   snprintf ((char *) p_obj->mountpoint_.cStationGenre,
             sizeof (p_obj->mountpoint_.cStationGenre), "Some punchy genre");
   snprintf ((char *) p_obj->mountpoint_.cStationUrl,
-            sizeof (p_obj->mountpoint_.cStationUrl), "http://tizonia.org");
+            sizeof (p_obj->mountpoint_.cStationUrl), "https://tizonia.org");
 
   p_obj->mountpoint_.eEncoding = OMX_AUDIO_CodingMP3;
   p_obj->mountpoint_.nIcyMetadataPeriod = ICE_DEFAULT_METADATA_INTERVAL;

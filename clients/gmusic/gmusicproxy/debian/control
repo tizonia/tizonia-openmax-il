@@ -4,7 +4,7 @@ Section: python
 Priority: optional
 Build-Depends: dh-python, python3-setuptools, python3-all, debhelper (>= 9)
 Standards-Version: 3.9.6
-Homepage: http://tizonia.org
+Homepage: https://tizonia.org
 
 Package: python3-tizgmusicproxy
 Architecture: all

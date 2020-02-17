@@ -221,7 +221,7 @@ cc_plex_prc_get_current_stream_album_art_url (const void * p_obj)
   const char * p_art_url = NULL;
   assert (p_prc);
   assert (p_prc->p_plex_);
-#define PLEX_LOGO "http://tizonia.org/img/plex-logo.png"
+#define PLEX_LOGO "https://tizonia.org/img/plex-logo.png"
   p_art_url = tiz_plex_get_current_audio_track_album_art (p_prc->p_plex_);
   return (p_art_url ? p_art_url : PLEX_LOGO);
 }

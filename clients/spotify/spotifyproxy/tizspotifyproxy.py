@@ -225,7 +225,7 @@ class tizspotifyproxy(object):
 
     SPOTIPY_CLIENT_SECRET = "69a32dec47b34e42a72e6a1bde457d65"
     SPOTIPY_CLIENT_ID = "a86ba5bbc8484c56b13c01491aa80edc"
-    SPOTIPY_REDIRECT_URI = "http://tizonia.org"
+    SPOTIPY_REDIRECT_URI = "https://tizonia.org"
 
     def __init__(self):
         self.queue = list()
