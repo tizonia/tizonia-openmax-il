@@ -404,13 +404,21 @@ function do_tizonia_deps {
 
     # Add mopidy APT archive to sources, if not added already
     # and install libspotify using mopidy's deb packages
-    grep -q 'apt.mopidy.com' /etc/apt/sources.list
-    if [[ "$?" -ne 0 ]]; then
-        # Add Mopidy APT archive to sources.list
-        pretty_print "$BLU" "[libspotify] : adding Mopidy APT archive to sources.list."
-        wget -q -O - http://apt.mopidy.com/mopidy.gpg | sudo apt-key add -
-        echo deb http://apt.mopidy.com/ stable main contrib non-free | sudo tee -a /etc/apt/sources.list
-        echo deb-src http://apt.mopidy.com/ stable main contrib non-free | sudo tee -a /etc/apt/sources.list
+    if [[ ! -f /etc/apt/sources.list.d/mopidy.list ]]; then
+        # Add Mopidy APT archive
+        pretty_print "$BLU" "[libspotify] : adding Mopidy APT archive."
+        curl 'https://apt.mopidy.com/mopidy.gpg' | sudo apt-key add -
+        MOPRELEASE=''
+        if [[ "$DISTRO_CODENAME" == "bionic" ]]; then
+            MOPRELEASE="stretch"
+        elif [[ "$DISTRO_CODENAME" == "xenial" ]]; then
+            MOPRELEASE="stretch"
+        elif [[ "$DISTRO_CODENAME" == "stretch" ]]; then
+            MOPRELEASE="stretch"
+        else
+            MOPRELEASE="buster"
+        fi
+        sudo curl https://apt.mopidy.com/$MOPRELEASE.list -o /etc/apt/sources.list.d/mopidy.list
         sudo apt-get update
         pretty_print "$GRN" "[libspotify] : added Mopidy APT archive."
         for pkg in "${TIZ_LIBSPOTIFY_DEPS[@]}"; do
