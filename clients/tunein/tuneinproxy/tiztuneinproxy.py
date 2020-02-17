@@ -1,5 +1,8 @@
 # Copyright (C) 2011-2019 Aratelia Limited - Juan A. Rubio
 #
+# Portions Copyright (C) 2020 Nick Steel and contributors
+# (see https://github.com/kingosticks/mopidy-tunein)
+#
 # This file is part of Tizonia
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +22,9 @@ Simple Tunein proxy/wrapper.
 
 Access Tunein to retrieve station URLs and create a play queue for streaming.
 
+With ideas and code from mopidy_tunein. For further information see:
+- https://github.com/kingosticks/mopidy-tunein/blob/master/mopidy_tunein/tunein.py
+
 """
 
 from __future__ import unicode_literals
@@ -28,22 +34,20 @@ import sys
 import os
 import io
 import re
-import json
 import logging
 import random
-import requests
 import datetime
 import getpass
 import xml.etree.ElementTree as elementtree
 from collections import OrderedDict
 from contextlib import closing
-from requests import Session, exceptions
+from requests import Session
 from urllib.parse import urlparse
-from operator import itemgetter
 from joblib import Memory
 from fuzzywuzzy import process
 from fuzzywuzzy import fuzz
 from functools import reduce
+import requests
 
 # FOR REFERENCE
 # {'URL': 'http://opml.radiotime.com/Tune.ashx?id=s290003',
@@ -68,7 +72,9 @@ NOW = datetime.datetime.now()
 TMPDIR = "/var/tmp"
 CACHE_DIR_PREFIX = os.getenv("SNAP_USER_COMMON") or TMPDIR
 
-TUNEIN_CACHE_LOCATION = os.path.join(CACHE_DIR_PREFIX, "tizonia-" + getpass.getuser() + "-tunein")
+TUNEIN_CACHE_LOCATION = os.path.join(
+    CACHE_DIR_PREFIX, "tizonia-" + getpass.getuser() + "-tunein"
+)
 MEMORY = Memory(TUNEIN_CACHE_LOCATION, compress=9, verbose=0, bytes_limit=10485760)
 MEMORY.reduce_size()
 
@@ -198,7 +204,7 @@ def exception_handler(exception_type, exception, traceback):
 
 sys.excepthook = exception_handler
 
-
+# From https://github.com/kingosticks/mopidy-tunein/blob/master/mopidy_tunein/tunein.py
 def parse_m3u(data):
     # Copied from mopidy.audio.playlists
     # Mopidy version expects a header but it's not always present
@@ -214,6 +220,7 @@ def parse_m3u(data):
         yield line.strip()
 
 
+# From https://github.com/kingosticks/mopidy-tunein/blob/master/mopidy_tunein/tunein.py
 def parse_pls(data):
     # Copied from mopidy.audio.playlists
     try:
@@ -257,6 +264,7 @@ def parse_old_asx(data):
                 yield fix_asf_uri(uri.strip())
 
 
+# From https://github.com/kingosticks/mopidy-tunein/blob/master/mopidy_tunein/tunein.py
 def parse_new_asx(data):
     # Copied from mopidy.audio.playlists
     try:
@@ -273,12 +281,14 @@ def parse_new_asx(data):
         yield fix_asf_uri(entry.get("href", "").strip())
 
 
+# From https://github.com/kingosticks/mopidy-tunein/blob/master/mopidy_tunein/tunein.py
 def parse_asx(data):
     if b"asx" in data[0:50].lower():
         return parse_new_asx(data)
     return parse_old_asx(data)
 
 
+# From https://github.com/kingosticks/mopidy-tunein/blob/master/mopidy_tunein/tunein.py
 def find_playlist_parser(extension, content_type):
     extension_map = {
         ".asx": parse_asx,
@@ -365,6 +375,8 @@ class TizEnumeration(set):
         raise AttributeError
 
 
+# From https://github.com/kingosticks/mopidy-tunein/blob/master/mopidy_tunein/tunein.py
+# with modifications
 class TuneIn:
     """Wrapper for the TuneIn API."""
 
@@ -1336,9 +1348,7 @@ class tiztuneinproxy(object):
             if phrase:
                 filtered_queue = list()
                 print_adv(
-                    "[TuneIn] [{0}] Filtering results: '{1}'.".format(
-                        category, phrase
-                    )
+                    "[TuneIn] [{0}] Filtering results: '{1}'.".format(category, phrase)
                 )
                 for item in self.queue:
                     title = item["text"] if item.get("text") else ""
