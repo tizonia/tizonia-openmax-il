@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# Copyright (C) 2011-2020 Aratelia Limited - Juan A. Rubio
+# Copyright (C) 2011-2020 Aratelia Limited - Juan A. Rubio and contributors
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

@@ -1,4 +1,4 @@
-# Copyright (C) 2011-2020 Aratelia Limited - Juan A. Rubio
+# Copyright (C) 2011-2020 Aratelia Limited - Juan A. Rubio and contributors
 #
 # Portions Copyright (C) 2014 Dan Nixon
 # (see https://github.com/DanNixon/PlayMusicCL)

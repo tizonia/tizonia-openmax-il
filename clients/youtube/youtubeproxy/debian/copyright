@@ -3,7 +3,7 @@ Upstream-Name: tizyoutubeproxy
 Source: https://tizonia.org
 
 Files: *
-Copyright (C) 2011-2020 Aratelia Limited - Juan A. Rubio
+Copyright (C) 2011-2020 Aratelia Limited - Juan A. Rubio and contributors
 License: Apache
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
