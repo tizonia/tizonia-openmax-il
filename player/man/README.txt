@@ -1,8 +1,8 @@
 How to generate Tizonia's man page
 ----------------------------------
 
-Tizonia's man page is generated using Sphinx documentation system that can be
-found in the repo's top level 'docs' directory.
+Tizonia's man page is generated using the Sphinx documentation system found in
+the repo's top-level 'docs' directory.
 
 
    # Install the dependencies
@@ -21,8 +21,7 @@ found in the repo's top level 'docs' directory.
    # Generate the Doxygen API docs
    $ make
 
-   # Now change into the 'sphinx-src' dir and generate the Sphinx docs website
-   # and the man page
+   # Now change into the 'sphinx-src' dir and generate the man page
    $ cd sphinx-src
    $ make man
 

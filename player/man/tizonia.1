@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "TIZONIA" "1" "Feb 03, 2020" "0.19.0" "Tizonia"
+.TH "TIZONIA" "1" "Feb 18, 2020" "0.20.0" "Tizonia"
 .SH NAME
 tizonia \- A command-line streaming music client/server for Linux with support for Spotify (Premium), Google Play Music (free and paid tiers), YouTube, SoundCloud, TuneIn Internet Radio, Plex servers and Chromecast devices.
 .
@@ -30,6 +30,43 @@ level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
 .\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
 .in \\n[rst2man-indent\\n[rst2man-indent-level]]u
 ..
+.sp
+Tizonia provides an efficient and unbstrusive music search and listening
+experience by following a few principles:
+.INDENT 0.0
+.TP
+\fBSimplest CLI UI\fP
+Because the keyboard is faster than the mouse you get to listen to the music
+that you want in less time. Music plays almost immediately.
+.TP
+\fBPlay the music, not matter what\fP
+Tizonia uses fuzzy string matching techniques to match your search keywords
+against the data provided by the streaming services. This maximizes the
+chances of finding the music that you want. When a search returns no
+results Tizonia may at times try a \(aqI\(aqm Feeling Lucky\(aq guess.
+.TP
+\fBNon\-stop music\fP
+Tizonia\(aqs play queue always runs in \fBlooped\fP mode. There is currently no
+way to configure non\-looped playback (although this may be added in the
+future, see [1]).
+.TP
+\fBLimit the distractions\fP
+By limiting the interactions. No fast\-forward or rewind. Only skip to
+next/previous track (see [2]). There is no elaborate \(aqncurses\(aq CLI
+interface to interact with. But there is some track info and a simple visual
+progress bar.
+.TP
+\fBReduced \(aqmuscle\-memory\(aq\fP
+Finding the music that you want and listening to it should require a single
+command\-line option on the terminal. E.g.: \fBtizonia \-\-spotify\-album Islands\fP\&.
+Bash and Zsh completions are available. There is also a
+\fI\%Oh\-my\-zsh\fP plugin available 
+.nf
+\(ga
+.fi
+here
+<\fI\%https://github.com/tizonia/tizonia\-openmax\-il/blob/master/player/tools/tizonia.plugin.zsh\fP>_.
+.UNINDENT
 .SH HELP TOPICS
 .sp
 Tizonia includes a fairly comprehensive help system with information about
@@ -39,6 +76,7 @@ command\-line options supported.
 To obtain a list of the available help topics, just invoke \fBtizonia \-\-help\fP
 and to retrieve information about a particular topic, use \fBtizonia \-\-help
 <topic>\fP\&.
+.SS EXAMPLES
 .INDENT 0.0
 .INDENT 3.5
 .sp
@@ -72,405 +110,37 @@ There is NO WARRANTY, to the extent permitted by law.
 .fi
 .UNINDENT
 .UNINDENT
-.SH GLOBAL OPTIONS
-.sp
-There are a number of features that may be used globally with all the included
-services, or at a minumum, with more than one. Command\-line options that fall
-under this categoray are listed below.
-.SS OPTIONS
-.INDENT 0.0
-.TP
-.B \fB\-h [ \-\-help ] [=arg(=help)]\fP
-Print a usage message for a specific help topic (e.g. global, openmax, server, spotify, googlemusic, soundcloud, etc).
-.TP
-.B \fB\-v [ \-\-version ]\fP
-Print the version information.
-.TP
-.B \fB\-r [ \-\-recurse ]\fP
-Recursively process a given path.
-.TP
-.B \fB\-s [ \-\-shuffle ]\fP
-Shuffle the playlist.
-.TP
-.B \fB\-d [ \-\-daemon ]\fP
-Run in the background.
-.TP
-.B \fB\-c [ \-\-cast ] arg\fP
-Cast to a Chromecast device (arg: device name or ip address). Available in combination with Google Play Music, SoundCloud, YouTube, Plex and HTTP radio stations.
-.TP
-.B \fB\-b [ \-\-buffer\-seconds ] arg\fP
-Size of the buffer (in seconds) to be used while downloading streams. Increase in case of cuts in gmusic, scloud, youtube or plex.
-.TP
-.B \fB\-\-proxy\-server arg\fP
-Url to the proxy server that should be used. (not required if provided via config file).
-.TP
-.B \fB\-\-proxy\-user arg\fP
-User name to be used during proxy server authentication (not required if provided via config file).
-.TP
-.B \fB\-\-proxy\-password arg\fP
-Password to be used during proxy server authentication (not required if provided via config file).
-.UNINDENT
-.SH OPENMAX IL OPTIONS
-.sp
-The section describes a number of options that are more typically used during
-development. These command\-line options allow querying the OpenMAX IL subsystem
-and learn about the installed OpenMAX IL components and their supported roles.
-.SS OPTIONS
-.INDENT 0.0
-.TP
-.B \fB\-L [ \-\-comp\-list ]\fP
-Enumerate all the OpenMAX IL components in the system.
-.TP
-.B \fB\-R [ \-\-roles\-of\-comp ] arg\fP
-Display the OpenMAX IL roles found in component <arg>.
-.TP
-.B \fB\-C [ \-\-comps\-of\-role ] arg\fP
-Display the OpenMAX IL components that implement role <arg>.
-.UNINDENT
-.SH SHOUTCAST SERVER
-.sp
-TODO
-.SS OPTIONS
-.INDENT 0.0
-.TP
-.B \fB\-\-server\fP
-Stream media files using the SHOUTcast/ICEcast streaming protocol.
-.TP
-.B \fB\-p [ \-\-port ] arg\fP
-TCP port to be used for Icecast/SHOUTcast streaming. Default: 8010.
-.TP
-.B \fB\-\-station\-name arg\fP
-The Icecast/SHOUTcast station name. Optional.
-.TP
-.B \fB\-\-station\-genre arg\fP
-The Icecast/SHOUTcast station genre. Optional.
-.TP
-.B \fB\-\-no\-icy\-metadata\fP
-Disables Icecast/SHOUTcast metadata in the stream.
-.TP
-.B \fB\-\-bitrate\-modes arg\fP
-A comma\-separated list of bitrate modes (e.g. \(aqCBR,VBR\(aq). Only media with these bitrate modes will be in the playlist. Default: any.
-.TP
-.B \fB\-\-sampling\-rates arg\fP
-A comma\-separated list of sampling rates. Only media with these rates will in the playlist. Default: any.
-.UNINDENT
-.SH SHOUTCAST CLIENT
-.sp
-TODO
-.SS OPTIONS
-.INDENT 0.0
-.TP
-.B \fB\-\-station\-id arg\fP
-Give a name/id to the remote stream.
-.UNINDENT
-.SH SPOTIFY
-.sp
-TODO
-.SS OPTIONS
-.INDENT 0.0
-.TP
-.B \fB\-\-spotify\-user arg\fP
-Spotify user name  (not required if provided via config file).
-.TP
-.B \fB\-\-spotify\-password arg\fP
-Spotify user password  (not required if provided via config file).
-.TP
-.B \fB\-\-spotify\-owner arg\fP
-The owner of the playlist  (this is optional: use in conjunction with \-\-spotify\-playlist or \-\-spotify\-playlist\-id).
-.TP
-.B \fB\-\-spotify\-recover\-lost\-token\fP
-Allow Tizonia to recover the play token and keep playing after a spurious token loss (default: false).
-.TP
-.B \fB\-\-spotify\-allow\-explicit\-tracks\fP
-Allow Tizonia to play explicit tracks from Spotify (default: false).
-.TP
-.B \fB\-\-spotify\-preferred\-bitrate arg\fP
-Preferred Spotify bitrate (kbps) (320, 160 or 96; default: 320).
-.TP
-.B \fB\-\-spotify\-tracks arg\fP
-Search and play from Spotify by track name.
-.TP
-.B \fB\-\-spotify\-artist arg\fP
-Search and play from Spotify by artist name.
-.TP
-.B \fB\-\-spotify\-album arg\fP
-Search and play from Spotify by album name.
-.TP
-.B \fB\-\-spotify\-playlist arg\fP
-Search and play public playlists (owner is assumed the current user, unless \-\-spotify\-owner is provided).
-.TP
-.B \fB\-\-spotify\-track\-id arg\fP
-Play from Spotify by track ID, URI or URL.
-.TP
-.B \fB\-\-spotify\-artist\-id arg\fP
-Play from Spotify by artist ID, URI or URL.
-.TP
-.B \fB\-\-spotify\-album\-id arg\fP
-Play from Spotify by album ID, URI or URL.
-.TP
-.B \fB\-\-spotify\-playlist\-id arg\fP
-Play public playlists from Spotify by ID, URI or URL (owner is assumed the current user, unless \-\-spotify\-owner is provided).
-.TP
-.B \fB\-\-spotify\-related\-artists arg\fP
-Search and play from Spotify the top songs from a selection of related artists.
-.TP
-.B \fB\-\-spotify\-featured\-playlist arg\fP
-Search and play a featured playlist from Spotify.
-.TP
-.B \fB\-\-spotify\-new\-releases arg\fP
-Search and play a newly released album from Spotify.
-.TP
-.B \fB\-\-spotify\-recommendations\-by\-track\-id arg\fP
-Play Spotify recommendations by track ID, URI or URL
-.TP
-.B \fB\-\-spotify\-recommendations\-by\-artist\-id arg\fP
-Play Spotify recommendations by artist ID, URI or URL.
-.TP
-.B \fB\-\-spotify\-recommendations\-by\-genre arg\fP
-Play Spotify recommendations by genre name.
-.UNINDENT
-.SH GOOGLE PLAY MUSIC
-.sp
-Music streaming from the Google Play Music service is supported on both free
-and paid tiers. Command\-line options that contain \fBunlimited\fP represent those
-that require a \(aqPremium\(aq subscription. In both cases, credentials are required
-to be input via command\-line or configuration file.
-.SS OPTIONS
-.INDENT 0.0
-.TP
-.B \fB\-\-gmusic\-user arg\fP
-Google Play Music user name (not required if provided via config file).
-.TP
-.B \fB\-\-gmusic\-password arg\fP
-Google Play Music user\(aqs password (not required if provided via config file).
-.TP
-.B \fB\-\-gmusic\-device\-id arg\fP
-Google Play Music device id (not required if provided via config file).
-.TP
-.B \fB\-\-gmusic\-additional\-keywords arg\fP
-Additional search keywords (this is optional: use in conjunction
-with\-\-gmusic\-unlimited\-activity).
-.TP
-.B \fB\-\-gmusic\-library\fP
-Play all tracks from the user\(aqs library.
-.TP
-.B \fB\-\-gmusic\-tracks arg\fP
-Play tracks from the user\(aqs library by track name.
-.TP
-.B \fB\-\-gmusic\-artist arg\fP
-Play tracks from the user\(aqs library by artist.
-.TP
-.B \fB\-\-gmusic\-album arg\fP
-Play an album from the user\(aqs library.
-.TP
-.B \fB\-\-gmusic\-playlist arg\fP
-A playlist from the user\(aqs library.
-.TP
-.B \fB\-\-gmusic\-podcast arg\fP
-Search and play Google Play Music podcasts (only available in the US and
-Canada).
-.TP
-.B \fB\-\-gmusic\-station arg\fP
-Search and play Google Play Music free stations.
-.TP
-.B \fB\-\-gmusic\-unlimited\-station arg\fP
-Search and play Google Play Music Unlimited stations found in the user\(aqs library.
-.TP
-.B \fB\-\-gmusic\-unlimited\-album arg\fP
-Search and play Google Play Music Unlimited tracks by album (best match only).
-.TP
-.B \fB\-\-gmusic\-unlimited\-artist arg\fP
-Search and play Google Play Music Unlimited tracks by artist (best match only).
-.TP
-.B \fB\-\-gmusic\-unlimited\-tracks arg\fP
-Search and play Google Play Music Unlimited tracks by name (50 first matches only).
-.TP
-.B \fB\-\-gmusic\-unlimited\-playlist arg\fP
-Search and play Google Play Music Unlimited playlists by name.
-.TP
-.B \fB\-\-gmusic\-unlimited\-genre arg\fP
-Search and play Google Play Music Unlimited tracks by genre.
-.TP
-.B \fB\-\-gmusic\-unlimited\-activity arg\fP
-Search and play Google Play Music Unlimited tracks by activity.
-.TP
-.B \fB\-\-gmusic\-unlimited\-feeling\-lucky\-station\fP
-Play the user\(aqs Google Play Music Unlimited \(aqI\(aqm Feeling Lucky\(aq station.
-.TP
-.B \fB\-\-gmusic\-unlimited\-promoted\-tracks\fP
-Play Google Play Music Unlimited promoted tracks.
-.UNINDENT
-.SH SOUNDCLOUD
-.sp
-Credentials are required to be input via command\-line or configuration file.
-.SS OPTIONS
-.INDENT 0.0
-.TP
-.B \fB\-\-soundcloud\-oauth\-token arg\fP
-SoundCloud user OAuth token (not required if provided via config file).
-.TP
-.B \fB\-\-soundcloud\-user\-stream\fP
-Play the tracks currently listed in the user\(aqs stream.
-.TP
-.B \fB\-\-soundcloud\-user\-likes\fP
-Play the tracks liked by the user.
-.TP
-.B \fB\-\-soundcloud\-user\-playlist arg\fP
-Play a playlist from the user\(aqs collection.
-.TP
-.B \fB\-\-soundcloud\-creator arg\fP
-Search and play the top 50 tracks from a creator.
-.TP
-.B \fB\-\-soundcloud\-tracks arg\fP
-Search and play tracks by title (50 first matches only).
-.TP
-.B \fB\-\-soundcloud\-playlists arg\fP
-Search and play playlists by title.
-.TP
-.B \fB\-\-soundcloud\-genres arg\fP
-Search and play genres top tracks (arg is a command\-separated list).
-.TP
-.B \fB\-\-soundcloud\-tags arg\fP
-Search and play tags top tracks (arg is a command\-separated list).
-.UNINDENT
-.SH TUNEIN
-.sp
-TODO
-.SS OPTIONS
-.INDENT 0.0
-.TP
-.B \fB\-\-tunein\-search arg\fP
-TuneIn global station/podcast search.
-.TP
-.B \fB\-\-tunein\-local arg\fP
-TuneIn \(aqlocal\(aq category search.
-.TP
-.B \fB\-\-tunein\-music arg\fP
-TuneIn \(aqmusic\(aq category search.
-.TP
-.B \fB\-\-tunein\-talk arg\fP
-TuneIn \(aqtalk\(aq category search.
-.TP
-.B \fB\-\-tunein\-sports arg\fP
-TuneIn \(aqsports\(aq category search.
-.TP
-.B \fB\-\-tunein\-location arg\fP
-TuneIn \(aqlocation\(aq category search.
-.TP
-.B \fB\-\-tunein\-podcasts arg\fP
-TuneIn \(aqpodcasts\(aq category search.
-.TP
-.B \fB\-\-tunein\-trending arg\fP
-TuneIn \(aqtrending\(aq category search.
-.TP
-.B \fB\-\-tunein\-type arg\fP
-Narrow down the search to specific type: \(aqstations\(aq, \(aqshows\(aq, or \(aqall\(aq (default: all). Optional.
-.TP
-.B \fB\-\-tunein\-keywords arg\fP
-Additional keywords that may be used in conjunction with the TuneIn options. Optional (may be repeated).
-.UNINDENT
-.SH YOUTUBE
-.sp
-TODO
-.SS OPTIONS
-.INDENT 0.0
-.TP
-.B \fB\-\-youtube\-audio\-stream arg\fP
-Play a YouTube audio stream from a video url or video id.
-.TP
-.B \fB\-\-youtube\-audio\-playlist arg\fP
-Play a YouTube audio playlist from a playlist url or playlist id.
-.TP
-.B \fB\-\-youtube\-audio\-mix arg\fP
-Play a YouTube mix from a video url or video id.
-.TP
-.B \fB\-\-youtube\-audio\-search arg\fP
-Search and play YouTube audio streams.
-.TP
-.B \fB\-\-youtube\-audio\-mix\-search arg\fP
-Play a YouTube mix from a search term.
-.TP
-.B \fB\-\-youtube\-audio\-channel\-uploads arg\fP
-Play all videos uploaded to a YouTube channel (arg = channel url or name).
-.TP
-.B \fB\-\-youtube\-audio\-channel\-playlist arg\fP
-Play a playlist from particular YouTube channel (arg = \(aq<channel\-name[space]play list\-name>\(aq).
-.UNINDENT
-.SH PLEX
-.sp
-Tizonia can stream audio from a Plex server. To stream from a Plex server, it
-is necessary to provide the base URL where the server can be contacted and the
-authentication token. These two elements must be provided on the command\-line
-or via configuration file.
-.SS OPTIONS
-.INDENT 0.0
-.TP
-.B \fB\-\-plex\-server\-base\-url arg\fP
-Plex server base URL (e.g. \(aq\fI\%http://plexserver:32400\fP\(aq. Not required if provided via config file).
-.TP
-.B \fB\-\-plex\-auth\-token arg\fP
-Plex account authentication token (not required if provided via config file).
-.TP
-.B \fB\-\-plex\-music\-section arg\fP
-Name of the Plex music section (needed if different from \(aqMusic\(aq; may be provided via config file).
-.TP
-.B \fB\-\-plex\-audio\-tracks arg\fP
-Search and play audio tracks from a Plex server.
-.TP
-.B \fB\-\-plex\-audio\-artist arg\fP
-Search and play an artist\(aqs audio tracks from a Plex server.
-.TP
-.B \fB\-\-plex\-audio\-album arg\fP
-Search and play a music album from a Plex server.
-.TP
-.B \fB\-\-plex\-audio\-playlist arg\fP
-Search and play playlists from a Plex server.
-.UNINDENT
-.SH CHROMECAST
-.sp
-TODO
-.SS OPTIONS
-.INDENT 0.0
-.TP
-.B \fB\-c [ \-\-cast ] arg\fP
-Cast to a Chromecast device (arg: device name or ip address). Available in combination with Google Play Music, SoundCloud, YouTube, TuneIn and regular HTTP radio stations.
-.UNINDENT
-.SH KEYBOARD SHORTCUTS
-.sp
-Keyboard controls are listed by issuing the command: \fBtizonia \-\-help
-keyboard\fP\&. Tizonia is very minimalistic and offers just a few controls. There
-is no fast\-foward of rewind options. These may be added in the future.
-.INDENT 0.0
-.INDENT 3.5
-.sp
-.nf
-.ft C
-$ tizonia \-\-help keyboard
-This software is part of the Tizonia project <https://tizonia.org>
-
-GNU Lesser GPL version 3 <http://gnu.org/licenses/lgpl.html>
-This is free software: you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.
-
-Keyboard control:
-
-   [p] skip to previous file.
-   [n] skip to next file.
-   [SPACE] pause playback.
-   [+/\-] increase/decrease volume.
-   [m] mute.
-   [q] quit.
-.ft P
-.fi
-.UNINDENT
-.UNINDENT
 .SH CONFIGURATION FILE
 .sp
-Tizonia ships with an example/template configuration file (see below for the
-system locations where the template is usually installed). The application also
-copies this file on first use to the user\(aqs local configuration directory
-($HOME/.config/tizonia/tizonia.conf).  Customization of this file is typically
-required, e.g. to add credentials for the subscribed services.
+Tizonia ships with a configuration file template. See below for the system
+locations where this template is usually installed. On first use, Tizonia
+copies this file into the user\(aqs local configuration directory, usually in one
+of these locations:
+.INDENT 0.0
+.IP \(bu 2
+\fB$HOME/.config/tizonia/tizonia.conf\fP (Debian and AUR installations)
+.IP \(bu 2
+\fB$HOME/snap/tizonia/current/.config/tizonia/tizonia.conf\fP (Snap installation)
+.UNINDENT
+.sp
+Customization of this file by the user is typically required, e.g. to add
+credentials for the subscribed streaming services. Note that Tizonia only reads
+this file, never writes to it.
+.sp
+\fBWARNING:\fP
+.INDENT 0.0
+.INDENT 3.5
+When user names and passwords are stored in your local
+\fBtizonia.conf\fP, please ensure that this file has the correct
+file system permissions to prevent other users from accessing your
+credentials.
+.sp
+E.g.: \fB$ chmod og\-rwx $HOME/.config/tizonia/tizonia.conf\fP
+.UNINDENT
+.UNINDENT
+.sp
+Use \fBtizonia \-\-help config\fP for a reminder of the location of the
+configuration files in the system:
 .INDENT 0.0
 .INDENT 3.5
 .sp
@@ -503,17 +173,18 @@ Example configuration files may also be found at
 .INDENT 0.0
 .INDENT 3.5
 When Tizonia is upgraded, a new version of the \fBtizonia.conf\fP
-template is installed in its system locations (see above). However,
-an exising configuration file located in the user\(aqs HOME
-configuration directory will not be modified. In order to access any
-new features, the user is expected to manually update the local
-configuration file. This is optional however, as an old configuration
-file will remain functional when used by a newer version of the
-software.
+template is installed in the corresponding system location. An
+exising configuration file located under the user\(aqs local
+configuration directory will remain unmodified. In order to access
+the new features, the user is expected to manually update his/her
+local configuration file. This is optional however, as an old
+configuration file will remain functional and backguard\-compatible
+when used by a newer version of the software. Please note the version
+information at the top of \fBtizonia.conf\fP\&.
 .UNINDENT
 .UNINDENT
 .sp
-This is the template that ship with the latest version of Tizonia.
+This is the template that ships with the latest version of Tizonia:
 .INDENT 0.0
 .INDENT 3.5
 .sp
@@ -678,7 +349,7 @@ mpris\-enabled = false
 # plex.base_url = xxxxxxxxxxxxxx (e.g. http://plexserver:32400)
 # plex.auth_token = xxxxxxxxxxxxxx (e.g. SrPEojhap3H5Qj2DmjhX)
 # plex.buffer_seconds = size of the audio buffer (in seconds) to use
-#                       while downloading streams. Default: 60.
+#                       while downloading streams. Default: 600.
 #                       Increase in case of cuts.
 # plex.music_section_name = name of the music section in your plex library
 #                           (default: Music)
@@ -845,11 +516,959 @@ monokai.C16 = 48,2,39,40,34            # Hint: the moving progress bar itself (I
 .fi
 .UNINDENT
 .UNINDENT
+.SH KEYBOARD SHORTCUTS
+.sp
+Keyboard controls are listed by issuing the command: \fBtizonia \-\-help
+keyboard\fP\&. Tizonia is very minimalistic and offers just a few controls. There
+is no fast\-foward of rewind options. These may be added in the future.
+.SS EXAMPLES
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ tizonia \-\-help keyboard
+This software is part of the Tizonia project <https://tizonia.org>
+
+GNU Lesser GPL version 3 <http://gnu.org/licenses/lgpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+Keyboard control:
+
+   [p] skip to previous file.
+   [n] skip to next file.
+   [SPACE] pause playback.
+   [+/\-] increase/decrease volume.
+   [m] mute.
+   [q] quit.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH GLOBAL OPTIONS
+.sp
+There are a number of features that may be used globally with all the included
+services, or at a minumum, with more than one. Command\-line options that fall
+under this categoray are listed below.
+.SS OPTIONS
+.INDENT 0.0
+.TP
+.B \fB\-h [ \-\-help ] [=arg(=help)]\fP
+Print a usage message for a specific help topic (e.g. global, openmax, server, spotify, googlemusic, soundcloud, etc).
+.TP
+.B \fB\-v [ \-\-version ]\fP
+Print the version information.
+.TP
+.B \fB\-r [ \-\-recurse ]\fP
+Recursively process a given path.
+.TP
+.B \fB\-s [ \-\-shuffle ]\fP
+Shuffle the playlist.
+.TP
+.B \fB\-d [ \-\-daemon ]\fP
+Run in the background.
+.TP
+.B \fB\-c [ \-\-cast ] arg\fP
+Cast to a Chromecast device (arg: device name or ip address). Available in combination with Google Play Music, SoundCloud, YouTube, Plex and HTTP radio stations.
+.TP
+.B \fB\-b [ \-\-buffer\-seconds ] arg\fP
+Size of the buffer (in seconds) to be used while downloading streams. Increase in case of cuts in gmusic, scloud, youtube or plex.
+.TP
+.B \fB\-\-proxy\-server arg\fP
+Url to the proxy server that should be used. (not required if provided via config file).
+.TP
+.B \fB\-\-proxy\-user arg\fP
+User name to be used during proxy server authentication (not required if provided via config file).
+.TP
+.B \fB\-\-proxy\-password arg\fP
+Password to be used during proxy server authentication (not required if provided via config file).
+.UNINDENT
+.SH SPOTIFY
+.sp
+A Spotify Premium account is required to stream audio from Spotify. Tizonia
+will not work with a Spotify Free account. Please introduce your Premium
+account\(aqs user name and password into \fBtizonia.conf\fP, or alternatively, use
+the corresponding command\-line options available.
+.SS CONFIGURATION
+.sp
+The Tizonia configuration file contains a block under the \fB[tizonia]\fP section
+like the one pictured below (see also tizonia\-config\-label).
+.sp
+\fBWARNING:\fP
+.INDENT 0.0
+.INDENT 3.5
+When user names and passwords are stored in your local
+\fBtizonia.conf\fP, please ensure that this file has the correct
+file system permissions to prevent other users from accessing your
+credentials.
+.sp
+E.g.: \fB$ chmod og\-rwx $HOME/.config/tizonia/tizonia.conf\fP
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# Spotify configuration
+# \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+# To avoid passing this information on the command line, uncomment
+# and configure accordingly
+#
+# spotify.user     = user
+# spotify.password = pass
+# spotify.recover_lost_token = false (set to true to continue playback after
+#                                     the token has been [spuriously?] lost)
+# spotify.allow_explicit_tracks = false (set to true to allow explicit tracks)
+# spotify.preferred_bitrate = Three possible values: 96, 160, or 320 ; default: 320
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fBspotify.user\fP
+The username of the Spotify Premium account. For older accounts, the
+username may be related to account email address (i.e. same as the email
+address without the @domain). For newer accounts, the username is a random
+string of around 25 characters allocated by Spotify.
+.UNINDENT
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+If you created your account through Facebook you will need to create
+a "device password" to stream from Spotify using Tizonia. Note that
+the device password option is only available for Facebook\-created
+accounts. Please read the Spotify documentation at
+\fI\%http://www.spotify.com/account/set\-device\-password/\fP\&.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fBspotify.password\fP
+Password of the Premium account. Please do not allow \(aq#\(aq in
+the password. There is a bug in Tizonia that prevents this character in the
+password field.
+.TP
+.B \fBspotify.recover_lost_token\fP
+Set to \fBtrue\fP to allow Tizonia to resume playback and recover the token
+automatically when the playback token is lost. This can occur if for example,
+another device starts streaming using your account (e.g. listening to Spotify
+on an Echo device while Tizonia is already streaming on your
+computer). Optional (Default: false).
+.TP
+.B \fBspotify.allow_explicit_tracks\fP
+Set to \fBtrue\fP to allow explicit tracks in Tizonia\(aqs play queue. Otherwise,
+explicit tracks are removed from the queue before playback. Optional
+(Default: false).
+.TP
+.B \fBspotify.preferred_bitrate\fP
+Select the preferred bitrate while streaming from Spotify. Three possible
+values: 96, 160, or 320. Optional (Default: 320).
+.UNINDENT
+.SS OPTIONS
+.INDENT 0.0
+.TP
+.B \fB\-\-spotify\-user arg\fP
+Spotify user name  (not required if provided via config file).
+.TP
+.B \fB\-\-spotify\-password arg\fP
+Spotify user password  (not required if provided via config file).
+.TP
+.B \fB\-\-spotify\-owner arg\fP
+The owner of the playlist  (this is optional: use in conjunction with \-\-spotify\-playlist or \-\-spotify\-playlist\-id).
+.TP
+.B \fB\-\-spotify\-recover\-lost\-token\fP
+Allow Tizonia to recover the play token and keep playing after a spurious token loss (default: false).
+.TP
+.B \fB\-\-spotify\-allow\-explicit\-tracks\fP
+Allow Tizonia to play explicit tracks from Spotify (default: false).
+.TP
+.B \fB\-\-spotify\-preferred\-bitrate arg\fP
+Preferred Spotify bitrate (kbps) (320, 160 or 96; default: 320).
+.TP
+.B \fB\-\-spotify\-tracks arg\fP
+Search and play from Spotify by track name.
+.TP
+.B \fB\-\-spotify\-artist arg\fP
+Search and play from Spotify by artist name.
+.TP
+.B \fB\-\-spotify\-album arg\fP
+Search and play from Spotify by album name.
+.TP
+.B \fB\-\-spotify\-playlist arg\fP
+Search and play public playlists (owner is assumed the current user, unless \-\-spotify\-owner is provided).
+.TP
+.B \fB\-\-spotify\-track\-id arg\fP
+Play from Spotify by track ID, URI or URL.
+.TP
+.B \fB\-\-spotify\-artist\-id arg\fP
+Play from Spotify by artist ID, URI or URL.
+.TP
+.B \fB\-\-spotify\-album\-id arg\fP
+Play from Spotify by album ID, URI or URL.
+.TP
+.B \fB\-\-spotify\-playlist\-id arg\fP
+Play public playlists from Spotify by ID, URI or URL (owner is assumed the current user, unless \-\-spotify\-owner is provided).
+.TP
+.B \fB\-\-spotify\-related\-artists arg\fP
+Search and play from Spotify the top songs from a selection of related artists.
+.TP
+.B \fB\-\-spotify\-featured\-playlist arg\fP
+Search and play a featured playlist from Spotify.
+.TP
+.B \fB\-\-spotify\-new\-releases arg\fP
+Search and play a newly released album from Spotify.
+.TP
+.B \fB\-\-spotify\-recommendations\-by\-track\-id arg\fP
+Play Spotify recommendations by track ID, URI or URL
+.TP
+.B \fB\-\-spotify\-recommendations\-by\-artist\-id arg\fP
+Play Spotify recommendations by artist ID, URI or URL.
+.TP
+.B \fB\-\-spotify\-recommendations\-by\-genre arg\fP
+Play Spotify recommendations by genre name.
+.UNINDENT
+.SS EXAMPLES
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ tizonia \-\-spotify\-artist \(aqenya\(aq
+
+$ tizonia \-\-spotify\-album \(aqthe greatest showman\(aq
+
+$ tizonia \-\-spotify\-recommendations\-by\-track\-id 3MrRksHupTVEQ7YbA0FsZK
+
+$ tizonia \-\-spotify\-playlist \(aqbest metal 2000s\(aq \-\-spotify\-owner \(aqanyuser\(aq
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH GOOGLE PLAY MUSIC
+.sp
+Music streaming from the Google Play Music service is supported on both free
+and paid tiers. In both cases, credentials are required to be input via
+command\-line or configuration file.
+.SS CONFIGURATION
+.sp
+The Tizonia configuration file contains a block under the \fB[tizonia]\fP section
+like the one pictured below (see also tizonia\-config\-label).
+.sp
+\fBWARNING:\fP
+.INDENT 0.0
+.INDENT 3.5
+When user names and passwords are stored in your local
+\fBtizonia.conf\fP, please ensure that this file has the correct
+file system permissions to prevent other users from accessing your
+credentials.
+.sp
+E.g.: \fB$ chmod og\-rwx $HOME/.config/tizonia/tizonia.conf\fP
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# Google Play Music configuration
+# \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+# To avoid passing this information on the command line, uncomment and
+# configure here.
+#
+# gmusic.user       = user@gmail.com
+# gmusic.password   = pass (account password or app\-specific password for
+#                          2\-factor users)
+# gmusic.device_id  = deviceid (16 hex digits, e.g. \(aq1234567890abcdef\(aq)
+# gmusic.buffer_seconds = size of the audio buffer (in seconds) to use while
+#                         downloading streams. Default: 720. Increase in
+#                         case of cuts.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fBgmusic.user\fP
+The Google Play Music account username, e.g. \fI\%\(aquser@gmail.com\fP\(aq or just \(aquser\(aq.
+.TP
+.B \fBgmusic.password\fP
+Account password or app\-specific password for 2\-factor users
+.TP
+.B \fBgmusic.device_id\fP
+An Android device id associated to your account. This is a 16\-digit
+hexadecimal number, e.g. \(aq1234567890abcdef\(aq.
+.TP
+.B \fBgmusic.buffer_seconds\fP
+This is the minimum size of the audio buffer (in seconds) that Tizonia will
+use while downloading the audio streams. It may be increased in case of
+cuts, but usually not required. Default: 720.
+.UNINDENT
+.SS OPTIONS
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+Command\-line options that contain \fBunlimited\fP represent those
+that require a \(aqPremium\(aq subscription to operate.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fB\-\-gmusic\-user arg\fP
+Google Play Music user name (not required if provided via config file).
+.TP
+.B \fB\-\-gmusic\-password arg\fP
+Google Play Music user\(aqs password (not required if provided via config file).
+.TP
+.B \fB\-\-gmusic\-device\-id arg\fP
+Google Play Music device id (not required if provided via config file).
+.TP
+.B \fB\-\-gmusic\-additional\-keywords arg\fP
+Additional search keywords (this is optional: use in conjunction
+with\-\-gmusic\-unlimited\-activity).
+.TP
+.B \fB\-\-gmusic\-library\fP
+Play all tracks from the user\(aqs library.
+.TP
+.B \fB\-\-gmusic\-tracks arg\fP
+Play tracks from the user\(aqs library by track name.
+.TP
+.B \fB\-\-gmusic\-artist arg\fP
+Play tracks from the user\(aqs library by artist.
+.TP
+.B \fB\-\-gmusic\-album arg\fP
+Play an album from the user\(aqs library.
+.TP
+.B \fB\-\-gmusic\-playlist arg\fP
+A playlist from the user\(aqs library.
+.TP
+.B \fB\-\-gmusic\-podcast arg\fP
+Search and play Google Play Music podcasts (only available in the US and
+Canada).
+.TP
+.B \fB\-\-gmusic\-station arg\fP
+Search and play Google Play Music free stations.
+.TP
+.B \fB\-\-gmusic\-unlimited\-station arg\fP
+Search and play Google Play Music Unlimited stations found in the user\(aqs library.
+.TP
+.B \fB\-\-gmusic\-unlimited\-album arg\fP
+Search and play Google Play Music Unlimited tracks by album (best match only).
+.TP
+.B \fB\-\-gmusic\-unlimited\-artist arg\fP
+Search and play Google Play Music Unlimited tracks by artist (best match only).
+.TP
+.B \fB\-\-gmusic\-unlimited\-tracks arg\fP
+Search and play Google Play Music Unlimited tracks by name (50 first matches only).
+.TP
+.B \fB\-\-gmusic\-unlimited\-playlist arg\fP
+Search and play Google Play Music Unlimited playlists by name.
+.TP
+.B \fB\-\-gmusic\-unlimited\-genre arg\fP
+Search and play Google Play Music Unlimited tracks by genre.
+.TP
+.B \fB\-\-gmusic\-unlimited\-activity arg\fP
+Search and play Google Play Music Unlimited tracks by activity.
+.TP
+.B \fB\-\-gmusic\-unlimited\-feeling\-lucky\-station\fP
+Play the user\(aqs Google Play Music Unlimited \(aqI\(aqm Feeling Lucky\(aq station.
+.TP
+.B \fB\-\-gmusic\-unlimited\-promoted\-tracks\fP
+Play Google Play Music Unlimited promoted tracks.
+.UNINDENT
+.SS EXAMPLES
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ tizonia \-\-gmusic\-unlimited\-album \(aqthe division bell\(aq
+
+$ tizonia \-\-gmusic\-unlimited\-feeling\-lucky\-station
+
+$ tizonia \-\-gmusic\-unlimited\-genre "alt metal"
+
+$ tizonia \-\-gmusic\-unlimited\-playlist \(aqnew metal\(aq
+
+$ tizonia \-\-gmusic\-unlimited\-promoted\-tracks
+
+$ tizonia \-\-gmusic\-unlimited\-station "top christmas songs"
+
+$ tizonia \-\-gmusic\-unlimited\-tracks \(aqgun word up\(aq
+
+$ tizonia \-\-gmusic\-unlimited\-activity "working out" \-\-gmusic\-additional\-keywords \(aqchart\(aq
+
+$ tizonia \-\-gmusic\-unlimited\-activity "working out" \-\-gmusic\-additional\-keywords \(aqchart\(aq
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH SOUNDCLOUD
+.sp
+To stream from SoundCloud Tizonia needs to be authorized to access your
+SoundCloud account. For that you need to obtain your \fI\%OAuth\fP token provided by SoundCloud and put it into your
+\fBtizonia.conf\fP file. For more details please read about the \fI\%Connect with
+SoundCloud\fP feature.
+.sp
+Please go to \fI\%Aratelia\(aqs Website\fP  [1]
+to retrieve your SoundCloud OAuth token.
+\fI\%Tizonia \- Connect with SoundCloud\fP.SS CONFIGURATION
+.sp
+The Tizonia configuration file contains a block under the \fB[tizonia]\fP section
+like the one pictured below (see also tizonia\-config\-label).
+.sp
+\fBWARNING:\fP
+.INDENT 0.0
+.INDENT 3.5
+When credentials are stored in your local
+\fBtizonia.conf\fP, please ensure that this file has the correct
+file system permissions to prevent other users from accessing your
+credentials.
+.sp
+E.g.: \fB$ chmod og\-rwx $HOME/.config/tizonia/tizonia.conf\fP
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# SoundCloud configuration
+# \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+# To avoid passing this information on the command line, uncomment and
+# configure your SoundCloud OAuth token here.
+#
+# To obtain your OAuth token, Tizonia needs to be granted access to your
+# SoundCloud account. Visit https://tizonia.org/docs/soundcloud/ for the
+# details.
+#
+# soundcloud.oauth_token = X\-XXXXXX\-XXXXXXXX\-XXXXXXXXXXXXXX
+# soundcloud.buffer_seconds = size of the audio buffer (in seconds) to use
+#                             while downloading streams. Default: 600.
+#                             Increase in case of cuts.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fBsoundcloud.buffer_seconds\fP
+This is the minimum size of the audio buffer (in seconds) that Tizonia will
+use while downloading the audio streams. It may be increased in case of
+cuts, but usually not required. Default: 600.
+.UNINDENT
+.SS OPTIONS
+.INDENT 0.0
+.TP
+.B \fB\-\-soundcloud\-oauth\-token arg\fP
+SoundCloud user OAuth token (not required if provided via config file).
+.TP
+.B \fB\-\-soundcloud\-user\-stream\fP
+Play the tracks currently listed in the user\(aqs stream.
+.TP
+.B \fB\-\-soundcloud\-user\-likes\fP
+Play the tracks liked by the user.
+.TP
+.B \fB\-\-soundcloud\-user\-playlist arg\fP
+Play a playlist from the user\(aqs collection.
+.TP
+.B \fB\-\-soundcloud\-creator arg\fP
+Search and play the top 50 tracks from a creator.
+.TP
+.B \fB\-\-soundcloud\-tracks arg\fP
+Search and play tracks by title (50 first matches only).
+.TP
+.B \fB\-\-soundcloud\-playlists arg\fP
+Search and play playlists by title.
+.TP
+.B \fB\-\-soundcloud\-genres arg\fP
+Search and play genres top tracks (arg is a command\-separated list).
+.TP
+.B \fB\-\-soundcloud\-tags arg\fP
+Search and play tags top tracks (arg is a command\-separated list).
+.UNINDENT
+.SS EXAMPLES
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ tizonia \-\-soundcloud\-tracks \(aqall right now\(aq
+
+$ tizonia \-\-soundcloud\-creator "twit"
+
+$ tizonia \-\-soundcloud\-genres "piano"
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH FOOTNOTES
+.IP [1] 5
+Aratelia is Juan A. Rubio\(aqs consultancy and Tizonia\(aqs sponsor.
+.SH YOUTUBE
+.sp
+Streaming from YouTube is possible without credentials. Simply use one of the
+command\-line options provided.
+.SS CONFIGURATION
+.sp
+The Tizonia configuration file contains a block under the \fB[tizonia]\fP section
+like the one pictured below (see also tizonia\-config\-label).
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# YouTube configuration
+# \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+# To avoid passing this information on the command line, uncomment and
+# configure as needed.
+#
+# youtube.buffer_seconds = size of the audio buffer (in seconds) to use
+#                          while downloading streams. Default: 60.
+#                          Increase in case of cuts.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fByoutube.buffer_seconds\fP
+This is the minimum size of the audio buffer (in seconds) that Tizonia will
+use while downloading the audio streams. It may be increased in case of
+cuts, but usually not required. Default: 60.
+.UNINDENT
+.SS OPTIONS
+.INDENT 0.0
+.TP
+.B \fB\-\-youtube\-audio\-stream arg\fP
+Play a YouTube audio stream from a video url or video id.
+.TP
+.B \fB\-\-youtube\-audio\-playlist arg\fP
+Play a YouTube audio playlist from a playlist url or playlist id.
+.TP
+.B \fB\-\-youtube\-audio\-mix arg\fP
+Play a YouTube mix from a video url or video id.
+.TP
+.B \fB\-\-youtube\-audio\-search arg\fP
+Search and play YouTube audio streams.
+.TP
+.B \fB\-\-youtube\-audio\-mix\-search arg\fP
+Play a YouTube mix from a search term.
+.TP
+.B \fB\-\-youtube\-audio\-channel\-uploads arg\fP
+Play all videos uploaded to a YouTube channel (arg = channel url or name).
+.TP
+.B \fB\-\-youtube\-audio\-channel\-playlist arg\fP
+Play a playlist from particular YouTube channel (arg = \(aq<channel\-name[space]play list\-name>\(aq).
+.UNINDENT
+.SS EXAMPLES
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ tizonia \-\-youtube\-audio\-mix\-search \(aqthe final countdown\(aq
+
+$ tizonia \-\-youtube\-audio\-channel\-playlist \(aqUCGJdzJQ3R1BpahSvcFq23HA masters of metal\(aq
+
+$ tizonia \-\-youtube\-audio\-channel\-uploads \(aqUCGJdzJQ3R1BpahSvcFq23HA\(aq
+
+$ tizonia \-\-youtube\-audio\-stream v2AC41dglnM
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH TUNEIN
+.sp
+User credentials are not need to stream radio stations from TuneIn. Simply use
+one of the command\-line options provided to searchand liste to radio stations
+from the TuneIn Internet radio directory.
+.SS CONFIGURATION
+.sp
+The Tizonia configuration file contains a block under the \fB[tizonia]\fP section
+like the one pictured below (see also tizonia\-config\-label).
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# Tunein configuration
+# \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+# To avoid passing this information on the command line, uncomment and
+# configure here.
+#
+#
+# tunein.buffer_seconds = size of the audio buffer (in seconds) to use
+#                         while downloading streams. Default: 120.
+#                         Increase in case of cuts.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fBtunein.buffer_seconds\fP
+This is the minimum size of the audio buffer (in seconds) that Tizonia will
+use while downloading the audio streams. It may be increased in case of
+cuts, but usually not required. Default: 120.
+.UNINDENT
+.SS OPTIONS
+.INDENT 0.0
+.TP
+.B \fB\-\-tunein\-search arg\fP
+TuneIn global station/podcast search.
+.TP
+.B \fB\-\-tunein\-local arg\fP
+TuneIn \(aqlocal\(aq category search.
+.TP
+.B \fB\-\-tunein\-music arg\fP
+TuneIn \(aqmusic\(aq category search.
+.TP
+.B \fB\-\-tunein\-talk arg\fP
+TuneIn \(aqtalk\(aq category search.
+.TP
+.B \fB\-\-tunein\-sports arg\fP
+TuneIn \(aqsports\(aq category search.
+.TP
+.B \fB\-\-tunein\-location arg\fP
+TuneIn \(aqlocation\(aq category search.
+.TP
+.B \fB\-\-tunein\-podcasts arg\fP
+TuneIn \(aqpodcasts\(aq category search.
+.TP
+.B \fB\-\-tunein\-trending arg\fP
+TuneIn \(aqtrending\(aq category search.
+.TP
+.B \fB\-\-tunein\-type arg\fP
+Narrow down the search to specific type: \(aqstations\(aq, \(aqshows\(aq, or \(aqall\(aq (default: all). Optional.
+.TP
+.B \fB\-\-tunein\-keywords arg\fP
+Additional keywords that may be used in conjunction with the TuneIn options. Optional (may be repeated).
+.UNINDENT
+.SS EXAMPLES
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ tizonia \-\-tunein\-trending \(aqheart UK\(aq
+
+$ tizonia \-\-tunein\-search \(aqradio marca\(aq \-\-tunein\-type "stations" \-\-tunein\-keywords "tenerife"
+
+$ tizonia \-\-tunein\-location "Europe" \-\-tunein\-keywords "Spain" \-\-tunein\-keywords "Madrid"
+
+$ tizonia \-\-tunein\-local "Cambridge"  \-\-tunein\-type "stations" \-\-tunein\-keywords "BBC"
+
+$ tizonia \-\-tunein\-music \(aqrock\(aq \-\-tunein\-keywords "181.FM"  \-\-tunein\-keywords "US" \-\-tunein\-type "stations"
+
+$ tizonia \-\-tunein\-sports "news" \-\-tunein\-type "shows"
+
+$ tizonia \-\-tunein\-talk \(aqde noticias\(aq \-\-tunein\-keywords "esradio" \-\-tunein\-keywords "spain"
+
+$ tizonia \-\-tunein\-podcasts "Classical Music" \-\-tunein\-keywords "global"
+
+$ tizonia \-\-tunein\-search "TWIT" \-\-tunein\-type "shows"
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH PLEX
+.sp
+Tizonia can stream audio from a Plex server. To stream from a Plex server, it
+is necessary to provide the base URL where the server can be contacted and the
+authentication token. These two elements must be provided on the command\-line
+or via configuration file.
+.SS CONFIGURATION
+.sp
+The Tizonia configuration file contains a block under the \fB[tizonia]\fP section
+like the one pictured below (see also tizonia\-config\-label).
+.sp
+\fBWARNING:\fP
+.INDENT 0.0
+.INDENT 3.5
+When credentials are stored in your local
+\fBtizonia.conf\fP, please ensure that this file has the correct
+file system permissions to prevent other users from accessing your
+credentials.
+.sp
+E.g.: \fB$ chmod og\-rwx $HOME/.config/tizonia/tizonia.conf\fP
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# Plex configuration
+# \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+# To avoid passing this information on the command line, uncomment and
+# configure your Plex server and account auth token here.
+#
+# To find how to obtain a Plex user authentication token, see:
+# https://support.plex.tv/articles/204059436\-finding\-an\-authentication\-token\-x\-plex\-token/
+#
+# plex.base_url = xxxxxxxxxxxxxx (e.g. http://plexserver:32400)
+# plex.auth_token = xxxxxxxxxxxxxx (e.g. SrPEojhap3H5Qj2DmjhX)
+# plex.buffer_seconds = size of the audio buffer (in seconds) to use
+#                       while downloading streams. Default: 600.
+#                       Increase in case of cuts.
+# plex.music_section_name = name of the music section in your plex library
+#                           (default: Music)
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fBplex.base_url\fP
+The base URL of the Plex server, e.g. \fI\%http://plexserver:32400\fP\&.
+.TP
+.B \fBplex.auth_token\fP
+The user authentication token to be used during communication with the Plex server. To find the token:
+.INDENT 7.0
+.IP \(bu 2
+Sign in to your Plex account in the Plex Web App.
+.IP \(bu 2
+Browse to a library item and click on the Get Info menu item.
+[image]
+.IP \(bu 2
+From the Media Info screen, click on View XML.
+[image]
+.IP \(bu 2
+Look in the URL and find the token as the X\-Plex\-Token value
+[image]
+.UNINDENT
+.sp
+For more details see \fI\%https://support.plex.tv/articles/204059436\-finding\-an\-authentication\-token\-x\-plex\-token/\fP
+.TP
+.B \fBplex.buffer_seconds\fP
+This is the minimum size of the audio buffer (in seconds) that Tizonia will
+use while downloading the audio streams. It may be increased in case of
+cuts, but usually not required. Default: 60.
+.TP
+.B \fBplex.music_section_name\fP
+The name of the \(aqmusic\(aq section in the Plex library that will be used by
+Tizonia for searching and streaming. Defaults: Music. Useful for users that
+have renamed their music library to something different from the default or
+users that have more than one music library.
+.UNINDENT
+.SS OPTIONS
+.INDENT 0.0
+.TP
+.B \fB\-\-plex\-server\-base\-url arg\fP
+Plex server base URL (e.g. \(aq\fI\%http://plexserver:32400\fP\(aq. Not required if provided via config file).
+.TP
+.B \fB\-\-plex\-auth\-token arg\fP
+Plex account authentication token (not required if provided via config file).
+.TP
+.B \fB\-\-plex\-music\-section arg\fP
+Name of the Plex music section (needed if different from \(aqMusic\(aq; may be provided via config file).
+.TP
+.B \fB\-\-plex\-audio\-tracks arg\fP
+Search and play audio tracks from a Plex server.
+.TP
+.B \fB\-\-plex\-audio\-artist arg\fP
+Search and play an artist\(aqs audio tracks from a Plex server.
+.TP
+.B \fB\-\-plex\-audio\-album arg\fP
+Search and play a music album from a Plex server.
+.TP
+.B \fB\-\-plex\-audio\-playlist arg\fP
+Search and play playlists from a Plex server.
+.UNINDENT
+.SS EXAMPLES
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ tizonia \-\-plex\-audio\-artist \(aqSantana\(aq
+
+$ tizonia \-\-plex\-audio\-track \(aqfive miles out\(aq
+
+$ tizonia \-\-plex\-audio\-album "Draconian Times"
+
+$ tizonia \-\-plex\-audio\-playlist "Mike oldfield popular tracks"
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH SHOUTCAST SERVER
+.sp
+Tizonia can act as a simplified Icecast/SHOUTcast LAN streaming server. In this
+mode, Tizonia can stream local mp3 files to a single client. This is useful to,
+for example, stream a collection of \fBmp3\fP files to a client application
+running on another machine or on a mobile phone within your home.
+.SS OPTIONS
+.INDENT 0.0
+.TP
+.B \fB\-\-server\fP
+Stream media files using the SHOUTcast/ICEcast streaming protocol.
+.TP
+.B \fB\-p [ \-\-port ] arg\fP
+TCP port to be used for Icecast/SHOUTcast streaming. Optional. Default: 8010.
+.TP
+.B \fB\-\-station\-name arg\fP
+The Icecast/SHOUTcast station name. Optional.
+.TP
+.B \fB\-\-station\-genre arg\fP
+The Icecast/SHOUTcast station genre. Optional.
+.TP
+.B \fB\-\-no\-icy\-metadata\fP
+Disables Icecast/SHOUTcast metadata in the stream. Optional.
+.TP
+.B \fB\-\-bitrate\-modes arg\fP
+A comma\-separated list of bitrate modes (e.g. \(aqCBR,VBR\(aq). Only media with these bitrate modes will be streamed. Optional. Default: any.
+.TP
+.B \fB\-\-sampling\-rates arg\fP
+A comma\-separated list of sampling rates. Only media with these rates will be streamed. Optional. Default: any.
+.UNINDENT
+.SS EXAMPLES
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ tizonia \-\-server \-\-recurse \-\-shuffle $HOME/Music
+This software is part of the Tizonia project <https://tizonia.org>
+
+[Tizonia Radio]: Server streaming on http://galactus:8010
+[Tizonia Radio]: Streaming media with sampling rates [ANY].
+[Tizonia Radio]: Streaming media with bitrate modes [CBR,VBR].
+
+Playlist length: 954. File extensions in playlist: .mp3
+[http/mp3] [server] : \(aq/home/joni/Music/The Official Uk Top 40 Singles Chart/Iggy Azalea Feat Charli XCX \- Fancy
+   Fancy (Explicit Edit), Iggy Azalea Feat Charli XCX
+     Track # : 20
+     Album : The Official Uk Top 40 Singles Chart
+     Year : 2014
+     Duration : 3m:20s
+     Size : 7.7 MiB
+     Genre : Top 40
+     Comment : Some music
+     2 Ch, 44.1 KHz, 320 Kbps
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH SHOUTCAST CLIENT
+.sp
+Tizonia can act as client of Icecast/SHOUTcast streaming servers. In this mode,
+Tizonia can stream Internet radio stations from Internet servers or from
+another instance of Tizonia acting as a streaming server in the same LAN. The
+supported media formats while operating in this mode are \fBmp3\fP, \fBaac\fP,
+\fBflac\fP, \fBogg\fP and \fBopus\fP\&.
+.SS OPTIONS
+.INDENT 0.0
+.TP
+.B \fB\-\-station\-id arg\fP
+Give a name/id to the remote stream. Optional.
+.UNINDENT
+.SS EXAMPLES
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ tizonia http://galactus:8010
+This software is part of the Tizonia project <https://tizonia.org>
+
+[http] [Connecting to radio station] : \(aqhttp://galactus:8010\(aq.
+     Content\-Type : audio/mpeg
+     icy\-br : 320
+     ice\-audio\-info : bitrate=320000;channels=2;samplerate=44100
+     icy\-name : Tizonia Radio (galactus:8010)
+     icy\-description : Tizonia Streaming Server
+     icy\-genre : Unknown Genre
+     icy\-url : https://tizonia.org
+     icy\-pub : 0
+     Server : Tizonia HTTP Renderer 0.19.0
+     Cache\-Control : no\-cache
+[http/mp3] [Connected] : \(aqhttp://galactus:8010\(aq.
+     2 Ch, 44.1 KHz, 16:s:b
+
+
+$ tizonia http://vis.media\-ice.musicradio.com/LBCUKMP3Low
+This software is part of the Tizonia project <https://tizonia.org>
+
+[http] [Connecting to radio station] : \(aqhttp://vis.media\-ice.musicradio.com/LBCUKMP3Low\(aq.
+     Accept\-Ranges : none
+     Content\-Type : audio/mpeg
+     icy\-br : 48
+     ice\-audio\-info : ice\-samplerate=44100;ice\-bitrate=48;ice\-channels=1
+     icy\-br : 48
+     icy\-description : LBC UK
+     icy\-genre : Talk
+     icy\-name : LBC UK
+     icy\-private : 0
+     icy\-pub : 1
+     Server : Icecast 2.3.3\-kh11
+     Cache\-Control : no\-cache, no\-store
+     Pragma : no\-cache
+     Access\-Control\-Allow\-Origin : *
+     Access\-Control\-Allow\-Headers : Origin, Accept, X\-Requested\-With, Content\-Type
+     Access\-Control\-Allow\-Methods : GET, OPTIONS, HEAD
+     Connection : close
+     Expires : Mon, 26 Jul 1997 05:00:00 GMT
+[http/mp3] [Connected] : \(aqhttp://vis.media\-ice.musicradio.com/LBCUKMP3Low\(aq.
+     1 Ch, 44.1 KHz, 16:s:b
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH CHROMECAST
+.sp
+Tizonia can cast audio to Chromecast devices from most of the supported
+services. A number of services for which casting is not yet supported
+are:
+.INDENT 0.0
+.IP \(bu 2
+Spotify (see [1])
+.IP \(bu 2
+Plex (see [2])
+.IP \(bu 2
+Local Media
+.UNINDENT
+.SS OPTIONS
+.INDENT 0.0
+.TP
+.B \fB\-c [ \-\-cast ] arg\fP
+Cast to a Chromecast device (arg: device name, \(aqfriendly\(aq name or ip
+address). Available in combination with Google Play Music, SoundCloud,
+YouTube, TuneIn and regular HTTP radio stations.
+.UNINDENT
+.SS EXAMPLES
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# Using Chromecast device\(aqs hostname
+$ tizonia \-\-youtube\-audio\-mix\-search "the greatest show" \-\-cast "Chromecast\-Ultra" \-\-shuffle
+
+# Using Chromecast device\(aqs IP address
+$ tizonia \-\-tunein\-trending  \-\-cast "192.168.1.141"
+
+# Using Chromecast device\(aqs \(aqfriendly\(aq name
+$ tizonia \-\-gmusic\-artist "dire straits" \-\-cast "kitchen"
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH FOOTNOTES
+.IP [1] 5
+There are plans to add casting of Spotify streams: \fI\%https://github.com/tizonia/tizonia\-openmax\-il/issues/461\fP\&.
+.IP [2] 5
+There are plans to add casting of Plex streams: \fI\%https://github.com/tizonia/tizonia\-openmax\-il/issues/462\fP\&.
 .SH COLOR THEMES
 .sp
-Tizonia now supports color\-themes. That means, tizonia\(aqs output on the terminal
-can now be customized. There are 4 color themes shipped within \fBtizonia.conf\fP
-(from 0.20.0+). The color themes are:
+Tizonia supports color\-themes. To customize the colors of Tizonia\(aqs output on
+the terminal, simply select one of the four color themes shipped within
+\fBtizonia.conf\fP (available from 0.20.0+). The color themes are:
 .INDENT 0.0
 .IP \(bu 2
 tizonia (the default theme),
@@ -861,8 +1480,8 @@ blink,
 and monokai
 .UNINDENT
 .sp
-Use these color themes as examples/templates. Adding a new color theme should
-be relatively straightforward with a bit of experimentation.
+Use these color themes as examples/templates. Adding new color themes should be
+relatively straightforward with a bit of experimentation.
 .sp
 To activate a particular color theme within \fBtizonia.conf\fP, simply select it
 using the \fBactive\-theme\fP element in \fBtizonia.conf\fP (please check that your
@@ -924,7 +1543,7 @@ terminal supports the corresponding color bit\-depth).
 #
 # To activate a color theme, add its name and uncomment the following line.
 #
-# active\-theme = tizonia
+active\-theme = tizonia
 .ft P
 .fi
 .UNINDENT
@@ -1077,12 +1696,296 @@ monokai.C16 = 48,2,39,40,34            # Hint: the moving progress bar itself (I
 .fi
 .UNINDENT
 .UNINDENT
+.SH OPENMAX IL OPTIONS
+.sp
+The section describes a number of options that are more typically used during
+development. These command\-line options allow querying the OpenMAX IL subsystem
+and learn about the installed OpenMAX IL components and their supported roles.
+.SS OPTIONS
+.INDENT 0.0
+.TP
+.B \fB\-L [ \-\-comp\-list ]\fP
+Enumerate all the OpenMAX IL components in the system.
+.TP
+.B \fB\-R [ \-\-roles\-of\-comp ] arg\fP
+Display the OpenMAX IL roles found in component <arg>.
+.TP
+.B \fB\-C [ \-\-comps\-of\-role ] arg\fP
+Display the OpenMAX IL components that implement role <arg>.
+.UNINDENT
+.SS EXAMPLES
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ tizonia \-\-comp\-list
+This software is part of the Tizonia project <https://tizonia.org>
+
+Component at index [0] \-> [OMX.Aratelia.audio_decoder.opus]
+Component at index [1] \-> [OMX.Aratelia.audio_decoder.aac]
+Component at index [2] \-> [OMX.Aratelia.audio_renderer.pulseaudio.pcm]
+Component at index [3] \-> [OMX.Aratelia.audio_decoder.mp3]
+Component at index [4] \-> [OMX.Aratelia.file_reader.binary]
+Component at index [5] \-> [OMX.Aratelia.audio_renderer.http]
+Component at index [6] \-> [OMX.Aratelia.container_demuxer.webm]
+Component at index [7] \-> [OMX.Aratelia.file_writer.binary]
+Component at index [8] \-> [OMX.Aratelia.iv_renderer.yuv.overlay]
+Component at index [9] \-> [OMX.Aratelia.audio_renderer.chromecast]
+Component at index [10] \-> [OMX.Aratelia.audio_decoder.mpeg]
+Component at index [11] \-> [OMX.Aratelia.audio_renderer.alsa.pcm]
+Component at index [12] \-> [OMX.Aratelia.container_demuxer.ogg]
+Component at index [13] \-> [OMX.Aratelia.audio_encoder.mp3]
+Component at index [14] \-> [OMX.Aratelia.audio_metadata_eraser.mp3]
+Component at index [15] \-> [OMX.Aratelia.tizonia.test_component]
+Component at index [16] \-> [OMX.Aratelia.container_muxer.ogg]
+Component at index [17] \-> [OMX.Aratelia.video_decoder.vp8]
+Component at index [18] \-> [OMX.Aratelia.audio_decoder.pcm]
+Component at index [19] \-> [OMX.Aratelia.audio_source.spotify.pcm]
+Component at index [20] \-> [OMX.Aratelia.ilcore.test_component]
+Component at index [21] \-> [OMX.Aratelia.audio_decoder.opusfile.opus]
+Component at index [22] \-> [OMX.Aratelia.audio_decoder.vorbis]
+Component at index [23] \-> [OMX.Aratelia.audio_source.http]
+Component at index [24] \-> [OMX.Aratelia.audio_decoder.flac]
+
+
+$ tizonia \-\-roles\-of\-comp OMX.Aratelia.audio_renderer.chromecast
+This software is part of the Tizonia project <https://tizonia.org>
+
+Component [OMX.Aratelia.audio_renderer.chromecast] : role #0 \-> [audio_renderer.chromecast]
+Component [OMX.Aratelia.audio_renderer.chromecast] : role #1 \-> [audio_renderer.chromecast.gmusic]
+Component [OMX.Aratelia.audio_renderer.chromecast] : role #2 \-> [audio_renderer.chromecast.scloud]
+Component [OMX.Aratelia.audio_renderer.chromecast] : role #3 \-> [audio_renderer.chromecast.tunein]
+Component [OMX.Aratelia.audio_renderer.chromecast] : role #4 \-> [audio_renderer.chromecast.youtube]
+Component [OMX.Aratelia.audio_renderer.chromecast] : role #5 \-> [audio_renderer.chromecast.plex]
+
+
+$ tizonia \-\-comps\-of\-role audio_renderer.chromecast.gmusic
+This software is part of the Tizonia project <https://tizonia.org>
+
+Role [audio_renderer.chromecast.gmusic] found in [OMX.Aratelia.audio_renderer.chromecast]
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
 .SH LOCAL MEDIA PLAYBACK
 .sp
-TODO
+Tizonia supports playback of local media with the following audio formats:
+.INDENT 0.0
+.IP \(bu 2
+mp2
+.IP \(bu 2
+mp3
+.IP \(bu 2
+aac
+.IP \(bu 2
+ogg/vorbis
+.IP \(bu 2
+flac
+.IP \(bu 2
+opus
+.IP \(bu 2
+and wav/aiff
+.UNINDENT
+.SS EXAMPLES
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ tizonia $HOME/Music \-\-recurse \-\-shuffle
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH REMOTE CONTROL
+.sp
+Remote control of Tizonia is possible on environments that support \fI\%D\-Bus\fP\&. Tizonia implements a subset of the
+\fI\%Media Player Remote Interfacing Specification\fP\&. More
+specifically a subset of the \fI\%MPRIS D\-Bus Interface Specification (version 2)\fP
+.sp
+Tizonia ships with a tool called \fBtizonia\-remote\fP\&. This tool provides an easy
+way access to the subset of the MPRISv2 commands that are implemented.
+.SS CONFIGURATION
+.sp
+The Tizonia configuration file contains a block like this one (see
+tizonia\-config\-label) under the \fB[tizonia]\fP section.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# MPRIS v2 interface enable/disable switch
+# \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+# Valid values are: true | false
+#
+mpris\-enabled = false
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fBmpris\-enabled\fP
+Set to \fBtrue\fP or \fBfalse\fP to enable or disable the MPRISv2 remote control
+interface. When this element is set to \fBtrue\fP, \fBtizonia\-remote\fP will be
+able to control a running instance of Tizonia.
+.UNINDENT
+.SS OPTIONS
+.sp
+This is the help message provided by \fBtizonia\-remote\fP\&.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ tizonia\-remote help
+This software is part of the Tizonia project <https://tizonia.org>
+
+GNU Lesser GPL version 3 <http://gnu.org/licenses/lgpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+MPRIS2 remote control for tizonia.
+http://specifications.freedesktop.org/mpris\-spec/latest/
+
+Usage: /usr/bin/tizonia\-remote [command]
+
+    Misc. commands
+    \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+
+    help                 this help text.
+    kill                 sends the TERM signal.
+
+    org.mpris.MediaPlayer2 interface
+    \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+    ::Methods::
+
+    quit                 causes the application to stop running.
+
+    ::Properties::
+
+    canquit              whether the media player quit.
+    canraise             whether the media player can raise its UI.
+    hastracklist         whether the org.mpris.MediaPlayer2.TrackList interface
+                         is implemented.
+    identity             returns the name that identifies the media player.
+    urischemes           returns the URI schemes supported.
+    mimetypes            returns the mime types supported.
+
+    org.mpris.MediaPlayer2.Player interface
+    \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+    ::Methods::
+
+    play                 starts or resumes playback.
+    stop                 stops playback.
+    pause                pauses playback.
+    next                 skips to the next track in the tracklist.
+    prev                 skips to the previous track in the tracklist.
+    seek                 (NOT IMPLEMENTED) seeks forward in the current
+                         track by the specified number of microseconds.
+
+    ::Properties::
+
+    playstatus           the current playback status ("Playing", "Paused" or "Stopped").
+    loopstatus           the current loop / repeat status ("None", "Track", "Playlist")
+                         (Read/Write).
+    rate                 the current playback rate (Read/Write).
+    shuffle              the current shuffled playback status (true or false).
+    metadata             the metadata of the current track (Read/Write).
+    volume               the volume level (Read/Write).
+
+    org.mpris.MediaPlayer2.TrackList interface
+    \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+    NOT IMPLEMENTED
+
+    org.mpris.MediaPlayer2.Playlists interface
+    \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+    NOT IMPLEMENTED
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SS EXAMPLES
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ tizonia\-remote next
+
+$ tizonia\-remote prev
+
+$ tizonia\-remote pause
+
+$ tizonia\-remote play
+
+$ tizonia\-remote quit
+
+$ tizonia\-remote volume .9
+
+$ tizonia\-remote volume
+0.9
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH RASPBERRY PI
+.sp
+There are Tizonia binaries for Raspbian. All versions of Raspberry Pi are
+supported. Select the \fBOMX.Aratelia.audio_renderer.alsa.pcm\fP renderer as the
+default audio renderer in \fBtizonia.conf\fP\&.
+.SS CONFIGURATION
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+[tizonia]
+# Tizonia player section
+
+# The default audio renderer used by the tizonia player
+# \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+# Valid values are:
+# \- OMX.Aratelia.audio_renderer.pulseaudio.pcm
+# \- OMX.Aratelia.audio_renderer.alsa.pcm
+default\-audio\-renderer = OMX.Aratelia.audio_renderer.alsa.pcm
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+This can also be done with this one\-liner:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# Update tizonia\(aqs config
+perl \-pi \-e \(aqs/^(default\-audio\-renderer.*)pulseaudio/\e1alsa/\(aq $HOME/.config/tizonia/tizonia.conf
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SS Tizonia on a headless Raspberry Pi
+.sp
+It is posible to run Tizonia on a headless Raspberry Pi (e.g. a Raspberry Pi
+Zero with Raspbian Lite).
+.sp
+Tizonia has a dependency against D\-Bus but normally, the D\-Bus daemon is not
+even started without X11. In this case, it is necessary to make sure that the
+D\-Bus daemon has been started prior to using Tizonia.
+.sp
+See this \fI\%recipe\fP for an idea on how to launch
+the D\-Bus daemon on your headless Raspberry Pi.
+.SH FOOTNOTES
+.IP [1] 5
+There are plans to add an option to disable looped playback: \fI\%https://github.com/tizonia/tizonia\-openmax\-il/issues/491\fP\&.
+.IP [2] 5
+There are plans to add seeking, useful for long shows and podcasts: \fI\%https://github.com/tizonia/tizonia\-openmax\-il/issues/438\fP\&.
 .SH AUTHOR
 Juan A. Rubio
 .SH COPYRIGHT
-2019, Aratelia Limited - Juan A. Rubio
+2020, Juan A. Rubio and contributors
 .\" Generated by docutils manpage writer.
 .

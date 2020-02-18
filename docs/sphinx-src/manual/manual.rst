@@ -29,8 +29,8 @@ experience by following a few principles:
 
 **Reduced 'muscle-memory'**
   Finding the music that you want and listening to it should require a single
-  command-line option on the terminal. E.g.: ``tizonia --spotify-album
-  "Islands"``. Bash and Zsh completions are available. There is also a
+  command-line option on the terminal. E.g.: ``tizonia --spotify-album Islands``.
+  Bash and Zsh completions are available. There is also a
   `Oh-my-zsh <https://ohmyz.sh/>`_ plugin available `here
   <https://github.com/tizonia/tizonia-openmax-il/blob/master/player/tools/tizonia.plugin.zsh>_.
 

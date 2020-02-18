@@ -224,7 +224,7 @@ This is the template that ships with the latest version of Tizonia:
    # plex.base_url = xxxxxxxxxxxxxx (e.g. http://plexserver:32400)
    # plex.auth_token = xxxxxxxxxxxxxx (e.g. SrPEojhap3H5Qj2DmjhX)
    # plex.buffer_seconds = size of the audio buffer (in seconds) to use
-   #                       while downloading streams. Default: 60.
+   #                       while downloading streams. Default: 600.
    #                       Increase in case of cuts.
    # plex.music_section_name = name of the music section in your plex library
    #                           (default: Music)
