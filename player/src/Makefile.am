@@ -200,7 +200,7 @@ tizonia_CPPFLAGS = \
 	-I$(top_srcdir)/src/services/youtube \
 	-I$(top_srcdir)/src/services/plex \
 	-I$(top_srcdir)/src/services/tunein \
-	-I/usr/include/taglib \
+	@TAGLIB_CFLAGS@ \
 	@LIBMEDIAINFO_CFLAGS@ \
 	@TIZDBUSCPLUSPLUS_CFLAGS@ \
 	-D__STDC_CONSTANT_MACROS
@@ -210,7 +210,8 @@ tizonia_LDADD = \
 	@BOOST_SYSTEM_LIB@ \
 	@BOOST_FILESYSTEM_LIB@ \
 	@BOOST_THREAD_LIB@ \
-	-ltag \
+	@BOOST_CHRONO_LIB@ \
+	@TAGLIB_LIBS@ \
 	@LIBMEDIAINFO_LIBS@ \
 	@TIZDBUSCPLUSPLUS_LIBS@ \
 	@TIZPLATFORM_LIBS@ \
