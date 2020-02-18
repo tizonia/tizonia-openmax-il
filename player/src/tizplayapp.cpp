@@ -44,6 +44,7 @@
 #include <termios.h>
 #include <unistd.h>
 #include <string.h>
+#include <sys/utsname.h>
 
 #include <cstdlib>
 
@@ -596,8 +597,13 @@ tiz::playapp::print_debug_info () const
 {
   if (popts_.debug_info ())
   {
+    struct utsname name;
     print_banner ();
     printf ("Debug Info:\n");
+    if (!uname (&name))
+    {
+      printf ("\t    * [%s@%s-%s]\n", name.sysname, name.release, name.version);
+    }
     printf ("\t    * [Boost %s]\n", BOOST_LIB_VERSION);
     printf ("\t    * [TagLib %d.%d.%d]\n", TAGLIB_MAJOR_VERSION,
             TAGLIB_MINOR_VERSION, TAGLIB_PATCH_VERSION);
