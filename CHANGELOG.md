@@ -1,5 +1,48 @@
 # Changelog
 
+## [v0.20.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.20.0) (2020-02-18)
+
+[Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.19.0...v0.20.0)
+
+**Improvements:**
+
+- New build system based on Meson \(phase I\) [\#685](https://github.com/tizonia/tizonia-openmax-il/issues/685)
+- Add support for TuneIn Internet radios [\#684](https://github.com/tizonia/tizonia-openmax-il/issues/684)
+- tizonia-remote: publish in debian packages [\#683](https://github.com/tizonia/tizonia-openmax-il/issues/683)
+
+**Fixed bugs:**
+
+- passwords in clear text in config file: add warnings to advise users to restrict access [\#678](https://github.com/tizonia/tizonia-openmax-il/issues/678)
+- Improve tizonia.org security by using HTTPS/SSL [\#672](https://github.com/tizonia/tizonia-openmax-il/issues/672)
+- Mopidy APT source is dead \(404\) [\#670](https://github.com/tizonia/tizonia-openmax-il/issues/670)
+- libtizplatform: allow options and comments in the same line of the config file  [\#667](https://github.com/tizonia/tizonia-openmax-il/issues/667)
+- Not able to cast from penguin terminal to chromecast [\#639](https://github.com/tizonia/tizonia-openmax-il/issues/639)
+
+**Closed issues:**
+
+- Display Current Playing / RC.Local output via SSH [\#654](https://github.com/tizonia/tizonia-openmax-il/issues/654)
+- Using Tizonia in Cron jobs [\#651](https://github.com/tizonia/tizonia-openmax-il/issues/651)
+- AttributeError: module 'importlib' has no attribute 'util' [\#647](https://github.com/tizonia/tizonia-openmax-il/issues/647)
+- Error 404 on bintray raspbian buster 0.19 [\#645](https://github.com/tizonia/tizonia-openmax-il/issues/645)
+- Python modules 'spotifyapi' or 'fuzzywuzzy' not found. [\#644](https://github.com/tizonia/tizonia-openmax-il/issues/644)
+- \[news\] gst-omx now makes use of non-pre-announce buffer mode for OMX\_UseBuffer [\#416](https://github.com/tizonia/tizonia-openmax-il/issues/416)
+
+**Merged pull requests:**
+
+- Beautify the final message by using summary\(\) [\#676](https://github.com/tizonia/tizonia-openmax-il/pull/676) ([lgbaldoni](https://github.com/lgbaldoni))
+- Further reduce boost dependencies [\#674](https://github.com/tizonia/tizonia-openmax-il/pull/674) ([lgbaldoni](https://github.com/lgbaldoni))
+- Do not require dependencies when not needed. [\#673](https://github.com/tizonia/tizonia-openmax-il/pull/673) ([lgbaldoni](https://github.com/lgbaldoni))
+- Add features to disable clients and plugins [\#671](https://github.com/tizonia/tizonia-openmax-il/pull/671) ([lgbaldoni](https://github.com/lgbaldoni))
+- Develop [\#666](https://github.com/tizonia/tizonia-openmax-il/pull/666) ([lgbaldoni](https://github.com/lgbaldoni))
+- Use external libev if available [\#665](https://github.com/tizonia/tizonia-openmax-il/pull/665) ([lgbaldoni](https://github.com/lgbaldoni))
+- Preparing for system libev [\#664](https://github.com/tizonia/tizonia-openmax-il/pull/664) ([lgbaldoni](https://github.com/lgbaldoni))
+- A few meson minor changes [\#663](https://github.com/tizonia/tizonia-openmax-il/pull/663) ([lgbaldoni](https://github.com/lgbaldoni))
+- Add specific path to includes for vpx headers [\#662](https://github.com/tizonia/tizonia-openmax-il/pull/662) ([lgbaldoni](https://github.com/lgbaldoni))
+- meson misc [\#661](https://github.com/tizonia/tizonia-openmax-il/pull/661) ([lgbaldoni](https://github.com/lgbaldoni))
+- Use find\_library\(\) for log4c only if necessary [\#659](https://github.com/tizonia/tizonia-openmax-il/pull/659) ([lgbaldoni](https://github.com/lgbaldoni))
+- Initial meson commit [\#658](https://github.com/tizonia/tizonia-openmax-il/pull/658) ([lgbaldoni](https://github.com/lgbaldoni))
+- Adapt doxygen paths to meson [\#657](https://github.com/tizonia/tizonia-openmax-il/pull/657) ([lgbaldoni](https://github.com/lgbaldoni))
+
 ## [v0.19.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.19.0) (2019-12-13)
 
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.18.0...v0.19.0)
@@ -8,9 +51,8 @@
 
 - Support Debian Bullseye [\#632](https://github.com/tizonia/tizonia-openmax-il/issues/632)
 - install.sh: add support for Linux Mint 19.2 Tina [\#629](https://github.com/tizonia/tizonia-openmax-il/issues/629)
-- Spotify: doesn't seem to use proxy [\#626](https://github.com/tizonia/tizonia-openmax-il/issues/626)
 - Raspbian Buster not supported [\#621](https://github.com/tizonia/tizonia-openmax-il/issues/621)
-- PulseAudio volume remembered/customized [\#620](https://github.com/tizonia/tizonia-openmax-il/issues/620)
+- PulseAudio volume customized [\#620](https://github.com/tizonia/tizonia-openmax-il/issues/620)
 - Python3 support [\#614](https://github.com/tizonia/tizonia-openmax-il/issues/614)
 - Spotify: allow configuration of preferred bitrate settings [\#613](https://github.com/tizonia/tizonia-openmax-il/issues/613)
 - Plex: allow music section name other than 'Music' [\#610](https://github.com/tizonia/tizonia-openmax-il/issues/610)
@@ -250,7 +292,7 @@
 
 **Merged pull requests:**
 
-- Make aac\_decoder optional [\#422](https://github.com/tizonia/tizonia-openmax-il/pull/422) ([luigino](https://github.com/luigino))
+- Make aac\_decoder optional [\#422](https://github.com/tizonia/tizonia-openmax-il/pull/422) ([lgbaldoni](https://github.com/lgbaldoni))
 
 ## [v0.11.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.11.0) (2017-12-17)
 
@@ -640,116 +682,6 @@
 - google play music: replace references to 'All-access' with 'Unlimited' [\#120](https://github.com/tizonia/tizonia-openmax-il/issues/120)
 - tizgmusicproxy: unicode to ASCII without errors [\#119](https://github.com/tizonia/tizonia-openmax-il/issues/119)
 
-## [v0.1.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.1.0) (2015-09-28)
-[Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/0.1.0...v0.1.0)
 
-**Improvements:**
-
-- plugins: Google Music streaming client component [\#106](https://github.com/tizonia/tizonia-openmax-il/issues/106)
-- tizonia: remove dependency on libav libraries [\#103](https://github.com/tizonia/tizonia-openmax-il/issues/103)
-- plugins: opus decoder based on libopusfile [\#96](https://github.com/tizonia/tizonia-openmax-il/issues/96)
-- plugins: libspotify component [\#94](https://github.com/tizonia/tizonia-openmax-il/issues/94)
-- tplay: implement a proper command line interface [\#87](https://github.com/tizonia/tizonia-openmax-il/issues/87)
-- libtizonia: add basic support for metadata extraction [\#85](https://github.com/tizonia/tizonia-openmax-il/issues/85)
-- audio\_renderer\_nb: rename component as "audio\_renderer" [\#79](https://github.com/tizonia/tizonia-openmax-il/issues/79)
-- audio\_renderer: remove deprecated component from the repo [\#78](https://github.com/tizonia/tizonia-openmax-il/issues/78)
-- http\_renderer: rename ice\_renderer =\> to http\_renderer [\#76](https://github.com/tizonia/tizonia-openmax-il/issues/76)
-- plugins: move skeletons/work-in-progress components to their own repo [\#75](https://github.com/tizonia/tizonia-openmax-il/issues/75)
-- libtizplatform: add a buffer handling utility [\#74](https://github.com/tizonia/tizonia-openmax-il/issues/74)
-- plugins: add an AAC audio decoder \(based on libfaad2\) [\#73](https://github.com/tizonia/tizonia-openmax-il/issues/73)
-- libtizonia: add AAC audio port [\#72](https://github.com/tizonia/tizonia-openmax-il/issues/72)
-- vorbis\_decoder: migrate it to use the new filterprc class [\#71](https://github.com/tizonia/tizonia-openmax-il/issues/71)
-- libtizonia: add a specialised processor class for filters [\#70](https://github.com/tizonia/tizonia-openmax-il/issues/70)
-- plugins: replace mp3 decoder unit tests with Skema test suites [\#68](https://github.com/tizonia/tizonia-openmax-il/issues/68)
-- il\_core: allow initialisation of the logging system via environment variable [\#67](https://github.com/tizonia/tizonia-openmax-il/issues/67)
-- tizonia: MPRIS D-Bus Interface support [\#66](https://github.com/tizonia/tizonia-openmax-il/issues/66)
-- build system: debian packaging [\#64](https://github.com/tizonia/tizonia-openmax-il/issues/64)
-- plugins: Multi-format sampled audio file decoder \(based on libsndfile\) [\#61](https://github.com/tizonia/tizonia-openmax-il/issues/61)
-- plugins: Pulseaudio pcm renderer \(based on PA async API\) [\#58](https://github.com/tizonia/tizonia-openmax-il/issues/58)
-- plugins: SHOUTcast/ICEcast streaming client [\#55](https://github.com/tizonia/tizonia-openmax-il/issues/55)
-- tplay: filter out non-CBR streams [\#46](https://github.com/tizonia/tizonia-openmax-il/issues/46)
-- tplay: add option to filter out certain sampling rates in http streaming [\#45](https://github.com/tizonia/tizonia-openmax-il/issues/45)
-- tizrmd: Rename .cc files to .cpp and .h to .hpp [\#40](https://github.com/tizonia/tizonia-openmax-il/issues/40)
-- tplay: remove from 'examples'; move to the top of the repo [\#38](https://github.com/tizonia/tizonia-openmax-il/issues/38)
-- Rename libtizosal to libtizplatform [\#37](https://github.com/tizonia/tizonia-openmax-il/issues/37)
-- plugins: libmpg123 \(LGPL\) based mp3 decoder component [\#28](https://github.com/tizonia/tizonia-openmax-il/issues/28)
-- libtizonia: Re-factor OMX\_IndexParamContentURI get/set logic [\#24](https://github.com/tizonia/tizonia-openmax-il/issues/24)
-- Vorbis decoder component [\#20](https://github.com/tizonia/tizonia-openmax-il/issues/20)
-- libtizonia: add a Vorbis port [\#19](https://github.com/tizonia/tizonia-openmax-il/issues/19)
-- tplay: Add support for multi-format plalists \(a.k.a. the graph manager thread\) [\#18](https://github.com/tizonia/tizonia-openmax-il/issues/18)
-- FLAC decoder component [\#17](https://github.com/tizonia/tizonia-openmax-il/issues/17)
-- FLAC port [\#16](https://github.com/tizonia/tizonia-openmax-il/issues/16)
-- Object system rework \("class" objects must be freed when the component is unloaded\) [\#15](https://github.com/tizonia/tizonia-openmax-il/issues/15)
-- opus decoder component [\#11](https://github.com/tizonia/tizonia-openmax-il/issues/11)
-- plugins: ogg demuxer component [\#10](https://github.com/tizonia/tizonia-openmax-il/issues/10)
-- Demuxer config port [\#9](https://github.com/tizonia/tizonia-openmax-il/issues/9)
-- Demuxer port [\#8](https://github.com/tizonia/tizonia-openmax-il/issues/8)
-- PCM renderer component based on non-blocking ALSA apis  [\#7](https://github.com/tizonia/tizonia-openmax-il/issues/7)
-- Implement pause/resume in processor class [\#6](https://github.com/tizonia/tizonia-openmax-il/issues/6)
-- Add API for notification of SetConfig\(OMX\_IndexConfig..\) events to processor implementations [\#1](https://github.com/tizonia/tizonia-openmax-il/issues/1)
-
-**Fixed bugs:**
-
-- tizonia: remove dependency on libav libraries [\#103](https://github.com/tizonia/tizonia-openmax-il/issues/103)
-- Move ~/.tizonia.conf ~/.config/tizonia/tizonia.conf, which is the XDG-compliant path [\#100](https://github.com/tizonia/tizonia-openmax-il/issues/100)
-- tplay: core dump \(abort\) when connecting to a server with invalid/unhandled audio stream [\#99](https://github.com/tizonia/tizonia-openmax-il/issues/99)
-- tplay: 'DBus::Error' exception causes core dump when the DBUS .service file is missing [\#98](https://github.com/tizonia/tizonia-openmax-il/issues/98)
-- tplay: fix support of ogg opus decoding [\#97](https://github.com/tizonia/tizonia-openmax-il/issues/97)
-- tplay: need to make file uris canonical \(i.e. absolute\) before daemonizing [\#93](https://github.com/tizonia/tizonia-openmax-il/issues/93)
-- alsa audio renderer: need to reset the input header nOffset field before they are released [\#92](https://github.com/tizonia/tizonia-openmax-il/issues/92)
-- mad mp3 decoder: component does not reset stream-related parameters before returning to OMX\_StateExecuting [\#91](https://github.com/tizonia/tizonia-openmax-il/issues/91)
-- file reader: component does not reset stream-related parameters before returning to OMX\_StateExecuting [\#90](https://github.com/tizonia/tizonia-openmax-il/issues/90)
-- libtizonia: kernel should clear output headers before they are forwarded to the processor object [\#89](https://github.com/tizonia/tizonia-openmax-il/issues/89)
-- tplay: SIGSEGV in the IL RM proxy thread when closing the application [\#88](https://github.com/tizonia/tizonia-openmax-il/issues/88)
-- pcm\_renderer\_alsa: no sound after port disable-\>enable sequence while in Executing state [\#86](https://github.com/tizonia/tizonia-openmax-il/issues/86)
-- libtizonia: Port enable event should be received at the processor only after the port is fully populated. [\#84](https://github.com/tizonia/tizonia-openmax-il/issues/84)
-- libtizonia: tizport.c:port\_depopulate asserts in Executing state if there are no buffers allocated. [\#83](https://github.com/tizonia/tizonia-openmax-il/issues/83)
-- libtizonia: tiz\_port\_set\_portdef\_format is overriden in the leaf audio ports. [\#82](https://github.com/tizonia/tizonia-openmax-il/issues/82)
-- http\_renderer: EPIPE should not be considered a "recoverable" error [\#81](https://github.com/tizonia/tizonia-openmax-il/issues/81)
-- libtizplatform: allow null handles passed to tiz\_event\_io\_destroy and tiz\_event\_timer\_destroy [\#80](https://github.com/tizonia/tizonia-openmax-il/issues/80)
-- mp3\_decoder: re-license plugin from LGPL to GPL \(libmad is GPL\) [\#77](https://github.com/tizonia/tizonia-openmax-il/issues/77)
-- vorbis\\_decoder: migrate it to use the new filterprc class [\#71](https://github.com/tizonia/tizonia-openmax-il/issues/71)
-- libtizonia: add a specialised processor class for filters [\#70](https://github.com/tizonia/tizonia-openmax-il/issues/70)
-- libtizonia: processor does not complete transition Idle-\>Pause [\#69](https://github.com/tizonia/tizonia-openmax-il/issues/69)
-- il\\_core: allow initialisation of the logging system via environment variable [\#67](https://github.com/tizonia/tizonia-openmax-il/issues/67)
-- build system: debian packaging [\#64](https://github.com/tizonia/tizonia-openmax-il/issues/64)
-- tplay: add option to configure streaming of VBR and or CBR mp3 streams [\#54](https://github.com/tizonia/tizonia-openmax-il/issues/54)
-- tplay: allow per-process log4c config files and output log files. [\#53](https://github.com/tizonia/tizonia-openmax-il/issues/53)
-- tplay: replace glibc daemon\(\) function with own implementation [\#52](https://github.com/tizonia/tizonia-openmax-il/issues/52)
-- mp3\_metadata: processor does not release buffers correctly [\#51](https://github.com/tizonia/tizonia-openmax-il/issues/51)
-- tplay: http server graph fails to configure the station correctly when the first song is non-CBR [\#50](https://github.com/tizonia/tizonia-openmax-il/issues/50)
-- tplay: add option to configure radio station genre [\#49](https://github.com/tizonia/tizonia-openmax-il/issues/49)
-- http\_renderer: it dies with signal SIGPIPE when the other end breaks the connection [\#48](https://github.com/tizonia/tizonia-openmax-il/issues/48)
-- tplay: will crash if the playlist is exhausted [\#47](https://github.com/tizonia/tizonia-openmax-il/issues/47)
-- http\_renderer: ICY metadata info is out of sync after the first song [\#44](https://github.com/tizonia/tizonia-openmax-il/issues/44)
-- tplay: remove metadata from streamed mp3 files [\#43](https://github.com/tizonia/tizonia-openmax-il/issues/43)
-- tplay: the second instance of tplay -s hangs while trying to open the default tcp port [\#42](https://github.com/tizonia/tizonia-openmax-il/issues/42)
-- tplay: hangs when OMX\_ErrorInsufficientResources is received in STATE \[executing\] [\#41](https://github.com/tizonia/tizonia-openmax-il/issues/41)
-- tplay: Require Boost \>= 1.54 in configure.ac [\#39](https://github.com/tizonia/tizonia-openmax-il/issues/39)
-- tplay: graph has no transition from \[pause\] on \[unload\_evt\] [\#36](https://github.com/tizonia/tizonia-openmax-il/issues/36)
-- libtizonia: scheduler never destroys the object system [\#35](https://github.com/tizonia/tizonia-openmax-il/issues/35)
-- tplay: the program hangs during graph loading if a component is missing [\#34](https://github.com/tizonia/tizonia-openmax-il/issues/34)
-- tplay: use ax\_boost m4 macros [\#33](https://github.com/tizonia/tizonia-openmax-il/issues/33)
-- libtizonia: Deprecate tiz\_krn\_select and friends [\#32](https://github.com/tizonia/tizonia-openmax-il/issues/32)
-- tplay: "tplay -s ." crashes at the end of the playlist [\#31](https://github.com/tizonia/tizonia-openmax-il/issues/31)
-- tplay: http server graph fsm does not need transitions for seek, volume, mute and pause events. [\#30](https://github.com/tizonia/tizonia-openmax-il/issues/30)
-- tplay: Rename .cc files to .cpp and .h to .hpp [\#29](https://github.com/tizonia/tizonia-openmax-il/issues/29)
-- tplay: playlist should allow removal of files with unknown codec [\#27](https://github.com/tizonia/tizonia-openmax-il/issues/27)
-- http renderer: processor doesn't flush its buffers [\#26](https://github.com/tizonia/tizonia-openmax-il/issues/26)
-- tplay hangs after "OMX\_ErrorContentURIError : Unable to probe uri" in do\_probe [\#25](https://github.com/tizonia/tizonia-openmax-il/issues/25)
-- tplay: Backguard skip functionality is broken in multi-format playlists [\#23](https://github.com/tizonia/tizonia-openmax-il/issues/23)
-- travis-ci: add libfishsound-dev as project dependency [\#22](https://github.com/tizonia/tizonia-openmax-il/issues/22)
-- tplay, plugins: path limits are not handled correctly [\#21](https://github.com/tizonia/tizonia-openmax-il/issues/21)
-- Object system rework \\("class" objects must be freed when the component is unloaded\\) [\#15](https://github.com/tizonia/tizonia-openmax-il/issues/15)
-
-**Closed issues:**
-
-- libtizonia: async events need a unique id to avoid processing duplicates in the component thread [\#102](https://github.com/tizonia/tizonia-openmax-il/issues/102)
-- libtizonia: automatically reset OMX\_BUFFERFLAG\_EOS on input buffers [\#101](https://github.com/tizonia/tizonia-openmax-il/issues/101)
-- Implement the shoutcast metadata protocol in the http\_renderer's streaming server [\#4](https://github.com/tizonia/tizonia-openmax-il/issues/4)
-
-**Merged pull requests:**
-
-- Add a Bitdeli Badge to README [\#5](https://github.com/tizonia/tizonia-openmax-il/pull/5) ([bitdeli-chef](https://github.com/bitdeli-chef))
 
 \* *This Changelog was automatically generated by [github_changelog_generator](https://github.com/github-changelog-generator/github-changelog-generator)*
