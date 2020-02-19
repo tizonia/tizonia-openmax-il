@@ -25,8 +25,8 @@
     <img src="https://img.shields.io/codecov/c/github/tizonia/tizonia-openmax-il.svg" />
   </a>
 
-  <a href="https://github.com/tizonia/tizonia-openmax-il/compare/v0.19.0...master">
-    <img src="https://img.shields.io/github/commits-since/tizonia/tizonia-openmax-il/v0.19.0.svg" />
+  <a href="https://github.com/tizonia/tizonia-openmax-il/compare/v0.20.0...master">
+    <img src="https://img.shields.io/github/commits-since/tizonia/tizonia-openmax-il/v0.20.0.svg" />
   </a>
 
 </div>
