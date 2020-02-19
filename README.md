@@ -387,8 +387,8 @@ $ sudo -H pip2 install --upgrade gmusicapi soundcloud youtube-dl pafy pycountry 
 # Hall of Fame
 
 If you are interested in participating, please read our [contribution
-guidelines](CONTRIBUTING.md) and don't hesitate to ask (via the bug tracker or
-any other means!).
+guidelines](CONTRIBUTING.md) and don't hesitate to ask (via the bug tracker,
+[chat](https://gitter.im/tizonia/Lobby) or any other means!).
 
 Here is are some of our contributors.
 
