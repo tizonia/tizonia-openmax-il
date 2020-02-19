@@ -1,1 +1,1 @@
-install_man('tizonia')
+install_man('tizonia.1')
