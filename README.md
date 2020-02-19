@@ -117,12 +117,13 @@
 
 **Latest news**
 
-- [2020-01-14] Tizonia
+- [2020-01-19] Tizonia
 [v0.20.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.20.0). Added
 support for TuneIn Internet radios, color-themes and a new build system based
 on Meson (thanks [@lgbaldoni!](https://github.com/lgbaldoni)). A man page has
-been added and the documentation site has been refreshed. Also a good number of
-fixes, including reviving Chromecast support (still more work needed).
+been added and the documentation site has been refreshed. Also `tizonia-remote`
+is now distributed in the Debian package plus a good number of fixes, including
+reviving Chromecast support (still more work needed).
 
 > See Tizonia's website: [TODO](https://tizonia.org/news/2019/03/19/release-0-19-0/)
 
@@ -390,7 +391,7 @@ If you are interested in participating, please read our [contribution
 guidelines](CONTRIBUTING.md) and don't hesitate to ask (via the bug tracker or
 any other means!).
 
-Here is are some of our contributors.
+Here are some of our contributors:
 
 [![](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/images/0)](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/links/0)[![](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/images/1)](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/links/1)[![](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/images/2)](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/links/2)[![](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/images/3)](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/links/3)[![](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/images/4)](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/links/4)[![](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/images/5)](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/links/5)[![](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/images/6)](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/links/6)[![](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/images/7)](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/links/7)
 
