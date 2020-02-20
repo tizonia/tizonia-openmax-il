@@ -107,7 +107,10 @@ endif
 sqlite3_dep = dependency('sqlite3', required: true, version: '>=3.7.1')
 
 pymod = import('python')
-python3_dep = dependency('python3', required: true, version: '>=3.5')
+python3_dep = dependency('python3-embed', required: false, version: '>=3.5')
+if not python3_dep.found()
+		python3_dep = dependency('python3', version: '>=3.5.0')
+	endif
 
 if enable_docs
    python3 = pymod.find_installation(
