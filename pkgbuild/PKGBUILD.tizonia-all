@@ -2,9 +2,9 @@
 
 _githubname=tizonia-openmax-il
 pkgname=tizonia-all
-pkgver=0.19.0
+pkgver=0.20.2
 pkgrel=1
-pkgdesc="Command-line cloud music player for Linux with support for Spotify, Google Play Music, YouTube, SoundCloud, Plex servers and Chromecast devices."
+pkgdesc="Command-line cloud music player for Linux with support for Spotify, Google Play Music, YouTube, SoundCloud, TuneIn, Plex servers and Chromecast devices."
 arch=('x86_64')
 url="https://tizonia.org"
 license=('LGPL')
@@ -37,6 +37,7 @@ depends=(
     'python-eventlet'
     'youtube-dl'
     'python-levenshtein'
+    'python-joblib'
 
     # AUR:
     'log4c'
@@ -49,7 +50,7 @@ depends=(
     'python-spotipy'
 )
 source=("${_githubname}-${pkgver}.tar.gz"::"https://github.com/tizonia/${_githubname}/archive/v${pkgver}.tar.gz")
-md5sums=('dbe262665e0a4d05f1e25daa6733ca09')
+md5sums=('72f94d6eb541751b482cee11234dabdc')
 
 prepare() {
   command -v tizonia &> /dev/null \
@@ -62,19 +63,15 @@ prepare() {
 
 build() {
     cd "${_githubname}-${pkgver}"
-    autoreconf -ifs
-    ./configure \
-        --prefix=/usr \
-        --sysconfdir=/etc \
-        --localstatedir=/var \
-        --silent \
-        --enable-silent-rules \
-        CFLAGS='-O2 -s -DNDEBUG' \
-        CXXFLAGS='-O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security'
-    make
+    pwd
+    CFLAGS='-O2 -s -DNDEBUG' \
+    CXXFLAGS='-O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security' \
+    arch-meson build
+    ninja -C build
 }
 
 package() {
     cd "${_githubname}-${pkgver}"
-    make DESTDIR="$pkgdir/" install
+    pwd
+    DESTDIR=$pkgdir ninja -C build install
 }
