@@ -6,7 +6,7 @@ libtizspotifysrc_sources = [
 ]
 
 libtizspotifysrc = library(
-   'tizspotify',
+   'tizspotifysrc',
    version: tizversion,
    sources: libtizspotifysrc_sources,
    dependencies: [
