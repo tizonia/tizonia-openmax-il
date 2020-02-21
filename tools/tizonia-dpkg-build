@@ -408,7 +408,7 @@ function do_tizonia_deps {
     if [[ ! -f /etc/apt/sources.list.d/mopidy.list ]]; then
         # Add Mopidy APT archive
         pretty_print "$BLU" "[libspotify] : adding Mopidy APT archive."
-        curl 'https://apt.mopidy.com/mopidy.gpg' | sudo apt-key add -
+        curl -k 'https://apt.mopidy.com/mopidy.gpg' | sudo apt-key add -
         MOPRELEASE=''
         if [[ "$DISTRO_CODENAME" == "bionic" ]]; then
             MOPRELEASE="stretch"
@@ -419,7 +419,7 @@ function do_tizonia_deps {
         else
             MOPRELEASE="buster"
         fi
-        sudo curl https://apt.mopidy.com/$MOPRELEASE.list -o /etc/apt/sources.list.d/mopidy.list
+        sudo curl -k https://apt.mopidy.com/$MOPRELEASE.list -o /etc/apt/sources.list.d/mopidy.list
         sudo apt-get update
         pretty_print "$GRN" "[libspotify] : added Mopidy APT archive."
         for pkg in "${TIZ_LIBSPOTIFY_DEPS[@]}"; do
@@ -1012,7 +1012,7 @@ function do_publish_project_debs {
         if [[ -e "$deb" ]]; then
             local deb_name=$(echo "$deb" | cut -d'_' -f1)
             pretty_print "$YEL" "[$pkg] : uploading $deb_name."
-            curl -X PUT -T "$deb" -H "X-GPG-PASSPHRASE: $password" -utizonia:"$TIZONIA_BINTRAY_API_KEY" \
+            curl -k -X PUT -T "$deb" -H "X-GPG-PASSPHRASE: $password" -utizonia:"$TIZONIA_BINTRAY_API_KEY" \
                 "https://api.bintray.com/content/tizonia/$DISTRO_ID/tizonia-$DISTRO_CODENAME/$TIZONIA_RELEASE_VERSION/pool/main/t/tizonia-$DISTRO_CODENAME/$deb;deb_distribution=$DISTRO_CODENAME;deb_component=main;deb_architecture=$arch"
             echo
             pretty_print "$GRN" "[$pkg] : uploaded $deb_name."
@@ -1047,15 +1047,15 @@ function do_publish_to_bintray {
     done
     # Trigger metadata calculation
     pretty_print "$GRN" "Bintray: Triggering metadata calculation on $DISTRO_ID repo"
-    curl -X POST -H "X-GPG-PASSPHRASE: $password" -utizonia:"$TIZONIA_BINTRAY_API_KEY" "https://api.bintray.com/calc_metadata/tizonia/$DISTRO_ID/"
+    curl -k -X POST -H "X-GPG-PASSPHRASE: $password" -utizonia:"$TIZONIA_BINTRAY_API_KEY" "https://api.bintray.com/calc_metadata/tizonia/$DISTRO_ID/"
     echo
     # GPG signing request
     pretty_print "$GRN" "Bintray: Requesting GPG signing of $DISTRO_ID/tizonia-$DISTRO_CODENAME/$TIZONIA_RELEASE_VERSION"
-    curl -X POST -H "X-GPG-PASSPHRASE: $password" -utizonia:"$TIZONIA_BINTRAY_API_KEY" "https://api.bintray.com/gpg/tizonia/$DISTRO_ID/tizonia-$DISTRO_CODENAME/versions/$TIZONIA_RELEASE_VERSION"
+    curl -k -X POST -H "X-GPG-PASSPHRASE: $password" -utizonia:"$TIZONIA_BINTRAY_API_KEY" "https://api.bintray.com/gpg/tizonia/$DISTRO_ID/tizonia-$DISTRO_CODENAME/versions/$TIZONIA_RELEASE_VERSION"
     echo
     # Publish the repo
     pretty_print "$GRN" "Bintray: publishing the $DISTRO_ID repo"
-    curl -X POST -H "X-GPG-PASSPHRASE: $password" -utizonia:"$TIZONIA_BINTRAY_API_KEY" "https://api.bintray.com/content/tizonia/$DISTRO_ID/tizonia-$DISTRO_CODENAME/$TIZONIA_RELEASE_VERSION/publish"
+    curl -k -X POST -H "X-GPG-PASSPHRASE: $password" -utizonia:"$TIZONIA_BINTRAY_API_KEY" "https://api.bintray.com/content/tizonia/$DISTRO_ID/tizonia-$DISTRO_CODENAME/$TIZONIA_RELEASE_VERSION/publish"
     echo
     return "$exit_status"
 }
