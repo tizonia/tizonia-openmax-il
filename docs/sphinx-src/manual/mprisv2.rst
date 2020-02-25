@@ -90,7 +90,7 @@ This is the help message provided by ``tizonia-remote``.
                             (Read/Write).
        rate                 the current playback rate (Read/Write).
        shuffle              the current shuffled playback status (true or false).
-       metadata             the metadata of the current track (Read/Write).
+       metadata             the metadata of the current track (Read/Write) (NOT IMPLEMENTED).
        volume               the volume level (Read/Write).
 
        org.mpris.MediaPlayer2.TrackList interface
