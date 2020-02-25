@@ -43,13 +43,13 @@ like the one pictured below (see also :ref:`tizonia-config-label`).
 ``gmusic.device_id``
   An Android device id associated to your account. This is usually a 16-digit
   hexadecimal number, e.g. '1234567890abcdef'. There are step-by-step tutorials
-  on the Internet that may finding the device id on and Android or IOS
-  device. There are also some apps in the Google Play store that may help with
-  finding the device id on Android, e.g.  `Device ID
+  on the Internet that may help with finding the device id on Android or iOS
+  devices. There are also some apps in the Google Play store that may help with
+  that, e.g.  `Device ID
   <https://play.google.com/store/apps/details?id=com.evozi.deviceid&hl=en_GB>`_.
   If you are a Google Play Music subscriber, you may also try to input a random
-  device id. When this is done, the software will return a list of real device
-  ids associated to the account.
+  device id. When using a random device id with a subscriber account, the
+  software will return a list of real device ids associated to the account.
 
 
 ``gmusic.buffer_seconds``
