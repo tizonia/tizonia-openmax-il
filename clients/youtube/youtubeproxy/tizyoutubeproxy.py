@@ -38,7 +38,7 @@ from fuzzywuzzy import fuzz
 
 ISO8601_TIMEDUR_EX = re.compile(r"PT((\d{1,3})H)?((\d{1,3})M)?((\d{1,2})S)?")
 
-API_KEY = "AIzaSyAv9KX5r5WfzfAKlf4mhQMHKmHr-Uw-WOc"
+API_KEY = "AIzaSyC3iXWKvY6iOC3SoglRAekDXqutQiMuCxc"
 
 NOT_UTF8_ENVIRONMENT = "UTF-8" not in os.environ.get("LANG", "")
 
@@ -412,6 +412,7 @@ class tizyoutubeproxy(object):
         self.done_queue = Queue()
         # Workers
         self.workers = list()
+        pafy.set_api_key(API_KEY)
 
     def set_play_mode(self, mode):
         """ Set the playback mode.
