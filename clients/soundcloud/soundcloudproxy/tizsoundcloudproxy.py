@@ -40,7 +40,7 @@ if sys.version[0] == "2":
     sys.setdefaultencoding("utf-8")
 
 # For use during debugging
-# import pprint
+# from pprint import pprint
 
 FORMAT = (
     "[%(asctime)s] [%(levelname)5s] [%(thread)d] "
@@ -252,7 +252,7 @@ class tizsoundcloudproxy(object):
                             self.queue.append(track)
                             count += 1
             if count == 0:
-                raise KeyError
+                raise RuntimeError("The user stream is empty")
 
             logging.info("Added {0} stream tracks to queue".format(count))
             self._update_play_queue_order()
