@@ -308,7 +308,7 @@ is_passed_buffer_high_watermark (tiz_urltrans_t * ap_trans)
 {
   assert (ap_trans);
   return (tiz_buffer_available (ap_trans->p_store_)
-          >= ap_trans->internal_buffer_size_initial_);
+          >= ap_trans->internal_buffer_size_initial_ / 2);
 }
 
 static OMX_ERRORTYPE
@@ -545,14 +545,26 @@ stop_reconnect_timer_watcher (tiz_urltrans_t * ap_trans)
 static OMX_ERRORTYPE
 kickstart_curl_socket (tiz_urltrans_t * ap_trans, int * ap_running_handles)
 {
+  int loop_count = 100;
   assert (ap_trans);
   assert (ap_running_handles);
   do
     {
       on_curl_multi_error_ret_omx_oom (curl_multi_socket_action (
         ap_trans->p_curl_multi_, CURL_SOCKET_TIMEOUT, 0, ap_running_handles));
+      TIZ_LOG (TIZ_PRIORITY_TRACE, " inside loop : %d",
+               (ap_running_handles ? *ap_running_handles : -1));
     }
-  while (0 == ap_trans->curl_timeout_);
+  while (0 == ap_trans->curl_timeout_ && --loop_count > 0);
+
+  if (0 == loop_count)
+    {
+      long timeout_ms = 0;
+      on_curl_multi_error_ret_omx_oom (
+        curl_multi_timeout (ap_trans->p_curl_multi_, &timeout_ms));
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "timeout_ms : %ld", timeout_ms);
+      ap_trans->curl_timeout_ = ((double) timeout_ms / (double) 1000);
+    }
 
   return OMX_ErrorNone;
 }
@@ -600,7 +612,7 @@ static inline int
 copy_to_omx_buffer (OMX_BUFFERHEADERTYPE * ap_hdr, void * ap_src,
                     const int nbytes)
 {
-  int n = MIN (nbytes, TIZ_OMX_BUF_AVAIL(ap_hdr));
+  int n = MIN (nbytes, TIZ_OMX_BUF_AVAIL (ap_hdr));
   (void) memcpy (TIZ_OMX_BUF_PTR (ap_hdr) + TIZ_OMX_BUF_FILL_LEN (ap_hdr),
                  ap_src, n);
   ap_hdr->nFilledLen += n;
@@ -793,8 +805,9 @@ curl_debug_cback (CURL * p_curl, curl_infotype type, char * buf, size_t nbytes,
       memcpy (p_info, buf, nbytes);
       TIZ_LOG (TIZ_PRIORITY_TRACE, "libcurl : [%s]", p_info);
       TIZ_PRINTF_DBG_RED ("libcurl : [%s]\n", p_info);
-#define GNUTLS_ERR "gnutls_handshake() failed: An unexpected TLS packet was received"
-      if (0 == strncasecmp(GNUTLS_ERR, p_info, 64))
+#define GNUTLS_ERR \
+  "gnutls_handshake() failed: An unexpected TLS packet was received"
+      if (0 == strncasecmp (GNUTLS_ERR, p_info, 64))
         {
           p_trans->handshake_error_found = true;
           TIZ_LOG (TIZ_PRIORITY_TRACE, "libcurl : [found handshake error!!]");
@@ -1173,8 +1186,10 @@ tiz_urltrans_set_internal_buffer_size (tiz_urltrans_t * ap_trans,
   assert (ap_trans);
   assert (a_nbytes > 0);
   URLTRANS_LOG_API_START (ap_trans);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "buffer size : [%d]", a_nbytes);
   ap_trans->internal_buffer_size_ = ap_trans->internal_buffer_size_initial_
     = a_nbytes;
+  URLTRANS_LOG_API_END (ap_trans);
 }
 
 OMX_ERRORTYPE
@@ -1266,6 +1281,7 @@ tiz_urltrans_on_buffers_ready (tiz_urltrans_t * ap_trans)
       if (tiz_buffer_available (ap_trans->p_store_)
           <= ap_trans->internal_buffer_size_)
         {
+          TIZ_LOG (TIZ_PRIORITY_TRACE, "on buffers ready");
           rc = resume_curl (ap_trans);
         }
     }
@@ -1281,6 +1297,7 @@ tiz_urltrans_on_io_ready (tiz_urltrans_t * ap_trans, tiz_event_io_t * ap_ev_io,
                           int a_fd, int a_events)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
+  int loop_count = 100;
   assert (ap_trans);
   URLTRANS_LOG_API_START (ap_trans);
   if (a_fd == ap_trans->sockfd_)
@@ -1301,8 +1318,18 @@ tiz_urltrans_on_io_ready (tiz_urltrans_t * ap_trans, tiz_event_io_t * ap_ev_io,
           on_curl_multi_error_ret_omx_oom (curl_multi_socket_action (
             ap_trans->p_curl_multi_, ap_trans->sockfd_, curl_ev_bitmask,
             &running_handles));
+          TIZ_LOG (TIZ_PRIORITY_TRACE, " inside loop : %d", running_handles);
         }
-      while (0 == ap_trans->curl_timeout_);
+      while (0 == ap_trans->curl_timeout_ && --loop_count > 0);
+
+      if (0 == loop_count)
+        {
+          long timeout_ms = 0;
+          on_curl_multi_error_ret_omx_oom (
+            curl_multi_timeout (ap_trans->p_curl_multi_, &timeout_ms));
+          TIZ_LOG (TIZ_PRIORITY_TRACE, "timeout_ms : %ld", timeout_ms);
+          ap_trans->curl_timeout_ = ((double) timeout_ms / (double) 1000);
+        }
 
       if (!running_handles)
         {
@@ -1338,8 +1365,7 @@ tiz_urltrans_on_timer_ready (tiz_urltrans_t * ap_trans,
     {
       if (is_transfer_running (ap_trans))
         {
-          tiz_check_omx (
-            kickstart_curl_socket (ap_trans, &running_handles));
+          tiz_check_omx (kickstart_curl_socket (ap_trans, &running_handles));
           if (!running_handles)
             {
               report_connection_lost_event (ap_trans);
