@@ -457,8 +457,8 @@ void tizgmusic::get_current_song ()
   current_track_num_.assign (boost::lexical_cast< std::string >(track_num));
   current_song_tracks_total_.assign (boost::lexical_cast< std::string >(total_tracks));
 
-  const int song_year = bp::extract< int >(py_gm_proxy_.attr ("current_song_year")());
-  current_song_year_.assign (boost::lexical_cast< std::string >(song_year));
+  current_song_year_ = bp::extract< std::string >(
+      py_gm_proxy_.attr ("current_song_year")());
 
   current_song_genre_ = bp::extract< std::string >(
       py_gm_proxy_.attr ("current_song_genre")());

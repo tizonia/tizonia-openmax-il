@@ -311,6 +311,15 @@ update_metadata (gmusic_prc_t * ap_prc)
   tiz_check_omx (store_metadata (
     ap_prc, "Album", tiz_gmusic_get_current_song_album (ap_prc->p_gmusic_)));
 
+  /* Store the genre if not NULL */
+  {
+    const char * p_genre = tiz_gmusic_get_current_song_genre (ap_prc->p_gmusic_);
+    if (p_genre)
+      {
+        tiz_check_omx (store_metadata (ap_prc, "Genre", p_genre));
+      }
+  }
+
   /* Store the year if not 0 */
   {
     const char * p_year = tiz_gmusic_get_current_song_year (ap_prc->p_gmusic_);
@@ -337,6 +346,16 @@ update_metadata (gmusic_prc_t * ap_prc)
     if (p_total_tracks && strncmp (p_total_tracks, "0", 2) != 0)
       {
         tiz_check_omx (store_metadata (ap_prc, "Total tracks", p_total_tracks));
+      }
+  }
+
+  /* Store album art if not NULL */
+  {
+    const char * p_album_art
+      = tiz_gmusic_get_current_song_album_art (ap_prc->p_gmusic_);
+    if (p_album_art)
+      {
+        tiz_check_omx (store_metadata (ap_prc, "Album art", p_album_art));
       }
   }
 
