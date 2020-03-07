@@ -79,6 +79,7 @@ _arguments -S -s \
   '--tunein-trending[TuneIn 'trending' category search.]' \
   '--tunein-type[Narrow down the search to specific type: 'stations', 'shows', or 'all' (default: all). Optional.]' \
   '--tunein-keywords[Additional keywords that may be used in conjunction with the TuneIn options. Optional (may be repeated).]' \
+  '--youtube-api-key[The users YouTube DATA API v3 key (Optional but RECOMMENDED).]' \
   '--youtube-audio-mix[Play a YouTube mix from a video url or video id.]' \
   '--youtube-audio-mix-search[Play a YouTube mix from a search term.]' \
   '--youtube-audio-playlist[Play a YouTube audio playlist from a playlist url or playlist id.]' \

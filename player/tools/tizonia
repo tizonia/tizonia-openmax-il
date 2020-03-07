@@ -32,7 +32,7 @@ _tizonia()
     gmusic="--gmusic-user --gmusic-password --gmusic-device-id --gmusic-album --gmusic-artist --gmusic-library --gmusic-playlist --gmusic-podcast --gmusic-station --gmusic-tracks --gmusic-unlimited-station --gmusic-unlimited-album --gmusic-unlimited-artist --gmusic-unlimited-tracks --gmusic-unlimited-playlist --gmusic-unlimited-genre --gmusic-unlimited-activity --gmusic-unlimited-feeling-lucky-station --gmusic-unlimited-promoted-tracks"
     scloud="--soundcloud-oauth-token --soundcloud-user-stream --soundcloud-user-likes --soundcloud-user-playlist --soundcloud-creator --soundcloud-tracks --soundcloud-playlists --soundcloud-genres --soundcloud-tags"
     tunein="--tunein-search --tunein-type --tunein-local --tunein-music --tunein-talk --tunein-sports --tunein-location --tunein-podcasts --tunein-trending --tunein-keywords"
-    youtube="--youtube-audio-stream --youtube-audio-playlist --youtube-audio-mix --youtube-audio-search --youtube-audio-mix-search --youtube-audio-channel-playlist --youtube-audio-channel-uploads"
+    youtube="--youtube-api-key --youtube-audio-stream --youtube-audio-playlist --youtube-audio-mix --youtube-audio-search --youtube-audio-mix-search --youtube-audio-channel-playlist --youtube-audio-channel-uploads"
     plex="--plex-server-base-url --plex-auth-token --plex-music-section --plex-audio-tracks --plex-audio-artist --plex-audio-album --plex-audio-playlist"
 
     diropts="--recurse"
