@@ -787,7 +787,8 @@ youtube_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
         * p_prc->buffer_size_.nCapacity;
     }
 
-  on_youtube_error_ret_omx_oom (tiz_youtube_init (&(p_prc->p_youtube_)));
+  on_youtube_error_ret_omx_oom (
+    tiz_youtube_init (&(p_prc->p_youtube_), &(p_prc->session_.cApiKey)));
 
   tiz_check_omx (enqueue_playlist_items (p_prc));
   tiz_check_omx (obtain_next_url (p_prc, 1));
