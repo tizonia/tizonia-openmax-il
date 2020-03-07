@@ -318,7 +318,7 @@ def get_tracks_from_json(jsons, howmany=0):
     return songs
 
 
-def generate_search_query(term):
+def generate_search_query(term, api_key):
     """ Return the query string for pafy's call_gdata. """
 
     query_string = {
@@ -329,7 +329,7 @@ def generate_search_query(term):
         "part": "id,snippet",
         "type": "video",
         "videoDuration": "any",
-        "key": API_KEY,
+        "key": api_key if api_key != "" else API_KEY,
         "videoCategoryId": 10,  # search music
     }
 
@@ -400,7 +400,7 @@ class tizyoutubeproxy(object):
 
     """
 
-    def __init__(self):
+    def __init__(self, api_key=API_KEY):
         self.queue = list()
         self.queue_index = -1
         self.play_queue_order = list()
@@ -412,7 +412,8 @@ class tizyoutubeproxy(object):
         self.done_queue = Queue()
         # Workers
         self.workers = list()
-        pafy.set_api_key(API_KEY)
+        self.api_key = api_key if api_key != "" else API_KEY
+        pafy.set_api_key(self.api_key)
 
     def set_play_mode(self, mode):
         """ Set the playback mode.
@@ -484,7 +485,7 @@ class tizyoutubeproxy(object):
         logging.info("arg : %s", arg)
         try:
             print_msg("[YouTube] [Audio search] : '{0}'. ".format(arg))
-            query = generate_search_query(arg)
+            query = generate_search_query(arg, self.api_key)
             wdata = pafy.call_gdata("search", query)
 
             wdata2 = wdata
@@ -562,7 +563,7 @@ class tizyoutubeproxy(object):
         try:
             print_msg("[YouTube] [Audio mix search] : '{0}'. ".format(arg))
 
-            query = generate_search_query(arg)
+            query = generate_search_query(arg, self.api_key)
             wdata = pafy.call_gdata("search", query)
 
             wdata2 = wdata
