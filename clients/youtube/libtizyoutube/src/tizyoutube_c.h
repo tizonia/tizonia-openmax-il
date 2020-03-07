@@ -71,7 +71,8 @@ typedef enum tiz_youtube_playback_mode {
  *
  * @return 0 on success.
  */
-int tiz_youtube_init (/*@null@ */ tiz_youtube_ptr_t *app_youtube);
+int tiz_youtube_init (/*@null@ */ tiz_youtube_ptr_t *app_youtube,
+                      const char *ap_api_key);
 
 /**
  * Clear the playback queue.
