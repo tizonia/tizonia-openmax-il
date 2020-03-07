@@ -428,6 +428,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     youtube_audio_channel_playlist_ (),
     youtube_playlist_container_ (),
     youtube_playlist_type_ (OMX_AUDIO_YoutubePlaylistTypeUnknown),
+    youtube_api_key_(),
     youtube_buffer_seconds_ (0),
     plex_base_url_ (),
     plex_token_ (),
@@ -1322,6 +1323,11 @@ tiz::programopts::youtube_playlist_type ()
   return youtube_playlist_type_;
 }
 
+const std::string &tiz::programopts::youtube_api_key () const
+{
+  return youtube_api_key_;
+}
+
 uint32_t tiz::programopts::youtube_buffer_seconds () const
 {
   return buffer_seconds_ ? buffer_seconds_ : youtube_buffer_seconds_;
@@ -1859,6 +1865,9 @@ void tiz::programopts::init_youtube_options ()
 {
   youtube_.add_options ()
       /* TIZ_CLASS_COMMENT: */
+      ("youtube-api-key", po::value (&youtube_api_key_),
+       "The user's YouTube DATA API v3 key (Optional but RECOMMENDED)")
+      /* TIZ_CLASS_COMMENT: */
       ("youtube-audio-stream", po::value (&youtube_audio_stream_),
        "Play a YouTube audio stream from a video url or video id.")
       /* TIZ_CLASS_COMMENT: */
@@ -1882,7 +1891,7 @@ void tiz::programopts::init_youtube_options ()
 
   register_consume_function (&tiz::programopts::consume_youtube_client_options);
   all_youtube_client_options_
-      = boost::assign::list_of ("youtube-audio-stream") (
+      = boost::assign::list_of ("youtube-api-key") ("youtube-audio-stream") (
             "youtube-audio-playlist") ("youtube-audio-mix") (
             "youtube-audio-search") ("youtube-audio-mix-search") (
             "youtube-audio-channel-uploads") ("youtube-audio-channel-playlist")
@@ -2693,6 +2702,12 @@ int tiz::programopts::consume_youtube_client_options (bool &done,
                                       + vm_.count ("youtube-audio-channel-uploads")
                                       + vm_.count ("youtube-audio-channel-playlist");
 
+    if (youtube_api_key_.empty())
+    {
+      retrieve_string_from_rc_file ("tizonia", "youtube.api_key",
+                                    youtube_api_key_);
+    }
+
     if (!buffer_seconds_)
     {
       retrieve_tizonia_uint_from_rc_file ("youtube.buffer_seconds",
@@ -3041,13 +3056,13 @@ bool tiz::programopts::validate_tunein_client_options () const
 bool tiz::programopts::validate_youtube_client_options () const
 {
   bool outcome = false;
-  uint32_t youtube_opts_count = vm_.count ("youtube-audio-stream")
-                                + vm_.count ("youtube-audio-playlist")
-                                + vm_.count ("youtube-audio-mix")
-                                + vm_.count ("youtube-audio-search")
-                                + vm_.count ("youtube-audio-mix-search")
-                                + vm_.count ("youtube-audio-channel-uploads")
-                                + vm_.count ("youtube-audio-channel-playlist");
+  uint32_t youtube_opts_count
+      = vm_.count ("youtube-api-key") + vm_.count ("youtube-audio-stream")
+        + vm_.count ("youtube-audio-playlist") + vm_.count ("youtube-audio-mix")
+        + vm_.count ("youtube-audio-search")
+        + vm_.count ("youtube-audio-mix-search")
+        + vm_.count ("youtube-audio-channel-uploads")
+        + vm_.count ("youtube-audio-channel-playlist");
 
   std::vector< std::string > all_valid_options = all_youtube_client_options_;
   concat_option_lists (all_valid_options, all_global_options_);

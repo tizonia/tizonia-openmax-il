@@ -1135,6 +1135,7 @@ tiz::playapp::youtube_stream ()
   const uri_lst_t &uri_list = popts_.youtube_playlist_container ();
   const OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE playlist_type
       = popts_.youtube_playlist_type ();
+  const std::string api_key = popts_.youtube_api_key ();
   const uint32_t buffer_seconds = popts_.youtube_buffer_seconds ();
 
   print_banner ();
@@ -1150,7 +1151,7 @@ tiz::playapp::youtube_stream ()
 
   tizgraphconfig_ptr_t config
       = boost::make_shared< tiz::graph::youtubeconfig > (
-          playlist, buffer_seconds, playlist_type);
+          api_key, playlist, buffer_seconds, playlist_type);
 
   // Instantiate the streaming client manager
   tiz::graphmgr::mgr_ptr_t p_mgr
@@ -1435,6 +1436,7 @@ tiz::playapp::youtube_stream_chromecast ()
   const uri_lst_t &uri_list = popts_.youtube_playlist_container ();
   const OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE playlist_type
       = popts_.youtube_playlist_type ();
+  const std::string api_key = popts_.youtube_api_key ();
   const uint32_t unused_buffer_seconds = 0; // this is not used during casting
 
   print_banner ();
@@ -1450,7 +1452,7 @@ tiz::playapp::youtube_stream_chromecast ()
 
   tizgraphconfig_ptr_t service_config
       = boost::make_shared< tiz::graph::youtubeconfig > (
-          playlist, unused_buffer_seconds, playlist_type);
+          api_key, playlist, unused_buffer_seconds, playlist_type);
 
   tizgraphconfig_ptr_t config
       = boost::make_shared< tiz::graph::chromecastconfig > (

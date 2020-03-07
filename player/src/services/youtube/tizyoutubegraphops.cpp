@@ -136,6 +136,11 @@ void graph::youtubeops::do_configure_comp (const int comp_id)
       assert (youtube_config);
 
       G_OPS_BAIL_IF_ERROR (
+          tiz::graph::util::set_youtube_session (
+              handles_[0], youtube_config->get_api_key ()),
+          "Unable to set OMX_TizoniaIndexParamAudioYoutubeSession");
+
+      G_OPS_BAIL_IF_ERROR (
           tiz::graph::util::set_youtube_playlist (
               handles_[0], playlist_->get_current_uri (),
               youtube_config->get_playlist_type (), playlist_->shuffle ()),

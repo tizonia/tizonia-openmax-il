@@ -905,6 +905,24 @@ graph::util::set_tunein_playlist (
 }
 
 OMX_ERRORTYPE
+graph::util::set_youtube_session (const OMX_HANDLETYPE handle,
+                                  const std::string &api_key)
+{
+  // Set the Youtube user api key
+  OMX_TIZONIA_AUDIO_PARAM_YOUTUBESESSIONTYPE sessiontype;
+  TIZ_INIT_OMX_STRUCT (sessiontype);
+  tiz_check_omx (OMX_GetParameter (
+      handle,
+      static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioYoutubeSession),
+      &sessiontype));
+  tiz::graph::util::copy_omx_string (sessiontype.cApiKey, api_key);
+  return OMX_SetParameter (
+      handle,
+      static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioYoutubeSession),
+      &sessiontype);
+}
+
+OMX_ERRORTYPE
 graph::util::set_youtube_playlist (
     const OMX_HANDLETYPE handle, const std::string &playlist,
     const OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE playlist_type,

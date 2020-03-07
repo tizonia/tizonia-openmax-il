@@ -44,14 +44,22 @@ namespace tiz
     {
 
     public:
-      youtubeconfig (const tizplaylist_ptr_t &playlist, uint32_t buffer_seconds,
+      youtubeconfig (const std::string &api_key,
+                     const tizplaylist_ptr_t &playlist, uint32_t buffer_seconds,
                      const OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE &playlist_type)
-        : config (playlist, buffer_seconds), playlist_type_ (playlist_type)
+        : config (playlist, buffer_seconds),
+          api_key_ (api_key),
+          playlist_type_ (playlist_type)
       {
       }
 
       ~youtubeconfig ()
       {
+      }
+
+      std::string get_api_key () const
+      {
+        return api_key_;
       }
 
       OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE get_playlist_type () const
@@ -60,6 +68,7 @@ namespace tiz
       }
 
     protected:
+      const std::string api_key_;
       const OMX_TIZONIA_AUDIO_YOUTUBEPLAYLISTTYPE playlist_type_;
     };
   }  // namespace graph
