@@ -25,8 +25,8 @@
     <img src="https://img.shields.io/codecov/c/github/tizonia/tizonia-openmax-il.svg" />
   </a>
 
-  <a href="https://github.com/tizonia/tizonia-openmax-il/compare/v0.20.0...master">
-    <img src="https://img.shields.io/github/commits-since/tizonia/tizonia-openmax-il/v0.20.0.svg" />
+  <a href="https://github.com/tizonia/tizonia-openmax-il/compare/v0.21.0...master">
+    <img src="https://img.shields.io/github/commits-since/tizonia/tizonia-openmax-il/v0.21.0.svg" />
   </a>
 
 </div>
@@ -117,6 +117,13 @@
 
 **Latest news**
 
+- [2020-03-08] Tizonia
+[v0.21.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.21.0). TODO.
+
+> See Tizonia's website: [TODO](https://tizonia.org/news/2020/02/20/release-0-20-0/)
+
+<details><summary><b>Show more</b></summary>
+
 - [2020-01-19] Tizonia
 [v0.20.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.20.0). Added
 support for TuneIn Internet radios, color-themes and a new build system based
@@ -127,8 +134,6 @@ reviving Chromecast support (still more work needed).
 
 > See Tizonia's website: [TuneIn Internet radio and podcasts, and color-themes
 > in Tizonia 0.20.0](https://tizonia.org/news/2020/02/20/release-0-20-0/)
-
-<details><summary><b>Show more</b></summary>
 
 - [2019-12-13] Tizonia
 [v0.19.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.19.0). Another
