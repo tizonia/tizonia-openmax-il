@@ -1,11 +1,53 @@
 # Changelog
 
-## [v0.20.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.20.0) (2020-02-18)
+## [v0.21.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.21.0) (2020-03-08)
+
+[Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.20.2...v0.21.0)
+
+**Improvements:**
+
+- youtube: add caching of requests to minimize quota issues [\#697](https://github.com/tizonia/tizonia-openmax-il/issues/697)
+- youtube: allow users to specify API keys to avoid quota issues [\#696](https://github.com/tizonia/tizonia-openmax-il/issues/696)
+- Youtube Error 403: The request cannot be completed because you have exceeded your quota [\#695](https://github.com/tizonia/tizonia-openmax-il/issues/695)
+- google music: display genre and album art info if available [\#694](https://github.com/tizonia/tizonia-openmax-il/issues/694)
+
+**Fixed bugs:**
+
+- \[YouTube\] \(GdataError\) : Youtube Error 403: Access Not Configured. YouTube Data API has not been used in project 422897895433 before or it is disabled [\#689](https://github.com/tizonia/tizonia-openmax-il/issues/689)
+- Potential ASCII conversion regression in v0.19 [\#652](https://github.com/tizonia/tizonia-openmax-il/issues/652)
+- player: 'segmentation fault \(core dumped\)' while exiting the command-line application by pressing 'q' [\#317](https://github.com/tizonia/tizonia-openmax-il/issues/317)
+- Plex audio cuts out after 18 seconds on Arch distro [\#679](https://github.com/tizonia/tizonia-openmax-il/issues/679)
+- \[Google Play Music\] \(RuntimeError\) : maximum recursion depth exceeded in cmp [\#646](https://github.com/tizonia/tizonia-openmax-il/issues/646)
+- Google Music Free Radio Stations Load Queued Items List But Nothing Happens. [\#596](https://github.com/tizonia/tizonia-openmax-il/issues/596)
+- soundcloud-users-likes: OMX.Aratelia.audio\_source.http:port:0  [\#576](https://github.com/tizonia/tizonia-openmax-il/issues/576)
+
+**Closed issues:**
+
+- spotify: 'connection refused' \(playlist displayed but music not streaming\) [\#693](https://github.com/tizonia/tizonia-openmax-il/issues/693)
+- release v0.21.0 [\#699](https://github.com/tizonia/tizonia-openmax-il/issues/699)
+
+## [v0.20.2](https://github.com/tizonia/tizonia-openmax-il/tree/v0.20.2) (2020-02-21)
+
+[Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.20.1...v0.20.2)
+
+## [v0.20.1](https://github.com/tizonia/tizonia-openmax-il/tree/v0.20.1) (2020-02-21)
+
+[Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.20.0...v0.20.1)
+
+**Merged pull requests:**
+
+- Fixing for python 3.8 [\#688](https://github.com/tizonia/tizonia-openmax-il/pull/688) ([SolarAquarion](https://github.com/SolarAquarion))
+- it's tizonia.1 not tizonia [\#687](https://github.com/tizonia/tizonia-openmax-il/pull/687) ([SolarAquarion](https://github.com/SolarAquarion))
+
+## [v0.20.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.20.0) (2020-02-19)
 
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.19.0...v0.20.0)
 
 **Improvements:**
 
+- Man page [\#655](https://github.com/tizonia/tizonia-openmax-il/issues/655)
+- Colored output options? [\#586](https://github.com/tizonia/tizonia-openmax-il/issues/586)
+- Build system: enhance existing configuration options to allow minimal dependencies [\#541](https://github.com/tizonia/tizonia-openmax-il/issues/541)
 - New build system based on Meson \(phase I\) [\#685](https://github.com/tizonia/tizonia-openmax-il/issues/685)
 - Add support for TuneIn Internet radios [\#684](https://github.com/tizonia/tizonia-openmax-il/issues/684)
 - tizonia-remote: publish in debian packages [\#683](https://github.com/tizonia/tizonia-openmax-il/issues/683)
@@ -20,12 +62,16 @@
 
 **Closed issues:**
 
+- release v0.20.0 [\#682](https://github.com/tizonia/tizonia-openmax-il/issues/682)
 - Display Current Playing / RC.Local output via SSH [\#654](https://github.com/tizonia/tizonia-openmax-il/issues/654)
 - Using Tizonia in Cron jobs [\#651](https://github.com/tizonia/tizonia-openmax-il/issues/651)
+- `--without-libspotify` does not seem to work [\#648](https://github.com/tizonia/tizonia-openmax-il/issues/648)
 - AttributeError: module 'importlib' has no attribute 'util' [\#647](https://github.com/tizonia/tizonia-openmax-il/issues/647)
 - Error 404 on bintray raspbian buster 0.19 [\#645](https://github.com/tizonia/tizonia-openmax-il/issues/645)
 - Python modules 'spotifyapi' or 'fuzzywuzzy' not found. [\#644](https://github.com/tizonia/tizonia-openmax-il/issues/644)
+- docs: document Spotify authentication options [\#539](https://github.com/tizonia/tizonia-openmax-il/issues/539)
 - \[news\] gst-omx now makes use of non-pre-announce buffer mode for OMX\_UseBuffer [\#416](https://github.com/tizonia/tizonia-openmax-il/issues/416)
+- docs: Google Play Music authentication methods [\#394](https://github.com/tizonia/tizonia-openmax-il/issues/394)
 
 **Merged pull requests:**
 
