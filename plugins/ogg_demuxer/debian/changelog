@@ -1,3 +1,9 @@
+tizoggdmux (0.21.0-1) unstable; urgency=low
+
+  * New upstream release (Closes: #699)
+
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Sun, 08 Mar 2020 20:55:09 +0000
+
 tizoggdmux (0.20.0-1) unstable; urgency=low
 
   * New upstream release (Closes: #682)
