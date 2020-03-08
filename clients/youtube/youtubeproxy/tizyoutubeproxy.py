@@ -27,14 +27,25 @@ import logging
 import random
 import unicodedata
 import re
+import getpass
 import pafy
 import configparser
 from multiprocessing.dummy import Process, Queue
+from joblib import Memory
 from fuzzywuzzy import process
 from fuzzywuzzy import fuzz
 
 # For use during debugging
 # from pprint import pprint
+
+TMPDIR = "/var/tmp"
+CACHE_DIR_PREFIX = os.getenv("SNAP_USER_COMMON") or TMPDIR
+
+YOUTUBE_CACHE_LOCATION = os.path.join(
+    CACHE_DIR_PREFIX, "tizonia-" + getpass.getuser() + "-youtube"
+)
+MEMORY = Memory(YOUTUBE_CACHE_LOCATION, compress=9, verbose=0, bytes_limit=10485760)
+MEMORY.reduce_size()
 
 ISO8601_TIMEDUR_EX = re.compile(r"PT((\d{1,3})H)?((\d{1,3})M)?((\d{1,2})S)?")
 
@@ -285,7 +296,8 @@ def get_tracks_from_json(jsons, howmany=0):
         "id": ",".join([get_track_id_from_json(i) for i in items]),
     }
 
-    wdata = pafy.call_gdata("videos", query_string)
+    yt_dt_search = MEMORY.cache(run_youtube_data_search)
+    wdata = yt_dt_search("videos", query_string)
 
     items_vidinfo = wdata.get("items", [])
     # enhance search results by adding information from videos API response
@@ -336,6 +348,22 @@ def generate_search_query(term, api_key):
     return query_string
 
 
+def run_youtube_search(arg):
+    return pafy.new(arg)
+
+
+def run_youtube_data_search(typestr, query):
+    return pafy.call_gdata(typestr, query)
+
+
+def run_youtube_playlist_search(arg):
+    return pafy.get_playlist2(arg)
+
+
+def run_youtube_channel_search(arg):
+    return pafy.get_channel(arg)
+
+
 def obtain_stream(inqueue, outqueue):
     """ Return the stream object after instantiating the pafy object. """
 
@@ -350,7 +378,8 @@ def obtain_stream(inqueue, outqueue):
                     logging.info("ytid : %s", stream["i"].ytid)
                     video = stream.get("v")
                     if not video:
-                        video = pafy.new(stream["i"].ytid)
+                        yt_search = MEMORY.cache(run_youtube_search)
+                        video = yt_search(stream["i"].ytid)
                     audio = video.getbestaudio(preftype="webm")
                     if not audio:
                         logging.info("no suitable audio found")
@@ -435,7 +464,8 @@ class tizyoutubeproxy(object):
         try:
             print_msg("[YouTube] [Audio strean] : '{0}'. ".format(arg))
 
-            yt_video = pafy.new(arg)
+            yt_search = MEMORY.cache(run_youtube_search)
+            yt_video = yt_search(arg)
             yt_audio = yt_video.getbestaudio(preftype="webm")
             if not yt_audio:
                 raise ValueError(str("No WebM audio stream for : %s" % arg))
@@ -459,7 +489,9 @@ class tizyoutubeproxy(object):
             print_msg("[YouTube] [Audio playlist] : '{0}'. ".format(arg))
             count = len(self.queue)
 
-            playlist = pafy.get_playlist2(arg)
+            yt_pl_search = MEMORY.cache(run_youtube_playlist_search)
+            playlist = yt_pl_search(arg)
+
             if len(playlist) > 0:
                 for yt_video in playlist:
                     self._add_to_playback_queue(
@@ -485,8 +517,8 @@ class tizyoutubeproxy(object):
         logging.info("arg : %s", arg)
         try:
             print_msg("[YouTube] [Audio search] : '{0}'. ".format(arg))
-            query = generate_search_query(arg, self.api_key)
-            wdata = pafy.call_gdata("search", query)
+            yt_dt_search = MEMORY.cache(run_youtube_data_search)
+            wdata = yt_dt_search("search", generate_search_query(arg, self.api_key))
 
             wdata2 = wdata
             count = 0
@@ -500,7 +532,7 @@ class tizyoutubeproxy(object):
                 if not wdata2.get("nextPageToken"):
                     break
                 query["pageToken"] = wdata2["nextPageToken"]
-                wdata2 = pafy.call_gdata("search", query)
+                wdata2 = yt_dt_search("search", query)
 
             self._update_play_queue_order()
 
@@ -523,7 +555,8 @@ class tizyoutubeproxy(object):
             print_msg("[YouTube] [Audio mix] : '{0}'. ".format(arg))
             count = len(self.queue)
 
-            yt_video = pafy.new(arg)
+            yt_search = MEMORY.cache(run_youtube_search)
+            yt_video = yt_search(arg)
             playlist = yt_video.mix
             if len(playlist) > 0:
                 for yt_video in playlist:
@@ -562,9 +595,8 @@ class tizyoutubeproxy(object):
         logging.info("arg : %s", arg)
         try:
             print_msg("[YouTube] [Audio mix search] : '{0}'. ".format(arg))
-
-            query = generate_search_query(arg, self.api_key)
-            wdata = pafy.call_gdata("search", query)
+            yt_dt_search = MEMORY.cache(run_youtube_data_search)
+            wdata = yt_dt_search("search", generate_search_query(arg, self.api_key))
 
             wdata2 = wdata
             count = len(self.queue)
@@ -593,7 +625,8 @@ class tizyoutubeproxy(object):
             print_msg("[YouTube] [Audio channel uploads] : '{0}'. ".format(arg))
             count = len(self.queue)
 
-            channel = pafy.get_channel(arg)
+            yt_ch_search = MEMORY.cache(run_youtube_channel_search)
+            channel = yt_ch_search(arg)
             if channel:
                 for yt_video in channel.uploads:
                     self._add_to_playback_queue(
@@ -624,7 +657,9 @@ class tizyoutubeproxy(object):
                 )
             )
             count = len(self.queue)
-            channel = pafy.get_channel(channel_name)
+            yt_ch_search = MEMORY.cache(run_youtube_channel_search)
+            channel = yt_ch_search(channel_name)
+
             if channel:
                 pl_dict = dict()
                 pl_titles = list()
@@ -889,7 +924,8 @@ class tizyoutubeproxy(object):
                 logging.info("ytid : %s", stream["i"].ytid)
                 video = stream.get("v")
                 if not video:
-                    video = pafy.new(stream["i"].ytid)
+                    yt_search = MEMORY.cache(run_youtube_search)
+                    video = yt_search(stream["i"].ytid)
                 audio = video.getbestaudio(preftype="webm")
                 if not audio:
                     logging.info("no suitable audio found")
