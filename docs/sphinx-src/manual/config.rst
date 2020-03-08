@@ -66,7 +66,7 @@ This is the template that ships with the latest version of Tizonia:
    :linenos:
 
    # -*-Mode: conf; -*-
-   # tizonia-config v0.20.0 configuration file
+   # tizonia-config v0.21.0 configuration file
 
    [ilcore]
    # Tizonia OpenMAX IL Core section
@@ -208,6 +208,10 @@ This is the template that ships with the latest version of Tizonia:
    # To avoid passing this information on the command line, uncomment and
    # configure as needed.
    #
+   # youtube.api_key = youtube api key. Optional but RECOMMENDED to avoid
+   #                   problems when the daily quota of the interal api key
+   #                   is exceeded. To create your YouTube api key, see info at:
+   #                   https://www.slickremix.com/docs/get-api-key-for-youtube/
    # youtube.buffer_seconds = size of the audio buffer (in seconds) to use
    #                          while downloading streams. Default: 60.
    #                          Increase in case of cuts.
