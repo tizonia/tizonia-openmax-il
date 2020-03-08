@@ -100,8 +100,15 @@ namespace
             "if not spec:\n raise ValueError\n",
             py_global);
 
-        // Check the existence of the 'fuzzywuzzy' module
+        // Check the existence of the 'joblib' module
         bp::object ignored3 = exec (
+            "import importlib\n"
+            "spec = importlib.util.find_spec('joblib')\n"
+            "if not spec:\n raise ValueError\n",
+            py_global);
+
+        // Check the existence of the 'fuzzywuzzy' module
+        bp::object ignored4 = exec (
             "import importlib\n"
             "spec = importlib.util.find_spec('fuzzywuzzy')\n"
             "if not spec:\n raise ValueError\n",
