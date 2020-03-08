@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "TIZONIA" "1" "Feb 18, 2020" "0.20.0" "Tizonia"
+.TH "TIZONIA" "1" "Mar 08, 2020" "0.21.0" "Tizonia"
 .SH NAME
 tizonia \- A command-line streaming music client/server for Linux with support for Spotify (Premium), Google Play Music (free and paid tiers), YouTube, SoundCloud, TuneIn Internet Radio, Plex servers and Chromecast devices.
 .
@@ -191,7 +191,7 @@ This is the template that ships with the latest version of Tizonia:
 .nf
 .ft C
 # \-*\-Mode: conf; \-*\-
-# tizonia\-config v0.20.0 configuration file
+# tizonia\-config v0.21.0 configuration file
 
 [ilcore]
 # Tizonia OpenMAX IL Core section
@@ -333,6 +333,10 @@ mpris\-enabled = false
 # To avoid passing this information on the command line, uncomment and
 # configure as needed.
 #
+# youtube.api_key = youtube api key. Optional but RECOMMENDED to avoid
+#                   problems when the daily quota of the interal api key
+#                   is exceeded. To create your YouTube api key, see info at:
+#                   https://www.slickremix.com/docs/get\-api\-key\-for\-youtube/
 # youtube.buffer_seconds = size of the audio buffer (in seconds) to use
 #                          while downloading streams. Default: 60.
 #                          Increase in case of cuts.
@@ -799,8 +803,14 @@ The Google Play Music account username, e.g. \fI\%\(aquser@gmail.com\fP\(aq or j
 Account password or app\-specific password for 2\-factor users
 .TP
 .B \fBgmusic.device_id\fP
-An Android device id associated to your account. This is a 16\-digit
-hexadecimal number, e.g. \(aq1234567890abcdef\(aq.
+An Android device id associated to your account. This is usually a 16\-digit
+hexadecimal number, e.g. \(aq1234567890abcdef\(aq. There are step\-by\-step tutorials
+on the Internet that may help with finding the device id on Android or iOS
+devices. There are also some apps in the Google Play store that may help with
+that, e.g.  \fI\%Device ID\fP\&.
+If you are a Google Play Music subscriber, you may also try to input a random
+device id. When using a random device id with a subscriber account, the
+software will return a list of real device ids associated to the account.
 .TP
 .B \fBgmusic.buffer_seconds\fP
 This is the minimum size of the audio buffer (in seconds) that Tizonia will
@@ -1027,6 +1037,10 @@ like the one pictured below (see also tizonia\-config\-label).
 # To avoid passing this information on the command line, uncomment and
 # configure as needed.
 #
+# youtube.api_key = youtube api key. Optional but RECOMMENDED to avoid
+#                   problems when the daily quota of the interal api key
+#                   is exceeded. To create your YouTube api key, see info at:
+#                   https://www.slickremix.com/docs/get\-api\-key\-for\-youtube/
 # youtube.buffer_seconds = size of the audio buffer (in seconds) to use
 #                          while downloading streams. Default: 60.
 #                          Increase in case of cuts.
@@ -1892,7 +1906,7 @@ Usage: /usr/bin/tizonia\-remote [command]
                          (Read/Write).
     rate                 the current playback rate (Read/Write).
     shuffle              the current shuffled playback status (true or false).
-    metadata             the metadata of the current track (Read/Write).
+    metadata             the metadata of the current track (Read/Write) (NOT IMPLEMENTED).
     volume               the volume level (Read/Write).
 
     org.mpris.MediaPlayer2.TrackList interface
