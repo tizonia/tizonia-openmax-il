@@ -175,6 +175,18 @@ function update_sphinx_doc_version_strings {
     query_commit "update_sphinx_doc_version_strings"
 }
 
+function update_man_page {
+    pretty_print "$MAG" "[START] : updating Tizonia man page."
+    cd "$TIZONIA_REPO_DIR"/docs
+    autoreconf -ifs && ./configure && make
+    cd "$TIZONIA_REPO_DIR"/docs/sphinx-src
+    make man
+    cp _build/man/tizonia.1 "$TIZONIA_REPO_DIR"/player/man/tizonia.1
+    pretty_print "$BLU" "[DONE] : updating Tizonia man page."
+
+    query_commit "update_man_page"
+}
+
 function update_changelog {
     cd "$TIZONIA_REPO_DIR"
     github_changelog_generator --since-tag v0.1.0 --user=tizonia --project=tizonia-openmax-il --future-release "$TIZONIA_RELEASE_VERSION" --enhancement-label "**Improvements:**"
@@ -215,6 +227,7 @@ function main {
     # update_debian_changelog_files
     # update_doxygen_doc_version_strings
     # update_sphinx_doc_version_strings
+    # update_man_page
 
     # Do the following manual steps at this point
     # 7.- Update README.md (as many changes as needed).
