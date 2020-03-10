@@ -3,7 +3,7 @@
 _githubname=tizonia-openmax-il
 pkgname=tizonia-all
 pkgver=0.21.0
-pkgrel=1
+pkgrel=2
 pkgdesc="Command-line cloud music player for Linux with support for Spotify, Google Play Music, YouTube, SoundCloud, TuneIn, Plex servers and Chromecast devices."
 arch=('x86_64')
 url="https://tizonia.org"
@@ -67,7 +67,7 @@ build() {
     CFLAGS='-O2 -s -DNDEBUG' \
     CXXFLAGS='-O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security' \
     arch-meson build -Dbashcompletiondir=/usr/share/bash-completion/completions -Dzshcompletiondir=/usr/share/zsh/site-functions
-    ninja -C build
+    ninja -j1 -C build
 }
 
 package() {
