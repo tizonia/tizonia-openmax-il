@@ -2,55 +2,50 @@
 
 _githubname=tizonia-openmax-il
 pkgname=tizonia-all-git
-pkgver=0.19.0.r10.ge97603a4
+pkgver=0.21.0.r4.g920246f5
 pkgrel=1
 pkgdesc="Command-line cloud music player for Linux with support for Spotify, Google Play Music, YouTube, SoundCloud, Plex servers and Chromecast devices."
 arch=('x86_64')
-url="https://tizonia.org"
+url="https://www.tizonia.org"
 license=('LGPL')
+makedepends=('git' 'boost' 'check' 'meson' 'samurai')
 depends=(
     # official repositories:
     'libmad'
-    'sqlite'
-    'libutil-linux'
     'taglib'
     'mediainfo'
     'sdl'
+    'sqlite'
     'lame'
     'faad2'
     'libcurl-gnutls'
-    'libvorbis'
     'libvpx'
     'mpg123'
-    'opus'
     'opusfile'
-    'libogg'
     'libfishsound'
-    'flac'
     'liboggz'
-    'libsndfile'
-    'alsa-lib'
-    'libpulse'
-    'boost'
-    'check'
     'youtube-dl'
+    'libpulse'
+    'boost-libs'
+    'hicolor-icon-theme'
+    'python-eventlet'
     'python-levenshtein'
 
     # AUR:
     'log4c'
     'libspotify'
-    'python-pafy-git'
-    'python-eventlet-git'
-    'python-gmusicapi-git'
+    'python-pafy'
+    'python-gmusicapi'
     'python-soundcloud-git'
     'python-pychromecast-git'
     'python-plexapi'
-    'python-fuzzywuzzy-git'
-    'python-spotipy-git'
+    'python-fuzzywuzzy'
+    'python-spotipy'
 )
 provides=('tizonia-all')
 conflicts=('tizonia-all')
-source=("${pkgname}"::"git+https://github.com/tizonia/${_githubname}.git")
+options=()
+source=("${pkgname}"::git+https://github.com/tizonia/${_githubname}.git)
 sha256sums=('SKIP')
 
 pkgver() {
@@ -61,30 +56,23 @@ pkgver() {
     printf '%s.r%s.g%s' "$_version" "$_revision" "$_shorthash"
 }
 
-prepare() {
-  command -v tizonia &> /dev/null \
-      && { \
-      echo >&2 "Please uninstall tizonia-all or tizonia-all-git before proceeding." ; \
-      echo >&2 "See https://github.com/tizonia/tizonia-openmax-il/issues/485." ; \
-      exit 1; }
-  mkdir -p "$srcdir/path"
-}
+# prepare() {
+  #command -v tizonia &> /dev/null \
+  #    && { \
+  #    echo >&2 "Please uninstall tizonia-all or tizonia-all-git before proceeding." ; \
+  #    echo >&2 "See https://github.com/tizonia/tizonia-openmax-il/issues/485." ; \
+  #    exit 1;
+  #    }
+#}
 
 build() {
-    cd "$pkgname"
-    autoreconf -ifs
-    ./configure \
-        --prefix=/usr \
-        --sysconfdir=/etc \
-        --localstatedir=/var \
-        --silent \
-        --enable-silent-rules \
         CFLAGS='-O2 -s -DNDEBUG' \
-        CXXFLAGS='-O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security'
-    make
+        CXXFLAGS='-O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security' \
+        export SAMUFLAGS=-j4
+        arch-meson "$pkgname" build
+        samu -v -C build
 }
 
 package() {
-    cd "$pkgname"
-    make DESTDIR="$pkgdir/" install
+    DESTDIR=$pkgdir samu -C build install
 }
