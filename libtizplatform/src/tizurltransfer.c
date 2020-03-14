@@ -276,7 +276,8 @@ httpsrc_curl_state_to_str (const httpsrc_curl_state_id_t a_state)
 
 #define URLTRANS_LOG_API_START(ap_trans) \
   TRANS_LOG (ap_trans, TRANS_MSG_API_START)
-#define URLTRANS_LOG_API_END(ap_trans) TRANS_LOG (ap_trans, TRANS_MSG_API_END)
+#define URLTRANS_LOG_API_END(ap_trans) \
+  TRANS_LOG (ap_trans, TRANS_MSG_API_END)
 #define URLTRANS_LOG_CBACK_START(ap_trans) \
   TRANS_LOG (ap_trans, TRANS_MSG_CBACK_START)
 #define URLTRANS_LOG_CBACK_END(ap_trans) \
@@ -545,15 +546,13 @@ stop_reconnect_timer_watcher (tiz_urltrans_t * ap_trans)
 static OMX_ERRORTYPE
 kickstart_curl_socket (tiz_urltrans_t * ap_trans, int * ap_running_handles)
 {
-  int loop_count = 100;
+  int loop_count = 10000;
   assert (ap_trans);
   assert (ap_running_handles);
   do
     {
       on_curl_multi_error_ret_omx_oom (curl_multi_socket_action (
         ap_trans->p_curl_multi_, CURL_SOCKET_TIMEOUT, 0, ap_running_handles));
-      TIZ_LOG (TIZ_PRIORITY_TRACE, " inside loop : %d",
-               (ap_running_handles ? *ap_running_handles : -1));
     }
   while (0 == ap_trans->curl_timeout_ && --loop_count > 0);
 
@@ -565,7 +564,6 @@ kickstart_curl_socket (tiz_urltrans_t * ap_trans, int * ap_running_handles)
       TIZ_LOG (TIZ_PRIORITY_TRACE, "timeout_ms : %ld", timeout_ms);
       ap_trans->curl_timeout_ = ((double) timeout_ms / (double) 1000);
     }
-
   return OMX_ErrorNone;
 }
 
@@ -1297,7 +1295,7 @@ tiz_urltrans_on_io_ready (tiz_urltrans_t * ap_trans, tiz_event_io_t * ap_ev_io,
                           int a_fd, int a_events)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  int loop_count = 100;
+  int loop_count = 10000;
   assert (ap_trans);
   URLTRANS_LOG_API_START (ap_trans);
   if (a_fd == ap_trans->sockfd_)
@@ -1318,7 +1316,6 @@ tiz_urltrans_on_io_ready (tiz_urltrans_t * ap_trans, tiz_event_io_t * ap_ev_io,
           on_curl_multi_error_ret_omx_oom (curl_multi_socket_action (
             ap_trans->p_curl_multi_, ap_trans->sockfd_, curl_ev_bitmask,
             &running_handles));
-          TIZ_LOG (TIZ_PRIORITY_TRACE, " inside loop : %d", running_handles);
         }
       while (0 == ap_trans->curl_timeout_ && --loop_count > 0);
 
