@@ -20,7 +20,7 @@ $ sudo -H pip3 install meson --upgrade
 
 Ninja is the recommended Meson backend.
 ```
-$ sudo apt-get ninja-build
+$ sudo apt-get install ninja-build
 ```
 
 ### Dependencies

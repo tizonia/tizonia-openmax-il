@@ -50,3 +50,12 @@ API Documentation
    openmaxil/openmaxil
    plugins/plugins
    clients/clients
+
+Debugging Tools
+---------------
+
+.. toctree::
+   :maxdepth: 2
+
+   logging
+   envvars
