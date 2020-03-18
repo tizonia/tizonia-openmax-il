@@ -300,7 +300,13 @@ $ makepkg -si
 
 ## Snap Package
 
-A 'snap' package is now available to download from the 'Global' snap store
+> NOTE: Unfortunately, the snap package is taking too much of my time to
+> maintain, given the number of other release tasks that I need to deal with
+> during a normal release cycle of Tizonia.  So I'm calling for maintainers for
+> the Snap package. Please see message in the Snap package repo at
+> https://github.com/tizonia/tizonia-snap/
+
+A 'snap' package is available to download from the 'Global' snap store
 ('stable' channel). For more details visit:
 
 - Tizonia's landing page on [Snapcraft.io](https://snapcraft.io/tizonia)
