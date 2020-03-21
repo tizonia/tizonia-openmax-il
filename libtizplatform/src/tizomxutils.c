@@ -659,6 +659,10 @@ static const tiz_idx_str_t tiz_idx_to_str_tbl[] = {
    (const OMX_STRING) "OMX_TizoniaIndexParamAudioPlexSession"},
   {OMX_TizoniaIndexParamAudioPlexPlaylist,
    (const OMX_STRING) "OMX_TizoniaIndexParamAudioPlexPlaylist"},
+  {OMX_TizoniaIndexParamAudioIheartSession,
+   (const OMX_STRING) "OMX_TizoniaIndexParamAudioIheartSession"},
+  {OMX_TizoniaIndexParamAudioIheartPlaylist,
+   (const OMX_STRING) "OMX_TizoniaIndexParamAudioIheartPlaylist"},
   {OMX_IndexKhronosExtensions, (const OMX_STRING) "OMX_IndexKhronosExtensions"},
   {OMX_IndexVendorStartUnused, (const OMX_STRING) "OMX_IndexVendorStartUnused"},
   {OMX_IndexMax, (const OMX_STRING) "OMX_IndexMax"}};
