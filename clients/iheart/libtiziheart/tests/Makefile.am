@@ -1,4 +1,4 @@
-# Copyright (C) 2011-2020 Aratelia Limited - Juan A. Rubio and contributors
+# Copyright (C) 2011-2019 Aratelia Limited - Juan A. Rubio
 #
 # This file is part of Tizonia
 #
@@ -15,4 +15,17 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-SUBDIRS = gmusic soundcloud youtube plex chromecast spotify tunein iheart
+TESTS = check_tiziheart
+
+check_PROGRAMS = check_tiziheart
+
+check_tiziheart_SOURCES = check_tiziheart.c
+
+check_tiziheart_CFLAGS = \
+	-I$(top_srcdir)/src/ \
+	@CHECK_CFLAGS@
+
+check_tiziheart_LDADD = \
+	$(top_builddir)/src/libtiziheart.la \
+	@CHECK_LIBS@
+

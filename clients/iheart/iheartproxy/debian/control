@@ -1,0 +1,15 @@
+Source: tiziheartproxy
+Maintainer: Juan A. Rubio <juan.rubio@aratelia.com>
+Section: python
+Priority: optional
+Build-Depends: dh-python, python3-setuptools, python3-all, debhelper (>= 9)
+Standards-Version: 3.9.6
+Homepage: https://tizonia.org
+
+Package: python3-tiziheartproxy
+Architecture: all
+Depends: ${misc:Depends}, ${python3:Depends}
+Description: Tizonia IHeart proxy
+ Tizonia's IHeart proxy.
+ .
+ This package contains Tizonia's IHeart proxy Python module.

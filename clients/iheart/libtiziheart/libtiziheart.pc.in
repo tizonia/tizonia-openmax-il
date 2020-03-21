@@ -1,0 +1,11 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: libtiziheart
+Description: Tizonia IHeart client library
+Version: @PACKAGE_VERSION@
+Libs: -L${libdir} -ltiziheart
+Libs.private: -lpython3.6 -lboost_python3
+Cflags: -I${includedir} -I${includedir}/python3.6 -I${includedir}/tizonia

@@ -1,0 +1,17 @@
+tiziheart (0.21.0-1) unstable; urgency=low
+
+  * New upstream release (Closes: #699)
+
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Sun, 08 Mar 2020 20:55:07 +0000
+
+tiziheart (0.20.0-1) unstable; urgency=low
+
+  * New upstream release (Closes: #682)
+
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Thu, 13 Feb 2020 22:23:41 +0000
+
+tiziheart (0.19.0-1) unstable; urgency=low
+
+  * Initial release (Closes: #643)
+
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Fri, 13 Dec 2019 14:37:13 +0000
