@@ -78,6 +78,8 @@
 #define OMX_TizoniaIndexParamAudioPlexSession        OMX_IndexVendorStartUnused + 22 /**< reference: OMX_TIZONIA_AUDIO_PARAM_PLEXSESSIONTYPE */
 #define OMX_TizoniaIndexParamAudioPlexPlaylist       OMX_IndexVendorStartUnused + 23 /**< reference: OMX_TIZONIA_AUDIO_PARAM_PLEXPLAYLISTTYPE */
 #define OMX_TizoniaIndexParamStreamingBuffer         OMX_IndexVendorStartUnused + 24 /**< reference: OMX_TIZONIA_STREAMINGBUFFERTYPE */
+#define OMX_TizoniaIndexParamAudioIheartSession      OMX_IndexVendorStartUnused + 25 /**< reference: OMX_TIZONIA_AUDIO_PARAM_IHEARTSESSIONTYPE */
+#define OMX_TizoniaIndexParamAudioIheartPlaylist     OMX_IndexVendorStartUnused + 26 /**< reference: OMX_TIZONIA_AUDIO_PARAM_IHEARTPLAYLISTTYPE */
 
 /**
  * OMX_AUDIO_CODINGTYPE extensions
@@ -589,5 +591,36 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_PLEXPLAYLISTTYPE {
     OMX_BOOL bShuffle;            /**< Default: OMX_FALSE */
     OMX_U8 cPlaylistName[OMX_MAX_STRINGNAME_SIZE];
 } OMX_TIZONIA_AUDIO_PARAM_PLEXPLAYLISTTYPE;
+
+/**
+ * Iheart source component
+ *
+ */
+
+typedef enum OMX_TIZONIA_AUDIO_IHEARTPLAYLISTTYPE {
+    OMX_AUDIO_IheartPlaylistTypeUnknown = 0, /**< Playlist type unknown (Default). */
+    OMX_AUDIO_IheartPlaylistTypeRadios, /**< General search */
+    OMX_AUDIO_IheartPlaylistTypeKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
+    OMX_AUDIO_IheartPlaylistTypeVendorStartUnused = 0x7F000000, /**< Reserved region for introducing Vendor Extensions */
+    OMX_AUDIO_IheartPlaylistTypeMax = 0x7FFFFFFF
+} OMX_TIZONIA_AUDIO_IHEARTPLAYLISTTYPE;
+
+typedef struct OMX_TIZONIA_AUDIO_PARAM_IHEARTSESSIONTYPE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_U8 cApiKey[OMX_MAX_STRINGNAME_SIZE];
+} OMX_TIZONIA_AUDIO_PARAM_IHEARTSESSIONTYPE;
+
+typedef struct OMX_TIZONIA_AUDIO_PARAM_IHEARTPLAYLISTTYPE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_TIZONIA_AUDIO_IHEARTPLAYLISTTYPE ePlaylistType;
+    OMX_BOOL bShuffle;            /**< Default: OMX_FALSE */
+    OMX_U8 cPlaylistName[OMX_MAX_STRINGNAME_SIZE];
+    OMX_U8 cAdditionalKeywords1[OMX_MAX_STRINGNAME_SIZE];
+    OMX_U8 cAdditionalKeywords2[OMX_MAX_STRINGNAME_SIZE];
+    OMX_U8 cAdditionalKeywords3[OMX_MAX_STRINGNAME_SIZE];
+} OMX_TIZONIA_AUDIO_PARAM_IHEARTPLAYLISTTYPE;
+
 
 #endif /* OMX_TizoniaExt_h */
