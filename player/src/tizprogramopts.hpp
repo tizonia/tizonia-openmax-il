@@ -112,6 +112,9 @@ namespace tiz
     const std::vector< std::string > &plex_playlist_container ();
     OMX_TIZONIA_AUDIO_PLEXPLAYLISTTYPE plex_playlist_type ();
     uint32_t plex_buffer_seconds() const;
+    const std::vector< std::string > &iheart_playlist_container ();
+    OMX_TIZONIA_AUDIO_IHEARTPLAYLISTTYPE iheart_playlist_type ();
+    uint32_t iheart_buffer_seconds() const;
 
   private:
     void print_usage_feature (
@@ -131,6 +134,7 @@ namespace tiz
     void init_tunein_options ();
     void init_youtube_options ();
     void init_plex_options ();
+    void init_iheart_options ();
     void init_input_uri_option ();
 
     uint32_t parse_command_line (int argc, char *argv[]);
@@ -149,6 +153,7 @@ namespace tiz
     int consume_tunein_client_options (bool &done, std::string &msg);
     int consume_youtube_client_options (bool &done, std::string &msg);
     int consume_plex_client_options (bool &done, std::string &msg);
+    int consume_iheart_client_options (bool &done, std::string &msg);
     int consume_local_decode_options (bool &done, std::string &msg);
     int consume_input_file_uris_option ();
     int consume_input_http_uris_option ();
@@ -161,6 +166,7 @@ namespace tiz
     bool validate_tunein_client_options () const;
     bool validate_youtube_client_options () const;
     bool validate_plex_client_options () const;
+    bool validate_iheart_client_options () const;
     bool validate_port_argument (std::string &msg) const;
     bool validate_bitrates_argument (std::string &msg);
     bool validate_sampling_rates_argument (std::string &msg);
@@ -185,6 +191,7 @@ namespace tiz
     boost::program_options::options_description tunein_;
     boost::program_options::options_description youtube_;
     boost::program_options::options_description plex_;
+    boost::program_options::options_description iheart_;
     boost::program_options::options_description chromecast_;
     boost::program_options::options_description proxy_;
     boost::program_options::options_description input_;
@@ -303,6 +310,11 @@ namespace tiz
     std::vector< std::string > plex_playlist_container_;
     OMX_TIZONIA_AUDIO_PLEXPLAYLISTTYPE plex_playlist_type_;
     uint32_t plex_buffer_seconds_;
+    std::string iheart_search_;
+    std::vector< std::string > iheart_keywords_;
+    std::vector< std::string > iheart_playlist_container_;
+    OMX_TIZONIA_AUDIO_IHEARTPLAYLISTTYPE iheart_playlist_type_;
+    uint32_t iheart_buffer_seconds_;
     std::vector< consume_function_t > consume_functions_;
 
     std::vector< std::string > all_global_options_;
@@ -316,6 +328,7 @@ namespace tiz
     std::vector< std::string > all_tunein_client_options_;
     std::vector< std::string > all_youtube_client_options_;
     std::vector< std::string > all_plex_client_options_;
+    std::vector< std::string > all_iheart_client_options_;
     std::vector< std::string > all_input_uri_options_;
     std::vector< std::string > all_given_options_;
   };

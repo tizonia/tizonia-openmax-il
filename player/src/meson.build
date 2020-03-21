@@ -82,11 +82,15 @@ tizonia_sources = [
    'services/chromecast/tizchromecastgraphfsm.cpp',
    'services/chromecast/tizchromecastgraphops.cpp',
    'services/chromecast/tizchromecastmgr.cpp',
+   'services/iheart/tiziheartgraph.cpp',
+   'services/iheart/tiziheartgraphfsm.cpp',
+   'services/iheart/tiziheartgraphops.cpp',
+   'services/iheart/tiziheartmgr.cpp',
    'tizplaybackevents.cpp',
    'tizprogressdisplay.cpp',
    'mpris/tizmprismgr.cpp',
    'mpris/tizmprisprops.cpp',
-   'mpris/tizmprisif.cpp'
+   'mpris/tizmprisif.cpp',
 ]
 
 
@@ -96,7 +100,8 @@ tizonia_inc = [
    include_directories('services/soundcloud'),
    include_directories('services/youtube'),
    include_directories('services/plex'),
-   include_directories('services/tunein')
+   include_directories('services/tunein'),
+   include_directories('services/iheart')
 ]
 
 tizonia = executable(

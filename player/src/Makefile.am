@@ -117,7 +117,12 @@ noinst_HEADERS = \
 	services/chromecast/tizchromecastgraphfsm.hpp \
 	services/chromecast/tizchromecastgraphops.hpp \
 	services/chromecast/tizchromecastconfig.hpp \
-	services/chromecast/tizchromecastmgr.hpp
+	services/chromecast/tizchromecastmgr.hpp \
+	services/iheart/tiziheartgraph.hpp \
+	services/iheart/tiziheartgraphfsm.hpp \
+	services/iheart/tiziheartgraphops.hpp \
+	services/iheart/tiziheartconfig.hpp \
+	services/iheart/tiziheartmgr.hpp
 
 
 tizonia_SOURCES = \
@@ -186,7 +191,11 @@ tizonia_SOURCES = \
 	tizprogressdisplay.cpp \
 	mpris/tizmprismgr.cpp \
 	mpris/tizmprisprops.cpp \
-	mpris/tizmprisif.cpp
+	mpris/tizmprisif.cpp \
+	services/iheart/tiziheartgraph.cpp \
+	services/iheart/tiziheartgraphfsm.cpp \
+	services/iheart/tiziheartgraphops.cpp \
+	services/iheart/tiziheartmgr.cpp
 
 tizonia_CPPFLAGS = \
 	@BOOST_CPPFLAGS@ \
@@ -200,6 +209,7 @@ tizonia_CPPFLAGS = \
 	-I$(top_srcdir)/src/services/youtube \
 	-I$(top_srcdir)/src/services/plex \
 	-I$(top_srcdir)/src/services/tunein \
+	-I$(top_srcdir)/src/services/iheart \
 	@TAGLIB_CFLAGS@ \
 	@LIBMEDIAINFO_CFLAGS@ \
 	@TIZDBUSCPLUSPLUS_CFLAGS@ \

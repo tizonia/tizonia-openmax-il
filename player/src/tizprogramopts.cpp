@@ -324,6 +324,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     tunein_ ("TuneIn options"),
     youtube_ ("YouTube options"),
     plex_ ("Plex options"),
+    iheart_ ("iheart options"),
     chromecast_ ("Chromecast options"),
     proxy_ ("Proxy server options"),
     input_ ("Input urioption"),
@@ -440,6 +441,11 @@ tiz::programopts::programopts (int argc, char *argv[])
     plex_playlist_container_ (),
     plex_playlist_type_ (OMX_AUDIO_PlexPlaylistTypeUnknown),
     plex_buffer_seconds_ (0),
+    iheart_search_(),
+    iheart_keywords_(),
+    iheart_playlist_container_(),
+    iheart_playlist_type_ (OMX_AUDIO_IheartPlaylistTypeUnknown),
+    iheart_buffer_seconds_(),
     consume_functions_ (),
     all_global_options_ (),
     all_debug_options_ (),
@@ -452,6 +458,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     all_tunein_client_options_ (),
     all_youtube_client_options_ (),
     all_plex_client_options_ (),
+    all_iheart_client_options_ (),
     all_input_uri_options_ (),
     all_given_options_ ()
 {
@@ -1406,6 +1413,52 @@ uint32_t tiz::programopts::plex_buffer_seconds () const
   return buffer_seconds_ ? buffer_seconds_ : plex_buffer_seconds_;
 }
 
+const std::vector< std::string > &tiz::programopts::iheart_playlist_container ()
+{
+  iheart_playlist_container_.clear ();
+  if (!iheart_audio_tracks_.empty ())
+  {
+    iheart_playlist_container_.push_back (iheart_audio_tracks_);
+  }
+  else if (!iheart_audio_artist_.empty ())
+  {
+    iheart_playlist_container_.push_back (iheart_audio_artist_);
+  }
+  else if (!iheart_audio_album_.empty ())
+  {
+    iheart_playlist_container_.push_back (iheart_audio_album_);
+  }
+  else if (!iheart_audio_playlist_.empty ())
+  {
+    iheart_playlist_container_.push_back (iheart_audio_playlist_);
+  }
+  else
+  {
+    assert (0);
+  }
+  return iheart_playlist_container_;
+}
+
+OMX_TIZONIA_AUDIO_IHEARTPLAYLISTTYPE
+tiz::programopts::iheart_playlist_type ()
+{
+  if (!iheart_search_.empty ())
+  {
+    iheart_playlist_type_ = OMX_AUDIO_IheartPlaylistTypeRadios;
+  }
+  else
+  {
+    iheart_playlist_type_ = OMX_AUDIO_IheartPlaylistTypeUnknown;
+  }
+
+  return iheart_playlist_type_;
+}
+
+uint32_t tiz::programopts::iheart_buffer_seconds () const
+{
+  return buffer_seconds_ ? buffer_seconds_ : iheart_buffer_seconds_;
+}
+
 void tiz::programopts::print_license () const
 {
   TIZ_PRINTF_C02 (
@@ -1931,6 +1984,19 @@ void tiz::programopts::init_plex_options ()
       = boost::assign::list_of ("plex-server-base-url") ("plex-auth-token") (
             "plex-music-section") ("plex-audio-tracks") ("plex-audio-artist") (
             "plex-audio-album") ("plex-audio-playlist")
+            .convert_to_container< std::vector< std::string > > ();
+}
+
+void tiz::programopts::init_iheart_options ()
+{
+  iheart_.add_options ()
+      /* TIZ_CLASS_COMMENT: */
+      ("iheart-search", po::value (&iheart_search_),
+       "iheart global station/podcast search.");
+
+  register_consume_function (&tiz::programopts::consume_iheart_client_options);
+  all_iheart_client_options_
+      = boost::assign::list_of ("iheart-search")
             .convert_to_container< std::vector< std::string > > ();
 }
 
@@ -3091,6 +3157,24 @@ bool tiz::programopts::validate_plex_client_options () const
   concat_option_lists (all_valid_options, all_debug_options_);
 
   if (plex_opts_count > 0
+      && is_valid_options_combination (all_valid_options, all_given_options_))
+  {
+    outcome = true;
+  }
+  TIZ_PRINTF_DBG_RED ("outcome = [%s]\n", outcome ? "SUCCESS" : "FAILURE");
+  return outcome;
+}
+
+bool tiz::programopts::validate_iheart_client_options () const
+{
+  bool outcome = false;
+  uint32_t iheart_opts_count = vm_.count ("iheart-search");
+
+  std::vector< std::string > all_valid_options = all_iheart_client_options_;
+  concat_option_lists (all_valid_options, all_global_options_);
+  concat_option_lists (all_valid_options, all_debug_options_);
+
+  if (iheart_opts_count > 0
       && is_valid_options_combination (all_valid_options, all_given_options_))
   {
     outcome = true;
