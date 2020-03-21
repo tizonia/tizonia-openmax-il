@@ -143,6 +143,16 @@ AS_IF([test "x$tiz_found_plex_headers" == "xyes"],
 	[PKG_CHECK_MODULES([TIZPLEX], [libtizplex >= 0.1.0])],
 	[AC_MSG_NOTICE([Not using pkg-config to find TIZPLEX cflags and libs])])
 
+AC_CHECK_HEADERS([tizonia/tiziheart_c.h],
+	[tiz_found_iheart_headers=yes; break;])
+AS_IF([test "x$tiz_found_iheart_headers" != "xyes"],
+	[AC_SUBST([TIZIHEART_CFLAGS], ['-I$(top_srcdir)/../../clients/iheart/libtiziheart/tizonia'])
+	AC_SUBST([TIZIHEART_LIBS], ['$(top_builddir)/../../clients/iheart/libtiziheart/tizonia/libtiziheart.la'])],
+	[AC_MSG_NOTICE([Not substituting TIZIHEART cflags and libs with local paths])])
+AS_IF([test "x$tiz_found_iheart_headers" == "xyes"],
+	[PKG_CHECK_MODULES([TIZIHEART], [libtiziheart >= 0.1.0])],
+	[AC_MSG_NOTICE([Not using pkg-config to find TIZIHEART cflags and libs])])
+
 # Define location of plugin directory
 AS_AC_EXPAND(PLUGINDIR, ${libdir}/tizonia0-plugins12)
 AC_DEFINE_UNQUOTED(PLUGINDIR, "$PLUGINDIR",

@@ -44,7 +44,11 @@ noinst_HEADERS = \
 	tuneinprc.h \
 	tuneinprc_decls.h \
 	tuneincfgport.h \
-	tuneincfgport_decls.h
+	tuneincfgport_decls.h \
+	iheartprc.h \
+	iheartprc_decls.h \
+	iheartcfgport.h \
+	iheartcfgport_decls.h
 
 libtizhttpsrc_la_SOURCES = \
 	httpsrc.c \
@@ -59,7 +63,9 @@ libtizhttpsrc_la_SOURCES = \
 	plexprc.c \
 	plexcfgport.c \
 	tuneinprc.c \
-	tuneincfgport.c
+	tuneincfgport.c \
+	iheartprc.c \
+	iheartcfgport.c
 
 libtizhttpsrc_la_CFLAGS = \
 	@TIZILHEADERS_CFLAGS@ \
@@ -69,7 +75,8 @@ libtizhttpsrc_la_CFLAGS = \
 	@TIZSOUNDCLOUD_CFLAGS@ \
 	@TIZYOUTUBE_CFLAGS@ \
 	@TIZPLEX_CFLAGS@ \
-	@TIZTUNEIN_CFLAGS@
+	@TIZTUNEIN_CFLAGS@ \
+	@TIZIHEART_CFLAGS@
 
 libtizhttpsrc_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@
 
@@ -80,4 +87,5 @@ libtizhttpsrc_la_LIBADD = \
 	@TIZSOUNDCLOUD_LIBS@ \
 	@TIZYOUTUBE_LIBS@ \
 	@TIZPLEX_LIBS@ \
-	@TIZTUNEIN_LIBS@
+	@TIZTUNEIN_LIBS@ \
+	@TIZIHEART_LIBS@

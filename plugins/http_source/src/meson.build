@@ -11,7 +11,9 @@ libtizhttpsrc_sources = [
    'plexprc.c',
    'plexcfgport.c',
    'tuneinprc.c',
-   'tuneincfgport.c'
+   'tuneincfgport.c',
+   'iheartprc.c',
+   'iheartcfgport.c'
 ]
 
 libtizhttpsrc = library(
