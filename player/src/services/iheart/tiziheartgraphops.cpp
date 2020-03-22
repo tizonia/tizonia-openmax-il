@@ -99,7 +99,6 @@ void graph::iheartops::do_configure_comp (const int comp_id)
         tiz::graph::util::set_iheart_playlist (
             handles_[0], playlist_->get_uri_list (),
             iheart_config->get_playlist_type (),
-            iheart_config->get_search_type (),
             playlist_->shuffle ()),
         "Unable to set OMX_TizoniaIndexParamAudioIheartPlaylist");
 

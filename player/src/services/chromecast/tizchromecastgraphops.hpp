@@ -64,6 +64,7 @@ namespace tiz
       void do_configure_tunein ();
       void do_configure_youtube ();
       void do_configure_plex ();
+      void do_configure_iheart ();
 
       OMX_ERRORTYPE get_encoding_type_from_chromecast_source ();
 

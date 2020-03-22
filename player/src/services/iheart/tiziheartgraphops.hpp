@@ -26,8 +26,8 @@
  *
  */
 
-#ifndef TIZTUNEINGRAPHOPS_HPP
-#define TIZTUNEINGRAPHOPS_HPP
+#ifndef TIZIHEARTGRAPHOPS_HPP
+#define TIZIHEARTGRAPHOPS_HPP
 
 #include <OMX_Audio.h>
 #include <OMX_TizoniaExt.h>
@@ -97,4 +97,4 @@ namespace tiz
   }  // namespace graph
 }  // namespace tiz
 
-#endif  // TIZTUNEINGRAPHOPS_HPP
+#endif  // TIZIHEARTGRAPHOPS_HPP

@@ -26,8 +26,8 @@
  *
  */
 
-#ifndef TIZTUNEINMGR_HPP
-#define TIZTUNEINMGR_HPP
+#ifndef TIZIHEARTMGR_HPP
+#define TIZIHEARTMGR_HPP
 
 #include "tizgraphtypes.hpp"
 #include "tizgraphmgrcaps.hpp"
@@ -81,4 +81,4 @@ namespace tiz
   }  // namespace graphmgr
 }  // namespace tiz
 
-#endif  // TIZTUNEINMGR_HPP
+#endif  // TIZIHEARTMGR_HPP

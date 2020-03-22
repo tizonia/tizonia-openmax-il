@@ -51,7 +51,8 @@ namespace tiz
          ConfigTunein,
          ConfigYouTube,
          ConfigPlex,
-         ConfigUnknown
+         ConfigUnknown,
+         ConfigIheart
         };
 
     public:

@@ -25,8 +25,8 @@
  *
  */
 
-#ifndef TIZTUNEINGRAPHFSM_HPP
-#define TIZTUNEINGRAPHFSM_HPP
+#ifndef TIZIHEARTGRAPHFSM_HPP
+#define TIZIHEARTGRAPHFSM_HPP
 
 #define BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
 #define BOOST_MPL_LIMIT_VECTOR_SIZE 40
@@ -55,7 +55,7 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.play.graph.iheart.fsm"
 #endif
 
-#define TUNEIN_FSM_LOG()                                        \
+#define IHEART_FSM_LOG()                                        \
   do                                                             \
   {                                                              \
     TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s]", typeid(*this).name ()); \
@@ -132,7 +132,7 @@ namespace tiz
         struct auto_detecting_exit : public boost::msm::front::exit_pseudo_state<tg::auto_detected_evt>
         {
           template <class Event,class FSM>
-          void on_entry(Event const & evt, FSM & fsm) {TUNEIN_FSM_LOG();}
+          void on_entry(Event const & evt, FSM & fsm) {IHEART_FSM_LOG();}
         };
 
         // the initial state. Must be defined
@@ -210,15 +210,15 @@ namespace tiz
         struct updating_graph_initial : public boost::msm::front::state<>
         {
           template <class Event,class FSM>
-          void on_entry(Event const & evt, FSM & fsm) {TUNEIN_FSM_LOG();}
+          void on_entry(Event const & evt, FSM & fsm) {IHEART_FSM_LOG();}
           template <class Event,class FSM>
-          void on_exit(Event const & evt, FSM & fsm) {TUNEIN_FSM_LOG();}
+          void on_exit(Event const & evt, FSM & fsm) {IHEART_FSM_LOG();}
         };
 
         struct updating_graph_exit : public boost::msm::front::exit_pseudo_state<tg::graph_updated_evt>
         {
           template <class Event,class FSM>
-          void on_entry(Event const & evt, FSM & fsm) {TUNEIN_FSM_LOG();}
+          void on_entry(Event const & evt, FSM & fsm) {IHEART_FSM_LOG();}
         };
 
         // the initial state. Must be defined
@@ -288,15 +288,15 @@ namespace tiz
         struct reconfiguring_tunnel_initial : public boost::msm::front::state<>
         {
           template <class Event,class FSM>
-          void on_entry(Event const & evt, FSM & fsm) {TUNEIN_FSM_LOG();}
+          void on_entry(Event const & evt, FSM & fsm) {IHEART_FSM_LOG();}
           template <class Event,class FSM>
-          void on_exit(Event const & evt, FSM & fsm) {TUNEIN_FSM_LOG();}
+          void on_exit(Event const & evt, FSM & fsm) {IHEART_FSM_LOG();}
         };
 
         struct reconfiguring_tunnel_exit : public boost::msm::front::exit_pseudo_state<tg::tunnel_reconfigured_evt>
         {
           template <class Event,class FSM>
-          void on_entry(Event const & evt, FSM & fsm) {TUNEIN_FSM_LOG();}
+          void on_entry(Event const & evt, FSM & fsm) {IHEART_FSM_LOG();}
         };
 
         // the initial state. Must be defined
@@ -364,17 +364,17 @@ namespace tiz
         struct skipping_initial : public boost::msm::front::state<>
         {
           template <class Event,class FSM>
-          void on_entry(Event const & evt, FSM & fsm) {TUNEIN_FSM_LOG();}
+          void on_entry(Event const & evt, FSM & fsm) {IHEART_FSM_LOG();}
           template <class Event,class FSM>
-          void on_exit(Event const & evt, FSM & fsm) {TUNEIN_FSM_LOG();}
+          void on_exit(Event const & evt, FSM & fsm) {IHEART_FSM_LOG();}
         };
 
         struct to_idle : public boost::msm::front::state<>
         {
           template <class Event,class FSM>
-          void on_entry(Event const & evt, FSM & fsm) {TUNEIN_FSM_LOG();}
+          void on_entry(Event const & evt, FSM & fsm) {IHEART_FSM_LOG();}
           template <class Event,class FSM>
-          void on_exit(Event const & evt, FSM & fsm) {TUNEIN_FSM_LOG();}
+          void on_exit(Event const & evt, FSM & fsm) {IHEART_FSM_LOG();}
           OMX_STATETYPE target_omx_state () const
           {
             return OMX_StateIdle;
@@ -384,7 +384,7 @@ namespace tiz
         struct skip_exit : public boost::msm::front::exit_pseudo_state<tiz::graph::skipped_evt>
         {
           template <class Event,class FSM>
-          void on_entry(Event const & evt, FSM & fsm) {TUNEIN_FSM_LOG();}
+          void on_entry(Event const & evt, FSM & fsm) {IHEART_FSM_LOG();}
         };
 
         // the initial state. Must be defined
@@ -565,4 +565,4 @@ namespace tiz
   } // namespace graph
 } // namespace tiz
 
-#endif // TIZTUNEINGRAPHFSM_HPP
+#endif // TIZIHEARTGRAPHFSM_HPP

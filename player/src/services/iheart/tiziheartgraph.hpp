@@ -26,8 +26,8 @@
  *
  */
 
-#ifndef TIZTUNEINGRAPH_HPP
-#define TIZTUNEINGRAPH_HPP
+#ifndef TIZIHEARTGRAPH_HPP
+#define TIZIHEARTGRAPH_HPP
 
 #include <boost/any.hpp>
 
@@ -59,4 +59,4 @@ namespace tiz
   }  // namespace graph
 }  // namespace tiz
 
-#endif  // TIZTUNEINGRAPH_HPP
+#endif  // TIZIHEARTGRAPH_HPP

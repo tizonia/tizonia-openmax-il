@@ -51,6 +51,7 @@
 #include <tizscloudconfig.hpp>
 #include <tizyoutubeconfig.hpp>
 #include <tizplexconfig.hpp>
+#include <tiziheartconfig.hpp>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -126,6 +127,12 @@ void graph::chromecastops::do_load ()
     role_lst_.push_back ("audio_renderer.chromecast.plex");
     config_service_func_
         = boost::bind (&tiz::graph::chromecastops::do_configure_plex, this);
+  }
+  else if (config_type == cc_cfg_t::ConfigIheart)
+  {
+    role_lst_.push_back ("audio_renderer.chromecast.iheart");
+    config_service_func_
+        = boost::bind (&tiz::graph::chromecastops::do_configure_iheart, this);
   }
   else
   {
@@ -374,6 +381,22 @@ void graph::chromecastops::do_configure_plex ()
           handles_[0], playlist_->get_current_uri (),
           plex_config->get_playlist_type (), playlist_->shuffle ()),
       "Unable to set OMX_TizoniaIndexParamAudioPlexPlaylist");
+}
+
+void graph::chromecastops::do_configure_iheart ()
+{
+  assert (cc_config_);
+  tiziheartconfig_ptr_t iheart_config
+      = boost::dynamic_pointer_cast< iheartconfig > (
+          cc_config_->get_service_config ());
+  assert (iheart_config);
+
+  G_OPS_BAIL_IF_ERROR (
+      tiz::graph::util::set_iheart_playlist (
+          handles_[0], playlist_->get_uri_list (),
+          iheart_config->get_playlist_type (),
+          playlist_->shuffle ()),
+      "Unable to set OMX_TizoniaIndexParamAudioIheartPlaylist");
 }
 
 OMX_ERRORTYPE graph::chromecastops::get_encoding_type_from_chromecast_source ()

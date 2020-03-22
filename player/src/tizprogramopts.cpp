@@ -1416,21 +1416,9 @@ uint32_t tiz::programopts::plex_buffer_seconds () const
 const std::vector< std::string > &tiz::programopts::iheart_playlist_container ()
 {
   iheart_playlist_container_.clear ();
-  if (!iheart_audio_tracks_.empty ())
+  if (!iheart_search_.empty ())
   {
-    iheart_playlist_container_.push_back (iheart_audio_tracks_);
-  }
-  else if (!iheart_audio_artist_.empty ())
-  {
-    iheart_playlist_container_.push_back (iheart_audio_artist_);
-  }
-  else if (!iheart_audio_album_.empty ())
-  {
-    iheart_playlist_container_.push_back (iheart_audio_album_);
-  }
-  else if (!iheart_audio_playlist_.empty ())
-  {
-    iheart_playlist_container_.push_back (iheart_audio_playlist_);
+    iheart_playlist_container_.push_back (iheart_search_);
   }
   else
   {
@@ -2905,6 +2893,64 @@ int tiz::programopts::consume_plex_client_options (bool &done, std::string &msg)
     }
   }
   TIZ_PRINTF_DBG_RED ("plex ; rc = [%s]\n",
+                      rc == EXIT_SUCCESS ? "SUCCESS" : "FAILURE");
+  return rc;
+}
+
+int tiz::programopts::consume_iheart_client_options (bool &done,
+                                                     std::string &msg)
+{
+  int rc = EXIT_FAILURE;
+  done = false;
+
+  if (validate_iheart_client_options ())
+  {
+    done = true;
+
+    const int playlist_option_count
+        = vm_.count ("iheart-search");
+
+    if (!buffer_seconds_)
+    {
+      retrieve_tizonia_uint_from_rc_file ("iheart.buffer_seconds",
+                                          iheart_buffer_seconds_);
+    }
+
+    if (playlist_option_count > 1)
+    {
+      rc = EXIT_FAILURE;
+      std::ostringstream oss;
+      oss << "Only one playlist type must be specified.";
+      msg.assign (oss.str ());
+    }
+    else if (!playlist_option_count)
+    {
+      rc = EXIT_FAILURE;
+      std::ostringstream oss;
+      oss << "A playlist must be specified.";
+      msg.assign (oss.str ());
+    }
+    else if (OMX_AUDIO_IheartPlaylistTypeUnknown == iheart_playlist_type ())
+    {
+      rc = EXIT_FAILURE;
+      std::ostringstream oss;
+      oss << "A playlist value must be specified.";
+      msg.assign (oss.str ());
+    }
+    else
+    {
+      if (chromecast_name_or_ip_.empty ())
+      {
+        rc = call_handler (option_handlers_map_.find ("iheart-stream"));
+      }
+      else
+      {
+        rc = call_handler (
+            option_handlers_map_.find ("iheart-stream-chromecast"));
+      }
+    }
+  }
+  TIZ_PRINTF_DBG_RED ("iheart ; rc = [%s]\n",
                       rc == EXIT_SUCCESS ? "SUCCESS" : "FAILURE");
   return rc;
 }

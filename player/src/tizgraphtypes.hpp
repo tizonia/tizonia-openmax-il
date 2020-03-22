@@ -65,6 +65,7 @@ namespace tiz
     class tuneinconfig;
     class youtubeconfig;
     class plexconfig;
+    class iheartconfig;
     class chromecastconfig;
     struct omx_event_info;
   }
@@ -81,6 +82,7 @@ typedef boost::shared_ptr< tiz::graph::scloudconfig > tizscloudconfig_ptr_t;
 typedef boost::shared_ptr< tiz::graph::tuneinconfig > tiztuneinconfig_ptr_t;
 typedef boost::shared_ptr< tiz::graph::youtubeconfig > tizyoutubeconfig_ptr_t;
 typedef boost::shared_ptr< tiz::graph::plexconfig > tizplexconfig_ptr_t;
+typedef boost::shared_ptr< tiz::graph::iheartconfig > tiziheartconfig_ptr_t;
 typedef boost::shared_ptr< tiz::graph::chromecastconfig > tizchromecastconfig_ptr_t;
 typedef tiz::playlist tizplaylist_t;
 typedef boost::shared_ptr< tiz::playlist > tizplaylist_ptr_t;
