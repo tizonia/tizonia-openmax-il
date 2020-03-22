@@ -582,6 +582,9 @@ void tiz::programopts::print_usage_help () const
             << "plex          Plex options."
             << "\n";
   std::cout << "  "
+            << "iheart        Iheart options."
+            << "\n";
+  std::cout << "  "
             << "chromecast    Chromecast options."
             << "\n";
   std::cout << "  "
@@ -1980,7 +1983,7 @@ void tiz::programopts::init_iheart_options ()
   iheart_.add_options ()
       /* TIZ_CLASS_COMMENT: */
       ("iheart-search", po::value (&iheart_search_),
-       "iheart global station/podcast search.");
+       "iheart station search.");
 
   register_consume_function (&tiz::programopts::consume_iheart_client_options);
   all_iheart_client_options_
