@@ -51,6 +51,8 @@ declare -Ar TIZ_PROJECT_DIRS=( \
     [tizspotify]="clients/spotify/libtizspotify" \
     [tiztuneinproxy]="clients/tunein/tuneinproxy" \
     [tiztunein]="clients/tunein/libtiztunein" \
+    [tiziheartproxy]="clients/iheart/iheartproxy" \
+    [tiziheart]="clients/iheart/libtiziheart" \
     [tizplatform]="libtizplatform" \
     [tizcastd]="cast/tizcastd" \
     [tizcastclient]="cast/libtizcastclient" \
@@ -102,6 +104,8 @@ readonly TIZ_PROJECTS_ORDERED=( \
     tizspotify \
     tiztuneinproxy \
     tiztunein \
+    tiziheartproxy \
+    tiziheart \
     tizplatform \
     tizcastd \
     tizcastclient \

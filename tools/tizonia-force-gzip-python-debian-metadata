@@ -31,6 +31,7 @@ readonly TIZ_PYTHON_PROJECTS=( \
     tizchromecastproxy \
     tizplexproxy \
     tizspotifyproxy \
+    tiziheartproxy \
 )
 
 for proj in "${TIZ_PYTHON_PROJECTS[@]}"; do
