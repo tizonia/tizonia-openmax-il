@@ -9,7 +9,7 @@ Homepage: https://tizonia.org
 Package: python3-tiziheartproxy
 Architecture: all
 Depends: ${misc:Depends}, ${python3:Depends}
-Description: Tizonia IHeart proxy
- Tizonia's IHeart proxy.
+Description: Tizonia Iheart proxy
+ Tizonia's Iheart proxy.
  .
- This package contains Tizonia's IHeart proxy Python module.
+ This package contains Tizonia's Iheart proxy Python module.

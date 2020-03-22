@@ -18,9 +18,9 @@
 # limitations under the License.
 
 """@package tiziheartproxy
-Simple IHeart proxy/wrapper.
+Simple Iheart proxy/wrapper.
 
-Access IHeart to retrieve station URLs and create a play queue for streaming.
+Access Iheart to retrieve station URLs and create a play queue for streaming.
 
 With ideas and code from mopidy_iheart. For further information see:
 - https://github.com/kingosticks/mopidy-iheart/blob/master/mopidy_iheart/iheart.py
@@ -299,13 +299,13 @@ def find_playlist_parser(extension, content_type):
 
 
 def run_iheart_query(session, timeout, uri):
-    logging.debug(f"IHeart request: {uri!r}")
+    logging.debug(f"Iheart request: {uri!r}")
     try:
         with closing(session.get(uri, timeout=timeout)) as r:
             r.raise_for_status()
             return r.json()["body"]
     except Exception as e:
-        logging.info(f"IHeart API request for {variant} failed: {e}")
+        logging.info(f"Iheart API request for {variant} failed: {e}")
     return {}
 
 
@@ -331,7 +331,7 @@ def run_playlist_query(session, timeout, url):
                     data = r.content
 
     except Exception as e:
-        logging.info(f"IHeart playlist request for {url} failed: {e}")
+        logging.info(f"Iheart playlist request for {url} failed: {e}")
 
     if data:
         parser = find_playlist_parser(extension, content_type)
@@ -339,7 +339,7 @@ def run_playlist_query(session, timeout, url):
             try:
                 results = [u for u in parser(data) if u and u != url]
             except Exception as e:
-                logging.error(f"IHeart playlist parsing failed {e}")
+                logging.error(f"Iheart playlist parsing failed {e}")
             if not results:
                 playlist_str = data.decode(errors="ignore")
                 logging.debug(f"Parsing failure, malformed playlist: {playlist_str}")
@@ -363,8 +363,8 @@ class TizEnumeration(set):
 
 # From https://github.com/kingosticks/mopidy-iheart/blob/master/mopidy_iheart/iheart.py
 # with modifications
-class IHeart:
-    """Wrapper for the IHeart API."""
+class Iheart:
+    """Wrapper for the Iheart API."""
 
     def __init__(self, timeout):
         self._base_uri = "http://opml.radiotime.com/%s"
@@ -495,7 +495,7 @@ class IHeart:
 
 
 class tiziheartproxy(object):
-    """A class that accesses IHeart, retrieves station URLs and creates and manages
+    """A class that accesses Iheart, retrieves station URLs and creates and manages
     a playback queue.
 
     """
@@ -511,7 +511,7 @@ class tiziheartproxy(object):
         self.current_search_mode = self.search_modes.ALL
         self.now_playing_radio = None
         self.timeout = 5000
-        self.iheart = IHeart(self.timeout)
+        self.iheart = Iheart(self.timeout)
 
     def set_play_mode(self, mode):
         """ Set the playback mode.
@@ -530,7 +530,7 @@ class tiziheartproxy(object):
         self.current_search_mode = getattr(self.search_modes, mode)
 
     def enqueue_radios(self, arg, keywords1="", keywords2="", keywords3=""):
-        """Search IHeart for stations or shows and add them to the playback
+        """Search Iheart for stations or shows and add them to the playback
         queue.
 
         :param arg: a search string
@@ -746,7 +746,7 @@ class tiziheartproxy(object):
             logging.info("Could not retrieve the station url!")
             raise
         except Exception as e:
-            logging.info(f"IHeart API request failed: {e}")
+            logging.info(f"Iheart API request failed: {e}")
 
     def _update_play_queue_order(self, verbose=True):
         """ Update the queue playback order.

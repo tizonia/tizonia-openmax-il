@@ -45,7 +45,7 @@ setup(
     py_modules           = ['tiziheartproxy'],
     scripts              = [],
     license              = "Apache License, Version 2.0",
-    description          = 'Tizonia IHeart proxy',
+    description          = 'Tizonia Iheart proxy',
     install_requires     = [
     ],
     classifiers          = [
