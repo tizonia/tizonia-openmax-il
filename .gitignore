@@ -139,6 +139,12 @@ clients/tunein/libtiztunein/Makefile
 clients/tunein/libtiztunein/src/Makefile
 clients/tunein/libtiztunein/tests/Makefile
 clients/tunein/libtiztunein/tizonia
+clients/iheart/Makefile
+clients/iheart/iheartproxy/Makefile
+clients/iheart/libtiziheart/Makefile
+clients/iheart/libtiziheart/src/Makefile
+clients/iheart/libtiziheart/tests/Makefile
+clients/iheart/libtiziheart/tizonia
 clients/gmusic/Makefile
 clients/gmusic/gmusicproxy/Makefile
 clients/gmusic/libtizgmusic/Makefile
