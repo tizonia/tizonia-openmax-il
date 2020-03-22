@@ -473,6 +473,7 @@ tiz::programopts::programopts (int argc, char *argv[])
   init_tunein_options ();
   init_youtube_options ();
   init_plex_options ();
+  init_iheart_options ();
   init_input_uri_option ();
 }
 
