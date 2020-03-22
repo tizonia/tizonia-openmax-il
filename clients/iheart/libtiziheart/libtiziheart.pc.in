@@ -4,7 +4,7 @@ libdir=@libdir@
 includedir=@includedir@
 
 Name: libtiziheart
-Description: Tizonia IHeart client library
+Description: Tizonia Iheart client library
 Version: @PACKAGE_VERSION@
 Libs: -L${libdir} -ltiziheart
 Libs.private: -lpython3.6 -lboost_python3

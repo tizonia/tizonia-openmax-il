@@ -21,7 +21,7 @@
  * @file   tiziheart.cpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia - Simple IHeart client library
+ * @brief  Tizonia - Simple Iheart client library
  *
  */
 
@@ -109,7 +109,7 @@ namespace
   void init_iheart (boost::python::object &py_main,
                     boost::python::object &py_global)
   {
-    // Import the IHeart proxy module
+    // Import the Iheart proxy module
     py_main = bp::import ("tiziheartproxy");
 
     // Retrieve the main module's namespace

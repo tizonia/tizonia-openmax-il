@@ -21,7 +21,7 @@
  * @file   tiziheart_c.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia - Simple IHeart client library (c wrapper)
+ * @brief  Tizonia - Simple Iheart client library (c wrapper)
  *
  *
  */
@@ -37,10 +37,10 @@ extern "C"
 #include <stdbool.h>
 
   /**
-   * @defgroup libtiziheart 'libtiziheart' : Tizonia's IHeart client
+   * @defgroup libtiziheart 'libtiziheart' : Tizonia's Iheart client
    * library
    *
-   * A C library to access the IHeart streaming service.
+   * A C library to access the Iheart streaming service.
    *
    * @ingroup Tizonia
    */
@@ -58,9 +58,9 @@ extern "C"
    */
   typedef enum tiz_iheart_playback_mode
   {
-    ETIZIHeartPlaybackModeNormal,
-    ETIZIHeartPlaybackModeShuffle,
-    ETIZIHeartPlaybackModeMax
+    ETIZIheartPlaybackModeNormal,
+    ETIZIheartPlaybackModeShuffle,
+    ETIZIheartPlaybackModeMax
   } tiz_iheart_playback_mode_t;
 
   /**
@@ -71,10 +71,10 @@ extern "C"
    */
   typedef enum tiz_iheart_search_mode
   {
-    ETIZIHeartSearchModeAll,
-    ETIZIHeartSearchModeStations,
-    ETIZIHeartSearchModeShows,
-    ETIZIHeartSearchModeMax
+    ETIZIheartSearchModeAll,
+    ETIZIheartSearchModeStations,
+    ETIZIheartSearchModeShows,
+    ETIZIheartSearchModeMax
   } tiz_iheart_search_mode_t;
 
   /**

@@ -21,7 +21,7 @@
  * @file   tiziheart_c.cpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia - Simple IHeart client library (c wrapper)
+ * @brief  Tizonia - Simple Iheart client library (c wrapper)
  *
  */
 

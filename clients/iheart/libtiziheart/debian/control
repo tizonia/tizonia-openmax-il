@@ -12,8 +12,8 @@ Package: libtiziheart-dev
 Section: libdevel
 Architecture: any
 Depends: libtiziheart0 (= ${binary:Version})
-Description: Tizonia's IHeart client library, development files
- Tizonia's IHeart client library.
+Description: Tizonia's Iheart client library, development files
+ Tizonia's Iheart client library.
  .
  This package contains the development library libtiziheart.
 
@@ -21,8 +21,8 @@ Package: libtiziheart0
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: Tizonia's IHeart client library, run-time library
- Tizonia's IHeart client library.
+Description: Tizonia's Iheart client library, run-time library
+ Tizonia's Iheart client library.
  .
  This package contains the runtime library libtiziheart.
 
@@ -31,7 +31,7 @@ Section: debug
 Priority: extra
 Architecture: any
 Depends: libtiziheart0 (= ${binary:Version}), ${misc:Depends}
-Description: Tizonia's IHeart client library, debug symbols
- Tizonia's IHeart client library.
+Description: Tizonia's Iheart client library, debug symbols
+ Tizonia's Iheart client library.
  .
  This package contains the detached debug symbols for libtiziheart.

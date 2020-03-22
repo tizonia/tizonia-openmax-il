@@ -21,7 +21,7 @@
  * @file   check_tiziheart.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia IHeart Unit Tests
+ * @brief  Tizonia Iheart Unit Tests
  *
  *
  */
@@ -128,7 +128,7 @@ iheart_suite (void)
   Suite *s = suite_create ("libtiziheart");
 
   /* test case */
-  tc_iheart = tcase_create ("IHeart client lib unit tests");
+  tc_iheart = tcase_create ("Iheart client lib unit tests");
   tcase_set_timeout (tc_iheart, IHEART_TEST_TIMEOUT);
   tcase_add_test (tc_iheart, test_iheart_play_popular_stations);
   suite_add_tcase (s, tc_iheart);

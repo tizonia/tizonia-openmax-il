@@ -21,7 +21,7 @@
  * @file   tiziheart.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia - Simple IHeart client library
+ * @brief  Tizonia - Simple Iheart client library
  *
  *
  */
