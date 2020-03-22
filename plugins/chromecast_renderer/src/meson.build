@@ -12,7 +12,9 @@ libtizchromecastrnd_sources = [
    'cc_youtubeprc.c',
    'cc_youtubecfgport.c',
    'cc_plexprc.c',
-   'cc_plexcfgport.c'
+   'cc_plexcfgport.c',
+   'cc_iheartprc.c',
+   'cc_iheartcfgport.c'
 ]
 
 libtizchromecastrnd = library(
@@ -26,7 +28,8 @@ libtizchromecastrnd = library(
       libtizplex_dep,
       libtizyoutube_dep,
       libtizsoundcloud_dep,
-      libtiztunein_dep
+      libtiztunein_dep,
+      libtiziheart_dep
    ],
    install: true,
    install_dir: tizplugindir

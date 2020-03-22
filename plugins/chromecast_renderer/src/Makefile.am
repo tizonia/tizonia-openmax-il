@@ -46,7 +46,11 @@ noinst_HEADERS = \
 	cc_plexprc.h \
 	cc_plexprc_decls.h \
 	cc_plexcfgport.h \
-	cc_plexcfgport_decls.h
+	cc_plexcfgport_decls.h \
+	cc_iheartprc.h \
+	cc_iheartprc_decls.h \
+	cc_iheartcfgport.h \
+	cc_iheartcfgport_decls.h
 
 libtizchromecastrnd_la_SOURCES = \
 	chromecastrnd.c \
@@ -62,7 +66,9 @@ libtizchromecastrnd_la_SOURCES = \
 	cc_youtubeprc.c \
 	cc_youtubecfgport.c \
 	cc_plexprc.c \
-	cc_plexcfgport.c
+	cc_plexcfgport.c \
+	cc_iheartprc.c \
+	cc_iheartcfgport.c
 
 libtizchromecastrnd_la_CFLAGS = \
 	@TIZILHEADERS_CFLAGS@ \
@@ -73,6 +79,7 @@ libtizchromecastrnd_la_CFLAGS = \
 	@TIZTUNEIN_CFLAGS@ \
 	@TIZYOUTUBE_CFLAGS@ \
 	@TIZPLEX_CFLAGS@ \
+	@TIZIHEART_CFLAGS@ \
 	@TIZCASTCLIENT_CFLAGS@ \
 	@TIZCASTD_CFLAGS@
 
@@ -86,4 +93,5 @@ libtizchromecastrnd_la_LIBADD = \
 	@TIZTUNEIN_LIBS@ \
 	@TIZYOUTUBE_LIBS@ \
 	@TIZPLEX_LIBS@ \
+	@TIZIHEART_LIBS@ \
 	@TIZCASTCLIENT_LIBS@

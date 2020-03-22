@@ -192,7 +192,7 @@ cc_youtube_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
   tiz_check_omx (retrieve_yt_playlist (p_prc));
 
   on_yt_error_ret_omx_oom (
-    tiz_youtube_init (&(p_prc->p_yt_), &(p_prc->yt_session_.cApiKey)));
+                           tiz_youtube_init (&(p_prc->p_yt_), (const char *)&(p_prc->yt_session_.cApiKey)));
 
   tiz_check_omx (enqueue_yt_playlist_items (p_prc));
 

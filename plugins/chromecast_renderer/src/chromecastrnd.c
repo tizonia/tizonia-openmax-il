@@ -57,6 +57,8 @@
 #include "cc_youtubecfgport.h"
 #include "cc_plexprc.h"
 #include "cc_plexcfgport.h"
+#include "cc_iheartprc.h"
+#include "cc_iheartcfgport.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -71,9 +73,10 @@
  * - Implements role: "audio_renderer.chromecast"
  * - Implements role: "audio_renderer.chromecast.gmusic"
  * - Implements role: "audio_renderer.chromecast.scloud"
- * - Implements role: "audio_renderer.chromecast.tunein" (DEPRECATED)
+ * - Implements role: "audio_renderer.chromecast.tunein"
  * - Implements role: "audio_renderer.chromecast.youtube"
  * - Implements role: "audio_renderer.chromecast.plex"
+ * - Implements role: "audio_renderer.chromecast.iheart"
  *
  *@ingroup plugins
  */
@@ -220,6 +223,21 @@ instantiate_plex_processor (OMX_HANDLETYPE ap_hdl)
   return factory_new (tiz_get_type (ap_hdl, "cc_plexprc"));
 }
 
+static OMX_PTR
+instantiate_iheart_config_port (OMX_HANDLETYPE ap_hdl)
+{
+  return factory_new (tiz_get_type (ap_hdl, "cc_iheartcfgport"),
+                      NULL, /* this port does not take options */
+                      ARATELIA_CHROMECAST_RENDERER_COMPONENT_NAME,
+                      chromecast_renderer_version);
+}
+
+static OMX_PTR
+instantiate_iheart_processor (OMX_HANDLETYPE ap_hdl)
+{
+  return factory_new (tiz_get_type (ap_hdl, "cc_iheartprc"));
+}
+
 OMX_ERRORTYPE
 OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 {
@@ -229,9 +247,11 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   tiz_role_factory_t tunein_client_role;
   tiz_role_factory_t youtube_client_role;
   tiz_role_factory_t plex_client_role;
+  tiz_role_factory_t iheart_client_role;
   const tiz_role_factory_t * rf_list[]
-    = {&http_client_role, &gmusic_client_role, &scloud_client_role,
-       &tunein_client_role, &youtube_client_role, &plex_client_role};
+    = {&http_client_role,   &gmusic_client_role,  &scloud_client_role,
+       &tunein_client_role, &youtube_client_role, &plex_client_role,
+       &iheart_client_role};
   tiz_type_factory_t cc_prc_type;
   tiz_type_factory_t cc_cfgport_type;
   tiz_type_factory_t cc_httpprc_type;
@@ -245,11 +265,14 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   tiz_type_factory_t cc_youtubecfgport_type;
   tiz_type_factory_t cc_plexprc_type;
   tiz_type_factory_t cc_plexcfgport_type;
+  tiz_type_factory_t cc_iheartprc_type;
+  tiz_type_factory_t cc_iheartcfgport_type;
   const tiz_type_factory_t * tf_list[]
-    = {&cc_prc_type,           &cc_cfgport_type,       &cc_httpprc_type,
-       &cc_gmusicprc_type,     &cc_gmusiccfgport_type, &cc_scloudprc_type,
-       &cc_scloudcfgport_type, &cc_tuneinprc_type,     &cc_tuneincfgport_type,
-       &cc_youtubeprc_type,    &cc_youtubecfgport_type, &cc_plexprc_type,    &cc_plexcfgport_type};
+    = {&cc_prc_type,           &cc_cfgport_type,        &cc_httpprc_type,
+       &cc_gmusicprc_type,     &cc_gmusiccfgport_type,  &cc_scloudprc_type,
+       &cc_scloudcfgport_type, &cc_tuneinprc_type,      &cc_tuneincfgport_type,
+       &cc_youtubeprc_type,    &cc_youtubecfgport_type, &cc_plexprc_type,
+       &cc_plexcfgport_type,   &cc_iheartprc_type,      &cc_iheartcfgport_type};
 
   strcpy ((OMX_STRING) http_client_role.role,
           ARATELIA_CHROMECAST_RENDERER_DEFAULT_ROLE);
@@ -292,6 +315,13 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   plex_client_role.pf_port[0] = instantiate_pcm_port;
   plex_client_role.nports = 1;
   plex_client_role.pf_proc = instantiate_plex_processor;
+
+  strcpy ((OMX_STRING) iheart_client_role.role,
+          ARATELIA_IHEART_SOURCE_DEFAULT_ROLE);
+  iheart_client_role.pf_cport = instantiate_iheart_config_port;
+  iheart_client_role.pf_port[0] = instantiate_pcm_port;
+  iheart_client_role.nports = 1;
+  iheart_client_role.pf_proc = instantiate_iheart_processor;
 
   strcpy ((OMX_STRING) cc_prc_type.class_name, "cc_prc_class");
   cc_prc_type.pf_class_init = cc_prc_class_init;
@@ -363,15 +393,26 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   strcpy ((OMX_STRING) cc_plexcfgport_type.object_name, "cc_plexcfgport");
   cc_plexcfgport_type.pf_object_init = cc_plex_cfgport_init;
 
+  strcpy ((OMX_STRING) cc_iheartprc_type.class_name, "cc_iheartprc_class");
+  cc_iheartprc_type.pf_class_init = cc_iheart_prc_class_init;
+  strcpy ((OMX_STRING) cc_iheartprc_type.object_name, "cc_iheartprc");
+  cc_iheartprc_type.pf_object_init = cc_iheart_prc_init;
+
+  strcpy ((OMX_STRING) cc_iheartcfgport_type.class_name,
+          "cc_iheartcfgport_class");
+  cc_iheartcfgport_type.pf_class_init = cc_iheart_cfgport_class_init;
+  strcpy ((OMX_STRING) cc_iheartcfgport_type.object_name, "cc_iheartcfgport");
+  cc_iheartcfgport_type.pf_object_init = cc_iheart_cfgport_init;
+
   /* Initialize the component infrastructure */
   tiz_check_omx (
     tiz_comp_init (ap_hdl, ARATELIA_CHROMECAST_RENDERER_COMPONENT_NAME));
 
   /* Register the various classes */
-  tiz_check_omx (tiz_comp_register_types (ap_hdl, tf_list, 13));
+  tiz_check_omx (tiz_comp_register_types (ap_hdl, tf_list, 15));
 
   /* Register the component roles */
-  tiz_check_omx (tiz_comp_register_roles (ap_hdl, rf_list, 6));
+  tiz_check_omx (tiz_comp_register_roles (ap_hdl, rf_list, 7));
 
   return OMX_ErrorNone;
 }
