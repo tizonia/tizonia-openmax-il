@@ -43,6 +43,7 @@ extern "C" {
 #define ARATELIA_TUNEIN_SOURCE_DEFAULT_ROLE "audio_source.http.tunein"
 #define ARATELIA_YOUTUBE_SOURCE_DEFAULT_ROLE "audio_source.http.youtube"
 #define ARATELIA_PLEX_SOURCE_DEFAULT_ROLE "audio_source.http.plex"
+#define ARATELIA_IHEART_SOURCE_DEFAULT_ROLE "audio_source.http.iheart"
 #define ARATELIA_HTTP_SOURCE_COMPONENT_NAME "OMX.Aratelia.audio_source.http"
 /* With libtizonia, port indexes must start at index 0 */
 #define ARATELIA_HTTP_SOURCE_PORT_INDEX 0
@@ -62,6 +63,7 @@ extern "C" {
 #define ARATELIA_HTTP_SOURCE_DEFAULT_BUFFER_SECONDS_TUNEIN 120
 #define ARATELIA_HTTP_SOURCE_DEFAULT_BUFFER_SECONDS_YOUTUBE 60
 #define ARATELIA_HTTP_SOURCE_DEFAULT_BUFFER_SECONDS_PLEX 60
+#define ARATELIA_HTTP_SOURCE_DEFAULT_BUFFER_SECONDS_IHEART 120
 
 #ifdef __cplusplus
 }

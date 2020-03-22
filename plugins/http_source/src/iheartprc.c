@@ -649,33 +649,6 @@ enqueue_playlist_items (iheart_prc_t * ap_prc)
       ap_prc->p_iheart_, (shuffle == OMX_TRUE ? ETIZIheartPlaybackModeShuffle
                                               : ETIZIheartPlaybackModeNormal));
 
-    switch (ap_prc->playlist_.eSearchType)
-      {
-        case OMX_AUDIO_IheartSearchTypeAll:
-          {
-            tiz_iheart_set_search_mode (ap_prc->p_iheart_,
-                                        ETIZIheartSearchModeAll);
-          }
-          break;
-        case OMX_AUDIO_IheartSearchTypeStations:
-          {
-            tiz_iheart_set_search_mode (ap_prc->p_iheart_,
-                                        ETIZIheartSearchModeStations);
-          }
-          break;
-        case OMX_AUDIO_IheartSearchTypeShows:
-          {
-            tiz_iheart_set_search_mode (ap_prc->p_iheart_,
-                                        ETIZIheartSearchModeShows);
-          }
-          break;
-        default:
-          {
-            assert (0);
-          }
-          break;
-      };
-
     switch (ap_prc->playlist_.ePlaylistType)
       {
         case OMX_AUDIO_IheartPlaylistTypeUnknown:
@@ -688,13 +661,6 @@ enqueue_playlist_items (iheart_prc_t * ap_prc)
           {
             rc = tiz_iheart_play_radios (ap_prc->p_iheart_, p_playlist,
                                          p_keywords1, p_keywords2, p_keywords3);
-          }
-          break;
-        case OMX_AUDIO_IheartPlaylistTypeCategory:
-          {
-            rc = tiz_iheart_play_category (ap_prc->p_iheart_, p_playlist,
-                                           p_keywords1, p_keywords2,
-                                           p_keywords3);
           }
           break;
         default:
