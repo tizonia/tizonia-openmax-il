@@ -2024,6 +2024,7 @@ uint32_t tiz::programopts::parse_command_line (int argc, char *argv[])
       .add (tunein_)
       .add (youtube_)
       .add (plex_)
+      .add (iheart_)
       .add (input_);
   po::parsed_options parsed = po::command_line_parser (argc, argv)
                                   .options (all)
@@ -2120,6 +2121,10 @@ int tiz::programopts::consume_global_options (bool &done,
     else if (0 == help_option_.compare ("plex"))
     {
       print_usage_feature (plex_);
+    }
+    else if (0 == help_option_.compare ("iheart"))
+    {
+      print_usage_feature (iheart_);
     }
     else if (0 == help_option_.compare ("chromecast"))
     {
