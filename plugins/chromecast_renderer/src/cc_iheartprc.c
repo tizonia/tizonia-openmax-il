@@ -234,25 +234,20 @@ cc_iheart_prc_store_stream_metadata (cc_iheart_prc_t * ap_obj)
     cc_prc_store_stream_metadata_item (p_cc_prc, "Description",
                     tiz_iheart_get_current_radio_description (p_prc->p_iheart_)));
 
-  /* Type */
+  /* City */
   tiz_check_omx (
-    cc_prc_store_stream_metadata_item (p_cc_prc, "Type",
-                    tiz_iheart_get_current_radio_type (p_prc->p_iheart_)));
+    cc_prc_store_stream_metadata_item (p_cc_prc, "City",
+                    tiz_iheart_get_current_radio_city (p_prc->p_iheart_)));
 
-  /* Station formats */
+  /* State */
   tiz_check_omx (
-    cc_prc_store_stream_metadata_item (p_cc_prc, "Format",
-                    tiz_iheart_get_current_radio_format (p_prc->p_iheart_)));
+    cc_prc_store_stream_metadata_item (p_cc_prc, "State",
+                    tiz_iheart_get_current_radio_state (p_prc->p_iheart_)));
 
-  /* Station Bitrate */
+  /* Website */
   tiz_check_omx (
-    cc_prc_store_stream_metadata_item (p_cc_prc, "Bitrate",
-                    tiz_iheart_get_current_radio_bitrate (p_prc->p_iheart_)));
-
-  /* Reliability */
-  tiz_check_omx (cc_prc_store_stream_metadata_item (
-    p_cc_prc, "Reliability",
-    tiz_iheart_get_current_radio_reliability (p_prc->p_iheart_)));
+    cc_prc_store_stream_metadata_item (p_cc_prc, "Website",
+                    tiz_iheart_get_current_radio_website_url (p_prc->p_iheart_)));
 
   /* Streaming URL */
   tiz_check_omx (cc_prc_store_stream_metadata_item (
