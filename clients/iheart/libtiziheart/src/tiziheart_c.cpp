@@ -199,44 +199,28 @@ extern "C" const char *tiz_iheart_get_current_radio_description (
   return ap_iheart->p_proxy_->get_current_radio_description ();
 }
 
-extern "C" const char *tiz_iheart_get_current_radio_reliability (
+extern "C" const char *tiz_iheart_get_current_radio_city (
     tiz_iheart_t *ap_iheart)
 {
   assert (ap_iheart);
   assert (ap_iheart->p_proxy_);
-  return ap_iheart->p_proxy_->get_current_radio_reliability ();
+  return ap_iheart->p_proxy_->get_current_radio_city ();
 }
 
-extern "C" const char *tiz_iheart_get_current_radio_type (
+extern "C" const char *tiz_iheart_get_current_radio_state (
     tiz_iheart_t *ap_iheart)
 {
   assert (ap_iheart);
   assert (ap_iheart->p_proxy_);
-  return ap_iheart->p_proxy_->get_current_radio_type ();
+  return ap_iheart->p_proxy_->get_current_radio_state ();
 }
 
-extern "C" const char *tiz_iheart_get_current_radio_website (
+extern "C" const char *tiz_iheart_get_current_radio_website_url (
     tiz_iheart_t *ap_iheart)
 {
   assert (ap_iheart);
   assert (ap_iheart->p_proxy_);
-  return ap_iheart->p_proxy_->get_current_radio_website ();
-}
-
-extern "C" const char *tiz_iheart_get_current_radio_bitrate (
-    tiz_iheart_t *ap_iheart)
-{
-  assert (ap_iheart);
-  assert (ap_iheart->p_proxy_);
-  return ap_iheart->p_proxy_->get_current_radio_bitrate ();
-}
-
-extern "C" const char *tiz_iheart_get_current_radio_format (
-    tiz_iheart_t *ap_iheart)
-{
-  assert (ap_iheart);
-  assert (ap_iheart->p_proxy_);
-  return ap_iheart->p_proxy_->get_current_radio_format ();
+  return ap_iheart->p_proxy_->get_current_radio_website_url ();
 }
 
 extern "C" const char *tiz_iheart_get_current_radio_stream_url (

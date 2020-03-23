@@ -234,50 +234,31 @@ extern "C"
       tiz_iheart_t *ap_iheart);
 
   /**
-   * Retrieve the current station's reliability.
+   * Retrieve the current station's city.
    *
    * @ingroup libtiziheart
    *
    * @param ap_iheart The iheart handle.
    */
-  const char *tiz_iheart_get_current_radio_reliability (
-      tiz_iheart_t *ap_iheart);
+  const char *tiz_iheart_get_current_radio_city (tiz_iheart_t *ap_iheart);
 
   /**
-   * Retrieve the type of the current radio (usually 'station' or 'show').
+   * Retrieve the current station's state.
    *
    * @ingroup libtiziheart
    *
    * @param ap_iheart The iheart handle.
    */
-  const char *tiz_iheart_get_current_radio_type (tiz_iheart_t *ap_iheart);
+  const char *tiz_iheart_get_current_radio_state (tiz_iheart_t *ap_iheart);
 
   /**
-   * Retrieve the current station's website.
+   * Retrieve the current station's website url.
    *
    * @ingroup libtiziheart
    *
    * @param ap_iheart The iheart handle.
    */
-  const char *tiz_iheart_get_current_radio_website (tiz_iheart_t *ap_iheart);
-
-  /**
-   * Retrieve the current station's bitrate.
-   *
-   * @ingroup libtiziheart
-   *
-   * @param ap_iheart The iheart handle.
-   */
-  const char *tiz_iheart_get_current_radio_bitrate (tiz_iheart_t *ap_iheart);
-
-  /**
-   * Retrieve the current station's format.
-   *
-   * @ingroup libtiziheart
-   *
-   * @param ap_iheart The iheart handle.
-   */
-  const char *tiz_iheart_get_current_radio_format (tiz_iheart_t *ap_iheart);
+  const char *tiz_iheart_get_current_radio_website_url (tiz_iheart_t *ap_iheart);
 
   /**
    * Retrieve the current station's stream url.

@@ -232,34 +232,23 @@ const char *tiziheart::get_current_radio_description ()
   return current_radio_description_.empty () ? NULL : current_radio_description_.c_str ();
 }
 
-const char *tiziheart::get_current_radio_reliability ()
+const char *tiziheart::get_current_radio_city ()
 {
-  return current_radio_reliability_.empty () ? NULL
-                                           : current_radio_reliability_.c_str ();
-}
-
-const char *tiziheart::get_current_radio_type ()
-{
-  return current_radio_type_.empty ()
+  return current_radio_city_.empty ()
              ? NULL
-             : current_radio_type_.c_str ();
+             : current_radio_city_.c_str ();
 }
 
-const char *tiziheart::get_current_radio_website ()
+const char *tiziheart::get_current_radio_state ()
 {
-  return current_radio_website_.empty () ? NULL
-                                         : current_radio_website_.c_str ();
+  return current_radio_state_.empty () ? NULL : current_radio_state_.c_str ();
 }
 
-const char *tiziheart::get_current_radio_bitrate ()
+const char *tiziheart::get_current_radio_website_url ()
 {
-  return current_radio_bitrate_.empty () ? NULL
-                                         : current_radio_bitrate_.c_str ();
-}
-
-const char *tiziheart::get_current_radio_format ()
-{
-  return current_radio_format_.empty () ? NULL : current_radio_format_.c_str ();
+  return current_radio_website_url_.empty ()
+             ? NULL
+             : current_radio_website_url_.c_str ();
 }
 
 const char *tiziheart::get_current_radio_stream_url ()
@@ -389,17 +378,14 @@ void tiziheart::get_current_radio ()
   current_radio_description_ = bp::extract< std::string > (
       py_iheart_proxy_.attr ("current_radio_description") ());
 
-  current_radio_reliability_ = bp::extract< std::string > (
-      py_iheart_proxy_.attr ("current_radio_reliability") ());
+  current_radio_city_ = bp::extract< std::string > (
+      py_iheart_proxy_.attr ("current_radio_city") ());
 
-  current_radio_type_ = bp::extract< std::string > (
-      py_iheart_proxy_.attr ("current_radio_type") ());
+  current_radio_state_ = bp::extract< std::string > (
+      py_iheart_proxy_.attr ("current_radio_state") ());
 
-  current_radio_bitrate_ = bp::extract< std::string > (
-      py_iheart_proxy_.attr ("current_radio_bitrate") ());
-
-  current_radio_format_ = bp::extract< std::string > (
-      py_iheart_proxy_.attr ("current_radio_formats") ());
+  current_radio_website_url_ = bp::extract< std::string > (
+      py_iheart_proxy_.attr ("current_radio_website_url") ());
 
   current_radio_thumbnail_url_ = bp::extract< std::string > (
       py_iheart_proxy_.attr ("current_radio_thumbnail_url") ());

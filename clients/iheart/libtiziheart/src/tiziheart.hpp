@@ -81,11 +81,9 @@ public:
   const char *get_prev_url (const bool a_remove_current_url);
   const char *get_current_radio_name ();
   const char *get_current_radio_description ();
-  const char *get_current_radio_reliability ();
-  const char *get_current_radio_type ();
-  const char *get_current_radio_website ();
-  const char *get_current_radio_bitrate ();
-  const char *get_current_radio_format ();
+  const char *get_current_radio_city ();
+  const char *get_current_radio_state ();
+  const char *get_current_radio_website_url ();
   const char *get_current_radio_stream_url ();
   const char *get_current_radio_thumbnail_url ();
 
@@ -99,11 +97,9 @@ private:
   std::string current_queue_length_;
   std::string current_radio_name_;
   std::string current_radio_description_;
-  std::string current_radio_reliability_;
-  std::string current_radio_type_;
-  std::string current_radio_website_;
-  std::string current_radio_bitrate_;
-  std::string current_radio_format_;
+  std::string current_radio_city_;
+  std::string current_radio_state_;
+  std::string current_radio_website_url_;
   std::string current_radio_thumbnail_url_;
   std::string current_queue_progress_;
   boost::python::object py_main_;
