@@ -39,20 +39,83 @@ import random
 import datetime
 import getpass
 import xml.etree.ElementTree as elementtree
+import urllib.parse
+import json
+import requests
 from collections import OrderedDict
 from contextlib import closing
-from requests import Session
 from urllib.parse import urlparse
 from joblib import Memory
 from fuzzywuzzy import process
 from fuzzywuzzy import fuzz
 from functools import reduce
-import requests
 
 # FOR REFERENCE
+# -> station
+# {'band': 'FM',
+#  'callLetters': 'WMGK-FM',
+#  'city': 'Philadelphia',
+#  'dartUrl': None,
+#  'description': "Philadelphia's Classic Rock",
+#  'frequency': '102.9',
+#  'id': 5297,
+#  'logo': '{img_url_1}/2135/2012/04/default/wmgk-fm_logo_0_1333655870.png',
+#  'name': 'Classic Rock 102.9 MGK',
+#  'newlogo': 'http://i.iheart.com/v3/re/assets/images/5297.png',
+#  'rank': None,
+#  'score': 6.2353005,
+#  'shareLink': None,
+#  'state': 'PA'}
+
+# FOR REFERENCE
+# -> station info
+# {'adswizz': {'adswizzHost': '',
+#              'enableAdswizzTargeting': 'false',
+#              'publisher_id': '0'},
+#  'adswizzZones': {},
+#  'band': 'FM',
+#  'callLetters': 'WMGK-FM',
+#  'countries': 'US',
+#  'cume': 1138700,
+#  'description': "Philadelphia's Classic Rock",
+#  'feeds': {'enableTritonTracking': 'false',
+#            'feed': 'www.iheart.com/live/5297/'},
+#  'format': 'Prov_Beasley',
+#  'freq': '102.9',
+#  'genres': [{'id': 3,
+#              'name': 'Classic Rock',
+#              'primary': True,
+#              'sortIndex': 15}],
+#  'id': 5297,
+#  'isActive': True,
+#  'link': 'https://www.iheart.com/live/5297/?autoplay=true',
+#  'logo': 'http://i.iheart.com/v3/re/assets/images/5297.png',
+#  'markets': [{'city': 'Philadelphia',
+#               'cityId': 196,
+#               'country': 'US',
+#               'countryId': 1,
+#               'marketId': '196',
+#               'name': 'PHILADELPHIA-PA',
+#               'origin': True,
+#               'primary': True,
+#               'sortIndex': 2,
+#               'stateAbbreviation': 'PA',
+#               'stateId': 45}],
+#  'modified': '1561472046202',
+#  'name': 'Classic Rock 102.9 MGK',
+#  'pronouncements': [],
+#  'provider': 'Beasley',
+#  'rds': '',
+#  'responseType': 'LIVE',
+#  'score': 0.0,
+#  'social': {},
+#  'streams': {'pls_stream': 'http://playerservices.streamtheworld.com/pls/WMGKFMAACIHR.pls',
+#              'secure_pls_stream': 'https://playerservices.streamtheworld.com/pls/WMGKFMAACIHR.pls'},
+#  'website': 'www.wmgk.com'}
+
 
 # For use during debugging
-# from pprint import pprint
+from pprint import pprint
 
 NOW = datetime.datetime.now()
 TMPDIR = "/var/tmp"
@@ -327,7 +390,7 @@ def run_playlist_query(session, timeout, url):
             # TODO: review this. There is a case of aac station that hangs in
             # r.content
             if not content_type.startswith("audio/aacp"):
-                if content_type != "audio/mpeg":
+                if content_type != "audio/mpeg" and content_type != "audio/aac":
                     data = r.content
 
     except Exception as e:
@@ -343,7 +406,7 @@ def run_playlist_query(session, timeout, url):
             if not results:
                 playlist_str = data.decode(errors="ignore")
                 logging.debug(f"Parsing failure, malformed playlist: {playlist_str}")
-    elif content_type:
+    else:
         results = [url]
 
     logging.debug(f"Got {results}")
@@ -374,7 +437,7 @@ class Iheart:
         self.nextStationsURL = ""
 
 
-    def search(search_keywords, tls=True):
+    def search(self, search_keywords, tls=True):
         """Returns a dict containing iHeartRadio search results for search_keyword
 
         """
@@ -389,13 +452,12 @@ class Iheart:
         iheart_base_url = "%s://api.iheart.com/api/v1/catalog/searchAll?"
 
         paramaters = urllib.parse.urlencode(
-            {"keywords": search_keywords, "startIndex": 0, "maxRows": 20}
+            {"keywords": search_keywords, "startIndex": 0, "maxRows": 50}
         )
 
         response = urllib.request.urlopen(
             (iheart_base_url % ("https" if tls else "http")) + paramaters
         )
-
         # We assume we're dealing with UTF-8 encoded JSON, if we aren't the API
         # has probably changed in ways we can't deal with.
         assert (
@@ -411,7 +473,7 @@ class Iheart:
             return results
 
 
-    def station_info(station_id, tls=True):
+    def station_info(self, station_id, tls=True):
         """ Returns a dict containing all available information about station_id
 
         station_id is a five-digit number assigned to an iHeartRadio station.
@@ -441,7 +503,7 @@ class Iheart:
             return station
 
 
-    def station_url(station, tls=True):
+    def station_url(self, station, tls=True):
         """Takes a station dictionary and returns a URL.
         """
 
@@ -493,6 +555,10 @@ class Iheart:
 
         return station["streams"][preferred_stream]
 
+    def parse_stream_url(self, url):
+        playlist_query = MEMORY.cache(run_playlist_query)
+        return playlist_query(self._session, self._timeout, url)
+
 
 class tiziheartproxy(object):
     """A class that accesses Iheart, retrieves station URLs and creates and manages
@@ -508,7 +574,6 @@ class tiziheartproxy(object):
         self.play_modes = TizEnumeration(["NORMAL", "SHUFFLE"])
         self.search_modes = TizEnumeration(["ALL", "STATIONS", "SHOWS"])
         self.current_play_mode = self.play_modes.NORMAL
-        self.current_search_mode = self.search_modes.ALL
         self.now_playing_radio = None
         self.timeout = 5000
         self.iheart = Iheart(self.timeout)
@@ -520,14 +585,6 @@ class tiziheartproxy(object):
 
         """
         self.current_play_mode = getattr(self.play_modes, mode)
-
-    def set_search_mode(self, mode):
-        """ Set the search mode.
-
-        :param mode: current valid values are "ALL", "STATIONS" and "SHOWS"
-
-        """
-        self.current_search_mode = getattr(self.search_modes, mode)
 
     def enqueue_radios(self, arg, keywords1="", keywords2="", keywords3=""):
         """Search Iheart for stations or shows and add them to the playback
@@ -558,84 +615,73 @@ class tiziheartproxy(object):
             self._update_play_queue_order()
 
         except ValueError:
-            raise ValueError(str("No stations/shows/episodes found"))
+            raise ValueError(str("No stations found"))
 
     def current_radio_name(self):
-        """ Retrieve the current station's or show's name.
+        """ Retrieve the current station's name.
 
         """
         logging.info("current_radio_name")
         radio = self.now_playing_radio
         name = ""
-        if radio and radio.get("text"):
-            name = radio["text"]
+        if radio and radio.get("name"):
+            name = radio["name"]
         return name
 
     def current_radio_description(self):
-        """ Retrieve the current station's or show's description.
+        """ Retrieve the current station's description.
 
         """
         logging.info("current_radio_description")
         radio = self.now_playing_radio
         description = ""
-        if radio and radio.get("subtext"):
-            description = radio["subtext"]
+        if radio and radio.get("description"):
+            description = radio["description"]
         return description
 
-    def current_radio_type(self):
-        """ Retrieve whether the current radio is a station or show.
+    def current_radio_city(self):
+        """ Retrieve the current station's city.
 
         """
-        logging.info("current_radio_type")
+        logging.info("current_radio_city")
         radio = self.now_playing_radio
-        radiotype = ""
-        if radio and radio.get("item"):
-            radiotype = "podcast" if radio["item"] == "topic" else radio["item"]
+        city = ""
+        if radio and radio.get("city"):
+            city = radio["city"]
 
-        return radiotype
+        return city
 
-    def current_radio_formats(self):
-        """ Retrieve the formats of the current station or show.
+    def current_radio_state(self):
+        """ Retrieve the current station's state.
 
         """
-        logging.info("current_radio_formats")
+        logging.info("current_radio_state")
         radio = self.now_playing_radio
-        formats = ""
-        if radio and radio.get("formats"):
-            formats = radio["formats"]
-        return formats
+        state = ""
+        if radio and radio.get("state"):
+            state = radio["state"]
+        return state
 
-    def current_radio_bitrate(self):
-        """ Retrieve the bitrate of the current station or show.
+    def current_radio_website_url(self):
+        """ Retrieve the current station's website url.
 
         """
-        logging.info("current_radio_bitrate")
+        logging.info("current_radio_website_url")
         radio = self.now_playing_radio
-        bitrate = ""
-        if radio and radio.get("bitrate"):
-            bitrate = radio["bitrate"]
-        return bitrate
-
-    def current_radio_reliability(self):
-        """ Retrieve the reliability of the current station or show.
-
-        """
-        logging.info("current_radio_reliability")
-        radio = self.now_playing_radio
-        reliability = ""
-        if radio and radio.get("reliability"):
-            reliability = radio["reliability"]
-        return reliability
+        web = ""
+        if radio and radio.get("info") and radio["info"].get("website"):
+            web = radio["info"]["website"]
+        return web
 
     def current_radio_thumbnail_url(self):
-        """ Retrieve the url of the current station's or show's thumbnail image.
+        """ Retrieve the current station's thumbnail url.
 
         """
         logging.info("current_radio_thumbnail_url")
         radio = self.now_playing_radio
         image = ""
-        if radio and radio.get("image"):
-            image = radio["image"]
+        if radio and radio.get("newlogo"):
+            image = radio["newlogo"]
         return image
 
     def current_radio_queue_index_and_queue_length(self):
@@ -664,7 +710,7 @@ class tiziheartproxy(object):
             station = self.queue[self.queue_index]
             print_err(
                 "[iHeart] '{0} [{1}]' removed from queue.".format(
-                    station["text"], station["streamurl"]
+                    station["name"], station["streamurl"]
                 )
             )
             del self.queue[self.queue_index]
@@ -726,18 +772,17 @@ class tiziheartproxy(object):
             station = self.queue[station_idx]
             info = self.iheart.station_info(station['id'])
             url = self.iheart.station_url(info)
-
-            name = station["text"]
-            streamurls = self.iheart.tune(station)
+            station_url = None
+            name = station["name"]
             print_wrn("[iHeart] Playing '{0}'.".format(name))
-            if len(streamurls) > 0:
-                urls = self.iheart.parse_stream_url(streamurls[0])
-                if len(urls) > 0:
-                    station_url = urls[0]
-                else:
-                    station_url = streamurls[0]
+            urls = self.iheart.parse_stream_url(url)
+            if len(urls) > 0:
+                station_url = urls[0]
+            else:
+                station_url = urls
             # Add the url key
             station["streamurl"] = station_url
+            station["info"] = info
             self.queue[station_idx] = station
             self.now_playing_radio = station
             return station_url
@@ -760,18 +805,6 @@ class tiziheartproxy(object):
             if not len(self.play_queue_order):
                 # Create a sequential play order, if empty
                 self.play_queue_order = list(range(total_stations))
-            if self.current_search_mode == self.search_modes.STATIONS:
-                # order stations by reliability (most reliable first)
-                self.queue = sorted(
-                    self.queue, key=lambda k: int(k["reliability"]), reverse=True,
-                )
-            if self.current_search_mode == self.search_modes.SHOWS:
-                # order shows by date (newest first)
-                self.queue = sorted(
-                    self.queue,
-                    key=lambda k: datetime.datetime.strptime(k["subtext"], "%d %b %Y"),
-                    reverse=True,
-                )
             if self.current_play_mode == self.play_modes.SHUFFLE:
                 random.shuffle(self.play_queue_order)
 
@@ -807,35 +840,15 @@ class tiziheartproxy(object):
         return res
 
     def _print_play_queue(self):
-        for r in self.queue:
-            st_or_pod = r["item"]
-            if st_or_pod == "topic":
-                st_or_pod = "episode"
-
-            if r.get("formats") and r.get("bitrate"):
-                # Make sure we allow only mp3 stations for now
-                if "mp3" not in r.get("formats") and "ogg" not in r.get("formats"):
-                    logging.info(
-                        "Ignoring non-mp3/non-ogg station : {0}".format(r["formats"])
-                    )
-                    continue
-
-                print_nfo(
-                    "[iHeart] [{0}] '{1}' [{2}] ({3}, {4}kbps, reliability: {5}%).".format(
-                        st_or_pod,
-                        r["text"],
-                        r["subtext"],
-                        r["formats"],
-                        r["bitrate"],
-                        r["reliability"],
-                    )
+        for s in self.queue:
+            print_nfo(
+                "[iHeart] [station] '{0}' [{1}] ({2}, {3}).".format(
+                    s["name"],
+                    s["description"],
+                    s["city"],
+                    s["state"]
                 )
-            else:
-                print_nfo(
-                    "[iHeart] [{0}] '{1}' [{2}].".format(
-                        st_or_pod, r["text"], r["subtext"]
-                    )
-                )
+            )
 
     def _ensure_expected_date_format(self, date):
 
