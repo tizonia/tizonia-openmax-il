@@ -345,25 +345,20 @@ update_metadata (iheart_prc_t * ap_prc)
     store_metadata (ap_prc, "Description",
                     tiz_iheart_get_current_radio_description (ap_prc->p_iheart_)));
 
-  /* Type */
+  /* City */
   tiz_check_omx (
-    store_metadata (ap_prc, "Type",
-                    tiz_iheart_get_current_radio_type (ap_prc->p_iheart_)));
+    store_metadata (ap_prc, "City",
+                    tiz_iheart_get_current_radio_city (ap_prc->p_iheart_)));
 
-  /* Station formats */
+  /* State */
   tiz_check_omx (
-    store_metadata (ap_prc, "Format",
-                    tiz_iheart_get_current_radio_format (ap_prc->p_iheart_)));
+    store_metadata (ap_prc, "State",
+                    tiz_iheart_get_current_radio_state (ap_prc->p_iheart_)));
 
-  /* Station Bitrate */
+  /* Website */
   tiz_check_omx (
-    store_metadata (ap_prc, "Bitrate",
-                    tiz_iheart_get_current_radio_bitrate (ap_prc->p_iheart_)));
-
-  /* Reliability */
-  tiz_check_omx (store_metadata (
-    ap_prc, "Reliability",
-    tiz_iheart_get_current_radio_reliability (ap_prc->p_iheart_)));
+    store_metadata (ap_prc, "Website",
+                    tiz_iheart_get_current_radio_website_url (ap_prc->p_iheart_)));
 
   /* Streaming URL */
   tiz_check_omx (store_metadata (
