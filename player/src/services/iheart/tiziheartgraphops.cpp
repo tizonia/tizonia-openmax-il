@@ -154,12 +154,6 @@ void graph::iheartops::do_load ()
         util::get_volume_from_audio_port (handles_[handles_.size () - 1],
                                           input_port, volume_),
         "Unable to obtain the current volume");
-
-    tiziheartconfig_ptr_t iheart_config
-        = boost::dynamic_pointer_cast< iheartconfig > (config_);
-    assert (iheart_config);
-    tiz::graph::util::dump_graph_info ("Iheart", "Connecting",
-                                       iheart_config->get_api_key ().c_str ());
   }
 }
 
@@ -172,7 +166,7 @@ void graph::iheartops::do_configure ()
     G_OPS_BAIL_IF_ERROR (apply_pcm_codec_info_from_decoder (),
                          "Unable to set OMX_IndexParamAudioPcm");
     const std::string coding_type_str ("Iheart");
-    tiz::graph::util::dump_graph_info (coding_type_str.c_str (), "Connected",
+    tiz::graph::util::dump_graph_info (coding_type_str.c_str (), "Streaming",
                                        playlist_->get_current_uri ().c_str ());
   }
 }
