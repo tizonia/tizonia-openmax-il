@@ -41,14 +41,12 @@ import getpass
 import xml.etree.ElementTree as elementtree
 import urllib.parse
 import json
-import requests
 from collections import OrderedDict
 from contextlib import closing
 from urllib.parse import urlparse
+import requests
 from joblib import Memory
-from fuzzywuzzy import process
 from fuzzywuzzy import fuzz
-from functools import reduce
 
 # FOR REFERENCE
 # -> station
@@ -115,7 +113,7 @@ from functools import reduce
 
 
 # For use during debugging
-from pprint import pprint
+# from pprint import pprint
 
 NOW = datetime.datetime.now()
 TMPDIR = "/var/tmp"
@@ -323,11 +321,12 @@ def parse_new_asx(data):
     except elementtree.ParseError:
         return
 
-    for ref in element.findall("entry/ref[@href]"):
-        yield fix_asf_uri(ref.get("href", "").strip())
+    if element:
+        for ref in element.findall("entry/ref[@href]"):
+            yield fix_asf_uri(ref.get("href", "").strip())
 
-    for entry in element.findall("entry[@href]"):
-        yield fix_asf_uri(entry.get("href", "").strip())
+        for entry in element.findall("entry[@href]"):
+            yield fix_asf_uri(entry.get("href", "").strip())
 
 
 # From https://github.com/kingosticks/mopidy-iheart/blob/master/mopidy_iheart/iheart.py
@@ -434,8 +433,6 @@ class Iheart:
         self._session = requests.Session()
         self._timeout = timeout / 1000.0
         self._stations = {}
-        self.nextStationsURL = ""
-
 
     def search(self, search_keywords, tls=True):
         """Returns a dict containing iHeartRadio search results for search_keyword
@@ -452,7 +449,7 @@ class Iheart:
         iheart_base_url = "%s://api.iheart.com/api/v1/catalog/searchAll?"
 
         paramaters = urllib.parse.urlencode(
-            {"keywords": search_keywords, "startIndex": 0, "maxRows": 50}
+            {"keywords": search_keywords, "startIndex": 0, "maxRows": 250}
         )
 
         response = urllib.request.urlopen(
@@ -471,7 +468,6 @@ class Iheart:
             raise RuntimeError(results["errors"])
         else:
             return results
-
 
     def station_info(self, station_id, tls=True):
         """ Returns a dict containing all available information about station_id
@@ -499,9 +495,8 @@ class Iheart:
 
         if not station["streams"]:
             raise RuntimeError("station streams list empty")
-        else:
-            return station
 
+        return station
 
     def station_url(self, station, tls=True):
         """Takes a station dictionary and returns a URL.
@@ -599,11 +594,11 @@ class tiziheartproxy(object):
 
             count = len(self.queue)
             results = self.iheart.search(arg)
-            for s in results['stations']:
+            for s in results["stations"]:
                 self._add_to_playback_queue(s)
 
-            # remaining_keywords = [keywords1, keywords2, keywords3]
-            # self._filter_play_queue("Search", remaining_keywords)
+            remaining_keywords = [keywords1, keywords2, keywords3]
+            self._filter_play_queue("Search", remaining_keywords)
 
             logging.info(
                 "Added {0} stations/shows to queue".format(len(self.queue) - count)
@@ -770,7 +765,7 @@ class tiziheartproxy(object):
         logging.info("_retrieve_station_url")
         try:
             station = self.queue[station_idx]
-            info = self.iheart.station_info(station['id'])
+            info = self.iheart.station_info(station["id"])
             url = self.iheart.station_url(info)
             station_url = None
             name = station["name"]
@@ -802,7 +797,7 @@ class tiziheartproxy(object):
         """
         total_stations = len(self.queue)
         if total_stations:
-            if not len(self.play_queue_order):
+            if len(self.play_queue_order) == 0:
                 # Create a sequential play order, if empty
                 self.play_queue_order = list(range(total_stations))
             if self.current_play_mode == self.play_modes.SHUFFLE:
@@ -816,63 +811,17 @@ class tiziheartproxy(object):
     def _add_to_playback_queue(self, s):
         self.queue.append(s)
 
-    def _select_one(self, results, keywords, name=""):
-        res = None
-        res_dict = dict()
-        res_names = list()
-        for r in results:
-            if r["text"] != "By Genre":
-                print_nfo("[iHeart] [{0}] '{1}'.".format(name, r["text"]))
-                res_names.append(r["text"])
-                res_dict[r["text"]] = r
-
-        if not keywords:
-            res_name = random.choice(res_names)
-            res = res_dict[res_name]
-        else:
-            if len(res_names) > 1:
-                res_name = process.extractOne(keywords, res_names)[0]
-                res = res_dict[res_name]
-            elif len(res_names) == 1:
-                res_name = res_names[0]
-                res = res_dict[res_name]
-
-        return res
-
     def _print_play_queue(self):
         for s in self.queue:
             print_nfo(
                 "[iHeart] [station] '{0}' [{1}] ({2}, {3}).".format(
-                    s["name"],
-                    s["description"],
-                    s["city"],
-                    s["state"]
+                    s["name"], s["description"], s["city"], s["state"]
                 )
             )
 
-    def _ensure_expected_date_format(self, date):
-
-        correct_date = None
-        try:
-            d = datetime.datetime.strptime(date, "%d %b %Y")
-            correct_date = date
-        except ValueError:
-            logging.debug("Unexpected date format: {0}".format(date))
-
-        if correct_date:
-            return correct_date
-
-        try:
-            d = datetime.datetime.strptime(date, "%A %b %d")
-            correct_date = d.strftime("%d %b {0}".format(NOW.year))
-        except ValueError:
-            logging.debug("Unexpected date format: {0}".format(date))
-
-        return correct_date
-
     def _filter_play_queue(self, category, keyword_list):
 
-        if not len(self.queue) or not len(keyword_list):
+        if len(self.queue) == 0 or len(keyword_list) == 0:
             return
 
         for k in keyword_list:
@@ -883,11 +832,15 @@ class tiziheartproxy(object):
                     "[iHeart] [{0}] Filtering results: '{1}'.".format(category, phrase)
                 )
                 for item in self.queue:
-                    title = item["text"] if item.get("text") else ""
-                    title = title + " " + item["subtext"] if item.get("subtext") else ""
+                    title = item["name"] if item.get("name") else ""
+                    title = (
+                        title + " " + item["description"]
+                        if item.get("description")
+                        else ""
+                    )
                     if fuzz.partial_ratio(phrase, title) > 50:
                         filtered_queue.append(item)
-                if len(filtered_queue):
+                if len(filtered_queue) > 0:
                     self.queue = filtered_queue
 
 
