@@ -518,7 +518,8 @@ class tizyoutubeproxy(object):
         try:
             print_msg("[YouTube] [Audio search] : '{0}'. ".format(arg))
             yt_dt_search = MEMORY.cache(run_youtube_data_search)
-            wdata = yt_dt_search("search", generate_search_query(arg, self.api_key))
+            query = generate_search_query(arg, self.api_key)
+            wdata = yt_dt_search("search", query)
 
             wdata2 = wdata
             count = 0
