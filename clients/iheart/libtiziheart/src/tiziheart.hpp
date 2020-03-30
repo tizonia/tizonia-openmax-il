@@ -46,17 +46,6 @@ public:
       PlaybackModeMax
     };
 
-  /**
-   * Various search modes to filter the contents added to the playback queue.
-   */
-  enum search_mode
-  {
-    SearchModeAll,
-    SearchModeStations,
-    SearchModeShows,
-    SearchModeMax
-  };
-
 public:
   tiziheart ();
   ~tiziheart ();
@@ -71,7 +60,6 @@ public:
 
   void clear_queue ();
   void set_playback_mode (const playback_mode mode);
-  void set_search_mode (const search_mode mode);
 
   const char *get_current_radio_index ();
   const char *get_current_queue_length ();

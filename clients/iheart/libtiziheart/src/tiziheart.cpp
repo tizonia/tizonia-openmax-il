@@ -334,38 +334,6 @@ void tiziheart::set_playback_mode (const playback_mode mode)
   (void)rc;
 }
 
-void tiziheart::set_search_mode (const search_mode mode)
-{
-  int rc = 0;
-  switch (mode)
-    {
-      case SearchModeAll:
-        {
-          try_catch_wrapper (
-              py_iheart_proxy_.attr ("set_search_mode") ("ALL"));
-        }
-        break;
-      case SearchModeStations:
-        {
-          try_catch_wrapper (
-              py_iheart_proxy_.attr ("set_search_mode") ("STATIONS"));
-        }
-        break;
-      case SearchModeShows:
-        {
-          try_catch_wrapper (
-              py_iheart_proxy_.attr ("set_search_mode") ("SHOWS"));
-        }
-        break;
-      default:
-        {
-          assert (0);
-        }
-        break;
-    };
-  (void)rc;
-}
-
 void tiziheart::get_current_radio ()
 {
   current_radio_name_.clear ();

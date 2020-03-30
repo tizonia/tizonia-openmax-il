@@ -107,15 +107,6 @@ extern "C" void tiz_iheart_set_playback_mode (
       static_cast< tiziheart::playback_mode > (mode));
 }
 
-extern "C" void tiz_iheart_set_search_mode (tiz_iheart_t *ap_iheart,
-                                            const tiz_iheart_search_mode_t mode)
-{
-  assert (ap_iheart);
-  assert (ap_iheart->p_proxy_);
-  return ap_iheart->p_proxy_->set_search_mode (
-      static_cast< tiziheart::search_mode > (mode));
-}
-
 extern "C" int tiz_iheart_play_radios (tiz_iheart_t *ap_iheart,
                                        const char *ap_query,
                                        const char *ap_keywords1,

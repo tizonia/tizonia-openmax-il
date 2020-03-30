@@ -64,20 +64,6 @@ extern "C"
   } tiz_iheart_playback_mode_t;
 
   /**
-   * Various search modes that act as a way to filter the elements that are
-   * added to the queue.
-   *
-   * @ingroup libtiziheart
-   */
-  typedef enum tiz_iheart_search_mode
-  {
-    ETIZIheartSearchModeAll,
-    ETIZIheartSearchModeStations,
-    ETIZIheartSearchModeShows,
-    ETIZIheartSearchModeMax
-  } tiz_iheart_search_mode_t;
-
-  /**
    * Initialize the iheart handle.
    *
    * @ingroup libtiziheart
@@ -99,17 +85,6 @@ extern "C"
    */
   void tiz_iheart_set_playback_mode (tiz_iheart_t *ap_iheart,
                                      const tiz_iheart_playback_mode_t a_mode);
-
-  /**
-   * Set the search mode.
-   *
-   * @ingroup libtiziheart
-   *
-   * @param ap_iheart The iheart handle.
-   * @param a_mode The search mode.
-   */
-  void tiz_iheart_set_search_mode (tiz_iheart_t *ap_iheart,
-                                   const tiz_iheart_search_mode_t mode);
 
   /**
    * Add radio stations/shows matching the query string to the
