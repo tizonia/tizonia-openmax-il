@@ -94,6 +94,8 @@ _arguments -S -s \
   '--plex-audio-artist[Search and play an artist audio tracks from a Plex server.]' \
   '--plex-audio-album[Search and play a music album from a Plex server.]' \
   '--plex-audio-playlist[Search and play playlists from a Plex server.]' \
+  '--iheart-search[Iheart station search.]' \
+  '--iheart-keywords[Additional keywords that may be used in conjunction with the Iheart search option. Optional (may be repeated).]' \
   '--server[Stream media files using the SHOUTcast/ICEcast streaming protocol.]' \
   '(-p)--port[TCP port to be used for Icecast/SHOUTcast streaming. Optional. Default: 8010.]' \
   '--station-name[The Icecast/SHOUTcast station name. Optional.]' \

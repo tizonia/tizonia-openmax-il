@@ -34,12 +34,13 @@ _tizonia()
     tunein="--tunein-search --tunein-type --tunein-local --tunein-music --tunein-talk --tunein-sports --tunein-location --tunein-podcasts --tunein-trending --tunein-keywords"
     youtube="--youtube-api-key --youtube-audio-stream --youtube-audio-playlist --youtube-audio-mix --youtube-audio-search --youtube-audio-mix-search --youtube-audio-channel-playlist --youtube-audio-channel-uploads"
     plex="--plex-server-base-url --plex-auth-token --plex-music-section --plex-audio-tracks --plex-audio-artist --plex-audio-album --plex-audio-playlist"
+    iheart="--iheart-search --iheart-keywords"
 
     diropts="--recurse"
-    opts="${global} ${omx} ${server} ${client} ${spotify} ${gmusic} ${scloud} ${tunein} ${youtube} ${plex}"
+    opts="${global} ${omx} ${server} ${client} ${spotify} ${gmusic} ${scloud} ${tunein} ${youtube} ${plex} ${iheart}"
 
     helpkeyword="help"
-    helpopts="global openmax server client spotify googlemusic soundcloud tunein youtube keyboard config examples"
+    helpopts="global openmax server client spotify googlemusic soundcloud tunein youtube plex iheart keyboard config examples"
 
     roleskeyword="roles-of-comp"
 

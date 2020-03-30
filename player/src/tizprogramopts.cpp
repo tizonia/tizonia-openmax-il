@@ -1423,6 +1423,10 @@ const std::vector< std::string > &tiz::programopts::iheart_playlist_container ()
   if (!iheart_search_.empty ())
   {
     iheart_playlist_container_.push_back (iheart_search_);
+    BOOST_FOREACH (std::string keyword, iheart_keywords_)
+    {
+      iheart_playlist_container_.push_back (keyword);
+    }
   }
   else
   {
@@ -1984,11 +1988,18 @@ void tiz::programopts::init_iheart_options ()
   iheart_.add_options ()
       /* TIZ_CLASS_COMMENT: */
       ("iheart-search", po::value (&iheart_search_),
-       "iheart station search.");
+       "iheart station search.")
+          /* TIZ_CLASS_COMMENT: */
+      ("iheart-keywords",
+       po::value< std::vector< std::string > > (&iheart_keywords_)
+           ->multitoken ()
+           ->composing (),
+       "Additional keywords that may be used in conjunction with the iheart "
+       "search option. Optional (may be repeated).");
 
   register_consume_function (&tiz::programopts::consume_iheart_client_options);
   all_iheart_client_options_
-      = boost::assign::list_of ("iheart-search")
+      = boost::assign::list_of ("iheart-search") ("iheart-keywords")
             .convert_to_container< std::vector< std::string > > ();
 }
 
