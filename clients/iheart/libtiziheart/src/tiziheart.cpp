@@ -244,6 +244,11 @@ const char *tiziheart::get_current_radio_state ()
   return current_radio_state_.empty () ? NULL : current_radio_state_.c_str ();
 }
 
+const char *tiziheart::get_current_radio_audio_encoding ()
+{
+  return current_radio_audio_encoding_.empty () ? NULL : current_radio_audio_encoding_.c_str ();
+}
+
 const char *tiziheart::get_current_radio_website_url ()
 {
   return current_radio_website_url_.empty ()
@@ -351,6 +356,9 @@ void tiziheart::get_current_radio ()
 
   current_radio_state_ = bp::extract< std::string > (
       py_iheart_proxy_.attr ("current_radio_state") ());
+
+  current_radio_audio_encoding_ = bp::extract< std::string > (
+      py_iheart_proxy_.attr ("current_radio_audio_encoding") ());
 
   current_radio_website_url_ = bp::extract< std::string > (
       py_iheart_proxy_.attr ("current_radio_website_url") ());

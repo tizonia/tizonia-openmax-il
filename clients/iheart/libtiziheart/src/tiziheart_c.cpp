@@ -206,6 +206,14 @@ extern "C" const char *tiz_iheart_get_current_radio_state (
   return ap_iheart->p_proxy_->get_current_radio_state ();
 }
 
+extern "C" const char *tiz_iheart_get_current_radio_audio_encoding (
+    tiz_iheart_t *ap_iheart)
+{
+  assert (ap_iheart);
+  assert (ap_iheart->p_proxy_);
+  return ap_iheart->p_proxy_->get_current_radio_audio_encoding ();
+}
+
 extern "C" const char *tiz_iheart_get_current_radio_website_url (
     tiz_iheart_t *ap_iheart)
 {

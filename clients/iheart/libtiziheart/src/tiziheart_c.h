@@ -227,6 +227,15 @@ extern "C"
   const char *tiz_iheart_get_current_radio_state (tiz_iheart_t *ap_iheart);
 
   /**
+   * Retrieve the current station's audio encoding.
+   *
+   * @ingroup libtiziheart
+   *
+   * @param ap_iheart The iheart handle.
+   */
+  const char *tiz_iheart_get_current_radio_audio_encoding (tiz_iheart_t *ap_iheart);
+
+  /**
    * Retrieve the current station's website url.
    *
    * @ingroup libtiziheart

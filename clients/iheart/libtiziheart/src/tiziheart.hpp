@@ -71,6 +71,7 @@ public:
   const char *get_current_radio_description ();
   const char *get_current_radio_city ();
   const char *get_current_radio_state ();
+  const char *get_current_radio_audio_encoding ();
   const char *get_current_radio_website_url ();
   const char *get_current_radio_stream_url ();
   const char *get_current_radio_thumbnail_url ();
@@ -87,6 +88,7 @@ private:
   std::string current_radio_description_;
   std::string current_radio_city_;
   std::string current_radio_state_;
+  std::string current_radio_audio_encoding_;
   std::string current_radio_website_url_;
   std::string current_radio_thumbnail_url_;
   std::string current_queue_progress_;
