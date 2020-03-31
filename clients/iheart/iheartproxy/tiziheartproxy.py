@@ -409,7 +409,7 @@ def run_playlist_query(session, timeout, url):
         results = [url]
 
     logging.debug(f"Got {results}")
-    return list(OrderedDict.fromkeys(results))
+    return list(OrderedDict.fromkeys(results)), content_type
 
 
 class TizEnumeration(set):
@@ -433,6 +433,7 @@ class Iheart:
         self._session = requests.Session()
         self._timeout = timeout / 1000.0
         self._stations = {}
+        self._last_content_type = ''
 
     def search(self, search_keywords, tls=True):
         """Returns a dict containing iHeartRadio search results for search_keyword
@@ -498,6 +499,9 @@ class Iheart:
 
         return station
 
+    def last_content_type(self):
+        return self._last_content_type;
+
     def station_url(self, station, tls=True):
         """Takes a station dictionary and returns a URL.
         """
@@ -552,7 +556,8 @@ class Iheart:
 
     def parse_stream_url(self, url):
         playlist_query = MEMORY.cache(run_playlist_query)
-        return playlist_query(self._session, self._timeout, url)
+        obj, self._last_content_type = playlist_query(self._session, self._timeout, url)
+        return obj
 
 
 class tiziheartproxy(object):
@@ -656,6 +661,13 @@ class tiziheartproxy(object):
         if radio and radio.get("state"):
             state = radio["state"]
         return state
+
+    def current_radio_audio_encoding(self):
+        """Retrieve the current station's audio encoding (from the http stream
+        content-type).
+
+        """
+        return self.iheart._last_content_type
 
     def current_radio_website_url(self):
         """ Retrieve the current station's website url.
@@ -769,7 +781,7 @@ class tiziheartproxy(object):
             url = self.iheart.station_url(info)
             station_url = None
             name = station["name"]
-            print_wrn("[iHeart] Playing '{0}'.".format(name))
+            print_wrn("[iHeart] [Streaming] '{0}'.".format(name))
             urls = self.iheart.parse_stream_url(url)
             if len(urls) > 0:
                 station_url = urls[0]
