@@ -355,6 +355,11 @@ update_metadata (iheart_prc_t * ap_prc)
     store_metadata (ap_prc, "State",
                     tiz_iheart_get_current_radio_state (ap_prc->p_iheart_)));
 
+  /* Audio Encoding */
+  tiz_check_omx (
+    store_metadata (ap_prc, "Audio Encoding",
+                    tiz_iheart_get_current_radio_audio_encoding (ap_prc->p_iheart_)));
+
   /* Website */
   tiz_check_omx (
     store_metadata (ap_prc, "Website",
