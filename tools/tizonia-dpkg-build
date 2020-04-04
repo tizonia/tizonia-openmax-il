@@ -41,6 +41,7 @@ declare -ar TIZ_SUPPORTED_RELEASES=( \
     ubuntu-wily \
     ubuntu-xenial \
     ubuntu-bionic \
+    ubuntu-focal \
     debian-jessie \
     debian-stretch \
     debian-buster \
@@ -412,7 +413,9 @@ function do_tizonia_deps {
         pretty_print "$BLU" "[libspotify] : adding Mopidy APT archive."
         curl -k 'https://apt.mopidy.com/mopidy.gpg' | sudo apt-key add -
         MOPRELEASE=''
-        if [[ "$DISTRO_CODENAME" == "bionic" ]]; then
+        if [[ "$DISTRO_CODENAME" == "focal" ]]; then
+            MOPRELEASE="buster"
+        elif [[ "$DISTRO_CODENAME" == "bionic" ]]; then
             MOPRELEASE="stretch"
         elif [[ "$DISTRO_CODENAME" == "xenial" ]]; then
             MOPRELEASE="stretch"
