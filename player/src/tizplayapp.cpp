@@ -50,6 +50,8 @@
 
 #include <boost/algorithm/string/join.hpp>
 #include <boost/algorithm/string/trim.hpp>
+#include <boost/algorithm/string/replace.hpp>
+#include <boost/assign/list_of.hpp>
 #include <boost/system/error_code.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/foreach.hpp>
@@ -91,14 +93,38 @@
 
 #include "tizplayapp.hpp"
 
+#include <boost/python.hpp>
+
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.play.app"
 #endif
 
 namespace bf = boost::filesystem;
+namespace bp = boost::python;
 
 #define APP_NAME "tizonia"
+#define PYTHON_EXEC_TEMPLATE                        \
+  "import pkg_resources\nprint('\t    * [MODULE', " \
+  "pkg_resources.get_distribution('MODULE').version, ']')\n"
+
+#define CHECK_PYTHON_MODULE_VER(mod)                                  \
+  do                                                                  \
+  {                                                                   \
+    std::string exec_arg (PYTHON_EXEC_TEMPLATE);                      \
+    boost::replace_all (exec_arg, "MODULE", mod);                     \
+    try                                                               \
+    {                                                                 \
+      bp::object result = bp::exec (exec_arg.c_str (), py_global);    \
+    }                                                                 \
+    catch (bp::error_already_set & e)                                 \
+    {                                                                 \
+      PyErr_PrintEx (0);                                              \
+      std::cerr << std::string ("\nPython module ") << mod            \
+                << std::string (" not found.")                        \
+                << std::string (" Please use pip3 to install it.\n"); \
+    }                                                                 \
+  } while (0)
 
 namespace
 {
@@ -264,13 +290,20 @@ namespace
       else
       {
         int ch[2];
-
         ch[0] = getch ();
 
         switch (ch[0])
         {
           case 'q':
             return ETIZPlayUserQuit;
+
+          case 53:  // page up
+            mgr_ptr->next ();
+            break;
+
+          case 54:  // page down
+            mgr_ptr->prev ();
+            break;
 
           case 68:  // key left
             // seek
@@ -283,13 +316,11 @@ namespace
             break;
 
           case 65:  // key up
-            // seek
-            // printf ("Seek (up key) - not implemented\n");
+            mgr_ptr->volume_step (1);
             break;
 
           case 66:  // key down
-            // seek
-            // printf ("Seek (down key) - not implemented\n");
+            mgr_ptr->volume_step (-1);
             break;
 
           case ' ':
@@ -620,6 +651,52 @@ tiz::playapp::print_debug_info () const
         MediaInfoLib::MediaInfo::Option_Static (L"Info_Version"));
     printf ("\t    * [%s]\n",
             std::string (wide.begin (), wide.end ()).c_str ());
+    {
+      OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
+      Py_Initialize ();
+
+      try
+        {
+          // Import the Tizonia Plex proxy module
+          bp::object py_main = bp::import ("__main__");
+
+          // Retrieve the main module's namespace
+          bp::object py_global = py_main.attr ("__dict__");
+
+          std::vector< std::string > modules =  boost::assign::list_of ("gmusicapi")
+            ("soundcloud")
+            ("youtube-dl")
+            ("pafy")
+            ("pycountry")
+            ("titlecase")
+            ("pychromecast")
+            ("plexapi")
+            ("fuzzywuzzy")
+            ("eventlet")
+            ("python-Levenshtein")
+            ("joblib")
+            ("spotipy")
+            ("youtube-dl");
+          BOOST_FOREACH (std::string module, modules)
+            {
+              CHECK_PYTHON_MODULE_VER(module);
+            }
+
+          rc = OMX_ErrorNone;
+        }
+      catch (bp::error_already_set &e)
+        {
+          PyErr_PrintEx (0);
+          std::cerr << std::string (
+              "\nPython modules 'joblib' or 'fuzzywuzzy' not found."
+              "\nPlease make sure these are installed correctly.\n");
+        }
+      catch (...)
+        {
+          std::cerr << std::string ("Unknown exception caught");
+        }
+      return rc;
+    }
     printf ("\n");
   }
   return OMX_ErrorNone;

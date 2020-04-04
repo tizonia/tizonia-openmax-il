@@ -201,6 +201,8 @@ tizonia_CPPFLAGS = \
 	@BOOST_CPPFLAGS@ \
 	@TIZILHEADERS_CFLAGS@ \
 	@TIZPLATFORM_CFLAGS@ \
+	@PYTHON_CPPFLAGS@ \
+	@BOOST_CPPFLAGS@ \
 	-I$(top_srcdir)/dbus \
 	-I$(top_srcdir)/src \
 	-I$(top_srcdir)/src/services \
@@ -221,8 +223,11 @@ tizonia_LDADD = \
 	@BOOST_FILESYSTEM_LIB@ \
 	@BOOST_THREAD_LIB@ \
 	@BOOST_CHRONO_LIB@ \
+	-l@BOOST_PYTHON_LIB@ \
+	@PYTHON_LIBS@ \
 	@TAGLIB_LIBS@ \
 	@LIBMEDIAINFO_LIBS@ \
 	@TIZDBUSCPLUSPLUS_LIBS@ \
 	@TIZPLATFORM_LIBS@ \
-	@TIZCORE_LIBS@
+	@TIZCORE_LIBS@ \
+	-lboost_python3
