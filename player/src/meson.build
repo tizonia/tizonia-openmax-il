@@ -115,7 +115,8 @@ tizonia = executable(
       libtizplatform_dep,
       taglib_dep,
       libmediainfo_dep,
-      boost_dep
+      boost_dep,
+      python3_dep
    ],
    install: true
 )
