@@ -716,8 +716,8 @@ class tiziheartproxy(object):
         if len(self.queue) and self.queue_index >= 0:
             station = self.queue[self.queue_index]
             print_err(
-                "[iHeart] '{0} [{1}]' removed from queue.".format(
-                    station["name"], station["streamurl"]
+                "[iHeart] '[{0}]' removed from queue.".format(
+                    station["name"]
                 )
             )
             del self.queue[self.queue_index]
