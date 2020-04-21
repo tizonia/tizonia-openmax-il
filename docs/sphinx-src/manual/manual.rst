@@ -47,6 +47,7 @@ experience by following a few principles:
    youtube
    tunein
    plex
+   iheart
    server
    client
    chromecast

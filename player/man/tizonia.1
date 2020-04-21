@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "TIZONIA" "1" "Mar 08, 2020" "0.21.0" "Tizonia"
+.TH "TIZONIA" "1" "Apr 21, 2020" "0.21.0" "Tizonia"
 .SH NAME
 tizonia \- A command-line streaming music client/server for Linux with support for Spotify (Premium), Google Play Music (free and paid tiers), YouTube, SoundCloud, TuneIn Internet Radio, Plex servers and Chromecast devices.
 .
@@ -101,6 +101,7 @@ There is NO WARRANTY, to the extent permitted by law.
   tunein        TuneIn options.
   youtube       YouTube options.
   plex          Plex options.
+  iheart        Iheart options.
   chromecast    Chromecast options.
   proxy         Proxy server options.
   keyboard      Keyboard control.
@@ -357,6 +358,18 @@ mpris\-enabled = false
 #                       Increase in case of cuts.
 # plex.music_section_name = name of the music section in your plex library
 #                           (default: Music)
+
+
+# iHeart configuration
+# \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+# To avoid passing this information on the command line, uncomment and
+# configure here.
+#
+#
+# iheart.buffer_seconds = size of the audio buffer (in seconds) to use
+#                         while downloading streams. Default: 120.
+#                         Increase in case of cuts.
+
 
 [color\-themes]
 # Tizonia uses around 16 different colors while displaying information on the
@@ -1307,6 +1320,70 @@ $ tizonia \-\-plex\-audio\-track \(aqfive miles out\(aq
 $ tizonia \-\-plex\-audio\-album "Draconian Times"
 
 $ tizonia \-\-plex\-audio\-playlist "Mike oldfield popular tracks"
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH IHEART
+.sp
+User credentials are not need to stream radio stations from iHeart. Simply use
+one of the command\-line options provided to search and listeb to radio stations
+from the iHeart Internet radio directory.
+.SS CONFIGURATION
+.sp
+The Tizonia configuration file contains a block under the \fB[tizonia]\fP section
+like the one pictured below (see also tizonia\-config\-label).
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# iHeart configuration
+# \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+# To avoid passing this information on the command line, uncomment and
+# configure here.
+#
+#
+# iheart.buffer_seconds = size of the audio buffer (in seconds) to use
+#                         while downloading streams. Default: 120.
+#                         Increase in case of cuts.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fBiheart.buffer_seconds\fP
+This is the minimum size of the audio buffer (in seconds) that Tizonia will
+use while downloading the audio streams. It may be increased in case of
+cuts, but usually not required. Default: 120.
+.UNINDENT
+.SS OPTIONS
+.INDENT 0.0
+.TP
+.B \fB\-\-iheart\-search arg\fP
+iheart station search.
+.TP
+.B \fB\-\-iheart\-keywords arg\fP
+Additional keywords that may be used in conjunction with the iheart search option. Optional (may be repeated).
+.UNINDENT
+.SS EXAMPLES
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ tizonia \-\-iheart\-search "top 40"
+
+$ tizonia \-\-iheart\-search "kiss"
+
+$ tizonia \-\-iheart\-search "ny"
+
+$ tizonia \-\-iheart\-search "albuquerque"
+
+$ tizonia \-\-iheart\-search "90s"
+
+$ tizonia \-\-iheart\-search "rock" \-\-iheart\-keywords \(aqThe Rocket\(aq
 .ft P
 .fi
 .UNINDENT

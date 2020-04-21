@@ -166,6 +166,18 @@ mpris-enabled = false
 # plex.music_section_name = name of the music section in your plex library
 #                           (default: Music)
 
+
+# iHeart configuration
+# -------------------------------------------------------------------------
+# To avoid passing this information on the command line, uncomment and
+# configure here.
+#
+#
+# iheart.buffer_seconds = size of the audio buffer (in seconds) to use
+#                         while downloading streams. Default: 120.
+#                         Increase in case of cuts.
+
+
 [color-themes]
 # Tizonia uses around 16 different colors while displaying information on the
 # terminal. These colors are referred to in this configuration file as:

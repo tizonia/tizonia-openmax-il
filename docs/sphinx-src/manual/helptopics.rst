@@ -33,6 +33,7 @@ EXAMPLES
      tunein        TuneIn options.
      youtube       YouTube options.
      plex          Plex options.
+     iheart        Iheart options.
      chromecast    Chromecast options.
      proxy         Proxy server options.
      keyboard      Keyboard control.
