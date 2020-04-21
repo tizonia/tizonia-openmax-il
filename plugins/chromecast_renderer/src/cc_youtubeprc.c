@@ -135,12 +135,14 @@ enqueue_yt_playlist_items (cc_youtube_prc_t * ap_prc)
           break;
         case OMX_AUDIO_YoutubePlaylistTypeAudioChannelUploads:
           {
-            rc = tiz_youtube_play_audio_channel_uploads (ap_prc->p_yt_, p_playlist);
+            rc = tiz_youtube_play_audio_channel_uploads (ap_prc->p_yt_,
+                                                         p_playlist);
           }
           break;
         case OMX_AUDIO_YoutubePlaylistTypeAudioChannelPlaylist:
           {
-            rc = tiz_youtube_play_audio_channel_playlist (ap_prc->p_yt_, p_playlist);
+            rc = tiz_youtube_play_audio_channel_playlist (ap_prc->p_yt_,
+                                                          p_playlist);
           }
           break;
         default:
@@ -191,8 +193,8 @@ cc_youtube_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
   tiz_check_omx (retrieve_yt_session (p_prc));
   tiz_check_omx (retrieve_yt_playlist (p_prc));
 
-  on_yt_error_ret_omx_oom (
-                           tiz_youtube_init (&(p_prc->p_yt_), (const char *)&(p_prc->yt_session_.cApiKey)));
+  on_yt_error_ret_omx_oom (tiz_youtube_init (
+    &(p_prc->p_yt_), (const char *) &(p_prc->yt_session_.cApiKey)));
 
   tiz_check_omx (enqueue_yt_playlist_items (p_prc));
 

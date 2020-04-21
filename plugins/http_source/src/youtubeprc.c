@@ -206,8 +206,9 @@ store_metadata (youtube_prc_t * ap_prc, const char * ap_header_name,
       info_len = strnlen (ap_header_info, OMX_MAX_STRINGNAME_SIZE - 1) + 1;
       metadata_len = sizeof (OMX_CONFIG_METADATAITEMTYPE) + info_len;
 
-      if (NULL == (p_meta = (OMX_CONFIG_METADATAITEMTYPE *) tiz_mem_calloc (
-                     1, metadata_len)))
+      if (NULL
+          == (p_meta = (OMX_CONFIG_METADATAITEMTYPE *) tiz_mem_calloc (
+                1, metadata_len)))
         {
           rc = OMX_ErrorInsufficientResources;
         }
@@ -434,10 +435,10 @@ obtain_next_url (youtube_prc_t * ap_prc, int a_skip_value)
 
   {
     const char * p_next_url
-      = a_skip_value > 0 ? tiz_youtube_get_next_url (ap_prc->p_youtube_,
-                                                    ap_prc->remove_current_url_)
+      = a_skip_value > 0 ? tiz_youtube_get_next_url (
+          ap_prc->p_youtube_, ap_prc->remove_current_url_)
                          : tiz_youtube_get_prev_url (
-                             ap_prc->p_youtube_, ap_prc->remove_current_url_);
+                           ap_prc->p_youtube_, ap_prc->remove_current_url_);
     ap_prc->remove_current_url_ = false;
     tiz_check_null_ret_oom (p_next_url);
 
@@ -491,9 +492,9 @@ release_buffer (youtube_prc_t * ap_prc)
           ap_prc->p_outhdr_->nOffset = 0;
         }
 
-      tiz_check_omx (tiz_krn_release_buffer (
-        tiz_get_krn (handleOf (ap_prc)), ARATELIA_HTTP_SOURCE_PORT_INDEX,
-        ap_prc->p_outhdr_));
+      tiz_check_omx (tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_prc)),
+                                             ARATELIA_HTTP_SOURCE_PORT_INDEX,
+                                             ap_prc->p_outhdr_));
       ap_prc->p_outhdr_ = NULL;
     }
   return OMX_ErrorNone;
@@ -629,9 +630,10 @@ prepare_for_port_auto_detection (youtube_prc_t * ap_prc)
   ap_prc->auto_detect_on_
     = (OMX_AUDIO_CodingAutoDetect == ap_prc->audio_coding_type_) ? true : false;
 
-  TIZ_TRACE (
-    handleOf (ap_prc), "auto_detect_on_ [%s]...audio_coding_type_ [%s]",
-    ap_prc->auto_detect_on_ ? "true" : "false", tiz_audio_coding_to_str (ap_prc->audio_coding_type_));
+  TIZ_TRACE (handleOf (ap_prc),
+             "auto_detect_on_ [%s]...audio_coding_type_ [%s]",
+             ap_prc->auto_detect_on_ ? "true" : "false",
+             tiz_audio_coding_to_str (ap_prc->audio_coding_type_));
 
   return OMX_ErrorNone;
 }
@@ -655,7 +657,8 @@ retrieve_playlist (youtube_prc_t * ap_prc)
 static OMX_ERRORTYPE
 retrieve_buffer_size (youtube_prc_t * ap_prc)
 {
-  TIZ_INIT_OMX_PORT_STRUCT (ap_prc->buffer_size_, ARATELIA_HTTP_SOURCE_PORT_INDEX);
+  TIZ_INIT_OMX_PORT_STRUCT (ap_prc->buffer_size_,
+                            ARATELIA_HTTP_SOURCE_PORT_INDEX);
   return tiz_api_GetParameter (
     tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
     OMX_TizoniaIndexParamStreamingBuffer, &(ap_prc->buffer_size_));
@@ -674,8 +677,9 @@ enqueue_playlist_items (youtube_prc_t * ap_prc)
     const OMX_BOOL shuffle = ap_prc->playlist_.bShuffle;
 
     tiz_youtube_set_playback_mode (
-      ap_prc->p_youtube_, (shuffle == OMX_TRUE ? ETIZYoutubePlaybackModeShuffle
-                                              : ETIZYoutubePlaybackModeNormal));
+      ap_prc->p_youtube_,
+      (shuffle == OMX_TRUE ? ETIZYoutubePlaybackModeShuffle
+                           : ETIZYoutubePlaybackModeNormal));
 
     switch (ap_prc->playlist_.ePlaylistType)
       {
@@ -692,7 +696,8 @@ enqueue_playlist_items (youtube_prc_t * ap_prc)
           break;
         case OMX_AUDIO_YoutubePlaylistTypeAudioPlaylist:
           {
-            rc = tiz_youtube_play_audio_playlist (ap_prc->p_youtube_, p_playlist);
+            rc = tiz_youtube_play_audio_playlist (ap_prc->p_youtube_,
+                                                  p_playlist);
           }
           break;
         case OMX_AUDIO_YoutubePlaylistTypeAudioMix:
@@ -707,17 +712,20 @@ enqueue_playlist_items (youtube_prc_t * ap_prc)
           break;
         case OMX_AUDIO_YoutubePlaylistTypeAudioMixSearch:
           {
-            rc = tiz_youtube_play_audio_mix_search (ap_prc->p_youtube_, p_playlist);
+            rc = tiz_youtube_play_audio_mix_search (ap_prc->p_youtube_,
+                                                    p_playlist);
           }
           break;
         case OMX_AUDIO_YoutubePlaylistTypeAudioChannelUploads:
           {
-            rc = tiz_youtube_play_audio_channel_uploads (ap_prc->p_youtube_, p_playlist);
+            rc = tiz_youtube_play_audio_channel_uploads (ap_prc->p_youtube_,
+                                                         p_playlist);
           }
           break;
         case OMX_AUDIO_YoutubePlaylistTypeAudioChannelPlaylist:
           {
-            rc = tiz_youtube_play_audio_channel_playlist (ap_prc->p_youtube_, p_playlist);
+            rc = tiz_youtube_play_audio_channel_playlist (ap_prc->p_youtube_,
+                                                          p_playlist);
           }
           break;
         default:
@@ -737,7 +745,8 @@ enqueue_playlist_items (youtube_prc_t * ap_prc)
 static void *
 youtube_prc_ctor (void * ap_obj, va_list * app)
 {
-  youtube_prc_t * p_prc = super_ctor (typeOf (ap_obj, "youtubeprc"), ap_obj, app);
+  youtube_prc_t * p_prc
+    = super_ctor (typeOf (ap_obj, "youtubeprc"), ap_obj, app);
   p_prc->p_outhdr_ = NULL;
   TIZ_INIT_OMX_STRUCT (p_prc->session_);
   TIZ_INIT_OMX_STRUCT (p_prc->playlist_);
@@ -756,7 +765,7 @@ youtube_prc_ctor (void * ap_obj, va_list * app)
   p_prc->auto_detect_on_ = false;
   p_prc->bitrate_ = ARATELIA_HTTP_SOURCE_DEFAULT_BIT_RATE_KBITS;
   p_prc->buffer_bytes_ = ((p_prc->bitrate_ * 1000) / 8)
-    * ARATELIA_HTTP_SOURCE_DEFAULT_BUFFER_SECONDS_YOUTUBE;
+                         * ARATELIA_HTTP_SOURCE_DEFAULT_BUFFER_SECONDS_YOUTUBE;
   p_prc->remove_current_url_ = false;
   return p_prc;
 }
@@ -783,12 +792,12 @@ youtube_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
   tiz_check_omx (retrieve_buffer_size (p_prc));
   if (p_prc->buffer_size_.nCapacity)
     {
-      p_prc->buffer_bytes_ = ((p_prc->bitrate_ * 1000) / 8)
-        * p_prc->buffer_size_.nCapacity;
+      p_prc->buffer_bytes_
+        = ((p_prc->bitrate_ * 1000) / 8) * p_prc->buffer_size_.nCapacity;
     }
 
-  on_youtube_error_ret_omx_oom (
-                                tiz_youtube_init (&(p_prc->p_youtube_), (const char *)&(p_prc->session_.cApiKey)));
+  on_youtube_error_ret_omx_oom (tiz_youtube_init (
+    &(p_prc->p_youtube_), (const char *) &(p_prc->session_.cApiKey)));
 
   tiz_check_omx (enqueue_playlist_items (p_prc));
   tiz_check_omx (obtain_next_url (p_prc, 1));
@@ -805,12 +814,11 @@ youtube_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
       = {tiz_srv_timer_watcher_init, tiz_srv_timer_watcher_destroy,
          tiz_srv_timer_watcher_start, tiz_srv_timer_watcher_stop,
          tiz_srv_timer_watcher_restart};
-    rc
-      = tiz_urltrans_init (&(p_prc->p_trans_), p_prc, p_prc->p_uri_param_,
-                           ARATELIA_HTTP_SOURCE_COMPONENT_NAME,
-                           p_prc->buffer_bytes_,
-                           ARATELIA_HTTP_SOURCE_DEFAULT_RECONNECT_TIMEOUT,
-                           buffer_cbacks, info_cbacks, io_cbacks, timer_cbacks);
+    rc = tiz_urltrans_init (
+      &(p_prc->p_trans_), p_prc, p_prc->p_uri_param_,
+      ARATELIA_HTTP_SOURCE_COMPONENT_NAME, p_prc->buffer_bytes_,
+      ARATELIA_HTTP_SOURCE_DEFAULT_RECONNECT_TIMEOUT, buffer_cbacks,
+      info_cbacks, io_cbacks, timer_cbacks);
   }
   return rc;
 }
@@ -879,7 +887,7 @@ youtube_prc_buffers_ready (const void * ap_prc)
 
 static OMX_ERRORTYPE
 youtube_prc_io_ready (void * ap_prc, tiz_event_io_t * ap_ev_io, int a_fd,
-                     int a_events)
+                      int a_events)
 {
   youtube_prc_t * p_prc = ap_prc;
   assert (p_prc);
@@ -888,7 +896,7 @@ youtube_prc_io_ready (void * ap_prc, tiz_event_io_t * ap_ev_io, int a_fd,
 
 static OMX_ERRORTYPE
 youtube_prc_timer_ready (void * ap_prc, tiz_event_timer_t * ap_ev_timer,
-                        void * ap_arg, const uint32_t a_id)
+                         void * ap_arg, const uint32_t a_id)
 {
   youtube_prc_t * p_prc = ap_prc;
   assert (p_prc);
@@ -957,7 +965,7 @@ youtube_prc_port_enable (const void * ap_prc, OMX_U32 a_pid)
 
 static OMX_ERRORTYPE
 youtube_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
-                          OMX_INDEXTYPE a_config_idx)
+                           OMX_INDEXTYPE a_config_idx)
 {
   youtube_prc_t * p_prc = ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
