@@ -119,12 +119,14 @@ declare -ar TIZ_TIZONIA_PYPI_DEPS=( \
     soundcloud \
     youtube-dl \
     pafy \
-    pychromecast \
     pycountry \
     titlecase \
+    pychromecast \
     plexapi \
     fuzzywuzzy \
     eventlet \
+    python-Levenshtein \
+    joblib \
 )
 
 declare -ar TIZ_DEBIAN_PKGS=( \
@@ -458,6 +460,9 @@ function do_tizonia_deps {
             pretty_print "$GRN" "[$dep] : installed."
         fi
     done
+
+    # Also install spotipy from source
+    sudo -H pip3 install git+https://github.com/plamere/spotipy.git --upgrade
 
     # Backup installation of Spotify. Can be used if Modipy's repo is not available.
     # Install libspotify binaries using my own tar files, in case the binary
