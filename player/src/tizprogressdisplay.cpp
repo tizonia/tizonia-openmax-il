@@ -31,7 +31,11 @@
 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/replace.hpp>
+#if (BOOST_VERSION >= 107200)
+#include <boost/timer/progress_display.hpp>
+#else
 #include <boost/progress.hpp>
+#endif
 
 #include <tizplatform.h>
 
