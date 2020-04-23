@@ -86,6 +86,8 @@ noinst_HEADERS = \
 	httpclnt/tizhttpclntgraphops.hpp \
 	services/tizservicegraph.hpp \
 	services/tizservicegraphfsm.hpp \
+	services/tizradiograph.hpp \
+	services/tizradiographfsm.hpp \
 	${SPOTIFY_HDR} \
 	services/googlemusic/tizgmusicgraph.hpp \
 	services/googlemusic/tizgmusicgraphops.hpp \
@@ -105,7 +107,6 @@ noinst_HEADERS = \
 	services/plex/tizplexconfig.hpp \
 	services/plex/tizplexmgr.hpp \
 	services/tunein/tiztuneingraph.hpp \
-	services/tunein/tiztuneingraphfsm.hpp \
 	services/tunein/tiztuneingraphops.hpp \
 	services/tunein/tiztuneinconfig.hpp \
 	services/tunein/tiztuneinmgr.hpp \
@@ -119,7 +120,6 @@ noinst_HEADERS = \
 	services/chromecast/tizchromecastconfig.hpp \
 	services/chromecast/tizchromecastmgr.hpp \
 	services/iheart/tiziheartgraph.hpp \
-	services/iheart/tiziheartgraphfsm.hpp \
 	services/iheart/tiziheartgraphops.hpp \
 	services/iheart/tiziheartconfig.hpp \
 	services/iheart/tiziheartmgr.hpp
@@ -165,6 +165,8 @@ tizonia_SOURCES = \
 	httpclnt/tizhttpclntgraphops.cpp \
 	services/tizservicegraph.cpp \
 	services/tizservicegraphfsm.cpp \
+	services/tizradiograph.cpp \
+	services/tizradiographfsm.cpp \
 	${SPOTIFY_SRC} \
 	services/googlemusic/tizgmusicgraph.cpp \
 	services/googlemusic/tizgmusicgraphops.cpp \
@@ -180,7 +182,6 @@ tizonia_SOURCES = \
 	services/plex/tizplexgraphops.cpp \
 	services/plex/tizplexmgr.cpp \
 	services/tunein/tiztuneingraph.cpp \
-	services/tunein/tiztuneingraphfsm.cpp \
 	services/tunein/tiztuneingraphops.cpp \
 	services/tunein/tiztuneinmgr.cpp \
 	services/chromecast/tizchromecastgraph.cpp \
@@ -193,7 +194,6 @@ tizonia_SOURCES = \
 	mpris/tizmprisprops.cpp \
 	mpris/tizmprisif.cpp \
 	services/iheart/tiziheartgraph.cpp \
-	services/iheart/tiziheartgraphfsm.cpp \
 	services/iheart/tiziheartgraphops.cpp \
 	services/iheart/tiziheartmgr.cpp
 

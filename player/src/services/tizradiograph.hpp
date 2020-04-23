@@ -18,21 +18,44 @@
  */
 
 /**
- * @file   tiztuneingraphfsm.cpp
+ * @file   tizradiograph.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tunein streaming client graph fsm
+ * @brief  Generic radio streaming service graph
+ *
  *
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
+#ifndef TIZRADIOGRAPH_HPP
+#define TIZRADIOGRAPH_HPP
 
-#include "tiztuneingraphfsm.hpp"
+#include <boost/any.hpp>
 
-char const* const tiz::graph::tuneinfsm::pstate(tiz::graph::tuneinfsm::fsm const& p)
+#include "tizgraph.hpp"
+
+namespace tiz
 {
-  return tiz::graph::tuneinfsm::state_names[p.current_state()[0]];
-}
+  namespace graph
+  {
+    // Forward declarations
+    class cmd;
+    class ops;
 
+    class radiograph : public graph
+    {
+
+    public:
+      explicit radiograph (const std::string &graph_name);
+      ~radiograph ();
+
+    protected:
+      bool dispatch_cmd (const tiz::graph::cmd *p_cmd);
+
+    protected:
+      boost::any fsm_;
+    };
+
+  }  // namespace graph
+}  // namespace tiz
+
+#endif  // TIZRADIOGRAPH_HPP

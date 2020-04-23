@@ -21,7 +21,7 @@
  * @file   tiziheartgraph.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Iheart streaming service graph
+ * @brief  Iheart radio streaming service graph
  *
  *
  */
@@ -29,31 +29,24 @@
 #ifndef TIZIHEARTGRAPH_HPP
 #define TIZIHEARTGRAPH_HPP
 
-#include <boost/any.hpp>
-
-#include "tizgraph.hpp"
+#include "tizradiograph.hpp"
+#include "tizgraphops.hpp"
 
 namespace tiz
 {
   namespace graph
   {
     // Forward declarations
-    class cmd;
     class ops;
 
-    class iheart : public graph
+    class iheart : public radiograph
     {
 
     public:
       explicit iheart ();
-      ~iheart ();
 
     protected:
-      bool dispatch_cmd (const tiz::graph::cmd *p_cmd);
       ops *do_init ();
-
-    protected:
-      boost::any fsm_;
     };
 
   }  // namespace graph

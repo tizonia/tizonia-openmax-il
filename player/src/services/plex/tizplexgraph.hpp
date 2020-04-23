@@ -43,7 +43,7 @@ namespace tiz
     {
 
     public:
-      plex ();
+      explicit plex ();
 
     protected:
       ops *do_init ();

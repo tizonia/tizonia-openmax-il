@@ -18,10 +18,10 @@
  */
 
 /**
- * @file   tiziheartgraphfsm.cpp
+ * @file   tizradiographfsm.cpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Iheart streaming client graph fsm
+ * @brief  Generic radio streaming client graph fsm
  *
  */
 
@@ -29,10 +29,10 @@
 #include <config.h>
 #endif
 
-#include "tiziheartgraphfsm.hpp"
+#include "tizradiographfsm.hpp"
 
-char const* const tiz::graph::iheartfsm::pstate(tiz::graph::iheartfsm::fsm const& p)
+char const* const tiz::graph::radiofsm::pstate(tiz::graph::radiofsm::fsm const& p)
 {
-  return tiz::graph::iheartfsm::state_names[p.current_state()[0]];
+  return tiz::graph::radiofsm::state_names[p.current_state()[0]];
 }
 
