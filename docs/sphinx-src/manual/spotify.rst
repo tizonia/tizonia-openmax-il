@@ -141,4 +141,12 @@ EXAMPLES
 
    $ tizonia --spotify-recommendations-by-track-id 3MrRksHupTVEQ7YbA0FsZK
 
+   # Search and play a *public* playlist owned by the current user
+   $ tizonia --spotify-playlist 'Summer 2019'
+
+   # Search and play a *public* playlist owned by the specified user
+   $ tizonia --spotify-playlist 'Summer 2019' --spotify-owner 'bqmtzm68dmdyk2uyvrwma69y2'
+
+   # Globally search and play a *public* playlist on Spotify (Tizonia will play
+   # the best match in the list returned by the Spotify service)
    $ tizonia --spotify-playlist 'best metal 2000s' --spotify-owner 'anyuser'
