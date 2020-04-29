@@ -38,7 +38,22 @@ like the one pictured below (see also :ref:`tizonia-config-label`).
   The Google Play Music account username, e.g. 'user@gmail.com' or just 'user'.
 
 ``gmusic.password``
-  Account password or app-specific password for 2-factor users
+  Account password or app-specific password for 2-factor users.
+
+  Note that there are two options to allow Tizonia access to a Google Play
+  Music account:
+
+  - The "Less secure app access" setting is enabled on the Google account:
+    - See https://myaccount.google.com/lesssecureapps
+  - An app-specific password is used with Tizonia if 2-factor authentication is
+    enabled on the account:
+    - See https://support.google.com/accounts/answer/185833
+
+  Note that Tizonia caches the authentication token received from Google Play
+  Music on the first successful access to the service (i.e. with a valid
+  username and password) and uses this token to re-authenticate in subsequent
+  attempts to access the service. When the token expires, Tizonia accesses the
+  service with username and password once more to retrieve a new token.
 
 ``gmusic.device_id``
   An Android device id associated to your account. This is usually a 16-digit
