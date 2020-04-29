@@ -22,7 +22,7 @@ like the one pictured below (see also :ref:`tizonia-config-label`).
 
 .. code-block:: bash
 
-   # Spotify configuration
+# Spotify configuration
    # -------------------------------------------------------------------------
    # To avoid passing this information on the command line, uncomment
    # and configure accordingly
@@ -129,6 +129,27 @@ OPTIONS
 
 ``--spotify-recommendations-by-genre arg``
     Play Spotify recommendations by genre name.
+
+``--spotify-user-liked-tracks``
+    Play the user's liked tracks.
+
+``--spotify-user-recent-tracks``
+    Play the user's most recent tracks.
+
+``--spotify-user-top-tracks``
+    Play the user's top tracks.
+
+``--spotify-user-top-artists``
+    Play tracks from the user's top artists.
+
+``--spotify-user-playlist arg``
+    Play tracks from the user's playlist (including private playlists,
+    Daily Mixes and Discover Weekly).
+
+    Note that Daily Mixes and Discover Weekly playlists need to be 'liked'
+    beforehand in order to be found by the search performed on the user
+    library.
+
 
 EXAMPLES
 --------
