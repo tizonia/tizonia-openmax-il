@@ -311,6 +311,11 @@ typedef enum OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE {
     OMX_AUDIO_SpotifyPlaylistTypeRecommendationsByTrackId, /**< Find recommendations by track ID, URI or URL. */
     OMX_AUDIO_SpotifyPlaylistTypeRecommendationsByArtistId, /**< Find recommendations by artist ID, URI or URL. */
     OMX_AUDIO_SpotifyPlaylistTypeRecommendationsByGenre, /**< Find recommendations by genre name. */
+    OMX_AUDIO_SpotifyPlaylistTypeUserLikedTracks, /**< The current user's liked tracks. */
+    OMX_AUDIO_SpotifyPlaylistTypeUserRecentTracks, /**< The current user's most recent tracks. */
+    OMX_AUDIO_SpotifyPlaylistTypeUserTopTracks, /**< The current user's top tracks. */
+    OMX_AUDIO_SpotifyPlaylistTypeUserTopArtists, /**< The current user's top artists. */
+    OMX_AUDIO_SpotifyPlaylistTypeUserPlaylist, /**< Playlist search in the user's library. */
     OMX_AUDIO_SpotifyPlaylistTypeKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
     OMX_AUDIO_SpotifyPlaylistTypeVendorStartUnused = 0x7F000000, /**< Reserved region for introducing Vendor Extensions */
     OMX_AUDIO_SpotifyPlaylistTypeMax = 0x7FFFFFFF
