@@ -288,70 +288,88 @@ namespace
         sleep (5000);
       }
       else
-      {
-        int ch[2];
-        ch[0] = getch ();
-
-        switch (ch[0])
         {
-          case 'q':
-            return ETIZPlayUserQuit;
+          int ch[2];
+          ch[0] = getch ();
+          printf("\nValue is : %d\n",ch[0]);
+          switch (ch[0])
+            {
+            case 'q':
+              return ETIZPlayUserQuit;
 
-          case 53:  // page up
-            mgr_ptr->next ();
-            break;
+            case 27:
+              {
+                ch[0] = getch(); // skip
+                printf("\n  Value is : %d\n",ch[0]);
+                ch[0] = getch();
+                printf("\n    Value is : %d\n",ch[0]);
+                switch (ch[0])
+                  {
+                  case 68:  // key left
+                    // seek
+                    // printf ("Seek (left key) - not implemented\n");
+                    break;
 
-          case 54:  // page down
-            mgr_ptr->prev ();
-            break;
+                  case 67:  // key right
+                    // seek
+                    // printf ("Seek (right key) - not implemented\n");
+                    break;
 
-          case 68:  // key left
-            // seek
-            // printf ("Seek (left key) - not implemented\n");
-            break;
+                  case 65:  // key up
+                    mgr_ptr->volume_step (1);
+                    break;
 
-          case 67:  // key right
-            // seek
-            // printf ("Seek (right key) - not implemented\n");
-            break;
+                  case 66:  // key down
+                    mgr_ptr->volume_step (-1);
+                    break;
 
-          case 65:  // key up
-            mgr_ptr->volume_step (1);
-            break;
+                  case 53:  // page up
+                    ch[0] = getch(); // skip
+                    printf("\n      Value is : %d\n",ch[0]);
+                    mgr_ptr->next ();
+                    break;
 
-          case 66:  // key down
-            mgr_ptr->volume_step (-1);
-            break;
+                  case 54:  // page down
+                    ch[0] = getch(); // skip
+                    printf("\n      Value is : %d\n",ch[0]);
+                    mgr_ptr->prev ();
+                    break;
+                  default:
+                    // printf("\n        (not)Value is : %d\n",ch[0]);
+                    break;
+                  }
+              }
+              break;
 
-          case ' ':
-            mgr_ptr->pause ();
-            break;
+            case ' ':
+              mgr_ptr->pause ();
+              break;
 
-          case 'm':
-            mgr_ptr->mute ();
-            break;
+            case 'm':
+              mgr_ptr->mute ();
+              break;
 
-          case 'n':
-            mgr_ptr->next ();
-            break;
+            case 'n':
+              mgr_ptr->next ();
+              break;
 
-          case 'p':
-            mgr_ptr->prev ();
-            break;
+            case 'p':
+              mgr_ptr->prev ();
+              break;
 
-          case '-':
-            mgr_ptr->volume_step (-1);
-            break;
+            case '-':
+              mgr_ptr->volume_step (-1);
+              break;
 
-          case '+':
-            mgr_ptr->volume_step (1);
-            break;
+            case '+':
+              mgr_ptr->volume_step (1);
+              break;
 
-          default:
-            //           printf ("%d - not implemented\n", ch[0]);
-            break;
-        };
-      }
+            default:
+              // printf ("%d - not implemented\n", ch[0]);
+              break;
+            };
+        }
     }
   }
 

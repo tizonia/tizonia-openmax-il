@@ -371,6 +371,11 @@ tiz::programopts::programopts (int argc, char *argv[])
     spotify_recommendations_by_track_id_(),
     spotify_recommendations_by_artist_id_(),
     spotify_recommendations_by_genre_(),
+    spotify_user_liked_tracks_(),
+    spotify_user_recent_tracks_(),
+    spotify_user_top_tracks_(),
+    spotify_user_top_artists_(),
+    spotify_user_playlist_(),
     spotify_playlist_container_ (),
     spotify_playlist_type_(OMX_AUDIO_SpotifyPlaylistTypeUnknown),
     gmusic_user_ (),
@@ -876,6 +881,26 @@ const std::vector< std::string >
   {
     spotify_playlist_container_.push_back (spotify_recommendations_by_genre_);
   }
+  else if (!spotify_user_liked_tracks_.empty ())
+  {
+    spotify_playlist_container_.push_back (spotify_user_liked_tracks_);
+  }
+  else if (!spotify_user_recent_tracks_.empty ())
+  {
+    spotify_playlist_container_.push_back (spotify_user_recent_tracks_);
+  }
+  else if (!spotify_user_top_tracks_.empty ())
+  {
+    spotify_playlist_container_.push_back (spotify_user_top_tracks_);
+  }
+  else if (!spotify_user_top_artists_.empty ())
+  {
+    spotify_playlist_container_.push_back (spotify_user_top_artists_);
+  }
+  else if (!spotify_user_playlist_.empty ())
+  {
+    spotify_playlist_container_.push_back (spotify_user_playlist_);
+  }
   else
   {
     assert (0);
@@ -941,6 +966,26 @@ tiz::programopts::spotify_playlist_type ()
   else if (!spotify_recommendations_by_genre_.empty ())
   {
     spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeRecommendationsByGenre;
+  }
+  else if (!spotify_user_liked_tracks_.empty ())
+  {
+    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeUserLikedTracks;
+  }
+  else if (!spotify_user_recent_tracks_.empty ())
+  {
+    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeUserRecentTracks;
+  }
+  else if (!spotify_user_top_tracks_.empty ())
+  {
+    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeUserTopTracks;
+  }
+  else if (!spotify_user_top_artists_.empty ())
+  {
+    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeUserTopArtists;
+  }
+  else if (!spotify_user_playlist_.empty ())
+  {
+    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeUserPlaylist;
   }
 
   return spotify_playlist_type_;
@@ -1664,8 +1709,7 @@ void tiz::programopts::init_spotify_options ()
        po::bool_switch (&spotify_allow_explicit_tracks_)->default_value (false),
        "Allow Tizonia to play explicit tracks from Spotify (default: false).")
       /* TIZ_CLASS_COMMENT: */
-      ("spotify-preferred-bitrate",
-       po::value (&spotify_preferred_bitrate_),
+      ("spotify-preferred-bitrate", po::value (&spotify_preferred_bitrate_),
        "Preferred Spotify bitrate (kbps) (320, 160 or 96; default: 320).")
       /* TIZ_CLASS_COMMENT: */
       ("spotify-tracks", po::value (&spotify_tracks_),
@@ -1715,7 +1759,21 @@ void tiz::programopts::init_spotify_options ()
       /* TIZ_CLASS_COMMENT: */
       ("spotify-recommendations-by-genre",
        po::value (&spotify_recommendations_by_genre_),
-       "Play Spotify recommendations by genre name.");
+       "Play Spotify recommendations by genre name.")
+      /* TIZ_CLASS_COMMENT: */
+      ("spotify-user-liked-tracks", "Play the user's liked tracks")
+      /* TIZ_CLASS_COMMENT: */
+      ("spotify-user-recent-tracks",
+       "Play the user's most recently played tracks")
+      /* TIZ_CLASS_COMMENT: */
+      ("spotify-user-top-tracks", "Play the user's top tracks")
+      /* TIZ_CLASS_COMMENT: */
+      ("spotify-user-top-artists",
+       "Play top tracks from the user's top artists")
+      /* TIZ_CLASS_COMMENT: */
+      ("spotify-user-playlist", po::value (&spotify_user_playlist_),
+       "Play a playlist from the users private library, including Daily Mixes "
+       "and Discover Weekly");
 
   register_consume_function (&tiz::programopts::consume_spotify_client_options);
   all_spotify_client_options_
@@ -1728,7 +1786,9 @@ void tiz::programopts::init_spotify_options ()
             "spotify-related-artists") ("spotify-featured-playlist") (
             "spotify-new-releases") ("spotify-recommendations-by-track-id") (
             "spotify-recommendations-by-artist-id") (
-            "spotify-recommendations-by-genre")
+            "spotify-recommendations-by-genre") ("spotify-user-liked-tracks") (
+            "spotify-user-recent-tracks") ("spotify-user-top-tracks") (
+            "spotify-user-top-artists") ("spotify-user-playlist")
             .convert_to_container< std::vector< std::string > > ();
 #endif
 }
@@ -2294,7 +2354,12 @@ int tiz::programopts::consume_spotify_client_options (bool &done,
           + vm_.count ("spotify-new-releases")
           + vm_.count ("spotify-recommendations-by-track-id")
           + vm_.count ("spotify-recommendations-by-artist-id")
-          + vm_.count ("spotify-recommendations-by-genre");
+          + vm_.count ("spotify-recommendations-by-genre")
+          + vm_.count ("spotify-user-liked-tracks")
+          + vm_.count ("spotify-user-recent-tracks")
+          + vm_.count ("spotify-user-top-tracks")
+          + vm_.count ("spotify-user-top-artists")
+          + vm_.count ("spotify-user-playlist");
 
     if (spotify_user_.empty ())
     {
@@ -2350,6 +2415,23 @@ int tiz::programopts::consume_spotify_client_options (bool &done,
     {
       retrieve_tizonia_uint_from_rc_file ("spotify.preferred_bitrate",
                                           spotify_preferred_bitrate_);
+    }
+
+    if (vm_.count ("spotify-user-liked-tracks"))
+    {
+      spotify_user_liked_tracks_.assign ("liked tracks");
+    }
+    else if (vm_.count ("spotify-user-recent-tracks"))
+    {
+      spotify_user_recent_tracks_.assign ("recent tracks");
+    }
+    else if (vm_.count ("spotify-user-top-tracks"))
+    {
+      spotify_user_top_tracks_.assign ("top tracks");
+    }
+    else if (vm_.count ("spotify-user-top-artists"))
+    {
+      spotify_user_top_artists_.assign ("top artists");
     }
 
     if (spotify_user_.empty ())
@@ -3089,7 +3171,11 @@ bool tiz::programopts::validate_spotify_client_options () const
         + vm_.count ("spotify-recommendations-by-track-id")
         + vm_.count ("spotify-recommendations-by-artist-id")
         + vm_.count ("spotify-recommendations-by-genre")
-        + vm_.count ("log-directory");
+        + vm_.count ("spotify-user-liked-tracks")
+        + vm_.count ("spotify-user-recent-tracks")
+        + vm_.count ("spotify-user-top-tracks")
+        + vm_.count ("spotify-user-top-artists")
+        + vm_.count ("spotify-user-playlist") + vm_.count ("log-directory");
 
   std::vector< std::string > all_valid_options = all_spotify_client_options_;
   concat_option_lists (all_valid_options, all_global_options_);

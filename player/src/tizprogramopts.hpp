@@ -240,6 +240,11 @@ namespace tiz
     std::string spotify_recommendations_by_track_id_;
     std::string spotify_recommendations_by_artist_id_;
     std::string spotify_recommendations_by_genre_;
+    std::string spotify_user_liked_tracks_;
+    std::string spotify_user_recent_tracks_;
+    std::string spotify_user_top_tracks_;
+    std::string spotify_user_top_artists_;
+    std::string spotify_user_playlist_;
     std::vector< std::string > spotify_playlist_container_;
     OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE spotify_playlist_type_;
     std::string gmusic_user_;

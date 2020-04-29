@@ -41,6 +41,11 @@ _arguments -S -s \
   '--spotify-recommendations-by-track-id[Play Spotify recommendations by track ID, URI or URL.]' \
   '--spotify-recommendations-by-artist-id[Play Spotify recommendations by artist ID, URI or URL.]' \
   '--spotify-recommendations-by-genre[Play Spotify recommendations by genre name.]' \
+  '--spotify-user-liked-tracks[Play the user liked tracks.]' \
+  '--spotify-user-recent-tracks[Play the user most recently played tracks.]' \
+  '--spotify-user-top-tracks[Play the user top tracks.]' \
+  '--spotify-user-top-artists[Play top tracks from the user top artists.]' \
+  '--spotify-user-playlist[Play a playlist from the user private library (including Daily Mixes and Discover Weekly).]' \
   '--gmusic-user[Google Play Music user name (not required if provided via config file).]' \
   '--gmusic-password[Google Play Music users password (not required if provided via config file).]' \
   '--gmusic-device-id[Google Play Music device id (not required if provided via config file).]' \
