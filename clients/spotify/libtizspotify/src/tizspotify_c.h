@@ -80,10 +80,13 @@ extern "C"
    *
    * @param app_spotify A pointer to the tiz_spotify handle which will be
    * initialised.
+   * @param ap_user A Spotify user name (Premium).
+   * @param ap_pass The password associated to the Spotify account.
    *
    * @return 0 on success.
    */
-  int tiz_spotify_init (/*@null@ */ tiz_spotify_ptr_t *app_spotify);
+  int tiz_spotify_init (/*@null@ */ tiz_spotify_ptr_t *app_spotify,
+                        const char *ap_user, const char *ap_pass);
 
   /**
    * Clear the playback queue.
@@ -390,6 +393,80 @@ extern "C"
    */
   int tiz_spotify_play_recommendations_by_genre (tiz_spotify_t *ap_spotify,
                                                  const char *ap_genre);
+
+  /**
+   * Find the current user's liked tracks and add them to the playback queue.
+   *
+   * After calling this method, the various tiz_spotify_get* methods can be
+   * used to interact with the playback queue.
+   *
+   * @ingroup libtizspotify
+   *
+   * @param ap_spotify The tiz_spotify handle.
+   *
+   * @return 0 on success
+   */
+  int tiz_spotify_play_current_user_liked_tracks (tiz_spotify_t *ap_spotify);
+
+  /**
+   * Find the current user's recent tracks and add them to the playback queue.
+   *
+   * After calling this method, the various tiz_spotify_get* methods can be
+   * used to interact with the playback queue.
+   *
+   * @ingroup libtizspotify
+   *
+   * @param ap_spotify The tiz_spotify handle.
+   *
+   * @return 0 on success
+   */
+  int tiz_spotify_play_current_user_recent_tracks (tiz_spotify_t *ap_spotify);
+
+  /**
+   * Find the current user's top tracks and add them to the playback queue.
+   *
+   * After calling this method, the various tiz_spotify_get* methods can be
+   * used to interact with the playback queue.
+   *
+   * @ingroup libtizspotify
+   *
+   * @param ap_spotify The tiz_spotify handle.
+   *
+   * @return 0 on success
+   */
+  int tiz_spotify_play_current_user_top_tracks (tiz_spotify_t *ap_spotify);
+
+  /**
+   * Find the current user's top artists and add their top tracks to the
+   * playback queue.
+   *
+   * After calling this method, the various tiz_spotify_get* methods can be
+   * used to interact with the playback queue.
+   *
+   * @ingroup libtizspotify
+   *
+   * @param ap_spotify The tiz_spotify handle.
+   *
+   * @return 0 on success
+   */
+  int tiz_spotify_play_current_user_top_artists (tiz_spotify_t *ap_spotify);
+
+  /**
+   * Find a public or private playlist from the current user's library and add
+   * its tracks to the playback queue.
+   *
+   * After calling this method, the various tiz_spotify_get* methods can be
+   * used to interact with the playback queue.
+   *
+   * @ingroup libtizspotify
+   *
+   * @param ap_spotify The tiz_spotify handle.
+   * @param ap_playlist A playlist name or search term.
+   *
+   * @return 0 on success
+   */
+  int tiz_spotify_play_current_user_playlist (tiz_spotify_t *ap_spotify,
+                                              const char *ap_playlist);
 
   /**
    * Retrieve the next stream url.

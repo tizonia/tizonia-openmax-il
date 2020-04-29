@@ -49,13 +49,16 @@ static void spotify_free_data (tiz_spotify_t *ap_spotify)
     }
 }
 
-static int spotify_alloc_data (tiz_spotify_t *ap_spotify)
+static int spotify_alloc_data (tiz_spotify_t *ap_spotify, const char *ap_user,
+                               const char *ap_pass)
 {
   int rc = 0;
   assert (ap_spotify);
+  assert (ap_user);
+  assert (ap_pass);
   try
     {
-      ap_spotify->p_proxy_ = new tizspotify ();
+      ap_spotify->p_proxy_ = new tizspotify (ap_user, ap_pass);
     }
   catch (...)
     {
@@ -65,7 +68,8 @@ static int spotify_alloc_data (tiz_spotify_t *ap_spotify)
   return rc;
 }
 
-extern "C" int tiz_spotify_init (tiz_spotify_ptr_t *app_spotify)
+extern "C" int tiz_spotify_init (tiz_spotify_ptr_t *app_spotify,
+                                 const char *ap_user, const char *ap_pass)
 {
   tiz_spotify_t *p_spotify = NULL;
   int rc = 1;
@@ -74,7 +78,7 @@ extern "C" int tiz_spotify_init (tiz_spotify_ptr_t *app_spotify)
 
   if ((p_spotify = (tiz_spotify_t *)calloc (1, sizeof (tiz_spotify_t))))
     {
-      if (!spotify_alloc_data (p_spotify))
+      if (!spotify_alloc_data (p_spotify, ap_user, ap_pass))
         {
           tizspotify *p_px = p_spotify->p_proxy_;
           assert (p_px);
@@ -266,6 +270,46 @@ extern "C" int tiz_spotify_play_recommendations_by_genre (
   assert (ap_spotify);
   assert (ap_spotify->p_proxy_);
   return ap_spotify->p_proxy_->play_recommendations_by_genre (ap_genre);
+}
+
+extern "C" int tiz_spotify_play_current_user_liked_tracks (
+    tiz_spotify_t *ap_spotify)
+{
+  assert (ap_spotify);
+  assert (ap_spotify->p_proxy_);
+  return ap_spotify->p_proxy_->play_current_user_liked_tracks ();
+}
+
+extern "C" int tiz_spotify_play_current_user_recent_tracks (
+    tiz_spotify_t *ap_spotify)
+{
+  assert (ap_spotify);
+  assert (ap_spotify->p_proxy_);
+  return ap_spotify->p_proxy_->play_current_user_recent_tracks ();
+}
+
+extern "C" int tiz_spotify_play_current_user_top_tracks (
+    tiz_spotify_t *ap_spotify)
+{
+  assert (ap_spotify);
+  assert (ap_spotify->p_proxy_);
+  return ap_spotify->p_proxy_->play_current_user_top_tracks ();
+}
+
+extern "C" int tiz_spotify_play_current_user_top_artists (
+    tiz_spotify_t *ap_spotify)
+{
+  assert (ap_spotify);
+  assert (ap_spotify->p_proxy_);
+  return ap_spotify->p_proxy_->play_current_user_top_artists ();
+}
+
+extern "C" int tiz_spotify_play_current_user_playlist (
+    tiz_spotify_t *ap_spotify, const char *ap_playlist)
+{
+  assert (ap_spotify);
+  assert (ap_spotify->p_proxy_);
+  return ap_spotify->p_proxy_->play_current_user_playlist (ap_playlist);
 }
 
 extern "C" const char *tiz_spotify_get_next_uri (

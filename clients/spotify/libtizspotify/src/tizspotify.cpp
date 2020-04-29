@@ -121,15 +121,18 @@ namespace
   }
 
   void start_spotify (boost::python::object &py_global,
-                      boost::python::object &py_spotify_proxy)
+                      boost::python::object &py_spotify_proxy,
+                      const std::string &user, const std::string &pass)
   {
     bp::object pyspotifyproxy = py_global["tizspotifyproxy"];
-    py_spotify_proxy = pyspotifyproxy ();
+    py_spotify_proxy = pyspotifyproxy (user.c_str (), pass.c_str ());
   }
 }  // namespace
 
-tizspotify::tizspotify ()
-  : current_uri_ (),
+tizspotify::tizspotify (const std::string &user, const std::string &pass)
+  : user_ (user),
+    pass_ (pass),
+    current_uri_ (),
     current_track_index_ (),
     current_queue_length_ (),
     current_queue_length_as_int_ (0),
@@ -164,7 +167,8 @@ int tizspotify::init ()
 int tizspotify::start ()
 {
   int rc = 0;
-  try_catch_wrapper (start_spotify (py_global_, py_spotify_proxy_));
+  try_catch_wrapper (
+      start_spotify (py_global_, py_spotify_proxy_, user_, pass_));
   return rc;
 }
 
@@ -291,6 +295,42 @@ int tizspotify::play_recommendations_by_genre (const std::string &genre)
   int rc = 0;
   try_catch_wrapper (py_spotify_proxy_.attr ("enqueue_recommendations_by_genre") (
       bp::object (genre)));
+  return rc;
+}
+
+int tizspotify::play_current_user_liked_tracks ()
+{
+  int rc = 0;
+  try_catch_wrapper (py_spotify_proxy_.attr ("enqueue_user_liked_tracks") ());
+  return rc;
+}
+
+int tizspotify::play_current_user_recent_tracks ()
+{
+  int rc = 0;
+  try_catch_wrapper (py_spotify_proxy_.attr ("enqueue_user_recent_tracks") ());
+  return rc;
+}
+
+int tizspotify::play_current_user_top_tracks ()
+{
+  int rc = 0;
+  try_catch_wrapper (py_spotify_proxy_.attr ("enqueue_user_top_tracks") ());
+  return rc;
+}
+
+int tizspotify::play_current_user_top_artists ()
+{
+  int rc = 0;
+  try_catch_wrapper (py_spotify_proxy_.attr ("enqueue_user_top_artists") ());
+  return rc;
+}
+
+int tizspotify::play_current_user_playlist (const std::string &playlist)
+{
+  int rc = 0;
+  try_catch_wrapper (
+      py_spotify_proxy_.attr ("enqueue_user_playlist") (bp::object (playlist)));
   return rc;
 }
 

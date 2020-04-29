@@ -56,7 +56,7 @@ public:
   };
 
 public:
-  tizspotify ();
+  tizspotify (const std::string &user, const std::string &pass);
   ~tizspotify ();
 
   int init ();
@@ -79,6 +79,11 @@ public:
   int play_recommendations_by_track_id (const std::string &track_id);
   int play_recommendations_by_artist_id (const std::string &artist_id);
   int play_recommendations_by_genre (const std::string &genre);
+  int play_current_user_liked_tracks ();
+  int play_current_user_recent_tracks ();
+  int play_current_user_top_tracks ();
+  int play_current_user_top_artists ();
+  int play_current_user_playlist (const std::string &playlist);
 
   void set_playback_mode (const playback_mode mode);
   void set_explicit_track_filter (const explicit_track_filter filter);
@@ -107,6 +112,8 @@ private:
   void get_current_track_queue_index_and_length(int &index, int &length);
 
 private:
+  std::string user_;
+  std::string pass_;
   std::string current_uri_;
   std::string current_track_index_;
   std::string current_queue_length_;
