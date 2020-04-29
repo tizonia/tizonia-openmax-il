@@ -1414,6 +1414,31 @@ enqueue_playlist_items (spfysrc_prc_t * ap_prc)
             rc = tiz_spotify_play_recommendations_by_genre (ap_prc->p_spfy_web_, p_playlist);
           }
           break;
+        case OMX_AUDIO_SpotifyPlaylistTypeUserLikedTracks:
+          {
+            rc = tiz_spotify_play_current_user_liked_tracks (ap_prc->p_spfy_web_);
+          }
+          break;
+        case OMX_AUDIO_SpotifyPlaylistTypeUserRecentTracks:
+          {
+            rc = tiz_spotify_play_current_user_recent_tracks (ap_prc->p_spfy_web_);
+          }
+          break;
+        case OMX_AUDIO_SpotifyPlaylistTypeUserTopTracks:
+          {
+            rc = tiz_spotify_play_current_user_top_tracks (ap_prc->p_spfy_web_);
+          }
+          break;
+        case OMX_AUDIO_SpotifyPlaylistTypeUserTopArtists:
+          {
+            rc = tiz_spotify_play_current_user_top_artists (ap_prc->p_spfy_web_);
+          }
+          break;
+        case OMX_AUDIO_SpotifyPlaylistTypeUserPlaylist:
+          {
+            rc = tiz_spotify_play_current_user_playlist (ap_prc->p_spfy_web_, p_playlist);
+          }
+          break;
         default:
           {
             assert (0);
@@ -1582,7 +1607,9 @@ spfysrc_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
     tiz_srv_timer_watcher_init (p_prc, &(p_prc->p_session_timer_)));
 
   /* Instantiate the spotify web api proxy */
-  on_spotifyweb_error_ret_omx_oom (tiz_spotify_init (&(p_prc->p_spfy_web_)));
+  on_spotifyweb_error_ret_omx_oom (tiz_spotify_init (
+    &(p_prc->p_spfy_web_), (const char *) p_prc->session_.cUserName,
+    (const char *) p_prc->session_.cUserPassword));
 
   /* Set explicit track filter */
   tiz_spotify_set_explicit_track_filter (
