@@ -28,6 +28,7 @@ import random
 import unicodedata
 import re
 import spotipy
+import spotipy.util as util
 import configparser
 from spotipy.oauth2 import SpotifyClientCredentials
 from fuzzywuzzy import process
@@ -193,19 +194,22 @@ class TrackInfo(object):
         """ class members. """
         logging.info("TrackInfo")
         self.title = track["name"]
-        self.artist = track["artists"][0]["name"]
-        self.artist_uri = track["artists"][0]["uri"]
+        self.artist = track["artists"][0]["name"] if track.get("artists") else ""
+        self.artist_uri = track["artists"][0]["uri"] if track.get("artists") else ""
         self.album = track["album"]["name"] if track.get("album") else album_name
         self.album_uri = (
             track["album"]["uri"]
             if track.get("album") and track.get("album").get("uri")
             else ""
         )
-        self.release_date = (
-            track["album"]["release_date"]
-            if track.get("album") and track.get("album").get("release_date")
-            else "n/a"
-        )
+        if track.get("release_date"):
+            self.release_date = track["release_date"]
+        else:
+            self.release_date = (
+                track["album"]["release_date"]
+                if track.get("album") and track.get("album").get("release_date")
+                else "n/a"
+            )
         self.duration = track["duration_ms"] / 1000 if track["duration_ms"] else 0
         self.uri = track["uri"]
         self.thumb_url = (
@@ -225,9 +229,9 @@ class tizspotifyproxy(object):
 
     SPOTIPY_CLIENT_SECRET = "69a32dec47b34e42a72e6a1bde457d65"
     SPOTIPY_CLIENT_ID = "a86ba5bbc8484c56b13c01491aa80edc"
-    SPOTIPY_REDIRECT_URI = "https://tizonia.org"
+    SPOTIPY_REDIRECT_URI = "http://localhost:8080"
 
-    def __init__(self):
+    def __init__(self, user, password):
         self.queue = list()
         self.queue_index = -1
         self.play_queue_order = list()
@@ -237,10 +241,8 @@ class tizspotifyproxy(object):
         self.current_explicit_filter_mode = self.explicit_filter_modes.DISALLOW
         self.ntracks_removed_from_queue = 0
         self.now_playing_track = None
-        credentials = SpotifyClientCredentials(
-            client_id=self.SPOTIPY_CLIENT_ID, client_secret=self.SPOTIPY_CLIENT_SECRET
-        )
-        self._spotify = spotipy.Spotify(client_credentials_manager=credentials)
+        self.user = user
+        self._spotify = None  # Lazily initialized
 
     def set_play_mode(self, mode):
         """ Set the playback mode.
@@ -274,6 +276,7 @@ class tizspotifyproxy(object):
         logging.info("arg : %s", arg_dec)
         print_msg("[Spotify] [Track search] '{0}'.".format(arg_dec))
         try:
+            self._login_with_client_credentials()
             count = len(self.queue)
             results = self._spotify.search(arg_dec, limit=20, offset=0, type="track")
             tracks = results["tracks"]
@@ -306,6 +309,7 @@ class tizspotifyproxy(object):
         logging.info("arg : %s", arg_dec)
         print_msg("[Spotify] [Artist search] '{0}'.".format(arg_dec))
         try:
+            self._login_with_client_credentials()
             count = len(self.queue)
             artist = self._search_artists(arg_dec)
 
@@ -354,6 +358,7 @@ class tizspotifyproxy(object):
         logging.info("arg : %s", arg_dec)
         print_msg("[Spotify] [Album search] '{0}'.".format(arg_dec))
         try:
+            self._login_with_client_credentials()
             count = len(self.queue)
             results = self._spotify.search(arg_dec, limit=10, offset=0, type="album")
             albums = results["albums"]
@@ -386,12 +391,13 @@ class tizspotifyproxy(object):
         arg_dec = arg
         logging.info("arg : %s", arg_dec)
         try:
+            self._login_with_client_credentials()
             count = len(self.queue)
             playlist = None
             playlist_name = None
             playlist_dict = dict()
             playlist_names = list()
-            results = self._spotify.search(arg_dec, limit=10, offset=0, type="playlist")
+            results = self._spotify.search(arg_dec, limit=20, offset=0, type="playlist")
             playlists = results["playlists"]
             for i, pl in enumerate(playlists["items"]):
                 if pl:
@@ -457,20 +463,16 @@ class tizspotifyproxy(object):
         try:
             count = len(self.queue)
 
-            if owner != "anyuser":
+            if owner != "anyuser" and owner != self.user:
+                self._login_with_client_credentials()
                 playlist = self._search_playlist(arg_dec, owner, is_featured=False)
                 if playlist:
                     results = self._spotify.user_playlist(
                         owner, playlist["id"], fields="tracks,next"
                     )
                     self._enqueue_playlist(results)
-
-            if count == len(self.queue) and owner != "anyuser":
-                print_adv(
-                    "[Spotify] [Playlist search] '{0}' not found in the user's library. ".format(
-                        arg_dec
-                    )
-                )
+            elif owner == self.user:
+                self.enqueue_user_playlist(arg)
 
             if count == len(self.queue) or owner == "anyuser":
                 self.enqueue_global_playlist(arg)
@@ -499,6 +501,7 @@ class tizspotifyproxy(object):
         arg_dec = arg
         logging.info("arg : %s", arg_dec)
         try:
+            self._login_with_client_credentials()
             count = len(self.queue)
             artist = self._search_artists(arg_dec)
 
@@ -530,6 +533,7 @@ class tizspotifyproxy(object):
         logging.info("arg : %s", arg_dec)
         print_msg("[Spotify] [Featured playlist search] '{0}'.".format(arg_dec))
         try:
+            self._login_with_client_credentials()
             count = len(self.queue)
             playlist = self._search_playlist(arg_dec, owner=None, is_featured=True)
             if playlist:
@@ -563,6 +567,7 @@ class tizspotifyproxy(object):
         logging.info("arg : %s", arg_dec)
         print_msg("[Spotify] [New Releases search] '{0}'.".format(arg_dec))
         try:
+            self._login_with_client_credentials()
             count = len(self.queue)
             album = None
             album_name = None
@@ -611,6 +616,43 @@ class tizspotifyproxy(object):
                 )
             )
 
+#
+# Unfortunately, podcasts URLs are not supported by libspotify
+#
+#     def enqueue_show(self, arg):
+#         """Obtain a show/podcast from Spotify and add all its tracks to the playback
+#         queue.
+
+#         :param arg: a show/podcast search term
+
+#         """
+#         arg_dec = arg
+#         logging.info("arg : %s", arg_dec)
+#         print_msg("[Spotify] [Podcast search] '{0}'.".format(arg_dec))
+#         try:
+#             self._login_with_user_token('user-read-playback-position')
+#             count = len(self.queue)
+#             results = self._spotify.search(arg_dec, limit=10, offset=0, type="show")
+#             shows = results["shows"]
+#             for i, show in enumerate(shows["items"]):
+#                 if show:
+#                     self._enqueue_show(show)
+#                 break
+
+#             self._remove_explicit_tracks()
+#             if count == len(self.queue):
+#                 raise ValueError
+
+#             self._update_play_queue_order()
+
+        except ValueError:
+            raise ValueError(
+                str(
+                    "Show not found : '%s' (or no suitable tracks in queue)"
+                    % to_ascii(arg_dec)
+                )
+            )
+
     def enqueue_track_id(self, id):
         """Add an audio track to the playback queue.
 
@@ -620,6 +662,7 @@ class tizspotifyproxy(object):
         logging.info("id : %s", id)
         print_msg("[Spotify] [Track id] '{0}'.".format(id))
         try:
+            self._login_with_client_credentials()
             count = len(self.queue)
             track = self._spotify.track(id)
 
@@ -646,6 +689,7 @@ class tizspotifyproxy(object):
         logging.info("id : %s", id)
         print_msg("[Spotify] [Artist id] '{0}'.".format(id))
         try:
+            self._login_with_client_credentials()
             count = len(self.queue)
             artist = self._spotify.artist(id)
 
@@ -672,6 +716,7 @@ class tizspotifyproxy(object):
         logging.info("id : %s", id)
         print_msg("[Spotify] [Album id] '{0}'.".format(id))
         try:
+            self._login_with_client_credentials()
             count = len(self.queue)
             album = self._spotify.album(id)
 
@@ -701,6 +746,7 @@ class tizspotifyproxy(object):
         logging.info("id : %s", id)
         print_msg("[Spotify] [Playlist id] '{0}' (owner: {1}).".format(id, owner))
         try:
+            self._login_with_client_credentials()
             count = len(self.queue)
             playlist = self._spotify.user_playlist(owner, id)
 
@@ -727,6 +773,7 @@ class tizspotifyproxy(object):
         logging.info("id : %s", id)
         print_msg("[Spotify] [Recomendations by track id] '{0}'.".format(id))
         try:
+            self._login_with_client_credentials()
             count = len(self.queue)
             track_seed = list()
             track_seed.append(id)
@@ -757,6 +804,7 @@ class tizspotifyproxy(object):
         logging.info("id : %s", id)
         print_msg("[Spotify] [Recomendations by artist id] '{0}'.".format(id))
         try:
+            self._login_with_client_credentials()
             count = len(self.queue)
             artist_seed = list()
             artist_seed.append(id)
@@ -788,6 +836,7 @@ class tizspotifyproxy(object):
         logging.info("id : %s", arg_dec)
         print_msg("[Spotify] [Recomendations by genre] '{0}'.".format(arg_dec))
         try:
+            self._login_with_client_credentials()
             count = len(self.queue)
             genre_seed = list()
             genre_name = None
@@ -830,6 +879,162 @@ class tizspotifyproxy(object):
 
         except ValueError:
             raise ValueError(str("Genre not found : %s" % to_ascii(arg_dec)))
+
+    def enqueue_user_liked_tracks(self):
+        """Search the current user's liked tracks and add them to the playback queue.
+
+        """
+        print_msg("[Spotify] [{0}'s Liked Tracks].".format(self.user))
+        try:
+            self._login_with_user_token("user-library-read")
+            count = len(self.queue)
+            tracks = self._spotify.current_user_saved_tracks(limit=50, offset=0)
+            for i, track in enumerate(tracks["items"]):
+                self._enqueue_track(track["track"])
+
+            self._remove_explicit_tracks()
+            if count == len(self.queue):
+                logging.info("no tracks found : %s", self.user)
+                raise ValueError
+
+            self._update_play_queue_order()
+
+        except ValueError:
+            raise ValueError(
+                str(
+                    "No tracks found : %s (or no suitable tracks in queue)"
+                    % to_ascii(self.user)
+                )
+            )
+
+    def enqueue_user_recent_tracks(self):
+        """Search the current user's recent tracks and add them to the playback queue.
+
+        """
+        print_msg("[Spotify] [{0}'s Recently Played].".format(self.user))
+        try:
+            self._login_with_user_token("user-read-recently-played")
+            count = len(self.queue)
+            tracks = self._spotify.current_user_recently_played(limit=50)
+            for i, track in enumerate(tracks["items"]):
+                self._enqueue_track(track["track"])
+
+            self._remove_explicit_tracks()
+            if count == len(self.queue):
+                logging.info("no tracks found : %s", self.user)
+                raise ValueError
+
+            self._update_play_queue_order()
+
+        except ValueError:
+            raise ValueError(
+                str(
+                    "No tracks found : %s (or no suitable tracks in queue)"
+                    % to_ascii(self.user)
+                )
+            )
+
+    def enqueue_user_top_tracks(self):
+        """Search the current user's top tracks and add them to the playback queue.
+
+        """
+        print_msg("[Spotify] [{0}'s Top Tracks].".format(self.user))
+        try:
+            self._login_with_user_token("user-top-read")
+            count = len(self.queue)
+            tracks = self._spotify.current_user_top_tracks(limit=50)
+            for i, track in enumerate(tracks["items"]):
+                self._enqueue_track(track)
+
+            self._remove_explicit_tracks()
+            if count == len(self.queue):
+                logging.info("no tracks found : %s", self.user)
+                raise ValueError
+
+            self._update_play_queue_order()
+
+        except ValueError:
+            raise ValueError(
+                str(
+                    "No tracks found : %s (or no suitable tracks in queue)"
+                    % to_ascii(self.user)
+                )
+            )
+
+    def enqueue_user_top_artists(self):
+        """Search the current user's top artists and add their top tracks to the
+        playback queue.
+
+        """
+        print_msg("[Spotify] [{0}'s Top Artists].".format(self.user))
+        try:
+            self._login_with_user_token("user-top-read")
+            count = len(self.queue)
+            artists = self._spotify.current_user_top_artists(limit=20)
+            for i, artist in enumerate(artists["items"]):
+                self._enqueue_artist(artist, include_albums=False)
+
+            self._remove_explicit_tracks()
+            if count == len(self.queue):
+                logging.info("no tracks found : %s", self.user)
+                raise ValueError
+
+            self._update_play_queue_order()
+
+        except ValueError:
+            raise ValueError(
+                str(
+                    "No tracks found : %s (or no suitable tracks in queue)"
+                    % to_ascii(self.user)
+                )
+            )
+
+    def enqueue_user_playlist(self, arg):
+        """Add all audio tracks in a Spotify playlist to the playback queue.
+
+        :param arg: a playlist search term
+
+        """
+        arg_dec = arg
+        logging.info("arg : %s", arg_dec)
+        print_msg(
+            "[Spotify] [Playlist search] '{0}' (owner: {1}).".format(arg_dec, self.user)
+        )
+        try:
+            count = len(self.queue)
+            owner = self.user
+
+            self._login_with_user_token("playlist-read-private")
+            playlist = self._search_playlist(arg_dec, owner, is_featured=False)
+            if playlist:
+                results = self._spotify.user_playlist(
+                    owner, playlist["id"], fields="tracks,next"
+                )
+                self._enqueue_playlist(results)
+
+            if count == len(self.queue):
+                print_adv(
+                    "[Spotify] [Playlist search] '{0}' not found in the user's library. ".format(
+                        arg_dec
+                    )
+                )
+
+            if count == len(self.queue):
+                self.enqueue_global_playlist(arg)
+
+            self._remove_explicit_tracks()
+            if count == len(self.queue):
+                raise ValueError
+
+            self._update_play_queue_order()
+
+        except (ValueError):
+            raise ValueError(
+                str(
+                    "Playlist not found or no audio tracks in playlist : %s"
+                    % to_ascii(arg_dec)
+                )
+            )
 
     def current_track_title(self):
         """ Retrieve the current track's title.
@@ -1100,6 +1305,28 @@ class tizspotifyproxy(object):
             except:
                 pass
 
+#
+# Unfortunately, podcasts URLs are not supported by libspotify
+#
+#     def _enqueue_show(self, show):
+#         """ Add an show tracks to the playback queue.
+
+#         :param show: a show object
+
+#         """
+#         logging.info("_enqueue_show")
+#         if show:
+#             show_name = show["name"]
+#             print_wrn("[Spotify] [Show] '{0}'.".format(show_name))
+#             try:
+#                 results = self._spotify.show_episodes(show["id"], limit=50, offset=0)
+#                 for track in results["items"]:
+#                     #pprint(track)
+#                     track_info = TrackInfo(track, show_name)
+#                     self._add_to_playback_queue(track_info)
+#             except:
+#                 pass
+
     def _enqueue_playlist(self, playlist):
         """ Add an playlist tracks to the playback queue.
 
@@ -1169,6 +1396,8 @@ class tizspotifyproxy(object):
                 featured_playlists = self._spotify.featured_playlists()
                 if featured_playlists:
                     playlists = featured_playlists["playlists"]
+            elif owner == self.user:
+                playlists = self._spotify.current_user_playlists()
             else:
                 playlists = self._spotify.user_playlists(owner)
             while playlists:
@@ -1301,6 +1530,46 @@ class tizspotifyproxy(object):
             )
         queue_index = len(self.queue)
         self.queue.append(track)
+
+    def _login_with_client_credentials(self):
+        """ Create a Spotify object that access the service with the client's credentials. """
+
+        credentials = SpotifyClientCredentials(
+            client_id=self.SPOTIPY_CLIENT_ID, client_secret=self.SPOTIPY_CLIENT_SECRET
+        )
+        self._spotify = spotipy.Spotify(client_credentials_manager=credentials)
+
+    def _login_with_user_token(self, scope):
+        """Create a Spotify object that access the service with the users token and the
+        Spotify scope.
+
+        """
+
+        # scope = 'user-top-read'
+        # scope = 'user-library-read'
+        # scope = 'playlist-read-collaborative'
+        # scope = 'playlist-read-private'
+        # scope = 'user-read-recently-played'
+
+        auth_cache = os.path.join(
+            os.getenv("HOME"),
+            ".config/tizonia/"
+            + ".spotify-"
+            + str(self.user)
+            + "-auth-token-"
+            + str(scope),
+        )
+        token = util.prompt_for_user_token(
+            self.user,
+            scope,
+            self.SPOTIPY_CLIENT_ID,
+            self.SPOTIPY_CLIENT_SECRET,
+            self.SPOTIPY_REDIRECT_URI,
+            cache_path=auth_cache,
+            oauth_manager=None,
+            show_dialog=False,
+        )
+        self._spotify = spotipy.Spotify(auth=token)
 
 
 if __name__ == "__main__":
