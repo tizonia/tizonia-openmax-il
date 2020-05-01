@@ -1409,6 +1409,16 @@ enqueue_playlist_items (spfysrc_prc_t * ap_prc)
             rc = tiz_spotify_play_recommendations_by_artist_id (ap_prc->p_spfy_web_, p_playlist);
           }
           break;
+        case OMX_AUDIO_SpotifyPlaylistTypeRecommendationsByTrack:
+          {
+            rc = tiz_spotify_play_recommendations_by_track (ap_prc->p_spfy_web_, p_playlist);
+          }
+          break;
+        case OMX_AUDIO_SpotifyPlaylistTypeRecommendationsByArtist:
+          {
+            rc = tiz_spotify_play_recommendations_by_artist (ap_prc->p_spfy_web_, p_playlist);
+          }
+          break;
         case OMX_AUDIO_SpotifyPlaylistTypeRecommendationsByGenre:
           {
             rc = tiz_spotify_play_recommendations_by_genre (ap_prc->p_spfy_web_, p_playlist);
