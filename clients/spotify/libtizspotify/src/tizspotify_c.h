@@ -378,6 +378,38 @@ extern "C"
                                                      const char *ap_artist_id);
 
   /**
+   * Find Spotify recommendations by track name the playback queue.
+   *
+   * After calling this method, the various tiz_spotify_get* methods can be
+   * used to interact with the playback queue.
+   *
+   * @ingroup libtizspotify
+   *
+   * @param ap_spotify The tiz_spotify handle.
+   * @param ap_track_id A Spotify track ID, URI, or URL.
+   *
+   * @return 0 on success
+   */
+  int tiz_spotify_play_recommendations_by_track (tiz_spotify_t *ap_spotify,
+                                                    const char *ap_track_id);
+
+  /**
+   * Find Spotify recommendations by artist name to the playback queue.
+   *
+   * After calling this method, the various tiz_spotify_get* methods can be
+   * used to interact with the playback queue.
+   *
+   * @ingroup libtizspotify
+   *
+   * @param ap_spotify The tiz_spotify handle.
+   * @param ap_artist_id A Spotify artist ID, URI, or URL.
+   *
+   * @return 0 on success
+   */
+  int tiz_spotify_play_recommendations_by_artist (tiz_spotify_t *ap_spotify,
+                                                  const char *ap_artist_id);
+
+  /**
    * Find Spotify recommendations by genre and add artists to the playback
    * queue.
    *

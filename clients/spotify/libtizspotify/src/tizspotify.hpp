@@ -78,6 +78,8 @@ public:
   int play_new_releases (const std::string &album);
   int play_recommendations_by_track_id (const std::string &track_id);
   int play_recommendations_by_artist_id (const std::string &artist_id);
+  int play_recommendations_by_track (const std::string &track);
+  int play_recommendations_by_artist (const std::string &artist);
   int play_recommendations_by_genre (const std::string &genre);
   int play_current_user_liked_tracks ();
   int play_current_user_recent_tracks ();

@@ -290,6 +290,22 @@ int tizspotify::play_recommendations_by_artist_id (const std::string &artist_id)
   return rc;
 }
 
+int tizspotify::play_recommendations_by_track (const std::string &track)
+{
+  int rc = 0;
+  try_catch_wrapper (py_spotify_proxy_.attr (
+      "enqueue_recommendations_by_track") (bp::object (track)));
+  return rc;
+}
+
+int tizspotify::play_recommendations_by_artist (const std::string &artist)
+{
+  int rc = 0;
+  try_catch_wrapper (py_spotify_proxy_.attr (
+      "enqueue_recommendations_by_artist") (bp::object (artist)));
+  return rc;
+}
+
 int tizspotify::play_recommendations_by_genre (const std::string &genre)
 {
   int rc = 0;

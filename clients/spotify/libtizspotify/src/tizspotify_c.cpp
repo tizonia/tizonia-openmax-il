@@ -264,6 +264,22 @@ extern "C" int tiz_spotify_play_recommendations_by_artist_id (
   return ap_spotify->p_proxy_->play_recommendations_by_artist_id (ap_artist_id);
 }
 
+extern "C" int tiz_spotify_play_recommendations_by_track (
+    tiz_spotify_t *ap_spotify, const char *ap_track)
+{
+  assert (ap_spotify);
+  assert (ap_spotify->p_proxy_);
+  return ap_spotify->p_proxy_->play_recommendations_by_track (ap_track);
+}
+
+extern "C" int tiz_spotify_play_recommendations_by_artist (
+    tiz_spotify_t *ap_spotify, const char *ap_artist)
+{
+  assert (ap_spotify);
+  assert (ap_spotify->p_proxy_);
+  return ap_spotify->p_proxy_->play_recommendations_by_artist (ap_artist);
+}
+
 extern "C" int tiz_spotify_play_recommendations_by_genre (
     tiz_spotify_t *ap_spotify, const char *ap_genre)
 {
