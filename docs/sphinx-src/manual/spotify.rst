@@ -127,6 +127,12 @@ OPTIONS
 ``--spotify-recommendations-by-artist-id arg``
     Play Spotify recommendations by artist ID, URI or URL.
 
+``--spotify-recommendations-by-track arg``
+    Play Spotify recommendations by track name.
+
+``--spotify-recommendations-by-artist arg``
+    Play Spotify recommendations by artist name.
+
 ``--spotify-recommendations-by-genre arg``
     Play Spotify recommendations by genre name.
 
@@ -147,7 +153,7 @@ OPTIONS
     Daily Mixes and Discover Weekly).
 
     Note that Daily Mixes and Discover Weekly playlists need to be 'liked'
-    beforehand in order to be found by the search performed on the user
+    beforehand in order to be found by a search performed on the user
     library.
 
 
@@ -160,8 +166,6 @@ EXAMPLES
 
    $ tizonia --spotify-album 'the greatest showman'
 
-   $ tizonia --spotify-recommendations-by-track-id 3MrRksHupTVEQ7YbA0FsZK
-
    # Search and play a *public* playlist owned by the current user
    $ tizonia --spotify-playlist 'Summer 2019'
 
@@ -171,3 +175,23 @@ EXAMPLES
    # Globally search and play a *public* playlist on Spotify (Tizonia will play
    # the best match in the list returned by the Spotify service)
    $ tizonia --spotify-playlist 'best metal 2000s' --spotify-owner 'anyuser'
+
+   # Play recommended tracks by seeding the search with a specific track and artist
+   $ tizonia --spotify-recommendations-by-track 'Word up by cameo'
+   $ tizonia --spotify-recommendations-by-track 'Word up by Gun'
+   $ tizonia --spotify-recommendations-by-track 'Word up by Korn'
+
+   # Play recommended tracks by seeding the search with a specific artist
+   $ tizonia --spotify-recommendations-by-artist 'queen'
+
+   # Play recommended tracks by seeding the search with a specific Spotify track id/uri/url
+   $ tizonia --spotify-recommendations-by-track-id 3MrRksHupTVEQ7YbA0FsZK
+   $ tizonia --spotify-recommendations-by-track-id 'spotify:track:3MrRksHupTVEQ7YbA0FsZK'
+   $ tizonia --spotify-recommendations-by-track-id 'https://open.spotify.com/track/3MrRksHupTVEQ7YbA0FsZK'
+
+   # Play the user's Discover Weekly and Daily Mixes in the user's
+   # library. Note that these playlists must have been 'liked' beforehand
+   # on Spotify
+   $ tizonia --spotify-user-playlist "Discover Weekly"
+   $ tizonia --spotify-user-playlist "Daily Mix 1"
+   $ tizonia --spotify-user-playlist "Daily Mix 4"
