@@ -239,6 +239,8 @@ namespace tiz
     std::string spotify_new_releases_;
     std::string spotify_recommendations_by_track_id_;
     std::string spotify_recommendations_by_artist_id_;
+    std::string spotify_recommendations_by_track_;
+    std::string spotify_recommendations_by_artist_;
     std::string spotify_recommendations_by_genre_;
     std::string spotify_user_liked_tracks_;
     std::string spotify_user_recent_tracks_;

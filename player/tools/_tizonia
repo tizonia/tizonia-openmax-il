@@ -40,6 +40,8 @@ _arguments -S -s \
   '--spotify-new-releases[Search and play a newly released album from Spotify.]' \
   '--spotify-recommendations-by-track-id[Play Spotify recommendations by track ID, URI or URL.]' \
   '--spotify-recommendations-by-artist-id[Play Spotify recommendations by artist ID, URI or URL.]' \
+  '--spotify-recommendations-by-track[Play Spotify recommendations by track name.]' \
+  '--spotify-recommendations-by-artist[Play Spotify recommendations by artist name.]' \
   '--spotify-recommendations-by-genre[Play Spotify recommendations by genre name.]' \
   '--spotify-user-liked-tracks[Play the user liked tracks.]' \
   '--spotify-user-recent-tracks[Play the user most recently played tracks.]' \
