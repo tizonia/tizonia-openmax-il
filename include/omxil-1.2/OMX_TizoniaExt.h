@@ -310,6 +310,8 @@ typedef enum OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE {
     OMX_AUDIO_SpotifyPlaylistTypeNewReleases, /**< New releases album search. */
     OMX_AUDIO_SpotifyPlaylistTypeRecommendationsByTrackId, /**< Find recommendations by track ID, URI or URL. */
     OMX_AUDIO_SpotifyPlaylistTypeRecommendationsByArtistId, /**< Find recommendations by artist ID, URI or URL. */
+    OMX_AUDIO_SpotifyPlaylistTypeRecommendationsByTrack, /**< Find recommendations by track name. */
+    OMX_AUDIO_SpotifyPlaylistTypeRecommendationsByArtist, /**< Find recommendations by artist name. */
     OMX_AUDIO_SpotifyPlaylistTypeRecommendationsByGenre, /**< Find recommendations by genre name. */
     OMX_AUDIO_SpotifyPlaylistTypeUserLikedTracks, /**< The current user's liked tracks. */
     OMX_AUDIO_SpotifyPlaylistTypeUserRecentTracks, /**< The current user's most recent tracks. */
