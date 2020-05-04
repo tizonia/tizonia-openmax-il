@@ -64,6 +64,8 @@ struct spfysrc_prc
   OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE session_;
   OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE playlist_;
   OMX_TIZONIA_PLAYLISTSKIPTYPE playlist_skip_;
+  OMX_TIZONIA_PLAYLISTPOSITIONTYPE playlist_position_;
+  OMX_INDEXTYPE last_changed_config_;
   OMX_S32 audio_coding_type_;
   OMX_U32 num_channels_;
   OMX_U32 samplerate_;

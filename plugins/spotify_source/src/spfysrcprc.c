@@ -59,7 +59,7 @@
 #define SPFYSRC_MAX_STRING_SIZE 2 * OMX_MAX_STRINGNAME_SIZE
 #define SPFYSRC_MAX_WAIT_TIME_SECONDS 25
 
-#define SPFYSRC_TRACK "spotify:track:7tAanIARL1guE35AUQzFnj"
+#define IGNORE_VALUE INT_MAX
 
 /* This macro assumes the existence of an "ap_prc" local variable */
 #define goto_end_on_sp_error(expr)                         \
@@ -86,8 +86,8 @@ omx_preferred_bitrate_to_spfy (
 static void
 end_of_track_handler (OMX_PTR ap_prc, tiz_event_pluggable_t * ap_event);
 static OMX_ERRORTYPE
-obtain_next_url (spfysrc_prc_t * ap_prc, int a_skip_value,
-                 bool a_need_url_removed);
+obtain_next_url (spfysrc_prc_t * ap_prc, const int a_skip_value,
+                 const int a_position_value, bool a_need_url_removed);
 
 #define on_spotifyweb_error_ret_omx_oom(expr)                                \
   do                                                                         \
@@ -180,6 +180,8 @@ reset_stream_parameters (spfysrc_prc_t * ap_prc)
   assert (ap_prc);
   TIZ_INIT_OMX_STRUCT (ap_prc->playlist_skip_);
   ap_prc->playlist_skip_.nValue = 1;
+  TIZ_INIT_OMX_STRUCT (ap_prc->playlist_position_);
+  ap_prc->last_changed_config_ = OMX_IndexMax;
   ap_prc->need_url_removed_ = false;
   tiz_buffer_clear (ap_prc->p_store_);
   ap_prc->initial_cache_bytes_
@@ -1236,10 +1238,31 @@ end_of_track_handler (OMX_PTR ap_prc, tiz_event_pluggable_t * ap_event)
           p_prc->p_sp_track_ = NULL;
         }
 
-      p_prc->playlist_skip_.nValue > 0 ? obtain_next_url (p_prc, 1, p_prc->need_url_removed_)
-        : obtain_next_url (p_prc, -1, p_prc->need_url_removed_);
-      p_prc->need_url_removed_ = false;
-      p_prc->playlist_skip_.nValue = 1;
+      if (OMX_TizoniaIndexConfigPlaylistSkip == p_prc->last_changed_config_)
+        {
+          printf("p_prc->playlist_skip_.nValue = %ld\n", p_prc->playlist_skip_.nValue);
+          p_prc->playlist_skip_.nValue > 0
+            ? obtain_next_url (p_prc, 1, IGNORE_VALUE, p_prc->need_url_removed_)
+            : obtain_next_url (p_prc, -1, IGNORE_VALUE,
+                               p_prc->need_url_removed_);
+          p_prc->need_url_removed_ = false;
+          p_prc->playlist_skip_.nValue = 1;
+          p_prc->last_changed_config_ = OMX_IndexMax;
+        }
+      else if (OMX_TizoniaIndexConfigPlaylistPosition
+               == p_prc->last_changed_config_)
+        {
+          obtain_next_url (p_prc, IGNORE_VALUE,
+                           p_prc->playlist_position_.nPosition,
+                           p_prc->need_url_removed_);
+          p_prc->need_url_removed_ = false;
+          p_prc->playlist_position_.nPosition = 0;
+          p_prc->last_changed_config_ = OMX_IndexMax;
+        }
+      else
+        {
+          obtain_next_url (p_prc, 1, IGNORE_VALUE, false);
+        }
 
       start_playback (p_prc);
       (void) process_spotify_session_events (p_prc);
@@ -1460,8 +1483,8 @@ enqueue_playlist_items (spfysrc_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
-obtain_next_url (spfysrc_prc_t * ap_prc, int a_skip_value,
-                 bool a_need_url_removed)
+obtain_next_url (spfysrc_prc_t * ap_prc, const int a_skip_value,
+                 const int a_position_value, const bool a_need_url_removed)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   const long pathname_max = PATH_MAX + NAME_MAX;
@@ -1481,11 +1504,24 @@ obtain_next_url (spfysrc_prc_t * ap_prc, int a_skip_value,
     = sizeof (OMX_PARAM_CONTENTURITYPE) + pathname_max + 1;
   ap_prc->p_uri_param_->nVersion.nVersion = OMX_VERSION;
 
+
   {
-    const char * p_next_url
-      = a_skip_value > 0
+    const char * p_next_url = NULL;
+    if (IGNORE_VALUE != a_skip_value)
+      {
+        p_next_url
+          = a_skip_value > 0
           ? tiz_spotify_get_next_uri (ap_prc->p_spfy_web_, a_need_url_removed)
           : tiz_spotify_get_prev_uri (ap_prc->p_spfy_web_, a_need_url_removed);
+      }
+    else if (IGNORE_VALUE != a_position_value)
+      {
+        printf (
+          "a_position_value %d - queue len %d\n", a_position_value,
+          tiz_spotify_get_current_queue_length_as_int (ap_prc->p_spfy_web_));
+        p_next_url
+          = tiz_spotify_get_uri (ap_prc->p_spfy_web_, a_position_value);
+      }
 
     ap_prc->ntracks_
         = tiz_spotify_get_current_queue_length_as_int (ap_prc->p_spfy_web_);
@@ -1630,7 +1666,8 @@ spfysrc_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
   /* Create playback queue */
   p_prc->need_url_removed_ = false;
   tiz_check_omx (enqueue_playlist_items (p_prc));
-  tiz_check_omx (obtain_next_url (p_prc, 1, p_prc->need_url_removed_));
+  tiz_check_omx (obtain_next_url (p_prc, 1, IGNORE_VALUE,
+                                  p_prc->need_url_removed_));
 
   /* Create a spotify session */
   p_prc->sp_config_.cache_location
@@ -1857,7 +1894,36 @@ spfysrc_prc_config_change (void * ap_obj, OMX_U32 TIZ_UNUSED (a_pid),
 
       /* Let's process a fake end of track event */
       p_prc->need_url_removed_ = false;
+      p_prc->last_changed_config_ = OMX_TizoniaIndexConfigPlaylistSkip;
       process_spotify_event (p_prc, end_of_track_handler, p_prc->p_sp_session_);
+    }
+  else if (OMX_TizoniaIndexConfigPlaylistPosition == a_config_idx
+           && p_prc->p_sp_session_)
+    {
+      TIZ_INIT_OMX_STRUCT (p_prc->playlist_position_);
+      tiz_check_omx (tiz_api_GetConfig (
+        tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
+        OMX_TizoniaIndexConfigPlaylistPosition, &p_prc->playlist_position_));
+
+      /* Check that the requested position actually refers to a track in the
+         queue */
+      if (p_prc->playlist_position_.nPosition > 0
+          && p_prc->playlist_position_.nPosition
+               < tiz_spotify_get_current_queue_length_as_int (
+                 p_prc->p_spfy_web_))
+        {
+          if (p_prc->spotify_paused_)
+            {
+              /* Re-start spotify music delivery */
+              start_spotify (p_prc);
+            }
+
+          /* Let's process a fake end of track event */
+          p_prc->need_url_removed_ = false;
+          p_prc->last_changed_config_ = OMX_TizoniaIndexConfigPlaylistPosition;
+          process_spotify_event (p_prc, end_of_track_handler,
+                                 p_prc->p_sp_session_);
+        }
     }
   return rc;
 }
