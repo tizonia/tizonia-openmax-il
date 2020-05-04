@@ -80,6 +80,7 @@
 #define OMX_TizoniaIndexParamStreamingBuffer         OMX_IndexVendorStartUnused + 24 /**< reference: OMX_TIZONIA_STREAMINGBUFFERTYPE */
 #define OMX_TizoniaIndexParamAudioIheartSession      OMX_IndexVendorStartUnused + 25 /**< reference: OMX_TIZONIA_AUDIO_PARAM_IHEARTSESSIONTYPE */
 #define OMX_TizoniaIndexParamAudioIheartPlaylist     OMX_IndexVendorStartUnused + 26 /**< reference: OMX_TIZONIA_AUDIO_PARAM_IHEARTPLAYLISTTYPE */
+#define OMX_TizoniaIndexConfigPlaylistPosition       OMX_IndexVendorStartUnused + 27 /**< reference: OMX_TIZONIA_PLAYLISTPOSITIONTYPE */
 
 /**
  * OMX_AUDIO_CODINGTYPE extensions
@@ -113,13 +114,30 @@ typedef struct OMX_TIZONIA_PARAM_BUFFER_PREANNOUNCEMENTSMODETYPE
 } OMX_TIZONIA_PARAM_BUFFER_PREANNOUNCEMENTSMODETYPE;
 
 /**
- * Extension to jump to another track in a playlist.
+ * Extension to jump to another track in a playlist,
+ * an absolute position relative to the beginning of
+ * the playlist.
+ */
+
+typedef struct OMX_TIZONIA_PLAYLISTPOSITIONTYPE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_S32 nPosition;           /**< Relative to the beginning of the playlist.
+                                      Negative values or values greater than the
+                                      length of the playlist are not allowed. */
+} OMX_TIZONIA_PLAYLISTPOSITIONTYPE;
+
+/**
+ * Extension to jump to another track in a playlist,
+ * relative to the current position.
  */
 
 typedef struct OMX_TIZONIA_PLAYLISTSKIPTYPE {
     OMX_U32 nSize;
     OMX_VERSIONTYPE nVersion;
-    OMX_S32 nValue;              /**< Can be a positive or a negative value. Wrap-around use cases are allowed. */
+    OMX_S32 nValue;              /**< Can be a positive or a negative value,
+                                      relative to the current position.
+                                      Wrap-around use cases are allowed. */
 } OMX_TIZONIA_PLAYLISTSKIPTYPE;
 
 /**
