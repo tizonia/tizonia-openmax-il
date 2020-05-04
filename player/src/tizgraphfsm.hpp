@@ -257,7 +257,7 @@ namespace tiz
         struct transition_table : boost::mpl::vector<
           //                       Start             Event            Next                   Action                           Guard
           //    +-----------------+------------------+----------------+----------------------+--------------------------------+---------------------------+
-          boost::msm::front::Row < to_idle           , omx_trans_evt  , idle2loaded          , do_idle2loaded             , is_trans_complete         >,
+          boost::msm::front::Row < to_idle           , omx_trans_evt  , idle2loaded          , do_idle2loaded                 , is_trans_complete         >,
           boost::msm::front::Row < idle2loaded       , omx_trans_evt  , skip_exit            , do_skip                        , is_trans_complete         >
           //    +-----------------+------------------+----------------+----------------------+--------------------------------+---------------------------+
           > {};
@@ -316,6 +316,7 @@ namespace tiz
                                                                                                do_tear_down_tunnels,
                                                                                                do_destroy_graph> > , is_end_of_play       >,
         //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
+        boost::msm::front::Row < executing   , position_evt    , skipping                , do_store_position                              >,
         boost::msm::front::Row < executing   , skip_evt        , skipping                , do_store_skip                                  >,
         boost::msm::front::Row < executing   , seek_evt        , boost::msm::front::none , do_seek                                        >,
         boost::msm::front::Row < executing   , volume_step_evt , boost::msm::front::none , do_volume_step                                 >,

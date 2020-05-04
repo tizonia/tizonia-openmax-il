@@ -424,8 +424,9 @@ namespace tiz
                                                                                  tg::do_tear_down_tunnels,
                                                                                  tg::do_destroy_graph> >     , tg::is_end_of_play      >,
         //    +---+----------------+---------------------+-----------------+---------------------------------+--------------------------+
+        bmf::Row < tg::executing   , tg::position_evt    , skipping        , tg::do_store_position                                     >,
         bmf::Row < tg::executing   , tg::skip_evt        , skipping        , tg::do_store_skip                                         >,
-        bmf::Row < tg::executing   , tg::unload_evt      , tg::exe2idle    , tg::do_exe2idle                                       >,
+        bmf::Row < tg::executing   , tg::unload_evt      , tg::exe2idle    , tg::do_exe2idle                                           >,
         bmf::Row < tg::executing   , tg::omx_err_evt     , skipping        , bmf::none                                                 >,
         bmf::Row < tg::executing   , tg::omx_err_evt     , skipping        , tg::do_record_fatal_error       , tg::is_fatal_error      >,
         bmf::Row < tg::executing   , tg::omx_eos_evt     , skipping        , bmf::none                       , tg::is_last_eos         >,

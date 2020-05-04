@@ -281,6 +281,7 @@ namespace
   ETIZPlayUserInput player_wait_for_user_input (
       tiz::graphmgr::mgr_ptr_t mgr_ptr)
   {
+    int playlist_position = 0;
     while (1)
     {
       if (gb_daemon_mode)
@@ -294,6 +295,60 @@ namespace
           printf("\nValue is : %d\n",ch[0]);
           switch (ch[0])
             {
+            case '1':
+              {
+                playlist_position = (playlist_position * 10) + 1;
+              }
+              break;
+            case '2':
+              {
+                playlist_position = (playlist_position * 10) + 2;
+              }
+              break;
+            case '3':
+              {
+                playlist_position = (playlist_position * 10) + 3;
+              }
+              break;
+            case '4':
+              {
+                playlist_position = (playlist_position * 10) + 4;
+              }
+              break;
+            case '5':
+              {
+                playlist_position = (playlist_position * 10) + 5;
+              }
+              break;
+            case '6':
+              {
+                playlist_position = (playlist_position * 10) + 6;
+              }
+              break;
+            case '7':
+              {
+                playlist_position = (playlist_position * 10) + 7;
+              }
+              break;
+            case '8':
+              {
+                playlist_position = (playlist_position * 10) + 8;
+              }
+              break;
+            case '9':
+              {
+                playlist_position = (playlist_position * 10) + 9;
+              }
+              break;
+            case '0':
+              {
+                if (playlist_position != 0)
+                  {
+                    playlist_position = (playlist_position * 10) + 0;
+                  }
+              }
+              break;
+
             case 'q':
               return ETIZPlayUserQuit;
 
@@ -317,22 +372,26 @@ namespace
 
                   case 65:  // key up
                     mgr_ptr->volume_step (1);
+                    playlist_position = 0;
                     break;
 
                   case 66:  // key down
                     mgr_ptr->volume_step (-1);
+                    playlist_position = 0;
                     break;
 
                   case 53:  // page up
                     ch[0] = getch(); // skip
                     printf("\n      Value is : %d\n",ch[0]);
                     mgr_ptr->next ();
+                    playlist_position = 0;
                     break;
 
                   case 54:  // page down
                     ch[0] = getch(); // skip
                     printf("\n      Value is : %d\n",ch[0]);
                     mgr_ptr->prev ();
+                    playlist_position = 0;
                     break;
                   default:
                     // printf("\n        (not)Value is : %d\n",ch[0]);
@@ -343,26 +402,42 @@ namespace
 
             case ' ':
               mgr_ptr->pause ();
+              playlist_position = 0;
+              break;
+
+            case 'g':
+              {
+                if (playlist_position)
+                  {
+                    mgr_ptr->position (playlist_position);
+                    playlist_position = 0;
+                  }
+              }
               break;
 
             case 'm':
               mgr_ptr->mute ();
+              playlist_position = 0;
               break;
 
             case 'n':
               mgr_ptr->next ();
+              playlist_position = 0;
               break;
 
             case 'p':
               mgr_ptr->prev ();
+              playlist_position = 0;
               break;
 
             case '-':
               mgr_ptr->volume_step (-1);
+              playlist_position = 0;
               break;
 
             case '+':
               mgr_ptr->volume_step (1);
+              playlist_position = 0;
               break;
 
             default:

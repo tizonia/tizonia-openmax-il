@@ -120,6 +120,9 @@ namespace tiz
       static OMX_ERRORTYPE apply_playlist_jump (const OMX_HANDLETYPE handle,
                                                 const OMX_S32 jump);
 
+      static OMX_ERRORTYPE apply_playlist_position (const OMX_HANDLETYPE handle,
+                                                    const OMX_S32 pos);
+
       static OMX_ERRORTYPE disable_port (const OMX_HANDLETYPE handle,
                                          const OMX_U32 port_id);
       static OMX_ERRORTYPE enable_port (const OMX_HANDLETYPE handle,

@@ -131,6 +131,18 @@ namespace tiz
       OMX_ERRORTYPE prev ();
 
       /**
+       * Process a specific item in the playlist.
+       *
+       * @pre init() has been called on this manager.
+       *
+       * @param idx The index of the item in the playlist to be processed next.
+       *
+       * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
+       * success.
+       */
+      OMX_ERRORTYPE position (const int position);
+
+      /**
        * NOT IMPLEMENTED YET
        *
        * @pre init() has been called on this manager.

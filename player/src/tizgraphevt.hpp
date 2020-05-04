@@ -82,6 +82,14 @@ namespace tiz
       OMX_ERRORTYPE error_;
     };
 
+    struct position_evt
+    {
+      position_evt (const int a_pos) : pos_ (a_pos)
+      {
+      }
+      int pos_;
+    };
+
     struct skip_evt
     {
       skip_evt (const int a_jump) : jump_ (a_jump)

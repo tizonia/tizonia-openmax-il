@@ -144,9 +144,9 @@ namespace  // unnamed namespace
 tiz::playlist::playlist (const uri_lst_t &uri_list /* = uri_lst_t () */,
                          const bool shuffle /* = false */)
   : uri_list_ (uri_list),
-    current_index_ (0),
+    current_position_ (0),
     loop_playback_ (false),
-    sub_list_indexes_ (),
+    sub_list_positions_ (),
     current_sub_list_ (-1),
     shuffle_ (shuffle),
     extension_list_ (),
@@ -164,9 +164,9 @@ tiz::playlist::playlist (const uri_lst_t &uri_list /* = uri_lst_t () */,
 
 tiz::playlist::playlist (const playlist &copy_from)
   : uri_list_ (copy_from.uri_list_),
-    current_index_ (copy_from.current_index_),
+    current_position_ (copy_from.current_position_),
     loop_playback_ (copy_from.loop_playback_),
-    sub_list_indexes_ (copy_from.sub_list_indexes_),
+    sub_list_positions_ (copy_from.sub_list_positions_),
     current_sub_list_ (copy_from.current_sub_list_),
     shuffle_ (copy_from.shuffle_),
     extension_list_ (copy_from.extension_list_),
@@ -254,36 +254,36 @@ void tiz::playlist::skip (const int jump)
 {
   const int list_size = uri_list_.size ();
   TIZ_LOG (TIZ_PRIORITY_TRACE,
-           "jump [%d] current_index_ [%d]"
+           "jump [%d] current_position_ [%d]"
            " loop_playback [%s]",
-           jump, current_index_, loop_playback_ ? "YES" : "NO");
-  current_index_ += jump;
+           jump, current_position_, loop_playback_ ? "YES" : "NO");
+  current_position_ += jump;
 
   if (loop_playback ())
   {
-    if (current_index_ < 0)
+    if (current_position_ < 0)
     {
-      current_index_ = list_size - abs (current_index_);
+      current_position_ = list_size - abs (current_position_);
     }
-    else if (current_index_ >= list_size)
+    else if (current_position_ >= list_size)
     {
-      current_index_ %= list_size;
+      current_position_ %= list_size;
     }
   }
 
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "jump [%d] new index [%d]... [%s]", jump,
-           current_index_, current_index_ < list_size && current_index_ >= 0
-                               ? uri_list_[current_index_].c_str ()
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "jump [%d] new position [%d]... [%s]", jump,
+           current_position_, current_position_ < list_size && current_position_ >= 0
+                               ? uri_list_[current_position_].c_str ()
                                : "");
 }
 
 const std::string &tiz::playlist::get_current_uri () const
 {
   const int list_size = uri_list_.size ();
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "uri list size [%d] current_index_ [%d]...",
-           list_size, current_index_);
-  assert (current_index_ >= 0 && current_index_ < list_size);
-  return uri_list_[current_index_];
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "uri list size [%d] current_position_ [%d]...",
+           list_size, current_position_);
+  assert (current_position_ >= 0 && current_position_ < list_size);
+  return uri_list_[current_position_];
 }
 
 tiz::playlist tiz::playlist::obtain_next_sub_playlist (
@@ -298,7 +298,7 @@ tiz::playlist tiz::playlist::obtain_next_sub_playlist (
     assert (up_or_down < DirMax);
     if (up_or_down == DirUp)
     {
-      const int sub_lists = sub_list_indexes_.size () - 1;
+      const int sub_lists = sub_list_positions_.size () - 1;
       current_sub_list_++;
       if (current_sub_list_ >= sub_lists)
       {
@@ -309,23 +309,23 @@ tiz::playlist tiz::playlist::obtain_next_sub_playlist (
     {
       if (current_sub_list_ <= 0)
       {
-        current_sub_list_ = sub_list_indexes_.size () - 1;
+        current_sub_list_ = sub_list_positions_.size () - 1;
       }
       --current_sub_list_;
     }
 
-    size_t index1 = sub_list_indexes_[current_sub_list_];
-    size_t index2 = sub_list_indexes_[current_sub_list_ + 1];
-    uri_lst_t::const_iterator first = uri_list_.begin () + index1;
-    uri_lst_t::const_iterator last = uri_list_.begin () + index2;
+    size_t position1 = sub_list_positions_[current_sub_list_];
+    size_t position2 = sub_list_positions_[current_sub_list_ + 1];
+    uri_lst_t::const_iterator first = uri_list_.begin () + position1;
+    uri_lst_t::const_iterator last = uri_list_.begin () + position2;
 
     TIZ_LOG (TIZ_PRIORITY_TRACE,
-             "current_sub_list_ [%d] index1 [%d] index2_ [%d]...",
-             current_sub_list_, index1, index2);
+             "current_sub_list_ [%d] position1 [%d] position2_ [%d]...",
+             current_sub_list_, position1, position2);
 
     playlist new_list (uri_lst_t (first, last));
     assert (new_list.single_format ());
-    current_index_ = index1;
+    current_position_ = position1;
 
     return new_list;
   }
@@ -349,9 +349,9 @@ const uri_lst_t &tiz::playlist::get_uri_list () const
   return uri_list_;
 }
 
-int tiz::playlist::current_index () const
+int tiz::playlist::current_position () const
 {
-  return current_index_;
+  return current_position_;
 }
 
 int tiz::playlist::size () const
@@ -409,9 +409,9 @@ bool tiz::playlist::single_format () const
 
 bool tiz::playlist::before_begin () const
 {
-  bool before_begin = (current_index_ < 0);
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "current_index_ [%d] before begin? [%s]",
-           current_index_, before_begin ? "YES" : "NO");
+  bool before_begin = (current_position_ < 0);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "current_position_ [%d] before begin? [%s]",
+           current_position_, before_begin ? "YES" : "NO");
   return before_begin;
 }
 
@@ -419,13 +419,13 @@ bool tiz::playlist::past_end () const
 {
   const int list_size = uri_list_.size ();
   bool past_end = false;
-  if (current_index_ >= list_size)
+  if (current_position_ >= list_size)
   {
     past_end = true;
   }
   TIZ_LOG (TIZ_PRIORITY_TRACE,
-           "current_index_ [%d] uri_list_.size () [%d] past end? [%s]",
-           current_index_, list_size, past_end ? "YES" : "NO");
+           "current_position_ [%d] uri_list_.size () [%d] past end? [%s]",
+           current_position_, list_size, past_end ? "YES" : "NO");
   return past_end;
 }
 
@@ -444,36 +444,41 @@ bool tiz::playlist::shuffle () const
   return shuffle_;
 }
 
-void tiz::playlist::set_index (const int index)
+int tiz::playlist::position () const
+{
+  return current_position_;
+}
+
+void tiz::playlist::set_position (const int position)
 {
   if (!uri_list_.empty ())
   {
     const int list_size = size ();
-    int capped_index = index;
-    if (capped_index >= list_size)
+    int capped_position = position;
+    if (capped_position >= list_size)
     {
-      capped_index %= list_size;
+      capped_position %= list_size;
     }
-    else if (capped_index < 0)
+    else if (capped_position < 0)
     {
-      capped_index = list_size - abs (capped_index);
+      capped_position = list_size - abs (capped_position);
     }
 
-    assert (capped_index >= 0 && capped_index < list_size);
+    assert (capped_position >= 0 && capped_position < list_size);
     TIZ_LOG (TIZ_PRIORITY_TRACE,
-             "current_index_ [%d] index [%d] new index [%d]", current_index_,
-             index, capped_index);
-    current_index_ = capped_index;
+             "current_position_ [%d] position [%d] new position [%d]", current_position_,
+             position, capped_position);
+    current_position_ = capped_position;
   }
 }
 
-void tiz::playlist::erase_uri (const int index)
+void tiz::playlist::erase_uri (const int position)
 {
   const int list_size = size ();
-  assert (index < list_size);
-  if (index < list_size)
+  assert (position < list_size);
+  if (position < list_size)
   {
-    uri_list_.erase (uri_list_.begin () + index);
+    uri_list_.erase (uri_list_.begin () + position);
   }
 }
 
@@ -481,39 +486,39 @@ void tiz::playlist::scan_list ()
 {
   if (!uri_list_.empty ())
   {
-    int index = 0;
-    while (index < size ())
+    int position = 0;
+    while (position < size ())
     {
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "new sub list at index [%d]", index);
-      sub_list_indexes_.push_back (index);
-      index = find_next_sub_list (index);
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "new sub list at position [%d]", position);
+      sub_list_positions_.push_back (position);
+      position = find_next_sub_list (position);
     }
-    // For convenience, push one more index, a "last" index...
-    sub_list_indexes_.push_back (uri_list_.size ());
+    // For convenience, push one more position, a "last" position...
+    sub_list_positions_.push_back (uri_list_.size ());
 
     // Find out whether this is a single-format playlist.
     (void)single_format ();
   }
 }
 
-int tiz::playlist::find_next_sub_list (const int index) const
+int tiz::playlist::find_next_sub_list (const int position) const
 {
   const int list_size = uri_list_.size ();
-  int cur_idx = index;
-  assert (cur_idx < list_size);
+  int cur_pos = position;
+  assert (cur_pos < list_size);
 
   try
   {
     std::string current_extension (
-        boost::filesystem::path (uri_list_[cur_idx]).extension ().string ());
+        boost::filesystem::path (uri_list_[cur_pos]).extension ().string ());
     boost::algorithm::to_lower (current_extension);
 
     add_to_extension_list (extension_list_, current_extension);
 
-    for (; cur_idx < list_size; ++cur_idx)
+    for (; cur_pos < list_size; ++cur_pos)
     {
       std::string extension (
-          boost::filesystem::path (uri_list_[cur_idx]).extension ().string ());
+          boost::filesystem::path (uri_list_[cur_pos]).extension ().string ());
       boost::algorithm::to_lower (extension);
       if (!extension.compare (current_extension) == 0)
       {
@@ -523,16 +528,16 @@ int tiz::playlist::find_next_sub_list (const int index) const
   }
   catch (std::exception const &e)
   {
-    cur_idx = list_size;
+    cur_pos = list_size;
     TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s]", e.what ());
   }
   catch (...)
   {
-    cur_idx = list_size;
+    cur_pos = list_size;
     TIZ_LOG (TIZ_PRIORITY_ERROR, "[Unknown exception]");
   }
 
-  return cur_idx;
+  return cur_pos;
 }
 
 void tiz::playlist::print_info ()

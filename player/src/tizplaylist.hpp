@@ -59,7 +59,7 @@ namespace tiz
     const std::string & get_current_uri () const;
     uri_lst_t get_sublist (const int from, const int to) const;
     const uri_lst_t &get_uri_list () const;
-    int current_index () const;
+    int current_position () const;
     int size () const;
     bool empty () const;
     bool single_format () const;
@@ -68,8 +68,9 @@ namespace tiz
     bool loop_playback () const;
     void set_loop_playback (const bool loop_playback);
     bool shuffle () const;
-    void set_index (const int index);
-    void erase_uri (const int index);
+    int position () const;
+    void set_position (const int pos);
+    void erase_uri (const int position);
     void print_info ();
 
   private:
@@ -85,14 +86,14 @@ namespace tiz
   private:
 
     void scan_list ();
-    int find_next_sub_list (const int index) const;
+    int find_next_sub_list (const int position) const;
 
     // TODO: Possibly use a shared pointer here to make copy a less expensive
     // operation
     uri_lst_t uri_list_;
-    int current_index_;
+    int current_position_;
     bool loop_playback_;
-    std::vector<size_t> sub_list_indexes_;
+    std::vector<size_t> sub_list_positions_;
     int current_sub_list_;
     bool shuffle_;
     mutable file_extension_lst_t extension_list_;

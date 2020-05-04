@@ -75,6 +75,7 @@ graph::ops::ops (graph *p_graph, const omx_comp_name_lst_t &comp_lst,
     expected_transitions_lst_ (),
     expected_port_transitions_lst_ (),
     playlist_ (),
+    position_ (POSITION_DEFAULT_VALUE),
     jump_ (SKIP_DEFAULT_VALUE),
     destination_state_ (OMX_StateMax),
     metadata_ (),
@@ -447,11 +448,25 @@ void graph::ops::do_seek ()
 
 void graph::ops::do_skip ()
 {
-  if (last_op_succeeded () && 0 != jump_ && !is_end_of_play ())
+  if (last_op_succeeded () && 0 != position_)
+  {
+    playlist_->set_position (position_);
+    // Reset the position value, to its default value
+    position_ = POSITION_DEFAULT_VALUE;
+  }
+  else if (last_op_succeeded () && 0 != jump_ && !is_end_of_play ())
   {
     playlist_->skip (jump_);
     // Reset the jump value, to its default value
     jump_ = SKIP_DEFAULT_VALUE;
+  }
+}
+
+void graph::ops::do_store_position (const int pos)
+{
+  if (pos >= 0 || pos < playlist_->size ())
+  {
+    position_ = pos;
   }
 }
 
@@ -996,8 +1011,8 @@ graph::ops::probe_stream (const OMX_PORTDOMAINTYPE omx_domain,
       // the playlist so that we don't attempt the playback again.
       tiz::graph::util::dump_graph_info ("Unknown/unexpected format", "skipping",
                                          uri);
-      playlist_->erase_uri (playlist_->current_index ());
-      playlist_->set_index (playlist_->current_index () - 1);
+      playlist_->erase_uri (playlist_->current_position ());
+      playlist_->set_position (playlist_->current_position () - 1);
       rc = OMX_ErrorContentURIError;
     }
     else if (!probe_stream_hook ())
@@ -1005,8 +1020,8 @@ graph::ops::probe_stream (const OMX_PORTDOMAINTYPE omx_domain,
       // The graph hook indicated that the current uri should be silently
       // ignored. Skip it and remove it from the playlist and don't put any
       // message out in the console.
-      playlist_->erase_uri (playlist_->current_index ());
-      playlist_->set_index (playlist_->current_index () - 1);
+      playlist_->erase_uri (playlist_->current_position ());
+      playlist_->set_position (playlist_->current_position () - 1);
       rc = OMX_ErrorContentURIError;
     }
     else

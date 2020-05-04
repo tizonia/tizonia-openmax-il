@@ -94,6 +94,7 @@ namespace tiz
       virtual void do_deinit ();
       virtual void do_next ();
       virtual void do_prev ();
+      virtual void do_position (const int pos);
       virtual void do_fwd ();
       virtual void do_rwd ();
       virtual void do_vol_up ();

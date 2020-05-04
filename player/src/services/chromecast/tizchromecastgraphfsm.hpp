@@ -144,6 +144,11 @@ namespace tiz
         bmf::Row < tg::executing                , tg::mute_evt              , bmf::none               , tg::do_mute                                                >,
         bmf::Row < tg::executing                , tg::omx_err_evt           , bmf::none               , tg::do_skip                 , tg::is_error<OMX_ErrorStreamCorruptFatal> >,
         bmf::Row < tg::executing                , tg::omx_err_evt           , bmf::none               , tg::do_skip                 , tg::is_error<OMX_ErrorFormatNotDetected> >,
+        bmf::Row < tg::executing                , tg::position_evt          , bmf::none               , bmf::ActionSequence_<
+                                                                                                          boost::mpl::vector<
+                                                                                                            tg::do_store_position,
+                                                                                                            tg::do_skip>
+                                                                                                          >                         , bmf::none                    >,
         bmf::Row < tg::executing                , tg::skip_evt              , bmf::none               , bmf::ActionSequence_<
                                                                                                           boost::mpl::vector<
                                                                                                             tg::do_store_skip,

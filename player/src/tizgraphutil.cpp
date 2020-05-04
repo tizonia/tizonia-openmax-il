@@ -541,6 +541,7 @@ graph::util::apply_mute (const OMX_HANDLETYPE handle, const OMX_U32 pid)
 }
 
 OMX_ERRORTYPE
+
 graph::util::apply_playlist_jump (const OMX_HANDLETYPE handle,
                                   const OMX_S32 jump)
 {
@@ -554,6 +555,23 @@ graph::util::apply_playlist_jump (const OMX_HANDLETYPE handle,
   tiz_check_omx (OMX_SetConfig (
       handle, static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexConfigPlaylistSkip),
       &skip));
+  return rc;
+}
+
+OMX_ERRORTYPE
+graph::util::apply_playlist_position (const OMX_HANDLETYPE handle,
+                                      const OMX_S32 pos)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  OMX_TIZONIA_PLAYLISTPOSITIONTYPE position;
+  TIZ_INIT_OMX_STRUCT (position);
+  tiz_check_omx (OMX_GetConfig (
+      handle, static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexConfigPlaylistPosition),
+      &position));
+  position.nPosition = pos;
+  tiz_check_omx (OMX_SetConfig (
+      handle, static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexConfigPlaylistPosition),
+      &position));
   return rc;
 }
 

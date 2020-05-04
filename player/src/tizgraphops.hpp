@@ -85,6 +85,7 @@ namespace tiz
     class ops
     {
     public:
+      static const int POSITION_DEFAULT_VALUE = 0;
       static const int SKIP_DEFAULT_VALUE = 1;
 
     public:
@@ -133,6 +134,7 @@ namespace tiz
       virtual void do_idle2loaded_comp (const int comp_id);
       virtual void do_seek ();
       virtual void do_skip ();
+      virtual void do_store_position (const int pos);
       virtual void do_store_skip (const int jump);
       virtual void do_volume_step (const int step);
       virtual void do_volume (const double vol);
@@ -245,6 +247,7 @@ namespace tiz
       omx_event_info_lst_t expected_transitions_lst_;
       omx_event_info_lst_t expected_port_transitions_lst_;
       tizplaylist_ptr_t playlist_;
+      int position_;
       int jump_;
       OMX_STATETYPE destination_state_;
       track_metadata_map_t metadata_;

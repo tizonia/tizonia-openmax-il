@@ -151,7 +151,7 @@ void graphmgr::ops::do_load ()
         tiz::graph::util::dump_graph_info ("Unable to open media", "skipping",
                                            next_uri_lst[0]);
         next_playlist_->erase_uri (0);
-        next_playlist_->set_index (0);
+        next_playlist_->set_position (0);
       }
       else
       {
@@ -250,6 +250,12 @@ void graphmgr::ops::do_prev ()
 {
   GMGR_OPS_BAIL_IF_ERROR (p_managed_graph_, p_managed_graph_->skip (-1),
                           "Unable to skip to prev song.");
+}
+
+void graphmgr::ops::do_position (const int pos)
+{
+  GMGR_OPS_BAIL_IF_ERROR (p_managed_graph_, p_managed_graph_->position (pos),
+                          "Unable to move to a song with a specific position.");
 }
 
 void graphmgr::ops::do_fwd ()
@@ -375,7 +381,7 @@ tizplaylist_ptr_t graphmgr::ops::find_next_sub_list () const
   {
     if (next_lst)
     {
-      next_lst->set_index (next_lst->size () - 1);
+      next_lst->set_position (next_lst->size () - 1);
     }
   }
 

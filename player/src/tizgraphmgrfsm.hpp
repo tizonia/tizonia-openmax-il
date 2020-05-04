@@ -81,6 +81,14 @@ namespace tiz
     struct start_evt {};
     struct next_evt {};
     struct prev_evt {};
+    struct position_evt
+    {
+      position_evt (const int pos)
+        : pos_ (pos)
+      {
+      }
+      const int pos_;
+    };
     struct fwd_evt {};
     struct rwd_evt {};
     struct vol_up_evt {};
@@ -195,14 +203,14 @@ namespace tiz
         // submachine states
         struct loading_graph : public boost::msm::front::state<>
         {
-          typedef boost::mpl::vector<next_evt, prev_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, vol_evt, mute_evt, pause_evt, stop_evt, quit_evt> deferred_events;
+          typedef boost::mpl::vector<next_evt, prev_evt, position_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, vol_evt, mute_evt, pause_evt, stop_evt, quit_evt> deferred_events;
           template <class Event,class FSM>
           void on_entry(Event const&, FSM& fsm) {GMGR_FSM_LOG ();}
         };
 
         struct starting_exit : public boost::msm::front::exit_pseudo_state<graph_execd_evt>
         {
-          typedef boost::mpl::vector<next_evt, prev_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, vol_evt, mute_evt, pause_evt, stop_evt, quit_evt> deferred_events;
+          typedef boost::mpl::vector<next_evt, prev_evt, position_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, vol_evt, mute_evt, pause_evt, stop_evt, quit_evt> deferred_events;
           template <class Event,class FSM>
           void on_entry(Event const&,FSM& ) {GMGR_FSM_LOG ();}
         };
@@ -259,7 +267,7 @@ namespace tiz
 
         struct restarting_exit : public boost::msm::front::exit_pseudo_state<graph_unlded_evt>
         {
-          typedef boost::mpl::vector<next_evt, prev_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, vol_evt, mute_evt, pause_evt, stop_evt, quit_evt> deferred_events;
+          typedef boost::mpl::vector<next_evt, prev_evt, position_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, vol_evt, mute_evt, pause_evt, stop_evt, quit_evt> deferred_events;
           template <class Event,class FSM>
           void on_entry(Event const&,FSM& ) {GMGR_FSM_LOG ();}
         };
@@ -400,7 +408,7 @@ namespace tiz
 
       struct executing_graph : public boost::msm::front::state<>
       {
-        typedef boost::mpl::vector<next_evt, prev_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, vol_evt, mute_evt, pause_evt, stop_evt, quit_evt> deferred_events;
+        typedef boost::mpl::vector<next_evt, prev_evt, position_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, vol_evt, mute_evt, pause_evt, stop_evt, quit_evt> deferred_events;
         template <class Event,class FSM>
         void on_entry(Event const&,FSM& ) {GMGR_FSM_LOG ();}
       };
@@ -446,7 +454,7 @@ namespace tiz
 
       struct unloading_graph : public boost::msm::front::state<>
       {
-        typedef boost::mpl::vector<next_evt, prev_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, vol_evt, mute_evt, pause_evt> deferred_events;
+        typedef boost::mpl::vector<next_evt, prev_evt, position_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, vol_evt, mute_evt, pause_evt> deferred_events;
         template <class Event,class FSM>
         void on_entry(Event const&, FSM& fsm) {GMGR_FSM_LOG ();}
       };
@@ -516,6 +524,19 @@ namespace tiz
           if (fsm.pp_ops_ && *(fsm.pp_ops_))
             {
               (*(fsm.pp_ops_))->do_prev ();
+            }
+        }
+      };
+
+      struct do_position
+      {
+        template <class FSM,class EVT,class SourceState,class TargetState>
+        void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
+        {
+          GMGR_FSM_LOG ();
+          if (fsm.pp_ops_ && *(fsm.pp_ops_))
+            {
+              (*(fsm.pp_ops_))->do_position (evt.pos_);
             }
         }
       };
@@ -760,6 +781,7 @@ namespace tiz
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
         bmf::Row < running               , next_evt         , bmf::none   , do_next                                     >,
         bmf::Row < running               , prev_evt         , bmf::none   , do_prev                                     >,
+        bmf::Row < running               , position_evt     , bmf::none   , do_position                                 >,
         bmf::Row < running               , fwd_evt          , bmf::none   , do_fwd                                      >,
         bmf::Row < running               , rwd_evt          , bmf::none   , do_rwd                                      >,
         bmf::Row < running               , vol_up_evt       , bmf::none   , do_vol_up                                   >,
