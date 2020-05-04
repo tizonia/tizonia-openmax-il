@@ -95,6 +95,7 @@ public:
   int get_current_queue_length_as_int ();
   const char *get_current_queue_progress ();
 
+  const char *get_uri (const int a_position);
   const char *get_next_uri (const bool a_remove_current_uri);
   const char *get_prev_uri (const bool a_remove_current_uri);
 

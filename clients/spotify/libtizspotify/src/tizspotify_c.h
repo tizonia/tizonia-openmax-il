@@ -501,6 +501,22 @@ extern "C"
                                               const char *ap_playlist);
 
   /**
+   * Retrieve the stream url as the specified position in the play queue.
+   *
+   * On success, the playback queue pointer moves to the position indicated.
+   *
+   * @ingroup libtizspotify
+   *
+   * @param ap_spotify The tiz_spotify handle.
+   * @param a_position A position value in the range [0, len(queue) - 1].
+   *
+   * @return The specified uri in the playback queue or NULL if the playback
+   * queue is empty or the the specified position is out of range.
+   */
+  const char *tiz_spotify_get_uri (tiz_spotify_t *ap_spotify,
+                                   const int a_position);
+
+  /**
    * Retrieve the next stream url.
    *
    * The playback queue pointer moves one position forwards.

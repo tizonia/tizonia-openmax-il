@@ -350,6 +350,31 @@ int tizspotify::play_current_user_playlist (const std::string &playlist)
   return rc;
 }
 
+const char *tizspotify::get_uri (const int a_position)
+{
+  try
+    {
+      int queue_index = 0;
+      int queue_length = 0;
+      get_current_track_queue_index_and_length (queue_index, queue_length);
+      current_uri_.clear ();
+      if (queue_length > 0 && a_position > 0 && queue_length >= a_position)
+        {
+          current_uri_ = bp::extract< std::string > (
+              py_spotify_proxy_.attr ("get_uri") (bp::object (a_position)));
+          get_current_track ();
+        }
+    }
+  catch (bp::error_already_set &e)
+    {
+      PyErr_PrintEx (0);
+    }
+  catch (...)
+    {
+    }
+  return current_uri_.empty () ? NULL : current_uri_.c_str ();
+}
+
 const char *tizspotify::get_next_uri (const bool a_remove_current_uri)
 {
   current_uri_.clear ();
