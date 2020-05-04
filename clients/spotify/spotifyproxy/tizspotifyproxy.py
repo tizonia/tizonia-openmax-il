@@ -35,7 +35,7 @@ from fuzzywuzzy import process
 from fuzzywuzzy import fuzz
 
 # For use during debugging
-from pprint import pprint
+# from pprint import pprint
 
 FORMAT = (
     "[%(asctime)s] [%(levelname)5s] [%(thread)d] "
@@ -211,6 +211,16 @@ class TrackInfo(object):
                 else "n/a"
             )
         self.duration = track["duration_ms"] / 1000 if track["duration_ms"] else 0
+        m, s = divmod(self.duration, 60)
+        h, m = divmod(m, 60)
+        if h > 0:
+            self.duration_str = str(
+                "{:d}h:{:d}m:{:02d}s".format(int(h), int(m), round(s))
+            )
+        elif m > 0:
+            self.duration_str = str("{:d}m:{:02d}s".format(int(m), round(s)))
+        else:
+            self.duration_str = str("{:02d}s".format(round(s)))
         self.uri = track["uri"]
         self.thumb_url = (
             track["album"]["images"][0]["url"]
@@ -278,17 +288,12 @@ class tizspotifyproxy(object):
         try:
             self._login_with_client_credentials()
             count = len(self.queue)
-            results = self._spotify.search(arg_dec, limit=20, offset=0, type="track")
+            results = self._spotify.search(arg_dec, limit=50, offset=0, type="track")
             tracks = results["tracks"]
             for i, track in enumerate(tracks["items"]):
                 self._enqueue_track(track)
 
-            self._remove_explicit_tracks()
-            if count == len(self.queue):
-                logging.info("no tracks found arg : %s", arg_dec)
-                raise ValueError
-
-            self._update_play_queue_order()
+            self._finalise_play_queue(count, arg_dec)
 
         except ValueError:
             raise ValueError(
@@ -332,12 +337,7 @@ class tizspotifyproxy(object):
             if artist:
                 self._enqueue_artist(artist)
 
-            self._remove_explicit_tracks()
-            if count == len(self.queue):
-                logging.info("not tracks found arg : %s", arg_dec)
-                raise ValueError
-
-            self._update_play_queue_order()
+            self._finalise_play_queue(count, arg_dec)
 
         except ValueError:
             raise ValueError(
@@ -367,11 +367,7 @@ class tizspotifyproxy(object):
                     self._enqueue_album(album)
                 break
 
-            self._remove_explicit_tracks()
-            if count == len(self.queue):
-                raise ValueError
-
-            self._update_play_queue_order()
+            self._finalise_play_queue(count, arg_dec)
 
         except ValueError:
             raise ValueError(
@@ -391,55 +387,11 @@ class tizspotifyproxy(object):
         arg_dec = arg
         logging.info("arg : %s", arg_dec)
         try:
-            self._login_with_client_credentials()
             count = len(self.queue)
-            playlist = None
-            playlist_name = None
-            playlist_dict = dict()
-            playlist_names = list()
-            results = self._spotify.search(arg_dec, limit=20, offset=0, type="playlist")
-            playlists = results["playlists"]
-            for i, pl in enumerate(playlists["items"]):
-                if pl:
-                    owner = pl["owner"]["id"]
-                    name = pl["name"]
-                    print_msg(
-                        "[Spotify] [Global playlist search] '{0}' (owner: {1}).".format(
-                            arg_dec, owner
-                        )
-                    )
-                    if arg_dec.lower() == name.lower():
-                        playlist_name = name
-                        playlist = pl
-                        break
-                    if fuzz.partial_ratio(arg_dec, name) > 50:
-                        playlist_dict[name] = pl
-                        playlist_names.append(name)
 
-            if not playlist_name:
-                if len(playlist_names) > 1:
-                    playlist_name = process.extractOne(arg_dec, playlist_names)[0]
-                    playlist = playlist_dict[playlist_name]
-                elif len(playlist_names) == 1:
-                    playlist_name = playlist_names[0]
-                    playlist = playlist_dict[playlist_name]
+            self._enqueue_global_playlist(arg)
 
-            if playlist:
-                if arg_dec.lower() != playlist_name.lower():
-                    print_adv(
-                        "[Spotify] '{0}' not found. "
-                        "Playing '{1}' instead.".format(arg_dec, playlist_name)
-                    )
-                results = self._spotify.user_playlist(
-                    playlist["owner"]["id"], playlist["id"], fields="tracks,next"
-                )
-                self._enqueue_playlist(results)
-
-            self._remove_explicit_tracks()
-            if count == len(self.queue):
-                raise ValueError
-
-            self._update_play_queue_order()
+            self._finalise_play_queue(count, arg_dec)
 
         except ValueError:
             raise ValueError(
@@ -472,16 +424,12 @@ class tizspotifyproxy(object):
                     )
                     self._enqueue_playlist(results)
             elif owner == self.user:
-                self.enqueue_user_playlist(arg)
+                self._enqueue_user_playlist(arg)
 
             if count == len(self.queue) or owner == "anyuser":
-                self.enqueue_global_playlist(arg)
+                self._enqueue_global_playlist(arg)
 
-            self._remove_explicit_tracks()
-            if count == len(self.queue):
-                raise ValueError
-
-            self._update_play_queue_order()
+            self._finalise_play_queue(count, arg_dec)
 
         except (ValueError):
             raise ValueError(
@@ -508,12 +456,7 @@ class tizspotifyproxy(object):
             if artist:
                 self._enqueue_related_artists(artist)
 
-            self._remove_explicit_tracks()
-            if count == len(self.queue):
-                logging.info("not tracks found arg : %s", arg_dec)
-                raise ValueError
-
-            self._update_play_queue_order()
+            self._finalise_play_queue(count, arg_dec)
 
         except ValueError:
             raise ValueError(
@@ -542,11 +485,7 @@ class tizspotifyproxy(object):
                 )
                 self._enqueue_playlist(results)
 
-            self._remove_explicit_tracks()
-            if count == len(self.queue):
-                raise ValueError
-
-            self._update_play_queue_order()
+            self._finalise_play_queue(count, arg_dec)
 
         except ValueError:
             raise ValueError(
@@ -602,11 +541,7 @@ class tizspotifyproxy(object):
                     )
                 self._enqueue_album(album)
 
-            self._remove_explicit_tracks()
-            if count == len(self.queue):
-                raise ValueError
-
-            self._update_play_queue_order()
+            self._finalise_play_queue(count, arg_dec)
 
         except ValueError:
             raise ValueError(
@@ -644,159 +579,146 @@ class tizspotifyproxy(object):
         #                 raise ValueError
 
         #             self._update_play_queue_order()
+        #             self.print_queue()
 
-        except ValueError:
-            raise ValueError(
-                str(
-                    "Show not found : '%s' (or no suitable tracks in queue)"
-                    % to_ascii(arg_dec)
-                )
-            )
+        # except ValueError:
 
-    def enqueue_track_id(self, id):
+        #             raise ValueError(
+        #                 str(
+        #                     "Show not found : '%s' (or no suitable tracks in queue)"
+        #                     % to_ascii(arg_dec)
+        #                 )
+        #             )
+
+    def enqueue_track_id(self, trackid):
         """Add an audio track to the playback queue.
 
         :param id: an track ID, URI, or URL
 
         """
-        logging.info("id : %s", id)
-        print_msg("[Spotify] [Track id] '{0}'.".format(id))
+        logging.info("id : %s", trackid)
+        print_msg("[Spotify] [Track id] '{0}'.".format(trackid))
         try:
             self._login_with_client_credentials()
             count = len(self.queue)
-            track = self._spotify.track(id)
+            track = self._spotify.track(trackid)
 
             if track:
                 self._enqueue_track(track)
 
-            self._remove_explicit_tracks()
-            if count == len(self.queue):
-                logging.info("track not found with id : %s", id)
-                raise ValueError
-
-            self._update_play_queue_order()
+            self._finalise_play_queue(count, trackid)
 
         except ValueError:
-            raise ValueError(str("Track not found : %s" % to_ascii(id)))
+            raise ValueError(str("Track not found : %s" % to_ascii(trackid)))
 
-    def enqueue_artist_id(self, id):
+    def enqueue_artist_id(self, trackid):
         """Obtain an artist from Spotify and add all the artist's audio tracks
         to the playback queue.
 
-        :param id: an artist ID, URI, or URL
+        :param trackid: an artist ID, URI, or URL
 
         """
-        logging.info("id : %s", id)
-        print_msg("[Spotify] [Artist id] '{0}'.".format(id))
+        logging.info("id : %s", trackid)
+        print_msg("[Spotify] [Artist id] '{0}'.".format(trackid))
         try:
             self._login_with_client_credentials()
             count = len(self.queue)
-            artist = self._spotify.artist(id)
+            artist = self._spotify.artist(trackid)
 
             if artist:
                 self._enqueue_artist(artist)
 
-            self._remove_explicit_tracks()
-            if count == len(self.queue):
-                logging.info("artist not found with id : %s", id)
-                raise ValueError
-
-            self._update_play_queue_order()
+            self._finalise_play_queue(count, trackid)
 
         except ValueError:
             raise ValueError(
                 str(
                     "Artist not found : %s (or no suitable tracks in queue)"
-                    % to_ascii(arg_dec)
+                    % to_ascii(trackid)
                 )
             )
 
-    def enqueue_album_id(self, id):
+    def enqueue_album_id(self, trackid):
         """Obtain an album from Spotify and add all its audio tracks to the playback
         queue.
 
-        :param id: an album ID, URI, or URL
+        :param trackid: an album ID, URI, or URL
 
         """
-        logging.info("id : %s", id)
-        print_msg("[Spotify] [Album id] '{0}'.".format(id))
+        logging.info("id : %s", trackid)
+        print_msg("[Spotify] [Album id] '{0}'.".format(trackid))
         try:
             self._login_with_client_credentials()
             count = len(self.queue)
-            album = self._spotify.album(id)
+            album = self._spotify.album(trackid)
 
             if album:
                 self._enqueue_album(album)
 
-            self._remove_explicit_tracks()
-            if count == len(self.queue):
-                raise ValueError
-
-            self._update_play_queue_order()
+            self._finalise_play_queue(count, trackid)
 
         except ValueError:
             raise ValueError(
                 str(
                     "Album not found : '%s' (or no suitable tracks in queue)"
-                    % to_ascii(id)
+                    % to_ascii(trackid)
                 )
             )
 
-    def enqueue_playlist_id(self, id, owner):
+    def enqueue_playlist_id(self, trackid, owner):
         """Add all audio items from a playlist to the playback queue.
 
-        :param id: an playlist ID, URI, or URL
+        :param trackid: an playlist ID, URI, or URL
 
         """
-        logging.info("id : %s", id)
-        print_msg("[Spotify] [Playlist id] '{0}' (owner: {1}).".format(id, owner))
+        logging.info("id : %s", trackid)
+        print_msg("[Spotify] [Playlist id] '{0}' (owner: {1}).".format(trackid, owner))
         try:
             self._login_with_client_credentials()
             count = len(self.queue)
-            playlist = self._spotify.user_playlist(owner, id)
+            playlist = self._spotify.user_playlist(owner, trackid)
 
             if playlist:
                 self._enqueue_playlist(playlist)
 
-            self._remove_explicit_tracks()
-            if count == len(self.queue):
-                logging.info("no playlist found with id : %s", id)
-                raise ValueError
-
-            self._update_play_queue_order()
+            self._finalise_play_queue(count, trackid)
 
         except ValueError:
-            raise ValueError(str("Playlist not found : %s" % to_ascii(id)))
+            raise ValueError(str("Playlist not found : %s" % to_ascii(trackid)))
 
-    def enqueue_recommendations_by_track_id(self, id):
+    def enqueue_recommendations_by_track_id(self, trackid):
         """Obtain Spotify recommendations by track id and add tracks to the playback
         queue.
 
-        :param id: a Spotify track ID, URI, or URL
+        :param trackid: a Spotify track ID, URI, or URL
 
         """
-        logging.info("id : %s", id)
-        print_msg("[Spotify] [Recomendations by track id] '{0}'.".format(id))
+        logging.info("id : %s", trackid)
+        print_msg("[Spotify] [Recomendations by track id] '{0}'.".format(trackid))
         try:
-            self._recommendations_by_track_id(id)
+            count = len(self.queue)
+            self._recommendations_by_track_id(trackid)
+            self._finalise_play_queue(count, trackid)
 
         except ValueError:
-            raise ValueError(str("Track not found : %s" % to_ascii(id)))
+            raise ValueError(str("Track not found : %s" % to_ascii(trackid)))
 
-    def enqueue_recommendations_by_artist_id(self, id):
+    def enqueue_recommendations_by_artist_id(self, trackid):
         """Obtain Spotify recommendations by artist id and add tracks to the playback
         queue.
 
-        :param id: a Spotify artist ID, URI, or URL
+        :param trackid: a Spotify artist ID, URI, or URL
 
         """
-        logging.info("id : %s", id)
-        print_msg("[Spotify] [Recomendations by artist id] '{0}'.".format(id))
+        logging.info("id : %s", trackid)
+        print_msg("[Spotify] [Recomendations by artist id] '{0}'.".format(trackid))
         try:
-            self._recommendations_by_artist_id(id)
+            count = len(self.queue)
+            self._recommendations_by_artist_id(trackid)
+            self._finalise_play_queue(count, trackid)
 
         except ValueError:
-            raise ValueError(str("Artist not found : %s" % to_ascii(id)))
+            raise ValueError(str("Artist not found : %s" % to_ascii(trackid)))
 
     def enqueue_recommendations_by_track(self, arg):
         """Obtain Spotify recommendations by track name and add tracks to the playback
@@ -855,9 +777,7 @@ class tizspotifyproxy(object):
                 )
                 self._recommendations_by_track_id(track["id"])
 
-            if count == len(self.queue):
-                logging.info("no tracks found : %s", arg)
-                raise ValueError
+            self._finalise_play_queue(count, arg)
 
         except ValueError:
             raise ValueError(str("Tracks not found : %s" % to_ascii(arg)))
@@ -889,9 +809,7 @@ class tizspotifyproxy(object):
             )
             self._recommendations_by_artist_id(artist["id"])
 
-            if count == len(self.queue):
-                logging.info("no tracks found : %s", arg)
-                raise ValueError
+            self._finalise_play_queue(count, arg)
 
         except ValueError:
             raise ValueError(str("Artist not found : %s" % to_ascii(arg)))
@@ -941,12 +859,7 @@ class tizspotifyproxy(object):
                 for track in tracks["tracks"]:
                     self._enqueue_track(track)
 
-            self._remove_explicit_tracks()
-            if count == len(self.queue):
-                logging.info("not tracks found with genre : %s", arg_dec)
-                raise ValueError
-
-            self._update_play_queue_order()
+            self._finalise_play_queue(count, arg_dec)
 
         except ValueError:
             raise ValueError(str("Genre not found : %s" % to_ascii(arg_dec)))
@@ -963,12 +876,7 @@ class tizspotifyproxy(object):
             for i, track in enumerate(tracks["items"]):
                 self._enqueue_track(track["track"])
 
-            self._remove_explicit_tracks()
-            if count == len(self.queue):
-                logging.info("no tracks found : %s", self.user)
-                raise ValueError
-
-            self._update_play_queue_order()
+            self._finalise_play_queue(count, self.user)
 
         except ValueError:
             raise ValueError(
@@ -996,6 +904,7 @@ class tizspotifyproxy(object):
                 raise ValueError
 
             self._update_play_queue_order()
+            self.print_queue()
 
         except ValueError:
             raise ValueError(
@@ -1023,6 +932,7 @@ class tizspotifyproxy(object):
                 raise ValueError
 
             self._update_play_queue_order()
+            self.print_queue()
 
         except ValueError:
             raise ValueError(
@@ -1051,6 +961,7 @@ class tizspotifyproxy(object):
                 raise ValueError
 
             self._update_play_queue_order()
+            self.print_queue()
 
         except ValueError:
             raise ValueError(
@@ -1073,31 +984,14 @@ class tizspotifyproxy(object):
         )
         try:
             count = len(self.queue)
-            owner = self.user
 
-            self._login_with_user_token("playlist-read-private")
-            playlist = self._search_playlist(arg_dec, owner, is_featured=False)
-            if playlist:
-                results = self._spotify.user_playlist(
-                    owner, playlist["id"], fields="tracks,next"
-                )
-                self._enqueue_playlist(results)
-
-            if count == len(self.queue):
-                print_adv(
-                    "[Spotify] [Playlist search] '{0}' not found in the user's library. ".format(
-                        arg_dec
-                    )
-                )
-
-            if count == len(self.queue):
-                self.enqueue_global_playlist(arg)
+            self._enqueue_user_playlist(arg)
 
             self._remove_explicit_tracks()
             if count == len(self.queue):
                 raise ValueError
-
             self._update_play_queue_order()
+            self.print_queue()
 
         except (ValueError):
             raise ValueError(
@@ -1223,8 +1117,14 @@ class tizspotifyproxy(object):
         length of the playback queue.
 
         """
-        logging.info("current_track_queue_index_and_queue_length")
-        return self.play_queue_order[self.queue_index] + 1, len(self.queue)
+        qindex = self.queue_index + 1
+        qlen = len(self.queue)
+        logging.info(
+            "current_track_queue_index_and_queue_length: {0} of {1}".format(
+                qindex, qlen
+            )
+        )
+        return qindex, qlen
 
     def clear_queue(self):
         """ Clears the playback queue.
@@ -1232,6 +1132,37 @@ class tizspotifyproxy(object):
         """
         self.queue = list()
         self.queue_index = -1
+
+    def print_queue(self):
+        """ Print the contents of the playback queue.
+
+        """
+
+        for i in range(0, len(self.queue)):
+            track = self.queue[self.play_queue_order[i]]
+            if len(self.queue) > 999:
+                order_num = str("#{:06d}".format(i + 1))
+            else:
+                order_num = str("#{:03d}".format(i + 1))
+            info_str = str(
+                "[Spotify] [Track] [{0}] '{1}' [{2}] ({3})".format(
+                    order_num,
+                    to_ascii(track.title),
+                    to_ascii(track.artist),
+                    to_ascii(track.duration_str),
+                )
+            )
+
+            # Make sure explicit track titles are not printed if these are not
+            # allowed.
+            if not track.explicit:
+                print_nfo(info_str + ".")
+            elif track.explicit and (
+                self.current_explicit_filter_mode == self.explicit_filter_modes.ALLOW
+            ):
+                print_nfo(info_str + " <Explicit>.")
+
+        print_nfo("[Spotify] [Tracks in queue] '{0}'.".format(len(self.queue)))
 
     def remove_current_uri(self):
         """Remove the currently active uri from the playback queue.
@@ -1297,6 +1228,34 @@ class tizspotifyproxy(object):
             # del self.queue[self.queue_index]
             logging.info("exception")
             return self.prev_uri()
+
+    def get_uri(self, position=None):
+        """Retrieve the uri on a particular position in the playback queue. If no
+        position is given, the uri at the current position of the playback is returned.
+
+        """
+        logging.info("get_uri {}".format(position if position else "-1"))
+        try:
+            if len(self.queue):
+                queue_pos = self.play_queue_order[self.queue_index]
+                if position and position > 0 and position <= len(self.queue):
+                    self.queue_index = position - 1
+                    queue_pos = self.play_queue_order[self.queue_index]
+                logging.info("get_uri : self.queue_index {}".format(self.queue_index))
+                logging.info(
+                    "get_uri : play_queue_order {}".format(
+                        self.play_queue_order[self.queue_index]
+                    )
+                )
+                track = self.queue[queue_pos]
+                return self._retrieve_track_uri(track)
+            else:
+                return ""
+        except (KeyError, AttributeError):
+            # TODO: We don't remove this for now
+            # del self.queue[self.queue_index]
+            logging.info("exception")
+            return ""
 
     def _enqueue_track(self, track):
         """ Add a track to the playback queue.
@@ -1416,6 +1375,105 @@ class tizspotifyproxy(object):
                 else:
                     tracks = None
 
+    def _enqueue_user_playlist(self, arg):
+        """Add all audio tracks in a Spotify playlist to the playback queue.
+
+        :param arg: a playlist search term
+
+        """
+        arg_dec = arg
+        logging.info("arg : %s", arg_dec)
+        try:
+            count = len(self.queue)
+            owner = self.user
+            self._login_with_user_token("playlist-read-private")
+            playlist = self._search_playlist(arg_dec, owner, is_featured=False)
+            if playlist:
+                results = self._spotify.user_playlist(
+                    owner, playlist["id"], fields="tracks,next"
+                )
+                self._enqueue_playlist(results)
+
+            if count == len(self.queue):
+                print_adv(
+                    "[Spotify] [Playlist search] '{0}' not found in the user's library. ".format(
+                        arg_dec
+                    )
+                )
+
+            if count == len(self.queue):
+                self._enqueue_global_playlist(arg)
+
+        except (ValueError):
+            raise ValueError(
+                str(
+                    "Playlist not found or no audio tracks in playlist : %s"
+                    % to_ascii(arg_dec)
+                )
+            )
+
+    def _enqueue_global_playlist(self, arg):
+        """Obtain an album from Spotify and add all its tracks to the playback
+        queue.
+
+        :param arg: an album search term
+
+        """
+        arg_dec = arg
+        logging.info("arg : %s", arg_dec)
+        try:
+            self._login_with_client_credentials()
+            count = len(self.queue)
+            playlist = None
+            playlist_name = None
+            playlist_dict = dict()
+            playlist_names = list()
+            results = self._spotify.search(arg_dec, limit=20, offset=0, type="playlist")
+            playlists = results["playlists"]
+            for i, pl in enumerate(playlists["items"]):
+                if pl:
+                    owner = pl["owner"]["id"]
+                    name = pl["name"]
+                    print_msg(
+                        "[Spotify] [Global playlist search] '{0}' (owner: {1}).".format(
+                            arg_dec, owner
+                        )
+                    )
+                    if arg_dec.lower() == name.lower():
+                        playlist_name = name
+                        playlist = pl
+                        break
+                    if fuzz.partial_ratio(arg_dec, name) > 50:
+                        playlist_dict[name] = pl
+                        playlist_names.append(name)
+
+            if not playlist_name:
+                if len(playlist_names) > 1:
+                    playlist_name = process.extractOne(arg_dec, playlist_names)[0]
+                    playlist = playlist_dict[playlist_name]
+                elif len(playlist_names) == 1:
+                    playlist_name = playlist_names[0]
+                    playlist = playlist_dict[playlist_name]
+
+            if playlist:
+                if arg_dec.lower() != playlist_name.lower():
+                    print_adv(
+                        "[Spotify] '{0}' not found. "
+                        "Playing '{1}' instead.".format(arg_dec, playlist_name)
+                    )
+                results = self._spotify.user_playlist(
+                    playlist["owner"]["id"], playlist["id"], fields="tracks,next"
+                )
+                self._enqueue_playlist(results)
+
+        except ValueError:
+            raise ValueError(
+                str(
+                    "Playlist not found : '%s' (or no suitable tracks in queue)"
+                    % to_ascii(arg_dec)
+                )
+            )
+
     def _search_artists(self, arg):
         """ Add an artist tracks to the playback queue.
 
@@ -1519,19 +1577,18 @@ class tizspotifyproxy(object):
 
         return playlist
 
-    def _recommendations_by_track_id(self, id):
+    def _recommendations_by_track_id(self, trackid):
         """Obtain Spotify recommendations by track id and add tracks to the playback
         queue.
 
-        :param id: a Spotify track ID, URI, or URL
+        :param trackid: a Spotify track ID, URI, or URL
 
         """
-        logging.info("id : %s", id)
+        logging.info("id : %s", trackid)
         try:
             self._login_with_client_credentials()
-            count = len(self.queue)
             track_seed = list()
-            track_seed.append(id)
+            track_seed.append(trackid)
             tracks = self._spotify.recommendations(
                 seed_artists=None, seed_genres=None, seed_tracks=track_seed, limit=100
             )
@@ -1539,29 +1596,22 @@ class tizspotifyproxy(object):
                 for track in tracks["tracks"]:
                     self._enqueue_track(track)
 
-            self._remove_explicit_tracks()
-            if count == len(self.queue):
-                logging.info("no tracks found with track id : %s", id)
-                raise ValueError
-
-            self._update_play_queue_order()
 
         except ValueError:
-            raise ValueError(str("Track not found : %s" % to_ascii(id)))
+            raise ValueError(str("Track not found : %s" % to_ascii(trackid)))
 
-    def _recommendations_by_artist_id(self, id):
+    def _recommendations_by_artist_id(self, trackid):
         """Obtain Spotify recommendations by artist id and add tracks to the playback
         queue.
 
-        :param id: a Spotify artist ID, URI, or URL
+        :param trackid: a Spotify artist ID, URI, or URL
 
         """
-        logging.info("id : %s", id)
+        logging.info("id : %s", trackid)
         try:
             self._login_with_client_credentials()
-            count = len(self.queue)
             artist_seed = list()
-            artist_seed.append(id)
+            artist_seed.append(trackid)
             tracks = self._spotify.recommendations(
                 seed_artists=artist_seed, seed_genres=None, seed_tracks=None, limit=100
             )
@@ -1569,15 +1619,8 @@ class tizspotifyproxy(object):
                 for track in tracks["tracks"]:
                     self._enqueue_track(track)
 
-            self._remove_explicit_tracks()
-            if count == len(self.queue):
-                logging.info("not tracks found with artist id : %s", id)
-                raise ValueError
-
-            self._update_play_queue_order()
-
         except ValueError:
-            raise ValueError(str("Artist not found : %s" % to_ascii(id)))
+            raise ValueError(str("Artist not found : %s" % to_ascii(trackid)))
 
     def _update_play_queue_order(self):
         """ Update the queue playback order.
@@ -1593,7 +1636,6 @@ class tizspotifyproxy(object):
                 self.play_queue_order = list(range(total_tracks))
             if self.current_play_mode == self.play_modes.SHUFFLE:
                 random.shuffle(self.play_queue_order)
-            print_nfo("[Spotify] [Tracks in queue] '{0}'.".format(total_tracks))
 
     def _remove_explicit_tracks(self):
         """ Remove all explicit tracks from the playback queue.
@@ -1643,24 +1685,21 @@ class tizspotifyproxy(object):
     def _add_to_playback_queue(self, track):
         """ Add to the playback queue. """
 
-        if not track.explicit:
-            print_nfo(
-                "[Spotify] [Track] '{0}' [{1}].".format(
-                    to_ascii(track.title), to_ascii(track.artist)
-                )
-            )
-        # Make sure explicit track titles are not printed if these are not
-        # allowed.
-        if track.explicit and (
-            self.current_explicit_filter_mode == self.explicit_filter_modes.ALLOW
-        ):
-            print_nfo(
-                "[Spotify] [Track] '{0}' [{1}] (Explicit).".format(
-                    to_ascii(track.title), to_ascii(track.artist)
-                )
-            )
         queue_index = len(self.queue)
         self.queue.append(track)
+
+    def _finalise_play_queue(self, count, arg):
+        """ Helper function to grou the various actions needed to ready play
+        queue.
+
+        """
+
+        self._remove_explicit_tracks()
+        if count == len(self.queue):
+            logging.info("no tracks found arg : %s", arg)
+            raise ValueError
+        self._update_play_queue_order()
+        self.print_queue()
 
     def _login_with_client_credentials(self):
         """ Create a Spotify object that access the service with the client's credentials. """
