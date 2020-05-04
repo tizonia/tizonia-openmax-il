@@ -55,6 +55,7 @@ struct tiz_configport
   OMX_CONFIG_METADATAITEMCOUNTTYPE metadata_count_;
   tiz_vector_t * p_metadata_lst_;
   OMX_TIZONIA_PLAYLISTSKIPTYPE playlist_skip_;
+  OMX_TIZONIA_PLAYLISTPOSITIONTYPE playlist_position_;
 };
 
 typedef struct tiz_configport_class tiz_configport_class_t;

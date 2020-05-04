@@ -137,6 +137,11 @@ configport_ctor (void * ap_obj, va_list * app)
   p_obj->playlist_skip_.nVersion.nVersion = OMX_VERSION;
   p_obj->playlist_skip_.nValue = 0;
 
+  /* OMX_TIZONIA_PLAYLISTPOSITIONTYPE */
+  p_obj->playlist_position_.nSize = sizeof (OMX_TIZONIA_PLAYLISTPOSITIONTYPE);
+  p_obj->playlist_position_.nVersion.nVersion = OMX_VERSION;
+  p_obj->playlist_position_.nPosition = 0;
+
   /* Clear the indexes added by the base port class. They are of no interest
      here and won't be handled in this class.  */
   tiz_vector_clear (p_base->p_indexes_);
@@ -156,6 +161,8 @@ configport_ctor (void * ap_obj, va_list * app)
     p_obj, OMX_IndexConfigMetadataItem)); /* read-only */
   tiz_check_omx_ret_null (
     tiz_port_register_index (p_obj, OMX_TizoniaIndexConfigPlaylistSkip));
+  tiz_check_omx_ret_null (
+    tiz_port_register_index (p_obj, OMX_TizoniaIndexConfigPlaylistPosition));
 
   return p_obj;
 }
@@ -367,6 +374,11 @@ configport_GetConfig (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
               OMX_TIZONIA_PLAYLISTSKIPTYPE * p_playlist_skip = ap_struct;
               *p_playlist_skip = p_obj->playlist_skip_;
             }
+          else if (OMX_TizoniaIndexConfigPlaylistPosition == a_index)
+            {
+              OMX_TIZONIA_PLAYLISTPOSITIONTYPE * p_playlist_position = ap_struct;
+              *p_playlist_position = p_obj->playlist_position_;
+            }
           else
             {
               TIZ_ERROR (ap_hdl, "[OMX_ErrorUnsupportedIndex] : [0x%08x]...",
@@ -417,6 +429,12 @@ configport_SetConfig (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
               const OMX_TIZONIA_PLAYLISTSKIPTYPE * p_playlist_skip
                 = (OMX_TIZONIA_PLAYLISTSKIPTYPE *) ap_struct;
               p_obj->playlist_skip_ = *p_playlist_skip;
+            }
+          else if (OMX_TizoniaIndexConfigPlaylistPosition == a_index)
+            {
+              const OMX_TIZONIA_PLAYLISTPOSITIONTYPE * p_playlist_position
+                = (OMX_TIZONIA_PLAYLISTPOSITIONTYPE *) ap_struct;
+              p_obj->playlist_position_ = *p_playlist_position;
             }
           else
             {
