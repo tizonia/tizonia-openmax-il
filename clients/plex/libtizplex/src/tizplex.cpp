@@ -139,6 +139,7 @@ tizplex::tizplex (const std::string &base_url, const std::string &auth_token,
     current_url_ (),
     current_track_index_ (),
     current_queue_length_ (),
+    current_queue_length_as_int_ (0),
     current_track_title_ (),
     current_track_artist_ (),
     current_track_album_ (),
@@ -219,6 +220,31 @@ int tizplex::play_audio_playlist (const std::string &playlist)
   return rc;
 }
 
+const char *tizplex::get_url (const int a_position)
+{
+  try
+    {
+      int queue_index = 0;
+      int queue_length = 0;
+      get_current_track_queue_index_and_length (queue_index, queue_length);
+      current_url_.clear ();
+      if (queue_length > 0 && a_position > 0 && queue_length >= a_position)
+        {
+          current_url_ = bp::extract< std::string > (
+              py_plex_proxy_.attr ("get_url") (bp::object (a_position)));
+          get_current_track ();
+        }
+    }
+  catch (bp::error_already_set &e)
+    {
+      PyErr_PrintEx (0);
+    }
+  catch (...)
+    {
+    }
+  return current_url_.empty () ? NULL : current_url_.c_str ();
+}
+
 const char *tizplex::get_next_url (const bool a_remove_current_url)
 {
   current_url_.clear ();
@@ -280,6 +306,14 @@ const char *tizplex::get_current_audio_track_index ()
 const char *tizplex::get_current_queue_length ()
 {
   return current_queue_length_.empty () ? NULL : current_queue_length_.c_str ();
+}
+
+int tizplex::get_current_queue_length_as_int ()
+{
+  int queue_index = 0;
+  int queue_length = 0;
+  get_current_track_queue_index_and_length (queue_index, queue_length);
+  return current_queue_length_as_int_;
 }
 
 const char *tizplex::get_current_queue_progress ()
@@ -459,4 +493,14 @@ void tizplex::get_current_track ()
 
   current_track_album_art_ = bp::extract< std::string > (
       py_plex_proxy_.attr ("current_audio_track_album_art") ());
+}
+
+void tizplex::get_current_track_queue_index_and_length (int &queue_index,
+                                                        int &queue_length)
+{
+  const bp::tuple &queue_info = bp::extract< bp::tuple > (
+      py_plex_proxy_.attr ("current_audio_track_queue_index_and_queue_length") ());
+  queue_index = bp::extract< int > (queue_info[0]);
+  queue_length = bp::extract< int > (queue_info[1]);
+  current_queue_length_as_int_ = queue_length;
 }

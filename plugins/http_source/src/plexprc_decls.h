@@ -50,6 +50,7 @@ struct plex_prc
   OMX_TIZONIA_AUDIO_PARAM_PLEXSESSIONTYPE session_;
   OMX_TIZONIA_AUDIO_PARAM_PLEXPLAYLISTTYPE playlist_;
   OMX_TIZONIA_PLAYLISTSKIPTYPE playlist_skip_;
+  OMX_TIZONIA_PLAYLISTPOSITIONTYPE playlist_position_;
   OMX_TIZONIA_STREAMINGBUFFERTYPE buffer_size_;
   OMX_PARAM_CONTENTURITYPE * p_uri_param_;
   tiz_urltrans_t * p_trans_;

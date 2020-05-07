@@ -226,7 +226,15 @@ void graph::plexops::do_reconfigure_tunnel (const int tunnel_id)
 
 void graph::plexops::do_skip ()
 {
-  if (last_op_succeeded () && 0 != jump_)
+  if (last_op_succeeded () && 0 != position_)
+  {
+    assert (!handles_.empty ());
+    G_OPS_BAIL_IF_ERROR (util::apply_playlist_position (handles_[0], position_),
+                         "Unable to set a new position in playlist");
+    // Reset the position value, to its default value
+    position_ = POSITION_DEFAULT_VALUE;
+  }
+  else if (last_op_succeeded () && 0 != jump_)
   {
     assert (!handles_.empty ());
     G_OPS_BAIL_IF_ERROR (util::apply_playlist_jump (handles_[0], jump_),

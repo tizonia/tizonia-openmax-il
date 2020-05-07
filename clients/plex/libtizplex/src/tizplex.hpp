@@ -65,8 +65,10 @@ public:
   void clear_queue ();
   const char *get_current_audio_track_index ();
   const char *get_current_queue_length ();
+  int get_current_queue_length_as_int ();
   const char *get_current_queue_progress ();
 
+  const char *get_url (const int a_position);
   const char *get_next_url (const bool a_remove_current_url);
   const char *get_prev_url (const bool a_remove_current_url);
 
@@ -83,6 +85,7 @@ public:
 
 private:
   void get_current_track ();
+  void get_current_track_queue_index_and_length(int &index, int &length);
 
 private:
   std::string base_url_;
@@ -91,6 +94,7 @@ private:
   std::string current_url_;
   std::string current_track_index_;
   std::string current_queue_length_;
+  int current_queue_length_as_int_;
   std::string current_track_title_;
   std::string current_track_artist_;
   std::string current_track_album_;
