@@ -172,7 +172,7 @@ void graph::gmusicops::do_configure ()
     assert (gmusic_config);
     std::string coding_type_str ("Google Play Music");
     tiz::graph::util::dump_graph_info (coding_type_str.c_str (),
-                                       "Connected",
+                                       "Streaming",
                                        gmusic_config->get_user_name ().c_str ());
   }
 }

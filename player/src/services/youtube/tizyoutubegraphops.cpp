@@ -726,7 +726,7 @@ graph::youtubeops::set_channels_and_rate_on_renderer (
       OMX_SetParameter (handle, OMX_IndexParamAudioPcm, &renderer_pcmtype_));
 
   std::string coding_type_str ("Youtube");
-  tiz::graph::util::dump_graph_info (coding_type_str.c_str (), "Connected",
+  tiz::graph::util::dump_graph_info (coding_type_str.c_str (), "Streaming",
                                      playlist_->get_current_uri ().c_str ());
 
   return OMX_ErrorNone;

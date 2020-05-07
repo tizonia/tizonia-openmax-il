@@ -824,7 +824,7 @@ class tizyoutubeproxy(object):
             )
             print_nfo(info_str + ".")
 
-        print_nfo("[YouTube] [Tracks in queue] '{0}'.".format(len(self.queue)))
+        print_nfo("[YouTube] [Streams in queue] '{0}'.".format(len(self.queue)))
 
     def remove_current_url(self):
         """Remove the currently active url from the playback queue.

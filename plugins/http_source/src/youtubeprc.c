@@ -367,15 +367,25 @@ update_metadata (youtube_prc_t * ap_prc)
       name_str));
   }
 
+  /* Description */
+  tiz_check_omx (store_metadata (
+    ap_prc, "Description",
+    tiz_youtube_get_current_audio_stream_description (ap_prc->p_youtube_)));
+
+  /* Publication date/time */
+  tiz_check_omx (store_metadata (
+    ap_prc, "Published",
+    tiz_youtube_get_current_audio_stream_published (ap_prc->p_youtube_)));
+
+  /* View count */
+  tiz_check_omx (store_metadata (
+    ap_prc, "View Count",
+    tiz_youtube_get_current_audio_stream_view_count (ap_prc->p_youtube_)));
+
   /* ID */
   tiz_check_omx (store_metadata (
     ap_prc, "YouTube Id",
     tiz_youtube_get_current_audio_stream_video_id (ap_prc->p_youtube_)));
-
-  /* Duration */
-  tiz_check_omx (store_metadata (
-    ap_prc, "Duration",
-    tiz_youtube_get_current_audio_stream_duration (ap_prc->p_youtube_)));
 
   /* File Format */
   tiz_check_omx (store_metadata (
@@ -392,20 +402,10 @@ update_metadata (youtube_prc_t * ap_prc)
     ap_prc, "Size",
     tiz_youtube_get_current_audio_stream_file_size (ap_prc->p_youtube_)));
 
-  /* View count */
+  /* Duration */
   tiz_check_omx (store_metadata (
-    ap_prc, "View Count",
-    tiz_youtube_get_current_audio_stream_view_count (ap_prc->p_youtube_)));
-
-  /* Description */
-  tiz_check_omx (store_metadata (
-    ap_prc, "Description",
-    tiz_youtube_get_current_audio_stream_description (ap_prc->p_youtube_)));
-
-  /* Publication date/time */
-  tiz_check_omx (store_metadata (
-    ap_prc, "Published",
-    tiz_youtube_get_current_audio_stream_published (ap_prc->p_youtube_)));
+    ap_prc, "Duration",
+    tiz_youtube_get_current_audio_stream_duration (ap_prc->p_youtube_)));
 
   /* Signal that a new set of metadata items is available */
   (void) tiz_srv_issue_event ((OMX_PTR) ap_prc, OMX_EventIndexSettingChanged,

@@ -710,7 +710,6 @@ class tizplexproxy(object):
                 self.play_queue_order = list(range(total_tracks))
             if self.current_play_mode == self.play_modes.SHUFFLE:
                 random.shuffle(self.play_queue_order)
-            print_nfo("[Plex] [Tracks in queue] '{0}'.".format(total_tracks))
 
     def _retrieve_track_url(self, track):
         """ Retrieve a track url
@@ -730,7 +729,6 @@ class tizplexproxy(object):
         if not track:
             return
 
-        queue_index = len(self.queue)
         self.queue.append(track)
 
     def _finalise_play_queue(self, count, arg):

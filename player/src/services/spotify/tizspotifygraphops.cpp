@@ -391,7 +391,7 @@ graph::spotifyops::set_channels_and_rate_on_renderer (
 
   std::string coding_type_str ("Spotify");
   tiz::graph::util::dump_graph_info (coding_type_str.c_str (),
-                                     "Connected",
+                                     "Streaming",
                                      playlist_->get_current_uri ().c_str ());
   return OMX_ErrorNone;
 }

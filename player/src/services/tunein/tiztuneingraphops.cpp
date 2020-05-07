@@ -173,7 +173,7 @@ void graph::tuneinops::do_configure ()
     G_OPS_BAIL_IF_ERROR (apply_pcm_codec_info_from_decoder (),
                          "Unable to set OMX_IndexParamAudioPcm");
     const std::string coding_type_str ("Tunein");
-    tiz::graph::util::dump_graph_info (coding_type_str.c_str (), "Connected",
+    tiz::graph::util::dump_graph_info (coding_type_str.c_str (), "Streaming",
                                        playlist_->get_current_uri ().c_str ());
   }
 }

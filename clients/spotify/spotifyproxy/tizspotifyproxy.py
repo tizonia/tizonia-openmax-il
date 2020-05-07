@@ -1660,7 +1660,6 @@ class tizspotifyproxy(object):
     def _add_to_playback_queue(self, track):
         """ Add to the playback queue. """
 
-        queue_index = len(self.queue)
         self.queue.append(track)
 
     def _finalise_play_queue(self, count, arg):
