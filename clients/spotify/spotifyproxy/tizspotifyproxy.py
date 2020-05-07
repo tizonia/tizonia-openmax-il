@@ -898,13 +898,7 @@ class tizspotifyproxy(object):
             for i, track in enumerate(tracks["items"]):
                 self._enqueue_track(track["track"])
 
-            self._remove_explicit_tracks()
-            if count == len(self.queue):
-                logging.info("no tracks found : %s", self.user)
-                raise ValueError
-
-            self._update_play_queue_order()
-            self.print_queue()
+            self._finalise_play_queue(count, self.user)
 
         except ValueError:
             raise ValueError(
@@ -926,13 +920,7 @@ class tizspotifyproxy(object):
             for i, track in enumerate(tracks["items"]):
                 self._enqueue_track(track)
 
-            self._remove_explicit_tracks()
-            if count == len(self.queue):
-                logging.info("no tracks found : %s", self.user)
-                raise ValueError
-
-            self._update_play_queue_order()
-            self.print_queue()
+            self._finalise_play_queue(count, self.user)
 
         except ValueError:
             raise ValueError(
@@ -955,13 +943,7 @@ class tizspotifyproxy(object):
             for i, artist in enumerate(artists["items"]):
                 self._enqueue_artist(artist, include_albums=False)
 
-            self._remove_explicit_tracks()
-            if count == len(self.queue):
-                logging.info("no tracks found : %s", self.user)
-                raise ValueError
-
-            self._update_play_queue_order()
-            self.print_queue()
+            self._finalise_play_queue(count, self.user)
 
         except ValueError:
             raise ValueError(
@@ -987,11 +969,7 @@ class tizspotifyproxy(object):
 
             self._enqueue_user_playlist(arg)
 
-            self._remove_explicit_tracks()
-            if count == len(self.queue):
-                raise ValueError
-            self._update_play_queue_order()
-            self.print_queue()
+            self._finalise_play_queue(count, self.user)
 
         except (ValueError):
             raise ValueError(
@@ -1211,14 +1189,11 @@ class tizspotifyproxy(object):
         logging.info("")
         try:
             if len(self.queue):
-                logging.info("")
                 self.queue_index -= 1
                 if (self.queue_index < len(self.queue)) and (self.queue_index >= 0):
-                    logging.info("")
                     prev_track = self.queue[self.play_queue_order[self.queue_index]]
                     return self._retrieve_track_uri(prev_track)
                 else:
-                    logging.info("")
                     self.queue_index = len(self.queue)
                     return self.prev_uri()
             else:
