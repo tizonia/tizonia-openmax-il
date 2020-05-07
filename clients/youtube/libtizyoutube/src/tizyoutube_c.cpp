@@ -122,6 +122,14 @@ extern "C" const char *tiz_youtube_get_current_queue_length (
   return ap_youtube->p_proxy_->get_current_queue_length ();
 }
 
+extern "C" int tiz_youtube_get_current_queue_length_as_int (
+    tiz_youtube_t *ap_youtube)
+{
+  assert (ap_youtube);
+  assert (ap_youtube->p_proxy_);
+  return ap_youtube->p_proxy_->get_current_queue_length_as_int ();
+}
+
 extern "C" const char *tiz_youtube_get_current_queue_progress (tiz_youtube_t *ap_youtube)
 {
   assert (ap_youtube);
@@ -192,6 +200,14 @@ extern "C" int tiz_youtube_play_audio_channel_playlist (tiz_youtube_t *ap_youtub
   assert (ap_youtube);
   assert (ap_youtube->p_proxy_);
   return ap_youtube->p_proxy_->play_audio_channel_playlist (ap_channel_and_playlist);
+}
+
+extern "C" const char *tiz_youtube_get_url (tiz_youtube_t *ap_youtube,
+                                            const int a_position)
+{
+  assert (ap_youtube);
+  assert (ap_youtube->p_proxy_);
+  return ap_youtube->p_proxy_->get_url (a_position);
 }
 
 extern "C" const char *tiz_youtube_get_next_url (

@@ -154,6 +154,7 @@ tizyoutube::tizyoutube (const std::string &api_key)
     current_url_ (),
     current_stream_index_ (),
     current_queue_length_ (),
+    current_queue_length_as_int_ (0),
     current_stream_title_ (),
     current_stream_author_ (),
     current_stream_file_size_ (),
@@ -272,6 +273,31 @@ int tizyoutube::play_audio_channel_playlist (
   return rc;
 }
 
+const char *tizyoutube::get_url (const int a_position)
+{
+  try
+    {
+      int queue_index = 0;
+      int queue_length = 0;
+      get_current_stream_queue_index_and_length (queue_index, queue_length);
+      current_url_.clear ();
+      if (queue_length > 0 && a_position > 0 && queue_length >= a_position)
+        {
+          current_url_ = bp::extract< std::string > (
+              py_yt_proxy_.attr ("get_url") (bp::object (a_position)));
+          get_current_stream ();
+        }
+    }
+  catch (bp::error_already_set &e)
+    {
+      PyErr_PrintEx (0);
+    }
+  catch (...)
+    {
+    }
+  return current_url_.empty () ? NULL : current_url_.c_str ();
+}
+
 const char *tizyoutube::get_next_url (const bool a_remove_current_url)
 {
   current_url_.clear ();
@@ -331,6 +357,14 @@ const char *tizyoutube::get_current_audio_stream_index ()
 const char *tizyoutube::get_current_queue_length ()
 {
   return current_queue_length_.empty () ? NULL : current_queue_length_.c_str ();
+}
+
+int tizyoutube::get_current_queue_length_as_int ()
+{
+  int queue_index = 0;
+  int queue_length = 0;
+  get_current_stream_queue_index_and_length (queue_index, queue_length);
+  return current_queue_length_as_int_;
 }
 
 const char *tizyoutube::get_current_queue_progress ()
@@ -542,4 +576,14 @@ void tizyoutube::get_current_stream ()
   current_stream_published_ = bp::extract< std::string > (
       py_yt_proxy_.attr ("current_audio_stream_published") ());
 
+}
+
+void tizyoutube::get_current_stream_queue_index_and_length (int &queue_index,
+                                                            int &queue_length)
+{
+  const bp::tuple &queue_info = bp::extract< bp::tuple > (py_yt_proxy_.attr (
+      "current_audio_stream_queue_index_and_queue_length") ());
+  queue_index = bp::extract< int > (queue_info[0]);
+  queue_length = bp::extract< int > (queue_info[1]);
+  current_queue_length_as_int_ = queue_length;
 }

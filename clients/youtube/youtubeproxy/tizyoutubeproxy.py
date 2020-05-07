@@ -473,7 +473,7 @@ class tizyoutubeproxy(object):
             yt_info = VideoInfo(ytid=arg, title=yt_audio.title)
             self._add_to_playback_queue(audio=yt_audio, video=yt_video, info=yt_info)
 
-            self._update_play_queue_order()
+            self._finalise_play_queue()
 
         except ValueError:
             raise ValueError(str("Video not found : %s" % arg))
@@ -499,10 +499,7 @@ class tizyoutubeproxy(object):
                         info=VideoInfo(ytid=yt_video.videoid, title=yt_video.title),
                     )
 
-            if count == len(self.queue):
-                raise ValueError
-
-            self._update_play_queue_order()
+            self._finalise_play_queue(count, arg)
 
         except ValueError:
             raise ValueError(str("Playlist not found : %s" % arg))
@@ -535,7 +532,7 @@ class tizyoutubeproxy(object):
                 query["pageToken"] = wdata2["nextPageToken"]
                 wdata2 = yt_dt_search("search", query)
 
-            self._update_play_queue_order()
+            self._finalise_play_queue(count, arg)
 
         except ValueError:
             raise ValueError(str("Could not find any mixes : %s" % arg))
@@ -566,10 +563,7 @@ class tizyoutubeproxy(object):
                     yt_info = VideoInfo(ytid=video_id, title=video_title)
                     self._add_to_playback_queue(video=yt_video, info=yt_info)
 
-            if count == len(self.queue):
-                raise ValueError
-
-            self._update_play_queue_order()
+            self._finalise_play_queue(count, arg)
 
         except IndexError:
             if not feelinglucky:
@@ -635,10 +629,7 @@ class tizyoutubeproxy(object):
                         info=VideoInfo(ytid=yt_video.videoid, title=yt_video.title),
                     )
 
-            if count == len(self.queue):
-                raise ValueError
-
-            self._update_play_queue_order()
+            self._finalise_play_queue(count, arg)
 
         except ValueError:
             raise ValueError(str("Channel not found : %s" % arg))
@@ -693,10 +684,7 @@ class tizyoutubeproxy(object):
                             info=VideoInfo(ytid=yt_video.videoid, title=yt_video.title),
                         )
 
-            if count == len(self.queue):
-                raise ValueError
-
-            self._update_play_queue_order()
+            self._finalise_play_queue(count, channel_name)
 
         except ValueError:
             raise ValueError(str("Channel not found : %s" % channel_name))
@@ -805,6 +793,7 @@ class tizyoutubeproxy(object):
         length of the playback queue.
 
         """
+        logging.info("current_audio_track_queue_index_and_queue_length")
         return self.play_queue_order[self.queue_index] + 1, len(self.queue)
 
     def clear_queue(self):
@@ -813,6 +802,29 @@ class tizyoutubeproxy(object):
         """
         self.queue = list()
         self.queue_index = -1
+
+    def print_queue(self):
+        """ Print the contents of the playback queue.
+
+        """
+
+        for i in range(0, len(self.queue)):
+            stream = self.queue[self.play_queue_order[i]]
+            if len(self.queue) > 999:
+                order_num = str("#{:06d}".format(i + 1))
+            else:
+                order_num = str("#{:03d}".format(i + 1))
+
+            title = stream["a"].title if stream.get("a") else stream["i"].title
+            info_str = str(
+                "[YouTube] [Stream] [{0}] '{1}'".format(
+                    order_num,
+                    to_ascii(to_ascii(title))
+                )
+            )
+            print_nfo(info_str + ".")
+
+        print_nfo("[YouTube] [Tracks in queue] '{0}'.".format(len(self.queue)))
 
     def remove_current_url(self):
         """Remove the currently active url from the playback queue.
@@ -888,6 +900,34 @@ class tizyoutubeproxy(object):
             logging.info("IOError exception")
             return self.next_url()
 
+    def get_url(self, position=None):
+        """Retrieve the url on a particular position in the playback queue. If no
+        position is given, the url at the current position of the playback is returned.
+
+        """
+        logging.info("get_url {}".format(position if position else "-1"))
+        try:
+            if len(self.queue):
+                queue_pos = self.play_queue_order[self.queue_index]
+                if position and position > 0 and position <= len(self.queue):
+                    self.queue_index = position - 1
+                    queue_pos = self.play_queue_order[self.queue_index]
+                    logging.info("get_url : self.queue_index {}".format(self.queue_index))
+                logging.info(
+                    "get_url : play_queue_order {}".format(
+                        self.play_queue_order[self.queue_index]
+                    )
+                )
+                stream = self.queue[queue_pos]
+                return self._retrieve_stream_url(stream, queue_pos)
+            else:
+                return ""
+        except (KeyError, AttributeError):
+            # TODO: We don't remove this for now
+            # del self.queue[self.queue_index]
+            logging.info("exception")
+            return ""
+
     def _update_play_queue_order(self):
         """ Update the queue playback order.
 
@@ -947,18 +987,29 @@ class tizyoutubeproxy(object):
     def _add_to_playback_queue(self, audio=None, video=None, info=None):
         """ Add to the playback queue. """
 
-        if audio:
-            print_nfo(
-                "[YouTube] [Stream] '{0}' [{1}].".format(
-                    to_ascii(audio.title), to_ascii(audio.extension)
-                )
-            )
-        if info:
-            print_nfo("[YouTube] [Stream] '{0}'.".format(to_ascii(info.title)))
+#         if audio:
+#             print_nfo(
+#                 "[YouTube] [Stream] '{0}' [{1}].".format(
+#                     to_ascii(audio.title), to_ascii(audio.extension)
+#                 )
+#             )
+#         if info:
+#             print_nfo("[YouTube] [Stream] '{0}'.".format(to_ascii(info.title)))
         queue_index = len(self.queue)
         self.task_queue.put(dict(a=audio, v=video, i=info, q=queue_index))
         self.queue.append(dict(a=audio, v=video, i=info, q=queue_index))
 
+    def _finalise_play_queue(self, count, arg):
+        """ Helper function to grou the various actions needed to ready play
+        queue.
+
+        """
+
+        if count == len(self.queue):
+            logging.info("no tracks found arg : %s", arg)
+            raise ValueError
+        self._update_play_queue_order()
+        self.print_queue()
 
 if __name__ == "__main__":
     tizyoutubeproxy()
