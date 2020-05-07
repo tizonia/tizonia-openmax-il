@@ -398,7 +398,9 @@ store_metadata_track_name (spfysrc_prc_t * ap_prc, const char * a_track_name)
                 tiz_spotify_get_current_track_uri (ap_prc->p_spfy_web_),
                 tiz_spotify_get_current_queue_progress (ap_prc->p_spfy_web_));
     }
-  (void) store_metadata (ap_prc, "Track", name_str);
+  (void) store_metadata (
+    ap_prc, tiz_spotify_get_current_track_artist (ap_prc->p_spfy_web_),
+    name_str);
 }
 
 static void
@@ -1516,11 +1518,12 @@ obtain_next_url (spfysrc_prc_t * ap_prc, const int a_skip_value,
       }
     else if (IGNORE_VALUE != a_position_value)
       {
-        printf (
-          "a_position_value %d - queue len %d\n", a_position_value,
-          tiz_spotify_get_current_queue_length_as_int (ap_prc->p_spfy_web_));
         p_next_url
           = tiz_spotify_get_uri (ap_prc->p_spfy_web_, a_position_value);
+      }
+    else
+      {
+        assert (0);
       }
 
     ap_prc->ntracks_

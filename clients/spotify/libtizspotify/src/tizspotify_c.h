@@ -1,5 +1,6 @@
 /**
- * Copyright (C) 2011-2020 Aratelia Limited - Juan A. Rubio and contributors and contributors
+ * Copyright (C) 2011-2020 Aratelia Limited - Juan A. Rubio and contributors and
+ * contributors
  *
  * This file is part of Tizonia
  *
@@ -391,7 +392,7 @@ extern "C"
    * @return 0 on success
    */
   int tiz_spotify_play_recommendations_by_track (tiz_spotify_t *ap_spotify,
-                                                    const char *ap_track_id);
+                                                 const char *ap_track_id);
 
   /**
    * Find Spotify recommendations by artist name to the playback queue.
@@ -508,7 +509,7 @@ extern "C"
    * @ingroup libtizspotify
    *
    * @param ap_spotify The tiz_spotify handle.
-   * @param a_position A position value in the range [0, len(queue) - 1].
+   * @param a_position A position value in the range [1, len(queue)].
    *
    * @return The specified uri in the playback queue or NULL if the playback
    * queue is empty or the the specified position is out of range.
@@ -614,8 +615,7 @@ extern "C"
    *
    * @param ap_spotify The spotify handle.
    */
-  const char *tiz_spotify_get_current_track_uri (
-      tiz_spotify_t *ap_spotify);
+  const char *tiz_spotify_get_current_track_uri (tiz_spotify_t *ap_spotify);
 
   /**
    * Retrieve the current track's artist URI.
@@ -624,7 +624,8 @@ extern "C"
    *
    * @param ap_spotify The tiz_spotify handle.
    */
-  const char *tiz_spotify_get_current_track_artist_uri (tiz_spotify_t *ap_spotify);
+  const char *tiz_spotify_get_current_track_artist_uri (
+      tiz_spotify_t *ap_spotify);
 
   /**
    * Retrieve the current track's album URI.
@@ -633,7 +634,8 @@ extern "C"
    *
    * @param ap_spotify The tiz_spotify handle.
    */
-  const char *tiz_spotify_get_current_track_album_uri (tiz_spotify_t *ap_spotify);
+  const char *tiz_spotify_get_current_track_album_uri (
+      tiz_spotify_t *ap_spotify);
 
   /**
    * Return 'Explicit' if the current track is 'explicit', NULL otherwise.
