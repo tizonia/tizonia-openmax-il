@@ -1013,7 +1013,8 @@ plex_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
                < tiz_plex_get_current_queue_length_as_int (
                  p_prc->p_plex_))
         {
-          obtain_next_url (p_prc, IGNORE_VALUE, p_prc->playlist_position_.nPosition);
+          obtain_next_url (p_prc, IGNORE_VALUE,
+                           p_prc->playlist_position_.nPosition);
 
           /* Changing the URL has the side effect of halting the current
              download */

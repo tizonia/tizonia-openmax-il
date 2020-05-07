@@ -669,20 +669,20 @@ class tizplexproxy(object):
             return self.prev_url()
 
     def get_url(self, position=None):
-        """Retrieve the uri on a particular position in the playback queue. If no
-        position is given, the uri at the current position of the playback is returned.
+        """Retrieve the url on a particular position in the playback queue. If no
+        position is given, the url at the current position of the playback is returned.
 
         """
-        logging.info("get_uri {}".format(position if position else "-1"))
+        logging.info("get_url {}".format(position if position else "-1"))
         try:
             if len(self.queue):
                 queue_pos = self.play_queue_order[self.queue_index]
                 if position and position > 0 and position <= len(self.queue):
                     self.queue_index = position - 1
                     queue_pos = self.play_queue_order[self.queue_index]
-                    logging.info("get_uri : self.queue_index {}".format(self.queue_index))
+                    logging.info("get_url : self.queue_index {}".format(self.queue_index))
                 logging.info(
-                    "get_uri : play_queue_order {}".format(
+                    "get_url : play_queue_order {}".format(
                         self.play_queue_order[self.queue_index]
                     )
                 )

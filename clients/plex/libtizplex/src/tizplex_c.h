@@ -210,7 +210,7 @@ extern "C"
    * @param ap_plex The tiz_plex handle.
    * @param a_position A position value in the range [1, len(queue)].
    *
-   * @return The specified uri in the playback queue or NULL if the playback
+   * @return The specified url in the playback queue or NULL if the playback
    * queue is empty or the the specified position is out of range.
    */
   const char *tiz_plex_get_url (tiz_plex_t *ap_plex, const int a_position);
