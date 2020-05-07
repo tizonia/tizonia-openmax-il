@@ -1,5 +1,6 @@
 /**
- * Copyright (C) 2011-2020 Aratelia Limited - Juan A. Rubio and contributors and contributors
+ * Copyright (C) 2011-2020 Aratelia Limited - Juan A. Rubio and contributors and
+ * contributors
  *
  * This file is part of Tizonia
  *
@@ -30,294 +31,340 @@
 #define TIZSOUNDCLOUD_C_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <stdbool.h>
 
-/**
-* @defgroup libtizsoundcloud 'libtizsoundcloud' : Tizonia's SoundCloud client
-* library
-*
-* A C library to access the SoundCloud streaming service.
-*
-* @ingroup Tizonia
-*/
+  /**
+   * @defgroup libtizsoundcloud 'libtizsoundcloud' : Tizonia's SoundCloud client
+   * library
+   *
+   * A C library to access the SoundCloud streaming service.
+   *
+   * @ingroup Tizonia
+   */
 
-/**
- * The soundcloud opaque structure
- * @ingroup libtizsoundcloud
- */
-typedef struct tiz_scloud tiz_scloud_t;
-typedef /*@null@ */ tiz_scloud_t *tiz_scloud_ptr_t;
+  /**
+   * The soundcloud opaque structure
+   * @ingroup libtizsoundcloud
+   */
+  typedef struct tiz_scloud tiz_scloud_t;
+  typedef /*@null@ */ tiz_scloud_t *tiz_scloud_ptr_t;
 
-/**
- * Various playback modes that control the playback queue.
- * @ingroup libtizsoundcloud
- */
-typedef enum tiz_scloud_playback_mode
-{
-  ETIZScloudPlaybackModeNormal,
-  ETIZScloudPlaybackModeShuffle,
-  ETIZScloudPlaybackModeMax
-} tiz_scloud_playback_mode_t;
+  /**
+   * Various playback modes that control the playback queue.
+   * @ingroup libtizsoundcloud
+   */
+  typedef enum tiz_scloud_playback_mode
+  {
+    ETIZScloudPlaybackModeNormal,
+    ETIZScloudPlaybackModeShuffle,
+    ETIZScloudPlaybackModeMax
+  } tiz_scloud_playback_mode_t;
 
-/**
- * Initialize the soundcloud handle.
- *
- * @ingroup libtizsoundcloud
- *
- * @param app_scloud A pointer to the soundcloud handle which will be
- * initialised.
- * @param ap_oauth_token A SoundCloud email account.
- *
- * @return 0 on success.
- */
-int tiz_scloud_init (/*@null@ */ tiz_scloud_ptr_t *app_scloud,
-                     const char *ap_oauth_token);
+  /**
+   * Initialize the soundcloud handle.
+   *
+   * @ingroup libtizsoundcloud
+   *
+   * @param app_scloud A pointer to the soundcloud handle which will be
+   * initialised.
+   * @param ap_oauth_token A SoundCloud email account.
+   *
+   * @return 0 on success.
+   */
+  int tiz_scloud_init (/*@null@ */ tiz_scloud_ptr_t *app_scloud,
+                       const char *ap_oauth_token);
 
-/**
- * Clear the playback queue.
- *
- * @ingroup libtizsoundcloud
- *
- * @param ap_scloud The soundcloud handle.
- */
-void tiz_scloud_set_playback_mode (tiz_scloud_t *ap_scloud,
-                                   const tiz_scloud_playback_mode_t mode);
+  /**
+   * Clear the playback queue.
+   *
+   * @ingroup libtizsoundcloud
+   *
+   * @param ap_scloud The soundcloud handle.
+   */
+  void tiz_scloud_clear_queue (tiz_scloud_t *ap_scloud);
 
-/**
- * Add the tracks in the user's stream to the playback queue.
- *
- * After calling this method, the various tiz_scloud_get* methods can be
- * used to interact with the playback queue.
- *
- * @ingroup libtizsoundcloud
- *
- * @param ap_scloud The soundcloud handle.
- *
- * @return 0 on success
- */
-int tiz_scloud_play_user_stream (tiz_scloud_t *ap_scloud);
+  /**
+   * Retrieve the current length of playback queue.
+   *
+   * @ingroup libtizsoundcloud
+   *
+   * @param ap_scloud The tiz_scloud handle.
+   */
+  const char *tiz_scloud_get_current_queue_length (tiz_scloud_t *ap_scloud);
 
-/**
- * Add the tracks in the user's likes to the playback queue.
- *
- * After calling this method, the various tiz_scloud_get* methods can be
- * used to interact with the playback queue.
- *
- * @ingroup libtizsoundcloud
- *
- * @param ap_scloud The soundcloud handle.
- *
- * @return 0 on success
- */
-int tiz_scloud_play_user_likes (tiz_scloud_t *ap_scloud);
+  /**
+   * Retrieve the current length of the playback queue as integer.
+   *
+   * @ingroup libtizsoundcloud
+   *
+   * @param ap_scloud The tiz_scloud handle.
+   */
+  int tiz_scloud_get_current_queue_length_as_int (tiz_scloud_t *ap_scloud);
 
-/**
- * Search the user's collection for a playlist add its tracks to the playback
- * queue.
- *
- * After calling this method, the various tiz_scloud_get* methods can be
- * used to interact with the playback queue.
- *
- * @ingroup libtizsoundcloud
- *
- * @param ap_scloud The soundcloud handle.
- * @param ap_playlist The playlist name.
- *
- * @return 0 on success
- */
-int tiz_scloud_play_user_playlist (tiz_scloud_t *ap_scloud,
-                                   const char *ap_playlist);
+  /**
+   * Retrieve the current queue progress (e.g. '5 of 17', where 5 is the current
+   * stream index, and 17 is the total streams in the queue).
+   *
+   * @ingroup libtizsoundcloud
+   *
+   * @param ap_scloud The tiz_scloud handle.
+   */
+  const char *tiz_scloud_get_current_queue_progress (tiz_scloud_t *ap_scloud);
 
-/**
- * Add the last 50 tracks uploaded by a user/creator to the playback queue.
- *
- * After calling this method, the various tiz_scloud_get* methods can be
- * used to interact with the playback queue.
- *
- * @ingroup libtizsoundcloud
- *
- * @param ap_scloud The soundcloud handle.
- * @param ap_creator The creator/artist name.
- *
- * @return 0 on success
- */
-int tiz_scloud_play_creator (tiz_scloud_t *ap_scloud, const char *ap_creator);
+  /**
+   * Clear the playback queue.
+   *
+   * @ingroup libtizsoundcloud
+   *
+   * @param ap_scloud The soundcloud handle.
+   */
+  void tiz_scloud_set_playback_mode (tiz_scloud_t *ap_scloud,
+                                     const tiz_scloud_playback_mode_t mode);
 
-/**
- * Search SoundCloud for tracks and add them to the playback queue.
- *
- * After calling this method, the various tiz_scloud_get* methods can be
- * used to interact with the playback queue.
- *
- * @ingroup libtizsoundcloud
- *
- * @param ap_scloud The soundcloud handle.
- * @param ap_tracks A search string.
- *
- * @return 0 on success
- */
-int tiz_scloud_play_tracks (tiz_scloud_t *ap_scloud, const char *ap_tracks);
+  /**
+   * Add the tracks in the user's stream to the playback queue.
+   *
+   * After calling this method, the various tiz_scloud_get* methods can be
+   * used to interact with the playback queue.
+   *
+   * @ingroup libtizsoundcloud
+   *
+   * @param ap_scloud The soundcloud handle.
+   *
+   * @return 0 on success
+   */
+  int tiz_scloud_play_user_stream (tiz_scloud_t *ap_scloud);
 
-/**
- * Search SoundCloud for playlists and add them to the playback queue.
- *
- * After calling this method, the various tiz_scloud_get* methods can be
- * used to interact with the playback queue.
- *
- * @ingroup libtizsoundcloud
- *
- * @param ap_scloud The soundcloud handle.
- * @param ap_playlists A search string.
- *
- * @return 0 on success
- */
-int tiz_scloud_play_playlists (tiz_scloud_t *ap_scloud,
-                               const char *ap_playlists);
+  /**
+   * Add the tracks in the user's likes to the playback queue.
+   *
+   * After calling this method, the various tiz_scloud_get* methods can be
+   * used to interact with the playback queue.
+   *
+   * @ingroup libtizsoundcloud
+   *
+   * @param ap_scloud The soundcloud handle.
+   *
+   * @return 0 on success
+   */
+  int tiz_scloud_play_user_likes (tiz_scloud_t *ap_scloud);
 
-/**
- * Search SoundCloud for genres and tracks to the playback queue.
- *
- * After calling this method, the various tiz_scloud_get* methods can be
- * used to interact with the playback queue.
- *
- * @ingroup libtizsoundcloud
- *
- * @param ap_scloud The soundcloud handle.
- * @param ap_genres The genres (a comma separated-list).
- *
- * @return 0 on success
- */
-int tiz_scloud_play_genres (tiz_scloud_t *ap_scloud, const char *ap_genres);
+  /**
+   * Search the user's collection for a playlist add its tracks to the playback
+   * queue.
+   *
+   * After calling this method, the various tiz_scloud_get* methods can be
+   * used to interact with the playback queue.
+   *
+   * @ingroup libtizsoundcloud
+   *
+   * @param ap_scloud The soundcloud handle.
+   * @param ap_playlist The playlist name.
+   *
+   * @return 0 on success
+   */
+  int tiz_scloud_play_user_playlist (tiz_scloud_t *ap_scloud,
+                                     const char *ap_playlist);
 
-/**
- * Search SoundCloud for tags and tracks to the playback queue.
- *
- * After calling this method, the various tiz_scloud_get* methods can be
- * used to interact with the playback queue.
- *
- * @ingroup libtizsoundcloud
- *
- * @param ap_scloud The soundcloud handle.
- * @param ap_tags The tags (a comma separated-list).
- *
- * @return 0 on success
- */
-int tiz_scloud_play_tags (tiz_scloud_t *ap_scloud, const char *ap_tags);
+  /**
+   * Add the last 50 tracks uploaded by a user/creator to the playback queue.
+   *
+   * After calling this method, the various tiz_scloud_get* methods can be
+   * used to interact with the playback queue.
+   *
+   * @ingroup libtizsoundcloud
+   *
+   * @param ap_scloud The soundcloud handle.
+   * @param ap_creator The creator/artist name.
+   *
+   * @return 0 on success
+   */
+  int tiz_scloud_play_creator (tiz_scloud_t *ap_scloud, const char *ap_creator);
 
-/**
- * Clear the playback queue.
- *
- * @ingroup libtizsoundcloud
- *
- * @param ap_scloud The soundcloud handle.
- */
-void tiz_scloud_clear_queue (tiz_scloud_t *ap_scloud);
+  /**
+   * Search SoundCloud for tracks and add them to the playback queue.
+   *
+   * After calling this method, the various tiz_scloud_get* methods can be
+   * used to interact with the playback queue.
+   *
+   * @ingroup libtizsoundcloud
+   *
+   * @param ap_scloud The soundcloud handle.
+   * @param ap_tracks A search string.
+   *
+   * @return 0 on success
+   */
+  int tiz_scloud_play_tracks (tiz_scloud_t *ap_scloud, const char *ap_tracks);
 
-/**
- * Retrieve the next track url
- *
- * The the playback queue pointer moves one position forwards.
- *
- * @ingroup libtizsoundcloud
- *
- * @param ap_scloud The soundcloud handle.
- */
-const char *tiz_scloud_get_next_url (tiz_scloud_t *ap_scloud);
+  /**
+   * Search SoundCloud for playlists and add them to the playback queue.
+   *
+   * After calling this method, the various tiz_scloud_get* methods can be
+   * used to interact with the playback queue.
+   *
+   * @ingroup libtizsoundcloud
+   *
+   * @param ap_scloud The soundcloud handle.
+   * @param ap_playlists A search string.
+   *
+   * @return 0 on success
+   */
+  int tiz_scloud_play_playlists (tiz_scloud_t *ap_scloud,
+                                 const char *ap_playlists);
 
-/**
- * Retrieve the previous track url.
- *
- * The the playback queue pointer moves one position backwards.
- *
- * @ingroup libtizsoundcloud
- *
- * @param ap_scloud The soundcloud handle.
- */
-const char *tiz_scloud_get_prev_url (tiz_scloud_t *ap_scloud);
+  /**
+   * Search SoundCloud for genres and tracks to the playback queue.
+   *
+   * After calling this method, the various tiz_scloud_get* methods can be
+   * used to interact with the playback queue.
+   *
+   * @ingroup libtizsoundcloud
+   *
+   * @param ap_scloud The soundcloud handle.
+   * @param ap_genres The genres (a comma separated-list).
+   *
+   * @return 0 on success
+   */
+  int tiz_scloud_play_genres (tiz_scloud_t *ap_scloud, const char *ap_genres);
 
-/**
- * Retrieve the current track's uploader/creator/artist.
- *
- * @ingroup libtizsoundcloud
- *
- * @param ap_scloud The soundcloud handle.
- */
-const char *tiz_scloud_get_current_track_user (tiz_scloud_t *ap_scloud);
+  /**
+   * Search SoundCloud for tags and tracks to the playback queue.
+   *
+   * After calling this method, the various tiz_scloud_get* methods can be
+   * used to interact with the playback queue.
+   *
+   * @ingroup libtizsoundcloud
+   *
+   * @param ap_scloud The soundcloud handle.
+   * @param ap_tags The tags (a comma separated-list).
+   *
+   * @return 0 on success
+   */
+  int tiz_scloud_play_tags (tiz_scloud_t *ap_scloud, const char *ap_tags);
 
-/**
- * Retrieve the current track's title.
- *
- * @ingroup libtizsoundcloud
- *
- * @param ap_scloud The soundcloud handle.
- */
-const char *tiz_scloud_get_current_track_title (tiz_scloud_t *ap_scloud);
+  /**
+   * Retrieve the stream url as the specified position in the play queue.
+   *
+   * On success, the playback queue pointer moves to the position indicated.
+   *
+   * @ingroup libtizsoundcloud
+   *
+   * @param ap_scloud The tiz_scloud handle.
+   * @param a_position A position value in the range [1, len(queue)].
+   *
+   * @return The specified url in the playback queue or NULL if the playback
+   * queue is empty or the the specified position is out of range.
+   */
+  const char *tiz_scloud_get_url (tiz_scloud_t *ap_scloud,
+                                  const int a_position);
 
-/**
- * Retrieve the current track's duration.
- *
- * @ingroup libtizsoundcloud
- *
- * @param ap_scloud The soundcloud handle.
- */
-const char *tiz_scloud_get_current_track_duration (tiz_scloud_t *ap_scloud);
+  /**
+   * Retrieve the next track url
+   *
+   * The the playback queue pointer moves one position forwards.
+   *
+   * @ingroup libtizsoundcloud
+   *
+   * @param ap_scloud The soundcloud handle.
+   */
+  const char *tiz_scloud_get_next_url (tiz_scloud_t *ap_scloud);
 
-/**
- * Retrieve the current track's publication year.
- *
- * @ingroup libtizsoundcloud
- *
- * @param ap_scloud The soundcloud handle.
- */
-const char *tiz_scloud_get_current_track_year (tiz_scloud_t *ap_scloud);
+  /**
+   * Retrieve the previous track url.
+   *
+   * The the playback queue pointer moves one position backwards.
+   *
+   * @ingroup libtizsoundcloud
+   *
+   * @param ap_scloud The soundcloud handle.
+   */
+  const char *tiz_scloud_get_prev_url (tiz_scloud_t *ap_scloud);
 
-/**
- * Retrieve the current track's permalink.
- *
- * @ingroup libtizsoundcloud
- *
- * @param ap_scloud The soundcloud handle.
- */
-const char *tiz_scloud_get_current_track_permalink (tiz_scloud_t *ap_scloud);
+  /**
+   * Retrieve the current track's uploader/creator/artist.
+   *
+   * @ingroup libtizsoundcloud
+   *
+   * @param ap_scloud The soundcloud handle.
+   */
+  const char *tiz_scloud_get_current_track_user (tiz_scloud_t *ap_scloud);
 
-/**
- * Retrieve the current track's license.
- *
- * @ingroup libtizsoundcloud
- *
- * @param ap_scloud The soundcloud handle.
- */
-const char *tiz_scloud_get_current_track_license (tiz_scloud_t *ap_scloud);
+  /**
+   * Retrieve the current track's title.
+   *
+   * @ingroup libtizsoundcloud
+   *
+   * @param ap_scloud The soundcloud handle.
+   */
+  const char *tiz_scloud_get_current_track_title (tiz_scloud_t *ap_scloud);
 
-/**
- * Retrieve the current track's likes count.
- *
- * @ingroup libtizsoundcloud
- *
- * @param ap_scloud The soundcloud handle.
- */
-const char *tiz_scloud_get_current_track_likes (tiz_scloud_t *ap_scloud);
+  /**
+   * Retrieve the current track's duration.
+   *
+   * @ingroup libtizsoundcloud
+   *
+   * @param ap_scloud The soundcloud handle.
+   */
+  const char *tiz_scloud_get_current_track_duration (tiz_scloud_t *ap_scloud);
 
-/**
- * Retrieve the avatar of the user associated to the current track.
- *
- * @ingroup libtizsoundcloud
- *
- * @param ap_scloud The soundcloud handle.
- */
-const char *tiz_scloud_get_current_track_user_avatar (tiz_scloud_t *ap_scloud);
+  /**
+   * Retrieve the current track's publication year.
+   *
+   * @ingroup libtizsoundcloud
+   *
+   * @param ap_scloud The soundcloud handle.
+   */
+  const char *tiz_scloud_get_current_track_year (tiz_scloud_t *ap_scloud);
 
-/**
- * Destroy the soundcloud handle.
- *
- * @ingroup libtizsoundcloud
- *
- * @param ap_scloud The soundcloud handle.
- */
-void tiz_scloud_destroy (tiz_scloud_t *ap_scloud);
+  /**
+   * Retrieve the current track's permalink.
+   *
+   * @ingroup libtizsoundcloud
+   *
+   * @param ap_scloud The soundcloud handle.
+   */
+  const char *tiz_scloud_get_current_track_permalink (tiz_scloud_t *ap_scloud);
+
+  /**
+   * Retrieve the current track's license.
+   *
+   * @ingroup libtizsoundcloud
+   *
+   * @param ap_scloud The soundcloud handle.
+   */
+  const char *tiz_scloud_get_current_track_license (tiz_scloud_t *ap_scloud);
+
+  /**
+   * Retrieve the current track's likes count.
+   *
+   * @ingroup libtizsoundcloud
+   *
+   * @param ap_scloud The soundcloud handle.
+   */
+  const char *tiz_scloud_get_current_track_likes (tiz_scloud_t *ap_scloud);
+
+  /**
+   * Retrieve the avatar of the user associated to the current track.
+   *
+   * @ingroup libtizsoundcloud
+   *
+   * @param ap_scloud The soundcloud handle.
+   */
+  const char *tiz_scloud_get_current_track_user_avatar (
+      tiz_scloud_t *ap_scloud);
+
+  /**
+   * Destroy the soundcloud handle.
+   *
+   * @ingroup libtizsoundcloud
+   *
+   * @param ap_scloud The soundcloud handle.
+   */
+  void tiz_scloud_destroy (tiz_scloud_t *ap_scloud);
 
 #ifdef __cplusplus
 }

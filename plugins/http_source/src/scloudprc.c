@@ -51,6 +51,9 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.http_source.prc.scloud"
 #endif
 
+#define SCLOUDSRC_MAX_STRING_SIZE 2 * OMX_MAX_STRINGNAME_SIZE
+#define IGNORE_VALUE INT_MAX
+
 /* forward declarations */
 static OMX_ERRORTYPE
 scloud_prc_deallocate_resources (void *);
@@ -307,9 +310,15 @@ update_metadata (scloud_prc_t * ap_prc)
   tiz_krn_clear_metadata (tiz_get_krn (handleOf (ap_prc)));
 
   /* User and track title */
-  tiz_check_omx (store_metadata (
-    ap_prc, tiz_scloud_get_current_track_user (ap_prc->p_scloud_),
-    tiz_scloud_get_current_track_title (ap_prc->p_scloud_)));
+  {
+    char name_str[SCLOUDSRC_MAX_STRING_SIZE];
+    snprintf (name_str, SCLOUDSRC_MAX_STRING_SIZE - 1, "%s  (%s)",
+              tiz_scloud_get_current_track_title (ap_prc->p_scloud_),
+              tiz_scloud_get_current_queue_progress (ap_prc->p_scloud_));
+
+    tiz_check_omx (store_metadata (
+      ap_prc, tiz_scloud_get_current_track_user (ap_prc->p_scloud_), name_str));
+  }
 
   /* Store the year if not 0 */
   {
@@ -319,11 +328,6 @@ update_metadata (scloud_prc_t * ap_prc)
         tiz_check_omx (store_metadata (ap_prc, "Year", p_year));
       }
   }
-
-  /* Duration */
-  tiz_check_omx (
-    store_metadata (ap_prc, "Duration",
-                    tiz_scloud_get_current_track_duration (ap_prc->p_scloud_)));
 
   /* Likes */
   tiz_check_omx (
@@ -340,6 +344,11 @@ update_metadata (scloud_prc_t * ap_prc)
     store_metadata (ap_prc, "License",
                     tiz_scloud_get_current_track_license (ap_prc->p_scloud_)));
 
+  /* Duration */
+  tiz_check_omx (
+    store_metadata (ap_prc, "Duration",
+                    tiz_scloud_get_current_track_duration (ap_prc->p_scloud_)));
+
   /* Signal that a new set of metatadata items is available */
   (void) tiz_srv_issue_event ((OMX_PTR) ap_prc, OMX_EventIndexSettingChanged,
                               OMX_ALL, /* no particular port associated */
@@ -352,7 +361,8 @@ update_metadata (scloud_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
-obtain_next_url (scloud_prc_t * ap_prc, int a_skip_value)
+obtain_next_url (scloud_prc_t * ap_prc, int a_skip_value,
+                 const int a_position_value)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   const long pathname_max = PATH_MAX + NAME_MAX;
@@ -373,9 +383,22 @@ obtain_next_url (scloud_prc_t * ap_prc, int a_skip_value)
   ap_prc->p_uri_param_->nVersion.nVersion = OMX_VERSION;
 
   {
-    const char * p_next_url = a_skip_value > 0
-                                ? tiz_scloud_get_next_url (ap_prc->p_scloud_)
-                                : tiz_scloud_get_prev_url (ap_prc->p_scloud_);
+    const char * p_next_url = NULL;
+    if (IGNORE_VALUE != a_skip_value)
+      {
+        p_next_url = a_skip_value > 0
+          ? tiz_scloud_get_next_url (ap_prc->p_scloud_)
+          : tiz_scloud_get_prev_url (ap_prc->p_scloud_);
+      }
+    else if (IGNORE_VALUE != a_position_value)
+      {
+        p_next_url = tiz_scloud_get_url (ap_prc->p_scloud_, a_position_value);
+      }
+    else
+      {
+        assert (0);
+      }
+
     tiz_check_null_ret_oom (p_next_url);
 
     {
@@ -702,7 +725,7 @@ scloud_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
     &(p_prc->p_scloud_), (const char *) p_prc->session_.cUserOauthToken));
 
   tiz_check_omx (enqueue_playlist_items (p_prc));
-  tiz_check_omx (obtain_next_url (p_prc, 1));
+  tiz_check_omx (obtain_next_url (p_prc, 1, IGNORE_VALUE));
 
   {
     const tiz_urltrans_buffer_cbacks_t buffer_cbacks
@@ -881,11 +904,15 @@ scloud_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
       tiz_check_omx (tiz_api_GetConfig (
         tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
         OMX_TizoniaIndexConfigPlaylistSkip, &p_prc->playlist_skip_));
-      p_prc->playlist_skip_.nValue > 0 ? obtain_next_url (p_prc, 1)
-                                       : obtain_next_url (p_prc, -1);
+
+      p_prc->playlist_skip_.nValue > 0
+        ? obtain_next_url (p_prc, 1, IGNORE_VALUE)
+        : obtain_next_url (p_prc, -1, IGNORE_VALUE);
+
       /* Changing the URL has the side effect of halting the current
          download */
       tiz_urltrans_set_uri (p_prc->p_trans_, p_prc->p_uri_param_);
+
       if (p_prc->port_disabled_)
         {
           /* Record that the URI has changed, so that when the port is
@@ -896,6 +923,40 @@ scloud_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
         {
           /* re-start the transfer */
           tiz_urltrans_start (p_prc->p_trans_);
+        }
+    }
+  else if (OMX_TizoniaIndexConfigPlaylistPosition == a_config_idx
+           && p_prc->p_trans_)
+    {
+      TIZ_INIT_OMX_STRUCT (p_prc->playlist_position_);
+      tiz_check_omx (tiz_api_GetConfig (
+        tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
+        OMX_TizoniaIndexConfigPlaylistPosition, &p_prc->playlist_position_));
+
+      /* Check that the requested position actually refers to a track in the
+         queue */
+      if (p_prc->playlist_position_.nPosition > 0
+          && p_prc->playlist_position_.nPosition
+               < tiz_scloud_get_current_queue_length_as_int (p_prc->p_scloud_))
+        {
+          obtain_next_url (p_prc, IGNORE_VALUE,
+                           p_prc->playlist_position_.nPosition);
+
+          /* Changing the URL has the side effect of halting the current
+             download */
+          tiz_urltrans_set_uri (p_prc->p_trans_, p_prc->p_uri_param_);
+
+          if (p_prc->port_disabled_)
+            {
+              /* Record that the URI has changed, so that when the port is
+                 re-enabled, we restart the transfer */
+              p_prc->uri_changed_ = true;
+            }
+          else
+            {
+              /* Re-start the transfer */
+              tiz_urltrans_start (p_prc->p_trans_);
+            }
         }
     }
   return rc;

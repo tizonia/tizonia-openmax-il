@@ -65,25 +65,34 @@ public:
   int play_tags (const std::string &tags);
 
   void clear_queue ();
+  const char *get_current_audio_track_index ();
+  const char *get_current_queue_length ();
+  int get_current_queue_length_as_int ();
+  const char *get_current_queue_progress ();
   void set_playback_mode (const playback_mode mode);
 
-  const char * get_next_url ();
-  const char * get_prev_url ();
-  const char * get_current_track_user ();
-  const char * get_current_track_title ();
-  const char * get_current_track_duration ();
-  const char * get_current_track_year ();
-  const char * get_current_track_permalink ();
-  const char * get_current_track_license ();
-  const char * get_current_track_likes ();
-  const char * get_current_track_user_avatar ();
+  const char *get_url (const int a_position);
+  const char *get_next_url ();
+  const char *get_prev_url ();
+  const char *get_current_track_user ();
+  const char *get_current_track_title ();
+  const char *get_current_track_duration ();
+  const char *get_current_track_year ();
+  const char *get_current_track_permalink ();
+  const char *get_current_track_license ();
+  const char *get_current_track_likes ();
+  const char *get_current_track_user_avatar ();
 
 private:
   void get_current_track ();
+  void get_current_track_queue_index_and_length(int &index, int &length);
 
 private:
   std::string oauth_token_;
   std::string current_url_;
+  std::string current_track_index_;
+  std::string current_queue_length_;
+  int current_queue_length_as_int_;
   std::string current_user_;
   std::string current_title_;
   std::string current_duration_;
@@ -92,9 +101,10 @@ private:
   std::string current_track_license_;
   std::string current_track_likes_;
   std::string current_track_user_avatar_;
+  std::string current_queue_progress_;
   boost::python::object py_main_;
   boost::python::object py_global_;
-  boost::python::object py_gm_proxy_;
+  boost::python::object py_sc_proxy_;
 };
 
 #endif  // TIZSOUNDCLOUD_HPP

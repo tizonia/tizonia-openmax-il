@@ -164,7 +164,7 @@ void graph::scloudops::do_configure ()
     G_OPS_BAIL_IF_ERROR (apply_pcm_codec_info_from_decoder (),
                          "Unable to set OMX_IndexParamAudioPcm");
     std::string coding_type_str ("SoundCloud");
-    tiz::graph::util::dump_graph_info (coding_type_str.c_str (), "Connected",
+    tiz::graph::util::dump_graph_info (coding_type_str.c_str (), "Streaming",
                                        playlist_->get_current_uri ().c_str ());
   }
 }
@@ -226,7 +226,15 @@ void graph::scloudops::do_reconfigure_tunnel (const int tunnel_id)
 
 void graph::scloudops::do_skip ()
 {
-  if (last_op_succeeded () && 0 != jump_)
+  if (last_op_succeeded () && 0 != position_)
+  {
+    assert (!handles_.empty ());
+    G_OPS_BAIL_IF_ERROR (util::apply_playlist_position (handles_[0], position_),
+                         "Unable to set a new position in playlist");
+    // Reset the position value, to its default value
+    position_ = POSITION_DEFAULT_VALUE;
+  }
+  else if (last_op_succeeded () && 0 != jump_)
   {
     assert (!handles_.empty ());
     G_OPS_BAIL_IF_ERROR (util::apply_playlist_jump (handles_[0], jump_),

@@ -101,6 +101,35 @@ extern "C" int tiz_scloud_init (tiz_scloud_ptr_t *app_scloud,
   return rc;
 }
 
+extern "C" void tiz_scloud_clear_queue (tiz_scloud_t *ap_scloud)
+{
+  assert (ap_scloud);
+  assert (ap_scloud->p_proxy_);
+  ap_scloud->p_proxy_->clear_queue ();
+}
+
+extern "C" const char *tiz_scloud_get_current_queue_length (tiz_scloud_t *ap_scloud)
+{
+  assert (ap_scloud);
+  assert (ap_scloud->p_proxy_);
+  return ap_scloud->p_proxy_->get_current_queue_length ();
+}
+
+extern "C" int tiz_scloud_get_current_queue_length_as_int (
+    tiz_scloud_t *ap_scloud)
+{
+  assert (ap_scloud);
+  assert (ap_scloud->p_proxy_);
+  return ap_scloud->p_proxy_->get_current_queue_length_as_int ();
+}
+
+extern "C" const char *tiz_scloud_get_current_queue_progress (tiz_scloud_t *ap_scloud)
+{
+  assert (ap_scloud);
+  assert (ap_scloud->p_proxy_);
+  return ap_scloud->p_proxy_->get_current_queue_progress ();
+}
+
 extern "C" void tiz_scloud_set_playback_mode (
     tiz_scloud_t *ap_scloud, const tiz_scloud_playback_mode_t mode)
 {
@@ -172,11 +201,12 @@ extern "C" int tiz_scloud_play_tags (tiz_scloud_t *ap_scloud,
   return ap_scloud->p_proxy_->play_tags (ap_tags);
 }
 
-extern "C" void tiz_scloud_clear_queue (tiz_scloud_t *ap_scloud)
+extern "C" const char *tiz_scloud_get_url (tiz_scloud_t *ap_scloud,
+                                           const int a_position)
 {
   assert (ap_scloud);
   assert (ap_scloud->p_proxy_);
-  ap_scloud->p_proxy_->clear_queue ();
+  return ap_scloud->p_proxy_->get_url (a_position);
 }
 
 extern "C" const char *tiz_scloud_get_next_url (tiz_scloud_t *ap_scloud)
