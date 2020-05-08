@@ -658,10 +658,7 @@ class tizsoundcloudproxy(object):
 
         for i in range(0, len(self.queue)):
             track = self.queue[self.play_queue_order[i]]
-            if len(self.queue) > 999:
-                order_num = str("#{:06d}".format(i + 1))
-            else:
-                order_num = str("#{:03d}".format(i + 1))
+            order_num = str("#{:0{}d}".format(i + 1, len(str(len(self.queue)))))
             info_str = str(
                 "[SoundCloud] [Track] [{0}] '{1}' [{2}]".format(
                     order_num,

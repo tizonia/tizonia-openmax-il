@@ -810,11 +810,7 @@ class tizyoutubeproxy(object):
 
         for i in range(0, len(self.queue)):
             stream = self.queue[self.play_queue_order[i]]
-            if len(self.queue) > 999:
-                order_num = str("#{:06d}".format(i + 1))
-            else:
-                order_num = str("#{:03d}".format(i + 1))
-
+            order_num = str("#{:0{}d}".format(i + 1, len(str(len(self.queue)))))
             title = stream["a"].title if stream.get("a") else stream["i"].title
             info_str = str(
                 "[YouTube] [Stream] [{0}] '{1}'".format(
@@ -987,14 +983,6 @@ class tizyoutubeproxy(object):
     def _add_to_playback_queue(self, audio=None, video=None, info=None):
         """ Add to the playback queue. """
 
-#         if audio:
-#             print_nfo(
-#                 "[YouTube] [Stream] '{0}' [{1}].".format(
-#                     to_ascii(audio.title), to_ascii(audio.extension)
-#                 )
-#             )
-#         if info:
-#             print_nfo("[YouTube] [Stream] '{0}'.".format(to_ascii(info.title)))
         queue_index = len(self.queue)
         self.task_queue.put(dict(a=audio, v=video, i=info, q=queue_index))
         self.queue.append(dict(a=audio, v=video, i=info, q=queue_index))
