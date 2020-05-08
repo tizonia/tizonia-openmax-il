@@ -1,5 +1,6 @@
 /**
- * Copyright (C) 2011-2020 Aratelia Limited - Juan A. Rubio and contributors and contributors
+ * Copyright (C) 2011-2020 Aratelia Limited - Juan A. Rubio and contributors and
+ * contributors
  *
  * This file is part of Tizonia
  *
@@ -29,8 +30,8 @@
 #include <config.h>
 #endif
 
-#include <stdlib.h>
 #include <assert.h>
+#include <stdlib.h>
 
 #include "tizgmusic.hpp"
 #include "tizgmusic_c.h"
@@ -78,7 +79,7 @@ extern "C" int tiz_gmusic_init (tiz_gmusic_ptr_t *app_gmusic,
   assert (ap_pass);
   assert (ap_device_id);
 
-  if ((p_gmusic = (tiz_gmusic_t *)calloc (1, sizeof(tiz_gmusic_t))))
+  if ((p_gmusic = (tiz_gmusic_t *)calloc (1, sizeof (tiz_gmusic_t))))
     {
       if (!gmusic_alloc_data (p_gmusic, ap_user, ap_pass, ap_device_id))
         {
@@ -104,13 +105,37 @@ extern "C" int tiz_gmusic_init (tiz_gmusic_ptr_t *app_gmusic,
   return rc;
 }
 
-extern "C" void tiz_gmusic_set_playback_mode (tiz_gmusic_t *ap_gmusic,
-                                              const tiz_gmusic_playback_mode_t mode)
+extern "C" const char *tiz_gmusic_get_current_queue_length (
+    tiz_gmusic_t *ap_gmusic)
+{
+  assert (ap_gmusic);
+  assert (ap_gmusic->p_proxy_);
+  return ap_gmusic->p_proxy_->get_current_queue_length ();
+}
+
+extern "C" int tiz_gmusic_get_current_queue_length_as_int (
+    tiz_gmusic_t *ap_gmusic)
+{
+  assert (ap_gmusic);
+  assert (ap_gmusic->p_proxy_);
+  return ap_gmusic->p_proxy_->get_current_queue_length_as_int ();
+}
+
+extern "C" const char *tiz_gmusic_get_current_queue_progress (
+    tiz_gmusic_t *ap_gmusic)
+{
+  assert (ap_gmusic);
+  assert (ap_gmusic->p_proxy_);
+  return ap_gmusic->p_proxy_->get_current_queue_progress ();
+}
+
+extern "C" void tiz_gmusic_set_playback_mode (
+    tiz_gmusic_t *ap_gmusic, const tiz_gmusic_playback_mode_t mode)
 {
   assert (ap_gmusic);
   assert (ap_gmusic->p_proxy_);
   return ap_gmusic->p_proxy_->set_playback_mode (
-      static_cast< tizgmusic::playback_mode >(mode));
+      static_cast< tizgmusic::playback_mode > (mode));
 }
 
 extern "C" int tiz_gmusic_play_library (tiz_gmusic_t *ap_gmusic)
@@ -191,7 +216,7 @@ extern "C" int tiz_gmusic_play_situation (tiz_gmusic_t *ap_gmusic,
 }
 
 extern "C" int tiz_gmusic_play_podcast (tiz_gmusic_t *ap_gmusic,
-                                      const char *ap_podcast)
+                                        const char *ap_podcast)
 {
   assert (ap_gmusic);
   assert (ap_gmusic->p_proxy_);
@@ -212,6 +237,14 @@ extern "C" void tiz_gmusic_clear_queue (tiz_gmusic_t *ap_gmusic)
   ap_gmusic->p_proxy_->clear_queue ();
 }
 
+extern "C" const char *tiz_gmusic_get_url (tiz_gmusic_t *ap_gmusic,
+                                           const int a_position)
+{
+  assert (ap_gmusic);
+  assert (ap_gmusic->p_proxy_);
+  return ap_gmusic->p_proxy_->get_url (a_position);
+}
+
 extern "C" const char *tiz_gmusic_get_next_url (tiz_gmusic_t *ap_gmusic)
 {
   assert (ap_gmusic);
@@ -226,76 +259,76 @@ extern "C" const char *tiz_gmusic_get_prev_url (tiz_gmusic_t *ap_gmusic)
   return ap_gmusic->p_proxy_->get_prev_url ();
 }
 
-extern "C" const char *tiz_gmusic_get_current_song_artist (
+extern "C" const char *tiz_gmusic_get_current_track_artist (
     tiz_gmusic_t *ap_gmusic)
 {
   assert (ap_gmusic);
   assert (ap_gmusic->p_proxy_);
-  return ap_gmusic->p_proxy_->get_current_song_artist ();
+  return ap_gmusic->p_proxy_->get_current_track_artist ();
 }
 
-extern "C" const char *tiz_gmusic_get_current_song_title (
+extern "C" const char *tiz_gmusic_get_current_track_title (
     tiz_gmusic_t *ap_gmusic)
 {
   assert (ap_gmusic);
   assert (ap_gmusic->p_proxy_);
-  return ap_gmusic->p_proxy_->get_current_song_title ();
+  return ap_gmusic->p_proxy_->get_current_track_title ();
 }
 
-extern "C" const char *tiz_gmusic_get_current_song_album (
+extern "C" const char *tiz_gmusic_get_current_track_album (
     tiz_gmusic_t *ap_gmusic)
 {
   assert (ap_gmusic);
   assert (ap_gmusic->p_proxy_);
-  return ap_gmusic->p_proxy_->get_current_song_album ();
+  return ap_gmusic->p_proxy_->get_current_track_album ();
 }
 
-extern "C" const char *tiz_gmusic_get_current_song_duration (
+extern "C" const char *tiz_gmusic_get_current_track_duration (
     tiz_gmusic_t *ap_gmusic)
 {
   assert (ap_gmusic);
   assert (ap_gmusic->p_proxy_);
-  return ap_gmusic->p_proxy_->get_current_song_duration ();
+  return ap_gmusic->p_proxy_->get_current_track_duration ();
 }
 
-extern "C" const char *tiz_gmusic_get_current_song_track_number (
+extern "C" const char *tiz_gmusic_get_current_track_track_number (
     tiz_gmusic_t *ap_gmusic)
 {
   assert (ap_gmusic);
   assert (ap_gmusic->p_proxy_);
-  return ap_gmusic->p_proxy_->get_current_song_track_number ();
+  return ap_gmusic->p_proxy_->get_current_track_track_number ();
 }
 
-extern "C" const char *tiz_gmusic_get_current_song_tracks_in_album (
+extern "C" const char *tiz_gmusic_get_current_track_tracks_in_album (
     tiz_gmusic_t *ap_gmusic)
 {
   assert (ap_gmusic);
   assert (ap_gmusic->p_proxy_);
-  return ap_gmusic->p_proxy_->get_current_song_tracks_in_album ();
+  return ap_gmusic->p_proxy_->get_current_track_tracks_in_album ();
 }
 
-extern "C" const char *tiz_gmusic_get_current_song_year (
+extern "C" const char *tiz_gmusic_get_current_track_year (
     tiz_gmusic_t *ap_gmusic)
 {
   assert (ap_gmusic);
   assert (ap_gmusic->p_proxy_);
-  return ap_gmusic->p_proxy_->get_current_song_year ();
+  return ap_gmusic->p_proxy_->get_current_track_year ();
 }
 
-extern "C" const char *tiz_gmusic_get_current_song_genre (
+extern "C" const char *tiz_gmusic_get_current_track_genre (
     tiz_gmusic_t *ap_gmusic)
 {
   assert (ap_gmusic);
   assert (ap_gmusic->p_proxy_);
-  return ap_gmusic->p_proxy_->get_current_song_genre ();
+  return ap_gmusic->p_proxy_->get_current_track_genre ();
 }
 
-extern "C" const char *tiz_gmusic_get_current_song_album_art (
+extern "C" const char *tiz_gmusic_get_current_track_album_art (
     tiz_gmusic_t *ap_gmusic)
 {
   assert (ap_gmusic);
   assert (ap_gmusic->p_proxy_);
-  return ap_gmusic->p_proxy_->get_current_song_album_art ();
+  return ap_gmusic->p_proxy_->get_current_track_album_art ();
 }
 
 extern "C" void tiz_gmusic_destroy (tiz_gmusic_t *ap_gmusic)

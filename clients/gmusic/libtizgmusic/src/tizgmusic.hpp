@@ -1,5 +1,6 @@
 /**
- * Copyright (C) 2011-2020 Aratelia Limited - Juan A. Rubio and contributors and contributors
+ * Copyright (C) 2011-2020 Aratelia Limited - Juan A. Rubio and contributors and
+ * contributors
  *
  * This file is part of Tizonia
  *
@@ -40,11 +41,11 @@ public:
    * Various playback modes that control the playback queue.
    */
   enum playback_mode
-    {
-      PlaybackModeNormal,
-      PlaybackModeShuffle,
-      PlaybackModeMax
-    };
+  {
+    PlaybackModeNormal,
+    PlaybackModeShuffle,
+    PlaybackModeMax
+  };
 
 public:
   tizgmusic (const std::string &user, const std::string &pass,
@@ -60,7 +61,8 @@ public:
   int play_tracks (const std::string &tracks, const bool a_unlimited_search);
   int play_album (const std::string &album, const bool a_unlimited_search);
   int play_artist (const std::string &artist, const bool a_unlimited_search);
-  int play_playlist (const std::string &playlist, const bool a_unlimited_search);
+  int play_playlist (const std::string &playlist,
+                     const bool a_unlimited_search);
   int play_free_station (const std::string &station);
   int play_station (const std::string &station);
   int play_genre (const std::string &genre);
@@ -70,37 +72,47 @@ public:
   int play_promoted_tracks ();
 
   void clear_queue ();
+  const char *get_current_track_index ();
+  const char *get_current_queue_length ();
+  int get_current_queue_length_as_int ();
+  const char *get_current_queue_progress ();
   void set_playback_mode (const playback_mode mode);
 
-  const char * get_next_url ();
-  const char * get_prev_url ();
-  const char * get_current_song_artist ();
-  const char * get_current_song_title ();
-  const char * get_current_song_album ();
-  const char * get_current_song_duration ();
-  const char * get_current_song_track_number ();
-  const char * get_current_song_tracks_in_album ();
-  const char * get_current_song_year ();
-  const char * get_current_song_genre ();
-  const char * get_current_song_album_art ();
+  const char *get_url (const int a_position);
+  const char *get_next_url ();
+  const char *get_prev_url ();
+  const char *get_current_track_artist ();
+  const char *get_current_track_title ();
+  const char *get_current_track_album ();
+  const char *get_current_track_duration ();
+  const char *get_current_track_track_number ();
+  const char *get_current_track_tracks_in_album ();
+  const char *get_current_track_year ();
+  const char *get_current_track_genre ();
+  const char *get_current_track_album_art ();
 
 private:
-  void get_current_song ();
+  void get_current_track ();
+  void get_current_track_queue_index_and_length (int &index, int &length);
 
 private:
   std::string user_;
   std::string pass_;
   std::string device_id_;
   std::string current_url_;
+  std::string current_track_index_;
+  std::string current_queue_length_;
+  int current_queue_length_as_int_;
   std::string current_artist_;
   std::string current_title_;
   std::string current_album_;
   std::string current_duration_;
   std::string current_track_num_;
-  std::string current_song_tracks_total_;
-  std::string current_song_year_;
-  std::string current_song_genre_;
-  std::string current_song_album_art_;
+  std::string current_track_tracks_total_;
+  std::string current_track_year_;
+  std::string current_track_genre_;
+  std::string current_track_album_art_;
+  std::string current_queue_progress_;
   boost::python::object py_main_;
   boost::python::object py_global_;
   boost::python::object py_gm_proxy_;

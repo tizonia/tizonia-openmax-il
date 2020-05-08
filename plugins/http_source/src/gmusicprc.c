@@ -51,6 +51,9 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.http_source.prc.gmusic"
 #endif
 
+#define GPMSRC_MAX_STRING_SIZE 2 * OMX_MAX_STRINGNAME_SIZE
+#define IGNORE_VALUE INT_MAX
+
 /* forward declarations */
 static OMX_ERRORTYPE
 gmusic_prc_deallocate_resources (void *);
@@ -303,17 +306,24 @@ update_metadata (gmusic_prc_t * ap_prc)
   tiz_krn_clear_metadata (tiz_get_krn (handleOf (ap_prc)));
 
   /* Artist and song title */
-  tiz_check_omx (store_metadata (
-    ap_prc, tiz_gmusic_get_current_song_artist (ap_prc->p_gmusic_),
-    tiz_gmusic_get_current_song_title (ap_prc->p_gmusic_)));
+  {
+    char name_str[GPMSRC_MAX_STRING_SIZE];
+    snprintf (name_str, GPMSRC_MAX_STRING_SIZE - 1, "%s  (%s)",
+              tiz_gmusic_get_current_track_title (ap_prc->p_gmusic_),
+              tiz_gmusic_get_current_queue_progress (ap_prc->p_gmusic_));
+
+    tiz_check_omx (store_metadata (
+      ap_prc, tiz_gmusic_get_current_track_artist (ap_prc->p_gmusic_),
+      name_str));
+  }
 
   /* Album */
   tiz_check_omx (store_metadata (
-    ap_prc, "Album", tiz_gmusic_get_current_song_album (ap_prc->p_gmusic_)));
+    ap_prc, "Album", tiz_gmusic_get_current_track_album (ap_prc->p_gmusic_)));
 
   /* Store the genre if not NULL */
   {
-    const char * p_genre = tiz_gmusic_get_current_song_genre (ap_prc->p_gmusic_);
+    const char * p_genre = tiz_gmusic_get_current_track_genre (ap_prc->p_gmusic_);
     if (p_genre)
       {
         tiz_check_omx (store_metadata (ap_prc, "Genre", p_genre));
@@ -322,7 +332,7 @@ update_metadata (gmusic_prc_t * ap_prc)
 
   /* Store the year if not 0 */
   {
-    const char * p_year = tiz_gmusic_get_current_song_year (ap_prc->p_gmusic_);
+    const char * p_year = tiz_gmusic_get_current_track_year (ap_prc->p_gmusic_);
     if (p_year && strncmp (p_year, "0", 4) != 0)
       {
         tiz_check_omx (store_metadata (ap_prc, "Year", p_year));
@@ -332,17 +342,17 @@ update_metadata (gmusic_prc_t * ap_prc)
   /* Song duration */
   tiz_check_omx (
     store_metadata (ap_prc, "Duration",
-                    tiz_gmusic_get_current_song_duration (ap_prc->p_gmusic_)));
+                    tiz_gmusic_get_current_track_duration (ap_prc->p_gmusic_)));
 
   /* Track number */
   tiz_check_omx (store_metadata (
     ap_prc, "Track #",
-    tiz_gmusic_get_current_song_track_number (ap_prc->p_gmusic_)));
+    tiz_gmusic_get_current_track_track_number (ap_prc->p_gmusic_)));
 
   /* Store total tracks if not 0 */
   {
     const char * p_total_tracks
-      = tiz_gmusic_get_current_song_tracks_in_album (ap_prc->p_gmusic_);
+      = tiz_gmusic_get_current_track_tracks_in_album (ap_prc->p_gmusic_);
     if (p_total_tracks && strncmp (p_total_tracks, "0", 2) != 0)
       {
         tiz_check_omx (store_metadata (ap_prc, "Total tracks", p_total_tracks));
@@ -352,7 +362,7 @@ update_metadata (gmusic_prc_t * ap_prc)
   /* Store album art if not NULL */
   {
     const char * p_album_art
-      = tiz_gmusic_get_current_song_album_art (ap_prc->p_gmusic_);
+      = tiz_gmusic_get_current_track_album_art (ap_prc->p_gmusic_);
     if (p_album_art)
       {
         tiz_check_omx (store_metadata (ap_prc, "Album art", p_album_art));
@@ -370,7 +380,8 @@ update_metadata (gmusic_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
-obtain_next_url (gmusic_prc_t * ap_prc, int a_skip_value)
+obtain_next_url (gmusic_prc_t * ap_prc, int a_skip_value,
+                 const int a_position_value)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   const long pathname_max = PATH_MAX + NAME_MAX;
@@ -391,9 +402,22 @@ obtain_next_url (gmusic_prc_t * ap_prc, int a_skip_value)
   ap_prc->p_uri_param_->nVersion.nVersion = OMX_VERSION;
 
   {
-    const char * p_next_url = a_skip_value > 0
-                                ? tiz_gmusic_get_next_url (ap_prc->p_gmusic_)
-                                : tiz_gmusic_get_prev_url (ap_prc->p_gmusic_);
+    const char * p_next_url = NULL;
+    if (IGNORE_VALUE != a_skip_value)
+      {
+        p_next_url = a_skip_value > 0
+                       ? tiz_gmusic_get_next_url (ap_prc->p_gmusic_)
+                       : tiz_gmusic_get_prev_url (ap_prc->p_gmusic_);
+      }
+    else if (IGNORE_VALUE != a_position_value)
+      {
+        p_next_url = tiz_gmusic_get_url (ap_prc->p_gmusic_, a_position_value);
+      }
+    else
+      {
+        assert (0);
+      }
+
     tiz_check_null_ret_oom (p_next_url);
 
     {
@@ -754,7 +778,7 @@ gmusic_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
     (const char *) p_prc->session_.cDeviceId));
 
   tiz_check_omx (enqueue_playlist_items (p_prc));
-  tiz_check_omx (obtain_next_url (p_prc, 1));
+  tiz_check_omx (obtain_next_url (p_prc, 1, IGNORE_VALUE));
 
   {
     const tiz_urltrans_buffer_cbacks_t buffer_cbacks
@@ -952,11 +976,15 @@ gmusic_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
       tiz_check_omx (tiz_api_GetConfig (
         tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
         OMX_TizoniaIndexConfigPlaylistSkip, &p_prc->playlist_skip_));
-      p_prc->playlist_skip_.nValue > 0 ? obtain_next_url (p_prc, 1)
-                                       : obtain_next_url (p_prc, -1);
+
+      p_prc->playlist_skip_.nValue > 0
+        ? obtain_next_url (p_prc, 1, IGNORE_VALUE)
+        : obtain_next_url (p_prc, -1, IGNORE_VALUE);
+
       /* Changing the URL has the side effect of halting the current
          download */
       tiz_urltrans_set_uri (p_prc->p_trans_, p_prc->p_uri_param_);
+
       if (p_prc->port_disabled_)
         {
           /* Record that the URI has changed, so that when the port is
@@ -970,6 +998,42 @@ gmusic_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
           tiz_urltrans_start (p_prc->p_trans_);
         }
     }
+  else if (OMX_TizoniaIndexConfigPlaylistPosition == a_config_idx
+           && p_prc->p_trans_)
+    {
+      TIZ_INIT_OMX_STRUCT (p_prc->playlist_position_);
+      tiz_check_omx (tiz_api_GetConfig (
+        tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
+        OMX_TizoniaIndexConfigPlaylistPosition, &p_prc->playlist_position_));
+
+      /* Check that the requested position actually refers to a track in the
+         queue */
+      if (p_prc->playlist_position_.nPosition > 0
+          && p_prc->playlist_position_.nPosition
+               < tiz_gmusic_get_current_queue_length_as_int (p_prc->p_gmusic_))
+        {
+          obtain_next_url (p_prc, IGNORE_VALUE,
+                           p_prc->playlist_position_.nPosition);
+
+          /* Changing the URL has the side effect of halting the current
+             download */
+          tiz_urltrans_set_uri (p_prc->p_trans_, p_prc->p_uri_param_);
+
+          if (p_prc->port_disabled_)
+            {
+              /* Record that the URI has changed, so that when the port is
+                 re-enabled, we restart the transfer */
+              p_prc->uri_changed_ = true;
+            }
+          else
+            {
+              /* re-start the transfer */
+              p_prc->connection_closed_ = false;
+              tiz_urltrans_start (p_prc->p_trans_);
+            }
+        }
+    }
+
   return rc;
 }
 

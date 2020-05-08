@@ -265,7 +265,7 @@ cc_gmusic_prc_get_current_stream_album_art_url (const void * p_obj)
   cc_gmusic_prc_t * p_prc = (cc_gmusic_prc_t *) p_obj;
   assert (p_prc);
   assert (p_prc->p_gm_);
-  return tiz_gmusic_get_current_song_album_art (p_prc->p_gm_);
+  return tiz_gmusic_get_current_track_album_art (p_prc->p_gm_);
 }
 
 static OMX_ERRORTYPE
@@ -279,8 +279,8 @@ cc_gmusic_prc_store_stream_metadata (const void * p_obj)
 
   /* Artist and song title */
   {
-    const char * p_artist = tiz_gmusic_get_current_song_artist (p_prc->p_gm_);
-    const char * p_title = tiz_gmusic_get_current_song_title (p_prc->p_gm_);
+    const char * p_artist = tiz_gmusic_get_current_track_artist (p_prc->p_gm_);
+    const char * p_title = tiz_gmusic_get_current_track_title (p_prc->p_gm_);
     tiz_check_omx (cc_prc_store_display_title (p_cc_prc, p_artist, p_title));
     tiz_check_omx (
       cc_prc_store_stream_metadata_item (p_cc_prc, p_artist, p_title));
@@ -288,11 +288,11 @@ cc_gmusic_prc_store_stream_metadata (const void * p_obj)
 
   /* Album */
   tiz_check_omx (cc_prc_store_stream_metadata_item (
-    p_cc_prc, "Album", tiz_gmusic_get_current_song_album (p_prc->p_gm_)));
+    p_cc_prc, "Album", tiz_gmusic_get_current_track_album (p_prc->p_gm_)));
 
   /* Store the year if not 0 */
   {
-    const char * p_year = tiz_gmusic_get_current_song_year (p_prc->p_gm_);
+    const char * p_year = tiz_gmusic_get_current_track_year (p_prc->p_gm_);
     if (p_year && strncmp (p_year, "0", 4) != 0)
       {
         tiz_check_omx (
@@ -302,7 +302,7 @@ cc_gmusic_prc_store_stream_metadata (const void * p_obj)
 
   /* Store genre if not empty */
   {
-    const char * p_genre = tiz_gmusic_get_current_song_genre (p_prc->p_gm_);
+    const char * p_genre = tiz_gmusic_get_current_track_genre (p_prc->p_gm_);
     if (p_genre && strnlen (p_genre, OMX_MAX_STRINGNAME_SIZE) > 0)
       {
         tiz_check_omx (
@@ -313,7 +313,7 @@ cc_gmusic_prc_store_stream_metadata (const void * p_obj)
   /* Store album art if not empty */
   {
     const char * p_album_art
-      = tiz_gmusic_get_current_song_album_art (p_prc->p_gm_);
+      = tiz_gmusic_get_current_track_album_art (p_prc->p_gm_);
     if (p_album_art && strnlen (p_album_art, OMX_MAX_STRINGNAME_SIZE) > 0)
       {
         tiz_check_omx (
@@ -323,17 +323,17 @@ cc_gmusic_prc_store_stream_metadata (const void * p_obj)
 
   /* Song duration */
   tiz_check_omx (cc_prc_store_stream_metadata_item (
-    p_cc_prc, "Duration", tiz_gmusic_get_current_song_duration (p_prc->p_gm_)));
+    p_cc_prc, "Duration", tiz_gmusic_get_current_track_duration (p_prc->p_gm_)));
 
   /* Track number */
   tiz_check_omx (cc_prc_store_stream_metadata_item (
     p_cc_prc, "Track",
-    tiz_gmusic_get_current_song_track_number (p_prc->p_gm_)));
+    tiz_gmusic_get_current_track_track_number (p_prc->p_gm_)));
 
   /* Store total tracks if not 0 */
   {
     const char * p_total_tracks
-      = tiz_gmusic_get_current_song_tracks_in_album (p_prc->p_gm_);
+      = tiz_gmusic_get_current_track_tracks_in_album (p_prc->p_gm_);
     if (p_total_tracks && strncmp (p_total_tracks, "0", 2) != 0)
       {
         tiz_check_omx (cc_prc_store_stream_metadata_item (

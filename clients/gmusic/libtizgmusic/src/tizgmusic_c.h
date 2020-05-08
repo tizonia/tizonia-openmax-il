@@ -1,5 +1,6 @@
 /**
- * Copyright (C) 2011-2020 Aratelia Limited - Juan A. Rubio and contributors and contributors
+ * Copyright (C) 2011-2020 Aratelia Limited - Juan A. Rubio and contributors and
+ * contributors
  *
  * This file is part of Tizonia
  *
@@ -284,6 +285,34 @@ extern "C"
   int tiz_gmusic_play_promoted_tracks (tiz_gmusic_t *ap_gmusic);
 
   /**
+   * Retrieve the current length of playback queue.
+   *
+   * @ingroup libtizgmusic
+   *
+   * @param ap_gmusic The tiz_gmusic handle.
+   */
+  const char *tiz_gmusic_get_current_queue_length (tiz_gmusic_t *ap_gmusic);
+
+  /**
+   * Retrieve the current length of the playback queue as integer.
+   *
+   * @ingroup libtizgmusic
+   *
+   * @param ap_gmusic The tiz_gmusic handle.
+   */
+  int tiz_gmusic_get_current_queue_length_as_int (tiz_gmusic_t *ap_gmusic);
+
+  /**
+   * Retrieve the current queue progress (e.g. '5 of 17', where 5 is the current
+   * stream index, and 17 is the total streams in the queue).
+   *
+   * @ingroup libtizgmusic
+   *
+   * @param ap_gmusic The tiz_gmusic handle.
+   */
+  const char *tiz_gmusic_get_current_queue_progress (tiz_gmusic_t *ap_gmusic);
+
+  /**
    * Clear the playback queue.
    *
    * @ingroup libtizgmusic
@@ -291,6 +320,22 @@ extern "C"
    * @param ap_gmusic The gmusic handle.
    */
   void tiz_gmusic_clear_queue (tiz_gmusic_t *ap_gmusic);
+
+  /**
+   * Retrieve the stream url as the specified position in the play queue.
+   *
+   * On success, the playback queue pointer moves to the position indicated.
+   *
+   * @ingroup libtizgmusic
+   *
+   * @param ap_gmusic The tiz_gmusic handle.
+   * @param a_position A position value in the range [1, len(queue)].
+   *
+   * @return The specified url in the playback queue or NULL if the playback
+   * queue is empty or the the specified position is out of range.
+   */
+  const char *tiz_gmusic_get_url (tiz_gmusic_t *ap_gmusic,
+                                  const int a_position);
 
   /**
    * Retrieve the next track url
@@ -315,87 +360,87 @@ extern "C"
   const char *tiz_gmusic_get_prev_url (tiz_gmusic_t *ap_gmusic);
 
   /**
-   * Retrieve the current song's artist.
+   * Retrieve the current track's artist.
    *
    * @ingroup libtizgmusic
    *
    * @param ap_gmusic The gmusic handle.
    */
-  const char *tiz_gmusic_get_current_song_artist (tiz_gmusic_t *ap_gmusic);
+  const char *tiz_gmusic_get_current_track_artist (tiz_gmusic_t *ap_gmusic);
 
   /**
-   * Retrieve the current song's title.
+   * Retrieve the current track's title.
    *
    * @ingroup libtizgmusic
    *
    * @param ap_gmusic The gmusic handle.
    */
-  const char *tiz_gmusic_get_current_song_title (tiz_gmusic_t *ap_gmusic);
+  const char *tiz_gmusic_get_current_track_title (tiz_gmusic_t *ap_gmusic);
 
   /**
-   * Retrieve the current song's album.
+   * Retrieve the current track's album.
    *
    * @ingroup libtizgmusic
    *
    * @param ap_gmusic The gmusic handle.
    */
-  const char *tiz_gmusic_get_current_song_album (tiz_gmusic_t *ap_gmusic);
+  const char *tiz_gmusic_get_current_track_album (tiz_gmusic_t *ap_gmusic);
 
   /**
-   * Retrieve the current song's duration.
+   * Retrieve the current track's duration.
    *
    * @ingroup libtizgmusic
    *
    * @param ap_gmusic The gmusic handle.
    */
-  const char *tiz_gmusic_get_current_song_duration (tiz_gmusic_t *ap_gmusic);
+  const char *tiz_gmusic_get_current_track_duration (tiz_gmusic_t *ap_gmusic);
 
   /**
-   * Retrieve the current song's track number.
+   * Retrieve the current track's track number.
    *
    * @ingroup libtizgmusic
    *
    * @param ap_gmusic The gmusic handle.
    */
-  const char *tiz_gmusic_get_current_song_track_number (
+  const char *tiz_gmusic_get_current_track_track_number (
       tiz_gmusic_t *ap_gmusic);
 
   /**
-   * Retrieve the number of tracks in the current song's album.
+   * Retrieve the number of tracks in the current track's album.
    *
    * @ingroup libtizgmusic
    *
    * @param ap_gmusic The gmusic handle.
    */
-  const char *tiz_gmusic_get_current_song_tracks_in_album (
+  const char *tiz_gmusic_get_current_track_tracks_in_album (
       tiz_gmusic_t *ap_gmusic);
 
   /**
-   * Retrieve the current song's publication year.
+   * Retrieve the current track's publication year.
    *
    * @ingroup libtizgmusic
    *
    * @param ap_gmusic The gmusic handle.
    */
-  const char *tiz_gmusic_get_current_song_year (tiz_gmusic_t *ap_gmusic);
+  const char *tiz_gmusic_get_current_track_year (tiz_gmusic_t *ap_gmusic);
 
   /**
-   * Retrieve the current song's genre.
+   * Retrieve the current track's genre.
    *
    * @ingroup libtizgmusic
    *
    * @param ap_gmusic The gmusic handle.
    */
-  const char *tiz_gmusic_get_current_song_genre (tiz_gmusic_t *ap_gmusic);
+  const char *tiz_gmusic_get_current_track_genre (tiz_gmusic_t *ap_gmusic);
 
   /**
-   * Retrieve the current song's album art.
+   * Retrieve the current track's album art.
    *
    * @ingroup libtizgmusic
    *
    * @param ap_gmusic The gmusic handle.
    */
-  const char *tiz_gmusic_get_current_song_album_art (tiz_gmusic_t *ap_gmusic);
+  const char *tiz_gmusic_get_current_track_album_art (tiz_gmusic_t *ap_gmusic);
 
   /**
    * Destroy the gmusic handle.

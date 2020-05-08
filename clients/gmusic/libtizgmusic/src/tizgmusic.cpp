@@ -133,7 +133,23 @@ namespace
 
 tizgmusic::tizgmusic (const std::string &user, const std::string &pass,
                       const std::string &device_id)
-  : user_ (user), pass_ (pass), device_id_ (device_id)
+  : user_ (user),
+    pass_ (pass),
+    device_id_ (device_id),
+    current_url_ (),
+    current_track_index_ (),
+    current_queue_length_ (),
+    current_queue_length_as_int_ (0),
+    current_artist_ (),
+    current_title_ (),
+    current_album_ (),
+    current_duration_ (),
+    current_track_num_ (),
+    current_track_tracks_total_ (),
+    current_track_year_ (),
+    current_track_genre_ (),
+    current_track_album_art_ (),
+    current_queue_progress_ ()
 {
 }
 
@@ -282,6 +298,31 @@ int tizgmusic::play_promoted_tracks ()
   return rc;
 }
 
+const char *tizgmusic::get_url (const int a_position)
+{
+  try
+    {
+      int queue_index = 0;
+      int queue_length = 0;
+      get_current_track_queue_index_and_length (queue_index, queue_length);
+      current_url_.clear ();
+      if (queue_length > 0 && a_position > 0 && queue_length >= a_position)
+        {
+          current_url_ = bp::extract< std::string > (
+              py_gm_proxy_.attr ("get_url") (bp::object (a_position)));
+          get_current_track ();
+        }
+    }
+  catch (bp::error_already_set &e)
+    {
+      PyErr_PrintEx (0);
+    }
+  catch (...)
+    {
+    }
+  return current_url_.empty () ? NULL : current_url_.c_str ();
+}
+
 const char *tizgmusic::get_next_url ()
 {
   current_url_.clear ();
@@ -289,7 +330,7 @@ const char *tizgmusic::get_next_url ()
     {
       current_url_
           = bp::extract< std::string >(py_gm_proxy_.attr ("next_url")());
-      get_current_song ();
+      get_current_track ();
     }
   catch (bp::error_already_set &e)
     {
@@ -308,7 +349,7 @@ const char *tizgmusic::get_prev_url ()
     {
       current_url_
           = bp::extract< std::string > (py_gm_proxy_.attr ("prev_url") ());
-      get_current_song ();
+      get_current_track ();
     }
   catch (bp::error_already_set &e)
     {
@@ -320,51 +361,51 @@ const char *tizgmusic::get_prev_url ()
   return current_url_.empty () ? NULL : current_url_.c_str ();
 }
 
-const char *tizgmusic::get_current_song_artist ()
+const char *tizgmusic::get_current_track_artist ()
 {
   return current_artist_.empty () ? NULL : current_artist_.c_str ();
 }
 
-const char *tizgmusic::get_current_song_title ()
+const char *tizgmusic::get_current_track_title ()
 {
   return current_title_.empty () ? NULL : current_title_.c_str ();
 }
 
-const char *tizgmusic::get_current_song_album ()
+const char *tizgmusic::get_current_track_album ()
 {
   return current_album_.empty () ? NULL : current_album_.c_str ();
 }
 
-const char *tizgmusic::get_current_song_duration ()
+const char *tizgmusic::get_current_track_duration ()
 {
   return current_duration_.empty () ? NULL : current_duration_.c_str ();
 }
 
-const char *tizgmusic::get_current_song_track_number ()
+const char *tizgmusic::get_current_track_track_number ()
 {
   return current_track_num_.empty () ? NULL : current_track_num_.c_str ();
 }
 
-const char *tizgmusic::get_current_song_tracks_in_album ()
+const char *tizgmusic::get_current_track_tracks_in_album ()
 {
-  return current_song_tracks_total_.empty ()
+  return current_track_tracks_total_.empty ()
              ? NULL
-             : current_song_tracks_total_.c_str ();
+             : current_track_tracks_total_.c_str ();
 }
 
-const char *tizgmusic::get_current_song_year ()
+const char *tizgmusic::get_current_track_year ()
 {
-  return current_song_year_.empty () ? NULL : current_song_year_.c_str ();
+  return current_track_year_.empty () ? NULL : current_track_year_.c_str ();
 }
 
-const char *tizgmusic::get_current_song_genre ()
+const char *tizgmusic::get_current_track_genre ()
 {
-  return current_song_genre_.empty () ? NULL : current_song_genre_.c_str ();
+  return current_track_genre_.empty () ? NULL : current_track_genre_.c_str ();
 }
 
-const char *tizgmusic::get_current_song_album_art ()
+const char *tizgmusic::get_current_track_album_art ()
 {
-  return current_song_album_art_.empty () ? NULL : current_song_album_art_.c_str ();
+  return current_track_album_art_.empty () ? NULL : current_track_album_art_.c_str ();
 }
 
 void tizgmusic::clear_queue ()
@@ -372,6 +413,32 @@ void tizgmusic::clear_queue ()
   int rc = 0;
   try_catch_wrapper (py_gm_proxy_.attr ("clear_queue")());
   (void)rc;
+}
+
+const char *tizgmusic::get_current_track_index ()
+{
+  return current_track_index_.empty () ? NULL : current_track_index_.c_str ();
+}
+
+const char *tizgmusic::get_current_queue_length ()
+{
+  return current_queue_length_.empty () ? NULL : current_queue_length_.c_str ();
+}
+
+int tizgmusic::get_current_queue_length_as_int ()
+{
+  int queue_index = 0;
+  int queue_length = 0;
+  get_current_track_queue_index_and_length (queue_index, queue_length);
+  return current_queue_length_as_int_;
+}
+
+const char *tizgmusic::get_current_queue_progress ()
+{
+  current_queue_progress_.assign (get_current_track_index ());
+  current_queue_progress_.append (" of ");
+  current_queue_progress_.append (get_current_queue_length ());
+  return current_queue_progress_.c_str ();
 }
 
 void tizgmusic::set_playback_mode (const playback_mode mode)
@@ -398,12 +465,23 @@ void tizgmusic::set_playback_mode (const playback_mode mode)
   (void)rc;
 }
 
-void tizgmusic::get_current_song ()
+void tizgmusic::get_current_track ()
 {
+  current_track_index_.clear ();
+  current_queue_length_.clear ();
   current_artist_.clear ();
   current_title_.clear ();
-  current_song_genre_.clear ();
-  current_song_album_art_.clear ();
+  current_track_genre_.clear ();
+  current_track_album_art_.clear ();
+
+  const bp::tuple &queue_info = bp::extract< bp::tuple > (py_gm_proxy_.attr (
+      "current_track_queue_index_and_queue_length") ());
+  const int queue_index = bp::extract< int > (queue_info[0]);
+  const int queue_length = bp::extract< int > (queue_info[1]);
+  current_track_index_.assign (
+      boost::lexical_cast< std::string > (queue_index));
+  current_queue_length_.assign (
+      boost::lexical_cast< std::string > (queue_length));
 
   const bp::tuple &info1 = bp::extract< bp::tuple >(
       py_gm_proxy_.attr ("current_song_title_and_artist")());
@@ -455,14 +533,24 @@ void tizgmusic::get_current_song ()
   const int total_tracks = bp::extract< int >(info3[1]);
 
   current_track_num_.assign (boost::lexical_cast< std::string >(track_num));
-  current_song_tracks_total_.assign (boost::lexical_cast< std::string >(total_tracks));
+  current_track_tracks_total_.assign (boost::lexical_cast< std::string >(total_tracks));
 
-  current_song_year_ = bp::extract< std::string >(
+  current_track_year_ = bp::extract< std::string >(
       py_gm_proxy_.attr ("current_song_year")());
 
-  current_song_genre_ = bp::extract< std::string >(
+  current_track_genre_ = bp::extract< std::string >(
       py_gm_proxy_.attr ("current_song_genre")());
 
-  current_song_album_art_ = bp::extract< std::string >(
+  current_track_album_art_ = bp::extract< std::string >(
       py_gm_proxy_.attr ("current_song_album_art")());
+}
+
+void tizgmusic::get_current_track_queue_index_and_length (int &queue_index,
+                                                          int &queue_length)
+{
+  const bp::tuple &queue_info = bp::extract< bp::tuple > (
+      py_gm_proxy_.attr ("current_track_queue_index_and_queue_length") ());
+  queue_index = bp::extract< int > (queue_info[0]);
+  queue_length = bp::extract< int > (queue_info[1]);
+  current_queue_length_as_int_ = queue_length;
 }

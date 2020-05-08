@@ -280,6 +280,663 @@ class tizgmusicproxy(object):
         self.current_play_mode = getattr(self.play_modes, mode)
         self._update_play_queue_order(print_queue=False)
 
+    def clear_queue(self):
+        """ Clears the playback queue.
+
+        """
+        self.queue = list()
+        self.queue_index = -1
+
+    def enqueue_library(self):
+        """ Add the user library to the playback queue.
+
+        """
+        try:
+            songs = self.gmusic.get_all_songs()
+            self._add_to_playback_queue(songs)
+
+            self._finalise_play_queue(0, "in library")
+
+        except KeyError:
+            raise KeyError("Library not found")
+
+    def enqueue_tracks(self, arg):
+        """ Search the user's library for tracks and add
+        them to the playback queue.
+
+        :param arg: a track search term
+        """
+        try:
+            songs = self.gmusic.get_all_songs()
+
+            track_hits = list()
+            for song in songs:
+                song_title = song["title"]
+                if fuzz.partial_ratio(arg, song_title) > 60:
+                    track_hits.append(song)
+
+            if not len(track_hits):
+                print_adv(
+                    "[Google Play Music] '{0}' not found. "
+                    "Feeling lucky?.".format(to_ascii(arg))
+                )
+                random.seed()
+                max_tracks = min(len(songs), MAX_TRACKS)
+                track_hits = random.sample(songs, max_tracks)
+                for hit in track_hits:
+                    song_title = hit["title"]
+                    song_artist = hit["artist"]
+
+            if not len(track_hits):
+                raise KeyError
+
+            self._add_to_playback_queue(track_hits)
+
+            self._finalise_play_queue(0, arg)
+
+        except KeyError:
+            raise KeyError("Track not found : {0}".format(arg))
+
+    def enqueue_artist(self, arg):
+        """ Search the user's library for tracks from the given artist and add
+        them to the playback queue.
+
+        :param arg: an artist
+        """
+        try:
+            self._update_local_library()
+            artist = None
+            artist_dict = None
+            if arg not in list(self.library.keys()):
+                artist_dicts = dict()
+                artist_names = list()
+                for name, art in self.library.items():
+                    if fuzz.ratio(arg, name) > 50:
+                        artist_names.append(name)
+                        artist_dicts[name] = art
+
+                if len(artist_names) > 1:
+                    artist = process.extractOne(arg, artist_names)[0]
+                    artist_dict = artist_dicts[artist]
+                elif len(artist_names) == 1:
+                    artist = artist_names[0]
+                    artist_dict = artist_dicts[artist]
+
+                if artist:
+                    if arg.lower() != name.lower():
+                        print_wrn(
+                            "[Google Play Music] '{0}' not found. "
+                            "Playing '{1}' instead.".format(
+                                to_ascii(arg), to_ascii(artist)
+                            )
+                        )
+
+                if not artist:
+                    # Play some random artist from the library
+                    random.seed()
+                    artist = random.choice(list(self.library.keys()))
+                    artist_dict = self.library[artist]
+                    print_adv(
+                        "[Google Play Music] '{0}' not found. "
+                        "Feeling lucky?.".format(to_ascii(arg))
+                    )
+            else:
+                artist = arg
+                artist_dict = self.library[arg]
+            for album in artist_dict:
+                self._add_to_playback_queue(artist_dict[album])
+            print_wrn("[Google Play Music] Playing '{0}'.".format(to_ascii(artist)))
+
+            self._finalise_play_queue(0, arg)
+
+        except KeyError:
+            raise KeyError("Artist not found : {0}".format(arg))
+
+    def enqueue_album(self, arg):
+        """ Search the user's library for albums with a given name and add
+        them to the playback queue.
+
+        """
+        try:
+            self._update_local_library()
+            album = None
+            artist = None
+            choice_albums = list()
+            choice_artists = dict()
+            for library_artist in self.library:
+                for artist_album in self.library[library_artist]:
+                    print_nfo(
+                        "[Google Play Music] [Album] '{0} ({1})'.".format(
+                            to_ascii(artist_album), to_ascii(library_artist)
+                        )
+                    )
+                    choice_albums.append(artist_album)
+                    choice_artists[artist_album] = library_artist
+
+            album = process.extractOne(arg, choice_albums)[0]
+            artist = choice_artists[album]
+
+            if not album:
+                # Play some random album from the library
+                random.seed()
+                artist = random.choice(list(self.library.keys()))
+                album = random.choice(list(self.library[artist].keys()))
+                print_adv(
+                    "[Google Play Music] '{0}' not found. "
+                    "Feeling lucky?.".format(to_ascii(arg))
+                )
+
+            if not album:
+                raise KeyError("Album not found : {0}".format(arg))
+
+            self._add_to_playback_queue(self.library[artist][album])
+            print_wrn(
+                "[Google Play Music] Playing '{0} ({1})'.".format(
+                    to_ascii(album), to_ascii(artist)
+                )
+            )
+
+            self._finalise_play_queue(0, arg)
+
+        except KeyError:
+            raise KeyError("Album not found : {0}".format(arg))
+
+    def enqueue_playlist(self, arg):
+        """Search the user's library for playlists with a given name
+        and add the tracks of the first match to the playback queue.
+
+        Requires Unlimited subscription.
+
+        """
+        try:
+            self._update_local_library()
+            self._update_playlists_unlimited()
+            self._update_playlists()
+            playlist = None
+            playlist_name = None
+            for name, plist in list(self.playlists.items()):
+                print_nfo(
+                    "[Google Play Music] [Playlist] '{0}' ({1} tracks).".format(
+                        to_ascii(name), len(plist)
+                    )
+                )
+            if arg not in list(self.playlists.keys()):
+                playlist_dict = dict()
+                playlist_names = list()
+                for name, plist in self.playlists.items():
+                    if fuzz.ratio(arg, name) > 50:
+                        playlist_dict[name] = plist
+                        playlist_names.append(name)
+
+                if len(playlist_names) > 1:
+                    playlist_name = process.extractOne(arg, playlist_names)[0]
+                    playlist = playlist_dict[playlist_name]
+                elif len(playlist_names) == 1:
+                    playlist_name = playlist_names[0]
+                    playlist = playlist_dict[playlist_name]
+
+                if playlist_name:
+                    if arg.lower() != playlist_name.lower():
+                        print_wrn(
+                            "[Google Play Music] '{0}' not found. "
+                            "Playing '{1}' instead.".format(
+                                to_ascii(arg), to_ascii(playlist_name)
+                            )
+                        )
+
+            else:
+                playlist_name = arg
+                playlist = self.playlists[arg]
+
+            if not playlist and len(list(self.playlists.keys())) > 0:
+                print_adv(
+                    "[Google Play Music] '{0}' not found (or is empty). "
+                    "Feeling lucky?.".format(to_ascii(arg))
+                )
+                random.seed()
+                x = 0
+                playlists_copy = self.playlists.copy()
+                while (
+                    (not playlist or not len(playlist))
+                    and x < 3
+                    and len(playlists_copy)
+                ):
+                    x += 1
+                    # Play some random playlist from the library
+                    playlist_name = random.choice(list(playlists_copy.keys()))
+                    playlist = self.playlists[playlist_name]
+                    if not playlist or not len(playlist):
+                        del playlists_copy[playlist_name]
+                        print_wrn(
+                            "[Google Play Music] '{0}' is empty. ".format(
+                                to_ascii(playlist_name)
+                            )
+                        )
+
+            if not len(playlist):
+                raise KeyError
+
+            self._add_to_playback_queue(playlist)
+            print_wrn(
+                "[Google Play Music] Playing '{0}'.".format(to_ascii(playlist_name))
+            )
+
+            self._finalise_play_queue(0, arg)
+
+        except KeyError:
+            raise KeyError("Playlist not found or is empty : {0}".format(arg))
+
+    def enqueue_podcast(self, arg):
+        """Search Google Play Music for a podcast series and add its tracks to the
+        playback queue ().
+
+        Requires Unlimited subscription.
+
+        """
+        print_msg(
+            "[Google Play Music] [Retrieving podcasts] : '{0}'. ".format(self.email)
+        )
+
+        try:
+
+            self._enqueue_podcast(arg)
+
+            if not len(self.queue):
+                raise KeyError
+
+            logging.info("Added %d episodes from '%s' to queue", len(self.queue), arg)
+            self._finalise_play_queue(0, arg)
+
+        except KeyError:
+            raise KeyError("Podcast not found : {0}".format(arg))
+        except CallFailure:
+            raise RuntimeError("Operation requires an Unlimited subscription.")
+
+    def enqueue_station(self, arg):
+        """Search for a free station using a given track, album or artist name and add
+        its tracks to the playback queue.
+
+        Available in the free tier.
+
+        """
+        try:
+            # First search for a station id
+            max_results = MAX_TRACKS
+            station_hits = self.gmusic.search(arg, max_results)["station_hits"]
+            station_name = ""
+            station_seed = None
+            station_id = ""
+            station_tracks = dict()
+            if station_hits and len(station_hits):
+                station_seeds = dict()
+                station_names = list()
+                for hit in station_hits:
+                    station = hit["station"]
+                    station_name = station["name"]
+                    print_nfo(
+                        "[Google Play Music] [Station] '{0}'.".format(station_name)
+                    )
+                    if fuzz.partial_ratio(arg, station_name) > 70:
+                        station_seeds[station_name] = station["seed"]
+                        station_names.append(station_name)
+
+                if len(station_names) > 1:
+                    station_name = process.extractOne(arg, station_names)[0]
+                    station_seed = station_seeds[station_name]
+                elif len(station_names) == 1:
+                    station_name = station_names[0]
+                    station_seed = station_seeds[station_name]
+
+                if station_seed:
+                    if station_seed["seedType"] == "2":
+                        station_id = self.gmusic.create_station(
+                            station_name, track_id=station_seed["trackId"]
+                        )
+                    if station_seed["seedType"] == "3":
+                        station_id = self.gmusic.create_station(
+                            station_name, artist_id=station_seed["artistId"]
+                        )
+                    if station_seed["seedType"] == "4":
+                        station_id = self.gmusic.create_station(
+                            station_name, album_id=station_seed["albumId"]
+                        )
+                    if station_seed["seedType"] == "9":
+                        station_id = self.gmusic.create_station(
+                            station_name,
+                            curated_station_id=station_seed["curatedStationId"],
+                        )
+                if station_id:
+                    station_info = self.gmusic.get_station_info(station_id)
+                    session_token = (
+                        station_info["sessionToken"]
+                        if station_info.get("sessionToken")
+                        else None
+                    )
+                    station_tracks = station_info["tracks"]
+
+                if not station_tracks:
+                    raise KeyError
+
+                print_wrn("[Google Play Music] Playing '{0}'.".format(station_name))
+
+                for track in station_tracks:
+                    track["sessionToken"] = session_token
+
+                self._add_to_playback_queue(station_tracks)
+
+            self._finalise_play_queue(0, arg)
+
+        except KeyError:
+            raise KeyError(
+                "Station not found : '{0}' "
+                "(NOTE: Free stations are currently available "
+                "only in the U.S., Canada, and India).".format(arg)
+            )
+
+    def enqueue_station_unlimited(self, arg):
+        """Search the user's library for a station with a given name
+        and add its tracks to the playback queue.
+
+        Requires Unlimited subscription.
+
+        """
+        try:
+            # If no suitable station is found in the user's library, then
+            # search google play unlimited for a potential match.
+            self._enqueue_station_unlimited(arg)
+
+            self._finalise_play_queue(0, arg)
+
+        except KeyError:
+            raise KeyError("Station not found : {0}".format(arg))
+
+    def enqueue_genre_unlimited(self, arg):
+        """Search Unlimited for a genre with a given name and add its
+        tracks to the playback queue.
+
+        Requires Unlimited subscription.
+
+        """
+        print_msg(
+            "[Google Play Music] [Retrieving genres] : '{0}'. ".format(self.email)
+        )
+
+        try:
+            all_genres = list()
+            root_genres = self.gmusic.get_genres()
+            second_tier_genres = list()
+            for root_genre in root_genres:
+                second_tier_genres += self.gmusic.get_genres(root_genre["id"])
+            all_genres += root_genres
+            all_genres += second_tier_genres
+            choices = dict()
+            choice_names = list()
+            for g in all_genres:
+                print_nfo(
+                    "[Google Play Music] [Genre] '{0}'.".format(to_ascii(g["name"]))
+                )
+                choices[g["name"]] = g
+                choice_names.append(g["name"])
+
+            choice_name = process.extractOne(arg, choice_names)[0]
+            genre = choices[choice_name]
+
+            tracks_added = 0
+            while not tracks_added:
+                if not genre and len(all_genres):
+                    # Play some random genre from the search results
+                    random.seed()
+                    genre = random.choice(all_genres)
+                    print_adv(
+                        "[Google Play Music] '{0}' not found. "
+                        "Feeling lucky?.".format(to_ascii(arg))
+                    )
+
+                genre_name = genre["name"]
+                genre_id = genre["id"]
+                station_id = self.gmusic.create_station(
+                    genre_name, None, None, None, genre_id
+                )
+                num_tracks = MAX_TRACKS
+                tracks = self.gmusic.get_station_tracks(station_id, num_tracks)
+                tracks_added = self._add_to_playback_queue(tracks)
+                logging.info(
+                    "Added %d tracks from %s to queue", tracks_added, genre_name
+                )
+                if not tracks_added:
+                    print_wrn(
+                        "[Google Play Music] '{0}' No tracks found. "
+                        "Trying something else.".format(to_ascii(genre_name))
+                    )
+                    del choices[genre_name]
+                    choice_names.remove(genre_name)
+                    choice_name = process.extractOne(arg, choice_names)[0]
+                    genre = choices[choice_name]
+
+            print_wrn(
+                "[Google Play Music] Playing '{0}'.".format(to_ascii(genre["name"]))
+            )
+
+            self._finalise_play_queue(0, arg)
+
+        except KeyError:
+            raise KeyError("Genre not found : {0}".format(arg))
+        except CallFailure:
+            raise RuntimeError("Operation requires an Unlimited subscription.")
+
+    def enqueue_situation_unlimited(self, arg, additional_keywords):
+        """Search Unlimited for a situation (a.k.a. activity) with a given name and add its
+        tracks to the playback queue.
+
+        Requires Unlimited subscription.
+
+        """
+        print_msg(
+            "[Google Play Music] [Retrieving activities] : '{0}'. ".format(self.email)
+        )
+
+        try:
+
+            self._enqueue_situation_unlimited(arg, additional_keywords)
+
+            self._finalise_play_queue(0, arg)
+
+        except KeyError:
+            raise KeyError("Activity not found : {0}".format(arg))
+        except CallFailure:
+            raise RuntimeError("Operation requires an Unlimited subscription.")
+
+    def enqueue_artist_unlimited(self, arg):
+        """Search Unlimited for an artist and add the artist's top tracks to the
+        playback queue.
+
+        Requires Unlimited subscription.
+
+        """
+        try:
+            artist = self._gmusic_search(arg, "artist")
+
+            include_albums = False
+            max_top_tracks = 1000
+            max_rel_artist = 0
+            artist_tracks = dict()
+            if artist:
+                artist_dict = self.gmusic.get_artist_info(
+                    artist["artist"]["artistId"],
+                    include_albums,
+                    max_top_tracks,
+                    max_rel_artist,
+                )
+                if artist_dict.get("topTracks"):
+                    artist_tracks = artist_dict["topTracks"]
+                else:
+                    raise RuntimeError(
+                        "Artist search returned no tracks : {0}".format(arg)
+                    )
+
+            if not artist_tracks:
+                raise KeyError
+
+            self._add_to_playback_queue(artist_tracks)
+
+            self._finalise_play_queue(0, arg)
+
+        except KeyError:
+            raise KeyError("Artist not found : {0}".format(arg))
+        except CallFailure:
+            raise RuntimeError("Operation requires an Unlimited subscription.")
+
+    def enqueue_album_unlimited(self, arg):
+        """Search Unlimited for an album and add its tracks to the
+        playback queue.
+
+        Requires Unlimited subscription.
+
+        """
+        try:
+            album = self._gmusic_search(arg, "album")
+            album_tracks = dict()
+            if album:
+                album_tracks = self.gmusic.get_album_info(album["album"]["albumId"])[
+                    "tracks"
+                ]
+            if not album_tracks:
+                raise KeyError
+
+            print_wrn(
+                "[Google Play Music] Playing '{0} ({1})'.".format(
+                    (album["album"]["name"]), (album["album"]["artist"])
+                )
+            )
+
+            self._add_to_playback_queue(album_tracks)
+            self._finalise_play_queue(0, arg)
+
+        except KeyError:
+            raise KeyError("Album not found : {0}".format(arg))
+        except CallFailure:
+            raise RuntimeError("Operation requires an Unlimited subscription.")
+
+    def enqueue_tracks_unlimited(self, arg):
+        """ Search Unlimited for a track name and add all the matching tracks
+        to the playback queue.
+
+        Requires Unlimited subscription.
+
+        """
+        print_msg(
+            "[Google Play Music] [Retrieving library] : '{0}'. ".format(self.email)
+        )
+
+        try:
+            max_results = MAX_TRACKS
+            track_hits = self.gmusic.search(arg, max_results)["song_hits"]
+            if not len(track_hits):
+                # Do another search with an empty string
+                track_hits = self.gmusic.search("", max_results)["song_hits"]
+                print_adv(
+                    "[Google Play Music] '{0}' not found. "
+                    "Feeling lucky?.".format(to_ascii(arg))
+                )
+
+            tracks = list()
+            for hit in track_hits:
+                tracks.append(hit["track"])
+
+            self._add_to_playback_queue(tracks)
+            self._finalise_play_queue(0, arg)
+
+        except KeyError:
+            raise KeyError("Playlist not found : {0}".format(arg))
+        except CallFailure:
+            raise RuntimeError("Operation requires an Unlimited subscription.")
+
+    def enqueue_playlist_unlimited(self, arg):
+        """Search Unlimited for a playlist name and add all its tracks to the
+        playback queue.
+
+        Requires Unlimited subscription.
+
+        """
+        print_msg(
+            "[Google Play Music] [Retrieving playlists] : '{0}'. ".format(self.email)
+        )
+
+        try:
+            playlist_tracks = list()
+
+            playlist_hits = self._gmusic_search(arg, "playlist")
+            if playlist_hits:
+                playlist = playlist_hits["playlist"]
+                playlist_contents = self.gmusic.get_shared_playlist_contents(
+                    playlist["shareToken"]
+                )
+            else:
+                raise KeyError
+
+            print_wrn(
+                "[Google Play Music] Playing '{0}' by '{1}'.".format(
+                    playlist["name"],
+                    playlist["ownerName"] if playlist.get("ownerName") else "n/a",
+                )
+            )
+
+            for item in playlist_contents:
+                track = item["track"]
+                print_nfo(
+                    "[Google Play Music] [Track] '{} by {} (Album: {}, {})'.".format(
+                        (track["title"]),
+                        (track["artist"]),
+                        (track["album"]),
+                        (track["year"]),
+                    )
+                )
+                playlist_tracks.append(track)
+
+            if not playlist_tracks:
+                raise KeyError
+
+            self._add_to_playback_queue(playlist_tracks)
+
+            self._finalise_play_queue(0, arg)
+
+        except KeyError:
+            raise KeyError("Playlist not found : {0}".format(arg))
+        except CallFailure:
+            raise RuntimeError("Operation requires an Unlimited subscription.")
+
+    def enqueue_promoted_tracks_unlimited(self):
+        """ Retrieve the url of the next track in the playback queue.
+
+        """
+        try:
+            tracks = self.gmusic.get_promoted_songs()
+            count = 0
+            for track in tracks:
+                store_track = self.gmusic.get_track_info(track["storeId"])
+                if "id" not in list(store_track.keys()):
+                    store_track["id"] = store_track["storeId"]
+                self.queue.append(store_track)
+                count += 1
+            if count == 0:
+                print_wrn(
+                    "[Google Play Music] Operation requires "
+                    "an Unlimited subscription."
+                )
+
+            self._finalise_play_queue(0, "promoted")
+
+        except CallFailure:
+            raise RuntimeError("Operation requires an Unlimited subscription.")
+
+    def current_track_queue_index_and_queue_length(self):
+        """ Retrieve index in the queue (starting from 1) of the current track and the
+        length of the playback queue.
+
+        """
+        logging.info("current_audio_track_queue_index_and_queue_length")
+        return self.play_queue_order[self.queue_index] + 1, len(self.queue)
+
     def current_song_title_and_artist(self):
         """ Retrieve the current track's title and artist name.
 
@@ -400,658 +1057,6 @@ class tizgmusicproxy(object):
             url = art[0].get("url")
         return url
 
-    def clear_queue(self):
-        """ Clears the playback queue.
-
-        """
-        self.queue = list()
-        self.queue_index = -1
-
-    def enqueue_library(self):
-        """ Add the user library to the playback queue.
-
-        """
-        try:
-            songs = self.gmusic.get_all_songs()
-            self._enqueue_tracks(songs)
-            self._update_play_queue_order(print_queue=False)
-
-        except KeyError:
-            raise KeyError("Library not found")
-
-    def enqueue_tracks(self, arg):
-        """ Search the user's library for tracks and add
-        them to the playback queue.
-
-        :param arg: a track search term
-        """
-        try:
-            songs = self.gmusic.get_all_songs()
-
-            track_hits = list()
-            for song in songs:
-                song_title = song["title"]
-                if fuzz.partial_ratio(arg, song_title) > 60:
-                    track_hits.append(song)
-
-            if not len(track_hits):
-                print_adv(
-                    "[Google Play Music] '{0}' not found. "
-                    "Feeling lucky?.".format(to_ascii(arg))
-                )
-                random.seed()
-                max_tracks = min(len(songs), MAX_TRACKS)
-                track_hits = random.sample(songs, max_tracks)
-                for hit in track_hits:
-                    song_title = hit["title"]
-                    song_artist = hit["artist"]
-
-            if not len(track_hits):
-                raise KeyError
-
-            self._enqueue_tracks(track_hits)
-            self._update_play_queue_order()
-
-        except KeyError:
-            raise KeyError("Track not found : {0}".format(arg))
-
-    def enqueue_artist(self, arg):
-        """ Search the user's library for tracks from the given artist and add
-        them to the playback queue.
-
-        :param arg: an artist
-        """
-        try:
-            self._update_local_library()
-            artist = None
-            artist_dict = None
-            if arg not in list(self.library.keys()):
-                artist_dicts = dict()
-                artist_names = list()
-                for name, art in self.library.items():
-                    if fuzz.ratio(arg, name) > 50:
-                        artist_names.append(name)
-                        artist_dicts[name] = art
-
-                if len(artist_names) > 1:
-                    artist = process.extractOne(arg, artist_names)[0]
-                    artist_dict = artist_dicts[artist]
-                elif len(artist_names) == 1:
-                    artist = artist_names[0]
-                    artist_dict = artist_dicts[artist]
-
-                if artist:
-                    if arg.lower() != name.lower():
-                        print_wrn(
-                            "[Google Play Music] '{0}' not found. "
-                            "Playing '{1}' instead.".format(
-                                to_ascii(arg), to_ascii(artist)
-                            )
-                        )
-
-                if not artist:
-                    # Play some random artist from the library
-                    random.seed()
-                    artist = random.choice(list(self.library.keys()))
-                    artist_dict = self.library[artist]
-                    print_adv(
-                        "[Google Play Music] '{0}' not found. "
-                        "Feeling lucky?.".format(to_ascii(arg))
-                    )
-            else:
-                artist = arg
-                artist_dict = self.library[arg]
-            for album in artist_dict:
-                self._enqueue_tracks(artist_dict[album])
-            print_wrn("[Google Play Music] Playing '{0}'.".format(to_ascii(artist)))
-
-            self._update_play_queue_order()
-
-        except KeyError:
-            raise KeyError("Artist not found : {0}".format(arg))
-
-    def enqueue_album(self, arg):
-        """ Search the user's library for albums with a given name and add
-        them to the playback queue.
-
-        """
-        try:
-            self._update_local_library()
-            album = None
-            artist = None
-            choice_albums = list()
-            choice_artists = dict()
-            for library_artist in self.library:
-                for artist_album in self.library[library_artist]:
-                    print_nfo(
-                        "[Google Play Music] [Album] '{0} ({1})'.".format(
-                            to_ascii(artist_album), to_ascii(library_artist)
-                        )
-                    )
-                    choice_albums.append(artist_album)
-                    choice_artists[artist_album] = library_artist
-
-            album = process.extractOne(arg, choice_albums)[0]
-            artist = choice_artists[album]
-
-            if not album:
-                # Play some random album from the library
-                random.seed()
-                artist = random.choice(list(self.library.keys()))
-                album = random.choice(list(self.library[artist].keys()))
-                print_adv(
-                    "[Google Play Music] '{0}' not found. "
-                    "Feeling lucky?.".format(to_ascii(arg))
-                )
-
-            if not album:
-                raise KeyError("Album not found : {0}".format(arg))
-
-            self._enqueue_tracks(self.library[artist][album])
-            print_wrn(
-                "[Google Play Music] Playing '{0} ({1})'.".format(
-                    to_ascii(album), to_ascii(artist)
-                )
-            )
-
-            self._update_play_queue_order()
-
-        except KeyError:
-            raise KeyError("Album not found : {0}".format(arg))
-
-    def enqueue_playlist(self, arg):
-        """Search the user's library for playlists with a given name
-        and add the tracks of the first match to the playback queue.
-
-        Requires Unlimited subscription.
-
-        """
-        try:
-            self._update_local_library()
-            self._update_playlists_unlimited()
-            self._update_playlists()
-            playlist = None
-            playlist_name = None
-            for name, plist in list(self.playlists.items()):
-                print_nfo(
-                    "[Google Play Music] [Playlist] '{0}' ({1} tracks).".format(
-                        to_ascii(name), len(plist)
-                    )
-                )
-            if arg not in list(self.playlists.keys()):
-                playlist_dict = dict()
-                playlist_names = list()
-                for name, plist in self.playlists.items():
-                    if fuzz.ratio(arg, name) > 50:
-                        playlist_dict[name] = plist
-                        playlist_names.append(name)
-
-                if len(playlist_names) > 1:
-                    playlist_name = process.extractOne(arg, playlist_names)[0]
-                    playlist = playlist_dict[playlist_name]
-                elif len(playlist_names) == 1:
-                    playlist_name = playlist_names[0]
-                    playlist = playlist_dict[playlist_name]
-
-                if playlist_name:
-                    if arg.lower() != playlist_name.lower():
-                        print_wrn(
-                            "[Google Play Music] '{0}' not found. "
-                            "Playing '{1}' instead.".format(
-                                to_ascii(arg), to_ascii(playlist_name)
-                            )
-                        )
-
-            else:
-                playlist_name = arg
-                playlist = self.playlists[arg]
-
-            if not playlist and len(list(self.playlists.keys())) > 0:
-                print_adv(
-                    "[Google Play Music] '{0}' not found (or is empty). "
-                    "Feeling lucky?.".format(to_ascii(arg))
-                )
-                random.seed()
-                x = 0
-                playlists_copy = self.playlists.copy()
-                while (
-                    (not playlist or not len(playlist))
-                    and x < 3
-                    and len(playlists_copy)
-                ):
-                    x += 1
-                    # Play some random playlist from the library
-                    playlist_name = random.choice(list(playlists_copy.keys()))
-                    playlist = self.playlists[playlist_name]
-                    if not playlist or not len(playlist):
-                        del playlists_copy[playlist_name]
-                        print_wrn(
-                            "[Google Play Music] '{0}' is empty. ".format(
-                                to_ascii(playlist_name)
-                            )
-                        )
-
-            if not len(playlist):
-                raise KeyError
-
-            self._enqueue_tracks(playlist)
-            print_wrn(
-                "[Google Play Music] Playing '{0}'.".format(to_ascii(playlist_name))
-            )
-
-            self._update_play_queue_order()
-
-        except KeyError:
-            raise KeyError("Playlist not found or is empty : {0}".format(arg))
-
-    def enqueue_podcast(self, arg):
-        """Search Google Play Music for a podcast series and add its tracks to the
-        playback queue ().
-
-        Requires Unlimited subscription.
-
-        """
-        print_msg(
-            "[Google Play Music] [Retrieving podcasts] : '{0}'. ".format(self.email)
-        )
-
-        try:
-
-            self._enqueue_podcast(arg)
-
-            if not len(self.queue):
-                raise KeyError
-
-            logging.info("Added %d episodes from '%s' to queue", len(self.queue), arg)
-            self._update_play_queue_order(print_queue=False)
-
-        except KeyError:
-            raise KeyError("Podcast not found : {0}".format(arg))
-        except CallFailure:
-            raise RuntimeError("Operation requires an Unlimited subscription.")
-
-    def enqueue_station(self, arg):
-        """Search for a free station using a given track, album or artist name and add
-        its tracks to the playback queue.
-
-        Available in the free tier.
-
-        """
-        try:
-            # First search for a station id
-            max_results = MAX_TRACKS
-            station_hits = self.gmusic.search(arg, max_results)["station_hits"]
-            station_name = ""
-            station_seed = None
-            station_id = ""
-            station_tracks = dict()
-            if station_hits and len(station_hits):
-                station_seeds = dict()
-                station_names = list()
-                for hit in station_hits:
-                    station = hit["station"]
-                    station_name = station["name"]
-                    print_nfo(
-                        "[Google Play Music] [Station] '{0}'.".format(station_name)
-                    )
-                    if fuzz.partial_ratio(arg, station_name) > 70:
-                        station_seeds[station_name] = station["seed"]
-                        station_names.append(station_name)
-
-                if len(station_names) > 1:
-                    station_name = process.extractOne(arg, station_names)[0]
-                    station_seed = station_seeds[station_name]
-                elif len(station_names) == 1:
-                    station_name = station_names[0]
-                    station_seed = station_seeds[station_name]
-
-                if station_seed:
-                    if station_seed["seedType"] == "2":
-                        station_id = self.gmusic.create_station(
-                            station_name, track_id=station_seed["trackId"]
-                        )
-                    if station_seed["seedType"] == "3":
-                        station_id = self.gmusic.create_station(
-                            station_name, artist_id=station_seed["artistId"]
-                        )
-                    if station_seed["seedType"] == "4":
-                        station_id = self.gmusic.create_station(
-                            station_name, album_id=station_seed["albumId"]
-                        )
-                    if station_seed["seedType"] == "9":
-                        station_id = self.gmusic.create_station(
-                            station_name,
-                            curated_station_id=station_seed["curatedStationId"],
-                        )
-                if station_id:
-                    station_info = self.gmusic.get_station_info(station_id)
-                    session_token = (
-                        station_info["sessionToken"]
-                        if station_info.get("sessionToken")
-                        else None
-                    )
-                    station_tracks = station_info["tracks"]
-
-                if not station_tracks:
-                    raise KeyError
-
-                print_wrn("[Google Play Music] Playing '{0}'.".format(station_name))
-
-                for track in station_tracks:
-                    track["sessionToken"] = session_token
-
-                self._enqueue_tracks(station_tracks)
-                self._update_play_queue_order()
-
-            if not len(self.queue):
-                raise KeyError
-
-        except KeyError:
-            raise KeyError(
-                "Station not found : '{0}' "
-                "(NOTE: Free stations are currently available "
-                "only in the U.S., Canada, and India).".format(arg)
-            )
-
-    def enqueue_station_unlimited(self, arg):
-        """Search the user's library for a station with a given name
-        and add its tracks to the playback queue.
-
-        Requires Unlimited subscription.
-
-        """
-        try:
-            # If no suitable station is found in the user's library, then
-            # search google play unlimited for a potential match.
-            self._enqueue_station_unlimited(arg)
-
-            if not len(self.queue):
-                raise KeyError
-
-        except KeyError:
-            raise KeyError("Station not found : {0}".format(arg))
-
-    def enqueue_genre_unlimited(self, arg):
-        """Search Unlimited for a genre with a given name and add its
-        tracks to the playback queue.
-
-        Requires Unlimited subscription.
-
-        """
-        print_msg(
-            "[Google Play Music] [Retrieving genres] : '{0}'. ".format(self.email)
-        )
-
-        try:
-            all_genres = list()
-            root_genres = self.gmusic.get_genres()
-            second_tier_genres = list()
-            for root_genre in root_genres:
-                second_tier_genres += self.gmusic.get_genres(root_genre["id"])
-            all_genres += root_genres
-            all_genres += second_tier_genres
-            choices = dict()
-            choice_names = list()
-            for g in all_genres:
-                print_nfo(
-                    "[Google Play Music] [Genre] '{0}'.".format(to_ascii(g["name"]))
-                )
-                choices[g["name"]] = g
-                choice_names.append(g["name"])
-
-            choice_name = process.extractOne(arg, choice_names)[0]
-            genre = choices[choice_name]
-
-            tracks_added = 0
-            while not tracks_added:
-                if not genre and len(all_genres):
-                    # Play some random genre from the search results
-                    random.seed()
-                    genre = random.choice(all_genres)
-                    print_adv(
-                        "[Google Play Music] '{0}' not found. "
-                        "Feeling lucky?.".format(to_ascii(arg))
-                    )
-
-                genre_name = genre["name"]
-                genre_id = genre["id"]
-                station_id = self.gmusic.create_station(
-                    genre_name, None, None, None, genre_id
-                )
-                num_tracks = MAX_TRACKS
-                tracks = self.gmusic.get_station_tracks(station_id, num_tracks)
-                tracks_added = self._enqueue_tracks(tracks)
-                logging.info(
-                    "Added %d tracks from %s to queue", tracks_added, genre_name
-                )
-                if not tracks_added:
-                    print_wrn(
-                        "[Google Play Music] '{0}' No tracks found. "
-                        "Trying something else.".format(to_ascii(genre_name))
-                    )
-                    del choices[genre_name]
-                    choice_names.remove(genre_name)
-                    choice_name = process.extractOne(arg, choice_names)[0]
-                    genre = choices[choice_name]
-
-            print_wrn(
-                "[Google Play Music] Playing '{0}'.".format(to_ascii(genre["name"]))
-            )
-
-            self._update_play_queue_order()
-
-        except KeyError:
-            raise KeyError("Genre not found : {0}".format(arg))
-        except CallFailure:
-            raise RuntimeError("Operation requires an Unlimited subscription.")
-
-    def enqueue_situation_unlimited(self, arg, additional_keywords):
-        """Search Unlimited for a situation (a.k.a. activity) with a given name and add its
-        tracks to the playback queue.
-
-        Requires Unlimited subscription.
-
-        """
-        print_msg(
-            "[Google Play Music] [Retrieving activities] : '{0}'. ".format(self.email)
-        )
-
-        try:
-
-            self._enqueue_situation_unlimited(arg, additional_keywords)
-
-            if not len(self.queue):
-                raise KeyError
-
-            logging.info("Added %d tracks from %s to queue", len(self.queue), arg)
-
-        except KeyError:
-            raise KeyError("Activity not found : {0}".format(arg))
-        except CallFailure:
-            raise RuntimeError("Operation requires an Unlimited subscription.")
-
-    def enqueue_artist_unlimited(self, arg):
-        """Search Unlimited for an artist and add the artist's top tracks to the
-        playback queue.
-
-        Requires Unlimited subscription.
-
-        """
-        try:
-            artist = self._gmusic_search(arg, "artist")
-
-            include_albums = False
-            max_top_tracks = 1000
-            max_rel_artist = 0
-            artist_tracks = dict()
-            if artist:
-                artist_dict = self.gmusic.get_artist_info(
-                    artist["artist"]["artistId"],
-                    include_albums,
-                    max_top_tracks,
-                    max_rel_artist,
-                )
-                if artist_dict.get("topTracks"):
-                    artist_tracks = artist_dict["topTracks"]
-                else:
-                    raise RuntimeError(
-                        "Artist search returned no tracks : {0}".format(arg)
-                    )
-
-            if not artist_tracks:
-                raise KeyError
-
-            self._enqueue_tracks(artist_tracks)
-            self._update_play_queue_order()
-
-        except KeyError:
-            raise KeyError("Artist not found : {0}".format(arg))
-        except CallFailure:
-            raise RuntimeError("Operation requires an Unlimited subscription.")
-
-    def enqueue_album_unlimited(self, arg):
-        """Search Unlimited for an album and add its tracks to the
-        playback queue.
-
-        Requires Unlimited subscription.
-
-        """
-        try:
-            album = self._gmusic_search(arg, "album")
-            album_tracks = dict()
-            if album:
-                album_tracks = self.gmusic.get_album_info(album["album"]["albumId"])[
-                    "tracks"
-                ]
-            if not album_tracks:
-                raise KeyError
-
-            print_wrn(
-                "[Google Play Music] Playing '{0} ({1})'.".format(
-                    (album["album"]["name"]), (album["album"]["artist"])
-                )
-            )
-
-            self._enqueue_tracks(album_tracks)
-            self._update_play_queue_order()
-
-        except KeyError:
-            raise KeyError("Album not found : {0}".format(arg))
-        except CallFailure:
-            raise RuntimeError("Operation requires an Unlimited subscription.")
-
-    def enqueue_tracks_unlimited(self, arg):
-        """ Search Unlimited for a track name and add all the matching tracks
-        to the playback queue.
-
-        Requires Unlimited subscription.
-
-        """
-        print_msg(
-            "[Google Play Music] [Retrieving library] : '{0}'. ".format(self.email)
-        )
-
-        try:
-            max_results = MAX_TRACKS
-            track_hits = self.gmusic.search(arg, max_results)["song_hits"]
-            if not len(track_hits):
-                # Do another search with an empty string
-                track_hits = self.gmusic.search("", max_results)["song_hits"]
-                print_adv(
-                    "[Google Play Music] '{0}' not found. "
-                    "Feeling lucky?.".format(to_ascii(arg))
-                )
-
-            tracks = list()
-            for hit in track_hits:
-                tracks.append(hit["track"])
-
-            self._enqueue_tracks(tracks)
-            self._update_play_queue_order()
-
-        except KeyError:
-            raise KeyError("Playlist not found : {0}".format(arg))
-        except CallFailure:
-            raise RuntimeError("Operation requires an Unlimited subscription.")
-
-    def enqueue_playlist_unlimited(self, arg):
-        """Search Unlimited for a playlist name and add all its tracks to the
-        playback queue.
-
-        Requires Unlimited subscription.
-
-        """
-        print_msg(
-            "[Google Play Music] [Retrieving playlists] : '{0}'. ".format(self.email)
-        )
-
-        try:
-            playlist_tracks = list()
-
-            playlist_hits = self._gmusic_search(arg, "playlist")
-            if playlist_hits:
-                playlist = playlist_hits["playlist"]
-                playlist_contents = self.gmusic.get_shared_playlist_contents(
-                    playlist["shareToken"]
-                )
-            else:
-                raise KeyError
-
-            print_wrn(
-                "[Google Play Music] Playing '{0}' by '{1}'.".format(
-                    playlist["name"],
-                    playlist["ownerName"] if playlist.get("ownerName") else "n/a",
-                )
-            )
-
-            for item in playlist_contents:
-                track = item["track"]
-                print_nfo(
-                    "[Google Play Music] [Track] '{} by {} (Album: {}, {})'.".format(
-                        (track["title"]),
-                        (track["artist"]),
-                        (track["album"]),
-                        (track["year"]),
-                    )
-                )
-                playlist_tracks.append(track)
-
-            if not playlist_tracks:
-                raise KeyError
-
-            self._enqueue_tracks(playlist_tracks)
-            self._update_play_queue_order(print_queue=False)
-
-        except KeyError:
-            raise KeyError("Playlist not found : {0}".format(arg))
-        except CallFailure:
-            raise RuntimeError("Operation requires an Unlimited subscription.")
-
-    def enqueue_promoted_tracks_unlimited(self):
-        """ Retrieve the url of the next track in the playback queue.
-
-        """
-        try:
-            tracks = self.gmusic.get_promoted_songs()
-            count = 0
-            for track in tracks:
-                store_track = self.gmusic.get_track_info(track["storeId"])
-                if "id" not in list(store_track.keys()):
-                    store_track["id"] = store_track["storeId"]
-                self.queue.append(store_track)
-                count += 1
-            if count == 0:
-                print_wrn(
-                    "[Google Play Music] Operation requires "
-                    "an Unlimited subscription."
-                )
-
-            self._print_play_queue()
-            self._update_play_queue_order()
-
-        except CallFailure:
-            raise RuntimeError("Operation requires an Unlimited subscription.")
-
     def next_url(self, count=0):
         """ Retrieve the url of the next track in the playback queue.
 
@@ -1093,6 +1098,55 @@ class tizgmusicproxy(object):
         else:
             return ""
 
+    def get_url(self, position=None):
+        """Retrieve the url on a particular position in the playback queue. If no
+        position is given, the url at the current position of the playback is returned.
+
+        """
+        logging.info("get_url {}".format(position if position else "-1"))
+        try:
+            if len(self.queue):
+                queue_pos = self.play_queue_order[self.queue_index]
+                if position and position > 0 and position <= len(self.queue):
+                    self.queue_index = position - 1
+                    queue_pos = self.play_queue_order[self.queue_index]
+                    logging.info("get_url : self.queue_index {}".format(self.queue_index))
+                logging.info(
+                    "get_url : play_queue_order {}".format(
+                        self.play_queue_order[self.queue_index]
+                    )
+                )
+                track = self.queue[queue_pos]
+                return self._retrieve_track_url(track)
+            else:
+                return ""
+        except (KeyError, AttributeError):
+            # TODO: We don't remove this for now
+            # del self.queue[self.queue_index]
+            logging.info("exception")
+            return ""
+
+    def print_queue(self):
+        """ Print the play queue in playback order.
+
+        """
+        for i in range(0, len(self.queue)):
+            track = self.queue[self.play_queue_order[i]]
+            order_num = str("#{:0{}d}".format(i + 1, len(str(len(self.queue)))))
+            info_str = str(
+                "[Google Play Music] [Track] [{0}] '{1}' [{2}] ({3})".format(
+                    order_num,
+                    to_ascii(track["title"]),
+                    to_ascii(track["artist"]),
+                    to_ascii(track["duration_str"]),
+                )
+            )
+            print_nfo(info_str + ".")
+
+        print_nfo(
+            "[Google Play Music] [Tracks in queue] '{0}'.".format(len(self.queue))
+        )
+
     def _update_play_queue_order(self, print_queue=True):
         """ Update the queue playback order.
 
@@ -1107,25 +1161,6 @@ class tizgmusicproxy(object):
                 self.play_queue_order = list(range(total_tracks))
             if self.current_play_mode == self.play_modes.SHUFFLE:
                 random.shuffle(self.play_queue_order)
-
-            if print_queue:
-                self._print_play_queue()
-
-            print_nfo(
-                "[Google Play Music] [Tracks in queue] '{0}'.".format(total_tracks)
-            )
-
-    def _print_play_queue(self):
-        """ Print the play queue in playback order.
-
-        """
-        for index in self.play_queue_order:
-            track = self.queue[index]
-            print_nfo(
-                "[Google Play Music] [Track] '{0}' by '{1}'.".format(
-                    to_ascii(track["title"]), to_ascii(track["artist"])
-                )
-            )
 
     def _retrieve_track_url(self, song):
         """ Retrieve a song url
@@ -1275,7 +1310,7 @@ class tizgmusicproxy(object):
                     raise RuntimeError(
                         "Operation requires an " "Unlimited subscription."
                     )
-                tracks_added = self._enqueue_tracks(tracks)
+                tracks_added = self._add_to_playback_queue(tracks)
                 if tracks_added:
                     if not quiet:
                         print_wrn(
@@ -1446,7 +1481,7 @@ class tizgmusicproxy(object):
                     raise RuntimeError(
                         "Operation requires an " "Unlimited subscription."
                     )
-                tracks_added = self._enqueue_tracks(tracks)
+                tracks_added = self._add_to_playback_queue(tracks)
                 if tracks_added:
                     print_wrn(
                         "[Google Play Music] [Station] : '{0}'.".format(station_name)
@@ -1507,7 +1542,7 @@ class tizgmusicproxy(object):
                             (episode["title"]), (episode["description"][0:80])
                         )
                     )
-                episodes_added = self._enqueue_tracks(episodes)
+                episodes_added = self._add_to_playback_queue(episodes)
 
             if not podcast or not episodes_added:
                 raise KeyError
@@ -1515,7 +1550,7 @@ class tizgmusicproxy(object):
         except KeyError:
             raise KeyError("Podcast not found or no episodes found: {0}".format(arg))
 
-    def _enqueue_tracks(self, tracks):
+    def _add_to_playback_queue(self, tracks):
         """ Add tracks to the playback queue
 
         """
@@ -1523,6 +1558,21 @@ class tizgmusicproxy(object):
         for track in tracks:
             if "id" not in list(track.keys()) and track.get("storeId"):
                 track["id"] = track["storeId"]
+
+            if not track.get("duration_str"):
+                duration = int(track["durationMillis"]) / 1000 if track.get("durationMillis") else 1
+                m, s = divmod(duration, 60)
+                h, m = divmod(m, 60)
+                track["duration_str"] = ''
+                if h > 0:
+                    track["duration_str"] = str(
+                        "{:d}h:{:d}m:{:02d}s".format(int(h), int(m), round(s))
+                    )
+                elif m > 0:
+                    track["duration_str"] = str("{:d}m:{:02d}s".format(int(m), round(s)))
+                else:
+                    track["duration_str"] = str("{:02d}s".format(round(s)))
+
             self.queue.append(track)
             count += 1
         return count
@@ -1671,6 +1721,18 @@ class tizgmusicproxy(object):
                 )
 
         return result
+
+    def _finalise_play_queue(self, count, arg):
+        """ Helper function to grou the various actions needed to ready play
+        queue.
+
+        """
+
+        if count == len(self.queue):
+            logging.info("no tracks found arg : %s", arg)
+            raise ValueError
+        self._update_play_queue_order()
+        self.print_queue()
 
 
 if __name__ == "__main__":
