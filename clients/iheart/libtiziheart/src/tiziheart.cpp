@@ -176,6 +176,29 @@ int tiziheart::play_radios (const std::string &query,
   return rc;
 }
 
+const char *tiziheart::get_url (const int a_position)
+{
+  try
+    {
+      int queue_length = get_current_queue_length_as_int();
+      current_url_.clear ();
+      if (queue_length > 0 && a_position > 0 && queue_length >= a_position)
+        {
+          current_url_ = bp::extract< std::string > (
+              py_iheart_proxy_.attr ("get_url") (bp::object (a_position)));
+          get_current_radio ();
+        }
+    }
+  catch (bp::error_already_set &e)
+    {
+      PyErr_PrintEx (0);
+    }
+  catch (...)
+    {
+    }
+  return current_url_.empty () ? NULL : current_url_.c_str ();
+}
+
 const char *tiziheart::get_next_url (const bool a_remove_current_url)
 {
   current_url_.clear ();

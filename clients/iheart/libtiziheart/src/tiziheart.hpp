@@ -65,6 +65,7 @@ public:
   const char *get_current_queue_length ();
   int get_current_queue_length_as_int ();
   const char *get_current_queue_progress ();
+  const char *get_url (const int a_position);
   const char *get_next_url (const bool a_remove_current_url);
   const char *get_prev_url (const bool a_remove_current_url);
   const char *get_current_radio_name ();

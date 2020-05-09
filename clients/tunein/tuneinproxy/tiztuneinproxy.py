@@ -810,26 +810,6 @@ class tiztuneinproxy(object):
         self.play_queue_order = list()
         self.now_playing_radio = None
 
-    def print_queue(self):
-        """ Print the contents of the playback queue.
-
-        """
-
-        for i in range(0, len(self.queue)):
-            radio = self.queue[self.play_queue_order[i]]
-            order_num = str("#{:0{}d}".format(i + 1, len(str(len(self.queue)))))
-            info_str = str(
-                "[TuneIn] [Station/Podcast] [{0}] '{1}' [{2}] ({3})".format(
-                    order_num,
-                    radio["text"] if radio.get("text") else "Uknown radio",
-                    radio["text"] if radio.get("text") else "Uknown radio",
-                    "",
-                )
-            )
-            print_nfo(info_str + ".")
-
-        print_nfo("[TuneIn] [Stations/Podcasts in queue] '{0}'.".format(len(self.queue)))
-
     def remove_current_url(self):
         """Remove the currently active url from the playback queue.
 
@@ -1351,6 +1331,7 @@ class tiztuneinproxy(object):
                         r["subtext"]
                     )
                 )
+            print_nfo("[TuneIn] [Stations/Podcasts in queue] '{0}'.".format(len(self.queue)))
 
     def _ensure_expected_date_format(self, date):
 

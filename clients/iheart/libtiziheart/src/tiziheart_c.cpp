@@ -158,6 +158,14 @@ extern "C" const char *tiz_iheart_get_current_queue_progress (
   return ap_iheart->p_proxy_->get_current_queue_progress ();
 }
 
+extern "C" const char *tiz_iheart_get_url (tiz_iheart_t *ap_iheart,
+                                           const int a_position)
+{
+  assert (ap_iheart);
+  assert (ap_iheart->p_proxy_);
+  return ap_iheart->p_proxy_->get_url (a_position);
+}
+
 extern "C" const char *tiz_iheart_get_next_url (tiz_iheart_t *ap_iheart,
                                                 const bool a_remove_current_url)
 {
