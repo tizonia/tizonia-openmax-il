@@ -678,6 +678,10 @@ scloud_prc_ctor (void * ap_obj, va_list * app)
 {
   scloud_prc_t * p_prc = super_ctor (typeOf (ap_obj, "scloudprc"), ap_obj, app);
   p_prc->p_outhdr_ = NULL;
+  TIZ_INIT_OMX_STRUCT (p_prc->session_);
+  TIZ_INIT_OMX_STRUCT (p_prc->playlist_);
+  TIZ_INIT_OMX_STRUCT (p_prc->playlist_skip_);
+  TIZ_INIT_OMX_STRUCT (p_prc->playlist_position_);
   p_prc->p_uri_param_ = NULL;
   p_prc->p_trans_ = NULL;
   p_prc->p_scloud_ = NULL;

@@ -179,6 +179,14 @@ extern "C" const char *tiz_tunein_get_current_queue_progress (
   return ap_tunein->p_proxy_->get_current_queue_progress ();
 }
 
+extern "C" const char *tiz_tunein_get_url (tiz_tunein_t *ap_tunein,
+                                           const int a_position)
+{
+  assert (ap_tunein);
+  assert (ap_tunein->p_proxy_);
+  return ap_tunein->p_proxy_->get_url (a_position);
+}
+
 extern "C" const char *tiz_tunein_get_next_url (tiz_tunein_t *ap_tunein,
                                                 const bool a_remove_current_url)
 {

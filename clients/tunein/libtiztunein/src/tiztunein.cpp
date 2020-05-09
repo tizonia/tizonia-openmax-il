@@ -29,6 +29,8 @@
 #include <config.h>
 #endif
 
+#include <ctype.h>
+
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <iostream>
@@ -186,6 +188,29 @@ int tiztunein::play_category (const std::string &category,
       bp::object (category), bp::object (keywords1), bp::object (keywords2),
       bp::object (keywords3)));
   return rc;
+}
+
+const char *tiztunein::get_url (const int a_position)
+{
+  try
+    {
+      int queue_length = get_current_queue_length_as_int();
+      current_url_.clear ();
+      if (queue_length > 0 && a_position > 0 && queue_length >= a_position)
+        {
+          current_url_ = bp::extract< std::string > (
+              py_tunein_proxy_.attr ("get_url") (bp::object (a_position)));
+          get_current_radio ();
+        }
+    }
+  catch (bp::error_already_set &e)
+    {
+      PyErr_PrintEx (0);
+    }
+  catch (...)
+    {
+    }
+  return current_url_.empty () ? NULL : current_url_.c_str ();
 }
 
 const char *tiztunein::get_next_url (const bool a_remove_current_url)
@@ -406,6 +431,7 @@ void tiztunein::get_current_radio ()
 
   current_radio_type_ = bp::extract< std::string > (
       py_tunein_proxy_.attr ("current_radio_type") ());
+  current_radio_type_[0] = toupper (current_radio_type_[0]);
 
   current_radio_bitrate_ = bp::extract< std::string > (
       py_tunein_proxy_.attr ("current_radio_bitrate") ());

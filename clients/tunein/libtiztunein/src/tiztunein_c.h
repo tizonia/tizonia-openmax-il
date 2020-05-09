@@ -204,6 +204,21 @@ extern "C"
   const char *tiz_tunein_get_current_queue_progress (tiz_tunein_t *ap_tunein);
 
   /**
+   * Retrieve the station url as the specified position in the play queue.
+   *
+   * On success, the playback queue pointer moves to the position indicated.
+   *
+   * @ingroup libtiztunein
+   *
+   * @param ap_tunein The tiz_tunein handle.
+   * @param a_position A position value in the range [1, len(queue)].
+   *
+   * @return The specified url in the playback queue or NULL if the playback
+   * queue is empty or the the specified position is out of range.
+   */
+  const char *tiz_tunein_get_url (tiz_tunein_t *ap_tunein, const int a_position);
+
+  /**
    * Retrieve the next station url
    *
    * The playback queue pointer moves one position forwards.

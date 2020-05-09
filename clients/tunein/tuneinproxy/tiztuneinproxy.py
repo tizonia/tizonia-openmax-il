@@ -670,14 +670,7 @@ class tiztuneinproxy(object):
             remaining_keywords = [keywords1, keywords2, keywords3]
             self._filter_play_queue("Search", remaining_keywords)
 
-            logging.info(
-                "Added {0} stations/shows to queue".format(len(self.queue) - count)
-            )
-
-            if count == len(self.queue):
-                raise ValueError
-
-            self._update_play_queue_order()
+            self._finalise_play_queue(count, arg)
 
         except ValueError:
             raise ValueError(str("No stations/shows/episodes found"))
@@ -711,14 +704,7 @@ class tiztuneinproxy(object):
             else:
                 self._enqueue_category(category, keywords1, keywords2, keywords3)
 
-            logging.info(
-                "Added {0} stations/shows to queue".format(len(self.queue) - count)
-            )
-
-            if count == len(self.queue):
-                raise ValueError
-
-            self._update_play_queue_order()
+            self._finalise_play_queue(count, category)
 
         except ValueError:
             raise ValueError(
@@ -824,6 +810,26 @@ class tiztuneinproxy(object):
         self.play_queue_order = list()
         self.now_playing_radio = None
 
+    def print_queue(self):
+        """ Print the contents of the playback queue.
+
+        """
+
+        for i in range(0, len(self.queue)):
+            radio = self.queue[self.play_queue_order[i]]
+            order_num = str("#{:0{}d}".format(i + 1, len(str(len(self.queue)))))
+            info_str = str(
+                "[TuneIn] [Station/Podcast] [{0}] '{1}' [{2}] ({3})".format(
+                    order_num,
+                    radio["text"] if radio.get("text") else "Uknown radio",
+                    radio["text"] if radio.get("text") else "Uknown radio",
+                    "",
+                )
+            )
+            print_nfo(info_str + ".")
+
+        print_nfo("[TuneIn] [Stations/Podcasts in queue] '{0}'.".format(len(self.queue)))
+
     def remove_current_url(self):
         """Remove the currently active url from the playback queue.
 
@@ -841,6 +847,33 @@ class tiztuneinproxy(object):
             if self.queue_index < 0:
                 self.queue_index = 0
             self._update_play_queue_order(verbose=False)
+
+    def get_url(self, position=None):
+        """Retrieve the url on a particular position in the playback queue. If no
+        position is given, the url at the current position of the playback is returned.
+
+        """
+        logging.info("get_url {}".format(position if position else "-1"))
+        try:
+            if len(self.queue):
+                queue_pos = self.play_queue_order[self.queue_index]
+                if position and position > 0 and position <= len(self.queue):
+                    self.queue_index = position - 1
+                    queue_pos = self.play_queue_order[self.queue_index]
+                    logging.info("get_url : self.queue_index {}".format(self.queue_index))
+                logging.info(
+                    "get_url : play_queue_order {}".format(
+                        self.play_queue_order[self.queue_index]
+                    )
+                )
+                return self._retrieve_station_url(queue_pos)
+            else:
+                return ""
+        except (KeyError, AttributeError):
+            # TODO: We don't remove this for now
+            # del self.queue[self.queue_index]
+            logging.info("exception")
+            return ""
 
     def next_url(self):
         """ Retrieve the url of the next station/show in the playback queue.
@@ -1212,11 +1245,6 @@ class tiztuneinproxy(object):
             if self.current_play_mode == self.play_modes.SHUFFLE:
                 random.shuffle(self.play_queue_order)
 
-        if verbose:
-            self._print_play_queue()
-
-        print_nfo("[TuneIn] [Items in queue] '{0}'.".format(total_stations))
-
     def _add_to_playback_queue(self, r):
 
         # Check station uniqueness
@@ -1287,8 +1315,10 @@ class tiztuneinproxy(object):
 
         return res
 
-    def _print_play_queue(self):
-        for r in self.queue:
+    def print_queue(self):
+        for i in range(0, len(self.queue)):
+            r = self.queue[self.play_queue_order[i]]
+            order_num = str("#{:0{}d}".format(i + 1, len(str(len(self.queue)))))
             st_or_pod = r["item"]
             if st_or_pod == "topic":
                 st_or_pod = "episode"
@@ -1302,8 +1332,9 @@ class tiztuneinproxy(object):
                     continue
 
                 print_nfo(
-                    "[TuneIn] [{0}] '{1}' [{2}] ({3}, {4}kbps, reliability: {5}%).".format(
+                    "[TuneIn] [{0}] [{1}] '{2}' [{3}] ({4}, {5}kbps, reliability: {6}%).".format(
                         st_or_pod,
+                        order_num,
                         r["text"],
                         r["subtext"],
                         r["formats"],
@@ -1313,8 +1344,11 @@ class tiztuneinproxy(object):
                 )
             else:
                 print_nfo(
-                    "[TuneIn] [{0}] '{1}' [{2}].".format(
-                        st_or_pod, r["text"], r["subtext"]
+                    "[TuneIn] [{0}] [{1}] '{2}' [{3}].".format(
+                        st_or_pod,
+                        order_num,
+                        r["text"],
+                        r["subtext"]
                     )
                 )
 
@@ -1358,6 +1392,17 @@ class tiztuneinproxy(object):
                 if len(filtered_queue):
                     self.queue = filtered_queue
 
+    def _finalise_play_queue(self, count, arg):
+        """ Helper function to grou the various actions needed to ready play
+        queue.
+
+        """
+
+        if count == len(self.queue):
+            logging.info("no tracks found arg : %s", arg)
+            raise ValueError
+        self._update_play_queue_order()
+        self.print_queue()
 
 if __name__ == "__main__":
     tiztuneinproxy()
