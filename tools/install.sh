@@ -127,11 +127,11 @@ if [[ PYVER=3 ]]; then
                 titlecase \
                 pychromecast \
                 plexapi \
+                spotipy \
                 fuzzywuzzy \
                 eventlet \
                 python-Levenshtein \
-                joblib \
-        && sudo -H pip3 install git+https://github.com/plamere/spotipy.git --upgrade
+                joblib
 else
     sudo apt-get -y install python-dev python-pip \
         && sudo -H pip2 install --upgrade \
