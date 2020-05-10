@@ -283,6 +283,12 @@ void graph::gmusicops::do_retrieve_metadata ()
   printf ("\n");
 }
 
+void graph::gmusicops::do_store_config (const tizgraphconfig_ptr_t &config)
+{
+  config_ = config;
+  playlist_ = config_->get_playlist ();
+}
+
 // TODO: Move this implementation to the base class (and remove also from
 // httpservops)
 OMX_ERRORTYPE

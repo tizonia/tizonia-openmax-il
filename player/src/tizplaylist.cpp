@@ -31,10 +31,13 @@
 #endif
 
 #include <algorithm>
+#include <cmath>
+#include <string>
 
-#include <boost/system/error_code.hpp>
-#include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/foreach.hpp>
+#include <boost/system/error_code.hpp>
 
 #include <tizplatform.h>
 
@@ -53,14 +56,15 @@ namespace  // unnamed namespace
     {
     }
 
-    void operator()(const boost::filesystem::directory_entry &p) const
+    void operator() (const boost::filesystem::directory_entry &p) const
     {
       uri_list_.push_back (p.path ().string ());
     }
     uri_lst_t &uri_list_;
   };
 
-  void add_to_extension_list (file_extension_lst_t &list, const std::string &extension)
+  void add_to_extension_list (file_extension_lst_t &list,
+                              const std::string &extension)
   {
     list.insert (list.end (), extension);
   }
@@ -199,22 +203,24 @@ bool tiz::playlist::assemble_play_list (
     }
 
     boost::system::error_code errcode;
-    std::string canonical_base_uri = boost::filesystem::canonical (base_uri,
-                                                                   errcode).string ();
+    std::string canonical_base_uri
+        = boost::filesystem::canonical (base_uri, errcode).string ();
     if (errcode.value () != 0)
     {
       error_msg.assign (errcode.message ());
       goto end;
     }
 
-    if (OMX_ErrorNone != process_base_uri (canonical_base_uri, uri_list, recurse))
+    if (OMX_ErrorNone
+        != process_base_uri (canonical_base_uri, uri_list, recurse))
     {
       error_msg.assign ("File not found.");
       goto end;
     }
 
-    if (OMX_ErrorNone != filter_unknown_media (extension_list, uri_list,
-                                               extension_list_filtered))
+    if (OMX_ErrorNone
+        != filter_unknown_media (extension_list, uri_list,
+                                 extension_list_filtered))
     {
       error_msg.assign ("No supported media types found.");
       goto end;
@@ -272,9 +278,10 @@ void tiz::playlist::skip (const int jump)
   }
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "jump [%d] new position [%d]... [%s]", jump,
-           current_position_, current_position_ < list_size && current_position_ >= 0
-                               ? uri_list_[current_position_].c_str ()
-                               : "");
+           current_position_,
+           current_position_ < list_size && current_position_ >= 0
+               ? uri_list_[current_position_].c_str ()
+               : "");
 }
 
 const std::string &tiz::playlist::get_current_uri () const
@@ -466,8 +473,8 @@ void tiz::playlist::set_position (const int position)
 
     assert (capped_position >= 0 && capped_position < list_size);
     TIZ_LOG (TIZ_PRIORITY_TRACE,
-             "current_position_ [%d] position [%d] new position [%d]", current_position_,
-             position, capped_position);
+             "current_position_ [%d] position [%d] new position [%d]",
+             current_position_, position, capped_position);
     current_position_ = capped_position;
   }
 }
@@ -542,7 +549,19 @@ int tiz::playlist::find_next_sub_list (const int position) const
 
 void tiz::playlist::print_info ()
 {
-  TIZ_PRINTF_C04 ("Playlist length: %lu. File extensions in playlist: %s",
-                  (long)uri_list_.size (),
-                  boost::algorithm::join (extension_list_, ", ").c_str ());
+  TIZ_PRINTF_C11 (
+      "[Playlist] [Tracks in queue] '%lu'. (File extensions in queue: %s)",
+      (long)uri_list_.size (),
+      boost::algorithm::join (extension_list_, ", ").c_str ());
+}
+
+void tiz::playlist::print_contents () const
+{
+  unsigned int i = 1;
+  BOOST_FOREACH (std::string uri, uri_list_)
+  {
+    boost::filesystem::path p (uri);
+    TIZ_PRINTF_C11 ("[Playlist] [Track] [#%d] '%s'", i++,
+                    p.filename ().c_str ());
+  }
 }

@@ -72,6 +72,7 @@ namespace tiz
     void set_position (const int pos);
     void erase_uri (const int position);
     void print_info ();
+    void print_contents () const;
 
   private:
     enum single_format_t

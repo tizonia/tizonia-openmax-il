@@ -260,6 +260,12 @@ void graph::youtubeops::do_retrieve_metadata ()
   printf ("\n");
 }
 
+void graph::youtubeops::do_store_config (const tizgraphconfig_ptr_t &config)
+{
+  config_ = config;
+  playlist_ = config_->get_playlist ();
+}
+
 void graph::youtubeops::do_load_http_source ()
 {
   assert (comp_lst_.size () == 0);

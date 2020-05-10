@@ -57,6 +57,7 @@ namespace tiz
       void do_reconfigure_tunnel (const int tunnel_id);
       void do_skip ();
       void do_retrieve_metadata ();
+      void do_store_config (const tizgraphconfig_ptr_t &config);
 
       bool is_fatal_error (const OMX_ERRORTYPE error) const;
       void do_record_fatal_error (const OMX_HANDLETYPE handle,

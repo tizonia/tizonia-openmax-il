@@ -156,6 +156,8 @@ void graph::ops::do_store_config (const tizgraphconfig_ptr_t &config)
 {
   config_ = config;
   playlist_ = config_->get_playlist ();
+  playlist_->print_contents ();
+  playlist_->print_info ();
 }
 
 void graph::ops::do_enable_auto_detection (const int handle_id, const int port_id)
@@ -448,9 +450,10 @@ void graph::ops::do_seek ()
 
 void graph::ops::do_skip ()
 {
-  if (last_op_succeeded () && 0 != position_)
+  if (last_op_succeeded () && (0 < position_)
+      && (playlist_->size () >= position_))
   {
-    playlist_->set_position (position_);
+    playlist_->set_position (position_ - 1);
     // Reset the position value, to its default value
     position_ = POSITION_DEFAULT_VALUE;
   }

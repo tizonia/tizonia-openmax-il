@@ -934,32 +934,33 @@ void tiz::probe::dump_stream_metadata ()
   std::string the_artist = artist ().empty () ? get_stream_genre () : artist ();
 
   printf ("   ");
-  TIZ_PRINTF_C03 ("%s, %s", the_title.c_str (), the_artist.c_str ());
-  if (!track ().empty () && track ().compare ("0") != 0)
-  {
-    printf ("     ");
-    TIZ_PRINTF_C06 ("Track # : %s", track ().c_str ());
-  }
+  TIZ_PRINTF_C03 ("%s : %s", the_artist.c_str (), the_title.c_str ());
+
   if (!album ().empty ())
   {
     printf ("     ");
     TIZ_PRINTF_C06 ("Album : %s", album ().c_str ());
   }
+
   if (!year ().empty () && year ().compare ("0") != 0)
   {
     printf ("     ");
     TIZ_PRINTF_C06 ("Year : %s", year ().c_str ());
   }
+
   printf ("     ");
   TIZ_PRINTF_C06 ("Duration : %s", stream_length ().c_str ());
+
   printf ("     ");
   TIZ_PRINTF_C06 ("Size : %.2g MiB",
       ((float)boost::filesystem::file_size (uri_.c_str ()) / (1024 * 1024)));
+
   if (!genre ().empty ())
   {
     printf ("     ");
     TIZ_PRINTF_C06 ("Genre : %s", genre ().c_str ());
   }
+
   if (!comment ().empty ())
   {
     printf ("     ");

@@ -941,7 +941,6 @@ tiz::playapp::decode_local ()
       = boost::make_shared< tiz::playlist > (tiz::playlist (file_list));
 
   assert (playlist);
-  playlist->print_info ();
 
   // Instantiate the decode manager
   tiz::graphmgr::mgr_ptr_t p_mgr
