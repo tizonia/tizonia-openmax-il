@@ -882,7 +882,7 @@ class tiziheartproxy(object):
         """
 
         if count == len(self.queue):
-            logging.info("no tracks found arg : %s", arg)
+            logging.info("no stations found arg : %s", arg)
             raise ValueError
         self._update_play_queue_order()
         self.print_queue()

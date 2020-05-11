@@ -296,6 +296,13 @@ void tiziheart::clear_queue ()
   (void)rc;
 }
 
+void tiziheart::print_queue ()
+{
+  int rc = 0;
+  try_catch_wrapper (py_iheart_proxy_.attr ("print_queue") ());
+  (void)rc;
+}
+
 const char *tiziheart::get_current_radio_index ()
 {
   obtain_current_queue_progress ();

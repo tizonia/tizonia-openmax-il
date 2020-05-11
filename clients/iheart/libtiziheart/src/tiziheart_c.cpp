@@ -126,6 +126,13 @@ extern "C" void tiz_iheart_clear_queue (tiz_iheart_t *ap_iheart)
   ap_iheart->p_proxy_->clear_queue ();
 }
 
+extern "C" void tiz_iheart_print_queue (tiz_iheart_t *ap_iheart)
+{
+  assert (ap_iheart);
+  assert (ap_iheart->p_proxy_);
+  ap_iheart->p_proxy_->print_queue ();
+}
+
 extern "C" const char *tiz_iheart_get_current_radio_index (
     tiz_iheart_t *ap_iheart)
 {

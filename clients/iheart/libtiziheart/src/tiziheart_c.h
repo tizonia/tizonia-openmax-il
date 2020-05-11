@@ -118,6 +118,15 @@ extern "C"
   void tiz_iheart_clear_queue (tiz_iheart_t *ap_iheart);
 
   /**
+   * Print to standard output the contents of the playback queue.
+   *
+   * @ingroup libtiziheart
+   *
+   * @param ap_iheart The tiz_iheart handle.
+   */
+  void tiz_iheart_print_queue (tiz_iheart_t *ap_iheart);
+
+  /**
    * Retrieve the index in the playback queue of the stream currently selected.
    *
    * @ingroup libtiziheart

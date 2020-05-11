@@ -59,6 +59,7 @@ public:
                    const std::string &keywords2, const std::string &keywords3);
 
   void clear_queue ();
+  void print_queue ();
   void set_playback_mode (const playback_mode mode);
 
   const char *get_current_radio_index ();
