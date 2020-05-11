@@ -166,7 +166,7 @@ void graph::iheartops::do_configure ()
     G_OPS_BAIL_IF_ERROR (apply_pcm_codec_info_from_decoder (),
                          "Unable to set OMX_IndexParamAudioPcm");
     const std::string coding_type_str ("iHeart");
-    tiz::graph::util::dump_graph_info (coding_type_str.c_str (), "Search",
+    tiz::graph::util::dump_graph_info (coding_type_str.c_str (), "Streaming",
                                        playlist_->get_current_uri ().c_str ());
   }
 }
@@ -229,7 +229,7 @@ void graph::iheartops::do_reconfigure_tunnel (const int tunnel_id)
 void graph::iheartops::do_skip ()
 {
   if (last_op_succeeded () && (INVALID_POSITION != position_)
-      && (0 <= position_) && (playlist_->size () >= position_))
+      && (0 <= position_))
   {
     assert (!handles_.empty ());
     G_OPS_BAIL_IF_ERROR (util::apply_playlist_position (handles_[0], position_),

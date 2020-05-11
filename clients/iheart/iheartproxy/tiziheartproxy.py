@@ -813,7 +813,6 @@ class tiziheartproxy(object):
             url = self.iheart.station_url(info)
             station_url = None
             name = station["name"]
-            print_wrn("[iHeart] [Streaming] '{0}'.".format(name))
             urls = self.iheart.parse_stream_url(url)
             if len(urls) > 0:
                 station_url = urls[0]

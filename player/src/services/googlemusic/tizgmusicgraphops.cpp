@@ -235,7 +235,7 @@ void graph::gmusicops::do_reconfigure_tunnel (const int tunnel_id)
 void graph::gmusicops::do_skip ()
 {
   if (last_op_succeeded () && (INVALID_POSITION != position_)
-      && (0 <= position_) && (playlist_->size () >= position_))
+      && (0 <= position_))
   {
     assert (!handles_.empty ());
     G_OPS_BAIL_IF_ERROR (util::apply_playlist_position (handles_[0], position_),
