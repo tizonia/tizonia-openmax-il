@@ -390,7 +390,7 @@ $ sudo apt-get update && sudo apt-get upgrade
 # so you should do this frequently, even if there isn't a new Tizonia release)
 
 # For Tizonia v0.19.0 or newer: Python 3 dependencies
-$ sudo -H pip3 install --upgrade gmusicapi soundcloud youtube-dl pafy pycountry titlecase pychromecast plexapi fuzzywuzzy eventlet python-Levenshtein && sudo -H pip3 install git+https://github.com/plamere/spotipy.git --upgrade
+$ sudo -H pip3 install --upgrade gmusicapi soundcloud youtube-dl pafy pycountry titlecase pychromecast plexapi spotipy fuzzywuzzy eventlet python-Levenshtein
 
 # For Tizonia v0.18.0 or older: Python 2 dependencies
 $ sudo -H pip2 install --upgrade gmusicapi soundcloud youtube-dl pafy pycountry titlecase pychromecast plexapi fuzzywuzzy eventlet python-Levenshtein && sudo -H pip2 install git+https://github.com/plamere/spotipy.git --upgrade
