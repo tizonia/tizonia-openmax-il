@@ -147,6 +147,13 @@ extern "C" void tiz_tunein_clear_queue (tiz_tunein_t *ap_tunein)
   ap_tunein->p_proxy_->clear_queue ();
 }
 
+extern "C" void tiz_tunein_print_queue (tiz_tunein_t *ap_tunein)
+{
+  assert (ap_tunein);
+  assert (ap_tunein->p_proxy_);
+  ap_tunein->p_proxy_->print_queue ();
+}
+
 extern "C" const char *tiz_tunein_get_current_radio_index (
     tiz_tunein_t *ap_tunein)
 {

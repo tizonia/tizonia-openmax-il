@@ -166,6 +166,15 @@ extern "C"
   void tiz_tunein_clear_queue (tiz_tunein_t *ap_tunein);
 
   /**
+   * Print to standard output the contents of the playback queue.
+   *
+   * @ingroup libtiztunein
+   *
+   * @param ap_tunein The tiz_tunein handle.
+   */
+  void tiz_tunein_print_queue (tiz_tunein_t *ap_tunein);
+
+  /**
    * Retrieve the index in the playback queue of the stream currently selected.
    *
    * @ingroup libtiztunein

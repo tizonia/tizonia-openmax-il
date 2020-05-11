@@ -73,8 +73,10 @@ public:
                      const std::string &keywords3);
 
   void clear_queue ();
+  void print_queue ();
   void set_playback_mode (const playback_mode mode);
   void set_search_mode (const search_mode mode);
+
   const char *get_current_radio_index ();
   const char *get_current_queue_length ();
   int get_current_queue_length_as_int ();

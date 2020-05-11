@@ -1034,6 +1034,11 @@ tunein_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
           tiz_urltrans_start (p_prc->p_trans_);
         }
     }
+  else if (OMX_TizoniaIndexConfigPlaylistPrintAction == a_config_idx
+           && p_prc->p_trans_)
+    {
+      tiz_tunein_print_queue (p_prc->p_tunein_);
+    }
   return rc;
 }
 

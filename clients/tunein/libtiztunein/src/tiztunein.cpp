@@ -316,6 +316,13 @@ void tiztunein::clear_queue ()
   (void)rc;
 }
 
+void tiztunein::print_queue ()
+{
+  int rc = 0;
+  try_catch_wrapper (py_tunein_proxy_.attr ("print_queue") ());
+  (void)rc;
+}
+
 const char *tiztunein::get_current_radio_index ()
 {
   obtain_current_queue_progress ();
