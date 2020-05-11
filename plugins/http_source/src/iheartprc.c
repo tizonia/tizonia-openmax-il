@@ -974,7 +974,7 @@ iheart_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
          queue */
       if (p_prc->playlist_position_.nPosition > 0
           && p_prc->playlist_position_.nPosition
-               < tiz_iheart_get_current_queue_length_as_int (p_prc->p_iheart_))
+               <= tiz_iheart_get_current_queue_length_as_int (p_prc->p_iheart_))
         {
           obtain_next_url (p_prc, IGNORE_VALUE,
                            p_prc->playlist_position_.nPosition);

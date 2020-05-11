@@ -106,6 +106,13 @@ extern "C" void tiz_youtube_clear_queue (tiz_youtube_t *ap_youtube)
   ap_youtube->p_proxy_->clear_queue ();
 }
 
+extern "C" void tiz_youtube_print_queue (tiz_youtube_t *ap_youtube)
+{
+  assert (ap_youtube);
+  assert (ap_youtube->p_proxy_);
+  ap_youtube->p_proxy_->print_queue ();
+}
+
 extern "C" const char *tiz_youtube_get_current_audio_stream_index (
     tiz_youtube_t *ap_youtube)
 {

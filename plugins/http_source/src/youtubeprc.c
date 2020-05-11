@@ -1032,7 +1032,7 @@ youtube_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
          queue */
       if (p_prc->playlist_position_.nPosition > 0
           && p_prc->playlist_position_.nPosition
-               < tiz_youtube_get_current_queue_length_as_int (
+               <= tiz_youtube_get_current_queue_length_as_int (
                  p_prc->p_youtube_))
         {
           obtain_next_url (p_prc, IGNORE_VALUE,
@@ -1057,6 +1057,12 @@ youtube_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
           tiz_urltrans_start (p_prc->p_trans_);
         }
     }
+  else if (OMX_TizoniaIndexConfigPlaylistPrintAction == a_config_idx
+           && p_prc->p_trans_)
+    {
+      tiz_youtube_print_queue (p_prc->p_youtube_);
+    }
+
   return rc;
 }
 

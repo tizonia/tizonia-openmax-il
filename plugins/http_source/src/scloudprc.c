@@ -941,7 +941,7 @@ scloud_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
          queue */
       if (p_prc->playlist_position_.nPosition > 0
           && p_prc->playlist_position_.nPosition
-               < tiz_scloud_get_current_queue_length_as_int (p_prc->p_scloud_))
+               <= tiz_scloud_get_current_queue_length_as_int (p_prc->p_scloud_))
         {
           obtain_next_url (p_prc, IGNORE_VALUE,
                            p_prc->playlist_position_.nPosition);

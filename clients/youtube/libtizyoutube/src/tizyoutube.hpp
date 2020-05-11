@@ -65,6 +65,8 @@ public:
 
   void set_playback_mode (const playback_mode mode);
   void clear_queue ();
+  void print_queue ();
+
   const char *get_current_audio_stream_index ();
   const char *get_current_queue_length ();
   int get_current_queue_length_as_int ();

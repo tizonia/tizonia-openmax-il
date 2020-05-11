@@ -266,6 +266,16 @@ void graph::youtubeops::do_store_config (const tizgraphconfig_ptr_t &config)
   playlist_ = config_->get_playlist ();
 }
 
+void graph::youtubeops::do_print_playlist ()
+{
+  if (last_op_succeeded ())
+  {
+    assert (!handles_.empty ());
+    G_OPS_BAIL_IF_ERROR (util::request_playlist_print (handles_[0]),
+                         "Unable to print the playlist contents");
+  }
+}
+
 void graph::youtubeops::do_load_http_source ()
 {
   assert (comp_lst_.size () == 0);

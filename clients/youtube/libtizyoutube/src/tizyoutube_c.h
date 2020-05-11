@@ -87,6 +87,15 @@ extern "C"
   void tiz_youtube_clear_queue (tiz_youtube_t *ap_youtube);
 
   /**
+   * Print to standard output the contents of the playback queue.
+   *
+   * @ingroup libtizyoutube
+   *
+   * @param ap_youtube The tiz_youtube handle.
+   */
+  void tiz_youtube_print_queue (tiz_youtube_t *ap_youtube);
+
+  /**
    * Retrieve the index in the playback queue of the stream currently selected.
    *
    * @ingroup libtizyoutube
