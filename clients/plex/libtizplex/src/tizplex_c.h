@@ -91,6 +91,15 @@ extern "C"
   void tiz_plex_clear_queue (tiz_plex_t *ap_plex);
 
   /**
+   * Print to standard output the contents of the playback queue.
+   *
+   * @ingroup libtizplex
+   *
+   * @param ap_plex The tiz_plex handle.
+   */
+  void tiz_plex_print_queue (tiz_plex_t *ap_plex);
+
+  /**
    * Retrieve the index in the playback queue of the stream currently selected.
    *
    * @ingroup libtizplex

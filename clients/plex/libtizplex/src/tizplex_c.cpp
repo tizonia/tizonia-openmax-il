@@ -110,6 +110,13 @@ extern "C" void tiz_plex_clear_queue (tiz_plex_t *ap_plex)
   ap_plex->p_proxy_->clear_queue ();
 }
 
+extern "C" void tiz_plex_print_queue (tiz_plex_t *ap_plex)
+{
+  assert (ap_plex);
+  assert (ap_plex->p_proxy_);
+  ap_plex->p_proxy_->print_queue ();
+}
+
 extern "C" const char *tiz_plex_get_current_audio_track_index (
     tiz_plex_t *ap_plex)
 {

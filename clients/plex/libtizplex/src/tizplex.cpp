@@ -298,6 +298,13 @@ void tizplex::clear_queue ()
   (void)rc;
 }
 
+void tizplex::print_queue ()
+{
+  int rc = 0;
+  try_catch_wrapper (py_plex_proxy_.attr ("print_queue") ());
+  (void)rc;
+}
+
 const char *tizplex::get_current_audio_track_index ()
 {
   return current_track_index_.empty () ? NULL : current_track_index_.c_str ();
