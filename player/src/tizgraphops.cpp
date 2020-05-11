@@ -75,7 +75,7 @@ graph::ops::ops (graph *p_graph, const omx_comp_name_lst_t &comp_lst,
     expected_transitions_lst_ (),
     expected_port_transitions_lst_ (),
     playlist_ (),
-    position_ (POSITION_DEFAULT_VALUE),
+    position_ (INVALID_POSITION),
     jump_ (SKIP_DEFAULT_VALUE),
     destination_state_ (OMX_StateMax),
     metadata_ (),
@@ -450,12 +450,13 @@ void graph::ops::do_seek ()
 
 void graph::ops::do_skip ()
 {
-  if (last_op_succeeded () && (0 < position_)
-      && (playlist_->size () >= position_))
+  if (last_op_succeeded () && (INVALID_POSITION != position_)
+      && (0 <= position_) && (playlist_->size () >= position_))
   {
-    playlist_->set_position (position_ - 1);
+    int pos = (0 == position_) ? playlist_->size () - 1 : position_ - 1;
+    playlist_->set_position (pos);
     // Reset the position value, to its default value
-    position_ = POSITION_DEFAULT_VALUE;
+    position_ = INVALID_POSITION;
   }
   else if (last_op_succeeded () && 0 != jump_ && !is_end_of_play ())
   {

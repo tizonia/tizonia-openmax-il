@@ -120,11 +120,14 @@ typedef struct OMX_TIZONIA_PARAM_BUFFER_PREANNOUNCEMENTSMODETYPE
  * the playlist.
  */
 
+#define OMX_PLAYLIST_POSITION_END   0
+
 typedef struct OMX_TIZONIA_PLAYLISTPOSITIONTYPE {
     OMX_U32 nSize;
     OMX_VERSIONTYPE nVersion;
-    OMX_S32 nPosition; /**< A position inth the playlist. Valid values are  */
-                       /**< in the range [1, len(playlist)]. */
+    OMX_S32 nPosition; /**< A position in the playlist. Valid values are   */
+                       /**< in the range [1, len(playlist)]. Additionally, */
+                       /** OMX_PLAYLIST_POSITION_END marks the end of the playlist.  */
 } OMX_TIZONIA_PLAYLISTPOSITIONTYPE;
 
 /**

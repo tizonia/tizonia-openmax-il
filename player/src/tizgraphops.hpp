@@ -85,7 +85,7 @@ namespace tiz
     class ops
     {
     public:
-      static const int POSITION_DEFAULT_VALUE = 0;
+      static const int INVALID_POSITION = -1;
       static const int SKIP_DEFAULT_VALUE = 1;
 
     public:

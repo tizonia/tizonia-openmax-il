@@ -70,6 +70,8 @@ namespace tiz
       typedef boost::function< void(const OMX_ERRORTYPE error_code, const std::string error_msg) >
           termination_callback_t;
 
+      static const int LAST_ELEMENT_IN_PLAY_QUEUE = 0;
+
     public:
       mgr ();
       virtual ~mgr ();

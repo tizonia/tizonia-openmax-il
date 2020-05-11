@@ -281,10 +281,11 @@ const char *tizyoutube::get_url (const int a_position)
       int queue_length = 0;
       get_current_stream_queue_index_and_length (queue_index, queue_length);
       current_url_.clear ();
-      if (queue_length > 0 && a_position > 0 && a_position <= queue_length)
+      if (queue_length > 0 && a_position >= 0 && a_position <= queue_length)
         {
+          const int pos = (0 == a_position) ? queue_length : a_position;
           current_url_ = bp::extract< std::string > (
-              py_yt_proxy_.attr ("get_url") (bp::object (a_position)));
+              py_yt_proxy_.attr ("get_url") (bp::object (pos)));
           get_current_stream ();
         }
     }

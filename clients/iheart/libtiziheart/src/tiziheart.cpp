@@ -182,10 +182,11 @@ const char *tiziheart::get_url (const int a_position)
     {
       int queue_length = get_current_queue_length_as_int();
       current_url_.clear ();
-      if (queue_length > 0 && a_position > 0 && queue_length >= a_position)
+      if (queue_length > 0 && a_position >= 0 && queue_length >= a_position)
         {
+          const int pos = (0 == a_position) ? queue_length : a_position;
           current_url_ = bp::extract< std::string > (
-              py_iheart_proxy_.attr ("get_url") (bp::object (a_position)));
+              py_iheart_proxy_.attr ("get_url") (bp::object (pos)));
           get_current_radio ();
         }
     }

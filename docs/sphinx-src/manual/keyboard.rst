@@ -19,9 +19,13 @@ EXAMPLES
 
    Keyboard control:
 
-      [p] skip to previous file.
-      [n] skip to next file.
-      [SPACE] pause playback.
-      [+/-] increase/decrease volume.
+      [p] / [PgDn] skip to previous track/station.
+      [n] / [PgUp] skip to next track/station.
+      [Home] / [End] go to beginning/end of playlist.
+      <number> [g] go to track/station <number> in playlist.
+      [+/-] [Up/Down] increase/decrease volume.
       [m] mute.
+      [l] print playlist.
+      [?] keyboard help.
+      [space] pause playback.
       [q] quit.

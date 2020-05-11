@@ -279,7 +279,7 @@ namespace
   }
 
   ETIZPlayUserInput player_wait_for_user_input (
-      tiz::graphmgr::mgr_ptr_t mgr_ptr)
+      tiz::graphmgr::mgr_ptr_t mgr_ptr, tiz::programopts &popts_)
   {
     int playlist_position = 0;
     while (1)
@@ -360,23 +360,33 @@ namespace
                 printf("\n    Value is : %d\n",ch[0]);
                 switch (ch[0])
                   {
-                  case 68:  // key left
+                  case 68:  // left arrow
                     // seek
-                    // printf ("Seek (left key) - not implemented\n");
+                    // printf ("Seek (left arrow) - not implemented\n");
                     break;
 
                   case 67:  // key right
                     // seek
-                    // printf ("Seek (right key) - not implemented\n");
+                    // printf ("Seek (right arrow) - not implemented\n");
                     break;
 
-                  case 65:  // key up
+                  case 65:  // up arrow
                     mgr_ptr->volume_step (1);
                     playlist_position = 0;
                     break;
 
-                  case 66:  // key down
+                  case 66:  // down arrow
                     mgr_ptr->volume_step (-1);
+                    playlist_position = 0;
+                    break;
+
+                  case 70:  // end key
+                    mgr_ptr->position (tiz::graphmgr::mgr::LAST_ELEMENT_IN_PLAY_QUEUE);
+                    playlist_position = 0;
+                    break;
+
+                  case 72:  // home key
+                    mgr_ptr->position (1);
                     playlist_position = 0;
                     break;
 
@@ -402,6 +412,11 @@ namespace
 
             case ' ':
               mgr_ptr->pause ();
+              playlist_position = 0;
+              break;
+
+            case '?':
+              popts_.print_usage_keyboard ();
               playlist_position = 0;
               break;
 
@@ -955,7 +970,7 @@ tiz::playapp::decode_local ()
   p_mgr->init (playlist, graphmgr_termination_cback ());
   p_mgr->start ();
 
-  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr))
+  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr, popts_))
   {
   }
 
@@ -1148,7 +1163,7 @@ tiz::playapp::spotify_stream ()
   p_mgr->init (playlist, graphmgr_termination_cback ());
   p_mgr->start ();
 
-  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr))
+  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr, popts_))
   {
   }
 
@@ -1212,7 +1227,7 @@ tiz::playapp::gmusic_stream ()
   p_mgr->init (playlist, graphmgr_termination_cback ());
   p_mgr->start ();
 
-  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr))
+  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr, popts_))
   {
   }
 
@@ -1255,7 +1270,7 @@ tiz::playapp::scloud_stream ()
   p_mgr->init (playlist, graphmgr_termination_cback ());
   p_mgr->start ();
 
-  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr))
+  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr, popts_))
   {
   }
 
@@ -1300,7 +1315,7 @@ tiz::playapp::tunein_stream ()
   p_mgr->init (playlist, graphmgr_termination_cback ());
   p_mgr->start ();
 
-  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr))
+  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr, popts_))
   {
   }
 
@@ -1344,7 +1359,7 @@ tiz::playapp::youtube_stream ()
   p_mgr->init (playlist, graphmgr_termination_cback ());
   p_mgr->start ();
 
-  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr))
+  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr, popts_))
   {
   }
 
@@ -1389,7 +1404,7 @@ tiz::playapp::plex_stream ()
   p_mgr->init (playlist, graphmgr_termination_cback ());
   p_mgr->start ();
 
-  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr))
+  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr, popts_))
   {
   }
 
@@ -1432,7 +1447,7 @@ tiz::playapp::iheart_stream ()
   p_mgr->init (playlist, graphmgr_termination_cback ());
   p_mgr->start ();
 
-  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr))
+  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr, popts_))
   {
   }
 
@@ -1477,7 +1492,7 @@ tiz::playapp::http_stream_chromecast ()
   p_mgr->init (playlist, graphmgr_termination_cback ());
   p_mgr->start ();
 
-  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr))
+  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr, popts_))
   {
   }
 
@@ -1541,7 +1556,7 @@ tiz::playapp::gmusic_stream_chromecast ()
   p_mgr->init (playlist, graphmgr_termination_cback ());
   p_mgr->start ();
 
-  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr))
+  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr, popts_))
   {
   }
 
@@ -1591,7 +1606,7 @@ tiz::playapp::scloud_stream_chromecast ()
   p_mgr->init (playlist, graphmgr_termination_cback ());
   p_mgr->start ();
 
-  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr))
+  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr, popts_))
   {
   }
 
@@ -1643,7 +1658,7 @@ tiz::playapp::tunein_stream_chromecast ()
   p_mgr->init (playlist, graphmgr_termination_cback ());
   p_mgr->start ();
 
-  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr))
+  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr, popts_))
   {
   }
 
@@ -1693,7 +1708,7 @@ tiz::playapp::youtube_stream_chromecast ()
   p_mgr->init (playlist, graphmgr_termination_cback ());
   p_mgr->start ();
 
-  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr))
+  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr, popts_))
   {
   }
 
@@ -1746,7 +1761,7 @@ tiz::playapp::plex_stream_chromecast ()
   p_mgr->init (playlist, graphmgr_termination_cback ());
   p_mgr->start ();
 
-  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr))
+  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr, popts_))
   {
   }
 
@@ -1796,7 +1811,7 @@ tiz::playapp::iheart_stream_chromecast ()
   p_mgr->init (playlist, graphmgr_termination_cback ());
   p_mgr->start ();
 
-  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr))
+  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr, popts_))
   {
   }
 

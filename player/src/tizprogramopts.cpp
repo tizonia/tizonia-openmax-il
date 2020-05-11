@@ -622,22 +622,22 @@ void tiz::programopts::print_usage_feature (po::options_description &desc) const
 
 void tiz::programopts::print_usage_keyboard () const
 {
-  print_version ();
-  print_license ();
   printf ("Keyboard control:\n\n");
-  printf ("   [p] skip to previous file.\n");
-  printf ("   [n] skip to next file.\n");
-  printf ("   [SPACE] pause playback.\n");
-  printf ("   [+/-] increase/decrease volume.\n");
+  printf ("   [p] / [PgDn] skip to previous track/station.\n");
+  printf ("   [n] / [PgUp] skip to next track/station.\n");
+  printf ("   [Home] / [End] go to beginning/end of playlist.\n");
+  printf ("   <number> [g] go to track/station <number> in playlist.\n");
+  printf ("   [+/-] [Up/Down] increase/decrease volume.\n");
   printf ("   [m] mute.\n");
+  printf ("   [l] print playlist.\n");
+  printf ("   [?] keyboard help.\n");
+  printf ("   [space] pause playback.\n");
   printf ("   [q] quit.\n");
   printf ("\n");
 }
 
 void tiz::programopts::print_usage_config () const
 {
-  print_version ();
-  print_license ();
   printf ("Configuration file: 'tizonia.conf'\n\n");
   printf (
       "Tizonia creates its config file in one of the following locations when it\n"
@@ -669,8 +669,6 @@ void tiz::programopts::print_usage_config () const
 
 void tiz::programopts::print_usage_examples () const
 {
-  print_version ();
-  print_license ();
   printf ("Examples:\n\n");
   printf (" tizonia ~/Music\n\n");
   printf ("    * Decodes every supported file in the '~/Music' directory)\n");
@@ -2235,14 +2233,20 @@ int tiz::programopts::consume_global_options (bool &done,
     }
     else if (0 == help_option_.compare ("keyboard"))
     {
+      print_version ();
+      print_license ();
       print_usage_keyboard ();
     }
     else if (0 == help_option_.compare ("config"))
     {
+      print_version ();
+      print_license ();
       print_usage_config ();
     }
     else if (0 == help_option_.compare ("examples"))
     {
+      print_version ();
+      print_license ();
       print_usage_examples ();
     }
     else

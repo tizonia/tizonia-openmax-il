@@ -1030,7 +1030,7 @@ youtube_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
 
       /* Check that the requested position actually refers to a track in the
          queue */
-      if (p_prc->playlist_position_.nPosition > 0
+      if (p_prc->playlist_position_.nPosition >= 0
           && p_prc->playlist_position_.nPosition
                <= tiz_youtube_get_current_queue_length_as_int (
                  p_prc->p_youtube_))

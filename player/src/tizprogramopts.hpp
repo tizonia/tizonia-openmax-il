@@ -54,6 +54,7 @@ namespace tiz
     void print_version () const;
     void print_license () const;
     void print_usage_help () const;
+    void print_usage_keyboard () const;
 
     void set_option_handler (const std::string &option,
                              const option_handler_t handler);
@@ -119,7 +120,6 @@ namespace tiz
   private:
     void print_usage_feature (
         boost::program_options::options_description &desc) const;
-    void print_usage_keyboard () const;
     void print_usage_config () const;
     void print_usage_examples () const;
 

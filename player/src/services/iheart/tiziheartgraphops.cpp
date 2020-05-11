@@ -228,13 +228,14 @@ void graph::iheartops::do_reconfigure_tunnel (const int tunnel_id)
 
 void graph::iheartops::do_skip ()
 {
-  if (last_op_succeeded () && 0 != position_)
+  if (last_op_succeeded () && (INVALID_POSITION != position_)
+      && (0 <= position_) && (playlist_->size () >= position_))
   {
     assert (!handles_.empty ());
     G_OPS_BAIL_IF_ERROR (util::apply_playlist_position (handles_[0], position_),
                          "Unable to set a new position in playlist");
     // Reset the position value, to its default value
-    position_ = POSITION_DEFAULT_VALUE;
+    position_ = INVALID_POSITION;
   }
   else if (last_op_succeeded () && 0 != jump_)
   {
