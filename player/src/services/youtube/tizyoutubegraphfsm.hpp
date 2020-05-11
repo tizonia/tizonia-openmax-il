@@ -523,6 +523,7 @@ namespace tiz
         bmf::Row < tg::executing                , tg::mute_evt              , bmf::none               , tg::do_mute                                                >,
         bmf::Row < tg::executing                , tg::omx_err_evt           , skipping                , bmf::none                   , tg::is_error<OMX_ErrorStreamCorruptFatal> >,
         bmf::Row < tg::executing                , tg::omx_err_evt           , skipping                , bmf::none                   , tg::is_error<OMX_ErrorFormatNotDetected> >,
+        bmf::Row < tg::executing                , tg::prnt_plist_evt        , bmf::none               , tg::do_print_playlist       , bmf::none                    >,
         bmf::Row < tg::executing                , tg::position_evt          , skipping                , tg::do_store_position       , bmf::none                    >,
         bmf::Row < tg::executing                , tg::skip_evt              , skipping                , tg::do_store_skip           , bmf::none                    >,
         bmf::Row < tg::executing                , tg::omx_eos_evt           , skipping                , bmf::none                   , tg::is_last_eos              >,

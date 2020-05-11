@@ -477,6 +477,7 @@ namespace tiz
         bmf::Row < tg::executing                , tg::volume_step_evt       , bmf::none               , tg::do_volume_step                                         >,
         bmf::Row < tg::executing                , tg::volume_evt            , bmf::none               , tg::do_volume                                              >,
         bmf::Row < tg::executing                , tg::mute_evt              , bmf::none               , tg::do_mute                                                >,
+        bmf::Row < tg::executing                , tg::prnt_plist_evt        , bmf::none               , tg::do_print_playlist                                      >,
         bmf::Row < tg::executing                , tg::position_evt          , skipping                , tg::do_store_position                                      >,
         bmf::Row < tg::executing                , tg::skip_evt              , skipping                , tg::do_store_skip                                          >,
         bmf::Row < tg::executing                , tg::omx_eos_evt           , bmf::none               , tg::do_retrieve_metadata    , tg::is_last_eos              >,

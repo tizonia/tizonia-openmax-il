@@ -442,6 +442,13 @@ void tizspotify::clear_queue ()
   (void)rc;
 }
 
+void tizspotify::print_queue ()
+{
+  int rc = 0;
+  try_catch_wrapper (py_spotify_proxy_.attr ("print_queue") ());
+  (void)rc;
+}
+
 const char *tizspotify::get_current_track_index ()
 {
   return current_track_index_.empty () ? NULL : current_track_index_.c_str ();

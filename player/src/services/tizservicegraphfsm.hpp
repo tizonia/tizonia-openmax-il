@@ -485,7 +485,7 @@ namespace tiz
         bmf::Row < tg::executing                , tg::unload_evt            , tg::exe2idle            , tg::do_exe2idle                                        >,
         bmf::Row < tg::executing                , tg::omx_port_settings_evt , reconfiguring_tunnel_0  , tg::do_mute                                                >,
         bmf::Row < tg::executing                , tg::omx_port_settings_evt , reconfiguring_tunnel_1  , tg::do_mute                 , tg::is_tunnel_altered<1>     >,
-        bmf::Row < tg::executing                , tg::pause_evt             , tg::exe2pause           , tg::do_exe2pause                                       >,
+        bmf::Row < tg::executing                , tg::pause_evt             , tg::exe2pause           , tg::do_exe2pause                                           >,
         bmf::Row < tg::executing                , tg::volume_step_evt       , bmf::none               , tg::do_volume_step                                         >,
         bmf::Row < tg::executing                , tg::volume_evt            , bmf::none               , tg::do_volume                                              >,
         bmf::Row < tg::executing                , tg::mute_evt              , bmf::none               , tg::do_mute                                                >,
@@ -495,6 +495,7 @@ namespace tiz
                                                                                                             tg::do_retrieve_metadata,
                                                                                                             tg::do_start_progress_display >
                                                                                                           >                                                        >,
+        bmf::Row < tg::executing                , tg::prnt_plist_evt        , bmf::none               , tg::do_print_playlist                                      >,
         bmf::Row < tg::executing                , tg::position_evt          , skipping                , tg::do_store_position       , tg::is_skip_allowed          >,
         bmf::Row < tg::executing                , tg::skip_evt              , skipping                , tg::do_store_skip           , tg::is_skip_allowed          >,
         bmf::Row < tg::executing                , tg::omx_eos_evt           , bmf::none               , tg::do_skip                 , tg::is_last_eos              >,

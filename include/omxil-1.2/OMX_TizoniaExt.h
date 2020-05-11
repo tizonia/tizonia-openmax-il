@@ -81,6 +81,7 @@
 #define OMX_TizoniaIndexParamAudioIheartSession      OMX_IndexVendorStartUnused + 25 /**< reference: OMX_TIZONIA_AUDIO_PARAM_IHEARTSESSIONTYPE */
 #define OMX_TizoniaIndexParamAudioIheartPlaylist     OMX_IndexVendorStartUnused + 26 /**< reference: OMX_TIZONIA_AUDIO_PARAM_IHEARTPLAYLISTTYPE */
 #define OMX_TizoniaIndexConfigPlaylistPosition       OMX_IndexVendorStartUnused + 27 /**< reference: OMX_TIZONIA_PLAYLISTPOSITIONTYPE */
+#define OMX_TizoniaIndexConfigPlaylistPrintAction    OMX_IndexVendorStartUnused + 28 /**< reference: OMX_TIZONIA_PLAYLISTPRINTACTIONTYPE */
 
 /**
  * OMX_AUDIO_CODINGTYPE extensions
@@ -138,6 +139,16 @@ typedef struct OMX_TIZONIA_PLAYLISTSKIPTYPE {
                                       relative to the current position.
                                       Wrap-around use cases are allowed. */
 } OMX_TIZONIA_PLAYLISTSKIPTYPE;
+
+/**
+ * Extension to command a source component that manages its own play queue to
+ * print the contents of the queue.
+ */
+
+typedef struct OMX_TIZONIA_PLAYLISTPRINTACTIONTYPE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+} OMX_TIZONIA_PLAYLISTPRINTACTIONTYPE;
 
 /**
  * Media streaming buffer.

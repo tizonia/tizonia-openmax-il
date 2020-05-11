@@ -1242,7 +1242,6 @@ end_of_track_handler (OMX_PTR ap_prc, tiz_event_pluggable_t * ap_event)
 
       if (OMX_TizoniaIndexConfigPlaylistSkip == p_prc->last_changed_config_)
         {
-          printf("p_prc->playlist_skip_.nValue = %ld\n", p_prc->playlist_skip_.nValue);
           p_prc->playlist_skip_.nValue > 0
             ? obtain_next_url (p_prc, 1, IGNORE_VALUE, p_prc->need_url_removed_)
             : obtain_next_url (p_prc, -1, IGNORE_VALUE,
@@ -1927,6 +1926,11 @@ spfysrc_prc_config_change (void * ap_obj, OMX_U32 TIZ_UNUSED (a_pid),
           process_spotify_event (p_prc, end_of_track_handler,
                                  p_prc->p_sp_session_);
         }
+    }
+  else if (OMX_TizoniaIndexConfigPlaylistPrintAction == a_config_idx
+           && p_prc->p_sp_session_)
+    {
+      tiz_spotify_print_queue (p_prc->p_spfy_web_);
     }
   return rc;
 }

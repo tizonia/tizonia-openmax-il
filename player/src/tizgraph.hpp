@@ -76,6 +76,7 @@ namespace tiz
       OMX_ERRORTYPE pause ();
       OMX_ERRORTYPE seek ();
       OMX_ERRORTYPE position (const int pos);
+      OMX_ERRORTYPE print_playlist ();
       OMX_ERRORTYPE skip (const int jump);
       OMX_ERRORTYPE volume_step (const int step);
       OMX_ERRORTYPE volume (const double vol);

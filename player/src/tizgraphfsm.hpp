@@ -317,6 +317,7 @@ namespace tiz
                                                                                                do_destroy_graph> > , is_end_of_play       >,
         //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
         boost::msm::front::Row < executing   , position_evt    , skipping                , do_store_position                              >,
+        boost::msm::front::Row < executing   , prnt_plist_evt  , boost::msm::front::none , do_print_playlist                              >,
         boost::msm::front::Row < executing   , skip_evt        , skipping                , do_store_skip                                  >,
         boost::msm::front::Row < executing   , seek_evt        , boost::msm::front::none , do_seek                                        >,
         boost::msm::front::Row < executing   , volume_step_evt , boost::msm::front::none , do_volume_step                                 >,

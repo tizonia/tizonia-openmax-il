@@ -99,6 +99,15 @@ extern "C"
   void tiz_spotify_clear_queue (tiz_spotify_t *ap_spotify);
 
   /**
+   * Print to standard output the contents of the playback queue.
+   *
+   * @ingroup libtizspotify
+   *
+   * @param ap_spotify The tiz_spotify handle.
+   */
+  void tiz_spotify_print_queue (tiz_spotify_t *ap_spotify);
+
+  /**
    * Retrieve the index in the playback queue of the stream currently selected.
    *
    * @ingroup libtizspotify

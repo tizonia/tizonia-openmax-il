@@ -109,6 +109,13 @@ extern "C" void tiz_spotify_clear_queue (tiz_spotify_t *ap_spotify)
   ap_spotify->p_proxy_->clear_queue ();
 }
 
+extern "C" void tiz_spotify_print_queue (tiz_spotify_t *ap_spotify)
+{
+  assert (ap_spotify);
+  assert (ap_spotify->p_proxy_);
+  ap_spotify->p_proxy_->print_queue ();
+}
+
 extern "C" const char *tiz_spotify_get_current_track_index (
     tiz_spotify_t *ap_spotify)
 {

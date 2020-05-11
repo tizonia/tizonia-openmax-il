@@ -258,6 +258,12 @@ void graphmgr::ops::do_position (const int pos)
                           "Unable to move to a song with a specific position.");
 }
 
+void graphmgr::ops::do_print_playlist ()
+{
+  GMGR_OPS_BAIL_IF_ERROR (p_managed_graph_, p_managed_graph_->print_playlist (),
+                          "Unable to print the playlist.");
+}
+
 void graphmgr::ops::do_fwd ()
 {
   // TODO:

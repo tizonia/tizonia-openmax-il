@@ -1331,7 +1331,7 @@ class tiztuneinproxy(object):
                         r["subtext"]
                     )
                 )
-            print_nfo("[TuneIn] [Stations/Podcasts in queue] '{0}'.".format(len(self.queue)))
+        print_nfo("[TuneIn] [Stations/Podcasts in queue] '{0}'.".format(len(self.queue)))
 
     def _ensure_expected_date_format(self, date):
 

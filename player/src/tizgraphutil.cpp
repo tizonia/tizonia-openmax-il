@@ -576,6 +576,19 @@ graph::util::apply_playlist_position (const OMX_HANDLETYPE handle,
 }
 
 OMX_ERRORTYPE
+graph::util::request_playlist_print (const OMX_HANDLETYPE handle)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  OMX_TIZONIA_PLAYLISTPRINTACTIONTYPE print_action;
+  TIZ_INIT_OMX_STRUCT (print_action);
+  tiz_check_omx (OMX_SetConfig (
+      handle,
+      static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexConfigPlaylistPrintAction),
+      &print_action));
+  return rc;
+}
+
+OMX_ERRORTYPE
 graph::util::disable_port (const OMX_HANDLETYPE handle, const OMX_U32 port_id)
 {
   return OMX_SendCommand (handle, OMX_CommandPortDisable, port_id, NULL);

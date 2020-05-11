@@ -143,6 +143,16 @@ namespace tiz
       OMX_ERRORTYPE position (const int position);
 
       /**
+       * Print the contents of the playlist.
+       *
+       * @pre init() has been called on this manager.
+       *
+       * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
+       * success.
+       */
+      OMX_ERRORTYPE print_playlist ();
+
+      /**
        * NOT IMPLEMENTED YET
        *
        * @pre init() has been called on this manager.

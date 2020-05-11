@@ -192,6 +192,12 @@ graphmgr::mgr::position (const int pos)
 }
 
 OMX_ERRORTYPE
+graphmgr::mgr::print_playlist ()
+{
+  return post_cmd (new graphmgr::cmd (graphmgr::prnt_plist_evt ()));
+}
+
+OMX_ERRORTYPE
 graphmgr::mgr::fwd ()
 {
   return post_cmd (new graphmgr::cmd (graphmgr::fwd_evt ()));

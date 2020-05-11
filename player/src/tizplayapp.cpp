@@ -415,6 +415,11 @@ namespace
               }
               break;
 
+            case 'l':
+              mgr_ptr->print_playlist ();
+              playlist_position = 0;
+              break;
+
             case 'm':
               mgr_ptr->mute ();
               playlist_position = 0;

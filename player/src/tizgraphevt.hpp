@@ -90,6 +90,10 @@ namespace tiz
       int pos_;
     };
 
+    struct prnt_plist_evt
+    {
+    };
+
     struct skip_evt
     {
       skip_evt (const int a_jump) : jump_ (a_jump)
