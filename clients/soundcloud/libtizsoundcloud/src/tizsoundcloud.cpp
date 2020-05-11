@@ -383,6 +383,14 @@ void tizsoundcloud::clear_queue ()
   (void)rc;
 }
 
+
+void tizsoundcloud::print_queue ()
+{
+  int rc = 0;
+  try_catch_wrapper (py_sc_proxy_.attr ("print_queue") ());
+  (void)rc;
+}
+
 void tizsoundcloud::set_playback_mode (const playback_mode mode)
 {
   int rc = 0;

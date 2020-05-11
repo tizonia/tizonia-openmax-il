@@ -88,6 +88,15 @@ extern "C"
   void tiz_scloud_clear_queue (tiz_scloud_t *ap_scloud);
 
   /**
+   * Print to standard output the contents of the playback queue.
+   *
+   * @ingroup libtizscloud
+   *
+   * @param ap_scloud The tiz_scloud handle.
+   */
+  void tiz_scloud_print_queue (tiz_scloud_t *ap_scloud);
+
+  /**
    * Retrieve the current length of playback queue.
    *
    * @ingroup libtizsoundcloud
@@ -116,11 +125,12 @@ extern "C"
   const char *tiz_scloud_get_current_queue_progress (tiz_scloud_t *ap_scloud);
 
   /**
-   * Clear the playback queue.
+   * Set the playback mode (normal, shuffle).
    *
    * @ingroup libtizsoundcloud
    *
    * @param ap_scloud The soundcloud handle.
+   * @param a_mode The playback mode (e.g. normal, shuffle)
    */
   void tiz_scloud_set_playback_mode (tiz_scloud_t *ap_scloud,
                                      const tiz_scloud_playback_mode_t mode);

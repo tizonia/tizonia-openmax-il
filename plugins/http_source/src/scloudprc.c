@@ -963,6 +963,11 @@ scloud_prc_config_change (void * ap_prc, OMX_U32 TIZ_UNUSED (a_pid),
             }
         }
     }
+  else if (OMX_TizoniaIndexConfigPlaylistPrintAction == a_config_idx
+           && p_prc->p_trans_)
+    {
+      tiz_scloud_print_queue (p_prc->p_scloud_);
+    }
   return rc;
 }
 

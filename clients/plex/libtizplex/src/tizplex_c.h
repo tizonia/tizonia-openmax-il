@@ -142,9 +142,10 @@ extern "C"
    * @ingroup libtizplex
    *
    * @param ap_plex The tiz_plex handle.
+   * @param a_mode The playback mode (e.g. normal, shuffle)
    */
   void tiz_plex_set_playback_mode (tiz_plex_t *ap_plex,
-                                   const tiz_plex_playback_mode_t mode);
+                                   const tiz_plex_playback_mode_t a_mode);
 
   /**
    * Add a Plex audio stream to the playback queue.

@@ -108,6 +108,13 @@ extern "C" void tiz_scloud_clear_queue (tiz_scloud_t *ap_scloud)
   ap_scloud->p_proxy_->clear_queue ();
 }
 
+extern "C" void tiz_scloud_print_queue (tiz_scloud_t *ap_scloud)
+{
+  assert (ap_scloud);
+  assert (ap_scloud->p_proxy_);
+  ap_scloud->p_proxy_->print_queue ();
+}
+
 extern "C" const char *tiz_scloud_get_current_queue_length (tiz_scloud_t *ap_scloud)
 {
   assert (ap_scloud);
