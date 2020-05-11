@@ -322,6 +322,15 @@ extern "C"
   void tiz_gmusic_clear_queue (tiz_gmusic_t *ap_gmusic);
 
   /**
+   * Print to standard output the contents of the playback queue.
+   *
+   * @ingroup libtizgmusic
+   *
+   * @param ap_gmusic The tiz_gmusic handle.
+   */
+  void tiz_gmusic_print_queue (tiz_gmusic_t *ap_gmusic);
+
+  /**
    * Retrieve the stream url as the specified position in the play queue.
    *
    * On success, the playback queue pointer moves to the position indicated.

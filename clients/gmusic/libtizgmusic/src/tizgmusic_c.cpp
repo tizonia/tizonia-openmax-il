@@ -237,6 +237,13 @@ extern "C" void tiz_gmusic_clear_queue (tiz_gmusic_t *ap_gmusic)
   ap_gmusic->p_proxy_->clear_queue ();
 }
 
+extern "C" void tiz_gmusic_print_queue (tiz_gmusic_t *ap_gmusic)
+{
+  assert (ap_gmusic);
+  assert (ap_gmusic->p_proxy_);
+  ap_gmusic->p_proxy_->print_queue ();
+}
+
 extern "C" const char *tiz_gmusic_get_url (tiz_gmusic_t *ap_gmusic,
                                            const int a_position)
 {
