@@ -1911,7 +1911,7 @@ spfysrc_prc_config_change (void * ap_obj, OMX_U32 TIZ_UNUSED (a_pid),
          queue */
       if (p_prc->playlist_position_.nPosition >= 0
           && p_prc->playlist_position_.nPosition
-               < tiz_spotify_get_current_queue_length_as_int (
+               <= tiz_spotify_get_current_queue_length_as_int (
                  p_prc->p_spfy_web_))
         {
           if (p_prc->spotify_paused_)
