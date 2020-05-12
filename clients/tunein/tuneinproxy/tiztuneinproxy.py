@@ -810,6 +810,44 @@ class tiztuneinproxy(object):
         self.play_queue_order = list()
         self.now_playing_radio = None
 
+    def print_queue(self):
+        for i in range(0, len(self.queue)):
+            r = self.queue[self.play_queue_order[i]]
+            order_num = str("#{:0{}d}".format(i + 1, len(str(len(self.queue)))))
+            st_or_pod = r["item"]
+            if st_or_pod == "topic":
+                st_or_pod = "episode"
+
+            if r.get("formats") and r.get("bitrate"):
+                # Make sure we allow only mp3 stations for now
+                if "mp3" not in r.get("formats") and "ogg" not in r.get("formats"):
+                    logging.info(
+                        "Ignoring non-mp3/non-ogg station : {0}".format(r["formats"])
+                    )
+                    continue
+
+                print_nfo(
+                    "[TuneIn] [{0}] [{1}] '{2}' [{3}] ({4}, {5}kbps, reliability: {6}%).".format(
+                        st_or_pod,
+                        order_num,
+                        r["text"],
+                        r["subtext"],
+                        r["formats"],
+                        r["bitrate"],
+                        r["reliability"],
+                    )
+                )
+            else:
+                print_nfo(
+                    "[TuneIn] [{0}] [{1}] '{2}' [{3}].".format(
+                        st_or_pod,
+                        order_num,
+                        r["text"],
+                        r["subtext"]
+                    )
+                )
+        print_nfo("[TuneIn] [Stations/Podcasts in queue] '{0}'.".format(len(self.queue)))
+
     def remove_current_url(self):
         """Remove the currently active url from the playback queue.
 
@@ -1294,44 +1332,6 @@ class tiztuneinproxy(object):
                 res = res_dict[res_name]
 
         return res
-
-    def print_queue(self):
-        for i in range(0, len(self.queue)):
-            r = self.queue[self.play_queue_order[i]]
-            order_num = str("#{:0{}d}".format(i + 1, len(str(len(self.queue)))))
-            st_or_pod = r["item"]
-            if st_or_pod == "topic":
-                st_or_pod = "episode"
-
-            if r.get("formats") and r.get("bitrate"):
-                # Make sure we allow only mp3 stations for now
-                if "mp3" not in r.get("formats") and "ogg" not in r.get("formats"):
-                    logging.info(
-                        "Ignoring non-mp3/non-ogg station : {0}".format(r["formats"])
-                    )
-                    continue
-
-                print_nfo(
-                    "[TuneIn] [{0}] [{1}] '{2}' [{3}] ({4}, {5}kbps, reliability: {6}%).".format(
-                        st_or_pod,
-                        order_num,
-                        r["text"],
-                        r["subtext"],
-                        r["formats"],
-                        r["bitrate"],
-                        r["reliability"],
-                    )
-                )
-            else:
-                print_nfo(
-                    "[TuneIn] [{0}] [{1}] '{2}' [{3}].".format(
-                        st_or_pod,
-                        order_num,
-                        r["text"],
-                        r["subtext"]
-                    )
-                )
-        print_nfo("[TuneIn] [Stations/Podcasts in queue] '{0}'.".format(len(self.queue)))
 
     def _ensure_expected_date_format(self, date):
 
