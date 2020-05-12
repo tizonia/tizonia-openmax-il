@@ -93,6 +93,8 @@ EXAMPLES
 
    $ tizonia --soundcloud-genres "piano"
 
+   $ tizonia --soundcloud-playlists "joe satriani by Jimmy Mendoza"
+
 
 .. rubric:: Footnotes
 
