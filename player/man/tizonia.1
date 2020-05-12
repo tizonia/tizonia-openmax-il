@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "TIZONIA" "1" "Apr 21, 2020" "0.21.0" "Tizonia"
+.TH "TIZONIA" "1" "May 12, 2020" "0.22.0" "Tizonia"
 .SH NAME
 tizonia \- A command-line streaming music client/server for Linux with support for Spotify (Premium), Google Play Music (free and paid tiers), YouTube, SoundCloud, TuneIn Internet Radio, Plex servers and Chromecast devices.
 .
@@ -553,11 +553,15 @@ There is NO WARRANTY, to the extent permitted by law.
 
 Keyboard control:
 
-   [p] skip to previous file.
-   [n] skip to next file.
-   [SPACE] pause playback.
-   [+/\-] increase/decrease volume.
+   [p] / [PgDn] skip to previous track/station.
+   [n] / [PgUp] skip to next track/station.
+   [Home] / [End] go to beginning/end of playlist.
+   <number> [g] go to track/station <number> in playlist.
+   [+/\-] [Up/Down] increase/decrease volume.
    [m] mute.
+   [l] print playlist.
+   [?] keyboard help.
+   [space] pause playback.
    [q] quit.
 .ft P
 .fi
@@ -628,7 +632,14 @@ E.g.: \fB$ chmod og\-rwx $HOME/.config/tizonia/tizonia.conf\fP
 .sp
 .nf
 .ft C
-# Spotify configuration
+
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B # Spotify configuration
 # \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
 # To avoid passing this information on the command line, uncomment
 # and configure accordingly
@@ -639,35 +650,51 @@ E.g.: \fB$ chmod og\-rwx $HOME/.config/tizonia/tizonia.conf\fP
 #                                     the token has been [spuriously?] lost)
 # spotify.allow_explicit_tracks = false (set to true to allow explicit tracks)
 # spotify.preferred_bitrate = Three possible values: 96, 160, or 320 ; default: 320
-.ft P
-.fi
-.UNINDENT
-.UNINDENT
-.INDENT 0.0
 .TP
 .B \fBspotify.user\fP
 The username of the Spotify Premium account. For older accounts, the
-username may be related to account email address (i.e. same as the email
-address without the @domain). For newer accounts, the username is a random
-string of around 25 characters allocated by Spotify.
+username may be related to account email address (i.e. the email address
+without the @domain part). For newer accounts, the username is a random
+string of around 25 characters allocated by Spotify. This information is
+found in the \fBAccount overview\fP section on the Spotify website.
+\fI\%https://www.spotify.com/us/account/overview\fP .
 .UNINDENT
 .sp
 \fBNOTE:\fP
 .INDENT 0.0
 .INDENT 3.5
 If you created your account through Facebook you will need to create
-a "device password" to stream from Spotify using Tizonia. Note that
+a \(aqdevice password\(aq to stream from Spotify using Tizonia. Note that
 the device password option is only available for Facebook\-created
 accounts. Please read the Spotify documentation at
 \fI\%http://www.spotify.com/account/set\-device\-password/\fP\&.
 .UNINDENT
 .UNINDENT
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+User names with a \(aq+\(aq character will not work. There is a bug (\fI#599
+<https://github.com/tizonia/tizonia\-openmax\-il/issues/599>_\fP) in Tizonia
+that prevents the use of \(aq+\(aq characters in the user name field.
+.UNINDENT
+.UNINDENT
 .INDENT 0.0
 .TP
 .B \fBspotify.password\fP
-Password of the Premium account. Please do not allow \(aq#\(aq in
-the password. There is a bug in Tizonia that prevents this character in the
-password field.
+Password of the Premium account. If you created your account through
+Facebook you will need to create a \(aqdevice password\(aq (see note above).
+.UNINDENT
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+Please do not allow \(aq#\(aq or \(aq$\(aq in the password. There is a bug (\fI#571
+<https://github.com/tizonia/tizonia\-openmax\-il/issues/599>_\fP) in Tizonia
+that prevents this character in the password field.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
 .TP
 .B \fBspotify.recover_lost_token\fP
 Set to \fBtrue\fP to allow Tizonia to resume playback and recover the token
@@ -745,8 +772,34 @@ Play Spotify recommendations by track ID, URI or URL
 .B \fB\-\-spotify\-recommendations\-by\-artist\-id arg\fP
 Play Spotify recommendations by artist ID, URI or URL.
 .TP
+.B \fB\-\-spotify\-recommendations\-by\-track arg\fP
+Play Spotify recommendations by track name.
+.TP
+.B \fB\-\-spotify\-recommendations\-by\-artist arg\fP
+Play Spotify recommendations by artist name.
+.TP
 .B \fB\-\-spotify\-recommendations\-by\-genre arg\fP
 Play Spotify recommendations by genre name.
+.TP
+.B \fB\-\-spotify\-user\-liked\-tracks\fP
+Play the user\(aqs liked tracks.
+.TP
+.B \fB\-\-spotify\-user\-recent\-tracks\fP
+Play the user\(aqs most recent tracks.
+.TP
+.B \fB\-\-spotify\-user\-top\-tracks\fP
+Play the user\(aqs top tracks.
+.TP
+.B \fB\-\-spotify\-user\-top\-artists\fP
+Play tracks from the user\(aqs top artists.
+.TP
+.B \fB\-\-spotify\-user\-playlist arg\fP
+Play tracks from the user\(aqs playlist (including private playlists,
+Daily Mixes and Discover Weekly).
+.sp
+Note that Daily Mixes and Discover Weekly playlists need to be \(aqliked\(aq
+beforehand in order to be found by a search performed on the user
+library.
 .UNINDENT
 .SS EXAMPLES
 .INDENT 0.0
@@ -758,9 +811,35 @@ $ tizonia \-\-spotify\-artist \(aqenya\(aq
 
 $ tizonia \-\-spotify\-album \(aqthe greatest showman\(aq
 
-$ tizonia \-\-spotify\-recommendations\-by\-track\-id 3MrRksHupTVEQ7YbA0FsZK
+# Search and play a *public* playlist owned by the current user
+$ tizonia \-\-spotify\-playlist \(aqSummer 2019\(aq
 
+# Search and play a *public* playlist owned by the specified user
+$ tizonia \-\-spotify\-playlist \(aqSummer 2019\(aq \-\-spotify\-owner \(aqbqmtzm68dmdyk2uyvrwma69y2\(aq
+
+# Globally search and play a *public* playlist on Spotify (Tizonia will play
+# the best match in the list returned by the Spotify service)
 $ tizonia \-\-spotify\-playlist \(aqbest metal 2000s\(aq \-\-spotify\-owner \(aqanyuser\(aq
+
+# Play recommended tracks by seeding the search with a specific track and artist
+$ tizonia \-\-spotify\-recommendations\-by\-track \(aqWord up by cameo\(aq
+$ tizonia \-\-spotify\-recommendations\-by\-track \(aqWord up by Gun\(aq
+$ tizonia \-\-spotify\-recommendations\-by\-track \(aqWord up by Korn\(aq
+
+# Play recommended tracks by seeding the search with a specific artist
+$ tizonia \-\-spotify\-recommendations\-by\-artist \(aqqueen\(aq
+
+# Play recommended tracks by seeding the search with a specific Spotify track id/uri/url
+$ tizonia \-\-spotify\-recommendations\-by\-track\-id 3MrRksHupTVEQ7YbA0FsZK
+$ tizonia \-\-spotify\-recommendations\-by\-track\-id \(aqspotify:track:3MrRksHupTVEQ7YbA0FsZK\(aq
+$ tizonia \-\-spotify\-recommendations\-by\-track\-id \(aqhttps://open.spotify.com/track/3MrRksHupTVEQ7YbA0FsZK\(aq
+
+# Play the user\(aqs Discover Weekly and Daily Mixes in the user\(aqs
+# library. Note that these playlists must have been \(aqliked\(aq beforehand
+# on Spotify
+$ tizonia \-\-spotify\-user\-playlist "Discover Weekly"
+$ tizonia \-\-spotify\-user\-playlist "Daily Mix 1"
+$ tizonia \-\-spotify\-user\-playlist "Daily Mix 4"
 .ft P
 .fi
 .UNINDENT
@@ -813,7 +892,25 @@ E.g.: \fB$ chmod og\-rwx $HOME/.config/tizonia/tizonia.conf\fP
 The Google Play Music account username, e.g. \fI\%\(aquser@gmail.com\fP\(aq or just \(aquser\(aq.
 .TP
 .B \fBgmusic.password\fP
-Account password or app\-specific password for 2\-factor users
+Account password or app\-specific password for 2\-factor users.
+.sp
+Note that there are two options to allow Tizonia access to a Google Play
+Music account:
+.INDENT 7.0
+.IP \(bu 2
+The "Less secure app access" setting is enabled on the Google account:
+\- See \fI\%https://myaccount.google.com/lesssecureapps\fP
+.IP \(bu 2
+An app\-specific password is used with Tizonia if 2\-factor authentication is
+enabled on the account:
+\- See \fI\%https://support.google.com/accounts/answer/185833\fP
+.UNINDENT
+.sp
+Note that Tizonia caches the authentication token received from Google Play
+Music on the first successful access to the service (i.e. with a valid
+username and password) and uses this token to re\-authenticate in subsequent
+attempts to access the service. When the token expires, Tizonia accesses the
+service with username and password once more to retrieve a new token.
 .TP
 .B \fBgmusic.device_id\fP
 An Android device id associated to your account. This is usually a 16\-digit
@@ -1025,6 +1122,8 @@ $ tizonia \-\-soundcloud\-tracks \(aqall right now\(aq
 $ tizonia \-\-soundcloud\-creator "twit"
 
 $ tizonia \-\-soundcloud\-genres "piano"
+
+$ tizonia \-\-soundcloud\-playlists "joe satriani by Jimmy Mendoza"
 .ft P
 .fi
 .UNINDENT
