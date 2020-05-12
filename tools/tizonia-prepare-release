@@ -220,16 +220,20 @@ function main {
 
     print_banner "[START] : Preparing Tizonia for release; version [$TIZONIA_RELEASE_VERSION]" "$YEL"
 
+    # These steps below are automated. Uncomment all of them. Run this script
+    # to do all this in one go.
+
     # update_package_versions
-    update_plugin_shared_lib_versions
-    update_shared_lib_versions
-    update_python_version_strings
-    update_debian_changelog_files
-    update_doxygen_doc_version_strings
-    update_sphinx_doc_version_strings
-    update_man_page
+    # update_plugin_shared_lib_versions
+    # update_shared_lib_versions
+    # update_python_version_strings
+    # update_debian_changelog_files
+    # update_doxygen_doc_version_strings
+    # update_sphinx_doc_version_strings
+    # update_man_page
 
     # Do the following manual steps at this point
+
     # 7.- Update README.md (as many changes as needed).
     # 8.- Close github issue: release vx.x.x
     # 9.- Create release and tag it on GitHub.
