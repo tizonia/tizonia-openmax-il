@@ -35,10 +35,13 @@ like the one pictured below (see also :ref:`tizonia-config-label`).
    # spotify.preferred_bitrate = Three possible values: 96, 160, or 320 ; default: 320
 
 ``spotify.user``
+
    The username of the Spotify Premium account. For older accounts, the
-   username may be related to account email address (i.e. same as the email
-   address without the @domain). For newer accounts, the username is a random
-   string of around 25 characters allocated by Spotify.
+   username may be related to account email address (i.e. the email address
+   without the @domain part). For newer accounts, the username is a random
+   string of around 25 characters allocated by Spotify. This information is
+   found in ``Account overview`` section in the Spotify website.
+   https://www.spotify.com/us/account/overview .
 
 .. note:: If you created your account through Facebook you will need to create
           a "device password" to stream from Spotify using Tizonia. Note that
