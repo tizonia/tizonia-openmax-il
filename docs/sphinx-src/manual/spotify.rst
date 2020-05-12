@@ -44,15 +44,23 @@ like the one pictured below (see also :ref:`tizonia-config-label`).
    https://www.spotify.com/us/account/overview .
 
 .. note:: If you created your account through Facebook you will need to create
-          a "device password" to stream from Spotify using Tizonia. Note that
+          a 'device password' to stream from Spotify using Tizonia. Note that
           the device password option is only available for Facebook-created
           accounts. Please read the Spotify documentation at
           http://www.spotify.com/account/set-device-password/.
 
+.. note:: User names with a '+' character will not work. There is a bug (`#599
+   <https://github.com/tizonia/tizonia-openmax-il/issues/599>_`) in Tizonia
+   that prevents the use of '+' characters in the user name field.
+
 ``spotify.password``
-   Password of the Premium account. Please do not allow '#' in
-   the password. There is a bug in Tizonia that prevents this character in the
-   password field.
+
+   Password of the Premium account. If you created your account through
+   Facebook you will need to create a 'device password' (see note above).
+
+.. note:: Please do not allow '#' or '$' in the password. There is a bug (`#571
+   <https://github.com/tizonia/tizonia-openmax-il/issues/599>_`) in Tizonia
+   that prevents this character in the password field.
 
 ``spotify.recover_lost_token``
   Set to ``true`` to allow Tizonia to resume playback and recover the token
