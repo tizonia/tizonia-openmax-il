@@ -292,7 +292,7 @@ namespace
         {
           int ch[2];
           ch[0] = getch ();
-          printf("\nValue is : %d\n",ch[0]);
+          // printf("\nValue is : %d\n",ch[0]);
           switch (ch[0])
             {
             case '1':
@@ -355,9 +355,9 @@ namespace
             case 27:
               {
                 ch[0] = getch(); // skip
-                printf("\n  Value is : %d\n",ch[0]);
+                // printf("\n  Value is : %d\n",ch[0]);
                 ch[0] = getch();
-                printf("\n    Value is : %d\n",ch[0]);
+                // printf("\n    Value is : %d\n",ch[0]);
                 switch (ch[0])
                   {
                   case 68:  // left arrow
@@ -392,14 +392,14 @@ namespace
 
                   case 53:  // page up
                     ch[0] = getch(); // skip
-                    printf("\n      Value is : %d\n",ch[0]);
+                    // printf("\n      Value is : %d\n",ch[0]);
                     mgr_ptr->next ();
                     playlist_position = 0;
                     break;
 
                   case 54:  // page down
                     ch[0] = getch(); // skip
-                    printf("\n      Value is : %d\n",ch[0]);
+                    // printf("\n      Value is : %d\n",ch[0]);
                     mgr_ptr->prev ();
                     playlist_position = 0;
                     break;
