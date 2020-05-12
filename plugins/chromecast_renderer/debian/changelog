@@ -1,3 +1,9 @@
+tizchromecastrnd (0.22.0-1) unstable; urgency=low
+
+  * New upstream release (Closes: #735)
+
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Tue, 12 May 2020 20:18:46 +0100
+
 tizchromecastrnd (0.21.0-1) unstable; urgency=low
 
   * New upstream release (Closes: #699)
