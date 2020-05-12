@@ -40,7 +40,7 @@ like the one pictured below (see also :ref:`tizonia-config-label`).
    username may be related to account email address (i.e. the email address
    without the @domain part). For newer accounts, the username is a random
    string of around 25 characters allocated by Spotify. This information is
-   found in ``Account overview`` section in the Spotify website.
+   found in the ``Account overview`` section on the Spotify website.
    https://www.spotify.com/us/account/overview .
 
 .. note:: If you created your account through Facebook you will need to create
