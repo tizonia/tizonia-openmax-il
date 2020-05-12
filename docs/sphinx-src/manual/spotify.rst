@@ -57,8 +57,8 @@ like the one pictured below (see also :ref:`tizonia-config-label`).
    Facebook you will need to create a 'device password' (see note above).
 
 .. note:: Please do not allow '#' or '$' in the password. There is a bug (`#571
-   <https://github.com/tizonia/tizonia-openmax-il/issues/599>_`) in Tizonia
-   that prevents this character in the password field.
+          <https://github.com/tizonia/tizonia-openmax-il/issues/599>_`) in Tizonia
+          that prevents this character in the password field.
 
 ``spotify.recover_lost_token``
   Set to ``true`` to allow Tizonia to resume playback and recover the token
