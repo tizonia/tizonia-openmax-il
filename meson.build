@@ -1,4 +1,4 @@
-project('tizonia', ['c', 'cpp'], version: '0.21.0', license: 'LGPLv3.0+', meson_version: '>=0.53.0')
+project('tizonia', ['c', 'cpp'], version: '0.22.0', license: 'LGPLv3.0+', meson_version: '>=0.53.0')
 
 ## note to self:
 ## * patch docs/sphinx-src/conf.py once the xml issue is fixed upstream
