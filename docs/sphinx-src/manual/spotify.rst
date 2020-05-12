@@ -50,8 +50,8 @@ like the one pictured below (see also :ref:`tizonia-config-label`).
           http://www.spotify.com/account/set-device-password/.
 
 .. note:: User names with a '+' character will not work. There is a bug (`#599
-   <https://github.com/tizonia/tizonia-openmax-il/issues/599>_`) in Tizonia
-   that prevents the use of '+' characters in the user name field.
+          <https://github.com/tizonia/tizonia-openmax-il/issues/599>_`) in Tizonia
+          that prevents the use of '+' characters in the user name field.
 
 ``spotify.password``
 
