@@ -897,7 +897,7 @@ class tizgmusicproxy(object):
 
         """
         try:
-            tracks = self.gmusic.get_promoted_songs()
+            tracks = self.gmusic.get_top_songs()
             count = 0
             track_list = list()
             for track in tracks:
@@ -905,6 +905,9 @@ class tizgmusicproxy(object):
                 if "id" not in list(store_track.keys()):
                     store_track["id"] = store_track["storeId"]
                 track_list.append(store_track)
+
+            if not track_list:
+                raise RuntimeError("Operation requires an Unlimited subscription.")
 
             self._add_to_playback_queue(track_list)
             self._finalise_play_queue(0, "promoted")
@@ -1719,7 +1722,7 @@ class tizgmusicproxy(object):
 
         if count == len(self.queue):
             logging.info("no tracks found arg : %s", arg)
-            raise ValueError
+            raise ValueError("No tracks found with search option : '{}'".format(arg))
         self._update_play_queue_order()
         self.print_queue()
 
