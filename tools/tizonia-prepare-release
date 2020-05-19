@@ -58,11 +58,11 @@
 source tizonia-common.inc
 
 # Constants
-readonly TIZONIA_OLD_PACKAGE_VER="0.20.0"
+readonly TIZONIA_OLD_PACKAGE_VER="0.21.0"
 readonly TIZONIA_NEW_PACKAGE_VER="$TIZONIA_RELEASE_VERSION"
 
-readonly TIZONIA_OLD_SHLIB_VER="0:20:0"
-readonly TIZONIA_NEW_SHLIB_VER="0:21:0"
+readonly TIZONIA_OLD_SHLIB_VER="0:21:0"
+readonly TIZONIA_NEW_SHLIB_VER="0:22:0"
 
 readonly TIZONIA_PLUGIN_OLD_SHLIB_VER="$TIZONIA_OLD_SHLIB_VER"
 readonly TIZONIA_PLUGIN_NEW_SHLIB_VER="$TIZONIA_NEW_SHLIB_VER"
@@ -71,7 +71,7 @@ readonly TIZONIA_PYTHON_OLD_MODULE_VER="$TIZONIA_OLD_PACKAGE_VER"
 readonly TIZONIA_PYTHON_NEW_MODULE_VER="$TIZONIA_NEW_PACKAGE_VER"
 
 readonly TIZONIA_DEBIAN_CHANGELOG_VER="$TIZONIA_NEW_PACKAGE_VER"
-readonly TIZONIA_DEBIAN_CHANGELOG_CLOSING_BUG="699"
+readonly TIZONIA_DEBIAN_CHANGELOG_CLOSING_BUG="735"
 
 # Program dependencies
 declare -ar TIZONIA_PREPARE_RELEASE_DEPS=( \
@@ -220,6 +220,9 @@ function main {
 
     print_banner "[START] : Preparing Tizonia for release; version [$TIZONIA_RELEASE_VERSION]" "$YEL"
 
+    # These steps below are automated. Uncomment all of them. Run this script
+    # to do all this in one go.
+
     # update_package_versions
     # update_plugin_shared_lib_versions
     # update_shared_lib_versions
@@ -230,6 +233,7 @@ function main {
     # update_man_page
 
     # Do the following manual steps at this point
+
     # 7.- Update README.md (as many changes as needed).
     # 8.- Close github issue: release vx.x.x
     # 9.- Create release and tag it on GitHub.
