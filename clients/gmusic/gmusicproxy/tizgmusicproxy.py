@@ -882,22 +882,9 @@ class tizgmusicproxy(object):
             )
 
             for item in playlist_contents:
-                track = item["track"]
-                print_nfo(
-                    "[Google Play Music] [Track] '{} by {} (Album: {}, {})'.".format(
-                        (track["title"]),
-                        (track["artist"]),
-                        (track["album"]),
-                        (track["year"]),
-                    )
-                )
-                playlist_tracks.append(track)
-
-            if not playlist_tracks:
-                raise KeyError
+                playlist_tracks.append(item["track"])
 
             self._add_to_playback_queue(playlist_tracks)
-
             self._finalise_play_queue(0, arg)
 
         except KeyError:
