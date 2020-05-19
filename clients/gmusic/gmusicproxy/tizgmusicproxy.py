@@ -912,18 +912,14 @@ class tizgmusicproxy(object):
         try:
             tracks = self.gmusic.get_promoted_songs()
             count = 0
+            track_list = list()
             for track in tracks:
                 store_track = self.gmusic.get_track_info(track["storeId"])
                 if "id" not in list(store_track.keys()):
                     store_track["id"] = store_track["storeId"]
-                self.queue.append(store_track)
-                count += 1
-            if count == 0:
-                print_wrn(
-                    "[Google Play Music] Operation requires "
-                    "an Unlimited subscription."
-                )
+                track_list.append(store_track)
 
+            self._add_to_playback_queue(track_list)
             self._finalise_play_queue(0, "promoted")
 
         except CallFailure:
@@ -1138,7 +1134,7 @@ class tizgmusicproxy(object):
                     order_num,
                     to_ascii(track["title"]),
                     to_ascii(track["artist"]),
-                    to_ascii(track["duration_str"]),
+                    to_ascii(track["duration_str"] if track.get("duration_str") else ""),
                 )
             )
             print_nfo(info_str + ".")
@@ -1556,6 +1552,7 @@ class tizgmusicproxy(object):
         """
         count = 0
         for track in tracks:
+            track["duration_str"] = ''
             if "id" not in list(track.keys()) and track.get("storeId"):
                 track["id"] = track["storeId"]
 
