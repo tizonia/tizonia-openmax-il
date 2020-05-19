@@ -1696,12 +1696,17 @@ class tizgmusicproxy(object):
                                 query_type.capitalize(), (name)
                             )
                         )
-                choices[name] = hit
-                choice_names.append(name)
+                if name not in choices:
+                    choices[name] = hit
+                    choice_names.append(name)
 
             if len(choice_names) > 1:
-                choice_name = process.extractOne(query, choice_names)[0]
-                result = choices[choice_name]
+                if query_type == "artist":
+                    choice_name = choice_names[0]
+                    result = choices[choice_name]
+                else:
+                    choice_name = process.extractOne(query, choice_names)[0]
+                    result = choices[choice_name]
             elif len(choice_names) == 1:
                 choice_name = choice_names[0]
                 result = choices[choice_name]
