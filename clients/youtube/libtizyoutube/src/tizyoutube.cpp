@@ -120,7 +120,7 @@ namespace
       {
         PyErr_PrintEx (0);
         std::cerr << std::string (
-            "\nPython modules 'pafy', 'youtube-dl' or 'fuzzywuzzy' not found."
+            "\nPython modules 'pafy', 'youtube-dl', 'joblib' or 'fuzzywuzzy' not found."
             "\nPlease make sure these are installed correctly.\n");
       }
     catch (...)
