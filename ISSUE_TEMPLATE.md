@@ -1,4 +1,4 @@
-# Issue Template
+# Issue
 
 <!--
 
@@ -6,7 +6,7 @@ Have you read Tizonia's Code of Conduct? By filing an Issue, you are expected
 to comply with it, including treating everyone with respect:
 https://github.com/tizonia/tizonia-openmax-il/blob/master/CODE_OF_CONDUCT.md
 
-Remember that these are some guidelines, use your best judgement.
+Remember that these are some guidelines, use your best judegement.
 -->
 
 ### Description
@@ -19,17 +19,21 @@ Remember that these are some guidelines, use your best judgement.
 2. [Second Step]
 3. [and so on...]
 
-**Expected behavior:** [What you expect to happen]
+**Expected behavior:**
 
-**Actual behaviour:** [What actually happens]
+[What you expect to happen]
 
-**Reproduces how often:** [What percentage of the time does it reproduce?]
+**Actual behaviour:**
+
+[What actually happens]
+
+**Reproduces how often:**
+
+[What percentage of the time does it reproduce?]
 
 ### Versions
 
-Use the information obtained from `tizonia --version` and `tizonia
---debug`. Also, please include the OS details and what version you are running
-(e.g. `cat /etc/os-release`).
+Use the information obtained from `tizonia --debug`.
 
 ### Installation Method Used
 

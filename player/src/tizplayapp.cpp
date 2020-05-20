@@ -105,7 +105,7 @@ namespace bp = boost::python;
 
 #define APP_NAME "tizonia"
 #define PYTHON_EXEC_TEMPLATE                        \
-  "import pkg_resources\nprint('\t    * [MODULE', " \
+  "import pkg_resources\nprint('* [MODULE', " \
   "pkg_resources.get_distribution('MODULE').version, ']')\n"
 
 #define CHECK_PYTHON_MODULE_VER(mod)                                  \
@@ -752,17 +752,13 @@ tiz::playapp::print_debug_info () const
   {
     struct utsname name;
     print_banner ();
-    printf ("Debug Info:\n");
-    if (!uname (&name))
-    {
-      printf ("\t    * [%s@%s-%s]\n", name.sysname, name.release, name.version);
-    }
-    printf ("\t    * [Boost %s]\n", BOOST_LIB_VERSION);
-    printf ("\t    * [TagLib %d.%d.%d]\n", TAGLIB_MAJOR_VERSION,
+    printf ("Dependency Info:\n\n");
+    printf ("* [Boost %s]\n", BOOST_LIB_VERSION);
+    printf ("* [TagLib %d.%d.%d]\n", TAGLIB_MAJOR_VERSION,
             TAGLIB_MINOR_VERSION, TAGLIB_PATCH_VERSION);
     std::wstring wide (
         MediaInfoLib::MediaInfo::Option_Static (L"Info_Version"));
-    printf ("\t    * [%s]\n",
+    printf ("* [%s]\n",
             std::string (wide.begin (), wide.end ()).c_str ());
     {
       OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
@@ -784,17 +780,25 @@ tiz::playapp::print_debug_info () const
             ("titlecase")
             ("pychromecast")
             ("plexapi")
+            ("spotipy")
             ("fuzzywuzzy")
             ("eventlet")
             ("python-Levenshtein")
-            ("joblib")
-            ("spotipy")
-            ("youtube-dl");
+            ("joblib");
           BOOST_FOREACH (std::string module, modules)
             {
               CHECK_PYTHON_MODULE_VER(module);
             }
 
+          printf ("\nSystem Info:\n\n");
+          if (!uname (&name))
+            {
+              printf ("%s@%s-%s\n", name.sysname, name.release, name.version);
+            }
+          if (boost::filesystem::exists("/etc/os-release"))
+            {
+              (void)system("cat /etc/os-release");
+            }
           rc = OMX_ErrorNone;
         }
       catch (bp::error_already_set &e)
