@@ -159,8 +159,6 @@ void graph::tuneinops::do_load ()
     tiztuneinconfig_ptr_t tunein_config
         = boost::dynamic_pointer_cast< tuneinconfig > (config_);
     assert (tunein_config);
-    tiz::graph::util::dump_graph_info ("Tunein", "Connecting",
-                                       tunein_config->get_api_key ().c_str ());
   }
 }
 
