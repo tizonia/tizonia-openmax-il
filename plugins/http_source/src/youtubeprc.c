@@ -335,6 +335,7 @@ send_port_auto_detect_events (youtube_prc_t * ap_prc)
 
       /* Finally, signal the client */
       TIZ_DEBUG (handleOf (ap_prc), "Issuing OMX_ErrorFormatNotDetected");
+      TIZ_PRINTF_DBG_RED ("send_port_auto_detect_events: OMX_ErrorFormatNotDetected\n");
       tiz_srv_issue_err_event ((OMX_PTR) ap_prc, OMX_ErrorFormatNotDetected);
     }
 }
@@ -628,6 +629,7 @@ connection_lost (OMX_PTR ap_arg)
       prepare_for_port_auto_detection (p_prc);
 
       /* Signal the client */
+      TIZ_PRINTF_DBG_RED ("connection_lost: OMX_ErrorFormatNotDetected\n");
       tiz_srv_issue_err_event ((OMX_PTR) p_prc, OMX_ErrorFormatNotDetected);
     }
 
