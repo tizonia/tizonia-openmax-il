@@ -23,6 +23,7 @@ Access YouTube to retrieve audio stream URLs and create a playback queue.
 
 import sys
 import os
+import time
 import logging
 import random
 import unicodedata
@@ -46,8 +47,6 @@ YOUTUBE_CACHE_LOCATION = os.path.join(
 )
 MEMORY = Memory(YOUTUBE_CACHE_LOCATION, compress=9, verbose=0, bytes_limit=10485760)
 MEMORY.reduce_size()
-
-ISO8601_TIMEDUR_EX = re.compile(r"PT((\d{1,3})H)?((\d{1,3})M)?((\d{1,2})S)?")
 
 API_KEY = "AIzaSyC3iXWKvY6iOC3SoglRAekDXqutQiMuCxc"
 
@@ -462,18 +461,9 @@ class tizyoutubeproxy(object):
         """
         logging.info("arg : %s", arg)
         try:
-            print_msg("[YouTube] [Audio strean] : '{0}'. ".format(arg))
-
-            yt_search = MEMORY.cache(run_youtube_search)
-            yt_video = yt_search(arg)
-            yt_audio = yt_video.getbestaudio(preftype="webm")
-            if not yt_audio:
-                raise ValueError(str("No WebM audio stream for : %s" % arg))
-
-            yt_info = VideoInfo(ytid=arg, title=yt_audio.title)
-            self._add_to_playback_queue(audio=yt_audio, video=yt_video, info=yt_info)
-
-            self._finalise_play_queue()
+            print_msg("[YouTube] [Audio stream] : '{0}'. ".format(arg))
+            self._enqueue_audio_stream(arg)
+            self._finalise_play_queue(0, arg)
 
         except ValueError:
             raise ValueError(str("Video not found : %s" % arg))
@@ -563,7 +553,7 @@ class tizyoutubeproxy(object):
                     yt_info = VideoInfo(ytid=video_id, title=video_title)
                     self._add_to_playback_queue(video=yt_video, info=yt_info)
 
-            self._finalise_play_queue(count, arg)
+            self._finalise_play_queue(count, arg, deduplicate=True)
 
         except IndexError:
             if not feelinglucky:
@@ -598,6 +588,11 @@ class tizyoutubeproxy(object):
             for track_info in get_tracks_from_json(wdata2):
                 if track_info and track_info.ytid:
                     try:
+                        # Sometimes, the mix search does not render a playlist
+                        # where the seed stream is found.  We force here that
+                        # the stream that we are using to seed the search is in
+                        # the queue, at least once.
+                        self._enqueue_audio_stream(track_info.ytid)
                         self.enqueue_audio_mix(track_info.ytid, feelinglucky=False)
                         break
                     except ValueError:
@@ -814,8 +809,7 @@ class tizyoutubeproxy(object):
             title = stream["a"].title if stream.get("a") else stream["i"].title
             info_str = str(
                 "[YouTube] [Stream] [{0}] '{1}'".format(
-                    order_num,
-                    to_ascii(to_ascii(title))
+                    order_num, to_ascii(to_ascii(title))
                 )
             )
             print_nfo(info_str + ".")
@@ -842,7 +836,7 @@ class tizyoutubeproxy(object):
         """ Retrieve the url of the next stream in the playback queue.
 
         """
-        logging.info("")
+        logging.info("self.queue_index {}".format(self.queue_index))
         try:
             if len(self.queue):
                 self.queue_index += 1
@@ -852,6 +846,7 @@ class tizyoutubeproxy(object):
                         next_stream, self.play_queue_order[self.queue_index]
                     ).rstrip()
                 else:
+                    logging.info("self.queue_index {}".format(self.queue_index))
                     self.queue_index = -1
                     return self.next_url()
             else:
@@ -908,7 +903,9 @@ class tizyoutubeproxy(object):
                 if position and position > 0 and position <= len(self.queue):
                     self.queue_index = position - 1
                     queue_pos = self.play_queue_order[self.queue_index]
-                    logging.info("get_url : self.queue_index {}".format(self.queue_index))
+                    logging.info(
+                        "get_url : self.queue_index {}".format(self.queue_index)
+                    )
                 logging.info(
                     "get_url : play_queue_order {}".format(
                         self.play_queue_order[self.queue_index]
@@ -924,6 +921,27 @@ class tizyoutubeproxy(object):
             logging.info("exception")
             return ""
 
+    def _enqueue_audio_stream(self, arg):
+        """Add the audio stream of a YouTube video to the
+        playback queue.
+
+        :param arg: a search string
+
+        """
+        logging.info("arg : %s", arg)
+        try:
+            yt_search = MEMORY.cache(run_youtube_search)
+            yt_video = yt_search(arg)
+            yt_audio = yt_video.getbestaudio(preftype="webm")
+            if not yt_audio:
+                raise ValueError(str("No WebM audio stream for : %s" % arg))
+
+            yt_info = VideoInfo(ytid=arg, title=yt_audio.title)
+            self._add_to_playback_queue(audio=yt_audio, video=yt_video, info=yt_info)
+
+        except ValueError:
+            raise ValueError(str("Video not found : %s" % arg))
+
     def _update_play_queue_order(self):
         """ Update the queue playback order.
 
@@ -938,12 +956,12 @@ class tizyoutubeproxy(object):
                 self.play_queue_order = list(range(total_streams))
             if self.current_play_mode == self.play_modes.SHUFFLE:
                 random.shuffle(self.play_queue_order)
-            print_nfo("[YouTube] [Streams in queue] '{0}'.".format(total_streams))
 
     def _retrieve_stream_url(self, stream, queue_index):
         """ Retrieve a stream url
 
         """
+        logging.info("")
         try:
             if not len(self.workers):
                 for _ in range(WORKER_PROCESSES):
@@ -987,17 +1005,28 @@ class tizyoutubeproxy(object):
         self.task_queue.put(dict(a=audio, v=video, i=info, q=queue_index))
         self.queue.append(dict(a=audio, v=video, i=info, q=queue_index))
 
-    def _finalise_play_queue(self, count, arg):
+    def _finalise_play_queue(self, count, arg, deduplicate=False):
         """ Helper function to grou the various actions needed to ready play
         queue.
 
         """
+
+        if deduplicate:
+            seen = set()
+            uniq = []
+            for item in self.queue:
+                ytid = item["i"].ytid
+                if ytid not in seen:
+                    uniq.append(item)
+                    seen.add(ytid)
+            self.queue = uniq
 
         if count == len(self.queue):
             logging.info("no tracks found arg : %s", arg)
             raise ValueError
         self._update_play_queue_order()
         self.print_queue()
+
 
 if __name__ == "__main__":
     tizyoutubeproxy()
