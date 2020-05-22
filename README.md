@@ -5,8 +5,9 @@
 # The Tizonia Project
 
 * A command-line streaming music client/server for Linux.
-* Support for Spotify (Premium), Google Play Music (free and paid tiers), YouTube,
-  SoundCloud, TuneIn Internet Radio, Plex servers and Chromecast devices.
+* Support for Spotify (Premium), Google Play Music (free and paid tiers),
+  YouTube, SoundCloud, TuneIn and iHeart Internet Radio directories, Plex
+  servers and Chromecast devices.
 * The first open-source implementation of [OpenMAX IL
   1.2](https://www.khronos.org/news/press/khronos-group-releases-openmax-il-1.2-provisional-specification).
 
@@ -25,8 +26,8 @@
     <img src="https://img.shields.io/codecov/c/github/tizonia/tizonia-openmax-il.svg" />
   </a>
 
-  <a href="https://github.com/tizonia/tizonia-openmax-il/compare/v0.21.0...master">
-    <img src="https://img.shields.io/github/commits-since/tizonia/tizonia-openmax-il/v0.21.0.svg" />
+  <a href="https://github.com/tizonia/tizonia-openmax-il/compare/v0.22.0...master">
+    <img src="https://img.shields.io/github/commits-since/tizonia/tizonia-openmax-il/v0.22.0.svg" />
   </a>
 
 </div>
@@ -117,13 +118,22 @@
 
 **Latest news**
 
+- [2020-05-22] Tizonia
+[v0.22.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.22.0). Added
+support for iHeart radio, new command-line options to play Spotify
+recommendations by artist and album name, new keyboard shortcuts and a good
+number of other fixes and improvements.
+
+> See Tizonia's website: [Tizonia 0.22.0](https://tizonia.org/news/2020/05/22/release-0-22-0/)
+
+<details><summary><b>Show more</b></summary>
+
 - [2020-03-08] Tizonia
 [v0.21.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.21.0). A
 maintenance release with fixes for YouTube API quota issues, among others.
 
-> See Tizonia's website: [Tizonia 0.21.0 brings changes to minimize the YouTube API quota issues](https://tizonia.org/news/2020/03/08/release-0-21-0/)
-
-<details><summary><b>Show more</b></summary>
+> See Tizonia's website: [Tizonia 0.21.0 brings changes to minimize the YouTube
+> API quota issues](https://tizonia.org/news/2020/03/08/release-0-21-0/)
 
 - [2020-01-19] Tizonia
 [v0.20.0](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.20.0). Added

@@ -230,7 +230,7 @@ function main {
     # update_debian_changelog_files
     # update_doxygen_doc_version_strings
     # update_sphinx_doc_version_strings
-    update_man_page
+    # update_man_page
 
     # Do the following manual steps at this point
 
