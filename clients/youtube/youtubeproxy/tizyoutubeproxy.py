@@ -23,6 +23,7 @@ Access YouTube to retrieve audio stream URLs and create a playback queue.
 
 import sys
 import os
+import shutil
 import time
 import logging
 import random
@@ -45,6 +46,37 @@ CACHE_DIR_PREFIX = os.getenv("SNAP_USER_COMMON") or TMPDIR
 YOUTUBE_CACHE_LOCATION = os.path.join(
     CACHE_DIR_PREFIX, "tizonia-" + getpass.getuser() + "-youtube"
 )
+
+# One week
+YOUTUBE_CACHE_TTL = 604800
+
+if os.path.exists(YOUTUBE_CACHE_LOCATION):
+    try:
+        with open(YOUTUBE_CACHE_LOCATION + "/.timestamp", "r") as tstamp:
+            creation_time = tstamp.read()
+            # print("Timestamp in the cache directory {0}".format(creation_time))
+            tstamp.close()
+            now_time = int(time.time())
+            if now_time > int(creation_time) + TTL:
+                # print("Cache too old. Deleting cache {0}".format(now_time))
+                shutil.rmtree(YOUTUBE_CACHE_LOCATION)
+    except Exception:
+        # No timestamp in the cache directory, clean it up entirely
+        # print("No timestamp in the cache directory, clean it up entirely")
+        shutil.rmtree(YOUTUBE_CACHE_LOCATION)
+
+if not os.path.exists(YOUTUBE_CACHE_LOCATION):
+    # print("No timestamp directory, creating it")
+    os.mkdir(YOUTUBE_CACHE_LOCATION)
+    try:
+        with open(YOUTUBE_CACHE_LOCATION + "/.timestamp", "a") as tstamp:
+            epoch_time = str(int(time.time()))
+            tstamp.write(epoch_time + "\n")
+            tstamp.close()
+            # print("Written timestamp {0}".format(epoch_time))
+    except Exception:
+        pass
+
 MEMORY = Memory(YOUTUBE_CACHE_LOCATION, compress=9, verbose=0, bytes_limit=10485760)
 MEMORY.reduce_size()
 
@@ -135,45 +167,45 @@ def utf8_replace(txt):
 
 
 # This code is here for debugging purposes
-def xenc(stuff):
-    """ Replace unsupported characters. """
-    if sys.stdout.isatty():
-        return utf8_replace(stuff) if NOT_UTF8_ENVIRONMENT else stuff
+# def xenc(stuff):
+#     """ Replace unsupported characters. """
+#     if sys.stdout.isatty():
+#         return utf8_replace(stuff) if NOT_UTF8_ENVIRONMENT else stuff
 
-    else:
-        return stuff.encode("utf8", errors="replace")
-
-
-# This code is here for debugging purposes
-def xprint(stuff, end=None):
-    """ Compatible print. """
-    print(xenc(stuff), end=end)
+#     else:
+#         return stuff.encode("utf8", errors="replace")
 
 
 # This code is here for debugging purposes
-def dump_stream_info(streams):
-    """ Dump stream info. """
+# def xprint(stuff, end=None):
+#     """ Compatible print. """
+#     print(xenc(stuff), end=end)
 
-    fstring = "{0:<7}{1:<8}{2:<7}{3:<15}{4:<10}       "
-    out = []
-    length = len(streams)
-    text = " [Fetching stream info]      >"
 
-    for num, stream in enumerate(streams):
-        sys.stdout.write(text + "-" * num + ">" + " " * (length - num - 1) + "<\r")
-        sys.stdout.flush()
-        megs = "%3.f" % (stream.get_filesize() / 1024 ** 2) + " MB"
-        qual = "[%s]" % stream.quality
-        out.append(
-            fstring.format(num + 1, stream.mediatype, stream.extension, qual, megs)
-        )
+# This code is here for debugging purposes
+# def dump_stream_info(streams):
+#     """ Dump stream info. """
 
-    sys.stdout.write("\r")
-    xprint(fstring.format("Stream", "Type", "Format", "Quality", " Size"))
-    xprint(fstring.format("------", "----", "------", "-------", " ----"))
+#     fstring = "{0:<7}{1:<8}{2:<7}{3:<15}{4:<10}       "
+#     out = []
+#     length = len(streams)
+#     text = " [Fetching stream info]      >"
 
-    for line in out:
-        xprint(line)
+#     for num, stream in enumerate(streams):
+#         sys.stdout.write(text + "-" * num + ">" + " " * (length - num - 1) + "<\r")
+#         sys.stdout.flush()
+#         megs = "%3.f" % (stream.get_filesize() / 1024 ** 2) + " MB"
+#         qual = "[%s]" % stream.quality
+#         out.append(
+#             fstring.format(num + 1, stream.mediatype, stream.extension, qual, megs)
+#         )
+
+#     sys.stdout.write("\r")
+#     xprint(fstring.format("Stream", "Type", "Format", "Quality", " Size"))
+#     xprint(fstring.format("------", "----", "------", "-------", " ----"))
+
+#     for line in out:
+#         xprint(line)
 
 
 def pretty_print(color, msg=""):
@@ -626,7 +658,7 @@ class tizyoutubeproxy(object):
 
             self._finalise_play_queue(count, arg)
 
-        except ValueError:
+        except (ValueError, KeyError):
             raise ValueError(str("Channel not found : %s" % arg))
 
     def enqueue_audio_channel_playlist(self, channel_name, playlist_name):
