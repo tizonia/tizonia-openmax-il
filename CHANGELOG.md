@@ -1,5 +1,52 @@
 # Changelog
 
+## [v0.22.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.22.0) (2020-05-22)
+
+[Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.21.0...v0.22.0)
+
+**Improvements:**
+
+- youtube: add expiration of cached search results [\#742](https://github.com/tizonia/tizonia-openmax-il/issues/742)
+- Add more useful info into `tizonia --debug` [\#740](https://github.com/tizonia/tizonia-openmax-il/issues/740)
+- SoundCloud: Add fuzzy matching to '--soundcloud-user-playlist' command [\#733](https://github.com/tizonia/tizonia-openmax-il/issues/733)
+- Add additional keyboard shortcuts [\#731](https://github.com/tizonia/tizonia-openmax-il/issues/731)
+- Add ability to list the contents of the play queue using a keyboard shortcut [\#730](https://github.com/tizonia/tizonia-openmax-il/issues/730)
+- Add ability to jump to arbitrary playlist items using keyboard shortcuts [\#728](https://github.com/tizonia/tizonia-openmax-il/issues/728)
+- Spotify: add options to play Spotify recommendations using an artist name [\#727](https://github.com/tizonia/tizonia-openmax-il/issues/727)
+- Binaries for Ubuntu 20.04 \(Focal\) [\#726](https://github.com/tizonia/tizonia-openmax-il/issues/726)
+- Spotify: add access to private lists in the user's library [\#724](https://github.com/tizonia/tizonia-openmax-il/issues/724)
+- \[Feature Request\] Pressing "?" during playback should bring up --help commands [\#641](https://github.com/tizonia/tizonia-openmax-il/issues/641)
+- Support for spotify Songs playlist \(https://open.spotify.com/collection/tracks\) [\#600](https://github.com/tizonia/tizonia-openmax-il/issues/600)
+- \[Feature Request\] Add iHeartRadio [\#597](https://github.com/tizonia/tizonia-openmax-il/issues/597)
+
+**Fixed bugs:**
+
+- google play music: no informative error message when '--gmusic-unlimited-promoted-tracks' fails due to lack of subscription [\#739](https://github.com/tizonia/tizonia-openmax-il/issues/739)
+- google play music: '--gmusic-unlimited-artist' does not yield the obvious best choice [\#738](https://github.com/tizonia/tizonia-openmax-il/issues/738)
+- 'boost/timer.hpp' and 'boost/progress.hpp' are deprecated [\#715](https://github.com/tizonia/tizonia-openmax-il/issues/715)
+- tizyoutubeproxy  enqueue\_audio\_search "query" undefined bug [\#706](https://github.com/tizonia/tizonia-openmax-il/issues/706)
+- Return of tiz\_urltrans\_start assertion failures in 0.21.0 [\#702](https://github.com/tizonia/tizonia-openmax-il/issues/702)
+- youtube-audio-mix-search not playing song mentioned in search string [\#581](https://github.com/tizonia/tizonia-openmax-il/issues/581)
+
+**Closed issues:**
+
+- Tizonia only runs YouTube streams at 160k [\#741](https://github.com/tizonia/tizonia-openmax-il/issues/741)
+- Play icecast stream or play from mounted hard drive [\#729](https://github.com/tizonia/tizonia-openmax-il/issues/729)
+- Soundcloud: Playlist is not found. [\#719](https://github.com/tizonia/tizonia-openmax-il/issues/719)
+- ModuleNotFoundError: No module named 'tizsoundcloudproxy' [\#718](https://github.com/tizonia/tizonia-openmax-il/issues/718)
+- error in mint tricia when spotify commands are ran [\#708](https://github.com/tizonia/tizonia-openmax-il/issues/708)
+-  OMX\_ErrorInsufficientResources on LXDE and Raspbian 10 [\#704](https://github.com/tizonia/tizonia-openmax-il/issues/704)
+- Config file not being read [\#703](https://github.com/tizonia/tizonia-openmax-il/issues/703)
+- Tizonia 0.21.0-1 fails to build [\#700](https://github.com/tizonia/tizonia-openmax-il/issues/700)
+- release v0.22.0 [\#735](https://github.com/tizonia/tizonia-openmax-il/issues/735)
+
+**Merged pull requests:**
+
+- print 'joblib' in module not found message [\#734](https://github.com/tizonia/tizonia-openmax-il/pull/734) ([edward-p](https://github.com/edward-p))
+- fixing deprecation [\#717](https://github.com/tizonia/tizonia-openmax-il/pull/717) ([SolarAquarion](https://github.com/SolarAquarion))
+- clients/youtube/youtubeproxy/tizyoutubeproxy.py: define query object … [\#707](https://github.com/tizonia/tizonia-openmax-il/pull/707) ([ddelazerda](https://github.com/ddelazerda))
+- adding my PKGBUILD  [\#701](https://github.com/tizonia/tizonia-openmax-il/pull/701) ([SolarAquarion](https://github.com/SolarAquarion))
+
 ## [v0.21.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.21.0) (2020-03-08)
 
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.20.2...v0.21.0)
