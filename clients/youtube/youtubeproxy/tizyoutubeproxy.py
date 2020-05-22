@@ -578,6 +578,11 @@ class tizyoutubeproxy(object):
             yt_video = yt_search(arg)
             playlist = yt_video.mix
             if len(playlist) > 0:
+                # Sometimes, the mix produced by YouTube does not render a
+                # playlist where the seed stream is found.  We force it here
+                # that the stream that we are using to seed the search is in
+                # the first position in the queue.
+                self._enqueue_audio_stream(yt_video.videoid)
                 for yt_video in playlist:
                     video_id = yt_video.videoid
                     video_title = yt_video.title
@@ -619,11 +624,6 @@ class tizyoutubeproxy(object):
             for track_info in get_tracks_from_json(wdata2):
                 if track_info and track_info.ytid:
                     try:
-                        # Sometimes, the mix search does not render a playlist
-                        # where the seed stream is found.  We force here that
-                        # the stream that we are using to seed the search is in
-                        # the queue, at least once.
-                        self._enqueue_audio_stream(track_info.ytid)
                         self.enqueue_audio_mix(track_info.ytid, feelinglucky=False)
                         break
                     except ValueError:
