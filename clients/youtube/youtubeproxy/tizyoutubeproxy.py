@@ -37,8 +37,6 @@ from joblib import Memory
 from fuzzywuzzy import process
 from fuzzywuzzy import fuzz
 
-# For use during debugging
-# from pprint import pprint
 
 TMPDIR = "/var/tmp"
 CACHE_DIR_PREFIX = os.getenv("SNAP_USER_COMMON") or TMPDIR
@@ -99,6 +97,7 @@ logging.getLogger().setLevel(logging.DEBUG)
 if os.environ.get("TIZONIA_YOUTUBEPROXY_DEBUG"):
     logging.basicConfig(format=FORMAT)
     from traceback import print_exception
+    from pprint import pprint
 else:
     logging.getLogger().addHandler(logging.NullHandler())
 
@@ -554,10 +553,10 @@ class tizyoutubeproxy(object):
                 query["pageToken"] = wdata2["nextPageToken"]
                 wdata2 = yt_dt_search("search", query)
 
-            self._finalise_play_queue(count, arg)
+            self._finalise_play_queue(0, arg)
 
         except ValueError:
-            raise ValueError(str("Could not find any mixes : %s" % arg))
+            raise ValueError(str("Could not find any audio streams : %s" % arg))
 
     def enqueue_audio_mix(self, arg, feelinglucky=True):
         """Obtain a YouTube mix associated to a given video id or url and add all audio
