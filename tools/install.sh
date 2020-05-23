@@ -109,6 +109,7 @@ grep -q "dl.bintray.com/tizonia" /etc/apt/sources.list
 if [[ "$?" -eq 1 ]]; then
     echo "Setting up Tizonia's Bintray APT archive for $DISTRO:$RELEASE"
     curl -k 'https://bintray.com/user/downloadSubjectPublicKey?username=tizonia' | sudo apt-key add -
+    printf "\n" | sudo tee -a /etc/apt/sources.list
     echo "deb https://dl.bintray.com/tizonia/$DISTRO $RELEASE main" | sudo tee -a /etc/apt/sources.list
 fi
 
