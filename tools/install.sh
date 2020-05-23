@@ -80,6 +80,8 @@ elif echo "$RELIDS" | grep -E 'bionic|juno|hera|tara|tessa|tina|tricia'; then
   # (e.g. 'disco|bionic|juno|...'), to support installation on a newer system;
   # however, do this 'at your own risk', as not all features will be guaranteed to work.
   DISTRO="ubuntu" ; RELEASE="bionic" ; PYVER=3 ; MOPRELEASE="stretch"
+elif echo "$RELIDS" | grep -E 'focal'; then
+  DISTRO="ubuntu" ; RELEASE="focal" ; PYVER=3 ; MOPRELEASE="buster"
 else
   echo "Can't find a supported Debian or Ubuntu-based distribution."
   exit 1
