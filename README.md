@@ -242,29 +242,26 @@ following distro/arch combinations:
     <table>
         <thead>
             <tr>
-                <th align="center">Ubuntu Xenial</th>
                 <th align="center">Ubuntu Bionic</th>
+                <th align="center">Ubuntu Focal</th>
                 <th align="center">Debian Buster</th>
                 <th align="center">Debian Bullseye</th>
-                <th align="center">Raspbian Stretch</th>
                 <th align="center">Raspbian Buster</th>
             </tr>
             <tr>
-                <th align="center">(16.04)</th>
                 <th align="center">(18.04)</th>
+                <th align="center">(20.04)</th>
                 <th align="center">(10)</th>
                 <th align="center">(11)</th>
-                <th align="center">(9)</th>
                 <th align="center">(10)</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td align="center">amd64</td>
-                <td align="center">amd64, armhf</td>
                 <td align="center">amd64, armhf</td>
                 <td align="center">amd64</td>
-                <td align="center">armhf</td>
+                <td align="center">amd64, armhf</td>
+                <td align="center">amd64</td>
                 <td align="center">armhf</td>
             </tr>
         </tbody>
