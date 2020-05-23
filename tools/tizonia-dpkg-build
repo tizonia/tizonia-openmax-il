@@ -102,7 +102,6 @@ declare -ar TIZ_TIZONIA_DEPS=( \
     python3-all-dev \
     python3-setuptools \
     python3-pip \
-    dh-python \
     curl \
     check \
     wget \
@@ -131,13 +130,15 @@ declare -ar TIZ_TIZONIA_PYPI_DEPS=( \
 )
 
 declare -ar TIZ_DEBIAN_PKGS=( \
+    debian-archive-keyring \
     dpkg-dev \
+    dh-autoreconf \
     dh-make \
+    dh-python \
     debhelper \
     devscripts \
     pbuilder \
     fakeroot \
-    dh-autoreconf \
     equivs \
     python-stdeb \
     python3-stdeb \
