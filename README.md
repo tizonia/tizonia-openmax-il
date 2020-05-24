@@ -235,7 +235,7 @@ $ curl -kL https://goo.gl/Vu8qGR | bash
 > before running it on your system!.
 
 
-Debian packages are stored in [Bintray](https://bintray.com/tizonia), with the
+Debian packages are stored on [Bintray](https://bintray.com/tizonia), with the
 following distro/arch combinations:
 
 <div align="center">
