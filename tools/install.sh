@@ -20,14 +20,12 @@
 #
 
 # NEWS banner is disabled until the time comes to re-enable it
-# echo "============================== NEWS =================================="
-# echo "Tizonia v0.XX.0 has just been recently released (XX/XX/20XX). However,"
-# echo "Debian packaging is still in progress and the new release is not yet"
-# echo "in the repos!. Please bear with us while we finalize the packaging."
-# echo "This message will be removed in the next few days, as soon as the"
-# echo "new binaries have been uploaded to Bintray. Please check back soon!."
-# echo "======================================================================"
-# exit 0
+echo "============================== NEWS =================================="
+echo "Tizonia v0.22.0 has been released recently (2020/05/23)."
+echo "Debian packaging is in progress and new binaries will soon be available!"
+echo "Please bear with us while we finalize the release. Check back soon!."
+echo "======================================================================"
+exit 0
 
 # Make sure the installation happens safely
 if [[ "$(id -u)" -eq 0 ]]; then
