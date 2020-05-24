@@ -2,12 +2,13 @@
 
 _githubname=tizonia-openmax-il
 pkgname=tizonia-all
-pkgver=0.21.0
-pkgrel=2
-pkgdesc="Command-line cloud music player for Linux with support for Spotify, Google Play Music, YouTube, SoundCloud, TuneIn, Plex servers and Chromecast devices."
+pkgver=0.22.0
+pkgrel=1
+pkgdesc="Command-line cloud music player for Linux with support for Spotify, Google Play Music, YouTube, SoundCloud, TuneIn, iHeartRadio, Plex servers and Chromecast devices."
 arch=('x86_64')
 url="https://tizonia.org"
 license=('LGPL')
+makedepends=(git boost meson ninja)
 depends=(
     # official repositories:
     'libmad'
@@ -31,8 +32,8 @@ depends=(
     'libsndfile'
     'alsa-lib'
     'libpulse'
-    'boost'
-    'check'
+    'boost-libs'
+    'hicolor-icon-theme'
     'python-pafy'
     'python-eventlet'
     'youtube-dl'
@@ -50,7 +51,7 @@ depends=(
     'python-spotipy'
 )
 source=("${_githubname}-${pkgver}.tar.gz"::"https://github.com/tizonia/${_githubname}/archive/v${pkgver}.tar.gz")
-md5sums=('5380afc416a16e14aa76f6845259813b')
+md5sums=('236dd33a25700bf8d752af17b95bd50f')
 
 prepare() {
   command -v tizonia &> /dev/null \
