@@ -83,6 +83,7 @@ namespace
         // Check the existence of the 'plexapi' module
         bp::object ignored = exec (
             "import importlib\n"
+            "import importlib.util\n"
             "spec = importlib.util.find_spec('plexapi')\n"
             "if not spec:\n raise ValueError\n",
             py_global);
@@ -90,6 +91,7 @@ namespace
         // Check the existence of the 'fuzzywuzzy' module
         bp::object ignored2 = exec (
             "import importlib\n"
+            "import importlib.util\n"
             "spec = importlib.util.find_spec('fuzzywuzzy')\n"
             "if not spec:\n raise ValueError\n",
             py_global);
