@@ -80,12 +80,6 @@ elif echo "$RELIDS" | grep -E 'bionic|juno|hera|tara|tessa|tina|tricia'; then
   DISTRO="ubuntu" ; RELEASE="bionic" ; PYVER=3 ; MOPRELEASE="stretch"
 elif echo "$RELIDS" | grep -E 'focal'; then
   DISTRO="ubuntu" ; RELEASE="focal" ; PYVER=3 ; MOPRELEASE="buster"
-  echo "============================== NEWS =================================="
-  echo "Tizonia v0.22.0 has been released recently (2020/05/23)."
-  echo "Debian packaging is in progress and new binaries will soon be available!"
-  echo "Please bear with us while we finalize the release. Check back soon!."
-  echo "======================================================================"
-  exit 0
 else
   echo "Can't find a supported Debian or Ubuntu-based distribution."
   exit 1
