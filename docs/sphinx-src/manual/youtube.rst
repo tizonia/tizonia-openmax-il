@@ -25,6 +25,20 @@ like the one pictured below (see also :ref:`tizonia-config-label`).
    #                          while downloading streams. Default: 60.
    #                          Increase in case of cuts.
 
+``youtube.api_key``
+  Tizonia is distributed with its own internal YouTube API key which is
+  used when making requests to the YouTube service. The YouTube API key has a
+  daily quota and the request limit may be exceeded in occasions, as there are
+  many users of Tizonia globally.
+
+  E.g.:
+  ``[YouTube] Youtube Error 403: Daily Limit Exceeded. The quota will be reset
+  at midnight Pacific Time (PT)...``
+
+  If you see this message, it is RECOMMENDED that you create your own YouTube
+  api key, and add it to your tizonia.conf. See info at:
+  https://www.slickremix.com/docs/get-api-key-for-youtube/
+
 ``youtube.buffer_seconds``
   This is the minimum size of the audio buffer (in seconds) that Tizonia will
   use while downloading the audio streams. It may be increased in case of

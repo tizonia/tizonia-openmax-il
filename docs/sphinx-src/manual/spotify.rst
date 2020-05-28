@@ -22,7 +22,7 @@ like the one pictured below (see also :ref:`tizonia-config-label`).
 
 .. code-block:: bash
 
-# Spotify configuration
+   # Spotify configuration
    # -------------------------------------------------------------------------
    # To avoid passing this information on the command line, uncomment
    # and configure accordingly
@@ -48,16 +48,16 @@ like the one pictured below (see also :ref:`tizonia-config-label`).
           accounts. Please read the Spotify documentation at
           http://www.spotify.com/account/set-device-password/.
 
-.. note:: User names with a '+' character will not work. There is a bug (`#599
-          <https://github.com/tizonia/tizonia-openmax-il/issues/599>_`) in Tizonia
+.. note:: User names with a '+' character will not work. There is a bug in Tizonia
+          (https://github.com/tizonia/tizonia-openmax-il/issues/599)
           that prevents the use of '+' characters in the user name field.
 
 ``spotify.password``
    Password of the Premium account. If you created your account through
    Facebook you will need to create a 'device password' (see note above).
 
-.. note:: Please do not allow '#' or '$' in the password. There is a bug (`#571
-          <https://github.com/tizonia/tizonia-openmax-il/issues/599>_`) in Tizonia
+.. note:: Please do not allow '#' or '$' in the password. There is a bug in Tizonia
+          (https://github.com/tizonia/tizonia-openmax-il/issues/599)
           that prevents this character in the password field.
 
 ``spotify.recover_lost_token``

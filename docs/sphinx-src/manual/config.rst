@@ -66,7 +66,7 @@ This is the template that ships with the latest version of Tizonia:
    :linenos:
 
    # -*-Mode: conf; -*-
-   # tizonia-config v0.21.0 configuration file
+   # tizonia-config v0.22.0 configuration file
 
    [ilcore]
    # Tizonia OpenMAX IL Core section
