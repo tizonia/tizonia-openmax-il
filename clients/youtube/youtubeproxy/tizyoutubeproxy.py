@@ -803,6 +803,7 @@ class tizyoutubeproxy(object):
         video_id = ""
         if stream:
             video_id = to_ascii(stream["i"].ytid)
+            video_id = "https://youtu.be/{}".format(video_id)
         return video_id
 
     def current_audio_stream_published(self):
