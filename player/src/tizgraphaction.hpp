@@ -28,6 +28,8 @@
 #ifndef TIZGRAPHACTION_HPP
 #define TIZGRAPHACTION_HPP
 
+#include <typeinfo>
+
 #include <OMX_Core.h>
 #include <tizplatform.h>
 
