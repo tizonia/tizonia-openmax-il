@@ -55,6 +55,9 @@ experience by following a few principles:
    openmax
    localmedia
    mprisv2
+   snap
+   docker
+   macos
    raspberrypi
 
 .. rubric:: Footnotes
