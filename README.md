@@ -110,6 +110,8 @@
 - [Configuration](#configuration)
 - [Upgrade](#upgrade)
   - [Debian / Ubuntu / Raspbian](#debian--ubuntu--raspbian-1)
+- [Uninstall](#uninstall)
+  - [Debian / Ubuntu / Raspbian](#debian--ubuntu--raspbian-1)
 - [Hall of Fame](#hall-of-fame)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -402,6 +404,24 @@ $ sudo -H pip3 install --upgrade gmusicapi soundcloud youtube-dl pafy pycountry 
 # For Tizonia v0.18.0 or older: Python 2 dependencies
 $ sudo -H pip2 install --upgrade gmusicapi soundcloud youtube-dl pafy pycountry titlecase pychromecast plexapi fuzzywuzzy eventlet python-Levenshtein && sudo -H pip2 install git+https://github.com/plamere/spotipy.git --upgrade
 
+```
+
+</details>
+
+&nbsp;&nbsp;
+
+# Uninstall
+
+## Debian / Ubuntu / Raspbian
+
+To uninstall Tizonia and all its dependencies, run the following commands
+
+<details><summary><b>Show details</b></summary>
+
+```bash
+
+# Remove/purge all tizonia packages installed in the system
+sudo apt-get -y remove --purge tizonia-all && sudo apt-get -y autoremove
 ```
 
 </details>
