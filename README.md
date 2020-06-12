@@ -422,8 +422,6 @@ To uninstall Tizonia and all its dependencies, run the following commands
 
 # Remove/purge all tizonia packages installed in the system
 sudo apt-get -y remove --purge tizonia-all && sudo apt-get -y autoremove
-tizonia-dpkg-build -r
-
 ```
 
 </details>
