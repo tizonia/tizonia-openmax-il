@@ -6,26 +6,25 @@ User Guide
 Tizonia provides an efficient and unbstrusive music search and listening
 experience by following a few principles:
 
-**Simplest CLI UI**
-  Because the keyboard is faster than the mouse you get to listen to the music
-  that you want in less time. Music plays almost immediately.
+**Simple CLI UI**
+  The keyboard is faster than the mouse, the goal is to listen to the music in
+  less time. With Tizonia, the music plays almost immediately.
 
-**Play the music, not matter what**
-  Tizonia uses fuzzy string matching techniques to match your search keywords
+**Must play some music, not matter what**
+  Tizonia uses fuzzy string matching techniques to match the search keywords
   against the data provided by the streaming services. This maximizes the
-  chances of finding the music that you want. When a search returns no
-  results Tizonia may at times try a 'I'm Feeling Lucky' guess.
+  chances of finding the music that the user wants. When a search returns no
+  results Tizonia may try a 'I'm Feeling Lucky' guess.
 
-**Non-stop music**
+**Music never stops**
   Tizonia's play queue always runs in **looped** mode. There is currently no
   way to configure non-looped playback (although this may be added in the
   future, see [#f1]_).
 
-**Limit the distractions**
-  By limiting the interactions. No fast-forward or rewind. Only skip to
-  next/previous track (see [#f2]_). There is no elaborate 'ncurses' CLI
-  interface to interact with. But there is some track info and a simple visual
-  progress bar.
+**Limited distractions**
+  No fast-forward or rewind. Only skip to next/previous track (see [#f2]_).  No
+  elaborate 'ncurses' CLI interface to interact with (some people might see as
+  a downside). Only the track info and a simple visual progress bar.
 
 **Reduced 'muscle-memory'**
   Finding the music that you want and listening to it should require a single
