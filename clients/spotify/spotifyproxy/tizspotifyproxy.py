@@ -1568,7 +1568,6 @@ class tizspotifyproxy(object):
                 for track in tracks["tracks"]:
                     self._enqueue_track(track)
 
-
         except ValueError:
             raise ValueError(str("Track not found : %s" % to_ascii(trackid)))
 
@@ -1691,6 +1690,18 @@ class tizspotifyproxy(object):
         # scope = 'playlist-read-collaborative'
         # scope = 'playlist-read-private'
         # scope = 'user-read-recently-played'
+
+        print_adv(
+            "[Spotify] [Authorization] "
+            "Verifying if an authorization token exists for scope '{0}'.".format(
+                str(scope)
+            )
+        )
+        print_adv(
+            "[Spotify] [Authorization] "
+            "Please check your browser. You may be asked to input your Spotify credentials to grant "
+            "Tizonia access to your private playlists."
+        )
 
         auth_cache = os.path.join(
             os.getenv("HOME"),
