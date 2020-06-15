@@ -1691,18 +1691,6 @@ class tizspotifyproxy(object):
         # scope = 'playlist-read-private'
         # scope = 'user-read-recently-played'
 
-        print_adv(
-            "[Spotify] [Authorization] "
-            "Verifying if an authorization token exists for scope '{0}'.".format(
-                str(scope)
-            )
-        )
-        print_adv(
-            "[Spotify] [Authorization] "
-            "Please check your browser. You may be asked to input your Spotify credentials to grant "
-            "Tizonia access to your private playlists."
-        )
-
         auth_cache = os.path.join(
             os.getenv("HOME"),
             ".config/tizonia/"
@@ -1711,6 +1699,35 @@ class tizspotifyproxy(object):
             + "-auth-token-"
             + str(scope),
         )
+
+        sp_oauth = spotipy.SpotifyOAuth(
+            self.SPOTIPY_CLIENT_ID,
+            self.SPOTIPY_CLIENT_SECRET,
+            self.SPOTIPY_REDIRECT_URI,
+            scope=scope,
+            cache_path=auth_cache,
+            show_dialog=False,
+        )
+
+        print_adv(
+            "[Spotify] [Authorization] "
+            "Verifying if an authorization token exists for scope '{0}'.".format(
+                str(scope)
+            )
+        )
+        print_adv(
+            "[Spotify] [Authorization] "
+            "You may be asked to input your Spotify credentials on your browser to grant "
+            "Tizonia access to your private playlists."
+        )
+        print_adv(
+            "[Spotify] [Authorization] "
+            "If a new browser session is not created, please manually copy this URL into your browser:"
+        )
+        print_adv(
+            "[Spotify] [Authorization] '{0}'.".format(sp_oauth.get_authorize_url())
+        )
+
         token = util.prompt_for_user_token(
             self.user,
             scope,
@@ -1718,8 +1735,8 @@ class tizspotifyproxy(object):
             self.SPOTIPY_CLIENT_SECRET,
             self.SPOTIPY_REDIRECT_URI,
             cache_path=auth_cache,
-            oauth_manager=None,
-            show_dialog=False,
+            oauth_manager=sp_oauth,
+            show_dialog=True,
         )
         self._spotify = spotipy.Spotify(auth=token)
 
