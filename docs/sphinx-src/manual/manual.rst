@@ -23,7 +23,7 @@ experience by following a few principles:
 
 **Limited distractions**
   No fast-forward or rewind. Only skip to next/previous track (see [#f2]_).  No
-  elaborate 'ncurses' CLI interface to interact with (some people might see as
+  elaborate 'ncurses' CLI interface to interact with (some people might will see as
   a downside). Only the track info and a simple visual progress bar.
 
 **Reduced 'muscle-memory'**
@@ -31,7 +31,7 @@ experience by following a few principles:
   command-line option on the terminal. E.g.: ``tizonia --spotify-album Islands``.
   Bash and Zsh completions are available. There is also a
   `Oh-my-zsh <https://ohmyz.sh/>`_ plugin available `here
-  <https://github.com/tizonia/tizonia-openmax-il/blob/master/player/tools/tizonia.plugin.zsh>_.
+  <https://github.com/tizonia/tizonia-openmax-il/blob/master/player/tools/tizonia.plugin.zsh>`_.
 
 .. toctree::
    :maxdepth: 1
