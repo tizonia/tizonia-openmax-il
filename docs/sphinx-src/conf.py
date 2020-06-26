@@ -34,7 +34,7 @@ from recommonmark.parser import CommonMarkParser
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.todo', 'alabaster', 'breathe']
+extensions = ['sphinx.ext.todo', 'alabaster', 'breathe', 'recommonmark', 'sphinxcontrib.plantuml']
 
 read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
 

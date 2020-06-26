@@ -149,22 +149,57 @@ OPTIONS
     Play the user's liked tracks.
 
 ``--spotify-user-recent-tracks``
-    Play the user's most recent tracks.
+    Play the user's most recent tracks. See :ref:`tizonia-spotify-scopes-label`.
 
 ``--spotify-user-top-tracks``
-    Play the user's top tracks.
+    Play the user's top tracks. See :ref:`tizonia-spotify-scopes-label`.
 
 ``--spotify-user-top-artists``
-    Play tracks from the user's top artists.
+    Play tracks from the user's top artists. See :ref:`tizonia-spotify-scopes-label`.
 
 ``--spotify-user-playlist arg``
     Play tracks from the user's playlist (including private playlists,
-    Daily Mixes and Discover Weekly).
+    Daily Mixes and Discover Weekly). See :ref:`tizonia-spotify-scopes-label`.
 
     Note that Daily Mixes and Discover Weekly playlists need to be 'liked'
     beforehand in order to be found by a search performed on the user
     library.
 
+.. _tizonia-spotify-scopes-label:
+
+AUTHORIZATION SCOPES
+--------------------
+
+In order to access the user's private playlists, the Spotify API uses
+authentication scopes. Scopes provide Spotify users using third-party apps the
+confidence that only the information they choose to share will be shared, and
+nothing more.
+
+When Tizonia is run for the first time with any of the ``--spotify-user-...``
+options, the user is asked to input his/her credentials on a browser session.
+
+A browser window or tab session will be created. Once the credentials have been
+input successfully, Tizonia receives an authentication token that is cached
+locally for future use. Once this process is completed, Tizonia can access the
+specific user's private list(s) allowed by the scope.
+
+.. code-block:: bash
+
+    ~  tizonia --spotify-user-playlist "all out 90s"
+   This software is part of the Tizonia project <https://tizonia.org>
+
+   [Spotify] [Connecting] : 'username'.
+   [Spotify] [Playlist search] 'all out 90s' (owner: username).
+   [Spotify] [Authorization] Verifying if an authorization token exists for scope 'playlist-read-private'.
+   [Spotify] [Authorization] You may be asked to input your Spotify credentials on your browser to grant Tizonia access to your private playlists.
+   [Spotify] [Authorization] If a new browser session is not created, please manually copy this URL into your browser:
+   [Spotify] [Authorization] 'https://accounts.spotify.com/authorize?client_id=asd7asd7813782378asedhjdfjksd&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A8080&scope=playlist-read-private'.
+
+
+.. note:: In some cases, a new browser window or tab fails to open
+          automatically. If this is the case, Tizonia will wait. Open your
+          browser and manually paste the URL displayed by Tizonia on the
+          terminal and then follow the instructions.
 
 EXAMPLES
 --------
