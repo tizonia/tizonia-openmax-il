@@ -52,7 +52,8 @@ readonly volumegetcmd='$dbuscmd $propgetifc string:"$playerifc" string:"Volume"'
 readonly volumesetcmd='$dbuscmd $propsetifc string:"$playerifc" string:"Volume" variant:double:$2 &> /dev/null'
 
 readonly playcmd='$dbuscmd $playerifc.Play   &> /dev/null'
-readonly pausecmd="$dbuscmd $playerifc.Pause &> /dev/null"
+readonly playpausecmd='$dbuscmd $playerifc.PlayPause   &> /dev/null'
+readonly pausecmd='$dbuscmd $playerifc.Pause &> /dev/null'
 readonly stopcmd='$dbuscmd $playerifc.Stop   &> /dev/null'
 readonly nextcmd='$dbuscmd $playerifc.Next   &> /dev/null'
 readonly prevcmd='$dbuscmd $playerifc.Previous   &> /dev/null'
@@ -115,6 +116,7 @@ Usage: $0 [command]
     ::Methods::
 
     play                 starts or resumes playback.
+    playpause            starts and pauses playback.
     stop                 stops playback.
     pause                pauses playback.
     next                 skips to the next track in the tracklist.
@@ -208,6 +210,9 @@ function main {
             ;;
         play)
             eval "$playcmd"
+            ;;
+        playpause)
+            eval "$playpausecmd"
             ;;
         pause)
             eval "$pausecmd"
