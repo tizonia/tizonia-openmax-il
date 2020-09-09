@@ -1157,7 +1157,7 @@ class tizgmusicproxy(object):
                 song_url = self.gmusic.get_podcast_episode_stream_url(
                     song["episodeId"], self.device_id
                 )
-            elif song.get("wentryid"):
+            elif song.get("wentryid") and song.get("sessionToken"):
                 song_url = self.gmusic.get_station_track_stream_url(
                     song["id"], song["wentryid"], song["sessionToken"], self.device_id
                 )
