@@ -228,6 +228,7 @@ bool tiz::playlist::assemble_play_list (
 
     if (shuffle_playlist)
     {
+      std::srand (time (nullptr));
       std::random_shuffle (uri_list.begin (), uri_list.end ());
     }
     else
