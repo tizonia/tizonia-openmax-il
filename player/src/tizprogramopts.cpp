@@ -3430,7 +3430,7 @@ bool tiz::programopts::validate_sampling_rates_argument (std::string &msg)
 
 void tiz::programopts::register_consume_function (const consume_mem_fn_t cf)
 {
-  consume_functions_.push_back (boost::bind (boost::mem_fn (cf), this, _1, _2));
+  consume_functions_.push_back (boost::bind (boost::mem_fn (cf), this, boost:placeholders::_1, boost:placeholders::_2));
 }
 
 int tiz::programopts::call_handler (

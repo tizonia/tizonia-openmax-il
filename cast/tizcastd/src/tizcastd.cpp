@@ -67,9 +67,9 @@ tizcastd::tizcastd (Tiz::DBus::Connection &a_connection)
 {
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Constructing tizcastd...");
   p_worker_ = new tiz::cast::worker (
-      boost::bind (&tizcastd::cast_status_forwarder, this, _1, _2, _3),
-      boost::bind (&tizcastd::media_status_forwarder, this, _1, _2, _3),
-      boost::bind (&tizcastd::error_status_forwarder, this, _1, _2, _3));
+      boost::bind (&tizcastd::cast_status_forwarder, this, boost:placeholders::_1, boost:placeholders::_2, boost:placeholders::_3),
+      boost::bind (&tizcastd::media_status_forwarder, this, boost:placeholders::_1, boost:placeholders::_2, boost:placeholders::_3),
+      boost::bind (&tizcastd::error_status_forwarder, this, boost:placeholders::_1, boost:placeholders::_2, boost:placeholders::_3));
   assert (p_worker_);
   p_worker_->init ();
 }
