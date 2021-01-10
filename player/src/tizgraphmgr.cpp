@@ -333,7 +333,7 @@ graphmgr::mgr::start_mpris (const graphmgr_capabilities_t &graphmgr_caps)
         boost::bind (&tiz::graphmgr::mgr::pause, this),
         boost::bind (&tiz::graphmgr::mgr::stop, this),
         boost::bind (&tiz::graphmgr::mgr::quit, this),
-        boost::bind (&tiz::graphmgr::mgr::volume, this, _1));
+        boost::bind (&tiz::graphmgr::mgr::volume, this, boost::placeholders::_1));
 
     control::mpris_mediaplayer2_props_t props (
         graphmgr_caps.can_quit_, graphmgr_caps.can_raise_,
