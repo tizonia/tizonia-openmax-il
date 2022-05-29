@@ -49,6 +49,8 @@ if echo "$RELIDS" | grep raspbian; then
         RELEASE="stretch"; PYVER=2 ; MOPRELEASE="stretch"
     elif echo "$RELIDS" | grep jessie; then
         RELEASE="jessie" ; PYVER=2 ; MOPRELEASE="jessie"
+    elif echo "$RELIDS" | grep bullseye; then
+        RELEASE="jessie" ; PYVER=2 ; MOPRELEASE="bullseye"
     else
         echo "Can't find a supported Raspbian distribution."
         exit 1
