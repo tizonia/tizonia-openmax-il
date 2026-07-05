@@ -1,0 +1,55 @@
+name: CI - core build (Ubuntu 24.04)
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  core-build:
+    name: Core Meson build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install core build dependencies
+        run: |
+          sudo apt-get update
+          # Derived from the core Meson dependency declarations with player,
+          # clients, docs, tests, libspotify, and all plugins disabled.
+          sudo apt-get install -y --no-install-recommends \
+            build-essential \
+            meson \
+            ninja-build \
+            pkg-config \
+            libdbus-1-dev \
+            libexpat1-dev \
+            liblog4c-dev \
+            uuid-dev \
+            libsqlite3-dev \
+            python3-dev \
+            libcurl4-openssl-dev
+
+      - name: Configure core-only build
+        run: |
+          meson setup build \
+            --buildtype=plain \
+            --wrap-mode=nodownload \
+            -Dlibspotify=false \
+            -Dplayer=false \
+            -Dclients=false \
+            -Ddocs=false \
+            -Dtest=false \
+            -Dplugins=[]
+
+      - name: Compile core
+        run: meson compile -C build
