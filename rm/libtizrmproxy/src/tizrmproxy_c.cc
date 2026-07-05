@@ -30,6 +30,7 @@
 #endif
 
 #include <assert.h>
+#include <sched.h>
 
 #include "tizrmproxy_c.h"
 #include "tizrmproxy.hh"
@@ -237,7 +238,7 @@ tiz_rm_proxy_init(tiz_rm_t * ap_rm, const OMX_STRING ap_name,
                           il_rmproxy_thread_func,
                           p_rm);
 
-      pthread_yield();
+      sched_yield();
     }
 
   p_rm->ref_count++;
@@ -291,7 +292,7 @@ tiz_rm_proxy_destroy(tiz_rm_t * ap_rm)
 
       p_rm->p_dispatcher->leave();
 
-      pthread_yield();
+      sched_yield();
 
       rc = stop_proxy();
 
