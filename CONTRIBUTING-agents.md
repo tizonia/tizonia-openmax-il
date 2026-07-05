@@ -14,6 +14,8 @@ pull request template.
   `amd64`.
 - Use `area:*` labels to understand the primary ownership area, for example
   `area:docs`, `area:build`, `area:ci`, or `area:plugins`.
+- When requesting leader acknowledgment through Agent Mail, use the leader's
+  Agent Mail member ID, not the team slot ID.
 - Read linked issues and pull requests before editing files.
 
 ## Scope Discipline
