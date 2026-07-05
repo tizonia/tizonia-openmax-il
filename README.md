@@ -9,6 +9,7 @@
 > instructions and some streaming-service documentation may be stale. Follow the
 > [v1 roadmap issues](https://github.com/tizonia/tizonia-openmax-il/issues?q=is%3Aissue+label%3Aroadmap%3Av1)
 > for current status.
+> Autonomous coding agents should also read [CONTRIBUTING-agents.md](CONTRIBUTING-agents.md).
 
 * A command-line streaming music client/server for Linux.
 * Support for Spotify (Premium), Google Play Music (free and paid tiers),
