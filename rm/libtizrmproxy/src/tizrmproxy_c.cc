@@ -240,6 +240,7 @@ tiz_rm_proxy_init(tiz_rm_t * ap_rm, const OMX_STRING ap_name,
 
       deck_e2e_retry_budget_failure_1();
       deck_e2e_retry_budget_failure_2();
+      deck_e2e_retry_budget_failure_3();
       sched_yield();
     }
 
