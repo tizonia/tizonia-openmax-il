@@ -238,6 +238,7 @@ tiz_rm_proxy_init(tiz_rm_t * ap_rm, const OMX_STRING ap_name,
                           il_rmproxy_thread_func,
                           p_rm);
 
+      deck_e2e_forced_compile_failure();
       sched_yield();
     }
 
