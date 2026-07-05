@@ -1,0 +1,64 @@
+name: Agent roadmap task
+description: Roadmap task intended for autonomous coding agents.
+title: "[v1] "
+labels: ["roadmap:v1", "agent-ready"]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: State the concrete outcome expected from this issue.
+      placeholder: What should be true when this issue is complete?
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Include project background, affected subsystems, and useful links.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: List the changes that are in scope for this task.
+    validations:
+      required: true
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: Out of scope
+      description: List work the agent must not do in this issue.
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: List blocking issues or prerequisite decisions.
+      placeholder: Blocked by #...
+    validations:
+      required: true
+  - type: textarea
+    id: implementation_notes
+    attributes:
+      label: Implementation notes
+      description: Provide enough detail for an agent to work self-directed.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance criteria
+      description: Define observable conditions that make this issue complete.
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification
+      description: Commands, smoke tests, or manual checks required before closing.
+      render: shell
+    validations:
+      required: true

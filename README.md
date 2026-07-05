@@ -4,6 +4,12 @@
 
 # The Tizonia Project
 
+> **Revival in progress:** Tizonia is being revived for a new v1 release
+> targeting Ubuntu 24.04 `amd64`. During this work, legacy installation
+> instructions and some streaming-service documentation may be stale. Follow the
+> [v1 roadmap issues](https://github.com/tizonia/tizonia-openmax-il/issues?q=is%3Aissue+label%3Aroadmap%3Av1)
+> for current status.
+
 * A command-line streaming music client/server for Linux.
 * Support for Spotify (Premium), Google Play Music (free and paid tiers),
   YouTube, SoundCloud, TuneIn and iHeart Internet Radio directories, Plex
@@ -436,4 +442,3 @@ guidelines](CONTRIBUTING.md) and don't hesitate to ask (via the bug tracker,
 Here are some of our contributors:
 
 [![](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/images/0)](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/links/0)[![](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/images/1)](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/links/1)[![](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/images/2)](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/links/2)[![](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/images/3)](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/links/3)[![](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/images/4)](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/links/4)[![](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/images/5)](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/links/5)[![](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/images/6)](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/links/6)[![](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/images/7)](https://sourcerer.io/fame/tizonia/tizonia/tizonia-openmax-il/links/7)
-
