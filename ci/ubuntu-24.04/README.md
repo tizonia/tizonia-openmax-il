@@ -1,35 +1,48 @@
-# Ubuntu 24.04 v1 Build Container
+# Ubuntu 24.04 amd64 build container
 
-This directory defines the Ubuntu 24.04 `amd64` baseline environment for v1
-source builds. The image uses only Ubuntu archive packages from
-`apt-packages.txt`; it does not configure external APT repositories or install
-Python packages outside apt.
+This directory defines the v1 baseline build environment for Ubuntu 24.04
+`amd64`. It uses only Ubuntu archive packages listed in `apt-packages.txt` and
+does not add external APT repositories or install Python packages outside the
+Ubuntu archive.
 
-Build the image from the repository root:
+## Build the image
 
-```sh
-docker build -f ci/ubuntu-24.04/Dockerfile -t tizonia-v1-ubuntu-24.04 .
+From the repository root:
+
+```bash
+docker build \
+  --platform linux/amd64 \
+  -t tizonia-build:ubuntu-24.04 \
+  -f ci/ubuntu-24.04/Dockerfile \
+  ci/ubuntu-24.04
 ```
 
-Enter the environment with the current checkout mounted at the expected working
-directory:
+Documentation tooling is excluded by default. To include the Ubuntu-packaged
+Sphinx and Doxygen dependencies for a docs-enabled build, add:
 
-```sh
+```bash
+--build-arg TIZONIA_INSTALL_DOCS=true
+```
+
+## Enter the environment
+
+From the repository root:
+
+```bash
 docker run --rm -it \
-  -v "$PWD:/work/tizonia-openmax-il" \
+  --platform linux/amd64 \
+  --user "$(id -u):$(id -g)" \
+  -e HOME=/tmp \
+  -v "$PWD":/work/tizonia-openmax-il \
   -w /work/tizonia-openmax-il \
-  tizonia-v1-ubuntu-24.04
+  tizonia-build:ubuntu-24.04
 ```
 
-Run the baseline build inside the container:
+## Run the baseline build
 
-```sh
-rm -rf build
+Inside the container:
+
+```bash
 meson setup build -Dlibspotify=false -Ddocs=false
 ninja -C build -j1
 ```
-
-Documentation tooling is intentionally not installed in the baseline image. If
-you are validating a docs-enabled build, install the optional documentation
-packages listed at the end of `apt-packages.txt` before configuring with
-`-Ddocs=true`.

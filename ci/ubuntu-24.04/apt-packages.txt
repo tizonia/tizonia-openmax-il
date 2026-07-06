@@ -1,24 +1,42 @@
-# Ubuntu 24.04 amd64 packages for the v1 baseline source build:
-#   meson setup build -Dlibspotify=false -Ddocs=false
+# Ubuntu 24.04 amd64 baseline packages for the issue #816 non-doc Meson build.
+
+# Toolchain and Meson frontend. build-essential provides GCC, G++, and make.
 build-essential
-ca-certificates
-check
-git
-libasound2-dev
+meson
+ninja-build
+pkg-config
+
+# Python 3 headers and embedding support used by Meson and Boost.Python targets.
+python3
+python3-dev
+python3-all-dev
+
+# Boost modules requested by the Meson build.
 libboost-chrono-dev
 libboost-filesystem-dev
 libboost-program-options-dev
 libboost-python-dev
 libboost-system-dev
 libboost-thread-dev
+
+# Core libraries.
+libatomic-ops-dev
 libcurl4-openssl-dev
 libdbus-1-dev
 libev-dev
 libexpat1-dev
+liblog4c-dev
+libsqlite3-dev
+uuid-dev
+
+# Test dependency declared by Meson when tests are enabled.
+check
+
+# Player, codec, and rendering dependencies for the default non-doc build.
+libasound2-dev
 libfaad-dev
 libfishsound1-dev
 libflac-dev
-liblog4c-dev
 libmad0-dev
 libmediainfo-dev
 libmp3lame-dev
@@ -29,24 +47,5 @@ libopusfile-dev
 libpulse-dev
 libsdl1.2-dev
 libsndfile1-dev
-libsqlite3-dev
 libtag1-dev
 libvpx-dev
-meson
-ninja-build
-pkg-config
-python3
-python3-dev
-python3-venv
-uuid-dev
-
-# Optional documentation packages for builds configured with -Ddocs=true.
-# Keep these out of the baseline image unless docs are being validated.
-# default-jre
-# doxygen
-# graphviz
-# python3-alabaster
-# python3-breathe
-# python3-recommonmark
-# python3-sphinx
-# python3-sphinxcontrib.plantuml
