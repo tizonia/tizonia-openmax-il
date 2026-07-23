@@ -1,7 +1,7 @@
 option('blocking-etb-ftb', type: 'boolean', value: 'false', description: 'Enable fully conformant blocking behaviour of ETB and FTB APIs')
 option('blocking-sendcommand', type: 'boolean', value: 'false', description: 'Enable fully conformant blocking behaviour of SendCommand API')
 option('player', type: 'boolean', value: 'true', description: 'build the command-line player program (default: enabled)')
-option('libspotify', type: 'boolean', value: 'true', description: 'build the libspotify-based OpenMAX IL plugin (default: yes)')
+option('libspotify', type: 'boolean', value: 'false', description: 'build the libspotify-based OpenMAX IL plugin (default: disabled)')
 option('alsa', type: 'boolean', value: 'true', description: 'build the ALSA-based OpenMAX IL plugin (default: yes)')
 option('aac', type: 'boolean', value: 'true', description: 'build the AAC-based OpenMAX IL plugin (default: yes)')
 option('gcc-warnings', type: 'boolean', value: 'false', description: 'turn on lots of GCC warnings (for developers)')
@@ -88,7 +88,6 @@ option('plugins', type: 'array', description: 'which plugins to build',
    'pcm_decoder',
    'pcm_renderer_alsa',
    'pcm_renderer_pa',
-   'spotify',
    'vorbis_decoder',
    'vp8_decoder',
    'webm_demuxer',
