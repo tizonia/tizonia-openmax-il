@@ -78,8 +78,10 @@
 #include <services/tunein/tiztuneinmgr.hpp>
 #include <services/googlemusic/tizgmusicconfig.hpp>
 #include <services/googlemusic/tizgmusicmgr.hpp>
+#ifdef HAVE_SOUNDCLOUD
 #include <services/soundcloud/tizscloudconfig.hpp>
 #include <services/soundcloud/tizscloudmgr.hpp>
+#endif
 #ifdef HAVE_LIBSPOTIFY
 #include <services/spotify/tizspotifyconfig.hpp>
 #include <services/spotify/tizspotifymgr.hpp>
@@ -663,9 +665,11 @@ void tiz::playapp::set_option_handlers ()
   // Google music streaming client program options
   popts_.set_option_handler ("gmusic-stream",
                              boost::bind (&tiz::playapp::gmusic_stream, this));
+#ifdef HAVE_SOUNDCLOUD
   // SoundCloud music streaming client program options
   popts_.set_option_handler ("scloud-stream",
                              boost::bind (&tiz::playapp::scloud_stream, this));
+#endif
   // Tunein internet radio directory streaming client program options
   popts_.set_option_handler ("tunein-stream",
                              boost::bind (&tiz::playapp::tunein_stream, this));
@@ -686,10 +690,12 @@ void tiz::playapp::set_option_handlers ()
   popts_.set_option_handler (
       "gmusic-stream-chromecast",
       boost::bind (&tiz::playapp::gmusic_stream_chromecast, this));
+#ifdef HAVE_SOUNDCLOUD
   // Soudcloud audio streaming on Chromecast device
   popts_.set_option_handler (
       "scloud-stream-chromecast",
       boost::bind (&tiz::playapp::scloud_stream_chromecast, this));
+#endif
   // Tunein audio streaming on Chromecast device
   popts_.set_option_handler (
       "tunein-stream-chromecast",
@@ -773,7 +779,6 @@ tiz::playapp::print_debug_info () const
           bp::object py_global = py_main.attr ("__dict__");
 
           std::vector< std::string > modules =  boost::assign::list_of ("gmusicapi")
-            ("soundcloud")
             ("youtube-dl")
             ("pafy")
             ("pycountry")
@@ -1241,6 +1246,7 @@ tiz::playapp::gmusic_stream ()
   return rc;
 }
 
+#ifdef HAVE_SOUNDCLOUD
 OMX_ERRORTYPE
 tiz::playapp::scloud_stream ()
 {
@@ -1283,6 +1289,7 @@ tiz::playapp::scloud_stream ()
 
   return rc;
 }
+#endif
 
 OMX_ERRORTYPE
 tiz::playapp::tunein_stream ()
@@ -1570,6 +1577,7 @@ tiz::playapp::gmusic_stream_chromecast ()
   return rc;
 }
 
+#ifdef HAVE_SOUNDCLOUD
 OMX_ERRORTYPE
 tiz::playapp::scloud_stream_chromecast ()
 {
@@ -1619,6 +1627,7 @@ tiz::playapp::scloud_stream_chromecast ()
 
   return rc;
 }
+#endif
 
 OMX_ERRORTYPE
 tiz::playapp::tunein_stream_chromecast ()

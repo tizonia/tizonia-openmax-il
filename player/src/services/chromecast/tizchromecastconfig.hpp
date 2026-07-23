@@ -47,7 +47,9 @@ namespace tiz
         {
          ConfigHttpStreaming,
          ConfigGoogleMusic,
+#ifdef HAVE_SOUNDCLOUD
          ConfigSoundCloud,
+#endif
          ConfigTunein,
          ConfigYouTube,
          ConfigPlex,

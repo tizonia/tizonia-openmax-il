@@ -20,6 +20,18 @@ else
    spotify_sources = []
 endif
 
+if enable_soundcloud
+   soundcloud_sources = [
+      'services/soundcloud/tizscloudgraph.cpp',
+      'services/soundcloud/tizscloudgraphops.cpp',
+      'services/soundcloud/tizscloudmgr.cpp'
+   ]
+   soundcloud_inc = include_directories('services/soundcloud')
+else
+   soundcloud_sources = []
+   soundcloud_inc = []
+endif
+
 tizonia_sources = [
    'main.cpp',
    'tizplayapp.cpp',
@@ -66,9 +78,7 @@ tizonia_sources = [
    'services/googlemusic/tizgmusicgraph.cpp',
    'services/googlemusic/tizgmusicgraphops.cpp',
    'services/googlemusic/tizgmusicmgr.cpp',
-   'services/soundcloud/tizscloudgraph.cpp',
-   'services/soundcloud/tizscloudgraphops.cpp',
-   'services/soundcloud/tizscloudmgr.cpp',
+   soundcloud_sources,
    'services/youtube/tizyoutubegraph.cpp',
    'services/youtube/tizyoutubegraphfsm.cpp',
    'services/youtube/tizyoutubegraphops.cpp',
@@ -97,7 +107,7 @@ tizonia_sources = [
 tizonia_inc = [
    include_directories('services'),
    include_directories('services/googlemusic'),
-   include_directories('services/soundcloud'),
+   soundcloud_inc,
    include_directories('services/youtube'),
    include_directories('services/plex'),
    include_directories('services/tunein'),

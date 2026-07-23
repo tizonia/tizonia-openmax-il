@@ -42,7 +42,6 @@ experience by following a few principles:
    global
    spotify
    googlemusic
-   soundcloud
    youtube
    tunein
    plex

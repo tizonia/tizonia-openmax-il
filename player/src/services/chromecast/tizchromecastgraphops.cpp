@@ -48,7 +48,9 @@
 #include <tizgraph.hpp>
 #include <tizgraphutil.hpp>
 #include <tizprobe.hpp>
+#ifdef HAVE_SOUNDCLOUD
 #include <tizscloudconfig.hpp>
+#endif
 #include <tizyoutubeconfig.hpp>
 #include <tizplexconfig.hpp>
 #include <tiziheartconfig.hpp>
@@ -104,12 +106,14 @@ void graph::chromecastops::do_load ()
     config_service_func_
         = boost::bind (&tiz::graph::chromecastops::do_configure_gmusic, this);
   }
+#ifdef HAVE_SOUNDCLOUD
   else if (config_type == cc_cfg_t::ConfigSoundCloud)
   {
     role_lst_.push_back ("audio_renderer.chromecast.scloud");
     config_service_func_
         = boost::bind (&tiz::graph::chromecastops::do_configure_scloud, this);
   }
+#endif
   else if (config_type == cc_cfg_t::ConfigTunein)
   {
     role_lst_.push_back ("audio_renderer.chromecast.tunein");
@@ -319,6 +323,7 @@ void graph::chromecastops::do_configure_gmusic ()
       "Unable to set OMX_TizoniaIndexParamAudioGmusicPlaylist");
 }
 
+#ifdef HAVE_SOUNDCLOUD
 void graph::chromecastops::do_configure_scloud ()
 {
   assert (cc_config_);
@@ -338,6 +343,7 @@ void graph::chromecastops::do_configure_scloud ()
           scloud_config->get_playlist_type (), playlist_->shuffle ()),
       "Unable to set OMX_TizoniaIndexParamAudioSoundCloudPlaylist");
 }
+#endif
 
 void graph::chromecastops::do_configure_tunein ()
 {

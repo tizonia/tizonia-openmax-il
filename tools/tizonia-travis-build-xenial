@@ -67,7 +67,7 @@ PKG_CONFIG_DIR="$LIB_DIR"/pkgconfig
 export PKG_CONFIG_PATH="$PKG_CONFIG_DIR"
 export LD_LIBRARY_PATH="$LIB_DIR"
 export PATH="$BIN_DIR:$PATH"
-# Export $PYTHONPATH to make sure soundcloud and gmusicapi can be found
+# Export $PYTHONPATH to make sure Python client dependencies can be found
 export PYTHONPATH="$PYTHONPATH":"$HOME"/.local/lib/python3.6/site-packages
 
 ##################################################################
@@ -259,14 +259,6 @@ function install_python_deps {
     fi
 
     if [[ "$exit_status" -eq 0 ]] ; then
-        pip3 install --user soundcloud
-        exit_status=$?
-        if [[ "$exit_status" -ne 0 ]] ; then
-            echo "Error while installing soundcloud" >&2
-        fi
-    fi
-
-    if [[ "$exit_status" -eq 0 ]] ; then
         pip3 install --user youtube_dl
         exit_status=$?
         if [[ "$exit_status" -ne 0 ]] ; then
@@ -342,7 +334,7 @@ function install_python_deps {
         pip3 install --user codecov
         exit_status=$?
         if [[ "$exit_status" -ne 0 ]] ; then
-            echo "Error while installing soundcloud" >&2
+            echo "Error while installing codecov" >&2
         fi
     fi
 

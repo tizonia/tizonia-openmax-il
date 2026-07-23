@@ -29,10 +29,6 @@ noinst_HEADERS = \
 	gmusicprc_decls.h \
 	gmusiccfgport.h \
 	gmusiccfgport_decls.h \
-	scloudprc.h \
-	scloudprc_decls.h \
-	scloudcfgport.h \
-	scloudcfgport_decls.h \
 	youtubeprc.h \
 	youtubeprc_decls.h \
 	youtubecfgport.h \
@@ -56,8 +52,6 @@ libtizhttpsrc_la_SOURCES = \
 	httpsrcprc.c \
 	gmusicprc.c \
 	gmusiccfgport.c \
-	scloudprc.c \
-	scloudcfgport.c \
 	youtubeprc.c \
 	youtubecfgport.c \
 	plexprc.c \
@@ -72,7 +66,6 @@ libtizhttpsrc_la_CFLAGS = \
 	@TIZPLATFORM_CFLAGS@ \
 	@TIZONIA_CFLAGS@ \
 	@TIZGMUSIC_CFLAGS@ \
-	@TIZSOUNDCLOUD_CFLAGS@ \
 	@TIZYOUTUBE_CFLAGS@ \
 	@TIZPLEX_CFLAGS@ \
 	@TIZTUNEIN_CFLAGS@ \
@@ -84,7 +77,6 @@ libtizhttpsrc_la_LIBADD = \
 	@TIZPLATFORM_LIBS@ \
 	@TIZONIA_LIBS@ \
 	@TIZGMUSIC_LIBS@ \
-	@TIZSOUNDCLOUD_LIBS@ \
 	@TIZYOUTUBE_LIBS@ \
 	@TIZPLEX_LIBS@ \
 	@TIZTUNEIN_LIBS@ \

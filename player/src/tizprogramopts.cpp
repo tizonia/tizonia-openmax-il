@@ -320,7 +320,9 @@ tiz::programopts::programopts (int argc, char *argv[])
     client_ ("Audio streaming client options"),
     spotify_ ("Spotify options (Spotify Premium required)"),
     gmusic_ ("Google Play Music options"),
+#ifdef HAVE_SOUNDCLOUD
     scloud_ ("SoundCloud options"),
+#endif
     tunein_ ("TuneIn options"),
     youtube_ ("YouTube options"),
     plex_ ("Plex options"),
@@ -400,6 +402,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     gmusic_playlist_type_ (OMX_AUDIO_GmusicPlaylistTypeUnknown),
     gmusic_is_unlimited_search_ (false),
     gmusic_buffer_seconds_ (0),
+#ifdef HAVE_SOUNDCLOUD
     scloud_oauth_token_ (),
     scloud_user_stream_ (),
     scloud_user_likes_ (),
@@ -412,6 +415,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     scloud_playlist_container_ (),
     scloud_playlist_type_ (OMX_AUDIO_SoundCloudPlaylistTypeUnknown),
     scloud_buffer_seconds_ (0),
+#endif
     tunein_search_ (),
     tunein_category_ (),
     tunein_local_ (),
@@ -461,7 +465,9 @@ tiz::programopts::programopts (int argc, char *argv[])
     all_streaming_client_options_ (),
     all_spotify_client_options_ (),
     all_gmusic_client_options_ (),
+#ifdef HAVE_SOUNDCLOUD
     all_scloud_client_options_ (),
+#endif
     all_tunein_client_options_ (),
     all_youtube_client_options_ (),
     all_plex_client_options_ (),
@@ -476,7 +482,9 @@ tiz::programopts::programopts (int argc, char *argv[])
   init_streaming_client_options ();
   init_spotify_options ();
   init_gmusic_options ();
+#ifdef HAVE_SOUNDCLOUD
   init_scloud_options ();
+#endif
   init_tunein_options ();
   init_youtube_options ();
   init_plex_options ();
@@ -577,9 +585,11 @@ void tiz::programopts::print_usage_help () const
   std::cout << "  "
             << "googlemusic   Google Play Music options."
             << "\n";
+#ifdef HAVE_SOUNDCLOUD
   std::cout << "  "
             << "soundcloud    SoundCloud options."
             << "\n";
+#endif
   std::cout << "  "
             << "tunein        TuneIn options."
             << "\n";
@@ -1155,6 +1165,7 @@ uint32_t tiz::programopts::gmusic_buffer_seconds () const
   return buffer_seconds_ ? buffer_seconds_ : gmusic_buffer_seconds_;
 }
 
+#ifdef HAVE_SOUNDCLOUD
 const std::string &tiz::programopts::scloud_oauth_token () const
 {
   return scloud_oauth_token_;
@@ -1249,6 +1260,7 @@ uint32_t tiz::programopts::scloud_buffer_seconds () const
 {
   return buffer_seconds_ ? buffer_seconds_ : scloud_buffer_seconds_;
 }
+#endif
 
 const std::vector< std::string > &tiz::programopts::tunein_playlist_container ()
 {
@@ -1535,7 +1547,7 @@ void tiz::programopts::init_global_options ()
        greedy_implicit_value< std::string > (&help_option_)
            ->implicit_value (std::string ("help")),
        "Print a usage message for a specific help topic (e.g. global, "
-       "openmax, server, spotify, googlemusic, soundcloud, etc).")
+       "openmax, server, spotify, googlemusic, tunein, etc).")
       /* TIZ_CLASS_COMMENT: */
       ("version,v", "Print the version information.")
       /* TIZ_CLASS_COMMENT: */
@@ -1550,12 +1562,12 @@ void tiz::programopts::init_global_options ()
       /* TIZ_CLASS_COMMENT: */
       ("cast,c", po::value (&chromecast_name_or_ip_),
        "Cast to a Chromecast device (arg: device name or ip address). "
-       "Available in combination with Google Play Music, SoundCloud, "
-       "YouTube, TuneIn and HTTP radio stations.")
+       "Available in combination with Google Play Music, YouTube, TuneIn "
+       "and HTTP radio stations.")
       /* TIZ_CLASS_COMMENT: */
       ("buffer-seconds,b", po::value (&buffer_seconds_),
        "Size of the buffer (in seconds) to be used while downloading streams. "
-       "Increase in case of cuts in gmusic, scloud, youtube or plex.")
+       "Increase in case of cuts in gmusic, youtube or plex.")
       /* TIZ_CLASS_COMMENT: */
       ("proxy-server", po::value (&proxy_server_),
        "Url to the proxy server that should be used. (not required if provided "
@@ -1584,8 +1596,8 @@ void tiz::programopts::init_global_options ()
       /* TIZ_CLASS_COMMENT: */
       ("cast,c", po::value (&chromecast_name_or_ip_),
        "Cast to a Chromecast device (arg: device name, 'friendly' name or ip address). "
-       "Available in combination with Google Play Music, SoundCloud, "
-       "YouTube, Plex and HTTP radio stations.");
+       "Available in combination with Google Play Music, YouTube, Plex "
+       "and HTTP radio stations.");
 
   // We also initialise here a 'proxy' option description for the purpose
   // of displaying it with the --help command.
@@ -1907,6 +1919,7 @@ void tiz::programopts::init_gmusic_options ()
             .convert_to_container< std::vector< std::string > > ();
 }
 
+#ifdef HAVE_SOUNDCLOUD
 void tiz::programopts::init_scloud_options ()
 {
   scloud_.add_options ()
@@ -1946,6 +1959,7 @@ void tiz::programopts::init_scloud_options ()
             "soundcloud-genres") ("soundcloud-tags")
             .convert_to_container< std::vector< std::string > > ();
 }
+#endif
 
 void tiz::programopts::init_tunein_options ()
 {
@@ -2117,7 +2131,9 @@ uint32_t tiz::programopts::parse_command_line (int argc, char *argv[])
       .add (spotify_)
 #endif
       .add (gmusic_)
+#ifdef HAVE_SOUNDCLOUD
       .add (scloud_)
+#endif
       .add (tunein_)
       .add (youtube_)
       .add (plex_)
@@ -2203,10 +2219,12 @@ int tiz::programopts::consume_global_options (bool &done,
     {
       print_usage_feature (gmusic_);
     }
+#ifdef HAVE_SOUNDCLOUD
     else if (0 == help_option_.compare ("soundcloud"))
     {
       print_usage_feature (scloud_);
     }
+#endif
     else if (0 == help_option_.compare ("tunein"))
     {
       print_usage_feature (tunein_);
@@ -2664,6 +2682,7 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
   return rc;
 }
 
+#ifdef HAVE_SOUNDCLOUD
 int tiz::programopts::consume_scloud_client_options (bool &done,
                                                      std::string &msg)
 {
@@ -2754,6 +2773,7 @@ int tiz::programopts::consume_scloud_client_options (bool &done,
                       rc == EXIT_SUCCESS ? "SUCCESS" : "FAILURE");
   return rc;
 }
+#endif
 
 int tiz::programopts::consume_tunein_client_options (bool &done,
                                                      std::string &msg)
@@ -3259,6 +3279,7 @@ bool tiz::programopts::validate_gmusic_client_options () const
   return outcome;
 }
 
+#ifdef HAVE_SOUNDCLOUD
 bool tiz::programopts::validate_scloud_client_options () const
 {
   bool outcome = false;
@@ -3283,6 +3304,7 @@ bool tiz::programopts::validate_scloud_client_options () const
   TIZ_PRINTF_DBG_RED ("outcome = [%s]\n", outcome ? "SUCCESS" : "FAILURE");
   return outcome;
 }
+#endif
 
 bool tiz::programopts::validate_tunein_client_options () const
 {

@@ -200,6 +200,7 @@ namespace tiz
           const std::string &additional_keywords, const bool unlimited,
           const bool shuffle);
 
+#ifdef HAVE_SOUNDCLOUD
       static OMX_ERRORTYPE set_scloud_oauth_token (
           const OMX_HANDLETYPE handle, const std::string &oauth_token);
 
@@ -207,6 +208,7 @@ namespace tiz
           const OMX_HANDLETYPE handle, const std::string &playlist,
           const OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE playlist_type,
           const bool shuffle);
+#endif
 
       static OMX_ERRORTYPE set_tunein_playlist (
           const OMX_HANDLETYPE handle, const uri_lst_t &search_keywords,

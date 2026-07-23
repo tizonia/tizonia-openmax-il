@@ -61,14 +61,18 @@ namespace tiz
     OMX_ERRORTYPE decode_stream ();
     OMX_ERRORTYPE spotify_stream ();
     OMX_ERRORTYPE gmusic_stream ();
+#ifdef HAVE_SOUNDCLOUD
     OMX_ERRORTYPE scloud_stream ();
+#endif
     OMX_ERRORTYPE tunein_stream ();
     OMX_ERRORTYPE youtube_stream ();
     OMX_ERRORTYPE plex_stream ();
     OMX_ERRORTYPE iheart_stream ();
     OMX_ERRORTYPE http_stream_chromecast ();
     OMX_ERRORTYPE gmusic_stream_chromecast ();
+#ifdef HAVE_SOUNDCLOUD
     OMX_ERRORTYPE scloud_stream_chromecast ();
+#endif
     OMX_ERRORTYPE tunein_stream_chromecast ();
     OMX_ERRORTYPE youtube_stream_chromecast ();
     OMX_ERRORTYPE plex_stream_chromecast ();

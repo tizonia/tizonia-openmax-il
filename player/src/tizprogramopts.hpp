@@ -95,10 +95,12 @@ namespace tiz
     const std::string &gmusic_additional_keywords () const;
     bool gmusic_is_unlimited_search () const;
     uint32_t gmusic_buffer_seconds() const;
+#ifdef HAVE_SOUNDCLOUD
     const std::string &scloud_oauth_token () const;
     const std::vector< std::string > &scloud_playlist_container ();
     OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE scloud_playlist_type ();
     uint32_t scloud_buffer_seconds() const;
+#endif
     const std::vector< std::string > &tunein_playlist_container ();
     OMX_TIZONIA_AUDIO_TUNEINPLAYLISTTYPE tunein_playlist_type ();
     OMX_TIZONIA_AUDIO_TUNEINSEARCHTYPE tunein_search_type ();
@@ -130,7 +132,9 @@ namespace tiz
     void init_streaming_client_options ();
     void init_spotify_options ();
     void init_gmusic_options ();
+#ifdef HAVE_SOUNDCLOUD
     void init_scloud_options ();
+#endif
     void init_tunein_options ();
     void init_youtube_options ();
     void init_plex_options ();
@@ -149,7 +153,9 @@ namespace tiz
     int consume_streaming_client_options (bool &done, std::string &msg);
     int consume_spotify_client_options (bool &done, std::string &msg);
     int consume_gmusic_client_options (bool &done, std::string &msg);
+#ifdef HAVE_SOUNDCLOUD
     int consume_scloud_client_options (bool &done, std::string &msg);
+#endif
     int consume_tunein_client_options (bool &done, std::string &msg);
     int consume_youtube_client_options (bool &done, std::string &msg);
     int consume_plex_client_options (bool &done, std::string &msg);
@@ -162,7 +168,9 @@ namespace tiz
     bool validate_streaming_server_options () const;
     bool validate_spotify_client_options () const;
     bool validate_gmusic_client_options () const;
+#ifdef HAVE_SOUNDCLOUD
     bool validate_scloud_client_options () const;
+#endif
     bool validate_tunein_client_options () const;
     bool validate_youtube_client_options () const;
     bool validate_plex_client_options () const;
@@ -187,7 +195,9 @@ namespace tiz
     boost::program_options::options_description client_;
     boost::program_options::options_description spotify_;
     boost::program_options::options_description gmusic_;
+#ifdef HAVE_SOUNDCLOUD
     boost::program_options::options_description scloud_;
+#endif
     boost::program_options::options_description tunein_;
     boost::program_options::options_description youtube_;
     boost::program_options::options_description plex_;
@@ -269,6 +279,7 @@ namespace tiz
     OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE gmusic_playlist_type_;
     bool gmusic_is_unlimited_search_;
     uint32_t gmusic_buffer_seconds_;
+#ifdef HAVE_SOUNDCLOUD
     std::string scloud_oauth_token_;
     std::string scloud_user_stream_;
     std::string scloud_user_likes_;
@@ -281,6 +292,7 @@ namespace tiz
     std::vector< std::string > scloud_playlist_container_;
     OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE scloud_playlist_type_;
     uint32_t scloud_buffer_seconds_;
+#endif
     std::string tunein_search_;
     std::string tunein_category_;
     std::string tunein_local_;
@@ -331,7 +343,9 @@ namespace tiz
     std::vector< std::string > all_streaming_client_options_;
     std::vector< std::string > all_spotify_client_options_;
     std::vector< std::string > all_gmusic_client_options_;
+#ifdef HAVE_SOUNDCLOUD
     std::vector< std::string > all_scloud_client_options_;
+#endif
     std::vector< std::string > all_tunein_client_options_;
     std::vector< std::string > all_youtube_client_options_;
     std::vector< std::string > all_plex_client_options_;

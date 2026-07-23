@@ -60,7 +60,9 @@ namespace tiz
       void do_configure_chromecast ();
       void do_configure_http ();
       void do_configure_gmusic ();
+#ifdef HAVE_SOUNDCLOUD
       void do_configure_scloud ();
+#endif
       void do_configure_tunein ();
       void do_configure_youtube ();
       void do_configure_plex ();
