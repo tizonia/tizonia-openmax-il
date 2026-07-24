@@ -1,2 +1,0 @@
-subdir('spotifyproxy')
-subdir('libtizspotify')

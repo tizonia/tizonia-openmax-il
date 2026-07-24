@@ -12,9 +12,9 @@
 > Autonomous coding agents should also read [CONTRIBUTING-agents.md](CONTRIBUTING-agents.md).
 
 * A command-line streaming music client/server for Linux.
-* Support for Spotify (Premium), Google Play Music (free and paid tiers),
-  YouTube, SoundCloud, TuneIn and iHeart Internet Radio directories, Plex
-  servers and Chromecast devices.
+* Support for Google Play Music (free and paid tiers), YouTube, SoundCloud,
+  TuneIn and iHeart Internet Radio directories, Plex servers and Chromecast
+  devices.
 * The first open-source implementation of [OpenMAX IL
   1.2](https://www.khronos.org/news/press/khronos-group-releases-openmax-il-1.2-provisional-specification).
 
@@ -359,9 +359,9 @@ from the Docker hub:
 
 # Configuration
 
-To use *Spotify*, *Google Play Music*, *SoundCloud* and *Plex* you need to
-introduce your credentials in Tizonia's config file. No credentials needed to
-stream from *YouTube* or *TuneIn*.
+To use *Google Play Music*, *SoundCloud* and *Plex* you need to introduce your
+credentials in Tizonia's config file. No credentials are needed to stream from
+*YouTube* or *TuneIn*.
 
 <details><summary><b>Show details</b></summary>
 
@@ -405,10 +405,10 @@ $ sudo apt-get update && sudo apt-get upgrade
 # so you should do this frequently, even if there isn't a new Tizonia release)
 
 # For Tizonia v0.19.0 or newer: Python 3 dependencies
-$ sudo -H pip3 install --upgrade gmusicapi soundcloud youtube-dl pafy pycountry titlecase pychromecast plexapi spotipy fuzzywuzzy eventlet python-Levenshtein
+$ sudo -H pip3 install --upgrade gmusicapi soundcloud youtube-dl pafy pycountry titlecase pychromecast plexapi fuzzywuzzy eventlet python-Levenshtein
 
 # For Tizonia v0.18.0 or older: Python 2 dependencies
-$ sudo -H pip2 install --upgrade gmusicapi soundcloud youtube-dl pafy pycountry titlecase pychromecast plexapi fuzzywuzzy eventlet python-Levenshtein && sudo -H pip2 install git+https://github.com/plamere/spotipy.git --upgrade
+$ sudo -H pip2 install --upgrade gmusicapi soundcloud youtube-dl pafy pycountry titlecase pychromecast plexapi fuzzywuzzy eventlet python-Levenshtein
 
 ```
 

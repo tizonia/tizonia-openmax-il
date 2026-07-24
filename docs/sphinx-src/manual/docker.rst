@@ -91,32 +91,9 @@ to the PulseAudio (PA) server running on the host.
 
 .. code:: bash
 
-   $ ./docker-tizonia --spotify-album 'Chocolate Starfish & the Hot Dog Flavored Water'
+   $ ./docker-tizonia --youtube-audio-mix-search "Queen Official"
    tizonia 0.22.0. Copyright (C) 2020 Juan A. Rubio and contributors
    This software is part of the Tizonia project <https://tizonia.org>
-
-   [Spotify] [Connecting] : 'e@mail.com'.
-   [Spotify] [Album search] 'Chocolate Starfish & the Hot Dog Flavored Water'.
-   [Spotify] [Album] 'Chocolate Starfish And The Hot Dog Flavored Water'.
-   [Spotify] [Track] [#01] 'Intro' [Limp Bizkit] (1m:19s).
-   [Spotify] [Track] [#02] 'Hot Dog' [Limp Bizkit] (3m:50s).
-   [Spotify] [Track] [#03] 'My Generation' [Limp Bizkit] (3m:41s) <Explicit>.
-   [Spotify] [Track] [#04] 'Full Nelson' [Limp Bizkit] (4m:07s).
-   [Spotify] [Track] [#05] 'My Way' [Limp Bizkit] (4m:33s) <Explicit>.
-   [Spotify] [Track] [#06] 'Rollin' (Air Raid Vehicle)' [Limp Bizkit] (3m:34s) <Explicit>.
-   [Spotify] [Track] [#07] 'Livin' It Up' [Limp Bizkit] (4m:24s) <Explicit>.
-   [Spotify] [Track] [#08] 'The One' [Limp Bizkit] (5m:43s).
-   [Spotify] [Track] [#09] 'Getcha Groove On - Dirt Road Mix' [Limp Bizkit] (4m:19s) <Explicit>.
-   [Spotify] [Track] [#10] 'Take A Look Around' [Limp Bizkit] (5m:21s).
-   [Spotify] [Track] [#11] 'It'll Be OK' [Limp Bizkit] (5m:06s).
-   [Spotify] [Track] [#12] 'Boiler' [Limp Bizkit] (7m:00s).
-   [Spotify] [Track] [#13] 'Hold On' [Limp Bizkit] (5m:48s).
-   [Spotify] [Track] [#14] 'Rollin' (Urban Assault Vehicle)' [Limp Bizkit] (6m:23s) <Explicit>.
-   [Spotify] [Track] [#15] 'Outro' [Limp Bizkit] (9m:50s).
-   [Spotify] [Tracks in queue] '15'.
-   [Spotify] [Cache]: '/var/tmp/tizonia-tizonia-spotify-e@mail.com'
-   [Spotify] [Login] 'r8eaz0tuw621b2z1kbq41a2a5' logged in.
-   [Spotify] [Streaming] : 'Chocolate Starfish & the Hot Dog Flavored Water'.
 
    tizonia exiting (OMX_ErrorInsufficientResources).
 

@@ -9,7 +9,5 @@ Streaming Client Libraries
    libtizplex
    libtizplex
    libtizsoundcloud
-   libtizspotify
    libtiztunein
    libtizyoutube
-

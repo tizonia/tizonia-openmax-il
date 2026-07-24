@@ -28,7 +28,7 @@ experience by following a few principles:
 
 **Reduced 'muscle-memory'**
   Finding the music that you want and listening to it should require a single
-  command-line option on the terminal. E.g.: ``tizonia --spotify-album Islands``.
+  command-line option on the terminal. E.g.: ``tizonia --tunein-search jazz``.
   Bash and Zsh completions are available. There is also a
   `Oh-my-zsh <https://ohmyz.sh/>`_ plugin available `here
   <https://github.com/tizonia/tizonia-openmax-il/blob/master/player/tools/tizonia.plugin.zsh>`_.
@@ -40,7 +40,6 @@ experience by following a few principles:
    config
    keyboard
    global
-   spotify
    googlemusic
    soundcloud
    youtube

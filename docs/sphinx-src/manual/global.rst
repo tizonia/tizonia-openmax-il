@@ -9,7 +9,7 @@ OPTIONS
 -------
 
 ``-h [ --help ] [=arg(=help)]``
-    Print a usage message for a specific help topic (e.g. global, openmax, server, spotify, googlemusic, soundcloud, etc).
+    Print a usage message for a specific help topic (e.g. global, openmax, server, googlemusic, soundcloud, etc).
 
 ``-v [ --version ]``
     Print the version information.
@@ -28,12 +28,3 @@ OPTIONS
 
 ``-b [ --buffer-seconds ] arg``
     Size of the buffer (in seconds) to be used while downloading streams. Increase in case of cuts in gmusic, scloud, youtube or plex.
-
-``--proxy-server arg``
-    Url to the proxy server that should be used. (not required if provided via config file).
-
-``--proxy-user arg``
-    User name to be used during proxy server authentication (not required if provided via config file).
-
-``--proxy-password arg``
-    Password to be used during proxy server authentication (not required if provided via config file).

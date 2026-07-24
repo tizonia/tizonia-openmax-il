@@ -43,13 +43,6 @@ PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
 
 # Checks for library functions.
 
-AC_ARG_WITH(libspotify,
-    AS_HELP_STRING([--with-libspotify],
-        [build the libspotify-based OpenMAX IL plugin (default: yes)]),,
-    with_libspotify=yes)
-
-AM_CONDITIONAL(WITH_LIBSPOTIFY, test "x$with_libspotify" = xyes)
-
 AC_ARG_WITH(alsa,
     AS_HELP_STRING([--with-alsa],
         [build the ALSA-based OpenMAX IL plugin (default: yes)]),,
@@ -86,12 +79,6 @@ AC_CONFIG_SUBDIRS([chromecast_renderer
                    vp8_decoder
                    webm_demuxer
                    yuv_renderer])
-
-if test "$with_libspotify" = yes; then
-   if test -d "$srcdir/spotify_source"; then
-      AC_CONFIG_SUBDIRS([spotify_source])
-   fi
-fi
 
 if test "$with_alsa" = yes; then
    if test -d "$srcdir/pcm_renderer_alsa"; then

@@ -37,9 +37,6 @@ REQUIRED_SUBDIRS = \
 	webm_demuxer \
 	yuv_renderer
 
-LIBSPOTIFY_SUBDIR= \
-	spotify_source
-
 ALSA_SUBDIR= \
 	pcm_renderer_alsa
 
@@ -47,10 +44,6 @@ AAC_SUBDIR= \
 	aac_decoder
 
 SUBDIRS = ${REQUIRED_SUBDIRS}
-
-if WITH_LIBSPOTIFY
-SUBDIRS += ${LIBSPOTIFY_SUBDIR}
-endif
 
 if WITH_ALSA
 SUBDIRS += ${ALSA_SUBDIR}

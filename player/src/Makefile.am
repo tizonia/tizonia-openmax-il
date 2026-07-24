@@ -17,23 +17,6 @@
 
 bin_PROGRAMS = tizonia
 
-if WITH_LIBSPOTIFY
-SPOTIFY_SRC= \
-	services/spotify/tizspotifygraph.cpp \
-	services/spotify/tizspotifygraphfsm.cpp \
-	services/spotify/tizspotifygraphops.cpp \
-	services/spotify/tizspotifymgr.cpp
-SPOTIFY_HDR= \
-	services/spotify/tizspotifygraph.hpp \
-	services/spotify/tizspotifygraphfsm.hpp \
-	services/spotify/tizspotifygraphops.hpp \
-	services/spotify/tizspotifyconfig.hpp \
-	services/spotify/tizspotifymgr.hpp
-else
-SPOTIFY_SRC=
-SPOTIFY_HDR=
-endif
-
 
 noinst_HEADERS = \
 	tizomxutil.hpp \
@@ -88,7 +71,6 @@ noinst_HEADERS = \
 	services/tizservicegraphfsm.hpp \
 	services/tizradiograph.hpp \
 	services/tizradiographfsm.hpp \
-	${SPOTIFY_HDR} \
 	services/googlemusic/tizgmusicgraph.hpp \
 	services/googlemusic/tizgmusicgraphops.hpp \
 	services/googlemusic/tizgmusicconfig.hpp \
@@ -167,7 +149,6 @@ tizonia_SOURCES = \
 	services/tizservicegraphfsm.cpp \
 	services/tizradiograph.cpp \
 	services/tizradiographfsm.cpp \
-	${SPOTIFY_SRC} \
 	services/googlemusic/tizgmusicgraph.cpp \
 	services/googlemusic/tizgmusicgraphops.cpp \
 	services/googlemusic/tizgmusicmgr.cpp \

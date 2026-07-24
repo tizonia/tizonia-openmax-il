@@ -39,7 +39,6 @@ CID,Type,Impact,Status,First Detected,Owner,Classification,Severity,Action,Compo
 993663,Untrusted array index read,Medium,New,03/27/13,Unassigned,Unclassified,Unspecified,Undecided,libtizplatform,Insecure data handling,/libtizplatform/src/ev/ev.c,infy_cb
 1352349,Overflowed return value,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,player,Insecure data handling,/player/src/tizplayapp.cpp,getch_
 1352333,Operands don't affect result,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,pcm_renderer_pa,Integer handling issues,/plugins/pcm_renderer_pa/src/pulsearprc.c,init_pulseaudio_stream
-1352334,Constant expression result,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,Various,Integer handling issues,/plugins/spotify_source/src/spfysrcprc.c,send_port_auto_detect_events
 1352356,Macro compares unsigned to 0,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,vorbis_decoder,Integer handling issues,/plugins/vorbis_decoder/src/vorbisdprc.c,transform_buffer
 1352357,Macro compares unsigned to 0,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,http_renderer,Integer handling issues,/plugins/http_renderer/src/httprsrv.c,srv_write_omx_buffer
 1352359,Out-of-bounds write,High,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,player,Memory - corruptions,/player/src/tizgraphutil.cpp,set_role
@@ -77,6 +76,5 @@ CID,Type,Impact,Status,First Detected,Owner,Classification,Severity,Action,Compo
 1352368,Uninitialized scalar field,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,Other,Uninitialized members,/usr/include/boost/msm/back/state_machine.hpp,state_machine
 1352369,Uninitialized scalar field,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,player,Uninitialized members,/player/src/tizprobe.cpp,probe
 1352370,Uninitialized pointer field,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,Other,Uninitialized members,/usr/include/boost/msm/back/dispatch_table.hpp,dispatch_table
-1352371,Uninitialized scalar field,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,player,Uninitialized members,/player/src/services/spotify/tizspotifygraphops.cpp,spotifyops
 1352372,Uninitialized scalar field,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,player,Uninitialized members,/player/src/services/soundcloud/tizscloudgraphops.cpp,scloudops
 1352373,Uninitialized scalar field,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,player,Uninitialized members,/player/src/services/googlemusic/tizgmusicgraphops.cpp,gmusicops

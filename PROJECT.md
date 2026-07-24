@@ -15,7 +15,6 @@
 
 `tizonia` is a command-line application that can:
 
-  * Stream playlists from Spotify (Spotify Premium required).
   * Search and stream audio from Google Play Music (free and paid tiers).
   * Search and stream audio from YouTube.
   * Search and stream audio from SoundCloud.
@@ -81,7 +80,6 @@ The Resource Management framework is another core piece that is specified in the
 There is a large list of OpenMAX IL plugins that implement all the audio and
 multimedia functions used by Tizonia. Here is a (incomplete) list:
 
-  * Spotify streaming service client ([libspotify](https://github.com/mopidy/libspotify-deb)),
   * Google Play Music streaming service client (based on [gmusicapi](https://github.com/simon-weber/gmusicapi)),
   * YouTube audio streaming service client (based on [pafy](https://github.com/mps-youtube/pafy)),
   * SoundCloud streaming service client (based on [soundcloud-python](https://github.com/soundcloud/soundcloud-python)),

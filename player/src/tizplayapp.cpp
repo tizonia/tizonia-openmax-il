@@ -80,10 +80,6 @@
 #include <services/googlemusic/tizgmusicmgr.hpp>
 #include <services/soundcloud/tizscloudconfig.hpp>
 #include <services/soundcloud/tizscloudmgr.hpp>
-#ifdef HAVE_LIBSPOTIFY
-#include <services/spotify/tizspotifyconfig.hpp>
-#include <services/spotify/tizspotifymgr.hpp>
-#endif
 #include <services/plex/tizplexconfig.hpp>
 #include <services/plex/tizplexmgr.hpp>
 #include <services/youtube/tizyoutubeconfig.hpp>
@@ -657,9 +653,6 @@ void tiz::playapp::set_option_handlers ()
   // streaming audio client program options
   popts_.set_option_handler ("decode-stream",
                              boost::bind (&tiz::playapp::decode_stream, this));
-  // spotify streaming client program options
-  popts_.set_option_handler ("spotify-stream",
-                             boost::bind (&tiz::playapp::spotify_stream, this));
   // Google music streaming client program options
   popts_.set_option_handler ("gmusic-stream",
                              boost::bind (&tiz::playapp::gmusic_stream, this));
@@ -780,7 +773,6 @@ tiz::playapp::print_debug_info () const
             ("titlecase")
             ("pychromecast")
             ("plexapi")
-            ("spotipy")
             ("fuzzywuzzy")
             ("eventlet")
             ("python-Levenshtein")
@@ -1113,76 +1105,6 @@ tiz::playapp::decode_stream ()
 
   return rc;
 }
-
-#ifdef HAVE_LIBSPOTIFY
-OMX_ERRORTYPE
-tiz::playapp::spotify_stream ()
-{
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-  const bool shuffle = popts_.shuffle ();
-  const std::string user (popts_.spotify_user ());
-  const std::string owner (popts_.spotify_owner ());
-  std::string pass (popts_.spotify_password ());
-  std::string proxy_server = popts_.proxy_server ();
-  std::string proxy_user = popts_.proxy_user ();
-  std::string proxy_pass = popts_.proxy_password ();
-  const bool recover_lost_token = popts_.spotify_recover_lost_token ();
-  const bool allow_explicit_tracks = popts_.spotify_allow_explicit_tracks ();
-  const uint32_t preferred_bitrate = popts_.spotify_preferred_bitrate ();
-  const uri_lst_t &uri_list = popts_.spotify_playlist_container ();
-  const OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE playlist_type
-      = popts_.spotify_playlist_type ();
-
-  print_banner ();
-
-  // If a username was supplied without a password, prompt for one
-  if (!user.empty () && pass.empty ())
-  {
-    std::string msg (user);
-    msg.append ("'s password:");
-    pass.assign (getpass (msg.c_str ()));
-    printf ("\n");
-  }
-
-  // daemon support
-  (void)daemonize_if_requested ();
-
-  tizplaylist_ptr_t playlist
-      = boost::make_shared< tiz::playlist > (tiz::playlist (uri_list, shuffle));
-
-  assert (playlist);
-  playlist->set_loop_playback (true);
-
-  tizgraphconfig_ptr_t config
-    = boost::shared_ptr< tiz::graph::spotifyconfig > (new tiz::graph::spotifyconfig(
-          playlist, user, pass, proxy_server, proxy_user, proxy_pass,
-          playlist_type, owner, recover_lost_token, allow_explicit_tracks,
-          preferred_bitrate));
-
-  // Instantiate the streaming client manager
-  tiz::graphmgr::mgr_ptr_t p_mgr
-      = boost::make_shared< tiz::graphmgr::spotifymgr > (config);
-
-  // TODO: Check return codes
-  p_mgr->init (playlist, graphmgr_termination_cback ());
-  p_mgr->start ();
-
-  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr, popts_))
-  {
-  }
-
-  p_mgr->quit ();
-  p_mgr->deinit ();
-
-  return rc;
-}
-#else
-OMX_ERRORTYPE
-tiz::playapp::spotify_stream ()
-{
-  return OMX_ErrorNone;
-}
-#endif
 
 OMX_ERRORTYPE
 tiz::playapp::gmusic_stream ()

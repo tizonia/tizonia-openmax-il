@@ -11,13 +11,11 @@ declare -ar TIZ_ALL_PACKAGES=( \
    python3-tizyoutubeproxy \
    python3-tizplexproxy \
    python3-tizchromecastproxy \
-   python3-tizspotifyproxy \
    libtizgmusic0 \
    libtizsoundcloud0 \
    libtizyoutube0 \
    libtizplex0 \
    libtizchromecast0 \
-   libtizspotify0 \
    libtizplatform0 \
    tizcastd \
    libtizcastclient0 \
@@ -43,7 +41,6 @@ declare -ar TIZ_ALL_PACKAGES=( \
    libtizpcmdec0 \
    libtizalsapcmrnd0 \
    libtizpulsepcmrnd0 \
-   libtizspotifysrc0 \
    libtizvorbisdec0 \
    libtizvp8dec0 \
    libtizsdlivrnd0 \

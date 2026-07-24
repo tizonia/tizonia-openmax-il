@@ -86,10 +86,6 @@ if enabled_plugins.contains('yuv_renderer')
    subdir('yuv_renderer')
 endif
 
-if enable_libspotify
-   subdir('spotify_source')
-endif
-
 if enable_alsa
    subdir('pcm_renderer_alsa')
 endif

@@ -59,7 +59,6 @@ namespace tiz
     OMX_ERRORTYPE decode_local ();
     OMX_ERRORTYPE serve_stream ();
     OMX_ERRORTYPE decode_stream ();
-    OMX_ERRORTYPE spotify_stream ();
     OMX_ERRORTYPE gmusic_stream ();
     OMX_ERRORTYPE scloud_stream ();
     OMX_ERRORTYPE tunein_stream ();

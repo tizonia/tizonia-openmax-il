@@ -44,12 +44,11 @@ EXAMPLES
    Component at index [16] -> [OMX.Aratelia.container_muxer.ogg]
    Component at index [17] -> [OMX.Aratelia.video_decoder.vp8]
    Component at index [18] -> [OMX.Aratelia.audio_decoder.pcm]
-   Component at index [19] -> [OMX.Aratelia.audio_source.spotify.pcm]
-   Component at index [20] -> [OMX.Aratelia.ilcore.test_component]
-   Component at index [21] -> [OMX.Aratelia.audio_decoder.opusfile.opus]
-   Component at index [22] -> [OMX.Aratelia.audio_decoder.vorbis]
-   Component at index [23] -> [OMX.Aratelia.audio_source.http]
-   Component at index [24] -> [OMX.Aratelia.audio_decoder.flac]
+   Component at index [19] -> [OMX.Aratelia.ilcore.test_component]
+   Component at index [20] -> [OMX.Aratelia.audio_decoder.opusfile.opus]
+   Component at index [21] -> [OMX.Aratelia.audio_decoder.vorbis]
+   Component at index [22] -> [OMX.Aratelia.audio_source.http]
+   Component at index [23] -> [OMX.Aratelia.audio_decoder.flac]
 
 
    $ tizonia --roles-of-comp OMX.Aratelia.audio_renderer.chromecast

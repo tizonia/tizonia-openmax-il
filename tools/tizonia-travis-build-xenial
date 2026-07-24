@@ -212,16 +212,6 @@ function install_deps {
         echo "Error while installing debian dependencies" >&2
     fi
 
-    if [[ "$exit_status" -eq 0 ]] ; then
-        echo "Installing libspotify..."
-        wget -q -O - http://apt.mopidy.com/mopidy.gpg | sudo apt-key add -
-        echo deb http://apt.mopidy.com/ stable main contrib non-free | sudo tee -a /etc/apt/sources.list
-        echo deb-src http://apt.mopidy.com/ stable main contrib non-free | sudo tee -a /etc/apt/sources.list
-        sudo apt-get update -qq \
-            && sudo apt-get install libspotify12 libspotify-dev -qq
-        exit_status=$?
-    fi
-
     return $exit_status
 }
 
@@ -327,14 +317,6 @@ function install_python_deps {
         exit_status=$?
         if [[ "$exit_status" -ne 0 ]] ; then
             echo "Error while installing eventlet" >&2
-        fi
-    fi
-
-    if [[ "$exit_status" -eq 0 ]] ; then
-        pip3 install --user git+https://github.com/plamere/spotipy.git
-        exit_status=$?
-        if [[ "$exit_status" -ne 0 ]] ; then
-            echo "Error while installing spotipy" >&2
         fi
     fi
 

@@ -43,6 +43,6 @@ docker run --rm -it \
 Inside the container:
 
 ```bash
-meson setup build -Dlibspotify=false -Ddocs=false
+meson setup build -Ddocs=false
 ninja -C build -j1
 ```

@@ -12,7 +12,6 @@
   - [The traditional method](#the-traditional-method)
   - [Conditional compilation of sub-projects](#conditional-compilation-of-sub-projects)
     - [Excluding the `player` sub-project](#excluding-the-player-sub-project)
-    - [Excluding the `plugins/spotify_source` sub-project](#excluding-the-pluginsspotify_source-sub-project)
     - [Excluding the `plugins/pcm_renderer_alsa` sub-project](#excluding-the-pluginspcm_renderer_alsa-sub-project)
 - [Tizonia's configuration file](#tizonias-configuration-file)
 - [Resource Manager's D-BUS service activation file (optional)](#resource-managers-d-bus-service-activation-file-optional)
@@ -50,8 +49,8 @@ the recommended way. This script lives under the `tools` directory and internall
 maintains an up-to-date list of all the packages that are required in a
 Debian-compatible system to build Tizonia from source.
 
-> NOTE: The following command installs Mopidy's 'libspotify-dev' package, and
-> the 'gmusicapi', 'soundcloud', 'pafy' and 'youtube-dl' Python PIP packages,
+> NOTE: The following command installs the 'gmusicapi', 'soundcloud', 'pafy'
+> and 'youtube-dl' Python PIP packages,
 > plus a few other necessary debian packages.
 
 ```bash
@@ -145,17 +144,6 @@ disable configuration and build of the `tizonia` player.
 ```bash
 # Build and install in DEBUG mode without the command-line player program.
 $ tizonia-dev-build --no-player --debug --install
-```
-
-##### Excluding the `plugins/spotify_source` sub-project
-
-The `--without-libspotify` option may be included to disable configuration and
-build of the libspotify-based OpenMAX IL component. This option will also
-disable the support for this plugin in the `tizonia` player program.
-
-```bash
-# Disable support for the spotify_source plugin.
-$ ./configure --without-libspotify
 ```
 
 ##### Excluding the `plugins/pcm_renderer_alsa` sub-project

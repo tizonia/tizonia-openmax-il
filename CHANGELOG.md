@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased v1
+
+- Removed the obsolete libspotify-based Spotify streaming backend, CLI
+  commands, configuration, documentation, and package/install dependencies.
+  The Spotify-specific OpenMAX extension definitions remain in the installed
+  public header solely as dormant ABI compatibility declarations; v1 does not
+  register, build, advertise, or use a Spotify audio component.
+
 ## [v0.22.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.22.0) (2020-05-22)
 
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.21.0...v0.22.0)

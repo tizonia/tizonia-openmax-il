@@ -71,31 +71,6 @@ default-audio-renderer = OMX.Aratelia.audio_renderer.pulseaudio.pcm
 mpris-enabled = false
 
 
-# HTTP proxy server configuration
-# -------------------------------------------------------------------------
-# NOTE: Proxy configuration is currently only available with the Spotify
-# service. It will be ignored with other music services.
-#
-# proxy.server = Url to the proxy server that should be used.
-#                The format is protocol://<host>:port (where protocol
-#                is http/https/socks4/socks5). E.g.: http:some.proxy.net:1234
-# proxy.user_name = Username to authenticate with proxy server
-# proxy.user_password = Password to authenticate with proxy server
-
-
-# Spotify configuration
-# -------------------------------------------------------------------------
-# To avoid passing this information on the command line, uncomment
-# and configure accordingly
-#
-# spotify.user     = user
-# spotify.password = pass
-# spotify.recover_lost_token = false (set to true to continue playback after
-#                                     the token has been [spuriously?] lost)
-# spotify.allow_explicit_tracks = false (set to true to allow explicit tracks)
-# spotify.preferred_bitrate = Three possible values: 96, 160, or 320 ; default: 320
-
-
 # Google Play Music configuration
 # -------------------------------------------------------------------------
 # To avoid passing this information on the command line, uncomment and

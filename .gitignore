@@ -169,12 +169,6 @@ clients/plex/libtizplex/src/Makefile
 clients/plex/libtizplex/tests/Makefile
 clients/plex/libtizplex/tizonia
 clients/plex/plexproxy/Makefile
-clients/spotify/Makefile
-clients/spotify/libtizspotify/Makefile
-clients/spotify/libtizspotify/src/Makefile
-clients/spotify/libtizspotify/tests/Makefile
-clients/spotify/libtizspotify/tizonia
-clients/spotify/spotifyproxy/Makefile
 compile_commands.json
 config/Makefile
 config/src/Makefile
@@ -265,8 +259,6 @@ plugins/pcm_renderer_alsa/Makefile
 plugins/pcm_renderer_alsa/src/Makefile
 plugins/pcm_renderer_pa/Makefile
 plugins/pcm_renderer_pa/src/Makefile
-plugins/spotify_source/Makefile
-plugins/spotify_source/src/Makefile
 plugins/vorbis_decoder/Makefile
 plugins/vorbis_decoder/src/Makefile
 plugins/vp8_decoder/Makefile

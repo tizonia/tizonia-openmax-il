@@ -27,7 +27,6 @@ EXAMPLES
      openmax       Various OpenMAX IL query options.
      server        SHOUTcast/ICEcast streaming server options.
      client        SHOUTcast/ICEcast streaming client options.
-     spotify       Spotify options.
      googlemusic   Google Play Music options.
      soundcloud    SoundCloud options.
      tunein        TuneIn options.
@@ -35,7 +34,6 @@ EXAMPLES
      plex          Plex options.
      iheart        Iheart options.
      chromecast    Chromecast options.
-     proxy         Proxy server options.
      keyboard      Keyboard control.
      config        Configuration files.
      examples      Some command-line examples.
