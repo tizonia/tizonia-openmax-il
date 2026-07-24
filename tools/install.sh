@@ -104,11 +104,16 @@ fi
 
 # Add Tizonia's APT archive
 grep -q "dl.bintray.com/tizonia" /etc/apt/sources.list
+if [[ "$?" -eq 0 ]]; then
+    echo "Removing repository 'tizonia' from /etc/apt/sources.list"
+    sudo sed -i '/dl.bintray.com\/tizonia/d' /etc/apt/sources.list
+fi
+grep -q "https://dl.bintray.com/tizonia/" /etc/apt/sources.list.d/tizonia.list
 if [[ "$?" -eq 1 ]]; then
     echo "Setting up Tizonia's Bintray APT archive for $DISTRO:$RELEASE"
     curl -k 'https://bintray.com/user/downloadSubjectPublicKey?username=tizonia' | sudo apt-key add -
     printf "\n" | sudo tee -a /etc/apt/sources.list
-    echo "deb https://dl.bintray.com/tizonia/$DISTRO $RELEASE main" | sudo tee -a /etc/apt/sources.list
+    echo "deb https://dl.bintray.com/tizonia/$DISTRO $RELEASE main" | sudo tee /etc/apt/sources.list.d/tizonia.list
 fi
 
 # Resynchronize APT's package index files
