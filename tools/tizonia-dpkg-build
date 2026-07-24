@@ -116,7 +116,6 @@ declare -ar TIZ_TIZONIA_PYPI_DEPS=( \
     alabaster \
     breathe \
     gmusicapi \
-    soundcloud \
     youtube-dl \
     pafy \
     pycountry \
@@ -146,7 +145,6 @@ declare -ar TIZ_DEBIAN_PKGS=( \
 
 readonly TIZ_PYTHON_PROJECTS=( \
     tizgmusicproxy \
-    tizsoundcloudproxy \
     tizyoutubeproxy \
     tizplexproxy \
     tizchromecastproxy \
@@ -172,8 +170,6 @@ declare -Ar TIZ_PROJECT_DIST_CMD=( \
     [tizilheaders]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizgmusicproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
     [tizgmusic]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
-    [tizsoundcloudproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
-    [tizsoundcloud]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizyoutubeproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
     [tizyoutube]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizplexproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
@@ -227,8 +223,6 @@ declare -Ar TIZ_PROJECT_DH_MAKE_CMD=( \
     [tizilheaders]="$TIZ_PROJECT_DH_MAKE_I_CMD" \
     [tizgmusicproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
     [tizgmusic]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
-    [tizsoundcloudproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
-    [tizsoundcloud]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizyoutubeproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
     [tizyoutube]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizplexproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
@@ -279,8 +273,6 @@ declare -Ar TIZ_PROJECT_MAIN_PKG=( \
     [tizilheaders]="tizilheaders" \
     [tizgmusicproxy]="python3-tizgmusicproxy" \
     [tizgmusic]="libtizgmusic0" \
-    [tizsoundcloudproxy]="python3-tizsoundcloudproxy" \
-    [tizsoundcloud]="libtizsoundcloud0" \
     [tizyoutubeproxy]="python3-tizyoutubeproxy" \
     [tizyoutube]="libtizyoutube0" \
     [tizplexproxy]="python3-tizplexproxy" \

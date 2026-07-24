@@ -849,6 +849,7 @@ OMX_ERRORTYPE graph::util::set_gmusic_playlist (
       &playlisttype);
 }
 
+#ifdef HAVE_SOUNDCLOUD
 OMX_ERRORTYPE
 graph::util::set_scloud_oauth_token (const OMX_HANDLETYPE handle,
                                      const std::string &oauth_token)
@@ -892,6 +893,7 @@ graph::util::set_scloud_playlist (
                                OMX_TizoniaIndexParamAudioSoundCloudPlaylist),
                            &playlisttype);
 }
+#endif
 
 OMX_ERRORTYPE
 graph::util::set_tunein_playlist (

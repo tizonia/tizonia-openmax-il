@@ -14,8 +14,8 @@ OPTIONS
 
 ``-c [ --cast ] arg``
     Cast to a Chromecast device (arg: device name, 'friendly' name or ip
-    address). Available in combination with Google Play Music, SoundCloud,
-    YouTube, TuneIn and regular HTTP radio stations.
+    address). Available in combination with Google Play Music, YouTube, TuneIn
+    and regular HTTP radio stations.
 
 EXAMPLES
 --------

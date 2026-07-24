@@ -745,7 +745,6 @@ WARN_LOGFILE           =
 
 INPUT                  = mainpage.dox
 INPUT                 += ../../clients/gmusic
-INPUT                 += ../../clients/soundcloud
 INPUT                 += ../../clients/youtube
 INPUT                 += ../../clients/tunein
 INPUT                 += ../../libtizcore

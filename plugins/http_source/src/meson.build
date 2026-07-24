@@ -4,8 +4,6 @@ libtizhttpsrc_sources = [
    'httpsrcprc.c',
    'gmusicprc.c',
    'gmusiccfgport.c',
-   'scloudprc.c',
-   'scloudcfgport.c',
    'youtubeprc.c',
    'youtubecfgport.c',
    'plexprc.c',
@@ -16,19 +14,28 @@ libtizhttpsrc_sources = [
    'iheartcfgport.c'
 ]
 
+libtizhttpsrc_deps = [
+   libtizonia_dep,
+   libtizgmusic_dep,
+   libtizyoutube_dep,
+   libtizplex_dep,
+   libtiztunein_dep,
+   libtiziheart_dep
+]
+
+if enable_soundcloud
+   libtizhttpsrc_sources += [
+      'scloudprc.c',
+      'scloudcfgport.c'
+   ]
+   libtizhttpsrc_deps += [libtizsoundcloud_dep]
+endif
+
 libtizhttpsrc = library(
    'tizhttpsrc',
    version: tizversion,
    sources: libtizhttpsrc_sources,
-   dependencies: [
-      libtizonia_dep,
-      libtizgmusic_dep,
-      libtizsoundcloud_dep,
-      libtizyoutube_dep,
-      libtizplex_dep,
-      libtiztunein_dep,
-      libtiziheart_dep
-   ],
+   dependencies: libtizhttpsrc_deps,
    install: true,
    install_dir: tizplugindir
 )

@@ -39,8 +39,6 @@ declare -Ar TIZ_PROJECT_DIRS=( \
     [tizilheaders]="include" \
     [tizgmusicproxy]="clients/gmusic/gmusicproxy" \
     [tizgmusic]="clients/gmusic/libtizgmusic" \
-    [tizsoundcloudproxy]="clients/soundcloud/soundcloudproxy" \
-    [tizsoundcloud]="clients/soundcloud/libtizsoundcloud" \
     [tizyoutubeproxy]="clients/youtube/youtubeproxy" \
     [tizyoutube]="clients/youtube/libtizyoutube" \
     [tizplexproxy]="clients/plex/plexproxy" \
@@ -92,8 +90,6 @@ readonly TIZ_PROJECTS_ORDERED=( \
     tizilheaders \
     tizgmusicproxy \
     tizgmusic \
-    tizsoundcloudproxy \
-    tizsoundcloud \
     tizyoutubeproxy \
     tizyoutube \
     tizplexproxy \

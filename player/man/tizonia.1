@@ -2,7 +2,7 @@
 .
 .TH "TIZONIA" "1" "May 22, 2020" "0.22.0" "Tizonia"
 .SH NAME
-tizonia \- A command-line streaming music client/server for Linux with support for Spotify (Premium), Google Play Music (free and paid tiers), YouTube, SoundCloud, TuneIn Internet Radio, Plex servers and Chromecast devices.
+tizonia \- A command-line streaming music client/server for Linux with support for Spotify (Premium), Google Play Music (free and paid tiers), YouTube, TuneIn Internet Radio, Plex servers and Chromecast devices.
 .
 .nr rst2man-indent-level 0
 .
@@ -97,7 +97,6 @@ There is NO WARRANTY, to the extent permitted by law.
   client        SHOUTcast/ICEcast streaming client options.
   spotify       Spotify options.
   googlemusic   Google Play Music options.
-  soundcloud    SoundCloud options.
   tunein        TuneIn options.
   youtube       YouTube options.
   plex          Plex options.
@@ -301,21 +300,6 @@ mpris\-enabled = false
 # gmusic.buffer_seconds = size of the audio buffer (in seconds) to use while
 #                         downloading streams. Default: 720. Increase in
 #                         case of cuts.
-
-
-# SoundCloud configuration
-# \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
-# To avoid passing this information on the command line, uncomment and
-# configure your SoundCloud OAuth token here.
-#
-# To obtain your OAuth token, Tizonia needs to be granted access to your
-# SoundCloud account. Visit https://tizonia.org/docs/soundcloud/ for the
-# details.
-#
-# soundcloud.oauth_token = X\-XXXXXX\-XXXXXXXX\-XXXXXXXXXXXXXX
-# soundcloud.buffer_seconds = size of the audio buffer (in seconds) to use
-#                             while downloading streams. Default: 600.
-#                             Increase in case of cuts.
 
 
 # Tunein configuration
@@ -576,7 +560,7 @@ under this categoray are listed below.
 .INDENT 0.0
 .TP
 .B \fB\-h [ \-\-help ] [=arg(=help)]\fP
-Print a usage message for a specific help topic (e.g. global, openmax, server, spotify, googlemusic, soundcloud, etc).
+Print a usage message for a specific help topic (e.g. global, openmax, server, spotify, googlemusic, tunein, etc).
 .TP
 .B \fB\-v [ \-\-version ]\fP
 Print the version information.
@@ -591,10 +575,10 @@ Shuffle the playlist.
 Run in the background.
 .TP
 .B \fB\-c [ \-\-cast ] arg\fP
-Cast to a Chromecast device (arg: device name or ip address). Available in combination with Google Play Music, SoundCloud, YouTube, Plex and HTTP radio stations.
+Cast to a Chromecast device (arg: device name or ip address). Available in combination with Google Play Music, YouTube, Plex and HTTP radio stations.
 .TP
 .B \fB\-b [ \-\-buffer\-seconds ] arg\fP
-Size of the buffer (in seconds) to be used while downloading streams. Increase in case of cuts in gmusic, scloud, youtube or plex.
+Size of the buffer (in seconds) to be used while downloading streams. Increase in case of cuts in gmusic, youtube or plex.
 .TP
 .B \fB\-\-proxy\-server arg\fP
 Url to the proxy server that should be used. (not required if provided via config file).
@@ -1027,110 +1011,6 @@ $ tizonia \-\-gmusic\-unlimited\-activity "working out" \-\-gmusic\-additional\-
 .fi
 .UNINDENT
 .UNINDENT
-.SH SOUNDCLOUD
-.sp
-To stream from SoundCloud Tizonia needs to be authorized to access your
-SoundCloud account. For that you need to obtain your \fI\%OAuth\fP token provided by SoundCloud and put it into your
-\fBtizonia.conf\fP file. For more details please read about the \fI\%Connect with
-SoundCloud\fP feature.
-.sp
-Please go to \fI\%Aratelia\(aqs Website\fP  [1]
-to retrieve your SoundCloud OAuth token.
-\fI\%Tizonia \- Connect with SoundCloud\fP.SS CONFIGURATION
-.sp
-The Tizonia configuration file contains a block under the \fB[tizonia]\fP section
-like the one pictured below (see also tizonia\-config\-label).
-.sp
-\fBWARNING:\fP
-.INDENT 0.0
-.INDENT 3.5
-When credentials are stored in your local
-\fBtizonia.conf\fP, please ensure that this file has the correct
-file system permissions to prevent other users from accessing your
-credentials.
-.sp
-E.g.: \fB$ chmod og\-rwx $HOME/.config/tizonia/tizonia.conf\fP
-.UNINDENT
-.UNINDENT
-.INDENT 0.0
-.INDENT 3.5
-.sp
-.nf
-.ft C
-# SoundCloud configuration
-# \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
-# To avoid passing this information on the command line, uncomment and
-# configure your SoundCloud OAuth token here.
-#
-# To obtain your OAuth token, Tizonia needs to be granted access to your
-# SoundCloud account. Visit https://tizonia.org/docs/soundcloud/ for the
-# details.
-#
-# soundcloud.oauth_token = X\-XXXXXX\-XXXXXXXX\-XXXXXXXXXXXXXX
-# soundcloud.buffer_seconds = size of the audio buffer (in seconds) to use
-#                             while downloading streams. Default: 600.
-#                             Increase in case of cuts.
-.ft P
-.fi
-.UNINDENT
-.UNINDENT
-.INDENT 0.0
-.TP
-.B \fBsoundcloud.buffer_seconds\fP
-This is the minimum size of the audio buffer (in seconds) that Tizonia will
-use while downloading the audio streams. It may be increased in case of
-cuts, but usually not required. Default: 600.
-.UNINDENT
-.SS OPTIONS
-.INDENT 0.0
-.TP
-.B \fB\-\-soundcloud\-oauth\-token arg\fP
-SoundCloud user OAuth token (not required if provided via config file).
-.TP
-.B \fB\-\-soundcloud\-user\-stream\fP
-Play the tracks currently listed in the user\(aqs stream.
-.TP
-.B \fB\-\-soundcloud\-user\-likes\fP
-Play the tracks liked by the user.
-.TP
-.B \fB\-\-soundcloud\-user\-playlist arg\fP
-Play a playlist from the user\(aqs collection.
-.TP
-.B \fB\-\-soundcloud\-creator arg\fP
-Search and play the top 50 tracks from a creator.
-.TP
-.B \fB\-\-soundcloud\-tracks arg\fP
-Search and play tracks by title (50 first matches only).
-.TP
-.B \fB\-\-soundcloud\-playlists arg\fP
-Search and play playlists by title.
-.TP
-.B \fB\-\-soundcloud\-genres arg\fP
-Search and play genres top tracks (arg is a command\-separated list).
-.TP
-.B \fB\-\-soundcloud\-tags arg\fP
-Search and play tags top tracks (arg is a command\-separated list).
-.UNINDENT
-.SS EXAMPLES
-.INDENT 0.0
-.INDENT 3.5
-.sp
-.nf
-.ft C
-$ tizonia \-\-soundcloud\-tracks \(aqall right now\(aq
-
-$ tizonia \-\-soundcloud\-creator "twit"
-
-$ tizonia \-\-soundcloud\-genres "piano"
-
-$ tizonia \-\-soundcloud\-playlists "joe satriani by Jimmy Mendoza"
-.ft P
-.fi
-.UNINDENT
-.UNINDENT
-.SH FOOTNOTES
-.IP [1] 5
-Aratelia is Juan A. Rubio\(aqs consultancy and Tizonia\(aqs sponsor.
 .SH YOUTUBE
 .sp
 Streaming from YouTube is possible without credentials. Simply use one of the
@@ -1628,8 +1508,8 @@ Local Media
 .TP
 .B \fB\-c [ \-\-cast ] arg\fP
 Cast to a Chromecast device (arg: device name, \(aqfriendly\(aq name or ip
-address). Available in combination with Google Play Music, SoundCloud,
-YouTube, TuneIn and regular HTTP radio stations.
+address). Available in combination with Google Play Music, YouTube, TuneIn
+and regular HTTP radio stations.
 .UNINDENT
 .SS EXAMPLES
 .INDENT 0.0
@@ -1944,10 +1824,9 @@ This software is part of the Tizonia project <https://tizonia.org>
 
 Component [OMX.Aratelia.audio_renderer.chromecast] : role #0 \-> [audio_renderer.chromecast]
 Component [OMX.Aratelia.audio_renderer.chromecast] : role #1 \-> [audio_renderer.chromecast.gmusic]
-Component [OMX.Aratelia.audio_renderer.chromecast] : role #2 \-> [audio_renderer.chromecast.scloud]
-Component [OMX.Aratelia.audio_renderer.chromecast] : role #3 \-> [audio_renderer.chromecast.tunein]
-Component [OMX.Aratelia.audio_renderer.chromecast] : role #4 \-> [audio_renderer.chromecast.youtube]
-Component [OMX.Aratelia.audio_renderer.chromecast] : role #5 \-> [audio_renderer.chromecast.plex]
+Component [OMX.Aratelia.audio_renderer.chromecast] : role #2 \-> [audio_renderer.chromecast.tunein]
+Component [OMX.Aratelia.audio_renderer.chromecast] : role #3 \-> [audio_renderer.chromecast.youtube]
+Component [OMX.Aratelia.audio_renderer.chromecast] : role #4 \-> [audio_renderer.chromecast.plex]
 
 
 $ tizonia \-\-comps\-of\-role audio_renderer.chromecast.gmusic

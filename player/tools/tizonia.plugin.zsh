@@ -184,46 +184,6 @@ gmusic-activity-unlimited() {
     eval tizonia "$(tiz-grab-env-options)" --gmusic-unlimited-activity=\""$@"\"
 }
 
-# Tizonia's SoundCloud user stream playlist
-soundcloud-stream() {
-    eval tizonia "$(tiz-grab-env-options)" --soundcloud-user-stream
-}
-
-# Tizonia's SoundCloud user likes playlist
-soundcloud-likes() {
-    eval tizonia "$(tiz-grab-env-options)" --soundcloud-user-likes
-}
-
-# Tizonia's SoundCloud creator search
-soundcloud-creator() {
-    tiz-check-empty-params "$@" || return
-    eval tizonia "$(tiz-grab-env-options)" --soundcloud-creator=\""$@"\"
-}
-
-# Tizonia's SoundCloud tracks search
-soundcloud-tracks() {
-    tiz-check-empty-params "$@" || return
-    eval tizonia "$(tiz-grab-env-options)" --soundcloud-tracks=\""$@"\"
-}
-
-# Tizonia's SoundCloud playlist search
-soundcloud-playlists() {
-    tiz-check-empty-params "$@" || return
-    eval tizonia "$(tiz-grab-env-options)" --soundcloud-playlists=\""$@"\"
-}
-
-# Tizonia's SoundCloud creator search
-soundcloud-genres() {
-    tiz-check-empty-params "$@" || return
-    eval tizonia "$(tiz-grab-env-options)" --soundcloud-creator=\""$@"\"
-}
-
-# Tizonia's SoundCloud creator search
-soundcloud-tags() {
-    tiz-check-empty-params "$@" || return
-    eval tizonia "$(tiz-grab-env-options)" --soundcloud-tags=\""$@"\"
-}
-
 # Tizonia's Tunein popular radio station search
 tunein-popular() {
     eval tizonia "$(tiz-grab-env-options)" --tunein-popular-stations

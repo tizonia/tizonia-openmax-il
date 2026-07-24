@@ -57,10 +57,9 @@ EXAMPLES
 
    Component [OMX.Aratelia.audio_renderer.chromecast] : role #0 -> [audio_renderer.chromecast]
    Component [OMX.Aratelia.audio_renderer.chromecast] : role #1 -> [audio_renderer.chromecast.gmusic]
-   Component [OMX.Aratelia.audio_renderer.chromecast] : role #2 -> [audio_renderer.chromecast.scloud]
-   Component [OMX.Aratelia.audio_renderer.chromecast] : role #3 -> [audio_renderer.chromecast.tunein]
-   Component [OMX.Aratelia.audio_renderer.chromecast] : role #4 -> [audio_renderer.chromecast.youtube]
-   Component [OMX.Aratelia.audio_renderer.chromecast] : role #5 -> [audio_renderer.chromecast.plex]
+   Component [OMX.Aratelia.audio_renderer.chromecast] : role #2 -> [audio_renderer.chromecast.tunein]
+   Component [OMX.Aratelia.audio_renderer.chromecast] : role #3 -> [audio_renderer.chromecast.youtube]
+   Component [OMX.Aratelia.audio_renderer.chromecast] : role #4 -> [audio_renderer.chromecast.plex]
 
 
    $ tizonia --comps-of-role audio_renderer.chromecast.gmusic

@@ -8,7 +8,7 @@ typeset -A opt_args
 local rc=1
 
 _arguments -S -s \
-  '--help[Help topics.]:Help topics by area:(global openmax server client spotify googlemusic soundcloud tunein youtube plex chromecast keyboard config examples)' \
+  '--help[Help topics.]:Help topics by area:(global openmax server client spotify googlemusic tunein youtube plex chromecast keyboard config examples)' \
   '(-b)--buffer-seconds[Size of the audio buffer to use while downloading streams.]' \
   '(-c)--cast[Cast to a Chromecast device (arg: device name, fiendly name or ip address).]' \
   '(-d)--daemon[Run in the brackground.]' \
@@ -67,15 +67,6 @@ _arguments -S -s \
   '--gmusic-unlimited-promoted-tracks[Play Google Play Music Unlimited promoted tracks.]' \
   '--gmusic-unlimited-station[Search and play Google Play Music Unlimited stations found in the users library.]' \
   '--gmusic-unlimited-tracks[Search and play Google Play Music Unlimited tracks by name (50 first matches only).]' \
-  '--soundcloud-oauth-token[SoundCloud user OAuth token (not required if provided via config file).]' \
-  '--soundcloud-user-stream[Play the tracks currently listed in the users stream.]' \
-  '--soundcloud-user-likes[Play the tracks liked by the user.]' \
-  '--soundcloud-user-playlist[Play a playlist from the users collection.]' \
-  '--soundcloud-creator[Search and play the top 50 tracks from a creator.]' \
-  '--soundcloud-tracks[Search and play tracks by title (50 first matches only).]' \
-  '--soundcloud-playlists[Search and play playlists by title.]' \
-  '--soundcloud-genres[Search and play genres top tracks (arg is a command-separated list).]' \
-  '--soundcloud-tags[Search and play tags top tracks (arg is a command-separated list).]' \
   '--tunein-search[TuneIn global station/podcast search.]' \
   '--tunein-local[TuneIn 'local' category search.]' \
   '--tunein-music[TuneIn 'music' category search.]' \

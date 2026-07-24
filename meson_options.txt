@@ -2,6 +2,7 @@ option('blocking-etb-ftb', type: 'boolean', value: 'false', description: 'Enable
 option('blocking-sendcommand', type: 'boolean', value: 'false', description: 'Enable fully conformant blocking behaviour of SendCommand API')
 option('player', type: 'boolean', value: 'true', description: 'build the command-line player program (default: enabled)')
 option('libspotify', type: 'boolean', value: 'false', description: 'build the libspotify-based OpenMAX IL plugin (default: disabled)')
+option('soundcloud', type: 'boolean', value: 'false', description: 'build the legacy SoundCloud integration (default: disabled)')
 option('alsa', type: 'boolean', value: 'true', description: 'build the ALSA-based OpenMAX IL plugin (default: yes)')
 option('aac', type: 'boolean', value: 'true', description: 'build the AAC-based OpenMAX IL plugin (default: yes)')
 option('gcc-warnings', type: 'boolean', value: 'false', description: 'turn on lots of GCC warnings (for developers)')

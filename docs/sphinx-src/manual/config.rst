@@ -177,21 +177,6 @@ This is the template that ships with the latest version of Tizonia:
    #                         case of cuts.
 
 
-   # SoundCloud configuration
-   # -------------------------------------------------------------------------
-   # To avoid passing this information on the command line, uncomment and
-   # configure your SoundCloud OAuth token here.
-   #
-   # To obtain your OAuth token, Tizonia needs to be granted access to your
-   # SoundCloud account. Visit https://tizonia.org/docs/soundcloud/ for the
-   # details.
-   #
-   # soundcloud.oauth_token = X-XXXXXX-XXXXXXXX-XXXXXXXXXXXXXX
-   # soundcloud.buffer_seconds = size of the audio buffer (in seconds) to use
-   #                             while downloading streams. Default: 600.
-   #                             Increase in case of cuts.
-
-
    # Tunein configuration
    # -------------------------------------------------------------------------
    # To avoid passing this information on the command line, uncomment and

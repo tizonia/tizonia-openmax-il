@@ -61,7 +61,9 @@ namespace tiz
     class httpservconfig;
     class spotifyconfig;
     class gmusicconfig;
+#ifdef HAVE_SOUNDCLOUD
     class scloudconfig;
+#endif
     class tuneinconfig;
     class youtubeconfig;
     class plexconfig;
@@ -78,7 +80,9 @@ typedef boost::shared_ptr< tiz::graph::config > tizgraphconfig_ptr_t;
 typedef boost::shared_ptr< tiz::graph::httpservconfig > tizhttpservconfig_ptr_t;
 typedef boost::shared_ptr< tiz::graph::spotifyconfig > tizspotifyconfig_ptr_t;
 typedef boost::shared_ptr< tiz::graph::gmusicconfig > tizgmusicconfig_ptr_t;
+#ifdef HAVE_SOUNDCLOUD
 typedef boost::shared_ptr< tiz::graph::scloudconfig > tizscloudconfig_ptr_t;
+#endif
 typedef boost::shared_ptr< tiz::graph::tuneinconfig > tiztuneinconfig_ptr_t;
 typedef boost::shared_ptr< tiz::graph::youtubeconfig > tizyoutubeconfig_ptr_t;
 typedef boost::shared_ptr< tiz::graph::plexconfig > tizplexconfig_ptr_t;

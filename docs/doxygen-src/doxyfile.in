@@ -747,7 +747,6 @@ INPUT                  = @abs_srcdir@/mainpage.dox
 INPUT                 += @abs_top_srcdir@/../clients/chromecast
 INPUT                 += @abs_top_srcdir@/../clients/gmusic
 INPUT                 += @abs_top_srcdir@/../clients/plex
-INPUT                 += @abs_top_srcdir@/../clients/soundcloud
 INPUT                 += @abs_top_srcdir@/../clients/spotify
 INPUT                 += @abs_top_srcdir@/../clients/tunein
 INPUT                 += @abs_top_srcdir@/../clients/youtube

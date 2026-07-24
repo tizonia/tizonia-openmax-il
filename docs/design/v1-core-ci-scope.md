@@ -41,8 +41,8 @@ With those options, the root Meson build still enters the core project areas:
 `3rdparty`, `include`, `libtizplatform`, `rm`, `libtizcore`, `libtizonia`,
 `plugins`, and `config`. Because the plugin option is an empty array, the
 `plugins` directory does not enable any plugin subdirectories. Because
-`clients=false`, Meson also forces `libspotify` off before the build summary is
-computed.
+`clients=false`, Meson also forces the legacy `libspotify` and SoundCloud
+integrations off before the build summary is computed.
 
 ## Deliberate exclusions
 
@@ -64,6 +64,10 @@ temporary CI shortcut.
   dependency and the Spotify plugin/client path should not accidentally shape
   the core CI result. The Meson file also disables libspotify when clients are
   disabled.
+- `-Dsoundcloud=false` is the project default because the historical
+  SoundCloud client depends on obsolete Python and API assumptions. The core CI
+  does not need to repeat the default on its command line, and Meson also
+  disables the integration when clients are disabled.
 - `-Ddocs=false` avoids pulling Sphinx/Doxygen documentation tooling into the
   core compile signal.
 - `-Dtest=false` avoids treating the historical test targets as part of the

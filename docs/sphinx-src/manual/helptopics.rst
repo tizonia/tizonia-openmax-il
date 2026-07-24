@@ -29,7 +29,6 @@ EXAMPLES
      client        SHOUTcast/ICEcast streaming client options.
      spotify       Spotify options.
      googlemusic   Google Play Music options.
-     soundcloud    SoundCloud options.
      tunein        TuneIn options.
      youtube       YouTube options.
      plex          Plex options.
