@@ -318,7 +318,6 @@ tiz::programopts::programopts (int argc, char *argv[])
     omx_ ("OpenMAX IL options"),
     server_ ("Audio streaming server options"),
     client_ ("Audio streaming client options"),
-    spotify_ ("Spotify options (Spotify Premium required)"),
     gmusic_ ("Google Play Music options"),
     scloud_ ("SoundCloud options"),
     tunein_ ("TuneIn options"),
@@ -326,7 +325,6 @@ tiz::programopts::programopts (int argc, char *argv[])
     plex_ ("Plex options"),
     iheart_ ("iheart options"),
     chromecast_ ("Chromecast options"),
-    proxy_ ("Proxy server options"),
     input_ ("Input urioption"),
     positional_ (),
     help_option_ ("help"),
@@ -335,9 +333,6 @@ tiz::programopts::programopts (int argc, char *argv[])
     daemon_ (false),
     chromecast_name_or_ip_ (),
     buffer_seconds_(0),
-    proxy_server_(),
-    proxy_user_(),
-    proxy_password_(),
     log_dir_ (),
     debug_info_ (false),
     comp_name_ (),
@@ -351,35 +346,6 @@ tiz::programopts::programopts (int argc, char *argv[])
     sampling_rates_ (),
     sampling_rate_list_ (),
     uri_list_ (),
-    spotify_user_ (),
-    spotify_pass_ (),
-    spotify_owner_ (),
-    spotify_recover_lost_token_(false),
-    spotify_allow_explicit_tracks_(false),
-    spotify_preferred_bitrate_ (0),
-    spotify_tracks_ (),
-    spotify_artist_ (),
-    spotify_album_ (),
-    spotify_playlist_ (),
-    spotify_track_id_ (),
-    spotify_artist_id_ (),
-    spotify_album_id_ (),
-    spotify_playlist_id_ (),
-    spotify_related_artists_(),
-    spotify_featured_playlist_(),
-    spotify_new_releases_(),
-    spotify_recommendations_by_track_id_(),
-    spotify_recommendations_by_artist_id_(),
-    spotify_recommendations_by_track_(),
-    spotify_recommendations_by_artist_(),
-    spotify_recommendations_by_genre_(),
-    spotify_user_liked_tracks_(),
-    spotify_user_recent_tracks_(),
-    spotify_user_top_tracks_(),
-    spotify_user_top_artists_(),
-    spotify_user_playlist_(),
-    spotify_playlist_container_ (),
-    spotify_playlist_type_(OMX_AUDIO_SpotifyPlaylistTypeUnknown),
     gmusic_user_ (),
     gmusic_pass_ (),
     gmusic_device_id_ (),
@@ -459,7 +425,6 @@ tiz::programopts::programopts (int argc, char *argv[])
     all_omx_options_ (),
     all_streaming_server_options_ (),
     all_streaming_client_options_ (),
-    all_spotify_client_options_ (),
     all_gmusic_client_options_ (),
     all_scloud_client_options_ (),
     all_tunein_client_options_ (),
@@ -474,7 +439,6 @@ tiz::programopts::programopts (int argc, char *argv[])
   init_omx_options ();
   init_streaming_server_options ();
   init_streaming_client_options ();
-  init_spotify_options ();
   init_gmusic_options ();
   init_scloud_options ();
   init_tunein_options ();
@@ -569,11 +533,6 @@ void tiz::programopts::print_usage_help () const
   std::cout << "  "
             << "client        SHOUTcast/ICEcast streaming client options."
             << "\n";
-#ifdef HAVE_LIBSPOTIFY
-  std::cout << "  "
-            << "spotify       Spotify options."
-            << "\n";
-#endif
   std::cout << "  "
             << "googlemusic   Google Play Music options."
             << "\n";
@@ -594,9 +553,6 @@ void tiz::programopts::print_usage_help () const
             << "\n";
   std::cout << "  "
             << "chromecast    Chromecast options."
-            << "\n";
-  std::cout << "  "
-            << "proxy         Proxy server options."
             << "\n";
   std::cout << "  "
             << "keyboard      Keyboard control."
@@ -711,21 +667,6 @@ const std::string &tiz::programopts::chromecast_name_or_ip () const
   return chromecast_name_or_ip_;
 }
 
-const std::string &tiz::programopts::proxy_server () const
-{
-  return proxy_server_;
-}
-
-const std::string &tiz::programopts::proxy_user () const
-{
-  return proxy_user_;
-}
-
-const std::string &tiz::programopts::proxy_password () const
-{
-  return proxy_password_;
-}
-
 const std::string &tiz::programopts::log_dir () const
 {
   return log_dir_;
@@ -789,222 +730,6 @@ const std::vector< int > &tiz::programopts::sampling_rate_list () const
 const std::vector< std::string > &tiz::programopts::uri_list () const
 {
   return uri_list_;
-}
-
-const std::string &tiz::programopts::spotify_user () const
-{
-  return spotify_user_;
-}
-
-const std::string &tiz::programopts::spotify_password () const
-{
-  return spotify_pass_;
-}
-
-const std::string &tiz::programopts::spotify_owner () const
-{
-  return spotify_owner_;
-}
-
-bool tiz::programopts::spotify_recover_lost_token () const
-{
-  return spotify_recover_lost_token_;
-}
-
-bool tiz::programopts::spotify_allow_explicit_tracks () const
-{
-  return spotify_allow_explicit_tracks_;
-}
-
-uint32_t tiz::programopts::spotify_preferred_bitrate () const
-{
-  return spotify_preferred_bitrate_;
-}
-
-const std::vector< std::string >
-    &tiz::programopts::spotify_playlist_container ()
-{
-  spotify_playlist_container_.clear ();
-  if (!spotify_tracks_.empty ())
-  {
-    spotify_playlist_container_.push_back (spotify_tracks_);
-  }
-  else if (!spotify_artist_.empty ())
-  {
-    spotify_playlist_container_.push_back (spotify_artist_);
-  }
-  else if (!spotify_album_.empty ())
-  {
-    spotify_playlist_container_.push_back (spotify_album_);
-  }
-  else if (!spotify_playlist_.empty ())
-  {
-    spotify_playlist_container_.push_back (spotify_playlist_);
-  }
-  else if (!spotify_track_id_.empty ())
-  {
-    spotify_playlist_container_.push_back (spotify_track_id_);
-  }
-  else if (!spotify_artist_id_.empty ())
-  {
-    spotify_playlist_container_.push_back (spotify_artist_id_);
-  }
-  else if (!spotify_album_id_.empty ())
-  {
-    spotify_playlist_container_.push_back (spotify_album_id_);
-  }
-  else if (!spotify_playlist_id_.empty ())
-  {
-    spotify_playlist_container_.push_back (spotify_playlist_id_);
-  }
-  else if (!spotify_related_artists_.empty ())
-  {
-    spotify_playlist_container_.push_back (spotify_related_artists_);
-  }
-  else if (!spotify_featured_playlist_.empty ())
-  {
-    spotify_playlist_container_.push_back (spotify_featured_playlist_);
-  }
-  else if (!spotify_new_releases_.empty ())
-  {
-    spotify_playlist_container_.push_back (spotify_new_releases_);
-  }
-  else if (!spotify_recommendations_by_track_id_.empty ())
-  {
-    spotify_playlist_container_.push_back (spotify_recommendations_by_track_id_);
-  }
-  else if (!spotify_recommendations_by_artist_id_.empty ())
-  {
-    spotify_playlist_container_.push_back (spotify_recommendations_by_artist_id_);
-  }
-  else if (!spotify_recommendations_by_track_.empty ())
-  {
-    spotify_playlist_container_.push_back (spotify_recommendations_by_track_);
-  }
-  else if (!spotify_recommendations_by_artist_.empty ())
-  {
-    spotify_playlist_container_.push_back (spotify_recommendations_by_artist_);
-  }
-  else if (!spotify_recommendations_by_genre_.empty ())
-  {
-    spotify_playlist_container_.push_back (spotify_recommendations_by_genre_);
-  }
-  else if (!spotify_user_liked_tracks_.empty ())
-  {
-    spotify_playlist_container_.push_back (spotify_user_liked_tracks_);
-  }
-  else if (!spotify_user_recent_tracks_.empty ())
-  {
-    spotify_playlist_container_.push_back (spotify_user_recent_tracks_);
-  }
-  else if (!spotify_user_top_tracks_.empty ())
-  {
-    spotify_playlist_container_.push_back (spotify_user_top_tracks_);
-  }
-  else if (!spotify_user_top_artists_.empty ())
-  {
-    spotify_playlist_container_.push_back (spotify_user_top_artists_);
-  }
-  else if (!spotify_user_playlist_.empty ())
-  {
-    spotify_playlist_container_.push_back (spotify_user_playlist_);
-  }
-  else
-  {
-    assert (0);
-  }
-  return spotify_playlist_container_;
-}
-
-OMX_TIZONIA_AUDIO_SPOTIFYPLAYLISTTYPE
-tiz::programopts::spotify_playlist_type ()
-{
-  if (!spotify_tracks_.empty ())
-  {
-    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeTracks;
-  }
-  else if (!spotify_artist_.empty ())
-  {
-    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeArtist;
-  }
-  else if (!spotify_album_.empty ())
-  {
-    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeAlbum;
-  }
-  else if (!spotify_playlist_.empty ())
-  {
-    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypePlaylist;
-  }
-  else if (!spotify_track_id_.empty ())
-  {
-    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeTrackId;
-  }
-  else if (!spotify_artist_id_.empty ())
-  {
-    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeArtistId;
-  }
-  else if (!spotify_album_id_.empty ())
-  {
-    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeAlbumId;
-  }
-  else if (!spotify_playlist_id_.empty ())
-  {
-    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypePlaylistId;
-  }
-  else if (!spotify_related_artists_.empty ())
-  {
-    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeRelatedArtists;
-  }
-  else if (!spotify_featured_playlist_.empty ())
-  {
-    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeFeaturedPlaylist;
-  }
-  else if (!spotify_new_releases_.empty ())
-  {
-    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeNewReleases;
-  }
-  else if (!spotify_recommendations_by_track_id_.empty ())
-  {
-    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeRecommendationsByTrackId;
-  }
-  else if (!spotify_recommendations_by_artist_id_.empty ())
-  {
-    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeRecommendationsByArtistId;
-  }
-  else if (!spotify_recommendations_by_track_.empty ())
-  {
-    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeRecommendationsByTrack;
-  }
-  else if (!spotify_recommendations_by_artist_.empty ())
-  {
-    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeRecommendationsByArtist;
-  }
-  else if (!spotify_recommendations_by_genre_.empty ())
-  {
-    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeRecommendationsByGenre;
-  }
-  else if (!spotify_user_liked_tracks_.empty ())
-  {
-    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeUserLikedTracks;
-  }
-  else if (!spotify_user_recent_tracks_.empty ())
-  {
-    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeUserRecentTracks;
-  }
-  else if (!spotify_user_top_tracks_.empty ())
-  {
-    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeUserTopTracks;
-  }
-  else if (!spotify_user_top_artists_.empty ())
-  {
-    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeUserTopArtists;
-  }
-  else if (!spotify_user_playlist_.empty ())
-  {
-    spotify_playlist_type_ = OMX_AUDIO_SpotifyPlaylistTypeUserPlaylist;
-  }
-
-  return spotify_playlist_type_;
 }
 
 const std::string &tiz::programopts::gmusic_user () const
@@ -1535,7 +1260,7 @@ void tiz::programopts::init_global_options ()
        greedy_implicit_value< std::string > (&help_option_)
            ->implicit_value (std::string ("help")),
        "Print a usage message for a specific help topic (e.g. global, "
-       "openmax, server, spotify, googlemusic, soundcloud, etc).")
+       "openmax, server, googlemusic, soundcloud, etc).")
       /* TIZ_CLASS_COMMENT: */
       ("version,v", "Print the version information.")
       /* TIZ_CLASS_COMMENT: */
@@ -1555,26 +1280,14 @@ void tiz::programopts::init_global_options ()
       /* TIZ_CLASS_COMMENT: */
       ("buffer-seconds,b", po::value (&buffer_seconds_),
        "Size of the buffer (in seconds) to be used while downloading streams. "
-       "Increase in case of cuts in gmusic, scloud, youtube or plex.")
-      /* TIZ_CLASS_COMMENT: */
-      ("proxy-server", po::value (&proxy_server_),
-       "Url to the proxy server that should be used. (not required if provided "
-       "via config file).")
-      /* TIZ_CLASS_COMMENT: */
-      ("proxy-user", po::value (&proxy_user_),
-       "User name to be used during proxy server authentication (not required "
-       "if provided via config file).")
-      /* TIZ_CLASS_COMMENT: */
-      ("proxy-password", po::value (&proxy_password_),
-       "Password to be used during proxy server authentication (not required "
-       "if provided via config file).");
+       "Increase in case of cuts in gmusic, scloud, youtube or plex.");
 
   register_consume_function (&tiz::programopts::consume_global_options);
   // TODO: help and version are not included. These should be moved out of
   // "global" and into its own category: "info"
   all_global_options_
       = boost::assign::list_of ("recurse") ("shuffle") ("daemon") ("cast") (
-            "buffer-seconds") ("proxy-server") ("proxy-user") ("proxy-password")
+            "buffer-seconds")
             .convert_to_container< std::vector< std::string > > ();
 
   // Even though --cast is a global option, we also initialise here a
@@ -1586,26 +1299,6 @@ void tiz::programopts::init_global_options ()
        "Cast to a Chromecast device (arg: device name, 'friendly' name or ip address). "
        "Available in combination with Google Play Music, SoundCloud, "
        "YouTube, Plex and HTTP radio stations.");
-
-  // We also initialise here a 'proxy' option description for the purpose
-  // of displaying it with the --help command.
-  proxy_.add_options ()
-      /* TIZ_CLASS_COMMENT: */
-      ("proxy-server", po::value (&proxy_server_),
-       "Url to the proxy server that should be used (only works with the "
-       "Spotify service at the moment, not required if provided "
-       "via config file). The format is protocol://<host>:port (where protocol "
-       "is http/https/socks4/socks5")
-      /* TIZ_CLASS_COMMENT: */
-      ("proxy-user", po::value (&proxy_user_),
-       "User name to be used during proxy server authentication (only works "
-       "with the Spotify service at the moment, not required "
-       "if provided via config file).")
-      /* TIZ_CLASS_COMMENT: */
-      ("proxy-password", po::value (&proxy_password_),
-       "Password to be used during proxy server authentication (only works with "
-       "the Spotify service at the moment, not required "
-       "if provided via config file).");
 }
 
 void tiz::programopts::init_debug_options ()
@@ -1699,124 +1392,6 @@ void tiz::programopts::init_streaming_client_options ()
   all_streaming_client_options_
       = boost::assign::list_of ("station-id")
             .convert_to_container< std::vector< std::string > > ();
-}
-
-void tiz::programopts::init_spotify_options ()
-{
-#ifdef HAVE_LIBSPOTIFY
-  spotify_.add_options ()
-      /* TIZ_CLASS_COMMENT: */
-      ("spotify-user", po::value (&spotify_user_),
-       "Spotify user name  (not required if provided via config file).")
-      /* TIZ_CLASS_COMMENT: */
-      ("spotify-password", po::value (&spotify_pass_),
-       "Spotify user password  (not required if provided via config file).")
-      /* TIZ_CLASS_COMMENT: */
-      ("spotify-owner", po::value (&spotify_owner_),
-       "The owner of the playlist  (this is optional: use in conjunction with "
-       "--spotify-playlist or --spotify-playlist-id).")
-      /* TIZ_CLASS_COMMENT: */
-      ("spotify-recover-lost-token",
-       po::bool_switch (&spotify_recover_lost_token_)->default_value (false),
-       "Allow Tizonia to recover the play token and keep playing after a "
-       "spurious token loss (default: false).")
-      /* TIZ_CLASS_COMMENT: */
-      ("spotify-allow-explicit-tracks",
-       po::bool_switch (&spotify_allow_explicit_tracks_)->default_value (false),
-       "Allow Tizonia to play explicit tracks from Spotify (default: false).")
-      /* TIZ_CLASS_COMMENT: */
-      ("spotify-preferred-bitrate", po::value (&spotify_preferred_bitrate_),
-       "Preferred Spotify bitrate (kbps) (320, 160 or 96; default: 320).")
-      /* TIZ_CLASS_COMMENT: */
-      ("spotify-tracks", po::value (&spotify_tracks_),
-       "Search and play from Spotify by track name.")
-      /* TIZ_CLASS_COMMENT: */
-      ("spotify-artist", po::value (&spotify_artist_),
-       "Search and play from Spotify by artist name.")
-      /* TIZ_CLASS_COMMENT: */
-      ("spotify-album", po::value (&spotify_album_),
-       "Search and play from Spotify by album name.")
-      /* TIZ_CLASS_COMMENT: */
-      ("spotify-playlist", po::value (&spotify_playlist_),
-       "Search and play public playlists (owner is assumed the current user, "
-       "unless --spotify-owner is provided).")
-      /* TIZ_CLASS_COMMENT: */
-      ("spotify-track-id", po::value (&spotify_track_id_),
-       "Play from Spotify by track ID, URI or URL.")
-      /* TIZ_CLASS_COMMENT: */
-      ("spotify-artist-id", po::value (&spotify_artist_id_),
-       "Play from Spotify by artist ID, URI or URL.")
-      /* TIZ_CLASS_COMMENT: */
-      ("spotify-album-id", po::value (&spotify_album_id_),
-       "Play from Spotify by album ID, URI or URL.")
-      /* TIZ_CLASS_COMMENT: */
-      ("spotify-playlist-id", po::value (&spotify_playlist_id_),
-       "Play public playlists from Spotify by ID, URI or URL "
-       "(owner is assumed the current user, "
-       "unless --spotify-owner is provided).")
-      /* TIZ_CLASS_COMMENT: */
-      ("spotify-related-artists", po::value (&spotify_related_artists_),
-       "Search and play from Spotify the top songs from "
-       "a selection of related artists.")
-      /* TIZ_CLASS_COMMENT: */
-      ("spotify-featured-playlist", po::value (&spotify_featured_playlist_),
-       "Search and play a featured playlist from Spotify.")
-      /* TIZ_CLASS_COMMENT: */
-      ("spotify-new-releases", po::value (&spotify_new_releases_),
-       "Search and play a newly released album from Spotify.")
-      /* TIZ_CLASS_COMMENT: */
-      ("spotify-recommendations-by-track-id",
-       po::value (&spotify_recommendations_by_track_id_),
-       "Play Spotify recommendations by track ID, URI or URL.")
-      /* TIZ_CLASS_COMMENT: */
-      ("spotify-recommendations-by-artist-id",
-       po::value (&spotify_recommendations_by_artist_id_),
-       "Play Spotify recommendations by artist ID, URI or URL.")
-      /* TIZ_CLASS_COMMENT: */
-      ("spotify-recommendations-by-track",
-       po::value (&spotify_recommendations_by_track_),
-       "Play Spotify recommendations by track name.")
-      /* TIZ_CLASS_COMMENT: */
-      ("spotify-recommendations-by-artist",
-       po::value (&spotify_recommendations_by_artist_),
-       "Play Spotify recommendations by artist name.")
-      /* TIZ_CLASS_COMMENT: */
-      ("spotify-recommendations-by-genre",
-       po::value (&spotify_recommendations_by_genre_),
-       "Play Spotify recommendations by genre name.")
-      /* TIZ_CLASS_COMMENT: */
-      ("spotify-user-liked-tracks", "Play the user's liked tracks.")
-      /* TIZ_CLASS_COMMENT: */
-      ("spotify-user-recent-tracks",
-       "Play the user's most recently played tracks.")
-      /* TIZ_CLASS_COMMENT: */
-      ("spotify-user-top-tracks", "Play the user's top tracks.")
-      /* TIZ_CLASS_COMMENT: */
-      ("spotify-user-top-artists",
-       "Play top tracks from the user's top artists.")
-      /* TIZ_CLASS_COMMENT: */
-      ("spotify-user-playlist", po::value (&spotify_user_playlist_),
-       "Play a playlist from the users private library, including Daily Mixes "
-       "and Discover Weekly.");
-
-  register_consume_function (&tiz::programopts::consume_spotify_client_options);
-  all_spotify_client_options_
-      = boost::assign::list_of ("spotify-user") ("spotify-password") (
-            "spotify-owner") ("spotify-recover-lost-token") (
-            "spotify-allow-explicit-tracks") ("spotify-preferred-bitrate") (
-            "spotify-tracks") ("spotify-artist") ("spotify-album") (
-            "spotify-playlist") ("spotify-track-id") ("spotify-artist-id") (
-            "spotify-album-id") ("spotify-playlist-id") (
-            "spotify-related-artists") ("spotify-featured-playlist") (
-            "spotify-new-releases") ("spotify-recommendations-by-track-id") (
-            "spotify-recommendations-by-artist-id") (
-            "spotify-recommendations-by-track") (
-            "spotify-recommendations-by-artist") (
-            "spotify-recommendations-by-genre") ("spotify-user-liked-tracks") (
-            "spotify-user-recent-tracks") ("spotify-user-top-tracks") (
-            "spotify-user-top-artists") ("spotify-user-playlist")
-            .convert_to_container< std::vector< std::string > > ();
-#endif
 }
 
 void tiz::programopts::init_gmusic_options ()
@@ -2113,9 +1688,6 @@ uint32_t tiz::programopts::parse_command_line (int argc, char *argv[])
       .add (omx_)
       .add (server_)
       .add (client_)
-#ifdef HAVE_LIBSPOTIFY
-      .add (spotify_)
-#endif
       .add (gmusic_)
       .add (scloud_)
       .add (tunein_)
@@ -2193,12 +1765,6 @@ int tiz::programopts::consume_global_options (bool &done,
     {
       print_usage_feature (client_);
     }
-#ifdef HAVE_LIBSPOTIFY
-    else if (0 == help_option_.compare ("spotify"))
-    {
-      print_usage_feature (spotify_);
-    }
-#endif
     else if (0 == help_option_.compare ("googlemusic"))
     {
       print_usage_feature (gmusic_);
@@ -2226,10 +1792,6 @@ int tiz::programopts::consume_global_options (bool &done,
     else if (0 == help_option_.compare ("chromecast"))
     {
       print_usage_feature (chromecast_);
-    }
-    else if (0 == help_option_.compare ("proxy"))
-    {
-      print_usage_feature (proxy_);
     }
     else if (0 == help_option_.compare ("keyboard"))
     {
@@ -2259,20 +1821,6 @@ int tiz::programopts::consume_global_options (bool &done,
     print_version ();
     done = true;
     rc = EXIT_SUCCESS;
-  }
-
-  if (proxy_server_.empty ())
-  {
-    retrieve_string_from_rc_file ("tizonia", "proxy.server", proxy_server_);
-  }
-  if (proxy_user_.empty ())
-  {
-    retrieve_string_from_rc_file ("tizonia", "proxy.user_name", proxy_user_);
-  }
-  if (proxy_password_.empty ())
-  {
-    retrieve_string_from_rc_file ("tizonia", "proxy.user_password",
-                                  proxy_password_);
   }
 
   TIZ_PRINTF_DBG_RED ("global-opts ; rc = [%s]\n",
@@ -2362,166 +1910,6 @@ int tiz::programopts::consume_streaming_client_options (bool &done,
     }
   }
   TIZ_PRINTF_DBG_RED ("streaming-client ; rc = [%s]\n",
-                      rc == EXIT_SUCCESS ? "SUCCESS" : "FAILURE");
-  return rc;
-}
-
-int tiz::programopts::consume_spotify_client_options (bool &done,
-                                                      std::string &msg)
-{
-  int rc = EXIT_FAILURE;
-  done = false;
-
-  if (validate_spotify_client_options ())
-  {
-    done = true;
-
-    const int playlist_option_count
-        = vm_.count ("spotify-tracks") + vm_.count ("spotify-artist")
-          + vm_.count ("spotify-album") + vm_.count ("spotify-playlist")
-          + vm_.count ("spotify-track-id") + vm_.count ("spotify-artist-id")
-          + vm_.count ("spotify-album-id") + vm_.count ("spotify-playlist-id")
-          + vm_.count ("spotify-related-artists")
-          + vm_.count ("spotify-featured-playlist")
-          + vm_.count ("spotify-new-releases")
-          + vm_.count ("spotify-recommendations-by-track-id")
-          + vm_.count ("spotify-recommendations-by-artist-id")
-          + vm_.count ("spotify-recommendations-by-track")
-          + vm_.count ("spotify-recommendations-by-artist")
-          + vm_.count ("spotify-recommendations-by-genre")
-          + vm_.count ("spotify-user-liked-tracks")
-          + vm_.count ("spotify-user-recent-tracks")
-          + vm_.count ("spotify-user-top-tracks")
-          + vm_.count ("spotify-user-top-artists")
-          + vm_.count ("spotify-user-playlist");
-
-    if (spotify_user_.empty ())
-    {
-      retrieve_string_from_rc_file ("tizonia", "spotify.user", spotify_user_);
-    }
-    if (spotify_pass_.empty ())
-    {
-      retrieve_string_from_rc_file ("tizonia", "spotify.password",
-                                    spotify_pass_);
-    }
-    if (spotify_owner_.empty ())
-    {
-      spotify_owner_ = spotify_user_;
-    }
-
-    // This is to find out if the spotify-recover-lost-token flag has  been
-    // provided on the command line, and the retrieve from the config file.
-    // See https://stackoverflow.com/questions/32150230/boost-program-options-bool-always-true
-    bool recover_token_option_provided
-        = (std::find (all_given_options_.begin (), all_given_options_.end (),
-                      std::string ("spotify-recover-lost-token"))
-           != all_given_options_.end ());
-    if (!recover_token_option_provided)
-    {
-      if (!retrieve_bool_from_rc_file_if_found ("tizonia", "spotify.recover_lost_token",
-                                                spotify_recover_lost_token_))
-        {
-          // Just make sure we always default this to false when the flag is
-          // not configured in tizonia.conf.
-          spotify_recover_lost_token_ = false;
-        }
-    }
-
-    // This is to find out if the spotify-allow-explicit-tracks flag has  been
-    // provided on the command line, and then retrieve from the config file.
-    // See https://stackoverflow.com/questions/32150230/boost-program-options-bool-always-true
-    bool allow_explicit_tracks_provided
-        = (std::find (all_given_options_.begin (), all_given_options_.end (),
-                      std::string ("spotify-allow-explicit-tracks"))
-           != all_given_options_.end ());
-    if (!allow_explicit_tracks_provided)
-    {
-      if (!retrieve_bool_from_rc_file_if_found ("tizonia", "spotify.allow_explicit_tracks",
-                                                spotify_allow_explicit_tracks_))
-        {
-          // Just make sure we always default this to false when the flag is
-          // not configured in tizonia.conf.
-          spotify_allow_explicit_tracks_ = false;
-        }
-    }
-
-    if (!spotify_preferred_bitrate_)
-    {
-      retrieve_tizonia_uint_from_rc_file ("spotify.preferred_bitrate",
-                                          spotify_preferred_bitrate_);
-    }
-
-    if (vm_.count ("spotify-user-liked-tracks"))
-    {
-      spotify_user_liked_tracks_.assign ("liked tracks");
-    }
-    else if (vm_.count ("spotify-user-recent-tracks"))
-    {
-      spotify_user_recent_tracks_.assign ("recent tracks");
-    }
-    else if (vm_.count ("spotify-user-top-tracks"))
-    {
-      spotify_user_top_tracks_.assign ("top tracks");
-    }
-    else if (vm_.count ("spotify-user-top-artists"))
-    {
-      spotify_user_top_artists_.assign ("top artists");
-    }
-
-    if (spotify_user_.empty ())
-    {
-      rc = EXIT_FAILURE;
-      std::ostringstream oss;
-      oss << "Need to provide a Spotify user name.";
-      msg.assign (oss.str ());
-    }
-    else if (playlist_option_count > 1)
-    {
-      rc = EXIT_FAILURE;
-      std::ostringstream oss;
-      oss << "Only one playlist type must be specified.";
-      msg.assign (oss.str ());
-    }
-    else if (!playlist_option_count)
-    {
-      rc = EXIT_FAILURE;
-      std::ostringstream oss;
-      oss << "A playlist must be specified.";
-      msg.assign (oss.str ());
-    }
-    else if (OMX_AUDIO_SpotifyPlaylistTypePlaylist != spotify_playlist_type ()
-             && OMX_AUDIO_SpotifyPlaylistTypePlaylistId != spotify_playlist_type ()
-             && vm_.count ("spotify-owner"))
-    {
-      rc = EXIT_FAILURE;
-      std::ostringstream oss;
-      oss << "The --spotify-owner option can only be used in conjunction with\n"
-          << " --spotify-playlist and --spotify-playlist-id";
-      msg.assign (oss.str ());
-    }
-    else if (OMX_AUDIO_SpotifyPlaylistTypeUnknown == spotify_playlist_type ())
-    {
-      rc = EXIT_FAILURE;
-      std::ostringstream oss;
-      oss << "A playlist value must be specified.";
-      msg.assign (oss.str ());
-    }
-    else
-    {
-      if (chromecast_name_or_ip_.empty ())
-      {
-        rc = call_handler (option_handlers_map_.find ("spotify-stream"));
-      }
-      else
-      {
-        rc = EXIT_FAILURE;
-        std::ostringstream oss;
-        oss << "The --cast option is currently not available with Spotify.";
-        msg.assign (oss.str ());
-      }
-    }
-  }
-  TIZ_PRINTF_DBG_RED ("spotify ; rc = [%s]\n",
                       rc == EXIT_SUCCESS ? "SUCCESS" : "FAILURE");
   return rc;
 }
@@ -3181,43 +2569,6 @@ bool tiz::programopts::validate_streaming_server_options () const
   concat_option_lists (all_valid_options, all_input_uri_options_);
 
   if (vm_.count ("server")
-      && is_valid_options_combination (all_valid_options, all_given_options_))
-  {
-    outcome = true;
-  }
-  return outcome;
-}
-
-bool tiz::programopts::validate_spotify_client_options () const
-{
-  bool outcome = false;
-  uint32_t spotify_opts_count
-      = vm_.count ("spotify-user") + vm_.count ("spotify-password")
-        + vm_.count ("spotify-owner") + vm_.count ("spotify-recover-lost-token")
-        + vm_.count ("spotify-allow-explicit-tracks")
-        + vm_.count ("spotify-tracks") + vm_.count ("spotify-artist")
-        + vm_.count ("spotify-album") + vm_.count ("spotify-playlist")
-        + vm_.count ("spotify-track-id") + vm_.count ("spotify-artist-id")
-        + vm_.count ("spotify-album-id") + vm_.count ("spotify-playlist-id")
-        + vm_.count ("spotify-related-artists")
-        + vm_.count ("spotify-featured-playlist")
-        + vm_.count ("spotify-new-releases")
-        + vm_.count ("spotify-recommendations-by-track-id")
-        + vm_.count ("spotify-recommendations-by-artist-id")
-        + vm_.count ("spotify-recommendations-by-track")
-        + vm_.count ("spotify-recommendations-by-artist")
-        + vm_.count ("spotify-recommendations-by-genre")
-        + vm_.count ("spotify-user-liked-tracks")
-        + vm_.count ("spotify-user-recent-tracks")
-        + vm_.count ("spotify-user-top-tracks")
-        + vm_.count ("spotify-user-top-artists")
-        + vm_.count ("spotify-user-playlist") + vm_.count ("log-directory");
-
-  std::vector< std::string > all_valid_options = all_spotify_client_options_;
-  concat_option_lists (all_valid_options, all_global_options_);
-  concat_option_lists (all_valid_options, all_debug_options_);
-
-  if (spotify_opts_count > 0
       && is_valid_options_combination (all_valid_options, all_given_options_))
   {
     outcome = true;

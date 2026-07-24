@@ -59,7 +59,6 @@ namespace tiz
     class graph;
     class config;
     class httpservconfig;
-    class spotifyconfig;
     class gmusicconfig;
     class scloudconfig;
     class tuneinconfig;
@@ -76,7 +75,6 @@ typedef boost::shared_ptr< tiz::graph::graph > tizgraph_ptr_t;
 typedef std::map< std::string, tizgraph_ptr_t > tizgraph_ptr_map_t;
 typedef boost::shared_ptr< tiz::graph::config > tizgraphconfig_ptr_t;
 typedef boost::shared_ptr< tiz::graph::httpservconfig > tizhttpservconfig_ptr_t;
-typedef boost::shared_ptr< tiz::graph::spotifyconfig > tizspotifyconfig_ptr_t;
 typedef boost::shared_ptr< tiz::graph::gmusicconfig > tizgmusicconfig_ptr_t;
 typedef boost::shared_ptr< tiz::graph::scloudconfig > tizscloudconfig_ptr_t;
 typedef boost::shared_ptr< tiz::graph::tuneinconfig > tiztuneinconfig_ptr_t;

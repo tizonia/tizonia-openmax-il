@@ -2,7 +2,7 @@
 .
 .TH "TIZONIA" "1" "May 22, 2020" "0.22.0" "Tizonia"
 .SH NAME
-tizonia \- A command-line streaming music client/server for Linux with support for Spotify (Premium), Google Play Music (free and paid tiers), YouTube, SoundCloud, TuneIn Internet Radio, Plex servers and Chromecast devices.
+tizonia \- A command-line streaming music client/server for Linux with support for Google Play Music, YouTube, SoundCloud, TuneIn Internet Radio, Plex servers and Chromecast devices.
 .
 .nr rst2man-indent-level 0
 .
@@ -58,7 +58,7 @@ progress bar.
 .TP
 \fBReduced \(aqmuscle\-memory\(aq\fP
 Finding the music that you want and listening to it should require a single
-command\-line option on the terminal. E.g.: \fBtizonia \-\-spotify\-album Islands\fP\&.
+command\-line option on the terminal. E.g.: \fBtizonia \-\-tunein\-search jazz\fP\&.
 Bash and Zsh completions are available. There is also a
 \fI\%Oh\-my\-zsh\fP plugin available 
 .nf
@@ -95,7 +95,6 @@ There is NO WARRANTY, to the extent permitted by law.
   openmax       Various OpenMAX IL query options.
   server        SHOUTcast/ICEcast streaming server options.
   client        SHOUTcast/ICEcast streaming client options.
-  spotify       Spotify options.
   googlemusic   Google Play Music options.
   soundcloud    SoundCloud options.
   tunein        TuneIn options.
@@ -103,7 +102,6 @@ There is NO WARRANTY, to the extent permitted by law.
   plex          Plex options.
   iheart        Iheart options.
   chromecast    Chromecast options.
-  proxy         Proxy server options.
   keyboard      Keyboard control.
   config        Configuration files.
   examples      Some command\-line examples.
@@ -262,31 +260,6 @@ default\-audio\-renderer = OMX.Aratelia.audio_renderer.pulseaudio.pcm
 # Valid values are: true | false
 #
 mpris\-enabled = false
-
-
-# HTTP proxy server configuration
-# \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
-# NOTE: Proxy configuration is currently only available with the Spotify
-# service. It will be ignored with other music services.
-#
-# proxy.server = Url to the proxy server that should be used.
-#                The format is protocol://<host>:port (where protocol
-#                is http/https/socks4/socks5). E.g.: http:some.proxy.net:1234
-# proxy.user_name = Username to authenticate with proxy server
-# proxy.user_password = Password to authenticate with proxy server
-
-
-# Spotify configuration
-# \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
-# To avoid passing this information on the command line, uncomment
-# and configure accordingly
-#
-# spotify.user     = user
-# spotify.password = pass
-# spotify.recover_lost_token = false (set to true to continue playback after
-#                                     the token has been [spuriously?] lost)
-# spotify.allow_explicit_tracks = false (set to true to allow explicit tracks)
-# spotify.preferred_bitrate = Three possible values: 96, 160, or 320 ; default: 320
 
 
 # Google Play Music configuration
@@ -576,7 +549,7 @@ under this categoray are listed below.
 .INDENT 0.0
 .TP
 .B \fB\-h [ \-\-help ] [=arg(=help)]\fP
-Print a usage message for a specific help topic (e.g. global, openmax, server, spotify, googlemusic, soundcloud, etc).
+Print a usage message for a specific help topic (e.g. global, openmax, server, googlemusic, soundcloud, etc).
 .TP
 .B \fB\-v [ \-\-version ]\fP
 Print the version information.
@@ -595,254 +568,6 @@ Cast to a Chromecast device (arg: device name or ip address). Available in combi
 .TP
 .B \fB\-b [ \-\-buffer\-seconds ] arg\fP
 Size of the buffer (in seconds) to be used while downloading streams. Increase in case of cuts in gmusic, scloud, youtube or plex.
-.TP
-.B \fB\-\-proxy\-server arg\fP
-Url to the proxy server that should be used. (not required if provided via config file).
-.TP
-.B \fB\-\-proxy\-user arg\fP
-User name to be used during proxy server authentication (not required if provided via config file).
-.TP
-.B \fB\-\-proxy\-password arg\fP
-Password to be used during proxy server authentication (not required if provided via config file).
-.UNINDENT
-.SH SPOTIFY
-.sp
-A Spotify Premium account is required to stream audio from Spotify. Tizonia
-will not work with a Spotify Free account. Please introduce your Premium
-account\(aqs user name and password into \fBtizonia.conf\fP, or alternatively, use
-the corresponding command\-line options available.
-.SS CONFIGURATION
-.sp
-The Tizonia configuration file contains a block under the \fB[tizonia]\fP section
-like the one pictured below (see also tizonia\-config\-label).
-.sp
-\fBWARNING:\fP
-.INDENT 0.0
-.INDENT 3.5
-When user names and passwords are stored in your local
-\fBtizonia.conf\fP, please ensure that this file has the correct
-file system permissions to prevent other users from accessing your
-credentials.
-.sp
-E.g.: \fB$ chmod og\-rwx $HOME/.config/tizonia/tizonia.conf\fP
-.UNINDENT
-.UNINDENT
-.INDENT 0.0
-.INDENT 3.5
-.sp
-.nf
-.ft C
-
-.ft P
-.fi
-.UNINDENT
-.UNINDENT
-.INDENT 0.0
-.TP
-.B # Spotify configuration
-# \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
-# To avoid passing this information on the command line, uncomment
-# and configure accordingly
-#
-# spotify.user     = user
-# spotify.password = pass
-# spotify.recover_lost_token = false (set to true to continue playback after
-#                                     the token has been [spuriously?] lost)
-# spotify.allow_explicit_tracks = false (set to true to allow explicit tracks)
-# spotify.preferred_bitrate = Three possible values: 96, 160, or 320 ; default: 320
-.TP
-.B \fBspotify.user\fP
-The username of the Spotify Premium account. For older accounts, the
-username may be related to account email address (i.e. the email address
-without the @domain part). For newer accounts, the username is a random
-string of around 25 characters allocated by Spotify. This information is
-found in the \fBAccount overview\fP section on the Spotify website.
-\fI\%https://www.spotify.com/us/account/overview\fP .
-.UNINDENT
-.sp
-\fBNOTE:\fP
-.INDENT 0.0
-.INDENT 3.5
-If you created your account through Facebook you will need to create
-a \(aqdevice password\(aq to stream from Spotify using Tizonia. Note that
-the device password option is only available for Facebook\-created
-accounts. Please read the Spotify documentation at
-\fI\%http://www.spotify.com/account/set\-device\-password/\fP\&.
-.UNINDENT
-.UNINDENT
-.sp
-\fBNOTE:\fP
-.INDENT 0.0
-.INDENT 3.5
-User names with a \(aq+\(aq character will not work. There is a bug (\fI#599
-<https://github.com/tizonia/tizonia\-openmax\-il/issues/599>_\fP) in Tizonia
-that prevents the use of \(aq+\(aq characters in the user name field.
-.UNINDENT
-.UNINDENT
-.INDENT 0.0
-.TP
-.B \fBspotify.password\fP
-Password of the Premium account. If you created your account through
-Facebook you will need to create a \(aqdevice password\(aq (see note above).
-.UNINDENT
-.sp
-\fBNOTE:\fP
-.INDENT 0.0
-.INDENT 3.5
-Please do not allow \(aq#\(aq or \(aq$\(aq in the password. There is a bug (\fI#571
-<https://github.com/tizonia/tizonia\-openmax\-il/issues/599>_\fP) in Tizonia
-that prevents this character in the password field.
-.UNINDENT
-.UNINDENT
-.INDENT 0.0
-.TP
-.B \fBspotify.recover_lost_token\fP
-Set to \fBtrue\fP to allow Tizonia to resume playback and recover the token
-automatically when the playback token is lost. This can occur if for example,
-another device starts streaming using your account (e.g. listening to Spotify
-on an Echo device while Tizonia is already streaming on your
-computer). Optional (Default: false).
-.TP
-.B \fBspotify.allow_explicit_tracks\fP
-Set to \fBtrue\fP to allow explicit tracks in Tizonia\(aqs play queue. Otherwise,
-explicit tracks are removed from the queue before playback. Optional
-(Default: false).
-.TP
-.B \fBspotify.preferred_bitrate\fP
-Select the preferred bitrate while streaming from Spotify. Three possible
-values: 96, 160, or 320. Optional (Default: 320).
-.UNINDENT
-.SS OPTIONS
-.INDENT 0.0
-.TP
-.B \fB\-\-spotify\-user arg\fP
-Spotify user name  (not required if provided via config file).
-.TP
-.B \fB\-\-spotify\-password arg\fP
-Spotify user password  (not required if provided via config file).
-.TP
-.B \fB\-\-spotify\-owner arg\fP
-The owner of the playlist  (this is optional: use in conjunction with \-\-spotify\-playlist or \-\-spotify\-playlist\-id).
-.TP
-.B \fB\-\-spotify\-recover\-lost\-token\fP
-Allow Tizonia to recover the play token and keep playing after a spurious token loss (default: false).
-.TP
-.B \fB\-\-spotify\-allow\-explicit\-tracks\fP
-Allow Tizonia to play explicit tracks from Spotify (default: false).
-.TP
-.B \fB\-\-spotify\-preferred\-bitrate arg\fP
-Preferred Spotify bitrate (kbps) (320, 160 or 96; default: 320).
-.TP
-.B \fB\-\-spotify\-tracks arg\fP
-Search and play from Spotify by track name.
-.TP
-.B \fB\-\-spotify\-artist arg\fP
-Search and play from Spotify by artist name.
-.TP
-.B \fB\-\-spotify\-album arg\fP
-Search and play from Spotify by album name.
-.TP
-.B \fB\-\-spotify\-playlist arg\fP
-Search and play public playlists (owner is assumed the current user, unless \-\-spotify\-owner is provided).
-.TP
-.B \fB\-\-spotify\-track\-id arg\fP
-Play from Spotify by track ID, URI or URL.
-.TP
-.B \fB\-\-spotify\-artist\-id arg\fP
-Play from Spotify by artist ID, URI or URL.
-.TP
-.B \fB\-\-spotify\-album\-id arg\fP
-Play from Spotify by album ID, URI or URL.
-.TP
-.B \fB\-\-spotify\-playlist\-id arg\fP
-Play public playlists from Spotify by ID, URI or URL (owner is assumed the current user, unless \-\-spotify\-owner is provided).
-.TP
-.B \fB\-\-spotify\-related\-artists arg\fP
-Search and play from Spotify the top songs from a selection of related artists.
-.TP
-.B \fB\-\-spotify\-featured\-playlist arg\fP
-Search and play a featured playlist from Spotify.
-.TP
-.B \fB\-\-spotify\-new\-releases arg\fP
-Search and play a newly released album from Spotify.
-.TP
-.B \fB\-\-spotify\-recommendations\-by\-track\-id arg\fP
-Play Spotify recommendations by track ID, URI or URL
-.TP
-.B \fB\-\-spotify\-recommendations\-by\-artist\-id arg\fP
-Play Spotify recommendations by artist ID, URI or URL.
-.TP
-.B \fB\-\-spotify\-recommendations\-by\-track arg\fP
-Play Spotify recommendations by track name.
-.TP
-.B \fB\-\-spotify\-recommendations\-by\-artist arg\fP
-Play Spotify recommendations by artist name.
-.TP
-.B \fB\-\-spotify\-recommendations\-by\-genre arg\fP
-Play Spotify recommendations by genre name.
-.TP
-.B \fB\-\-spotify\-user\-liked\-tracks\fP
-Play the user\(aqs liked tracks.
-.TP
-.B \fB\-\-spotify\-user\-recent\-tracks\fP
-Play the user\(aqs most recent tracks.
-.TP
-.B \fB\-\-spotify\-user\-top\-tracks\fP
-Play the user\(aqs top tracks.
-.TP
-.B \fB\-\-spotify\-user\-top\-artists\fP
-Play tracks from the user\(aqs top artists.
-.TP
-.B \fB\-\-spotify\-user\-playlist arg\fP
-Play tracks from the user\(aqs playlist (including private playlists,
-Daily Mixes and Discover Weekly).
-.sp
-Note that Daily Mixes and Discover Weekly playlists need to be \(aqliked\(aq
-beforehand in order to be found by a search performed on the user
-library.
-.UNINDENT
-.SS EXAMPLES
-.INDENT 0.0
-.INDENT 3.5
-.sp
-.nf
-.ft C
-$ tizonia \-\-spotify\-artist \(aqenya\(aq
-
-$ tizonia \-\-spotify\-album \(aqthe greatest showman\(aq
-
-# Search and play a *public* playlist owned by the current user
-$ tizonia \-\-spotify\-playlist \(aqSummer 2019\(aq
-
-# Search and play a *public* playlist owned by the specified user
-$ tizonia \-\-spotify\-playlist \(aqSummer 2019\(aq \-\-spotify\-owner \(aqbqmtzm68dmdyk2uyvrwma69y2\(aq
-
-# Globally search and play a *public* playlist on Spotify (Tizonia will play
-# the best match in the list returned by the Spotify service)
-$ tizonia \-\-spotify\-playlist \(aqbest metal 2000s\(aq \-\-spotify\-owner \(aqanyuser\(aq
-
-# Play recommended tracks by seeding the search with a specific track and artist
-$ tizonia \-\-spotify\-recommendations\-by\-track \(aqWord up by cameo\(aq
-$ tizonia \-\-spotify\-recommendations\-by\-track \(aqWord up by Gun\(aq
-$ tizonia \-\-spotify\-recommendations\-by\-track \(aqWord up by Korn\(aq
-
-# Play recommended tracks by seeding the search with a specific artist
-$ tizonia \-\-spotify\-recommendations\-by\-artist \(aqqueen\(aq
-
-# Play recommended tracks by seeding the search with a specific Spotify track id/uri/url
-$ tizonia \-\-spotify\-recommendations\-by\-track\-id 3MrRksHupTVEQ7YbA0FsZK
-$ tizonia \-\-spotify\-recommendations\-by\-track\-id \(aqspotify:track:3MrRksHupTVEQ7YbA0FsZK\(aq
-$ tizonia \-\-spotify\-recommendations\-by\-track\-id \(aqhttps://open.spotify.com/track/3MrRksHupTVEQ7YbA0FsZK\(aq
-
-# Play the user\(aqs Discover Weekly and Daily Mixes in the user\(aqs
-# library. Note that these playlists must have been \(aqliked\(aq beforehand
-# on Spotify
-$ tizonia \-\-spotify\-user\-playlist "Discover Weekly"
-$ tizonia \-\-spotify\-user\-playlist "Daily Mix 1"
-$ tizonia \-\-spotify\-user\-playlist "Daily Mix 4"
-.ft P
-.fi
-.UNINDENT
 .UNINDENT
 .SH GOOGLE PLAY MUSIC
 .sp
@@ -1617,9 +1342,7 @@ services. A number of services for which casting is not yet supported
 are:
 .INDENT 0.0
 .IP \(bu 2
-Spotify (see [1])
-.IP \(bu 2
-Plex (see [2])
+Plex (see [1])
 .IP \(bu 2
 Local Media
 .UNINDENT
@@ -1651,8 +1374,6 @@ $ tizonia \-\-gmusic\-artist "dire straits" \-\-cast "kitchen"
 .UNINDENT
 .SH FOOTNOTES
 .IP [1] 5
-There are plans to add casting of Spotify streams: \fI\%https://github.com/tizonia/tizonia\-openmax\-il/issues/461\fP\&.
-.IP [2] 5
 There are plans to add casting of Plex streams: \fI\%https://github.com/tizonia/tizonia\-openmax\-il/issues/462\fP\&.
 .SH COLOR THEMES
 .sp
@@ -1931,12 +1652,11 @@ Component at index [15] \-> [OMX.Aratelia.tizonia.test_component]
 Component at index [16] \-> [OMX.Aratelia.container_muxer.ogg]
 Component at index [17] \-> [OMX.Aratelia.video_decoder.vp8]
 Component at index [18] \-> [OMX.Aratelia.audio_decoder.pcm]
-Component at index [19] \-> [OMX.Aratelia.audio_source.spotify.pcm]
-Component at index [20] \-> [OMX.Aratelia.ilcore.test_component]
-Component at index [21] \-> [OMX.Aratelia.audio_decoder.opusfile.opus]
-Component at index [22] \-> [OMX.Aratelia.audio_decoder.vorbis]
-Component at index [23] \-> [OMX.Aratelia.audio_source.http]
-Component at index [24] \-> [OMX.Aratelia.audio_decoder.flac]
+Component at index [19] \-> [OMX.Aratelia.ilcore.test_component]
+Component at index [20] \-> [OMX.Aratelia.audio_decoder.opusfile.opus]
+Component at index [21] \-> [OMX.Aratelia.audio_decoder.vorbis]
+Component at index [22] \-> [OMX.Aratelia.audio_source.http]
+Component at index [23] \-> [OMX.Aratelia.audio_decoder.flac]
 
 
 $ tizonia \-\-roles\-of\-comp OMX.Aratelia.audio_renderer.chromecast

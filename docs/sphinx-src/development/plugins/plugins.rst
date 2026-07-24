@@ -20,7 +20,6 @@ OpenMAX IL Plugins
    libtizpcmdec
    libtizalsapcmrnd
    libtizpulsepcmrnd
-   libtizspotifysrc
    libtizvorbisdec
    libtizvp8dec
    libtizsdlivrnd

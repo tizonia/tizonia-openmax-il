@@ -30,8 +30,8 @@ the recommended way. This script lives under the `tools` directory and internall
 maintains an up-to-date list of all the packages that are required in a
 Debian-compatible system to build Tizonia from source.
 
-> NOTE: The following command installs Mopidy's 'libspotify-dev' package, and
-> the 'gmusicapi', 'soundcloud', 'pafy' and 'youtube-dl' Python PIP packages,
+> NOTE: The following command installs the 'gmusicapi', 'soundcloud', 'pafy'
+> and 'youtube-dl' Python PIP packages,
 > plus a few other necessary debian packages.
 
 ```bash

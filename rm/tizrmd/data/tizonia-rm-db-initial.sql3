@@ -12,7 +12,6 @@ insert into components values('OMX.Aratelia.audio_renderer.pulseaudio.pcm',100,1
 insert into components values('OMX.Aratelia.audio_renderer.http',100,1,0,1);
 insert into components values('OMX.Aratelia.audio_renderer.chromecast',100,1,0,1);
 insert into components values('OMX.Aratelia.audio_source.http',100,1,0,1);
-insert into components values('OMX.Aratelia.audio_source.spotify.pcm',100,1,0,1);
 insert into components values('OMX.Aratelia.file_reader.binary',100,1,0,1);
 insert into components values('OMX.Aratelia.file_reader.binary',100,1,2,1);
 insert into components values('OMX.Aratelia.container_demuxer.ogg',100,1,0,1);

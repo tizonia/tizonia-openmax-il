@@ -58,11 +58,6 @@ AC_ARG_ENABLE(player,
     enable_player=yes)
 AM_CONDITIONAL(ENABLE_PLAYER, test "x$enable_player" = xyes)
 
-AC_ARG_WITH(libspotify,
-    AS_HELP_STRING([--with-libspotify],
-        [build the libspotify-based OpenMAX IL plugin (default: yes)]),,
-    with_libspotify=yes)
-
 AC_ARG_WITH(alsa,
     AS_HELP_STRING([--with-alsa],
         [build the ALSA-based OpenMAX IL plugin (default: yes)]),,
@@ -105,7 +100,6 @@ AC_MSG_RESULT([
   General configuration:
 
     Tizonia player: .............. ${enable_player}
-    libspotify plugin: ........... ${with_libspotify}
     ALSA plugin: ................. ${with_alsa}
     Blocking ETB/FTB: ............ ${blocking_etb_ftb}
     Blocking OMX_SendCommand: .... ${blocking_sendcommand}

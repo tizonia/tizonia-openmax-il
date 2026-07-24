@@ -25,7 +25,7 @@ jobs:
         run: |
           sudo apt-get update
           # Derived from the core Meson dependency declarations with player,
-          # clients, docs, tests, libspotify, and all plugins disabled.
+          # clients, docs, tests, and all plugins disabled.
           sudo apt-get install -y --no-install-recommends \
             build-essential \
             meson \
@@ -44,7 +44,6 @@ jobs:
           meson setup build \
             --buildtype=plain \
             --wrap-mode=nodownload \
-            -Dlibspotify=false \
             -Dplayer=false \
             -Dclients=false \
             -Ddocs=false \

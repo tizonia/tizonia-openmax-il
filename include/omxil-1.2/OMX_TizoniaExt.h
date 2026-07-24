@@ -33,6 +33,7 @@
 #include "OMX_Types.h"
 #include "OMX_Audio.h"
 
+/* Retained for ABI compatibility. Tizonia v1 ships no Spotify component. */
 #define OMX_ROLE_AUDIO_SOURCE_PCM_SPOTIFY      "audio_source.pcm.spotify"
 #define OMX_ROLE_AUDIO_ENCODER_OPUS            "audio_encoder.opus"
 #define OMX_ROLE_AUDIO_DECODER_OPUS            "audio_decoder.opus"
@@ -321,7 +322,10 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_MP2TYPE {
 } OMX_TIZONIA_AUDIO_PARAM_MP2TYPE;
 
 /**
- * Spotify source component
+ * Dormant Spotify source ABI declarations.
+ *
+ * Retained for compatibility with existing consumers of this public header.
+ * Tizonia v1 does not register, build, or ship a Spotify source component.
  * References:
  *
  */

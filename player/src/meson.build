@@ -1,25 +1,3 @@
-if enable_libspotify
-   install_headers(
-      'services/spotify/tizspotifygraph.hpp',
-      'services/spotify/tizspotifygraphfsm.hpp',
-      'services/spotify/tizspotifygraphops.hpp',
-      'services/spotify/tizspotifyconfig.hpp',
-      'services/spotify/tizspotifymgr.hpp',
-      install_dir: tizincludedir
-   )
-endif
-
-if enable_libspotify
-   spotify_sources = [
-      'services/spotify/tizspotifygraph.cpp',
-      'services/spotify/tizspotifygraphfsm.cpp',
-      'services/spotify/tizspotifygraphops.cpp',
-      'services/spotify/tizspotifymgr.cpp'
-   ]
-else
-   spotify_sources = []
-endif
-
 tizonia_sources = [
    'main.cpp',
    'tizplayapp.cpp',
@@ -62,7 +40,6 @@ tizonia_sources = [
    'services/tizservicegraphfsm.cpp',
    'services/tizradiograph.cpp',
    'services/tizradiographfsm.cpp',
-   spotify_sources,
    'services/googlemusic/tizgmusicgraph.cpp',
    'services/googlemusic/tizgmusicgraphops.cpp',
    'services/googlemusic/tizgmusicmgr.cpp',

@@ -1,12 +1,18 @@
 # Libspotify Removal Blast Radius and V1 Packaging Strategy
 
+> **Status: archived design record.** Issue #819 implemented this removal for
+> v1. The legacy Spotify streaming backend is unsupported and absent from the
+> build, package, install, CLI, configuration, and documentation surfaces. The
+> Spotify-specific declarations in `OMX_TizoniaExt.h` remain dormant solely for
+> public ABI compatibility; no v1 component registers or consumes them.
+
 Issue #859 is a design-only prerequisite for removing Tizonia's
 libspotify-based Spotify streaming support in v1. The implementation issues
 should not treat `-Dlibspotify=false` as only a CI convenience; the v1 target is
 that Spotify/libspotify is absent from the normal build, package set, installed
 configuration, and documented product surface.
 
-## Current Shape
+## Historical Shape
 
 Spotify support is split across three layers:
 

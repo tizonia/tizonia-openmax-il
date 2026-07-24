@@ -207,7 +207,7 @@ sys.excepthook = exception_handler
 # From https://github.com/kingosticks/mopidy-tunein/blob/master/mopidy_tunein/tunein.py
 def parse_m3u(data):
     # Copied from mopidy.audio.playlists
-    # Mopidy version expects a header but it's not always present
+    # The original implementation expects a header but it is not always present.
     for line in data.splitlines():
         if not line.strip() or line.startswith(b"#"):
             continue

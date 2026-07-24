@@ -60,14 +60,12 @@ Familiarize yourself with the various building blocks of the project (**click on
    node "Python Proxies (aka clients)" {
      [tizgmusicproxy] - clientAPI_gmusic
      [tizyoutubeproxy] - clientAPI_youtube
-     [tizspotifyproxy] - clientAPI_spotify
      [tizplexproxy] - clientAPI_plex
      [tizsoundcloudproxy] - clientAPI_soundcloud
      [tiztuneinproxy] - clientAPI_tunein
      [tizxxxproxy] - clientAPI_xxx
      [OMX.Aratelia.audio_source.http] --> clientAPI_gmusic
      [OMX.Aratelia.audio_source.http] --> clientAPI_youtube
-     [OMX.Aratelia.audio_source.http] --> clientAPI_spotify
      [OMX.Aratelia.audio_source.http] --> clientAPI_plex
      [OMX.Aratelia.audio_source.http] --> clientAPI_soundcloud
      [OMX.Aratelia.audio_source.http] --> clientAPI_tunein
@@ -76,7 +74,6 @@ Familiarize yourself with the various building blocks of the project (**click on
 
    cloud {
      [Google Play Music] -up-> clientAPI_gmusic
-     [Spotify] -up-> clientAPI_spotify
      [YouTube] -up-> clientAPI_youtube
      [Plex] -up-> clientAPI_plex
      [SoundCloud] -up-> clientAPI_soundcloud

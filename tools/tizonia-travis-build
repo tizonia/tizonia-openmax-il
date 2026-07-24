@@ -273,18 +273,6 @@ function install_src_deps {
             echo "Error while building mpg123" >&2
         fi
     fi
-    if [[ "$exit_status" -eq 0 ]] ; then
-        cd "$WORKING_DIR"
-        # Install libspotify 12.1.51 binaries
-        wget http://www.juanrubio.me/tizonia/libspotify-12.1.51-Linux-x86_64.tgz \
-            && tar zxvf libspotify-12.1.51-Linux-x86_64.tgz &>/dev/null \
-            && cd libspotify-12.1.51-Linux-x86_64 \
-            && make install prefix="$INSTALL_DIR" &>/dev/null
-        exit_status=$?
-        if [[ "$exit_status" -ne 0 ]] ; then
-            echo "Error while installing libspotify" >&2
-        fi
-    fi
     return "$exit_status"
 }
 

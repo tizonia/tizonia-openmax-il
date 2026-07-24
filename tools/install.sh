@@ -44,32 +44,32 @@ RELIDS=$(cat /etc/*-release)
 if echo "$RELIDS" | grep raspbian; then
     DISTRO="raspbian"
     if echo "$RELIDS" | grep buster; then
-        RELEASE="buster" ; PYVER=3 ; MOPRELEASE="buster"
+        RELEASE="buster" ; PYVER=3
     elif echo "$RELIDS" | grep stretch; then
-        RELEASE="stretch"; PYVER=2 ; MOPRELEASE="stretch"
+        RELEASE="stretch"; PYVER=2
     elif echo "$RELIDS" | grep jessie; then
-        RELEASE="jessie" ; PYVER=2 ; MOPRELEASE="jessie"
+        RELEASE="jessie" ; PYVER=2
     else
         echo "Can't find a supported Raspbian distribution."
         exit 1
     fi
 elif echo "$RELIDS" | grep stretch; then
-  DISTRO="debian" ; RELEASE="stretch" ; PYVER=2 ; MOPRELEASE="stretch"
+  DISTRO="debian" ; RELEASE="stretch" ; PYVER=2
 elif echo "$RELIDS" | grep -E 'buster'; then
-  DISTRO="debian" ; RELEASE="buster" ; PYVER=3 ; MOPRELEASE="buster"
+  DISTRO="debian" ; RELEASE="buster" ; PYVER=3
 elif echo "$RELIDS" | grep -E 'bullseye|kali-rolling'; then
   # NOTE: Kali Linux is based on Debian Testing, which is currently codenamed 'Bullseye'
-  DISTRO="debian" ; RELEASE="bullseye" ; PYVER=3 ; MOPRELEASE="buster"
+  DISTRO="debian" ; RELEASE="bullseye" ; PYVER=3
 elif echo "$RELIDS" | grep -E 'trusty|freya|qiana|rebecca|rafaela|rosa'; then
   # NOTE: Elementary OS 'freya' is based on trusty
   # NOTE: LinuxMint 'qiana' 'rebecca' 'rafaela' 'rosa' are all based on trusty
-  DISTRO="ubuntu" ; RELEASE="trusty" ; PYVER=2 ; MOPRELEASE="jessie"
+  DISTRO="ubuntu" ; RELEASE="trusty" ; PYVER=2
 elif echo "$RELIDS" | grep vivid; then
-  DISTRO="ubuntu" ; RELEASE="vivid" ; PYVER=2 ; MOPRELEASE="jessie"
+  DISTRO="ubuntu" ; RELEASE="vivid" ; PYVER=2
 elif echo "$RELIDS" | grep -E 'xenial|loki|sarah|serena|sonya|sylvia'; then
   # NOTE: Elementary OS 'loki' is based on xenial
   # NOTE: Linux Mint 'sarah', 'serena', 'sonya' and 'sylvia' are based on xenial
-  DISTRO="ubuntu" ; RELEASE="xenial" ; PYVER=2 ; MOPRELEASE="jessie"
+  DISTRO="ubuntu" ; RELEASE="xenial" ; PYVER=2
 elif echo "$RELIDS" | grep -E 'bionic|juno|hera|tara|tessa|tina|tricia'; then
   # NOTE: Elementary OS 'juno', and 'hera' are based on bionic
   # NOTE: Linux Mint 'tara', 'tessa', 'tina', and 'tricia' are based on bionic
@@ -77,9 +77,9 @@ elif echo "$RELIDS" | grep -E 'bionic|juno|hera|tara|tessa|tina|tricia'; then
   # releases, meaning you can try adding newer releases to the bionic conditional
   # (e.g. 'disco|bionic|juno|...'), to support installation on a newer system;
   # however, do this 'at your own risk', as not all features will be guaranteed to work.
-  DISTRO="ubuntu" ; RELEASE="bionic" ; PYVER=3 ; MOPRELEASE="stretch"
+  DISTRO="ubuntu" ; RELEASE="bionic" ; PYVER=3
 elif echo "$RELIDS" | grep -E 'focal'; then
-  DISTRO="ubuntu" ; RELEASE="focal" ; PYVER=3 ; MOPRELEASE="buster"
+  DISTRO="ubuntu" ; RELEASE="focal" ; PYVER=3
 else
   echo "Can't find a supported Debian or Ubuntu-based distribution."
   exit 1
@@ -93,13 +93,6 @@ if [[ "$?" -ne 0 ]]; then
     echo "Oops. Some important dependencies failed to install!."
     echo "Please re-run the install script."
     exit 1
-fi
-
-# Add Mopidy's APT archive
-if [[ ! -f /etc/apt/sources.list.d/mopidy.list ]]; then
-    echo "Setting up Mopidy's APT archive for $DISTRO:$MOPRELEASE (to install 'libspotify')"
-    curl 'https://apt.mopidy.com/mopidy.gpg' | sudo apt-key add -
-    sudo curl https://apt.mopidy.com/$MOPRELEASE.list -o /etc/apt/sources.list.d/mopidy.list
 fi
 
 # Add Tizonia's APT archive
@@ -127,7 +120,6 @@ if [[ PYVER=3 ]]; then
                 titlecase \
                 pychromecast \
                 plexapi \
-                spotipy \
                 fuzzywuzzy \
                 eventlet \
                 python-Levenshtein \
@@ -146,13 +138,7 @@ else
                 fuzzywuzzy \
                 eventlet \
                 python-Levenshtein \
-        && sudo -H pip2 install git+https://github.com/plamere/spotipy.git --upgrade
-fi
-
-
-# Install 'libspotify'
-if [[ "$?" -eq 0 ]]; then
-    sudo apt-get -y install libspotify12
+                joblib
 fi
 
 # Install Tizonia
@@ -166,7 +152,7 @@ which tizonia > /dev/null
 if [[ "$?" -eq 0 ]]; then
     echo ; tizonia ; echo
     printf "Tizonia is now installed.\n\n"
-    printf "Please add Spotify, Google Music, Soundcloud, and Plex credentials to : $TIZ_CONFIG_FILE\n"
+    printf "Please add Google Music, Soundcloud, and Plex credentials to : $TIZ_CONFIG_FILE\n"
 else
     echo "Oops. Something went wrong!"
     exit 1

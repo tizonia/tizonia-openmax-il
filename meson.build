@@ -22,7 +22,6 @@ cxx = meson.get_compiler('cpp')
 enable_blocking_etb_ftb = get_option('blocking-etb-ftb') #false
 enable_blocking_sendcommand = get_option('blocking-sendcommand') #false
 enable_player = get_option('player') #true
-enable_libspotify = get_option('libspotify') #false
 enable_alsa = get_option('alsa') #true
 enable_aac = get_option('aac') #true
 enable_gcc_warnings = get_option('gcc-warnings') #false
@@ -30,16 +29,9 @@ enable_test = get_option('test') #false
 # not present in the original
 enable_docs = get_option('docs') #false
 enable_clients = get_option('clients') #true
-# disabling plugins implies disabling libspotify
-if not enable_clients
-   enable_libspotify = false
-endif
-
 enabled_plugins = []
 foreach p: get_option('plugins')
-   if (p == 'spotify' and enable_libspotify) or p != 'spotify'
-      enabled_plugins += p
-   endif
+   enabled_plugins += p
 endforeach
 
 if not enabled_plugins.contains('pcm_renderer_alsa')
@@ -173,10 +165,6 @@ add_project_arguments('-I'+meson.current_build_dir(), language: ['c', 'cpp'])
 # this is an abomination, but player/src doesn't include config.h
 add_project_arguments('-include'+join_paths(meson.build_root(), 'config.h'), language: ['c', 'cpp'])
 
-if enable_libspotify
-   add_project_arguments('-DHAVE_LIBSPOTIFY', language: ['c', 'cpp'])
-endif
-
 if enable_gcc_warnings
    add_project_arguments('-DHAVE_CONFIG_H',
       '-Wsystem-headers',
@@ -228,7 +216,6 @@ endif
 # printing a list of the enabled plugins doesn't look right,
 # plus https://github.com/mesonbuild/meson/issues/6557
 summary({'Tizonia player': enable_player,
-         'libspotify plugin': enable_libspotify,
          'clients': enable_clients,
          'number of enabled plugins': enabled_plugins.length(),
          'ALSA plugin': enable_alsa,
@@ -248,4 +235,3 @@ summary({'To compile all tizonia sub-projects, type': 'ninja',
         }, section: 'Building')
 summary({'Doc generation is not currently functional': 'run Doxygen/Sphinx manually'
         }, section: 'NOTE')
-

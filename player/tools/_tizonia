@@ -8,7 +8,7 @@ typeset -A opt_args
 local rc=1
 
 _arguments -S -s \
-  '--help[Help topics.]:Help topics by area:(global openmax server client spotify googlemusic soundcloud tunein youtube plex chromecast keyboard config examples)' \
+  '--help[Help topics.]:Help topics by area:(global openmax server client googlemusic soundcloud tunein youtube plex chromecast keyboard config examples)' \
   '(-b)--buffer-seconds[Size of the audio buffer to use while downloading streams.]' \
   '(-c)--cast[Cast to a Chromecast device (arg: device name, fiendly name or ip address).]' \
   '(-d)--daemon[Run in the brackground.]' \
@@ -18,36 +18,6 @@ _arguments -S -s \
   '(-C)--comps-of-role[Display the OpenMAX IL components that implement the role.]' \
   '(-L)--comp-list[Enumerate all the OpenMAX IL components in the system.]' \
   '(-R)--roles-of-comp[Display the OpenMAX IL roles found in component.]' \
-  '--proxy-server[Url to the proxy server that should be used (works wih Spotify only).]' \
-  '--proxy-user[User name to be used during proxy server authentication.]' \
-  '--proxy-password[Password to be used during proxy server authentication.]' \
-  '--spotify-user[Spotify user name.]' \
-  '--spotify-password[Spotify user password.]' \
-  '--spotify-owner[The owner of the playlist (optional, may be used in conjunction with --spotify-playlist).]' \
-  '--spotify-recover-lost-token[Allow Tizonia to recover the play token and keep playing after a spurious token loss (default: false).]' \
-  '--spotify-allow-explicit-tracks[Allow Tizonia to play explicit tracks from Spotify (default: false).]' \
-  '--spotify-preferred-bitrate[Three possible values (kbps): 96, 160, or 320 (default: 320)]' \
-  '--spotify-tracks[Search and play from Spotify by track name.]' \
-  '--spotify-artist[Search and play from Spotify by artist name.]' \
-  '--spotify-album[Search and play from Spotify by album name.]' \
-  '--spotify-playlist[Search and play public playlists (owner is assumed current user, unless --spotify-owner is provided).]' \
-  '--spotify-track-id[Play from Spotify by track ID, URI or URL.]' \
-  '--spotify-artist-id[Play from Spotify by artist ID, URI or URL.]' \
-  '--spotify-album-id[Play from Spotify by album ID, URI or URL.]' \
-  '--spotify-playlist-id[Play public playlists from Spotify by ID, URI or URL.]' \
-  '--spotify-related-artists[Search and play from Spotify the top songs from a selection of related artists.]' \
-  '--spotify-featured-playlist[Search and play a featured playlist from Spotify.]' \
-  '--spotify-new-releases[Search and play a newly released album from Spotify.]' \
-  '--spotify-recommendations-by-track-id[Play Spotify recommendations by track ID, URI or URL.]' \
-  '--spotify-recommendations-by-artist-id[Play Spotify recommendations by artist ID, URI or URL.]' \
-  '--spotify-recommendations-by-track[Play Spotify recommendations by track name.]' \
-  '--spotify-recommendations-by-artist[Play Spotify recommendations by artist name.]' \
-  '--spotify-recommendations-by-genre[Play Spotify recommendations by genre name.]' \
-  '--spotify-user-liked-tracks[Play the user liked tracks.]' \
-  '--spotify-user-recent-tracks[Play the user most recently played tracks.]' \
-  '--spotify-user-top-tracks[Play the user top tracks.]' \
-  '--spotify-user-top-artists[Play top tracks from the user top artists.]' \
-  '--spotify-user-playlist[Play a playlist from the user private library (including Daily Mixes and Discover Weekly).]' \
   '--gmusic-user[Google Play Music user name (not required if provided via config file).]' \
   '--gmusic-password[Google Play Music users password (not required if provided via config file).]' \
   '--gmusic-device-id[Google Play Music device id (not required if provided via config file).]' \

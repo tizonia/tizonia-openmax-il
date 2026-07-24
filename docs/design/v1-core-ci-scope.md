@@ -24,7 +24,6 @@ The workflow configures one build directory with:
 meson setup build \
   --buildtype=plain \
   --wrap-mode=nodownload \
-  -Dlibspotify=false \
   -Dplayer=false \
   -Dclients=false \
   -Ddocs=false \
@@ -40,9 +39,7 @@ sqlite, Python, and curl development files.
 With those options, the root Meson build still enters the core project areas:
 `3rdparty`, `include`, `libtizplatform`, `rm`, `libtizcore`, `libtizonia`,
 `plugins`, and `config`. Because the plugin option is an empty array, the
-`plugins` directory does not enable any plugin subdirectories. Because
-`clients=false`, Meson also forces `libspotify` off before the build summary is
-computed.
+`plugins` directory does not enable any plugin subdirectories.
 
 ## Deliberate exclusions
 
@@ -53,17 +50,13 @@ temporary CI shortcut.
 - `-Dplayer=false` leaves out the command-line application layer. The v1 CI is
   checking the core libraries first, not the full user-facing player stack.
 - `-Dclients=false` leaves out cloud and service client libraries and proxies
-  such as Google Music, SoundCloud, YouTube, Plex, Chromecast, Spotify, TuneIn,
+  such as Google Music, SoundCloud, YouTube, Plex, Chromecast, TuneIn,
   and iHeart. Those integrations carry service-specific APIs and heavier
   third-party requirements that are not part of the v1 amd64 baseline.
 - `-Dplugins=[]` leaves out all OpenMAX IL plugins, including service,
   codec/source/sink, ALSA, PulseAudio, and renderer plugins. That avoids making
   the first signal depend on optional media SDKs, audio backends, codec stacks,
   or service credentials.
-- `-Dlibspotify=false` is explicit because libspotify is a legacy SDK
-  dependency and the Spotify plugin/client path should not accidentally shape
-  the core CI result. The Meson file also disables libspotify when clients are
-  disabled.
 - `-Ddocs=false` avoids pulling Sphinx/Doxygen documentation tooling into the
   core compile signal.
 - `-Dtest=false` avoids treating the historical test targets as part of the
@@ -100,8 +93,7 @@ After the v1 core signal is stable, CI can expand in small, reviewed steps:
   packages;
 - add player or client coverage only after their dependency and service API
   expectations are explicit; and
-- keep legacy libspotify paths out unless they are replaced, removed, or given a
-  maintained dependency story.
+- keep removed legacy service paths out of the build graph.
 
 Each expansion should preserve the core job as the fast baseline rather than
 turning it into the full historical build.

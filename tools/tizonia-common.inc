@@ -47,8 +47,6 @@ declare -Ar TIZ_PROJECT_DIRS=( \
     [tizplex]="clients/plex/libtizplex" \
     [tizchromecastproxy]="clients/chromecast/chromecastproxy" \
     [tizchromecast]="clients/chromecast/libtizchromecast" \
-    [tizspotifyproxy]="clients/spotify/spotifyproxy" \
-    [tizspotify]="clients/spotify/libtizspotify" \
     [tiztuneinproxy]="clients/tunein/tuneinproxy" \
     [tiztunein]="clients/tunein/libtiztunein" \
     [tiziheartproxy]="clients/iheart/iheartproxy" \
@@ -77,7 +75,6 @@ declare -Ar TIZ_PROJECT_DIRS=( \
     [tizpcmdec]="plugins/pcm_decoder" \
     [tizalsapcmrnd]="plugins/pcm_renderer_alsa" \
     [tizpulsepcmrnd]="plugins/pcm_renderer_pa" \
-    [tizspotifysrc]="plugins/spotify_source" \
     [tizvorbisdec]="plugins/vorbis_decoder" \
     [tizvp8dec]="plugins/vp8_decoder" \
     [tizsdlivrnd]="plugins/yuv_renderer" \
@@ -100,8 +97,6 @@ readonly TIZ_PROJECTS_ORDERED=( \
     tizplex \
     tizchromecastproxy \
     tizchromecast \
-    tizspotifyproxy \
-    tizspotify \
     tiztuneinproxy \
     tiztunein \
     tiziheartproxy \
@@ -130,7 +125,6 @@ readonly TIZ_PROJECTS_ORDERED=( \
     tizpcmdec \
     tizalsapcmrnd \
     tizpulsepcmrnd \
-    tizspotifysrc \
     tizvorbisdec \
     tizvp8dec \
     tizsdlivrnd \

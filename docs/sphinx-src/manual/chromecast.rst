@@ -5,8 +5,7 @@ Tizonia can cast audio to Chromecast devices from most of the supported
 services. A number of services for which casting is not yet supported
 are:
 
-* Spotify (see [#f1]_)
-* Plex (see [#f2]_)
+* Plex (see [#f1]_)
 * Local Media
 
 OPTIONS
@@ -33,5 +32,4 @@ EXAMPLES
 
 .. rubric:: Footnotes
 
-.. [#f1] There are plans to add casting of Spotify streams: `https://github.com/tizonia/tizonia-openmax-il/issues/461 <https://github.com/tizonia/tizonia-openmax-il/issues/461>`_.
-.. [#f2] There are plans to add casting of Plex streams: `https://github.com/tizonia/tizonia-openmax-il/issues/462 <https://github.com/tizonia/tizonia-openmax-il/issues/462>`_.
+.. [#f1] There are plans to add casting of Plex streams: `https://github.com/tizonia/tizonia-openmax-il/issues/462 <https://github.com/tizonia/tizonia-openmax-il/issues/462>`_.

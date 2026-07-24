@@ -51,11 +51,6 @@ declare -ar TIZ_SUPPORTED_RELEASES=( \
     raspbian-buster \
 )
 
-declare -ar TIZ_LIBSPOTIFY_DEPS=( \
-    libspotify12 \
-    libspotify-dev \
-)
-
 declare -ar TIZ_TIZONIA_DEPS=( \
     apt-transport-https \
     build-essential \
@@ -92,8 +87,6 @@ declare -ar TIZ_TIZONIA_DEPS=( \
     libffi-dev \
     libssl-dev \
     libmp4v2-dev \
-    libspotify12 \
-    libspotify-dev \
     libexpat1-dev \
     libev-dev \
     libxml2-dev \
@@ -150,7 +143,6 @@ readonly TIZ_PYTHON_PROJECTS=( \
     tizyoutubeproxy \
     tizplexproxy \
     tizchromecastproxy \
-    tizspotifyproxy \
     tiztuneinproxy \
     tiziheartproxy \
 )
@@ -180,8 +172,6 @@ declare -Ar TIZ_PROJECT_DIST_CMD=( \
     [tizplex]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizchromecastproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
     [tizchromecast]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
-    [tizspotifyproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
-    [tizspotify]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tiztuneinproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
     [tiztunein]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tiziheartproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
@@ -210,7 +200,6 @@ declare -Ar TIZ_PROJECT_DIST_CMD=( \
     [tizpcmdec]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizalsapcmrnd]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizpulsepcmrnd]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
-    [tizspotifysrc]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizvorbisdec]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizvp8dec]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizsdlivrnd]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
@@ -235,8 +224,6 @@ declare -Ar TIZ_PROJECT_DH_MAKE_CMD=( \
     [tizplex]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizchromecastproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
     [tizchromecast]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
-    [tizspotifyproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
-    [tizspotify]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tiztuneinproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
     [tiztunein]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tiziheartproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
@@ -265,7 +252,6 @@ declare -Ar TIZ_PROJECT_DH_MAKE_CMD=( \
     [tizpcmdec]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizalsapcmrnd]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizpulsepcmrnd]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
-    [tizspotifysrc]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizvorbisdec]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizvp8dec]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizsdlivrnd]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
@@ -287,8 +273,6 @@ declare -Ar TIZ_PROJECT_MAIN_PKG=( \
     [tizplex]="libtizplex0" \
     [tizchromecastproxy]="python3-tizchromecastproxy" \
     [tizchromecast]="libtizchromecast0" \
-    [tizspotifyproxy]="python3-tizspotifyproxy" \
-    [tizspotify]="libtizspotify0" \
     [tiztuneinproxy]="python3-tiztuneinproxy" \
     [tiztunein]="libtiztunein0" \
     [tiziheartproxy]="python3-tiziheartproxy" \
@@ -317,7 +301,6 @@ declare -Ar TIZ_PROJECT_MAIN_PKG=( \
     [tizpcmdec]="libtizpcmdec0" \
     [tizalsapcmrnd]="libtizalsapcmrnd0" \
     [tizpulsepcmrnd]="libtizpulsepcmrnd0" \
-    [tizspotifysrc]="libtizspotifysrc0" \
     [tizvorbisdec]="libtizvorbisdec0" \
     [tizvp8dec]="libtizvp8dec0" \
     [tizsdlivrnd]="libtizsdlivrnd0" \
@@ -417,37 +400,6 @@ function do_tizonia_deps {
         fi
     done
 
-    # Add mopidy APT archive to sources, if not added already
-    # and install libspotify using mopidy's deb packages
-    if [[ ! -f /etc/apt/sources.list.d/mopidy.list ]]; then
-        # Add Mopidy APT archive
-        pretty_print "$BLU" "[libspotify] : adding Mopidy APT archive."
-        curl -k 'https://apt.mopidy.com/mopidy.gpg' | sudo apt-key add -
-        MOPRELEASE=''
-        if [[ "$DISTRO_CODENAME" == "focal" ]]; then
-            MOPRELEASE="buster"
-        elif [[ "$DISTRO_CODENAME" == "bionic" ]]; then
-            MOPRELEASE="stretch"
-        elif [[ "$DISTRO_CODENAME" == "xenial" ]]; then
-            MOPRELEASE="stretch"
-        elif [[ "$DISTRO_CODENAME" == "stretch" ]]; then
-            MOPRELEASE="stretch"
-        else
-            MOPRELEASE="buster"
-        fi
-        sudo curl -k https://apt.mopidy.com/$MOPRELEASE.list -o /etc/apt/sources.list.d/mopidy.list
-        sudo apt-get update
-        pretty_print "$GRN" "[libspotify] : added Mopidy APT archive."
-        for pkg in "${TIZ_LIBSPOTIFY_DEPS[@]}"; do
-            local result=$(dpkg-query -W -f='${Status} ${Version}\n' "$pkg" 2> /dev/null | cut -d ' ' -f3)
-            if [[ "$result" != "installed" ]]; then
-                pretty_print "$BLU" "[$pkg] : installing."
-                sudo apt-get install -qq --force-yes "$pkg" #> /dev/null
-                pretty_print "$GRN" "[$pkg] : installed."
-            fi
-        done
-    fi
-
     # Install a new version of pip
     echo "Installing a fresher version of pip3..."
     wget https://bootstrap.pypa.io/get-pip.py \
@@ -463,22 +415,6 @@ function do_tizonia_deps {
         fi
     done
 
-    # Also install spotipy from source
-    sudo -H pip3 install git+https://github.com/plamere/spotipy.git --upgrade
-
-    # Backup installation of Spotify. Can be used if Modipy's repo is not available.
-    # Install libspotify binaries using my own tar files, in case the binary
-    # installation from mopidy's APT archive failed for whatever reason
-    #     if [[ "$spotify" -eq 0 ]]; then
-    #         cd "$TEMP_DIR" \
-    #             && wget http://www.juanrubio.me/tizonia/libspotify-12.1.51-Linux-$(uname -m).tgz \
-    #             && tar zxvf libspotify-12.1.51-Linux-$(uname -m).tgz \
-    #             && cd libspotify-12.1.51-Linux-$(uname -m) \
-    #             && sudo make install prefix=/usr \
-    #             && sudo ldconfig
-    #     else
-    #         pretty_print "$GRN" "[libspotify] : installed."
-    #     fi
 }
 
 ##################################################################
