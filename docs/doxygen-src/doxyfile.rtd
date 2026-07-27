@@ -744,7 +744,6 @@ WARN_LOGFILE           =
 # Note: If this tag is empty the current directory is searched.
 
 INPUT                  = mainpage.dox
-INPUT                 += ../../clients/gmusic
 INPUT                 += ../../clients/youtube
 INPUT                 += ../../clients/tunein
 INPUT                 += ../../libtizcore

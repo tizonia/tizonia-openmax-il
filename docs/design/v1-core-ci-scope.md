@@ -52,8 +52,8 @@ temporary CI shortcut.
 - `-Dplayer=false` leaves out the command-line application layer. The v1 CI is
   checking the core libraries first, not the full user-facing player stack.
 - `-Dclients=false` leaves out cloud and service client libraries and proxies
-  such as Google Music, SoundCloud, YouTube, Plex, Chromecast, TuneIn,
-  and iHeart. Those integrations carry service-specific APIs and heavier
+  such as SoundCloud, YouTube, Plex, Chromecast, TuneIn, and iHeart. Those
+  integrations carry service-specific APIs and heavier
   third-party requirements that are not part of the v1 amd64 baseline.
 - `-Dplugins=[]` leaves out all OpenMAX IL plugins, including service,
   codec/source/sink, ALSA, PulseAudio, and renderer plugins. That avoids making

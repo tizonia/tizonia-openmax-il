@@ -46,8 +46,6 @@
 #include "httpsrcprc.h"
 #include "httpsrcport.h"
 #include "httpsrc.h"
-#include "gmusicprc.h"
-#include "gmusiccfgport.h"
 #ifdef HAVE_SOUNDCLOUD
 #include "scloudprc.h"
 #include "scloudcfgport.h"
@@ -71,7 +69,6 @@
  *
  * - Component name : "OMX.Aratelia.audio_source.http"
  * - Implements role: "audio_source.http"
- * - Implements role: "audio_source.http.gmusic"
  * - Implements role: "audio_source.http.tunein"
  * - Implements role: "audio_source.http.youtube"
  * - Implements role: "audio_source.http.plex"
@@ -118,20 +115,6 @@ static OMX_PTR
 instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
   return factory_new (tiz_get_type (ap_hdl, "httpsrcprc"));
-}
-
-static OMX_PTR
-instantiate_gmusic_config_port (OMX_HANDLETYPE ap_hdl)
-{
-  return factory_new (tiz_get_type (ap_hdl, "gmusiccfgport"),
-                      NULL, /* this port does not take options */
-                      ARATELIA_HTTP_SOURCE_COMPONENT_NAME, http_source_version);
-}
-
-static OMX_PTR
-instantiate_gmusic_processor (OMX_HANDLETYPE ap_hdl)
-{
-  return factory_new (tiz_get_type (ap_hdl, "gmusicprc"));
 }
 
 #ifdef HAVE_SOUNDCLOUD
@@ -210,7 +193,6 @@ OMX_ERRORTYPE
 OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 {
   tiz_role_factory_t http_client_role;
-  tiz_role_factory_t gmusic_client_role;
 #ifdef HAVE_SOUNDCLOUD
   tiz_role_factory_t scloud_client_role;
 #endif
@@ -220,7 +202,6 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   tiz_role_factory_t iheart_client_role;
   const tiz_role_factory_t * rf_list[] = {
     &http_client_role,
-    &gmusic_client_role,
 #ifdef HAVE_SOUNDCLOUD
     &scloud_client_role,
 #endif
@@ -231,8 +212,6 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   };
   tiz_type_factory_t httpsrcprc_type;
   tiz_type_factory_t httpsrcport_type;
-  tiz_type_factory_t gmusicprc_type;
-  tiz_type_factory_t gmusiccfgport_type;
 #ifdef HAVE_SOUNDCLOUD
   tiz_type_factory_t scloudprc_type;
   tiz_type_factory_t scloudcfgport_type;
@@ -248,8 +227,6 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   const tiz_type_factory_t * tf_list[] = {
     &httpsrcprc_type,
     &httpsrcport_type,
-    &gmusicprc_type,
-    &gmusiccfgport_type,
 #ifdef HAVE_SOUNDCLOUD
     &scloudprc_type,
     &scloudcfgport_type,
@@ -270,13 +247,6 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   http_client_role.pf_port[0] = instantiate_output_port;
   http_client_role.nports = 1;
   http_client_role.pf_proc = instantiate_processor;
-
-  strcpy ((OMX_STRING) gmusic_client_role.role,
-          ARATELIA_GMUSIC_SOURCE_DEFAULT_ROLE);
-  gmusic_client_role.pf_cport = instantiate_gmusic_config_port;
-  gmusic_client_role.pf_port[0] = instantiate_output_port;
-  gmusic_client_role.nports = 1;
-  gmusic_client_role.pf_proc = instantiate_gmusic_processor;
 
 #ifdef HAVE_SOUNDCLOUD
   strcpy ((OMX_STRING) scloud_client_role.role,
@@ -324,16 +294,6 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   httpsrcport_type.pf_class_init = httpsrc_port_class_init;
   strcpy ((OMX_STRING) httpsrcport_type.object_name, "httpsrcport");
   httpsrcport_type.pf_object_init = httpsrc_port_init;
-
-  strcpy ((OMX_STRING) gmusicprc_type.class_name, "gmusicprc_class");
-  gmusicprc_type.pf_class_init = gmusic_prc_class_init;
-  strcpy ((OMX_STRING) gmusicprc_type.object_name, "gmusicprc");
-  gmusicprc_type.pf_object_init = gmusic_prc_init;
-
-  strcpy ((OMX_STRING) gmusiccfgport_type.class_name, "gmusiccfgport_class");
-  gmusiccfgport_type.pf_class_init = gmusic_cfgport_class_init;
-  strcpy ((OMX_STRING) gmusiccfgport_type.object_name, "gmusiccfgport");
-  gmusiccfgport_type.pf_object_init = gmusic_cfgport_init;
 
 #ifdef HAVE_SOUNDCLOUD
   strcpy ((OMX_STRING) scloudprc_type.class_name, "scloudprc_class");

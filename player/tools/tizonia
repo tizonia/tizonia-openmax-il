@@ -28,17 +28,16 @@ _tizonia()
     omx="--comp-list --roles-of-comp --comps-of-role"
     server="--server --port --station-name --station-genre --no-icy-metadata --bitrate-modes --sampling-rates"
     client="--station-id"
-    gmusic="--gmusic-user --gmusic-password --gmusic-device-id --gmusic-album --gmusic-artist --gmusic-library --gmusic-playlist --gmusic-podcast --gmusic-station --gmusic-tracks --gmusic-unlimited-station --gmusic-unlimited-album --gmusic-unlimited-artist --gmusic-unlimited-tracks --gmusic-unlimited-playlist --gmusic-unlimited-genre --gmusic-unlimited-activity --gmusic-unlimited-feeling-lucky-station --gmusic-unlimited-promoted-tracks"
     tunein="--tunein-search --tunein-type --tunein-local --tunein-music --tunein-talk --tunein-sports --tunein-location --tunein-podcasts --tunein-trending --tunein-keywords"
     youtube="--youtube-api-key --youtube-audio-stream --youtube-audio-playlist --youtube-audio-mix --youtube-audio-search --youtube-audio-mix-search --youtube-audio-channel-playlist --youtube-audio-channel-uploads"
     plex="--plex-server-base-url --plex-auth-token --plex-music-section --plex-audio-tracks --plex-audio-artist --plex-audio-album --plex-audio-playlist"
     iheart="--iheart-search --iheart-keywords"
 
     diropts="--recurse"
-    opts="${global} ${omx} ${server} ${client} ${gmusic} ${tunein} ${youtube} ${plex} ${iheart}"
+    opts="${global} ${omx} ${server} ${client} ${tunein} ${youtube} ${plex} ${iheart}"
 
     helpkeyword="help"
-    helpopts="global openmax server client googlemusic tunein youtube plex iheart keyboard config examples"
+    helpopts="global openmax server client tunein youtube plex iheart keyboard config examples"
 
     roleskeyword="roles-of-comp"
 

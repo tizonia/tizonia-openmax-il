@@ -27,7 +27,6 @@ EXAMPLES
      openmax       Various OpenMAX IL query options.
      server        SHOUTcast/ICEcast streaming server options.
      client        SHOUTcast/ICEcast streaming client options.
-     googlemusic   Google Play Music options.
      tunein        TuneIn options.
      youtube       YouTube options.
      plex          Plex options.

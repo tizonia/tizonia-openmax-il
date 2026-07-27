@@ -190,16 +190,6 @@ namespace tiz
       static OMX_ERRORTYPE set_chromecast_name_or_ip (
           const OMX_HANDLETYPE handle, const std::string &name_or_ip);
 
-      static OMX_ERRORTYPE set_gmusic_user_and_device_id (
-          const OMX_HANDLETYPE handle, const std::string &user,
-          const std::string &pass, const std::string &device_id);
-
-      static OMX_ERRORTYPE set_gmusic_playlist (
-          const OMX_HANDLETYPE handle, const std::string &playlist,
-          const OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE playlist_type,
-          const std::string &additional_keywords, const bool unlimited,
-          const bool shuffle);
-
 #ifdef HAVE_SOUNDCLOUD
       static OMX_ERRORTYPE set_scloud_oauth_token (
           const OMX_HANDLETYPE handle, const std::string &oauth_token);

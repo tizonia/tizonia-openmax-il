@@ -145,12 +145,6 @@ clients/iheart/libtiziheart/Makefile
 clients/iheart/libtiziheart/src/Makefile
 clients/iheart/libtiziheart/tests/Makefile
 clients/iheart/libtiziheart/tizonia
-clients/gmusic/Makefile
-clients/gmusic/gmusicproxy/Makefile
-clients/gmusic/libtizgmusic/Makefile
-clients/gmusic/libtizgmusic/src/Makefile
-clients/gmusic/libtizgmusic/tests/Makefile
-clients/gmusic/libtizgmusic/tizonia
 clients/soundcloud/Makefile
 clients/soundcloud/libtizsoundcloud/Makefile
 clients/soundcloud/libtizsoundcloud/src/Makefile

@@ -29,9 +29,8 @@ script bind mounts the host's ``$HOME/.config/tizonia`` to make
    The Tizonia process running inside the container needs 'rwx' permissions on
    ``$HOME/.config/tizonia``.
 
-The script also bind mounts the host's ``$HOME/.cache`` to allow
-debug logs to be written to disk. For example, gmusicapi logs for Google Play
-Music can be found at ``$HOME/.cache/gmusicapi/log/gmusicapi.log``.
+The script also bind mounts the host's ``$HOME/.cache`` to allow debug logs to
+be written to disk.
 
 .. code-block:: bash
 

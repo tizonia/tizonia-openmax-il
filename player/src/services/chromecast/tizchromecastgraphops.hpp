@@ -59,7 +59,6 @@ namespace tiz
     private:
       void do_configure_chromecast ();
       void do_configure_http ();
-      void do_configure_gmusic ();
 #ifdef HAVE_SOUNDCLOUD
       void do_configure_scloud ();
 #endif

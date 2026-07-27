@@ -2,7 +2,7 @@
 .
 .TH "TIZONIA" "1" "May 22, 2020" "0.22.0" "Tizonia"
 .SH NAME
-tizonia \- A command-line streaming music client/server for Linux with support for Google Play Music, YouTube, TuneIn Internet Radio, Plex servers and Chromecast devices.
+tizonia \- A command-line streaming music client/server for Linux with support for YouTube, TuneIn Internet Radio, Plex servers and Chromecast devices.
 .
 .nr rst2man-indent-level 0
 .
@@ -95,7 +95,6 @@ There is NO WARRANTY, to the extent permitted by law.
   openmax       Various OpenMAX IL query options.
   server        SHOUTcast/ICEcast streaming server options.
   client        SHOUTcast/ICEcast streaming client options.
-  googlemusic   Google Play Music options.
   tunein        TuneIn options.
   youtube       YouTube options.
   plex          Plex options.
@@ -260,19 +259,6 @@ default\-audio\-renderer = OMX.Aratelia.audio_renderer.pulseaudio.pcm
 #
 mpris\-enabled = false
 
-
-# Google Play Music configuration
-# \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
-# To avoid passing this information on the command line, uncomment and
-# configure here.
-#
-# gmusic.user       = user@gmail.com
-# gmusic.password   = pass (account password or app\-specific password for
-#                          2\-factor users)
-# gmusic.device_id  = deviceid (16 hex digits, e.g. \(aq1234567890abcdef\(aq)
-# gmusic.buffer_seconds = size of the audio buffer (in seconds) to use while
-#                         downloading streams. Default: 720. Increase in
-#                         case of cuts.
 
 
 # Tunein configuration
@@ -533,7 +519,7 @@ under this categoray are listed below.
 .INDENT 0.0
 .TP
 .B \fB\-h [ \-\-help ] [=arg(=help)]\fP
-Print a usage message for a specific help topic (e.g. global, openmax, server, googlemusic, tunein, etc).
+Print a usage message for a specific help topic (e.g. global, openmax, server, tunein, etc).
 .TP
 .B \fB\-v [ \-\-version ]\fP
 Print the version information.
@@ -548,194 +534,12 @@ Shuffle the playlist.
 Run in the background.
 .TP
 .B \fB\-c [ \-\-cast ] arg\fP
-Cast to a Chromecast device (arg: device name or ip address). Available in combination with Google Play Music, YouTube, Plex and HTTP radio stations.
+Cast to a Chromecast device (arg: device name or ip address). Available in combination with YouTube, Plex and HTTP radio stations.
 .TP
 .B \fB\-b [ \-\-buffer\-seconds ] arg\fP
-Size of the buffer (in seconds) to be used while downloading streams. Increase in case of cuts in gmusic, youtube or plex.
+Size of the buffer (in seconds) to be used while downloading streams. Increase in case of cuts in YouTube or Plex.
 .UNINDENT
-.SH GOOGLE PLAY MUSIC
-.sp
-Music streaming from the Google Play Music service is supported on both free
-and paid tiers. In both cases, credentials are required to be input via
-command\-line or configuration file.
-.SS CONFIGURATION
-.sp
-The Tizonia configuration file contains a block under the \fB[tizonia]\fP section
-like the one pictured below (see also tizonia\-config\-label).
-.sp
-\fBWARNING:\fP
-.INDENT 0.0
-.INDENT 3.5
-When user names and passwords are stored in your local
-\fBtizonia.conf\fP, please ensure that this file has the correct
-file system permissions to prevent other users from accessing your
-credentials.
-.sp
-E.g.: \fB$ chmod og\-rwx $HOME/.config/tizonia/tizonia.conf\fP
-.UNINDENT
-.UNINDENT
-.INDENT 0.0
-.INDENT 3.5
-.sp
-.nf
-.ft C
-# Google Play Music configuration
-# \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
-# To avoid passing this information on the command line, uncomment and
-# configure here.
-#
-# gmusic.user       = user@gmail.com
-# gmusic.password   = pass (account password or app\-specific password for
-#                          2\-factor users)
-# gmusic.device_id  = deviceid (16 hex digits, e.g. \(aq1234567890abcdef\(aq)
-# gmusic.buffer_seconds = size of the audio buffer (in seconds) to use while
-#                         downloading streams. Default: 720. Increase in
-#                         case of cuts.
-.ft P
-.fi
-.UNINDENT
-.UNINDENT
-.INDENT 0.0
-.TP
-.B \fBgmusic.user\fP
-The Google Play Music account username, e.g. \fI\%\(aquser@gmail.com\fP\(aq or just \(aquser\(aq.
-.TP
-.B \fBgmusic.password\fP
-Account password or app\-specific password for 2\-factor users.
-.sp
-Note that there are two options to allow Tizonia access to a Google Play
-Music account:
-.INDENT 7.0
-.IP \(bu 2
-The "Less secure app access" setting is enabled on the Google account:
-\- See \fI\%https://myaccount.google.com/lesssecureapps\fP
-.IP \(bu 2
-An app\-specific password is used with Tizonia if 2\-factor authentication is
-enabled on the account:
-\- See \fI\%https://support.google.com/accounts/answer/185833\fP
-.UNINDENT
-.sp
-Note that Tizonia caches the authentication token received from Google Play
-Music on the first successful access to the service (i.e. with a valid
-username and password) and uses this token to re\-authenticate in subsequent
-attempts to access the service. When the token expires, Tizonia accesses the
-service with username and password once more to retrieve a new token.
-.TP
-.B \fBgmusic.device_id\fP
-An Android device id associated to your account. This is usually a 16\-digit
-hexadecimal number, e.g. \(aq1234567890abcdef\(aq. There are step\-by\-step tutorials
-on the Internet that may help with finding the device id on Android or iOS
-devices. There are also some apps in the Google Play store that may help with
-that, e.g.  \fI\%Device ID\fP\&.
-If you are a Google Play Music subscriber, you may also try to input a random
-device id. When using a random device id with a subscriber account, the
-software will return a list of real device ids associated to the account.
-.TP
-.B \fBgmusic.buffer_seconds\fP
-This is the minimum size of the audio buffer (in seconds) that Tizonia will
-use while downloading the audio streams. It may be increased in case of
-cuts, but usually not required. Default: 720.
-.UNINDENT
-.SS OPTIONS
-.sp
-\fBNOTE:\fP
-.INDENT 0.0
-.INDENT 3.5
-Command\-line options that contain \fBunlimited\fP represent those
-that require a \(aqPremium\(aq subscription to operate.
-.UNINDENT
-.UNINDENT
-.INDENT 0.0
-.TP
-.B \fB\-\-gmusic\-user arg\fP
-Google Play Music user name (not required if provided via config file).
-.TP
-.B \fB\-\-gmusic\-password arg\fP
-Google Play Music user\(aqs password (not required if provided via config file).
-.TP
-.B \fB\-\-gmusic\-device\-id arg\fP
-Google Play Music device id (not required if provided via config file).
-.TP
-.B \fB\-\-gmusic\-additional\-keywords arg\fP
-Additional search keywords (this is optional: use in conjunction
-with\-\-gmusic\-unlimited\-activity).
-.TP
-.B \fB\-\-gmusic\-library\fP
-Play all tracks from the user\(aqs library.
-.TP
-.B \fB\-\-gmusic\-tracks arg\fP
-Play tracks from the user\(aqs library by track name.
-.TP
-.B \fB\-\-gmusic\-artist arg\fP
-Play tracks from the user\(aqs library by artist.
-.TP
-.B \fB\-\-gmusic\-album arg\fP
-Play an album from the user\(aqs library.
-.TP
-.B \fB\-\-gmusic\-playlist arg\fP
-A playlist from the user\(aqs library.
-.TP
-.B \fB\-\-gmusic\-podcast arg\fP
-Search and play Google Play Music podcasts (only available in the US and
-Canada).
-.TP
-.B \fB\-\-gmusic\-station arg\fP
-Search and play Google Play Music free stations.
-.TP
-.B \fB\-\-gmusic\-unlimited\-station arg\fP
-Search and play Google Play Music Unlimited stations found in the user\(aqs library.
-.TP
-.B \fB\-\-gmusic\-unlimited\-album arg\fP
-Search and play Google Play Music Unlimited tracks by album (best match only).
-.TP
-.B \fB\-\-gmusic\-unlimited\-artist arg\fP
-Search and play Google Play Music Unlimited tracks by artist (best match only).
-.TP
-.B \fB\-\-gmusic\-unlimited\-tracks arg\fP
-Search and play Google Play Music Unlimited tracks by name (50 first matches only).
-.TP
-.B \fB\-\-gmusic\-unlimited\-playlist arg\fP
-Search and play Google Play Music Unlimited playlists by name.
-.TP
-.B \fB\-\-gmusic\-unlimited\-genre arg\fP
-Search and play Google Play Music Unlimited tracks by genre.
-.TP
-.B \fB\-\-gmusic\-unlimited\-activity arg\fP
-Search and play Google Play Music Unlimited tracks by activity.
-.TP
-.B \fB\-\-gmusic\-unlimited\-feeling\-lucky\-station\fP
-Play the user\(aqs Google Play Music Unlimited \(aqI\(aqm Feeling Lucky\(aq station.
-.TP
-.B \fB\-\-gmusic\-unlimited\-promoted\-tracks\fP
-Play Google Play Music Unlimited promoted tracks.
-.UNINDENT
-.SS EXAMPLES
-.INDENT 0.0
-.INDENT 3.5
-.sp
-.nf
-.ft C
-$ tizonia \-\-gmusic\-unlimited\-album \(aqthe division bell\(aq
 
-$ tizonia \-\-gmusic\-unlimited\-feeling\-lucky\-station
-
-$ tizonia \-\-gmusic\-unlimited\-genre "alt metal"
-
-$ tizonia \-\-gmusic\-unlimited\-playlist \(aqnew metal\(aq
-
-$ tizonia \-\-gmusic\-unlimited\-promoted\-tracks
-
-$ tizonia \-\-gmusic\-unlimited\-station "top christmas songs"
-
-$ tizonia \-\-gmusic\-unlimited\-tracks \(aqgun word up\(aq
-
-$ tizonia \-\-gmusic\-unlimited\-activity "working out" \-\-gmusic\-additional\-keywords \(aqchart\(aq
-
-$ tizonia \-\-gmusic\-unlimited\-activity "working out" \-\-gmusic\-additional\-keywords \(aqchart\(aq
-.ft P
-.fi
-.UNINDENT
-.UNINDENT
 .SH YOUTUBE
 .sp
 Streaming from YouTube is possible without credentials. Simply use one of the
@@ -1231,8 +1035,8 @@ Local Media
 .TP
 .B \fB\-c [ \-\-cast ] arg\fP
 Cast to a Chromecast device (arg: device name, \(aqfriendly\(aq name or ip
-address). Available in combination with Google Play Music, YouTube, TuneIn
-and regular HTTP radio stations.
+address). Available in combination with YouTube, TuneIn and regular HTTP radio
+stations.
 .UNINDENT
 .SS EXAMPLES
 .INDENT 0.0
@@ -1246,8 +1050,6 @@ $ tizonia \-\-youtube\-audio\-mix\-search "the greatest show" \-\-cast "Chromeca
 # Using Chromecast device\(aqs IP address
 $ tizonia \-\-tunein\-trending  \-\-cast "192.168.1.141"
 
-# Using Chromecast device\(aqs \(aqfriendly\(aq name
-$ tizonia \-\-gmusic\-artist "dire straits" \-\-cast "kitchen"
 .ft P
 .fi
 .UNINDENT
@@ -1543,16 +1345,9 @@ $ tizonia \-\-roles\-of\-comp OMX.Aratelia.audio_renderer.chromecast
 This software is part of the Tizonia project <https://tizonia.org>
 
 Component [OMX.Aratelia.audio_renderer.chromecast] : role #0 \-> [audio_renderer.chromecast]
-Component [OMX.Aratelia.audio_renderer.chromecast] : role #1 \-> [audio_renderer.chromecast.gmusic]
-Component [OMX.Aratelia.audio_renderer.chromecast] : role #2 \-> [audio_renderer.chromecast.tunein]
-Component [OMX.Aratelia.audio_renderer.chromecast] : role #3 \-> [audio_renderer.chromecast.youtube]
-Component [OMX.Aratelia.audio_renderer.chromecast] : role #4 \-> [audio_renderer.chromecast.plex]
-
-
-$ tizonia \-\-comps\-of\-role audio_renderer.chromecast.gmusic
-This software is part of the Tizonia project <https://tizonia.org>
-
-Role [audio_renderer.chromecast.gmusic] found in [OMX.Aratelia.audio_renderer.chromecast]
+Component [OMX.Aratelia.audio_renderer.chromecast] : role #1 \-> [audio_renderer.chromecast.tunein]
+Component [OMX.Aratelia.audio_renderer.chromecast] : role #2 \-> [audio_renderer.chromecast.youtube]
+Component [OMX.Aratelia.audio_renderer.chromecast] : role #3 \-> [audio_renderer.chromecast.plex]
 .ft P
 .fi
 .UNINDENT

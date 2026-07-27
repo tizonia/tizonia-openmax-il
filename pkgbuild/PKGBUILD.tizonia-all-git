@@ -4,7 +4,7 @@ _githubname=tizonia-openmax-il
 pkgname=tizonia-all-git
 pkgver=0.21.0.r4.g920246f5
 pkgrel=1
-pkgdesc="Command-line cloud music player for Linux with support for Google Play Music, YouTube, Plex servers and Chromecast devices."
+pkgdesc="Command-line cloud music player for Linux with support for YouTube, Plex servers and Chromecast devices."
 arch=('x86_64')
 url="https://www.tizonia.org"
 license=('LGPL')
@@ -34,7 +34,6 @@ depends=(
     # AUR:
     'log4c'
     'python-pafy'
-    'python-gmusicapi'
     'python-pychromecast-git'
     'python-plexapi'
     'python-fuzzywuzzy'

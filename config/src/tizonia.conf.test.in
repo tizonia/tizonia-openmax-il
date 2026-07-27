@@ -163,11 +163,3 @@ OMX.Aratelia.audio_renderer.alsa.pcm.alsa_mixer = Master
 default-audio-renderer = OMX.Aratelia.audio_renderer.alsa.pcm
 
 mpris-enabled = false
-
-#####################
-# Google Play Music #
-#####################
-
-# gmusic.user = user@gmail.com
-# gmusic.password = pass
-# gmusic.device_id = deviceid

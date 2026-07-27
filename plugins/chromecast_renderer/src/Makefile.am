@@ -27,10 +27,6 @@ noinst_HEADERS = \
 	cc_cfgport_decls.h \
 	cc_httpprc.h \
 	cc_httpprc_decls.h \
-	cc_gmusicprc.h \
-	cc_gmusicprc_decls.h \
-	cc_gmusiccfgport.h \
-	cc_gmusiccfgport_decls.h \
 	cc_tuneinprc.h \
 	cc_tuneinprc_decls.h \
 	cc_tuneincfgport.h \
@@ -53,8 +49,6 @@ libtizchromecastrnd_la_SOURCES = \
 	cc_prc.c \
 	cc_cfgport.c \
 	cc_httpprc.c \
-	cc_gmusicprc.c \
-	cc_gmusiccfgport.c \
 	cc_tuneinprc.c \
 	cc_tuneincfgport.c \
 	cc_youtubeprc.c \
@@ -68,7 +62,6 @@ libtizchromecastrnd_la_CFLAGS = \
 	@TIZILHEADERS_CFLAGS@ \
 	@TIZPLATFORM_CFLAGS@ \
 	@TIZONIA_CFLAGS@ \
-	@TIZGMUSIC_CFLAGS@ \
 	@TIZTUNEIN_CFLAGS@ \
 	@TIZYOUTUBE_CFLAGS@ \
 	@TIZPLEX_CFLAGS@ \
@@ -81,7 +74,6 @@ libtizchromecastrnd_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERS
 libtizchromecastrnd_la_LIBADD = \
 	@TIZPLATFORM_LIBS@ \
 	@TIZONIA_LIBS@ \
-	@TIZGMUSIC_LIBS@ \
 	@TIZTUNEIN_LIBS@ \
 	@TIZYOUTUBE_LIBS@ \
 	@TIZPLEX_LIBS@ \

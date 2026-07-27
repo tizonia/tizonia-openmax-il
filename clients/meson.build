@@ -1,4 +1,3 @@
-subdir('gmusic')
 if enable_soundcloud
    subdir('soundcloud')
 endif

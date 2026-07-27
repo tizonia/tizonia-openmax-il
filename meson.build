@@ -214,7 +214,6 @@ if enable_test
    if enable_clients
    # "too many arguments to function"
    #   subdir('clients/chromecast/libtizchromecast/tests')
-      subdir('clients/gmusic/libtizgmusic/tests')
    # "too many arguments to function"
    # "too few arguments to function"
    #   subdir('clients/tunein/libtiztunein/tests')

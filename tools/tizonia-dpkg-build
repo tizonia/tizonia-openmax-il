@@ -108,7 +108,6 @@ declare -ar TIZ_TIZONIA_DEPS=( \
 declare -ar TIZ_TIZONIA_PYPI_DEPS=( \
     alabaster \
     breathe \
-    gmusicapi \
     youtube-dl \
     pafy \
     pycountry \
@@ -137,7 +136,6 @@ declare -ar TIZ_DEBIAN_PKGS=( \
 )
 
 readonly TIZ_PYTHON_PROJECTS=( \
-    tizgmusicproxy \
     tizyoutubeproxy \
     tizplexproxy \
     tizchromecastproxy \
@@ -160,8 +158,6 @@ readonly TIZ_PYTHON_PROJECT_DIST_CMD="python3 setup.py sdist && cp dist/*.tar.gz
 declare -Ar TIZ_PROJECT_DIST_CMD=( \
     [tizdbus-c++]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizilheaders]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
-    [tizgmusicproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
-    [tizgmusic]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizyoutubeproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
     [tizyoutube]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizplexproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
@@ -210,8 +206,6 @@ readonly TIZ_PROJECT_DH_MAKE_C_CMD="dh_make -c lgpl3 -l --createorig --yes"
 declare -Ar TIZ_PROJECT_DH_MAKE_CMD=( \
     [tizdbus-c++]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizilheaders]="$TIZ_PROJECT_DH_MAKE_I_CMD" \
-    [tizgmusicproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
-    [tizgmusic]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizyoutubeproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
     [tizyoutube]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizplexproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
@@ -257,8 +251,6 @@ declare -Ar TIZ_PROJECT_DH_MAKE_CMD=( \
 declare -Ar TIZ_PROJECT_MAIN_PKG=( \
     [tizdbus-c++]="libtizdbus-c++0" \
     [tizilheaders]="tizilheaders" \
-    [tizgmusicproxy]="python3-tizgmusicproxy" \
-    [tizgmusic]="libtizgmusic0" \
     [tizyoutubeproxy]="python3-tizyoutubeproxy" \
     [tizyoutube]="libtizyoutube0" \
     [tizplexproxy]="python3-tizplexproxy" \

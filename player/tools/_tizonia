@@ -8,7 +8,7 @@ typeset -A opt_args
 local rc=1
 
 _arguments -S -s \
-  '--help[Help topics.]:Help topics by area:(global openmax server client googlemusic tunein youtube plex chromecast keyboard config examples)' \
+  '--help[Help topics.]:Help topics by area:(global openmax server client tunein youtube plex chromecast keyboard config examples)' \
   '(-b)--buffer-seconds[Size of the audio buffer to use while downloading streams.]' \
   '(-c)--cast[Cast to a Chromecast device (arg: device name, fiendly name or ip address).]' \
   '(-d)--daemon[Run in the brackground.]' \
@@ -18,25 +18,6 @@ _arguments -S -s \
   '(-C)--comps-of-role[Display the OpenMAX IL components that implement the role.]' \
   '(-L)--comp-list[Enumerate all the OpenMAX IL components in the system.]' \
   '(-R)--roles-of-comp[Display the OpenMAX IL roles found in component.]' \
-  '--gmusic-user[Google Play Music user name (not required if provided via config file).]' \
-  '--gmusic-password[Google Play Music users password (not required if provided via config file).]' \
-  '--gmusic-device-id[Google Play Music device id (not required if provided via config file).]' \
-  '--gmusic-album[Play an album from the users library.]' \
-  '--gmusic-artist[Play tracks from the users library by artist.]' \
-  '--gmusic-library[Play all tracks from the users library.]' \
-  '--gmusic-playlist[A playlist from the users library.]' \
-  '--gmusic-podcast[Search and play Google Play Music podcasts.]' \
-  '--gmusic-station[Search and play Google Play Music free stations.]' \
-  '--gmusic-tracks[Play tracks from the users library.]' \
-  '--gmusic-unlimited-activity[Search and play Google Play Music Unlimited tracks by activity.]' \
-  '--gmusic-unlimited-album[Search and play Google Play Music Unlimited tracks by album (best match only).]' \
-  '--gmusic-unlimited-artist[Search and play Google Play Music Unlimited tracks by artist (best match only).]' \
-  '--gmusic-unlimited-feeling-lucky-station[Play the users Google Play Music Unlimited Im Feeling Lucky station.]' \
-  '--gmusic-unlimited-genre[Search and play Google Play Music Unlimited tracks by genre.]' \
-  '--gmusic-unlimited-playlist[Search and play Google Play Music Unlimited playlists.]' \
-  '--gmusic-unlimited-promoted-tracks[Play Google Play Music Unlimited promoted tracks.]' \
-  '--gmusic-unlimited-station[Search and play Google Play Music Unlimited stations found in the users library.]' \
-  '--gmusic-unlimited-tracks[Search and play Google Play Music Unlimited tracks by name (50 first matches only).]' \
   '--tunein-search[TuneIn global station/podcast search.]' \
   '--tunein-local[TuneIn 'local' category search.]' \
   '--tunein-music[TuneIn 'music' category search.]' \

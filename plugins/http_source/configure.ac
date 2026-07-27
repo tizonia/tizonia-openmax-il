@@ -93,16 +93,6 @@ AS_IF([test "x$tiz_found_tizonia_headers" == "xyes"],
 	[PKG_CHECK_MODULES([TIZONIA], [libtizonia >= 0.1.0])],
 	[AC_MSG_NOTICE([Not using pkg-config to find TIZONIA cflags and libs])])
 
-AC_CHECK_HEADERS([tizonia/tizgmusic_c.h],
-	[tiz_found_gmusic_headers=yes; break;])
-AS_IF([test "x$tiz_found_gmusic_headers" != "xyes"],
-	[AC_SUBST([TIZGMUSIC_CFLAGS], ['-I$(top_srcdir)/../../clients/gmusic/libtizgmusic/tizonia'])
-	AC_SUBST([TIZGMUSIC_LIBS], ['$(top_builddir)/../../clients/gmusic/libtizgmusic/tizonia/libtizgmusic.la'])],
-	[AC_MSG_NOTICE([Not substituting TIZGMUSIC cflags and libs with local paths])])
-AS_IF([test "x$tiz_found_gmusic_headers" == "xyes"],
-	[PKG_CHECK_MODULES([TIZGMUSIC], [libtizgmusic >= 0.1.0])],
-	[AC_MSG_NOTICE([Not using pkg-config to find TIZGMUSIC cflags and libs])])
-
 AC_CHECK_HEADERS([tizonia/tiztunein_c.h],
 	[tiz_found_tunein_headers=yes; break;])
 AS_IF([test "x$tiz_found_tunein_headers" != "xyes"],

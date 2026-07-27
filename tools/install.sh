@@ -112,7 +112,6 @@ sudo apt-get update
 if [[ PYVER=3 ]]; then
     sudo apt-get -y install python3-dev python3-pip \
         && sudo -H pip3 install --upgrade \
-                gmusicapi \
                 youtube-dl \
                 pafy \
                 pycountry \
@@ -126,7 +125,6 @@ if [[ PYVER=3 ]]; then
 else
     sudo apt-get -y install python-dev python-pip \
         && sudo -H pip2 install --upgrade \
-                gmusicapi \
                 youtube-dl \
                 pafy \
                 pycountry \
@@ -150,7 +148,7 @@ which tizonia > /dev/null
 if [[ "$?" -eq 0 ]]; then
     echo ; tizonia ; echo
     printf "Tizonia is now installed.\n\n"
-    printf "Please add Google Music and Plex credentials to : $TIZ_CONFIG_FILE\n"
+    printf "Please add Plex credentials to : $TIZ_CONFIG_FILE\n"
 else
     echo "Oops. Something went wrong!"
     exit 1

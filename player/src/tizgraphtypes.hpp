@@ -59,7 +59,6 @@ namespace tiz
     class graph;
     class config;
     class httpservconfig;
-    class gmusicconfig;
 #ifdef HAVE_SOUNDCLOUD
     class scloudconfig;
 #endif
@@ -77,7 +76,6 @@ typedef boost::shared_ptr< tiz::graph::graph > tizgraph_ptr_t;
 typedef std::map< std::string, tizgraph_ptr_t > tizgraph_ptr_map_t;
 typedef boost::shared_ptr< tiz::graph::config > tizgraphconfig_ptr_t;
 typedef boost::shared_ptr< tiz::graph::httpservconfig > tizhttpservconfig_ptr_t;
-typedef boost::shared_ptr< tiz::graph::gmusicconfig > tizgmusicconfig_ptr_t;
 #ifdef HAVE_SOUNDCLOUD
 typedef boost::shared_ptr< tiz::graph::scloudconfig > tizscloudconfig_ptr_t;
 #endif

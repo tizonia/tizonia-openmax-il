@@ -44,7 +44,6 @@
 #include "tizchromecastconfig.hpp"
 #include "tizchromecastgraphops.hpp"
 #include <tiztuneinconfig.hpp>
-#include <tizgmusicconfig.hpp>
 #include <tizgraph.hpp>
 #include <tizgraphutil.hpp>
 #include <tizprobe.hpp>
@@ -99,12 +98,6 @@ void graph::chromecastops::do_load ()
     role_lst_.push_back ("audio_renderer.chromecast");
     config_service_func_
         = boost::bind (&tiz::graph::chromecastops::do_configure_http, this);
-  }
-  else if (config_type == cc_cfg_t::ConfigGoogleMusic)
-  {
-    role_lst_.push_back ("audio_renderer.chromecast.gmusic");
-    config_service_func_
-        = boost::bind (&tiz::graph::chromecastops::do_configure_gmusic, this);
   }
 #ifdef HAVE_SOUNDCLOUD
   else if (config_type == cc_cfg_t::ConfigSoundCloud)
@@ -298,29 +291,6 @@ void graph::chromecastops::do_configure_http ()
   G_OPS_BAIL_IF_ERROR (
       util::set_content_uri (handles_[0], playlist_->get_current_uri ()),
       "Unable to set OMX_IndexParamContentURI");
-}
-
-void graph::chromecastops::do_configure_gmusic ()
-{
-  assert (cc_config_);
-  tizgmusicconfig_ptr_t gmusic_config
-      = boost::dynamic_pointer_cast< gmusicconfig > (
-          cc_config_->get_service_config ());
-  assert (gmusic_config);
-
-  G_OPS_BAIL_IF_ERROR (
-      tiz::graph::util::set_gmusic_user_and_device_id (
-          handles_[0], gmusic_config->get_user_name (),
-          gmusic_config->get_user_pass (), gmusic_config->get_device_id ()),
-      "Unable to set OMX_TizoniaIndexParamAudioGmusicSession");
-
-  G_OPS_BAIL_IF_ERROR (
-      tiz::graph::util::set_gmusic_playlist (
-          handles_[0], playlist_->get_current_uri (),
-          gmusic_config->get_playlist_type (),
-          gmusic_config->get_additional_keywords (),
-          gmusic_config->is_unlimited_search (), playlist_->shuffle ()),
-      "Unable to set OMX_TizoniaIndexParamAudioGmusicPlaylist");
 }
 
 #ifdef HAVE_SOUNDCLOUD

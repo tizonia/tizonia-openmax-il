@@ -46,7 +46,6 @@ namespace tiz
       enum service_config_type_t
         {
          ConfigHttpStreaming,
-         ConfigGoogleMusic,
 #ifdef HAVE_SOUNDCLOUD
          ConfigSoundCloud,
 #endif

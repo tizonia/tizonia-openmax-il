@@ -21,7 +21,7 @@
  * @file   cc_cfgport.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief A specialised config port class for the Google music renderer component
+ * @brief A specialised config port class for the Chromecast renderer component
  *
  *
  */

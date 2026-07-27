@@ -12,8 +12,7 @@ Vcs-Browser: https://github.com/tizonia/tizonia-openmax-il
 Package: tizonia-config
 Architecture: any
 Description: Tizonia command-line music player (config files)
- A command-line music player and streaming server with support
- for Google Play Music.
+ A command-line music player and streaming server configuration package.
 
 Package: tizonia-all
 Architecture: any
@@ -22,13 +21,11 @@ Section: libs
 Depends: tizilheaders,
     libtizdbus-c++0,
     libtizdbus-c++-bin,
-    python3-tizgmusicproxy,
     python3-tizyoutubeproxy,
     python3-tizplexproxy,
     python3-tizchromecastproxy,
     python3-tiztuneinproxy,
     python3-tiziheartproxy,
-    libtizgmusic0,
     libtizyoutube0,
     libtizplex0,
     libtizchromecast0,
@@ -66,6 +63,6 @@ Depends: tizilheaders,
     tizonia-config
 Description: Tizonia command-line music player (metapackage)
  A command-line music player and streaming server with support
-  for Google Play Music, YouTube, Plex servers and Chromecast devices.
+  for YouTube, Plex servers and Chromecast devices.
  .
  This is a metapackage that depends on all Tizonia libraries.

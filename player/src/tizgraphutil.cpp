@@ -802,53 +802,6 @@ OMX_ERRORTYPE graph::util::set_chromecast_name_or_ip (
       &sessiontype);
 }
 
-OMX_ERRORTYPE graph::util::set_gmusic_user_and_device_id (
-    const OMX_HANDLETYPE handle, const std::string &user,
-    const std::string &pass, const std::string &device_id)
-{
-  // Set the Google Play Music user and pass
-  OMX_TIZONIA_AUDIO_PARAM_GMUSICSESSIONTYPE sessiontype;
-  TIZ_INIT_OMX_STRUCT (sessiontype);
-  tiz_check_omx (OMX_GetParameter (
-      handle,
-      static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioGmusicSession),
-      &sessiontype));
-  tiz::graph::util::copy_omx_string (sessiontype.cUserName, user);
-  tiz::graph::util::copy_omx_string (sessiontype.cUserPassword, pass);
-  tiz::graph::util::copy_omx_string (sessiontype.cDeviceId, device_id);
-  return OMX_SetParameter (
-      handle,
-      static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioGmusicSession),
-      &sessiontype);
-}
-
-OMX_ERRORTYPE graph::util::set_gmusic_playlist (
-    const OMX_HANDLETYPE handle, const std::string &playlist,
-    const OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE playlist_type,
-    const std::string &additional_keywords, const bool unlimited,
-    const bool shuffle)
-{
-  // Set the Google Play Music playlist
-  OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE playlisttype;
-  TIZ_INIT_OMX_STRUCT (playlisttype);
-  tiz_check_omx (OMX_GetParameter (
-      handle,
-      static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioGmusicPlaylist),
-      &playlisttype));
-  tiz::graph::util::copy_omx_string (playlisttype.cPlaylistName, playlist);
-
-  playlisttype.ePlaylistType = playlist_type;
-  playlisttype.bShuffle = shuffle ? OMX_TRUE : OMX_FALSE;
-  playlisttype.bUnlimitedSearch = unlimited ? OMX_TRUE : OMX_FALSE;
-  tiz::graph::util::copy_omx_string (playlisttype.cAdditionalKeywords,
-                                     additional_keywords);
-
-  return OMX_SetParameter (
-      handle,
-      static_cast< OMX_INDEXTYPE > (OMX_TizoniaIndexParamAudioGmusicPlaylist),
-      &playlisttype);
-}
-
 #ifdef HAVE_SOUNDCLOUD
 OMX_ERRORTYPE
 graph::util::set_scloud_oauth_token (const OMX_HANDLETYPE handle,

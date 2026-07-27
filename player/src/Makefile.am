@@ -71,10 +71,6 @@ noinst_HEADERS = \
 	services/tizservicegraphfsm.hpp \
 	services/tizradiograph.hpp \
 	services/tizradiographfsm.hpp \
-	services/googlemusic/tizgmusicgraph.hpp \
-	services/googlemusic/tizgmusicgraphops.hpp \
-	services/googlemusic/tizgmusicconfig.hpp \
-	services/googlemusic/tizgmusicmgr.hpp \
 	services/youtube/tizyoutubegraph.hpp \
 	services/youtube/tizyoutubegraphfsm.hpp \
 	services/youtube/tizyoutubegraphops.hpp \
@@ -145,9 +141,6 @@ tizonia_SOURCES = \
 	services/tizservicegraphfsm.cpp \
 	services/tizradiograph.cpp \
 	services/tizradiographfsm.cpp \
-	services/googlemusic/tizgmusicgraph.cpp \
-	services/googlemusic/tizgmusicgraphops.cpp \
-	services/googlemusic/tizgmusicmgr.cpp \
 	services/youtube/tizyoutubegraph.cpp \
 	services/youtube/tizyoutubegraphfsm.cpp \
 	services/youtube/tizyoutubegraphops.cpp \
@@ -180,7 +173,6 @@ tizonia_CPPFLAGS = \
 	-I$(top_srcdir)/dbus \
 	-I$(top_srcdir)/src \
 	-I$(top_srcdir)/src/services \
-	-I$(top_srcdir)/src/services/googlemusic \
 	-I$(top_srcdir)/src/services/youtube \
 	-I$(top_srcdir)/src/services/plex \
 	-I$(top_srcdir)/src/services/tunein \

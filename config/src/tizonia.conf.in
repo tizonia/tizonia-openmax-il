@@ -71,20 +71,6 @@ default-audio-renderer = OMX.Aratelia.audio_renderer.pulseaudio.pcm
 mpris-enabled = false
 
 
-# Google Play Music configuration
-# -------------------------------------------------------------------------
-# To avoid passing this information on the command line, uncomment and
-# configure here.
-#
-# gmusic.user       = user@gmail.com
-# gmusic.password   = pass (account password or app-specific password for
-#                          2-factor users)
-# gmusic.device_id  = deviceid (16 hex digits, e.g. '1234567890abcdef')
-# gmusic.buffer_seconds = size of the audio buffer (in seconds) to use while
-#                         downloading streams. Default: 720. Increase in
-#                         case of cuts.
-
-
 # Tunein configuration
 # -------------------------------------------------------------------------
 # To avoid passing this information on the command line, uncomment and

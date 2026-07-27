@@ -1,2 +1,0 @@
-subdir('gmusicproxy')
-subdir('libtizgmusic')

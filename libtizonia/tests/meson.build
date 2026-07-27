@@ -33,7 +33,6 @@ check_tizonia = executable(
    check_tizonia_sources,
    dependencies: [
       check_dep,
-      libtizgmusic_dep,
       libtizonia_dep
    ]
 )

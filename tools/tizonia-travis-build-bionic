@@ -234,7 +234,7 @@ function install_deps {
 function install_python_deps {
     cd_to_working_dir
 
-    echo "Installing pip and the gmusicapi python module..."
+    echo "Installing pip and Python modules..."
     wget https://bootstrap.pypa.io/get-pip.py \
         && sudo python3 get-pip.py
 
@@ -243,14 +243,6 @@ function install_python_deps {
     if [[ "$exit_status" -ne 0 ]] ; then
         echo "Error while installing pip" >&2
         return
-    fi
-
-    if [[ "$exit_status" -eq 0 ]] ; then
-        pip3 install --user gmusicapi
-        exit_status=$?
-        if [[ "$exit_status" -ne 0 ]] ; then
-            echo "Error while installing gmusicapi" >&2
-        fi
     fi
 
     if [[ "$exit_status" -eq 0 ]] ; then

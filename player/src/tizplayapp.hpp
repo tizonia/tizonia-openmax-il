@@ -59,7 +59,6 @@ namespace tiz
     OMX_ERRORTYPE decode_local ();
     OMX_ERRORTYPE serve_stream ();
     OMX_ERRORTYPE decode_stream ();
-    OMX_ERRORTYPE gmusic_stream ();
 #ifdef HAVE_SOUNDCLOUD
     OMX_ERRORTYPE scloud_stream ();
 #endif
@@ -68,7 +67,6 @@ namespace tiz
     OMX_ERRORTYPE plex_stream ();
     OMX_ERRORTYPE iheart_stream ();
     OMX_ERRORTYPE http_stream_chromecast ();
-    OMX_ERRORTYPE gmusic_stream_chromecast ();
 #ifdef HAVE_SOUNDCLOUD
     OMX_ERRORTYPE scloud_stream_chromecast ();
 #endif

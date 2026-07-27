@@ -2,8 +2,6 @@ libtizhttpsrc_sources = [
    'httpsrc.c',
    'httpsrcport.c',
    'httpsrcprc.c',
-   'gmusicprc.c',
-   'gmusiccfgport.c',
    'youtubeprc.c',
    'youtubecfgport.c',
    'plexprc.c',
@@ -16,7 +14,6 @@ libtizhttpsrc_sources = [
 
 libtizhttpsrc_deps = [
    libtizonia_dep,
-   libtizgmusic_dep,
    libtizyoutube_dep,
    libtizplex_dep,
    libtiztunein_dep,

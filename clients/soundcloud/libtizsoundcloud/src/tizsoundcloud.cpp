@@ -75,7 +75,7 @@ namespace
 
     try
       {
-        // Import the Google Play Music proxy module
+        // Import the SoundCloud proxy module
         bp::object py_main = bp::import ("__main__");
 
         // Retrieve the main module's namespace

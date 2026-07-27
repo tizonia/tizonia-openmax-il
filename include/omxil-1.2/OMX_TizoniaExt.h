@@ -407,8 +407,10 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE {
 } OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE;
 
 /**
- * Google Play Music source component
- * References:
+ * Dormant Google Play Music source ABI declarations.
+ *
+ * Retained for compatibility with existing consumers of this public header.
+ * Tizonia v1 does not register, build, or ship a Google Play Music component.
  *
  */
 

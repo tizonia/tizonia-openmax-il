@@ -6,11 +6,9 @@ declare -ar TIZ_ALL_PACKAGES=( \
    tizilheaders \
    libtizdbus-c++0 \
    libtizdbus-c++-bin \
-   python3-tizgmusicproxy \
    python3-tizyoutubeproxy \
    python3-tizplexproxy \
    python3-tizchromecastproxy \
-   libtizgmusic0 \
    libtizyoutube0 \
    libtizplex0 \
    libtizchromecast0 \

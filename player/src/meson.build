@@ -52,9 +52,6 @@ tizonia_sources = [
    'services/tizservicegraphfsm.cpp',
    'services/tizradiograph.cpp',
    'services/tizradiographfsm.cpp',
-   'services/googlemusic/tizgmusicgraph.cpp',
-   'services/googlemusic/tizgmusicgraphops.cpp',
-   'services/googlemusic/tizgmusicmgr.cpp',
    soundcloud_sources,
    'services/youtube/tizyoutubegraph.cpp',
    'services/youtube/tizyoutubegraphfsm.cpp',
@@ -83,7 +80,6 @@ tizonia_sources = [
 
 tizonia_inc = [
    include_directories('services'),
-   include_directories('services/googlemusic'),
    soundcloud_inc,
    include_directories('services/youtube'),
    include_directories('services/plex'),

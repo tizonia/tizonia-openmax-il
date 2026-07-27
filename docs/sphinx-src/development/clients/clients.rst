@@ -5,7 +5,6 @@ Streaming Client Libraries
    :maxdepth: 1
 
    libtizchromecast
-   libtizgmusic
    libtizplex
    libtizplex
    libtiztunein

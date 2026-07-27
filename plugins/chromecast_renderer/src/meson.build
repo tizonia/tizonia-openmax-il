@@ -3,8 +3,6 @@ libtizchromecastrnd_sources = [
    'cc_prc.c',
    'cc_cfgport.c',
    'cc_httpprc.c',
-   'cc_gmusicprc.c',
-   'cc_gmusiccfgport.c',
    'cc_tuneinprc.c',
    'cc_tuneincfgport.c',
    'cc_youtubeprc.c',
@@ -18,7 +16,6 @@ libtizchromecastrnd_sources = [
 libtizchromecastrnd_deps = [
    libtizonia_dep,
    libtizcastclient_dep,
-   libtizgmusic_dep,
    libtizplex_dep,
    libtizyoutube_dep,
    libtiztunein_dep,

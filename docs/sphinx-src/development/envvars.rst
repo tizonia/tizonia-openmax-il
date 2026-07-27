@@ -11,8 +11,6 @@ Tizonia's Environment Variables
 
 ``TIZONIA_DEBUG_COLOR_TRACE=1``
 
-``TIZONIA_GMUSICPROXY_DEBUG=1``
-
 ``TIZONIA_PLEXPROXY_DEBUG=1``
 
 

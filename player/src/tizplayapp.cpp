@@ -76,8 +76,6 @@
 #include <services/chromecast/tizchromecastmgr.hpp>
 #include <services/tunein/tiztuneinconfig.hpp>
 #include <services/tunein/tiztuneinmgr.hpp>
-#include <services/googlemusic/tizgmusicconfig.hpp>
-#include <services/googlemusic/tizgmusicmgr.hpp>
 #ifdef HAVE_SOUNDCLOUD
 #include <services/soundcloud/tizscloudconfig.hpp>
 #include <services/soundcloud/tizscloudmgr.hpp>
@@ -655,9 +653,6 @@ void tiz::playapp::set_option_handlers ()
   // streaming audio client program options
   popts_.set_option_handler ("decode-stream",
                              boost::bind (&tiz::playapp::decode_stream, this));
-  // Google music streaming client program options
-  popts_.set_option_handler ("gmusic-stream",
-                             boost::bind (&tiz::playapp::gmusic_stream, this));
 #ifdef HAVE_SOUNDCLOUD
   // SoundCloud music streaming client program options
   popts_.set_option_handler ("scloud-stream",
@@ -679,10 +674,6 @@ void tiz::playapp::set_option_handlers ()
   popts_.set_option_handler (
       "http-stream-chromecast",
       boost::bind (&tiz::playapp::http_stream_chromecast, this));
-  // Google music streaming on Chromecast device
-  popts_.set_option_handler (
-      "gmusic-stream-chromecast",
-      boost::bind (&tiz::playapp::gmusic_stream_chromecast, this));
 #ifdef HAVE_SOUNDCLOUD
   // Soudcloud audio streaming on Chromecast device
   popts_.set_option_handler (
@@ -771,9 +762,8 @@ tiz::playapp::print_debug_info () const
           // Retrieve the main module's namespace
           bp::object py_global = py_main.attr ("__dict__");
 
-          std::vector< std::string > modules =  boost::assign::list_of ("gmusicapi")
-            ("youtube-dl")
-            ("pafy")
+          std::vector< std::string > modules
+              = boost::assign::list_of ("youtube-dl") ("pafy")
             ("pycountry")
             ("titlecase")
             ("pychromecast")
@@ -1111,63 +1101,6 @@ tiz::playapp::decode_stream ()
   return rc;
 }
 
-OMX_ERRORTYPE
-tiz::playapp::gmusic_stream ()
-{
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-  const bool shuffle = popts_.shuffle ();
-  const std::string user (popts_.gmusic_user ());
-  std::string pass (popts_.gmusic_password ());
-  std::string device_id (popts_.gmusic_device_id ());
-  std::string additional_keywords (popts_.gmusic_additional_keywords ());
-  const uri_lst_t &uri_list = popts_.gmusic_playlist_container ();
-  const OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE playlist_type
-      = popts_.gmusic_playlist_type ();
-  const bool is_unlimited_search = popts_.gmusic_is_unlimited_search ();
-  const uint32_t buffer_seconds = popts_.gmusic_buffer_seconds ();
-
-  print_banner ();
-
-  // If a username was supplied without a password, prompt for one
-  if (!user.empty () && pass.empty ())
-  {
-    std::string msg (user);
-    msg.append ("'s password:");
-    pass.assign (getpass (msg.c_str ()));
-    printf ("\n");
-  }
-
-  // daemon support
-  (void)daemonize_if_requested ();
-
-  tizplaylist_ptr_t playlist
-      = boost::make_shared< tiz::playlist > (tiz::playlist (uri_list, shuffle));
-
-  assert (playlist);
-  playlist->set_loop_playback (true);
-
-  tizgraphconfig_ptr_t config = boost::make_shared< tiz::graph::gmusicconfig > (
-      playlist, buffer_seconds, user, pass, device_id, playlist_type,
-      additional_keywords, is_unlimited_search);
-
-  // Instantiate the streaming client manager
-  tiz::graphmgr::mgr_ptr_t p_mgr
-      = boost::make_shared< tiz::graphmgr::gmusicmgr > (config);
-
-  // TODO: Check return codes
-  p_mgr->init (playlist, graphmgr_termination_cback ());
-  p_mgr->start ();
-
-  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr, popts_))
-  {
-  }
-
-  p_mgr->quit ();
-  p_mgr->deinit ();
-
-  return rc;
-}
-
 #ifdef HAVE_SOUNDCLOUD
 OMX_ERRORTYPE
 tiz::playapp::scloud_stream ()
@@ -1416,70 +1349,6 @@ tiz::playapp::http_stream_chromecast ()
       = boost::make_shared< tiz::graph::chromecastconfig > (
           cc_name_or_ip, service_config,
           tiz::graph::chromecastconfig::ConfigHttpStreaming);
-
-  // Instantiate the chromecast client manager
-  tiz::graphmgr::mgr_ptr_t p_mgr
-      = boost::make_shared< tiz::graphmgr::chromecastmgr > (config);
-
-  // TODO: Check return codes
-  p_mgr->init (playlist, graphmgr_termination_cback ());
-  p_mgr->start ();
-
-  while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr, popts_))
-  {
-  }
-
-  p_mgr->quit ();
-  p_mgr->deinit ();
-
-  return rc;
-}
-
-OMX_ERRORTYPE
-tiz::playapp::gmusic_stream_chromecast ()
-{
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-  const bool shuffle = popts_.shuffle ();
-  const std::string user (popts_.gmusic_user ());
-  std::string pass (popts_.gmusic_password ());
-  std::string device_id (popts_.gmusic_device_id ());
-  std::string additional_keywords (popts_.gmusic_additional_keywords ());
-  const uri_lst_t &uri_list = popts_.gmusic_playlist_container ();
-  const OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE playlist_type
-      = popts_.gmusic_playlist_type ();
-  const bool is_unlimited_search = popts_.gmusic_is_unlimited_search ();
-  const std::string cc_name_or_ip (popts_.chromecast_name_or_ip ());
-  const uint32_t unused_buffer_seconds = 0; // this is not used during casting
-
-  print_banner ();
-
-  // If a username was supplied without a password, prompt for one
-  if (!user.empty () && pass.empty ())
-  {
-    std::string msg (user);
-    msg.append ("'s password:");
-    pass.assign (getpass (msg.c_str ()));
-    printf ("\n");
-  }
-
-  // daemon support
-  (void)daemonize_if_requested ();
-
-  tizplaylist_ptr_t playlist
-      = boost::make_shared< tiz::playlist > (tiz::playlist (uri_list, shuffle));
-
-  assert (playlist);
-  playlist->set_loop_playback (true);
-
-  tizgraphconfig_ptr_t service_config
-      = boost::make_shared< tiz::graph::gmusicconfig > (
-          playlist, unused_buffer_seconds, user, pass, device_id, playlist_type,
-          additional_keywords, is_unlimited_search);
-
-  tizgraphconfig_ptr_t config
-      = boost::make_shared< tiz::graph::chromecastconfig > (
-          cc_name_or_ip, service_config,
-          tiz::graph::chromecastconfig::ConfigGoogleMusic);
 
   // Instantiate the chromecast client manager
   tiz::graphmgr::mgr_ptr_t p_mgr

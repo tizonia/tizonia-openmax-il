@@ -318,7 +318,6 @@ tiz::programopts::programopts (int argc, char *argv[])
     omx_ ("OpenMAX IL options"),
     server_ ("Audio streaming server options"),
     client_ ("Audio streaming client options"),
-    gmusic_ ("Google Play Music options"),
 #ifdef HAVE_SOUNDCLOUD
     scloud_ ("SoundCloud options"),
 #endif
@@ -348,26 +347,6 @@ tiz::programopts::programopts (int argc, char *argv[])
     sampling_rates_ (),
     sampling_rate_list_ (),
     uri_list_ (),
-    gmusic_user_ (),
-    gmusic_pass_ (),
-    gmusic_device_id_ (),
-    gmusic_artist_ (),
-    gmusic_album_ (),
-    gmusic_playlist_ (),
-    gmusic_station_ (),
-    gmusic_genre_ (),
-    gmusic_activity_ (),
-    gmusic_promoted_ (),
-    gmusic_tracks_ (),
-    gmusic_podcast_ (),
-    gmusic_library_ (),
-    gmusic_free_station_ (),
-    gmusic_feeling_lucky_station_ (),
-    gmusic_additional_keywords_ (),
-    gmusic_playlist_container_ (),
-    gmusic_playlist_type_ (OMX_AUDIO_GmusicPlaylistTypeUnknown),
-    gmusic_is_unlimited_search_ (false),
-    gmusic_buffer_seconds_ (0),
 #ifdef HAVE_SOUNDCLOUD
     scloud_oauth_token_ (),
     scloud_user_stream_ (),
@@ -429,7 +408,6 @@ tiz::programopts::programopts (int argc, char *argv[])
     all_omx_options_ (),
     all_streaming_server_options_ (),
     all_streaming_client_options_ (),
-    all_gmusic_client_options_ (),
 #ifdef HAVE_SOUNDCLOUD
     all_scloud_client_options_ (),
 #endif
@@ -445,7 +423,6 @@ tiz::programopts::programopts (int argc, char *argv[])
   init_omx_options ();
   init_streaming_server_options ();
   init_streaming_client_options ();
-  init_gmusic_options ();
 #ifdef HAVE_SOUNDCLOUD
   init_scloud_options ();
 #endif
@@ -540,9 +517,6 @@ void tiz::programopts::print_usage_help () const
             << "\n";
   std::cout << "  "
             << "client        SHOUTcast/ICEcast streaming client options."
-            << "\n";
-  std::cout << "  "
-            << "googlemusic   Google Play Music options."
             << "\n";
 #ifdef HAVE_SOUNDCLOUD
   std::cout << "  "
@@ -740,154 +714,6 @@ const std::vector< int > &tiz::programopts::sampling_rate_list () const
 const std::vector< std::string > &tiz::programopts::uri_list () const
 {
   return uri_list_;
-}
-
-const std::string &tiz::programopts::gmusic_user () const
-{
-  return gmusic_user_;
-}
-
-const std::string &tiz::programopts::gmusic_password () const
-{
-  return gmusic_pass_;
-}
-
-const std::string &tiz::programopts::gmusic_device_id () const
-{
-  return gmusic_device_id_;
-}
-
-const std::vector< std::string > &tiz::programopts::gmusic_playlist_container ()
-{
-  gmusic_playlist_container_.clear ();
-  if (!gmusic_library_.empty ())
-  {
-    // With gmusic library option, no playlist "name" is actually
-    // required. But this helps keeping track of what is in the container.
-    gmusic_playlist_container_.push_back (gmusic_library_);
-  }
-  else if (!gmusic_tracks_.empty ())
-  {
-    gmusic_playlist_container_.push_back (gmusic_tracks_);
-  }
-  else if (!gmusic_artist_.empty ())
-  {
-    gmusic_playlist_container_.push_back (gmusic_artist_);
-  }
-  else if (!gmusic_album_.empty ())
-  {
-    gmusic_playlist_container_.push_back (gmusic_album_);
-  }
-  else if (!gmusic_playlist_.empty ())
-  {
-    gmusic_playlist_container_.push_back (gmusic_playlist_);
-  }
-  else if (!gmusic_station_.empty ())
-  {
-    gmusic_playlist_container_.push_back (gmusic_station_);
-  }
-  else if (!gmusic_genre_.empty ())
-  {
-    gmusic_playlist_container_.push_back (gmusic_genre_);
-  }
-  else if (!gmusic_activity_.empty ())
-  {
-    gmusic_playlist_container_.push_back (gmusic_activity_);
-  }
-  else if (!gmusic_podcast_.empty ())
-  {
-    gmusic_playlist_container_.push_back (gmusic_podcast_);
-  }
-  else if (!gmusic_free_station_.empty ())
-  {
-    gmusic_playlist_container_.push_back (gmusic_free_station_);
-  }
-  else if (!gmusic_promoted_.empty ())
-  {
-    // With gmusic promoted songs option, no playlist "name" is actually
-    // required. But this helps keeping track of what is in the container.
-    gmusic_playlist_container_.push_back (gmusic_promoted_);
-  }
-  else if (!gmusic_feeling_lucky_station_.empty ())
-  {
-    gmusic_playlist_container_.push_back (gmusic_feeling_lucky_station_);
-  }
-  else
-  {
-    assert (0);
-  }
-  return gmusic_playlist_container_;
-}
-
-OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE
-tiz::programopts::gmusic_playlist_type ()
-{
-  if (!gmusic_library_.empty ())
-  {
-    gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeLibrary;
-  }
-  else if (!gmusic_tracks_.empty ())
-  {
-    gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeTracks;
-  }
-  else if (!gmusic_artist_.empty ())
-  {
-    gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeArtist;
-  }
-  else if (!gmusic_album_.empty ())
-  {
-    gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeAlbum;
-  }
-  else if (!gmusic_playlist_.empty ())
-  {
-    gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeUser;
-  }
-  else if (!gmusic_station_.empty () || !gmusic_feeling_lucky_station_.empty ())
-  {
-    gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeStation;
-  }
-  else if (!gmusic_genre_.empty ())
-  {
-    gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeGenre;
-  }
-  else if (!gmusic_activity_.empty ())
-  {
-    gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeSituation;
-  }
-  else if (!gmusic_podcast_.empty ())
-  {
-    gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypePodcast;
-  }
-  else if (!gmusic_free_station_.empty ())
-  {
-    gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeFreeStation;
-  }
-  else if (!gmusic_promoted_.empty ())
-  {
-    gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypePromotedTracks;
-  }
-  else
-  {
-    gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeUnknown;
-  }
-
-  return gmusic_playlist_type_;
-}
-
-const std::string &
-tiz::programopts::gmusic_additional_keywords () const
-{
-  return gmusic_additional_keywords_;
-}
-
-bool tiz::programopts::gmusic_is_unlimited_search () const
-{
-  return gmusic_is_unlimited_search_;
-}
-
-uint32_t tiz::programopts::gmusic_buffer_seconds () const
-{
-  return buffer_seconds_ ? buffer_seconds_ : gmusic_buffer_seconds_;
 }
 
 #ifdef HAVE_SOUNDCLOUD
@@ -1272,7 +1098,7 @@ void tiz::programopts::init_global_options ()
        greedy_implicit_value< std::string > (&help_option_)
            ->implicit_value (std::string ("help")),
        "Print a usage message for a specific help topic (e.g. global, "
-       "openmax, server, googlemusic, tunein, etc).")
+       "openmax, server, tunein, etc).")
       /* TIZ_CLASS_COMMENT: */
       ("version,v", "Print the version information.")
       /* TIZ_CLASS_COMMENT: */
@@ -1287,12 +1113,11 @@ void tiz::programopts::init_global_options ()
       /* TIZ_CLASS_COMMENT: */
       ("cast,c", po::value (&chromecast_name_or_ip_),
        "Cast to a Chromecast device (arg: device name or ip address). "
-       "Available in combination with Google Play Music, YouTube, TuneIn "
-       "and HTTP radio stations.")
+       "Available in combination with YouTube, TuneIn and HTTP radio stations.")
       /* TIZ_CLASS_COMMENT: */
       ("buffer-seconds,b", po::value (&buffer_seconds_),
        "Size of the buffer (in seconds) to be used while downloading streams. "
-       "Increase in case of cuts in gmusic, youtube or plex.");
+       "Increase in case of cuts in youtube or plex.");
 
   register_consume_function (&tiz::programopts::consume_global_options);
   // TODO: help and version are not included. These should be moved out of
@@ -1309,8 +1134,7 @@ void tiz::programopts::init_global_options ()
       /* TIZ_CLASS_COMMENT: */
       ("cast,c", po::value (&chromecast_name_or_ip_),
        "Cast to a Chromecast device (arg: device name, 'friendly' name or ip address). "
-       "Available in combination with Google Play Music, YouTube, Plex "
-       "and HTTP radio stations.");
+       "Available in combination with YouTube, Plex and HTTP radio stations.");
 }
 
 void tiz::programopts::init_debug_options ()
@@ -1403,94 +1227,6 @@ void tiz::programopts::init_streaming_client_options ()
       &tiz::programopts::consume_streaming_client_options);
   all_streaming_client_options_
       = boost::assign::list_of ("station-id")
-            .convert_to_container< std::vector< std::string > > ();
-}
-
-void tiz::programopts::init_gmusic_options ()
-{
-  gmusic_.add_options ()
-      /* TIZ_CLASS_COMMENT: */
-      ("gmusic-user", po::value (&gmusic_user_),
-       "Google Play Music user name (not required if provided via config "
-       "file).")
-      /* TIZ_CLASS_COMMENT: */
-      ("gmusic-password", po::value (&gmusic_pass_),
-       "Google Play Music user's password (not required if provided via config "
-       "file).")
-      /* TIZ_CLASS_COMMENT: */
-      ("gmusic-device-id", po::value (&gmusic_device_id_),
-       "Google Play Music device id (not required if provided via config "
-       "file).")
-      /* TIZ_CLASS_COMMENT: */
-      ("gmusic-additional-keywords", po::value (&gmusic_additional_keywords_),
-       "Additional search keywords (this is optional: use in conjunction with"
-       "--gmusic-unlimited-activity).")
-      /* TIZ_CLASS_COMMENT: */
-      ("gmusic-library", "Play all tracks from the user's library.")
-      /* TIZ_CLASS_COMMENT: */
-      ("gmusic-tracks", po::value (&gmusic_tracks_),
-       "Play tracks from the user's library by track name.")
-      /* TIZ_CLASS_COMMENT: */
-      ("gmusic-artist", po::value (&gmusic_artist_),
-       "Play tracks from the user's library by artist.")
-      /* TIZ_CLASS_COMMENT: */
-      ("gmusic-album", po::value (&gmusic_album_),
-       "Play an album from the user's library.")
-      /* TIZ_CLASS_COMMENT: */
-      ("gmusic-playlist", po::value (&gmusic_playlist_),
-       "A playlist from the user's library.")
-      /* TIZ_CLASS_COMMENT: */
-      ("gmusic-podcast", po::value (&gmusic_podcast_),
-       "Search and play Google Play Music podcasts (only available in the US "
-       "and Canada).")
-      /* TIZ_CLASS_COMMENT: */
-      ("gmusic-station", po::value (&gmusic_free_station_),
-       "Search and play Google Play Music free stations.")
-      /* TIZ_CLASS_COMMENT: */
-      ("gmusic-unlimited-station", po::value (&gmusic_station_),
-       "Search and play Google Play Music Unlimited stations found in the "
-       "user's library.")
-      /* TIZ_CLASS_COMMENT: */
-      ("gmusic-unlimited-album", po::value (&gmusic_album_),
-       "Search and play Google Play Music Unlimited tracks by album (best "
-       "match only).")
-      /* TIZ_CLASS_COMMENT: */
-      ("gmusic-unlimited-artist", po::value (&gmusic_artist_),
-       "Search and play Google Play Music Unlimited tracks by artist (best "
-       "match only).")
-      /* TIZ_CLASS_COMMENT: */
-      ("gmusic-unlimited-tracks", po::value (&gmusic_tracks_),
-       "Search and play Google Play Music Unlimited tracks by name (50 first "
-       "matches only).")
-      /* TIZ_CLASS_COMMENT: */
-      ("gmusic-unlimited-playlist", po::value (&gmusic_playlist_),
-       "Search and play Google Play Music Unlimited playlists by name.")
-      /* TIZ_CLASS_COMMENT: */
-      ("gmusic-unlimited-genre", po::value (&gmusic_genre_),
-       "Search and play Google Play Music Unlimited tracks by genre.")
-      /* TIZ_CLASS_COMMENT: */
-      ("gmusic-unlimited-activity", po::value (&gmusic_activity_),
-       "Search and play Google Play Music Unlimited tracks by activity.")
-      /* TIZ_CLASS_COMMENT: */
-      ("gmusic-unlimited-feeling-lucky-station",
-       "Play the user's Google Play Music Unlimited 'I'm Feeling Lucky' "
-       "station.")
-      /* TIZ_CLASS_COMMENT: */
-      ("gmusic-unlimited-promoted-tracks",
-       "Play Google Play Music Unlimited promoted tracks.");
-
-  register_consume_function (&tiz::programopts::consume_gmusic_client_options);
-  all_gmusic_client_options_
-      = boost::assign::list_of ("gmusic-user") ("gmusic-password") (
-            "gmusic-device-id") ("gmusic-additional-keywords") (
-            "gmusic-library") ("gmusic-tracks") ("gmusic-artist") (
-            "gmusic-album") ("gmusic-playlist") ("gmusic-podcast") (
-            "gmusic-station") ("gmusic-unlimited-station") (
-            "gmusic-unlimited-album") ("gmusic-unlimited-artist") (
-            "gmusic-unlimited-tracks") ("gmusic-unlimited-playlist") (
-            "gmusic-unlimited-genre") ("gmusic-unlimited-activity") (
-            "gmusic-unlimited-feeling-lucky-station") (
-            "gmusic-unlimited-promoted-tracks")
             .convert_to_container< std::vector< std::string > > ();
 }
 
@@ -1702,7 +1438,6 @@ uint32_t tiz::programopts::parse_command_line (int argc, char *argv[])
       .add (omx_)
       .add (server_)
       .add (client_)
-      .add (gmusic_)
 #ifdef HAVE_SOUNDCLOUD
       .add (scloud_)
 #endif
@@ -1780,10 +1515,6 @@ int tiz::programopts::consume_global_options (bool &done,
     else if (0 == help_option_.compare ("client"))
     {
       print_usage_feature (client_);
-    }
-    else if (0 == help_option_.compare ("googlemusic"))
-    {
-      print_usage_feature (gmusic_);
     }
 #ifdef HAVE_SOUNDCLOUD
     else if (0 == help_option_.compare ("soundcloud"))
@@ -1928,144 +1659,6 @@ int tiz::programopts::consume_streaming_client_options (bool &done,
     }
   }
   TIZ_PRINTF_DBG_RED ("streaming-client ; rc = [%s]\n",
-                      rc == EXIT_SUCCESS ? "SUCCESS" : "FAILURE");
-  return rc;
-}
-
-int tiz::programopts::consume_gmusic_client_options (bool &done,
-                                                     std::string &msg)
-{
-  int rc = EXIT_FAILURE;
-  done = false;
-
-  if (validate_gmusic_client_options ())
-  {
-    done = true;
-
-    const int playlist_option_count
-        = vm_.count ("gmusic-library") + vm_.count ("gmusic-tracks")
-          + vm_.count ("gmusic-artist") + vm_.count ("gmusic-album")
-          + vm_.count ("gmusic-playlist") + vm_.count ("gmusic-podcast")
-          + vm_.count ("gmusic-station")
-          + vm_.count ("gmusic-unlimited-station")
-          + vm_.count ("gmusic-unlimited-album")
-          + vm_.count ("gmusic-unlimited-artist")
-          + vm_.count ("gmusic-unlimited-tracks")
-          + vm_.count ("gmusic-unlimited-playlist")
-          + vm_.count ("gmusic-unlimited-genre")
-          + vm_.count ("gmusic-unlimited-activity")
-          + vm_.count ("gmusic-unlimited-feeling-lucky-station")
-          + vm_.count ("gmusic-unlimited-promoted-tracks");
-
-    if (gmusic_user_.empty ())
-    {
-      retrieve_string_from_rc_file ("tizonia", "gmusic.user", gmusic_user_);
-    }
-    if (gmusic_pass_.empty ())
-    {
-      retrieve_string_from_rc_file ("tizonia", "gmusic.password", gmusic_pass_);
-    }
-    if (gmusic_device_id_.empty ())
-    {
-      retrieve_string_from_rc_file ("tizonia", "gmusic.device_id",
-                                    gmusic_device_id_);
-    }
-    if (!buffer_seconds_)
-    {
-      retrieve_tizonia_uint_from_rc_file ("gmusic.buffer_seconds",
-                                          gmusic_buffer_seconds_);
-    }
-
-    if (vm_.count ("gmusic-library"))
-    {
-      // This is not going to be used by the client code, but will help
-      // in gmusic_playlist_type() to decide which playlist type value is
-      // returned.
-      gmusic_library_.assign ("Google Play Music full library playback");
-    }
-
-    if (vm_.count ("gmusic-unlimited-promoted-tracks"))
-    {
-      // This is not going to be used by the client code, but will help
-      // in gmusic_playlist_type() to decide which playlist type value is
-      // returned.
-      gmusic_promoted_.assign ("Google Play Music Unlimited promoted tracks");
-    }
-
-    if (vm_.count ("gmusic-unlimited-feeling-lucky-station"))
-    {
-      gmusic_feeling_lucky_station_.assign ("I'm Feeling Lucky");
-    }
-
-    if (vm_.count ("gmusic-unlimited-station")
-        || vm_.count ("gmusic-unlimited-album")
-        || vm_.count ("gmusic-unlimited-artist")
-        || vm_.count ("gmusic-unlimited-tracks")
-        || vm_.count ("gmusic-unlimited-playlist")
-        || vm_.count ("gmusic-unlimited-genre")
-        || vm_.count ("gmusic-unlimited-activity"))
-    {
-      gmusic_is_unlimited_search_ = true;
-    }
-
-    if (gmusic_user_.empty ())
-    {
-      rc = EXIT_FAILURE;
-      std::ostringstream oss;
-      oss << "Need to provide a Google Play Music user name.";
-      msg.assign (oss.str ());
-    }
-    else if (gmusic_device_id_.empty ())
-    {
-      rc = EXIT_FAILURE;
-      std::ostringstream oss;
-      oss << "A device id must be provided.";
-      msg.assign (oss.str ());
-    }
-    else if (playlist_option_count > 1)
-    {
-      rc = EXIT_FAILURE;
-      std::ostringstream oss;
-      oss << "Only one playlist type must be specified.";
-      msg.assign (oss.str ());
-    }
-    else if (!playlist_option_count)
-    {
-      rc = EXIT_FAILURE;
-      std::ostringstream oss;
-      oss << "A playlist must be specified.";
-      msg.assign (oss.str ());
-    }
-    else if (OMX_AUDIO_GmusicPlaylistTypeSituation != gmusic_playlist_type ()
-             && vm_.count ("gmusic-additional-keywords"))
-    {
-      rc = EXIT_FAILURE;
-      std::ostringstream oss;
-      oss << "The --gmusic-additional-keywords option can only be used in conjunction with\n"
-          << " --gmusic-unlimited-activity";
-      msg.assign (oss.str ());
-    }
-    else if (OMX_AUDIO_GmusicPlaylistTypeUnknown == gmusic_playlist_type ())
-    {
-      rc = EXIT_FAILURE;
-      std::ostringstream oss;
-      oss << "A playlist value must be specified.";
-      msg.assign (oss.str ());
-    }
-    else
-    {
-      if (chromecast_name_or_ip_.empty ())
-      {
-        rc = call_handler (option_handlers_map_.find ("gmusic-stream"));
-      }
-      else
-      {
-        rc = call_handler (
-            option_handlers_map_.find ("gmusic-stream-chromecast"));
-      }
-    }
-  }
-  TIZ_PRINTF_DBG_RED ("gmusic ; rc = [%s]\n",
                       rc == EXIT_SUCCESS ? "SUCCESS" : "FAILURE");
   return rc;
 }
@@ -2593,40 +2186,6 @@ bool tiz::programopts::validate_streaming_server_options () const
   {
     outcome = true;
   }
-  return outcome;
-}
-
-bool tiz::programopts::validate_gmusic_client_options () const
-{
-  bool outcome = false;
-  uint32_t gmusic_opts_count
-      = vm_.count ("gmusic-user") + vm_.count ("gmusic-password")
-        + vm_.count ("gmusic-device-id")
-        + vm_.count ("gmusic-additional-keywords")
-        + vm_.count ("gmusic-library") + vm_.count ("gmusic-tracks")
-        + vm_.count ("gmusic-artist") + vm_.count ("gmusic-album")
-        + vm_.count ("gmusic-playlist") + vm_.count ("gmusic-podcast")
-        + vm_.count ("gmusic-station") + vm_.count ("gmusic-unlimited-station")
-        + vm_.count ("gmusic-unlimited-album")
-        + vm_.count ("gmusic-unlimited-artist")
-        + vm_.count ("gmusic-unlimited-tracks")
-        + vm_.count ("gmusic-unlimited-playlist")
-        + vm_.count ("gmusic-unlimited-genre")
-        + vm_.count ("gmusic-unlimited-activity")
-        + vm_.count ("gmusic-unlimited-feeling-lucky-station")
-        + vm_.count ("gmusic-unlimited-promoted-tracks")
-        + vm_.count ("log-directory");
-
-  std::vector< std::string > all_valid_options = all_gmusic_client_options_;
-  concat_option_lists (all_valid_options, all_global_options_);
-  concat_option_lists (all_valid_options, all_debug_options_);
-
-  if (gmusic_opts_count > 0
-      && is_valid_options_combination (all_valid_options, all_given_options_))
-  {
-    outcome = true;
-  }
-  TIZ_PRINTF_DBG_RED ("outcome = [%s]\n", outcome ? "SUCCESS" : "FAILURE");
   return outcome;
 }
 

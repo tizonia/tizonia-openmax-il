@@ -40,7 +40,6 @@ experience by following a few principles:
    config
    keyboard
    global
-   googlemusic
    youtube
    tunein
    plex

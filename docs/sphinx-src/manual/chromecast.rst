@@ -13,8 +13,8 @@ OPTIONS
 
 ``-c [ --cast ] arg``
     Cast to a Chromecast device (arg: device name, 'friendly' name or ip
-    address). Available in combination with Google Play Music, YouTube, TuneIn
-    and regular HTTP radio stations.
+    address). Available in combination with YouTube, TuneIn and regular HTTP
+    radio stations.
 
 EXAMPLES
 --------
@@ -26,9 +26,6 @@ EXAMPLES
 
    # Using Chromecast device's IP address
    $ tizonia --tunein-trending  --cast "192.168.1.141"
-
-   # Using Chromecast device's 'friendly' name
-   $ tizonia --gmusic-artist "dire straits" --cast "kitchen"
 
 .. rubric:: Footnotes
 

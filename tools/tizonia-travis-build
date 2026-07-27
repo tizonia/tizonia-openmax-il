@@ -183,37 +183,6 @@ function install_deps {
 }
 
 ##################################################################
-# Installs python modules
-#
-# Globals
-#   WORKING_DIR
-#   INSTALL_DIR
-# Arguments:
-#   None
-# Returns:
-#   None
-##################################################################
-function install_python_deps {
-    cd_to_working_dir
-
-    echo "Installing pip and an older version of the gmusicapi python module..."
-    wget https://bootstrap.pypa.io/get-pip.py \
-        && sudo python get-pip.py \
-        && sudo pip install gmusicapi --upgrade
-
-    echo "Now installing the latest gmusicapi from source..."
-    git clone https://github.com/simon-weber/gmusicapi \
-        && cd gmusicapi \
-        && sudo python setup.py install
-
-    if [[ "$exit_status" -ne 0 ]] ; then
-        echo "Error while installing gmusicapi" >&2
-    fi
-
-    return $exit_status
-}
-
-##################################################################
 # Installs the source-based dependencies
 #
 # Globals
@@ -533,9 +502,6 @@ function main {
 
     if [ "$1" == "deps" ];  then
         install_deps
-        exit_status=$?
-    elif [ "$1" == "pydeps" ];  then
-        install_python_deps
         exit_status=$?
     elif [ "$1" == "srcdeps" ];  then
         install_src_deps
