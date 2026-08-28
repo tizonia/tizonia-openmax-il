@@ -39,6 +39,7 @@ pull request template.
 - Fill in the Verification section with the exact commands run and their
   results.
 - Ensure the Scope Checklist remains true before requesting review.
+- When Deck provides a managed worktree and requests a branch-ready report, push the assigned branch and let Deck create the pull request.
 
 ## Verification
 
