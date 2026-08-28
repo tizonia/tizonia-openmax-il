@@ -52,3 +52,35 @@ jobs:
 
       - name: Compile core
         run: meson compile -C build
+
+  playback-smoke:
+    name: Playback smoke tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Ubuntu 24.04 build and playback dependencies
+        run: |
+          sudo apt-get update
+          grep -vE '^[[:space:]]*(#|$)' ci/ubuntu-24.04/apt-packages.txt \
+            | xargs sudo apt-get install -y --no-install-recommends
+
+      - name: Configure playback smoke build
+        run: |
+          meson setup build \
+            --buildtype=plain \
+            --wrap-mode=nodownload \
+            -Dtest=true \
+            -Ddocs=false
+
+      - name: Compile playback smoke build
+        run: meson compile -C build -j1
+
+      - name: Run full test suite
+        run: meson test -C build --print-errorlogs
+
+      - name: Repeat playback smoke suite
+        run: meson test -C build --suite playback-smoke --print-errorlogs

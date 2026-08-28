@@ -31,6 +31,7 @@ uuid-dev
 
 # Test dependency declared by Meson when tests are enabled.
 check
+ffmpeg
 
 # Player, codec, and rendering dependencies for the default non-doc build.
 libasound2-dev
