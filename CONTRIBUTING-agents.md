@@ -45,8 +45,8 @@ pull request template.
 - Run every command in the issue's Verification block before marking the work
   ready.
 - For docs-only issues, also run any lightweight checks requested by the issue.
-- If a command cannot run locally, state why in the pull request and leave the
-  issue open for follow-up.
+- In the pull request, report each exact command and its pass/fail result, and
+  list any skipped or unavailable checks with the reason.
 - Do not close an issue because the change looks obvious; close it only after
   the requested verification passes or the maintainer accepts the documented
   exception.
