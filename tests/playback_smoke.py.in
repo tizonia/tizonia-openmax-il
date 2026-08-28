@@ -138,50 +138,39 @@ def main():
         env['TIZONIA_RC_FILE'] = str(config)
         env['HOME'] = str(directory)
 
-        components = run_checked(
-            [str(PLAYER), '--comp-list'], env=env, label='plugin discovery'
-        )
-        expected_components = [
-            'OMX.Aratelia.audio_decoder.mp3',
-            'OMX.Aratelia.audio_decoder.flac',
-            'OMX.Aratelia.audio_decoder.vorbis',
-            'OMX.Aratelia.audio_decoder.opus',
-            'OMX.Aratelia.audio_decoder.pcm',
-            'OMX.Aratelia.audio_source.http',
-            'OMX.Aratelia.container_demuxer.ogg',
-            'OMX.Aratelia.audio_renderer.alsa.pcm',
-            'OMX.Aratelia.audio_renderer.pulseaudio.pcm',
-        ]
-        missing = [name for name in expected_components if name not in components]
-        if missing:
-            raise RuntimeError(f'plugin discovery did not find: {", ".join(missing)}\n{components}')
-
-        roles = run_checked(
-            [str(PLAYER), '--comps-of-role', 'audio_decoder.mp3'],
-            env=env,
-            label='role discovery',
-        )
-        if 'OMX.Aratelia.audio_decoder.mp3' not in roles:
-            raise RuntimeError(f'MP3 decoder role was not discovered:\n{roles}')
-
-        renderer_roles = run_checked(
-            [str(PLAYER), '--comps-of-role', 'audio_renderer.pcm'],
-            env=env,
-            label='renderer discovery',
-        )
-        missing_renderers = [
-            name
-            for name in (
+        role_expectations = {
+            'audio_reader.binary': ['OMX.Aratelia.file_reader.binary'],
+            'audio_decoder.mp3': ['OMX.Aratelia.audio_decoder.mp3'],
+            'audio_decoder.flac': ['OMX.Aratelia.audio_decoder.flac'],
+            'audio_decoder.vorbis': ['OMX.Aratelia.audio_decoder.vorbis'],
+            'audio_decoder.opus': [
+                'OMX.Aratelia.audio_decoder.opus',
+                'OMX.Aratelia.audio_decoder.opusfile.opus',
+            ],
+            'audio_decoder.pcm': ['OMX.Aratelia.audio_decoder.pcm'],
+            'audio_source.http': ['OMX.Aratelia.audio_source.http'],
+            'source.container_demuxer.ogg': [
+                'OMX.Aratelia.container_demuxer.ogg',
+            ],
+            'audio_renderer.pcm': [
                 'OMX.Aratelia.audio_renderer.alsa.pcm',
                 'OMX.Aratelia.audio_renderer.pulseaudio.pcm',
+            ],
+        }
+        for role, expected_components in role_expectations.items():
+            components = run_checked(
+                [str(PLAYER), '--comps-of-role', role],
+                env=env,
+                label=f'role discovery ({role})',
             )
-            if name not in renderer_roles
-        ]
-        if missing_renderers:
-            raise RuntimeError(
-                f'renderer role was not discovered: {", ".join(missing_renderers)}\n'
-                f'{renderer_roles}'
-            )
+            missing = [
+                name for name in expected_components if name not in components
+            ]
+            if missing:
+                raise RuntimeError(
+                    f'{role} discovery did not find: {", ".join(missing)}\n'
+                    f'{components}'
+                )
 
         fixtures = [
             make_fixture(ffmpeg, directory, 'sample.mp3', 'libmp3lame'),

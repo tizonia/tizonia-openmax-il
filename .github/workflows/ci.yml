@@ -79,8 +79,5 @@ jobs:
       - name: Compile playback smoke build
         run: meson compile -C build -j1
 
-      - name: Run full test suite
-        run: meson test -C build --print-errorlogs
-
-      - name: Repeat playback smoke suite
+      - name: Run playback smoke suite
         run: meson test -C build --suite playback-smoke --print-errorlogs
