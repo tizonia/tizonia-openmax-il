@@ -93,7 +93,7 @@ def make_fixture(ffmpeg, directory, name, codec, format_name=None):
         '-ac',
         '2',
         '-ar',
-        '44100',
+        '48000',
         '-c:a',
         codec,
     ]
