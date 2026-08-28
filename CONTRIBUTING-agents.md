@@ -45,6 +45,7 @@ pull request template.
 - Run every command in the issue's Verification block before marking the work
   ready.
 - For docs-only issues, also run any lightweight checks requested by the issue.
+- Run `git diff --check` before requesting review.
 - In the pull request, report each exact command and its pass/fail result, and
   list any skipped or unavailable checks with the reason.
 - Do not close an issue because the change looks obvious; close it only after
