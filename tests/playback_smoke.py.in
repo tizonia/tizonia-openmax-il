@@ -47,44 +47,6 @@ def run_checked(command, *, env, label):
 
 def play(uri, *, env, label):
     """Start a player graph, allow it to initialise, then quit cleanly."""
-    if label == 'local playback (.mp3)':
-        gdb = shutil.which('gdb')
-        if not gdb:
-            raise RuntimeError('hosted gdb is unavailable')
-        try:
-            completed = subprocess.run(
-                [
-                    gdb,
-                    '--batch',
-                    '--quiet',
-                    '-ex',
-                    'set pagination off',
-                    '-ex',
-                    'run',
-                    '-ex',
-                    'info threads',
-                    '-ex',
-                    'thread apply all bt',
-                    '--args',
-                    str(PLAYER),
-                    uri,
-                ],
-                env=env,
-                text=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                timeout=COMMAND_TIMEOUT,
-                check=False,
-            )
-        except subprocess.TimeoutExpired as error:
-            raise RuntimeError(
-                f'hosted gdb capture timed out:\n{error.stdout or ""}'
-            ) from error
-        raise RuntimeError(
-            f'hosted gdb capture completed with exit code '
-            f'{completed.returncode}:\n{completed.stdout}'
-        )
-
     try:
         process = subprocess.Popen(
             [str(PLAYER), uri],
