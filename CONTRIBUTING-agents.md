@@ -46,6 +46,7 @@ pull request template.
   ready.
 - For docs-only issues, also run any lightweight checks requested by the issue.
 - Run `git diff --check` before requesting review.
+- Before requesting review, confirm `git diff --name-only` lists only intended files.
 - In the pull request, report each exact command and its pass/fail result, and
   list any skipped or unavailable checks with the reason.
 - Do not close an issue because the change looks obvious; close it only after
