@@ -210,7 +210,7 @@ user's entire Google Play Music library.
 
 > See Tizonia's website: [Tizonia v0.13.0 adds support for Plex media servers](https://tizonia.org/news/2018/03/09/release-0-13-0/)
 
-- [2017-08-26] [tizonia-all](https://aur.archlinux.org/packages/tizonia-all/) and [tizonia-all-git](https://aur.archlinux.org/packages/tizonia-all-git/) packages submitted to the [Arch User Repository](https://aur.archlinux.org/)
+- [2017-08-26] [tizonia-all-git](https://aur.archlinux.org/packages/tizonia-all-git/) package submitted to the [Arch User Repository](https://aur.archlinux.org/)
 
 > See Tizonia's website: [Snap package and Docker image available now!](https://tizonia.org/news/2017/12/30/snap-package-and-docker-image/)
 
@@ -297,14 +297,9 @@ following distro/arch combinations:
 # Tizonia installation, you *need* to uninstall it before building a new version.
 # See GitHub issue https://github.com/tizonia/tizonia-openmax-il/issues/485
 
-# For the latest stable release
-$ git clone https://aur.archlinux.org/tizonia-all.git
-$ cd tizonia-all
-$ makepkg -si
-
-# There is also a -git package:
+# Build the latest version from the master branch:
 $ git clone https://aur.archlinux.org/tizonia-all-git.git
-$ cd tizonia-all
+$ cd tizonia-all-git
 $ makepkg -si
 
 ```
