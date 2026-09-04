@@ -210,7 +210,7 @@ user's entire Google Play Music library.
 
 > See Tizonia's website: [Tizonia v0.13.0 adds support for Plex media servers](https://tizonia.org/news/2018/03/09/release-0-13-0/)
 
-- [2017-08-26] [tizonia-all-git](https://aur.archlinux.org/packages/tizonia-all-git/) package submitted to the [Arch User Repository](https://aur.archlinux.org/)
+- [2017-08-26] `tizonia-all` (now retired) and [tizonia-all-git](https://aur.archlinux.org/packages/tizonia-all-git/) packages submitted to the [Arch User Repository](https://aur.archlinux.org/)
 
 > See Tizonia's website: [Snap package and Docker image available now!](https://tizonia.org/news/2017/12/30/snap-package-and-docker-image/)
 
