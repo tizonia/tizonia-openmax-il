@@ -56,6 +56,7 @@
 #endif
 
 #define TIZ_GRAPHMGR_QUEUE_MAX_ITEMS 30
+#define TIZ_GRAPHMGR_THREAD_STACK_SIZE (1024 * 1024)
 
 namespace graphmgr = tiz::graphmgr;
 namespace control = tiz::control;
@@ -123,7 +124,8 @@ graphmgr::mgr::init (const tizplaylist_ptr_t &playlist,
   // Create the manager's thread
   tiz_check_omx_ret_oom (tiz_mutex_lock (&mutex_));
   tiz_check_omx_ret_oom (
-      tiz_thread_create (&thread_, 0, 0, thread_func, this));
+      tiz_thread_create (&thread_, TIZ_GRAPHMGR_THREAD_STACK_SIZE, 0,
+                         thread_func, this));
   tiz_check_omx_ret_oom (tiz_mutex_unlock (&mutex_));
 
   graphmgr_capabilities_t graphmgr_caps;
