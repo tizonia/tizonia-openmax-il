@@ -49,6 +49,7 @@
 #endif
 
 #define TIZ_GRAPH_QUEUE_MAX_ITEMS 30
+#define TIZ_GRAPH_THREAD_STACK_SIZE (1024 * 1024)
 
 namespace graph = tiz::graph;
 
@@ -118,7 +119,8 @@ graph::graph::init ()
   // Create the graph's thread
   tiz_check_omx_ret_oom (tiz_mutex_lock (&mutex_));
   tiz_check_omx_ret_oom (
-      tiz_thread_create (&thread_, 0, 0, thread_func, this));
+      tiz_thread_create (&thread_, TIZ_GRAPH_THREAD_STACK_SIZE, 0, thread_func,
+                         this));
   tiz_check_omx_ret_oom (tiz_mutex_unlock (&mutex_));
 
   // Let's wait until the graph's thread is ready to receive requests
