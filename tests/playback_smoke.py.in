@@ -68,9 +68,36 @@ def play(uri, *, env, label):
     except (BrokenPipeError, OSError):
         output, _ = process.communicate(timeout=COMMAND_TIMEOUT)
     except subprocess.TimeoutExpired as error:
+        thread_states = []
+        try:
+            tasks = sorted(
+                Path(f'/proc/{process.pid}/task').iterdir(),
+                key=lambda task: int(task.name),
+            )
+            for task in tasks:
+                try:
+                    status = task.joinpath('status').read_text(encoding='utf-8')
+                    state = next(
+                        line for line in status.splitlines()
+                        if line.startswith('State:')
+                    )
+                    wchan = task.joinpath('wchan').read_text(encoding='utf-8')
+                    thread_states.append(
+                        f'tid={task.name} {state} wchan={wchan.strip()}'
+                    )
+                except (OSError, StopIteration) as diagnostic_error:
+                    thread_states.append(
+                        f'tid={task.name} unavailable: {diagnostic_error}'
+                    )
+        except OSError as diagnostic_error:
+            thread_states.append(f'thread listing unavailable: {diagnostic_error}')
         process.send_signal(signal.SIGTERM)
-        process.communicate(timeout=5)
-        raise RuntimeError(f'{label} timed out:\n{error.stdout or ""}') from error
+        output, _ = process.communicate(timeout=5)
+        raise RuntimeError(
+            f'{label} timed out (pid={process.pid}):\n'
+            f'{chr(10).join(thread_states)}\n'
+            f'{output or error.stdout or ""}'
+        ) from error
 
     if process.returncode != 0:
         raise RuntimeError(
