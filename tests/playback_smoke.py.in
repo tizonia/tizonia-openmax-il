@@ -179,6 +179,16 @@ def main():
             make_fixture(ffmpeg, directory, 'sample.opus', 'libopus', 'ogg'),
             make_fixture(ffmpeg, directory, 'sample.wav', 'pcm_s16le'),
         ]
+        if os.environ.get('GITHUB_ACTIONS') == 'true':
+            for attempt in range(1, 6):
+                print(f'MP3 diagnostic attempt {attempt}/5', flush=True)
+                play(str(fixtures[0]), env=env,
+                     label=f'local playback (.mp3) attempt {attempt}/5')
+            raise RuntimeError(
+                'MP3 diagnostic completed without sanitizer finding; '
+                'full smoke intentionally not run'
+            )
+
         for fixture in fixtures:
             play(str(fixture), env=env, label=f'local playback ({fixture.suffix})')
 

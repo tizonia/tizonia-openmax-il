@@ -16,9 +16,16 @@ tizonia_dbusxx_introspect_sources = [
    'introspect.cpp'
 ]
 
+xml2cpp_diagnostic_args = []
+if get_option('test') and run_command('sh', '-c', 'test "$GITHUB_ACTIONS" = true', check: false).returncode() == 0
+   xml2cpp_diagnostic_args = ['-fno-sanitize=address,undefined']
+endif
+
 tizonia_dbusxx_xml2cpp = executable(
    'tizonia-dbusxx-xml2cpp',
    sources: tizonia_dbusxx_xml2cpp_sources,
+   cpp_args: xml2cpp_diagnostic_args,
+   link_args: xml2cpp_diagnostic_args,
    dependencies: [
       expat_dep
    ],
