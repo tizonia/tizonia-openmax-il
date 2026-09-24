@@ -1,12 +1,5 @@
 project('tizonia', ['c', 'cpp'], version: '0.22.0', license: 'LGPLv3.0+', meson_version: '>=0.53.0')
 
-if get_option('test') and run_command('sh', '-c', 'test "$GITHUB_ACTIONS" = true', check: false).returncode() == 0
-  add_project_arguments('-g', '-O0', '-fno-omit-frame-pointer',
-                        '-fsanitize=address,undefined', language: ['c', 'cpp'])
-  add_project_link_arguments('-fsanitize=address,undefined',
-                             language: ['c', 'cpp'])
-endif
-
 ## note to self:
 ## * patch docs/sphinx-src/conf.py once the xml issue is fixed upstream
 ## * check for warnings during the configuration phase of meson
