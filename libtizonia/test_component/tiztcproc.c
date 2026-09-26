@@ -74,6 +74,18 @@ tiztc_proc_render_buffer (OMX_BUFFERHEADERTYPE * p_hdr)
 static OMX_ERRORTYPE
 tcprc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
+  enum
+  {
+    TIZ_TC_ALLOC_STACK_TOUCH = 256 * 1024
+  };
+  volatile char stack_touch[TIZ_TC_ALLOC_STACK_TOUCH];
+  OMX_U32 stack_index;
+
+  for (stack_index = 0; stack_index < TIZ_TC_ALLOC_STACK_TOUCH; ++stack_index)
+    {
+      stack_touch[stack_index] = 0;
+    }
+  (void) stack_touch[0];
   return OMX_ErrorNone;
 }
 
