@@ -455,7 +455,7 @@ namespace tiz
 
       struct unloading_graph : public boost::msm::front::state<>
       {
-        typedef boost::mpl::vector<next_evt, prev_evt, position_evt, prnt_plist_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, vol_evt, mute_evt, pause_evt> deferred_events;
+        typedef boost::mpl::vector<next_evt, prev_evt, position_evt, prnt_plist_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, vol_evt, mute_evt, pause_evt, quit_evt> deferred_events;
         template <class Event,class FSM>
         void on_entry(Event const&, FSM& fsm) {GMGR_FSM_LOG ();}
       };

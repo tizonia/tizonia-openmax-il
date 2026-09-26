@@ -6,6 +6,7 @@ option('alsa', type: 'boolean', value: 'true', description: 'build the ALSA-base
 option('aac', type: 'boolean', value: 'true', description: 'build the AAC-based OpenMAX IL plugin (default: yes)')
 option('gcc-warnings', type: 'boolean', value: 'false', description: 'turn on lots of GCC warnings (for developers)')
 option('test', type: 'boolean', value: 'false', description: 'build the test programs (default: disabled)')
+option('live-service-tests', type: 'boolean', value: 'false', description: 'build tests that require live service credentials or network access (default: disabled)')
 option('bashcompletiondir', type: 'string', value: '', description: 'Bash completions directory')
 option('zshcompletiondir', type: 'string', value: '', description: 'Zsh completions directory')
 # this was not present in the original

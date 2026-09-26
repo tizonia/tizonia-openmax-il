@@ -65,6 +65,7 @@
  */
 
 #define TIZ_IL_CORE_THREAD_NAME "omxilcore"
+#define TIZ_IL_CORE_THREAD_STACK_SIZE (1024 * 1024)
 #define TIZ_IL_CORE_RM_NAME "OMX.Aratelia.ilcore"
 #define TIZ_DEFAULT_COMP_ENTRY_POINT_NAME "OMX_ComponentInit"
 #define TIZ_CORE_QUEUE_MAX_ITEMS 30
@@ -1436,7 +1437,8 @@ start_core (void)
   assert (p_core);
 
   /* Create IL Core thread */
-  tiz_thread_create (&(p_core->thread), 0, 0, il_core_thread_func, p_core);
+  tiz_thread_create (&(p_core->thread), TIZ_IL_CORE_THREAD_STACK_SIZE, 0,
+                     il_core_thread_func, p_core);
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "waiting on thread creation.");
   tiz_sem_wait (&(p_core->sem));

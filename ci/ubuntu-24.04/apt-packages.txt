@@ -21,7 +21,7 @@ libboost-thread-dev
 
 # Core libraries.
 libatomic-ops-dev
-libcurl4-openssl-dev
+libcurl4-gnutls-dev
 libdbus-1-dev
 libev-dev
 libexpat1-dev
@@ -31,6 +31,7 @@ uuid-dev
 
 # Test dependency declared by Meson when tests are enabled.
 check
+ffmpeg
 
 # Player, codec, and rendering dependencies for the default non-doc build.
 libasound2-dev
