@@ -56,6 +56,8 @@
 #define SCHED_OMX_DEFAULT_ROLE "default"
 #define SCHED_QUEUE_MAX_ITEMS 30
 
+#define TIZ_SCHED_THREAD_STACK_SIZE (1024 * 1024)
+
 #ifndef S_SPLINT_S
 #define TIZ_COMP_INIT_MSG(hdl, msg, msgtype)         \
   do                                                 \
@@ -2432,8 +2434,9 @@ start_scheduler (tiz_scheduler_t * ap_sched)
 
   /* Create scheduler thread */
   tiz_check_omx_ret_oom (tiz_mutex_lock (&(ap_sched->mutex)));
-  tiz_check_omx_ret_oom (tiz_thread_create (&(ap_sched->thread), 0, 0,
-                                            il_sched_thread_func, ap_sched));
+  tiz_check_omx_ret_oom (tiz_thread_create (&(ap_sched->thread),
+                                        TIZ_SCHED_THREAD_STACK_SIZE, 0,
+                                        il_sched_thread_func, ap_sched));
 
   tiz_check_omx_ret_oom (tiz_mutex_unlock (&(ap_sched->mutex)));
   tiz_check_omx_ret_oom (tiz_sem_wait (&(ap_sched->sem)));
