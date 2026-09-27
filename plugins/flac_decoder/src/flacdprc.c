@@ -31,10 +31,7 @@
 #endif
 
 #include <assert.h>
-#include <errno.h>
 #include <limits.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include <tizplatform.h>
@@ -49,47 +46,6 @@
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.flac_decoder.prc"
 #endif
-
-static unsigned g_diag_mark_count = 0;
-
-static void
-diag_mark_impl (const char *tag, const long a_val, const long b_val,
-                const long c_val, const long d_val, const int with_vals)
-{
-  int saved_errno = errno;
-  const char *guard = getenv ("TIZ_SMOKE_FLAC_MARK");
-  if (guard && 0 == strcmp (guard, "1"))
-    {
-      flockfile (stderr);
-      if (g_diag_mark_count < 128)
-        {
-          if (with_vals)
-            {
-              fprintf (stderr, "SMK %s %ld %ld %ld %ld\n", tag, a_val,
-                       b_val, c_val, d_val);
-            }
-          else
-            {
-              fprintf (stderr, "SMK %s\n", tag);
-            }
-          ++g_diag_mark_count;
-        }
-      else if (g_diag_mark_count == 128)
-        {
-          fprintf (stderr, "SMK truncated budget-exhausted\n");
-          ++g_diag_mark_count;
-        }
-      fflush (stderr);
-      funlockfile (stderr);
-    }
-  errno = saved_errno;
-}
-
-#define DIAG_MARK(tag) diag_mark_impl (tag, 0, 0, 0, 0, 0)
-#define DIAG_MARK2(tag, a, b) \
-  diag_mark_impl (tag, (long) (a), (long) (b), 0, 0, 1)
-#define DIAG_MARK4(tag, a, b, c, d) \
-  diag_mark_impl (tag, (long) (a), (long) (b), (long) (c), (long) (d), 1)
 
 /* Forward declarations */
 static OMX_ERRORTYPE
@@ -310,8 +266,6 @@ input_data_available (flacd_prc_t * ap_prc)
             {
               ap_prc->eos_ = true;
               done = true;
-              DIAG_MARK2 ("flac.input_eos_flagged",
-                          (long) ap_prc->store_offset_, 0);
               /* Clear the EOS flag */
               p_hdr->nFlags &= ~(1 << OMX_BUFFERFLAG_EOS);
             }
@@ -384,15 +338,7 @@ transform_stream (const flacd_prc_t * ap_prc)
          && output_buffers_available (p_prc))
     {
       TIZ_TRACE (handleOf (ap_prc), "decoding");
-      DIAG_MARK4 ("flac.process_single.before", (long) p_prc->store_offset_,
-                  (long) p_prc->eos_,
-                  (long) FLAC__stream_decoder_get_state (p_prc->p_flac_dec_),
-                  0);
       decode_ok = FLAC__stream_decoder_process_single (p_prc->p_flac_dec_);
-      DIAG_MARK4 ("flac.process_single.after", (long) p_prc->store_offset_,
-                  (long) p_prc->eos_,
-                  (long) FLAC__stream_decoder_get_state (p_prc->p_flac_dec_),
-                  (long) decode_ok);
       TIZ_TRACE (handleOf (ap_prc), "decode_ok [%d]", decode_ok);
       if (!decode_ok)
         {
@@ -464,7 +410,6 @@ read_cb (const FLAC__StreamDecoder * ap_decoder, FLAC__byte buffer[],
     {
       rc = FLAC__STREAM_DECODER_READ_STATUS_END_OF_STREAM;
       *ap_bytes = 0;
-      DIAG_MARK ("flac.read_cb.eof");
     }
   else
     {
@@ -550,8 +495,6 @@ write_cb (const FLAC__StreamDecoder * ap_decoder, const FLAC__Frame * ap_frame,
   TIZ_TRACE (handleOf (p_prc), "blocksize : [%d] channels [%d] bps [%d]",
              ap_frame->header.blocksize, ap_frame->header.channels,
              ap_frame->header.bits_per_sample);
-  DIAG_MARK2 ("flac.write_cb", (long) ap_frame->header.blocksize,
-              (long) ap_frame->header.channels);
 
   if (p_prc->channels_ > 2 || (ap_frame->header.bits_per_sample != 8
                                && ap_frame->header.bits_per_sample != 16
@@ -613,7 +556,6 @@ write_cb (const FLAC__StreamDecoder * ap_decoder, const FLAC__Frame * ap_frame,
             /* Propagate EOS flag to output */
             p_out->nFlags |= OMX_BUFFERFLAG_EOS;
             p_prc->eos_ = false;
-            DIAG_MARK ("flac.output_eos_propagated");
           }
         release_header (p_prc, ARATELIA_FLAC_DECODER_OUTPUT_PORT_INDEX);
       }
@@ -646,8 +588,6 @@ metadata_cb (const FLAC__StreamDecoder * ap_decoder,
       TIZ_TRACE (handleOf (p_prc), "bits per sample : [%u]", p_prc->bps_);
       TIZ_TRACE (handleOf (p_prc), "total samples   : [%llu]",
                  p_prc->total_samples_);
-      DIAG_MARK2 ("flac.streaminfo", (long) p_prc->sample_rate_,
-                  (long) p_prc->channels_);
     }
 }
 
@@ -735,7 +675,6 @@ flacd_prc_deallocate_resources (void * ap_obj)
       p_prc->p_flac_dec_ = NULL;
     }
   dealloc_temp_data_store (p_prc);
-  DIAG_MARK ("flac.dealloc.returned");
   return OMX_ErrorNone;
 }
 
@@ -779,21 +718,14 @@ static OMX_ERRORTYPE
 flacd_prc_stop_and_return (void * ap_obj)
 {
   flacd_prc_t * p_prc = ap_obj;
-  OMX_ERRORTYPE flush_rc = OMX_ErrorNone;
   assert (p_prc);
   TIZ_TRACE (handleOf (p_prc), "stop_and_return");
-  DIAG_MARK ("flac.stop.begin");
 
   if (p_prc->p_flac_dec_)
     {
-      DIAG_MARK ("flac.finish.before");
       (void) FLAC__stream_decoder_finish (p_prc->p_flac_dec_);
-      DIAG_MARK ("flac.finish.after");
     }
-  DIAG_MARK ("flac.flush.before");
-  flush_rc = do_flush (p_prc);
-  DIAG_MARK2 ("flac.flush.after", (long) flush_rc, 0);
-  return flush_rc;
+  return do_flush (p_prc);
 }
 
 /*

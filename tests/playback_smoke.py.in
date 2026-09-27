@@ -45,117 +45,32 @@ def run_checked(command, *, env, label):
     return completed.stdout
 
 
-def read_log_tail(path, limit=8192):
-    with open(path, 'rb') as handle:
-        handle.seek(0, os.SEEK_END)
-        size = handle.tell()
-        handle.seek(max(0, size - limit))
-        return handle.read(limit).decode('utf-8', errors='replace')
-
-
-def play(uri, *, env, label, diag_log=None):
+def play(uri, *, env, label):
     """Start a player graph, allow it to initialise, then quit cleanly."""
-    log_handle = open(diag_log, 'wb') if diag_log is not None else None
     try:
         process = subprocess.Popen(
             [str(PLAYER), uri],
             env=env,
             stdin=subprocess.PIPE,
-            stdout=log_handle if log_handle is not None else subprocess.PIPE,
+            stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
-            text=log_handle is None,
+            text=True,
         )
     except OSError as error:
-        if log_handle is not None:
-            try:
-                log_handle.close()
-            except OSError:
-                pass
         raise RuntimeError(f'{label} could not start: {error}') from error
-
-    def diag_cleanup_tail():
-        try:
-            log_handle.flush()
-        except OSError:
-            pass
-        try:
-            return read_log_tail(diag_log)
-        except OSError:
-            return '<diagnostic evidence unavailable (inconclusive)>'
-
-    def diag_terminate_reap():
-        try:
-            process.send_signal(signal.SIGTERM)
-        except OSError:
-            pass
-        try:
-            process.wait(timeout=5)
-            return True
-        except (OSError, subprocess.TimeoutExpired):
-            pass
-        try:
-            process.send_signal(signal.SIGKILL)
-        except OSError:
-            pass
-        try:
-            process.wait(timeout=5)
-            return True
-        except (OSError, subprocess.TimeoutExpired):
-            return False
-
-    def diag_wait_reap():
-        try:
-            process.wait(timeout=COMMAND_TIMEOUT)
-        except subprocess.TimeoutExpired as error:
-            reaped = diag_terminate_reap()
-            tail = diag_cleanup_tail()
-            note = '' if reaped else '\n<child not reaped within bounded cleanup>'
-            raise RuntimeError(f'{label} timed out:\n{tail}{note}') from error
 
     try:
         time.sleep(1)
         if process.poll() is None:
-            process.stdin.write('q' if log_handle is None else b'q')
+            process.stdin.write('q')
             process.stdin.flush()
-        if log_handle is None:
-            output, _ = process.communicate(timeout=COMMAND_TIMEOUT)
-        else:
-            process.stdin.close()
-            diag_wait_reap()
-            output = diag_cleanup_tail()
-            if output:
-                print(f'{label} diagnostic tail:\n{output}', file=sys.stderr)
+        output, _ = process.communicate(timeout=COMMAND_TIMEOUT)
     except (BrokenPipeError, OSError):
-        if log_handle is None:
-            output, _ = process.communicate(timeout=COMMAND_TIMEOUT)
-        else:
-            try:
-                process.stdin.close()
-            except (BrokenPipeError, OSError):
-                pass
-            diag_wait_reap()
-            output = diag_cleanup_tail()
-            if output:
-                print(f'{label} diagnostic tail:\n{output}', file=sys.stderr)
+        output, _ = process.communicate(timeout=COMMAND_TIMEOUT)
     except subprocess.TimeoutExpired as error:
-        if log_handle is None:
-            process.send_signal(signal.SIGTERM)
-            process.communicate(timeout=5)
-            raise RuntimeError(f'{label} timed out:\n{error.stdout or ""}') from error
-        try:
-            process.stdin.close()
-        except (BrokenPipeError, OSError):
-            pass
-        reaped = diag_terminate_reap()
-        tail = diag_cleanup_tail()
-        note = '' if reaped else '\n<child not reaped within bounded cleanup>'
-        raise RuntimeError(f'{label} timed out:\n{tail}{note}') from error
-    finally:
-        if log_handle is not None:
-            try:
-                log_handle.close()
-            except OSError:
-                pass
+        process.send_signal(signal.SIGTERM)
+        process.communicate(timeout=5)
+        raise RuntimeError(f'{label} timed out:\n{error.stdout or ""}') from error
 
     if process.returncode != 0:
         raise RuntimeError(
@@ -220,7 +135,6 @@ def main():
             encoding='utf-8',
         )
         env = os.environ.copy()
-        env.pop('TIZ_SMOKE_FLAC_MARK', None)
         env['TIZONIA_RC_FILE'] = str(config)
         env['HOME'] = str(directory)
 
@@ -266,14 +180,7 @@ def main():
             make_fixture(ffmpeg, directory, 'sample.wav', 'pcm_s16le'),
         ]
         for fixture in fixtures:
-            label = f'local playback ({fixture.suffix})'
-            if fixture.suffix == '.flac':
-                flac_env = env.copy()
-                flac_env['TIZ_SMOKE_FLAC_MARK'] = '1'
-                play(str(fixture), env=flac_env, label=label,
-                     diag_log=directory / 'flac-child.log')
-            else:
-                play(str(fixture), env=env, label=label)
+            play(str(fixture), env=env, label=f'local playback ({fixture.suffix})')
 
         handler = functools.partial(QuietHandler, directory=str(directory))
         server = http.server.ThreadingHTTPServer(('127.0.0.1', 0), handler)
