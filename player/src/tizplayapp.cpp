@@ -129,6 +129,30 @@ namespace
   bool gb_termios_inited = false;
   struct termios old_term = (const struct termios){ 0 };
   struct termios new_term;
+  unsigned g_diag_mark_count = 0;
+
+  void diag_mark (const char *tag)
+  {
+    int saved_errno = errno;
+    const char *guard = getenv ("TIZ_SMOKE_FLAC_MARK");
+    if (guard && 0 == strcmp (guard, "1"))
+      {
+        flockfile (stderr);
+        if (g_diag_mark_count < 128)
+          {
+            fprintf (stderr, "SMK %s\n", tag);
+            ++g_diag_mark_count;
+          }
+        else if (g_diag_mark_count == 128)
+          {
+            fprintf (stderr, "SMK truncated budget-exhausted\n");
+            ++g_diag_mark_count;
+          }
+        fflush (stderr);
+        funlockfile (stderr);
+      }
+    errno = saved_errno;
+  }
 
   enum ETIZPlayUserInput
   {
@@ -287,6 +311,7 @@ namespace
       else
         {
           int ch[2];
+          diag_mark ("player.input.before_getch");
           ch[0] = getch ();
           // printf("\nValue is : %d\n",ch[0]);
           switch (ch[0])
@@ -346,6 +371,7 @@ namespace
               break;
 
             case 'q':
+              diag_mark ("player.q.consumed");
               return ETIZPlayUserQuit;
 
             case 27:
@@ -958,15 +984,21 @@ tiz::playapp::decode_local ()
       = boost::make_shared< tiz::graphmgr::decodemgr > ();
 
   // TODO: Check return codes
+  diag_mark ("player.init.begin");
   p_mgr->init (playlist, graphmgr_termination_cback ());
+  diag_mark ("player.init.returned");
   p_mgr->start ();
+  diag_mark ("player.start.post_returned");
 
   while (ETIZPlayUserQuit != player_wait_for_user_input (p_mgr, popts_))
   {
   }
 
   p_mgr->quit ();
+  diag_mark ("player.quit.post_returned");
+  diag_mark ("player.deinit.begin");
   p_mgr->deinit ();
+  diag_mark ("player.deinit.returned");
 
   return rc;
 }
