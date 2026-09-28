@@ -37,6 +37,7 @@
 #include <tizplatform.h>
 
 #include "tizgraphevt.hpp"
+#include "tizdiagmark.hpp"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -78,13 +79,41 @@ namespace tiz
                      "GRAPH : Injecting "                               \
                      "CMD [%s] in STATE [%s]...",                       \
                      arg.c_str (), pstate (machine));                   \
-            machine.process_event (boost::any_cast< the_evt >(evt_));   \
+            const int tiz_diag_state_before = machine.current_state ()[0];   \
+            const int tiz_diag_outcome = static_cast< int > (                \
+              machine.process_event (boost::any_cast< the_evt >(evt_)));     \
+            std::string tiz_diag_tag = std::string ("graph.inject.") + arg;  \
+            tizdiag::mark (tiz_diag_tag.c_str (),                            \
+                           (long) tiz_diag_state_before,                     \
+                           (long) machine.current_state ()[0],               \
+                           (long) tiz_diag_outcome);                         \
           }
 
         INJECT_EVENT (load_evt)
         else INJECT_EVENT (execute_evt)
           else INJECT_EVENT (configured_evt)
-            else INJECT_EVENT (omx_trans_evt)
+            else if (is_type< omx_trans_evt >(evt_))
+              {
+                std::string arg ("omx_trans_evt");
+                TIZ_LOG (TIZ_PRIORITY_NOTICE,
+                         "GRAPH : Injecting "
+                         "CMD [%s] in STATE [%s]...",
+                         arg.c_str (), pstate (machine));
+                const omx_trans_evt tiz_diag_evt
+                  = boost::any_cast< omx_trans_evt >(evt_);
+                const int tiz_diag_state_before = machine.current_state ()[0];
+                const int tiz_diag_outcome = static_cast< int > (
+                  machine.process_event (tiz_diag_evt));
+                tizdiag::mark ("graph.inject.omx_trans_evt",
+                               (long) tiz_diag_state_before,
+                               (long) machine.current_state ()[0],
+                               (long) tiz_diag_outcome);
+                tizdiag::mark4 ("graph.omx_trans",
+                                (long) (intptr_t) tiz_diag_evt.handle_,
+                                (long) OMX_CommandStateSet,
+                                (long) tiz_diag_evt.state_,
+                                (long) tiz_diag_evt.error_);
+              }
               else INJECT_EVENT (skip_evt)
                 else INJECT_EVENT (position_evt)
                   else INJECT_EVENT (prnt_plist_evt)

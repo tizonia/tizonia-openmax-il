@@ -40,6 +40,7 @@
 
 #include "tizgraphutil.hpp"
 #include "tizomxutil.hpp"
+#include "tizdiagmark.hpp"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -60,7 +61,17 @@ namespace  // Unnamed namespace
     void operator() (const OMX_HANDLETYPE &handle)
     {
       if (OMX_ErrorNone == error_)
-        error_ = OMX_SendCommand (handle, OMX_CommandStateSet, to_state_, NULL);
+        {
+          tizdiag::mark4 ("omx.sendcommand.stateset.before",
+                          (long) (intptr_t) handle,
+                          (long) OMX_CommandStateSet, (long) to_state_, 0);
+          error_
+            = OMX_SendCommand (handle, OMX_CommandStateSet, to_state_, NULL);
+          tizdiag::mark4 ("omx.sendcommand.stateset.after",
+                          (long) (intptr_t) handle,
+                          (long) OMX_CommandStateSet, (long) to_state_,
+                          (long) error_);
+        }
       tiz_sleep (delay_);
     }
     const OMX_STATETYPE to_state_;
