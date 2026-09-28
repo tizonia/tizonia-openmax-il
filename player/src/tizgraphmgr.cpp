@@ -42,7 +42,6 @@
 #include <tizmacros.h>
 
 #include "tizgraphmgrcmd.hpp"
-#include "tizdiagmark.hpp"
 #include "tizgraph.hpp"
 #include "tizomxutil.hpp"
 #include "tizgraphutil.hpp"
@@ -81,16 +80,12 @@ void *graphmgr::thread_func (void *p_arg)
     assert (p_data);
 
     cmd *p_cmd = static_cast< cmd * >(p_data);
-    tizdiag::mark ("mgr.thread.cmd_received", 0, 0, 0, true);
     done = mgr::dispatch_cmd (p_mgr, p_cmd);
-    tizdiag::mark ("mgr.thread.dispatch_returned", (long) done, 0, 0, true);
 
     delete p_cmd;
   }
 
-  tizdiag::mark ("mgr.thread.final_sem_post.before", 0, 0, 0, true);
   tiz_check_omx_ret_null (tiz_sem_post (&(p_mgr->sem_)));
-  tizdiag::mark ("mgr.thread.final_sem_post.after", 0, 0, 0, true);
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Graph manager thread exiting...");
 
   return NULL;
@@ -163,13 +158,9 @@ void graphmgr::mgr::deinit ()
   (void)stop_mpris ();
 
   TIZ_LOG (TIZ_PRIORITY_NOTICE, "Waiting until stopped...");
-  tizdiag::mark ("mgr.deinit.sem_wait.before", 0, 0, 0, true);
   static_cast< void >(tiz_sem_wait (&sem_));
-  tizdiag::mark ("mgr.deinit.sem_wait.after", 0, 0, 0, true);
   void *p_result = NULL;
-  tizdiag::mark ("mgr.deinit.thread_join.before", 0, 0, 0, true);
   static_cast< void >(tiz_thread_join (&thread_, &p_result));
-  tizdiag::mark ("mgr.deinit.thread_join.after", 0, 0, 0, true);
 
   tiz::omxutil::deinit ();
   deinit_cmd_queue ();
@@ -448,34 +439,25 @@ bool graphmgr::mgr::dispatch_cmd (graphmgr::mgr *p_mgr,
   assert (p_mgr->p_ops_);
   assert (p_cmd);
 
-  tizdiag::mark ("mgr.dispatch.inject.before", 0, 0, 0, true);
   p_cmd->inject (p_mgr->fsm_);
-  tizdiag::mark ("mgr.dispatch.inject.after", 0, 0, 0, true);
 
   // Check for internal errors produced during the processing of the last
   // event. If any, inject an "internal" error event. This is fatal and shall
   // terminate the state machine.
   if (OMX_ErrorNone != p_mgr->p_ops_->internal_error ())
   {
-    tizdiag::mark ("mgr.dispatch.internal_error.detected", 0, 0, 0, true);
     TIZ_LOG (TIZ_PRIORITY_ERROR,
              "MGR error detected. Injecting err_evt (this is fatal)");
     bool is_internal_error = true;
-    tizdiag::mark ("mgr.dispatch.err_evt_inject.before", 0, 0, 0, true);
     p_mgr->fsm_.process_event (graphmgr::err_evt (
         p_mgr->p_ops_->internal_error (), p_mgr->p_ops_->internal_error_msg (),
         is_internal_error));
-    tizdiag::mark ("mgr.dispatch.err_evt_inject.after", 0, 0, 0, true);
   }
   if (p_mgr->fsm_.terminated_)
   {
     TIZ_LOG (TIZ_PRIORITY_NOTICE, "MGR fsm terminated");
-    tizdiag::mark ("mgr.dispatch.ops_deinit.before", 0, 0, 0, true);
     p_mgr->p_ops_->deinit ();
-    tizdiag::mark ("mgr.dispatch.ops_deinit.after", 0, 0, 0, true);
   }
 
-  tizdiag::mark ("mgr.dispatch.return", (long) p_mgr->fsm_.terminated_, 0, 0,
-                 true);
   return p_mgr->fsm_.terminated_;
 }

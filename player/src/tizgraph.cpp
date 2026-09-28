@@ -40,7 +40,6 @@
 #include "tizprogressdisplay.hpp"
 #include "tizgraphmgr.hpp"
 #include "tizgraphcmd.hpp"
-#include "tizdiagmark.hpp"
 #include "tizgraphfsm.hpp"
 #include "tizgraph.hpp"
 
@@ -219,7 +218,6 @@ graph::graph::stop ()
 
 void graph::graph::unload ()
 {
-  tizdiag::mark ("graph.unload.posted", 0, 0, 0, true);
   post_cmd (new tiz::graph::cmd (tiz::graph::unload_evt ()));
 }
 
@@ -242,10 +240,6 @@ void graph::graph::omx_evt (const omx_event_info &evt_info)
     {
       OMX_ERRORTYPE error
           = static_cast< OMX_ERRORTYPE >(*((int *)&((evt_info.pEventData_))));
-      tizdiag::mark4 ("graph.cmdcomplete.stateset",
-                      (long) (intptr_t) evt_info.component_,
-                      (long) OMX_CommandStateSet, (long) evt_info.ndata2_,
-                      (long) error);
       post_cmd (new tiz::graph::cmd (tiz::graph::omx_trans_evt (
           evt_info.component_, static_cast< OMX_STATETYPE >(evt_info.ndata2_),
           error)));
@@ -270,10 +264,6 @@ void graph::graph::omx_evt (const omx_event_info &evt_info)
     }
     else if (evt_info.event_ == OMX_EventError)
     {
-      tizdiag::mark4 ("graph.eventerror",
-                      (long) (intptr_t) evt_info.component_,
-                      (long) evt_info.event_, (long) evt_info.ndata1_,
-                      (long) evt_info.ndata2_, true);
       post_cmd (new tiz::graph::cmd (tiz::graph::omx_err_evt (
           evt_info.component_, static_cast< OMX_ERRORTYPE >(evt_info.ndata1_),
           evt_info.ndata2_, evt_info.pEventData_)));
@@ -382,7 +372,6 @@ void graph::graph::graph_volume (const int volume)
 
 void graph::graph::graph_unloaded ()
 {
-  tizdiag::mark ("graph.unloaded.notify", 0, 0, 0, true);
   if (p_mgr_)
   {
     p_mgr_->graph_unloaded ();

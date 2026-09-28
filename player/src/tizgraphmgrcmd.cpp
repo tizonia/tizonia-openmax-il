@@ -35,8 +35,6 @@
 
 #include "tizgraphmgrcmd.hpp"
 
-#include "tizdiagmark.hpp"
-
 namespace
 {
   template < typename T >
@@ -76,13 +74,7 @@ void graphmgr::cmd::inject (fsm& machine) const
              "GRAPH MGR : Injecting "                         \
              "CMD [%s] in STATE [%s]...",                     \
              arg.c_str (), tiz::graphmgr::pstate (machine));  \
-    const int tiz_diag_state_before = machine.current_state ()[0];           \
-    const int tiz_diag_outcome = static_cast< int > (                        \
-      machine.process_event (boost::any_cast< the_evt >(evt_)));             \
-    std::string tiz_diag_tag = std::string ("mgr.inject.") + arg;            \
-    tizdiag::mark (tiz_diag_tag.c_str (), (long) tiz_diag_state_before,      \
-                   (long) machine.current_state ()[0],                       \
-                   (long) tiz_diag_outcome);                                 \
+    machine.process_event (boost::any_cast< the_evt >(evt_)); \
   }
 
   INJECT_EVENT (start_evt)

@@ -47,7 +47,6 @@
 
 #include "tizgraphtypes.hpp"
 #include "tizplaybackstatus.hpp"
-#include "tizdiagmark.hpp"
 #include "tizgraphmgrops.hpp"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
@@ -401,8 +400,6 @@ namespace tiz
         template <class FSM,class Event>
         void no_transition(Event const& e, FSM&,int state)
         {
-          tizdiag::mark ("mgrfsm.no_transition.quitting", (long) state, 0, 0,
-                         true);
           TIZ_LOG (TIZ_PRIORITY_ERROR, "no transition from state %d on event %s",
                    state, typeid(e).name());
         }
@@ -470,7 +467,6 @@ namespace tiz
         void on_entry(Event const&,FSM& fsm)
         {
           GMGR_FSM_LOG ();
-          tizdiag::mark ("mgrfsm.quitted.entry", 0, 0, 0, true);
           fsm.terminated_ = true;
         }
         template <class Event,class FSM>
@@ -669,12 +665,10 @@ namespace tiz
         void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
         {
           GMGR_FSM_LOG ();
-          tizdiag::mark ("mgrfsm.do_unload.begin", 0, 0, 0, true);
           if (fsm.pp_ops_ && *(fsm.pp_ops_))
             {
               (*(fsm.pp_ops_))->do_unload ();
             }
-          tizdiag::mark ("mgrfsm.do_unload.returned", 0, 0, 0, true);
         }
       };
 
@@ -852,7 +846,6 @@ namespace tiz
       template <class FSM,class Event>
       void no_transition(Event const& e, FSM&,int state)
       {
-        tizdiag::mark ("mgrfsm.no_transition.outer", (long) state, 0, 0, true);
         TIZ_LOG (TIZ_PRIORITY_ERROR, "no transition from state [%s] on event [%s]",
                  tiz::graphmgr::state_names[state], typeid(e).name());
       }
