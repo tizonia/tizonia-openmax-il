@@ -27,6 +27,7 @@ enable_alsa = get_option('alsa') #true
 enable_aac = get_option('aac') #true
 enable_gcc_warnings = get_option('gcc-warnings') #false
 enable_test = get_option('test') #false
+enable_live_service_tests = get_option('live-service-tests') #false
 # not present in the original
 enable_docs = get_option('docs') #false
 enable_clients = get_option('clients') #true
@@ -207,6 +208,7 @@ endif
 
 # we have to invoke tests from here to avoid interdependency problems
 if enable_test
+   subdir('tests')
    subdir('libtizcore/tests')
    subdir('libtizonia/tests')
    subdir('libtizplatform/tests')
@@ -217,7 +219,9 @@ if enable_test
    # "too many arguments to function"
    # "too few arguments to function"
    #   subdir('clients/tunein/libtiztunein/tests')
-      subdir('clients/youtube/libtizyoutube/tests')
+      if enable_live_service_tests
+         subdir('clients/youtube/libtizyoutube/tests')
+      endif
    endif
 endif
 

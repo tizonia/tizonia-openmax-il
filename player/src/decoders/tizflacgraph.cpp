@@ -90,12 +90,29 @@ void graph::flacdecops::do_probe ()
       probe_stream (OMX_PortDomainAudio, OMX_AUDIO_CodingFLAC, "flac", "decode",
                     &tiz::probe::dump_pcm_info),
       "Unable to probe the stream.");
+
+  OMX_AUDIO_PARAM_PCMMODETYPE pcmtype_orig;
+  TIZ_INIT_OMX_PORT_STRUCT (pcmtype_orig, 1);
+  G_OPS_BAIL_IF_ERROR (
+      OMX_GetParameter (handles_[1], OMX_IndexParamAudioPcm, &pcmtype_orig),
+      "Unable to get the decoder's current output PCM settings");
+
   G_OPS_BAIL_IF_ERROR (
       tiz::graph::util::set_flac_type (
           handles_[1], 0,
           boost::bind (&tiz::probe::get_flac_codec_info, probe_ptr_, _1),
           need_port_settings_changed_evt_),
       "Unable to set OMX_TizoniaIndexParamAudioFlac");
+
+  OMX_AUDIO_PARAM_PCMMODETYPE pcmtype_new;
+  TIZ_INIT_OMX_PORT_STRUCT (pcmtype_new, 1);
+  G_OPS_BAIL_IF_ERROR (
+      OMX_GetParameter (handles_[1], OMX_IndexParamAudioPcm, &pcmtype_new),
+      "Unable to get the decoder's new output PCM settings");
+
+  need_port_settings_changed_evt_
+      = ((pcmtype_orig.nSamplingRate != pcmtype_new.nSamplingRate)
+         || (pcmtype_orig.nChannels != pcmtype_new.nChannels));
 }
 
 bool graph::flacdecops::is_port_settings_evt_required () const

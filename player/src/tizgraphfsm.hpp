@@ -110,6 +110,7 @@ namespace tiz
         // no need for exception handling
         typedef int no_exception_thrown;
 
+        typedef boost::mpl::vector<unload_evt> deferred_events;
         // data members
         ops ** pp_ops_;
 
