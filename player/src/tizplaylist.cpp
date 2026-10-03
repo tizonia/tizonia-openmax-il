@@ -33,6 +33,7 @@
 #include <algorithm>
 #include <cmath>
 #include <string>
+#include <random>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
@@ -228,12 +229,13 @@ bool tiz::playlist::assemble_play_list (
 
     if (shuffle_playlist)
     {
-      std::srand (time (nullptr));
-      std::random_shuffle (uri_list.begin (), uri_list.end ());
+      std::random_device rd;
+      std::mt19937 g(rd());
+      std::shuffle(uri_list.begin(), uri_list.end(), g);
     }
     else
     {
-      std::sort (uri_list.begin (), uri_list.end ());
+            std::sort (uri_list.begin (), uri_list.end ());
     }
 
     list_assembled = true;
